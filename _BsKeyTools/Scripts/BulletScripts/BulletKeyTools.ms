@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-05-15 20:14:45
+ * @LastEditTime: 2021-05-18 13:15:39
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -458,8 +458,8 @@ rollout rolCustomBtn "自定义功能按钮位置" width:490 height:210
 --------------------------------------------------------------------------------------------------------
 rcmenu menuConfig
 (
-	local myMs = (getDir #Scripts)+ "\\BulletScripts\\BulletKeyTools.ms"
-	local startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
+	local startupBsKeyTools = (getDir #Scripts) + "\\BsKeyTools_Startup.ms"
+	local startupPath = (getDir #StartupScripts)+ "\\BsKeyTools_Startup.ms"
 	menuItem mItemHelpDoc "【必看帮助文档】"
 	menuItem mItemIsStartup "是否随Max自启"
 	menuItem mItemAddToolBarBtn "添加工具栏按钮"
@@ -539,9 +539,10 @@ rcmenu menuConfig
 		(
 			if (not (SIOFile.Exists startupPath)) do
 			(
-				SIOFile.Copy myMs startupPath
+				SIOFile.Copy startupBsKeyTools startupPath
 				print ("已打开自启: " + filenameFromPath startupPath)
 				mItemIsStartup.checked = true
+				setFileAttribute startupPath #readOnly true
 			)
 		)
 	)

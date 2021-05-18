@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-07 12:33:36
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-05-15 18:53:39
+ * @LastEditTime: 2021-05-18 12:55:37
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -363,6 +363,16 @@ rollout rolSelSetTools ""
 		fnAutoSetHeight()
 	)
 
+	on mlbSelSet doubleClicked val do 
+	(
+		if (selectionsets[mlbSelSet.items[val]] != undefined) then 
+		(
+			select selectionsets[mlbSelSet.items[val]]
+			fnUpdateSelSetNodeList mlbSelSet.selection
+			fnAutoSetHeight()
+		)
+	)	
+
 	on mlbSelSet selectionEnd do
 	(
 		if (mlbSelSet.selection as array).count != 0 then
@@ -444,6 +454,11 @@ rollout rolSelSetTools ""
 			createdialog rolCreateSelSet pos:[iniPosSelSetTools.x - 210,iniPosSelSetTools.y] width:200 height:55 parent:rolSelSetTools.hwnd
 		)
 	)
+
+	on mlbSelSetNode doubleClicked val do 
+	(
+		if (getNodeByName mlbSelSetNode.items[val] != undefined) then (select (getNodeByName mlbSelSetNode.items[val]))
+	)	
 
 	on mlbSelSetNode selectionEnd do 
 	(
