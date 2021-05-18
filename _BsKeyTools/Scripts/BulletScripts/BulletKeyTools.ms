@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-05-18 13:15:39
+ * @LastEditTime: 2021-05-18 14:07:48
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -41,6 +41,8 @@ stLoadConfigAll.fnLoadConfigBsKeyToolsAll()
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnCheckUpdate.ms"))
 catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
+catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsSwitchBtnString.ms"))
 catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 
 Global arrToolC1 = #()
@@ -1226,13 +1228,13 @@ rollout rolBsKeyTools "" width:200 height:248
 	
 	groupbox gbxMinTools "" pos:[200,5] width:130 height:240
 	
-		checkbutton ckbC1 "靖" width:30 height:29 highlightcolor:myCheckedColor \
+		checkbutton ckbC1 "" width:30 height:29 highlightcolor:myCheckedColor \
 		pos:[205,15] toolTip:"" border:false
-		checkbutton ckbC2 "妖" width:30 height:29 highlightcolor:myCheckedColor \
+		checkbutton ckbC2 "" width:30 height:29 highlightcolor:myCheckedColor \
 		pos:[235,15] toolTip:"" border:false
-		checkbutton ckbC3 "傩" width:30 height:29 highlightcolor:myCheckedColor \
+		checkbutton ckbC3 "" width:30 height:29 highlightcolor:myCheckedColor \
 		pos:[265,15] toolTip:"" border:false
-		checkbutton ckbC4 "舞" width:30 height:29 highlightcolor:myCheckedColor \
+		checkbutton ckbC4 "" width:30 height:29 highlightcolor:myCheckedColor \
 		pos:[295,15] toolTip:"" border:false
 
 		local btnHeight = 32
@@ -1366,6 +1368,15 @@ rollout rolBsKeyTools "" width:200 height:248
 	local m_PBStartTime
 	local m_PBPointer
 ----------------------------------UI及作者ID------------------------------------------------
+	fn fnSwitchToolBtnName =
+	(
+		local strBtnName = fnSwitchBtnString()
+		ckbC1.text = strBtnName[1]
+		ckbC2.text = strBtnName[2]
+		ckbC3.text = strBtnName[3]
+		ckbC4.text = strBtnName[4]
+	)
+
 	fn fnRefreshMsPanel =
 	(
 		if switchMSPanel == 0 then 
@@ -2275,6 +2286,7 @@ rollout rolBsKeyTools "" width:200 height:248
 
 	on rolBsKeyTools open do  ----打开脚本时操作
 	(
+		fnSwitchToolBtnName()
 		------刷新图标, 图标是max自带的,主要是懒得做
 		btnSelBeforeKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,3,3,3,3,true,true) 
 		btnSelAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,11,11,11,11,true,true) 
