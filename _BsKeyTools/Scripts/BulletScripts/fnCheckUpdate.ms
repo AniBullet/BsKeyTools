@@ -23,9 +23,7 @@ fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false =
 
         if LaterVersion_installed do (messageBox  ("您已安装最新版本：" + onlineVersion + "\r\n\r\n若本地版本不对应请稍后重试~        ") title:"最新版本" beep:false;result = OK)
 
-        if not LaterVersion_installed AND (if (queryBox "是否重置功能按钮默认位置？                   " \
-		title:"重置位置" beep:false) then
-		( ("远程最新版本为: " + onlineVersion + "\r\n本地当前版本为: " + currentVer + \
+        if not LaterVersion_installed AND (queryBox ("远程最新版本为: " + onlineVersion + "\r\n本地当前版本为: " + currentVer + \
             "\r\n\r\n是否立即下载更新并安装脚本?\r\n注意:可在设置中开关自动检测更新!\r\n\r\n(建议只更新正式版,beta仅供测试不保证稳定)\r\n(回退默认安装最新版前一版本)                                      ") title:"是否更新脚本") do 
         (
             local Root = symbolicPaths.getPathValue "$Max"  --max根目录
@@ -35,7 +33,7 @@ fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false =
                 try(fnDelFileDir dlFile)catch
                 (
                     if (queryBox ("可能因为权限无法清除旧版本下载, 若安装失败，\r\n\r\n请点确定跳转目录删除下面文件再更新，否则忽略:\t\t\t\t\t\t\t\t\t\r\n\r\n"+dlFile) \
-                    title:"删除旧下载失败" beep:false) then
+                    title:"删除旧下载失败" beep:false) do
                     (
                         ShellLaunch (getdir #temp) ""
                     )
