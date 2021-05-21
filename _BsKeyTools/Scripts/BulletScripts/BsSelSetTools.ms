@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-07 12:33:36
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-05-18 12:55:37
+ * @LastEditTime: 2021-05-22 02:16:52
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -20,7 +20,7 @@ stLoadConfigAll.fnLoadConfigSelSetTools ()
 
 global rolSelSetTools
 global rolLoadSelSet
-global dotNetXmlDoc = dotNetObject "System.xml.xmlDocument"
+
 global strXmlRootName = "SelectionSet_Tools"
 Global switchRolSelSetMouState = false
 Global posRolSelSetMouMove     = [0,0]
@@ -30,6 +30,7 @@ global arrSelSetObjLoaded
 
 fn fnSaveSelSetAll pathXml = 
 (
+	local dotNetXmlDoc = dotNetObject "System.xml.xmlDocument"
 	local rootElement = dotNetXmlDoc.createElement strXmlRootName
 	dotNetXmlDoc.appendChild rootElement
 
@@ -51,6 +52,7 @@ fn fnSaveSelSetAll pathXml =
 
 fn fnLoadSelXml pathXml = 
 (
+	local dotNetXmlDoc = dotNetObject "System.xml.xmlDocument"
 	dotNetXmlDoc.Load pathXml
 	local rootElement = dotNetXmlDoc.DocumentElement
 	
