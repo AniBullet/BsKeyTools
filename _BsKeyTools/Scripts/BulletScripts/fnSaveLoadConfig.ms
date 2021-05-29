@@ -36,6 +36,7 @@ struct stLoadConfigAll
 		idBtn                = fnGetConfig idBtn "BulletKeyToolsSet"  "idBtn" (idBtn as string)
 		iniArrMyScripts      = fnGetConfig iniArrMyScripts "BulletKeyToolsSet"  "ArrMyScripts" (iniArrMyScripts as string)
 		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
+		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet"  "IsIcon" (iniIsIcon as string)
 		fnLoadToolBtnConfig()
 		if (iniArrMyScripts.count != 8) then
 		(
@@ -89,6 +90,7 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "idBtn" (idBtn as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts" (iniArrMyScripts as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
+		SetINISetting BulletConfig "BulletKeyToolsSet"  "IsIcon" (iniIsIcon as string)
 		fnSetToolBtnConfig()
 	),
 	fn fnSetConfigBsAnimButton =

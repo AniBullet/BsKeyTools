@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-05-18 14:07:48
+ * @LastEditTime: 2021-05-30 03:23:55
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -34,6 +34,7 @@ Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
 							201,202,203,204,205,206,207,208,209,210,211,212,
 							301,302,303,304,305,306,307,308,309,310,311,312,
 							401,402,403,404,405,406,407,408,409,410,411,412)
+global iniIsIcon = false
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
@@ -458,6 +459,32 @@ rollout rolCustomBtn "自定义功能按钮位置" width:490 height:210
 	)
 )
 --------------------------------------------------------------------------------------------------------
+fn fnSwitchIconStyle = 
+(
+	rolBsKeyTools.ckbFnBoxDisplay.images = #("AtmosApp_24i.bmp","AtmosApp_24i.bmp",3,1,1,1,1,true,true)
+	rolBsKeyTools.btnHideUnSel.images = #("IsolateSelection_16i.bmp","IsolateSelection_16i.bmp",1,1,1,1,1,true,true)
+	rolBsKeyTools.btnJudgeLinkKey.images = #("Maintoolbar_24i.bmp","Maintoolbar_24i.bmp",103,6,5,6,5,true,true)
+	rolBsKeyTools.ckbShadowCut.images = #("Radiosity_24i.bmp","Radiosity_24i.bmp",6,3,4,3,4,true,true)
+	rolBsKeyTools.ckbFreezeMesh.images = #("UVWUnwrapView_24i.bmp","UVWUnwrapView_24a.bmp",27,17,19,17,19,true,false)
+	rolBsKeyTools.btnCutFrameDisplay.images = #("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,2,2,2,2,true,true)
+	rolBsKeyTools.btnAllFrameDisplay.images = #("TrackViewStatus_24i.bmp","TrackViewStatus_24i.bmp",27,3,3,3,3,true,true)
+	rolBsKeyTools.btnHotAnimBtn.images = #("PFSubObjectIcons_24i.bmp","PFSubObjectIcons_24i.bmp",2,2,2,2,2,true,true)
+	rolBsKeyTools.ckbHideBones.images = #("Systems_24i.bmp","Systems_24i.bmp",3,1,1,1,1,true,true)
+	rolBsKeyTools.ckbHideBiped.images = #("CAT_ColourMode_i.bmp","CAT_ColourMode_a.bmp",10,2,1,2,1,true,false)
+	rolBsKeyTools.btnImageComp.images = #("TaskPanel_i.bmp","TaskPanel_i.bmp",6,2,2,2,2,true,false)
+	rolBsKeyTools.btnTrajedit.images = #("bip_curve_24i.bmp","bip_curve_24i.bmp",20,7,7,7,7,true,true)
+	rolBsKeyTools.btnFileOpen.images = #("Maxscript_24i.bmp","Maxscript_24i.bmp",5,1,1,1,1,true,true)
+	rolBsKeyTools.btnLightTable.images = #("SW_PartDyn_24i.bmp","SW_PartDyn_24i.bmp",5,1,1,1,1,true,true)
+	rolBsKeyTools.ckbPlayBlocking.images = #("SchematicView_24i.bmp","SchematicView_24i.bmp",4,3,3,3,3,true,true)
+	rolBsKeyTools.btnSpringMagic.images = #("NURBSSurface_24i.bmp","NURBSSurface_24i.bmp",2,1,1,1,1,true,true)
+	rolBsKeyTools.btnCSTools.images = #("bip_layer_i.bmp","bip_layer_i.bmp",24,17,17,17,17,true,true)
+	rolBsKeyTools.btnAnimCopyPaste.images = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,4,4,4,4,true,true)
+	rolBsKeyTools.btnLayerManager.images = #("AnimLayerToolbar_16i.bmp","AnimLayerToolbar_16i.bmp",12,1,1,1,1,true,true)
+	rolBsKeyTools.btnSelectionsetTools.images = #("enss_maintoolbar_16i.bmp","enss_maintoolbar_16i.bmp",1,1,1,1,1,true,true)
+	rolBsKeyTools.btnPoseTool.images = #("bip_modes_i.bmp","bip_modes_i.bmp",8,1,1,1,1,true,true)
+	rolBsKeyTools.btnQuickSave.images = #("bip_copy1paste_i.bmp","bip_copy1paste_i.bmp",10,3,3,3,3,true,true)
+)
+
 rcmenu menuConfig
 (
 	local startupBsKeyTools = (getDir #Scripts) + "\\BsKeyTools_Startup.ms"
@@ -465,6 +492,7 @@ rcmenu menuConfig
 	menuItem mItemHelpDoc "【必看帮助文档】"
 	menuItem mItemIsStartup "是否随Max自启"
 	menuItem mItemAddToolBarBtn "添加工具栏按钮"
+	menuItem mItemIsIcon "切换图标模式"
 	menuItem mItemCustomSortBtn "自定义功能位置"
 	subMenu "更新设置"
 	(
@@ -493,8 +521,8 @@ rcmenu menuConfig
 		else (mItemIsStartup.checked = false)
 		if (iniAddToolbars == 1) then (mItemAddToolBarBtn.checked = true)
 		else (mItemAddToolBarBtn.checked = false)
-		if (iniBsAutoCheckUpdate == true) then (mItemAutoCheckUpdate.checked = true) 
-		else (mItemAutoCheckUpdate.checked = false)
+		mItemAutoCheckUpdate.checked = iniBsAutoCheckUpdate
+		mItemIsIcon.checked = iniIsIcon
 	)
 
 	on mItemHelpDoc picked do 
@@ -621,6 +649,23 @@ rcmenu menuConfig
 	(
 		try(destroydialog rolCustomBtn)catch()
 		Createdialog rolCustomBtn fgcolor:myFgColor pos:((getdialogpos rolBsKeyTools)+[0,rolBsKeyTools.height]) parent:rolBsKeyTools.hwnd
+	)
+
+	on mItemIsIcon picked do 
+	(
+		if (mItemIsIcon.checked == false) then 
+		(
+			fnSwitchIconStyle()
+			mItemIsIcon.checked = not mItemIsIcon.checked
+			iniIsIcon = mItemIsIcon.checked
+		)
+		else
+		(
+			mItemIsIcon.checked = not mItemIsIcon.checked
+			iniIsIcon = mItemIsIcon.checked
+			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
+			catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+		)
 	)
 )
 
@@ -2313,6 +2358,7 @@ rollout rolBsKeyTools "" width:200 height:248
 		-- )
 		ckbPlayBlocking.state = false
 		clock.active = false
+		if iniIsIcon do fnSwitchIconStyle()
 		if (iniBsAutoCheckUpdate == true) then 
 		(fnAutoCheckVersion curVerBsKeyTools verUrlBsKeyTools dlUrlBsKeyTools dlFileBsKeyTools)
 		-- print ("iniBsAutoCheckUpdate: " + iniBsAutoCheckUpdate as string)
@@ -3346,7 +3392,7 @@ fn fnUpdateTimeRange =
 )
 callbacks.addScript #animationRangeChange "fnUpdateTimeRange()" id:#UpdateTimeRange
 callbacks.addScript #filePostOpen "fnRefFps()" id:#UpdateFps
-
+gc()
 clearListener()  ---------清除侦听器
 
 (
