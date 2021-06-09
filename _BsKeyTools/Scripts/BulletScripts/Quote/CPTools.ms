@@ -1,9 +1,18 @@
+fn cptoolsSetAnimRange = (
+	str = cptools.testListAni.selected
+	if str != undefined then (
+		buffer = filterString str "("
+		rangeA =  filterString  buffer[2] ")"
+		rangeB =   filterString   rangeA[1] "-"
+		animationRange=interval (rangeB[1] as time)  (rangeB[2] as time )
+	)
+)
 
 struct myCoolDialogs
  (
  	labelStr,
  
- 	stringQuery = rollout stringQuery " ‰»Î√¸√˚"
+ 	stringQuery = rollout stringQuery "ËæìÂÖ•ÂëΩÂêç"
  	(
  		local returnStr
  	
@@ -38,7 +47,7 @@ struct myCoolDialogs
 		(
 			destroyDialog myCoolDialogs.stringQuery
  			
-			returnStr = "Œ¥√¸√˚_pose"
+			returnStr = "Êú™ÂëΩÂêç_pose"
 -- 			cptools.rloading.pressed()
 		
  		)	
@@ -55,11 +64,11 @@ struct myCoolDialogs
 	close croppedScreenGrab
 	
 	gc light:true
-	if cptools.testList.visible  then   ---poseƒ£ Ω
+	if cptools.testList.visible  then   ---poseÊ®°Âºè
 	(	if cptools.testList.selected!=undefined then (outputMap.filename =((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp"))
 	else 
 	(	if cptools.testListAni.selected!=undefined then (outputMap.filename =((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp"))
-	save outputMap --Save it to file
+	save outputMap quiet:true--Save it to file
 	outputMap
 )
 
@@ -134,43 +143,43 @@ global language_b_lag
 )
 --global frame_options   = false
 fn china = (
- name_lag             = "±©¡¶÷°øΩ±¥’≥Ã˘V1.19" 
- removeFromList_lag   = "…æ≥˝µ±«∞ºØ£∫µ„ª˜…æ≥˝µ±«∞¡–±Ì÷–µƒ—°‘ÒºØ∫œ"
- rloading_lag         = "∏¸–¬¡–±Ì£∫Ω´¡–±Ìƒ⁄»›∏¸–¬÷¡◊Ó–¬"
- rb_sel_a_lag         ="◊ÀÃ¨"
- rb_sel_b_lag         ="∂Ø◊˜"
- ac_lag               ="÷° ˝∑∂Œß£∫ø™ ºµΩΩ· ¯"
- addToList_lag        = "øΩ±¥÷°"
- pastepose_lag        =  "’≥Ã˘÷°" 
- ABbutton_lag         = "÷÷°øΩ±¥£∫‘⁄¥Àƒ£ Ωœ¬øΩ±¥÷°Ω´“‘÷÷°∑Ω ΩΩ¯––øΩ±¥≤Ÿ◊˜"
-  obj_r_lag           = "÷ÿ÷√±‰ªª£∫∞—±‰ªª÷ÿ÷√Œ™XYZ Ù–‘£¨÷ÿ÷√∫ÛΩ´Œﬁ∑®±£¡Ù‘≠ º∂Øª≠–≈œ¢"
-  obj_xyz_lag         ="◊™ªªXYZ£∫∞——°‘Ò∂‘œÛ◊™ªªŒ™XYZ Ù–‘"
-  obj_tcb_lag         ="◊™ªªTCB£∫∞——°‘Ò∂‘œÛ◊™ªªŒ™TCB Ù–‘"
-  paste_offset_lag    =  "∆´“∆ " 
- paste_offset_b_lag   ="∆´“∆’≥Ã˘£∫ ‰»Î÷° ˝£¨’≥Ã˘÷°Ω´”⁄£®ø™ º÷° ˝+∆´“∆÷° ˝£©Õ˘œ¬’≥Ã˘∂Ø◊˜"
+ name_lag             = "Êö¥ÂäõÂ∏ßÊã∑Ë¥ùÁ≤òË¥¥V1.19" 
+ removeFromList_lag   = "Âà†Èô§ÂΩìÂâçÈõÜÔºöÁÇπÂáªÂà†Èô§ÂΩìÂâçÂàóË°®‰∏≠ÁöÑÈÄâÊã©ÈõÜÂêà"
+ rloading_lag         = "Êõ¥Êñ∞ÂàóË°®ÔºöÂ∞ÜÂàóË°®ÂÜÖÂÆπÊõ¥Êñ∞Ëá≥ÊúÄÊñ∞"
+ rb_sel_a_lag         ="ÂßøÊÄÅ"
+ rb_sel_b_lag         ="Âä®‰Ωú"
+ ac_lag               ="Â∏ßÊï∞ËåÉÂõ¥ÔºöÂºÄÂßãÂà∞ÁªìÊùü"
+ addToList_lag        = "Êã∑Ë¥ùÂ∏ß"
+ pastepose_lag        =  "Á≤òË¥¥Â∏ß" 
+ ABbutton_lag         = "ÈÄêÂ∏ßÊã∑Ë¥ùÔºöÂú®Ê≠§Ê®°Âºè‰∏ãÊã∑Ë¥ùÂ∏ßÂ∞Ü‰ª•ÈÄêÂ∏ßÊñπÂºèËøõË°åÊã∑Ë¥ùÊìç‰Ωú"
+  obj_r_lag           = "ÈáçÁΩÆÂèòÊç¢ÔºöÊääÂèòÊç¢ÈáçÁΩÆ‰∏∫XYZÂ±ûÊÄßÔºåÈáçÁΩÆÂêéÂ∞ÜÊó†Ê≥ï‰øùÁïôÂéüÂßãÂä®Áîª‰ø°ÊÅØ"
+  obj_xyz_lag         ="ËΩ¨Êç¢XYZÔºöÊääÈÄâÊã©ÂØπË±°ËΩ¨Êç¢‰∏∫XYZÂ±ûÊÄß"
+  obj_tcb_lag         ="ËΩ¨Êç¢TCBÔºöÊääÈÄâÊã©ÂØπË±°ËΩ¨Êç¢‰∏∫TCBÂ±ûÊÄß"
+  paste_offset_lag    =  "ÂÅèÁßª " 
+ paste_offset_b_lag   ="ÂÅèÁßªÁ≤òË¥¥ÔºöËæìÂÖ•Â∏ßÊï∞ÔºåÁ≤òË¥¥Â∏ßÂ∞Ü‰∫éÔºàÂºÄÂßãÂ∏ßÊï∞+ÂÅèÁßªÂ∏ßÊï∞ÔºâÂæÄ‰∏ãÁ≤òË¥¥Âä®‰Ωú"
  lnk1_lag             = " " 
- wayneCheckBox_lag    = "±£¡ÙøΩ±¥£∫π¥—°∏√œÓ£¨œ¬¥Œø™∆ÙΩ´±£¡Ù±æ¥ŒøΩ±¥µƒ◊ÀÃ¨∫Õ∂Ø◊˜"
- ac_tooltip_a_lag     = "÷° ˝∑∂Œß£∫ø™ ºµΩΩ· ¯"
- ac_tooltip_b_lag     = "÷° ˝∑∂Œß£∫◊‘∂®“Âø™ ºΩ· ¯"
- ABbutton_tooltip_a_lag ="πÿº¸÷°øΩ±¥£∫‘⁄¥Àƒ£ Ωœ¬øΩ±¥÷°Ω´“‘—°÷–À˘”–∂‘œÛ‘⁄ ±º‰Ãı÷–”–÷°µƒŒª÷√Ω¯––øΩ±¥≤Ÿ◊˜"
- ABbutton_tooltip_b_lag ="÷÷°øΩ±¥£∫‘⁄¥Àƒ£ Ωœ¬øΩ±¥÷°Ω´“‘÷÷°∑Ω ΩΩ¯––øΩ±¥≤Ÿ◊˜" 
- messagebox_a_lag     = "«Î—°‘Ò÷¡…Ÿ“ª∏ˆŒÔÃÂ"
- messagebox_b_lag     = " ±º‰∑∂Œß¥ÌŒÛ"
- messagebox_c_lag     ="Œ¥’“µΩ—°‘ÒPose£¨«Î∏¸–¬¡–±Ì"
- messagebox_d_lag     = "Œ¥’“µΩ—°‘ÒAnimation£¨«Î∏¸–¬¡–±Ì"
- messagebox_e_lag     = "≥°æ∞÷–ŒﬁŒÔÃÂ‘⁄◊ÀÃ¨ºØ÷–"
- messagebox_f_lag     = "—°‘Ò÷–”–≤ø∑÷Œ¥±ªº«¬º◊ÀÃ¨"
- messagebox_a_title_lag = "Ã· æ"
- format_a_lag         = "“—»°œ˚\n"
- format_b_lag         = "ÕÍ≥…\n"
- format_c_lag         = "Ω¯∂»"
- Accuracy_offset_lag  = "æ´∂»"
- Accuracy_offset_b_lag  = "æ´∂»£∫Õ®π˝æ´∂» ˝÷µΩ¯––÷ÿ∏¥’≥Ã˘“‘¥ÔµΩ◊Ó◊º»∑µƒ–ßπ˚£® ˝÷µ‘Ω¥Û”√ ±‘Ω≥§£©"
- obj_r_b_lag            = "ß±"
- wcb_lag              = "®π"
- rfl_lag              = "°¡"
- language_a_lag       = "÷–"
- language_b_lag       = "”Ô—‘:µ±«∞ «÷–Œƒ"
+ wayneCheckBox_lag    = "‰øùÁïôÊã∑Ë¥ùÔºöÂãæÈÄâËØ•È°πÔºå‰∏ãÊ¨°ÂºÄÂêØÂ∞Ü‰øùÁïôÊú¨Ê¨°Êã∑Ë¥ùÁöÑÂßøÊÄÅÂíåÂä®‰Ωú"
+ ac_tooltip_a_lag     = "Â∏ßÊï∞ËåÉÂõ¥ÔºöÂºÄÂßãÂà∞ÁªìÊùü"
+ ac_tooltip_b_lag     = "Â∏ßÊï∞ËåÉÂõ¥ÔºöËá™ÂÆö‰πâÂºÄÂßãÁªìÊùü"
+ ABbutton_tooltip_a_lag ="ÂÖ≥ÈîÆÂ∏ßÊã∑Ë¥ùÔºöÂú®Ê≠§Ê®°Âºè‰∏ãÊã∑Ë¥ùÂ∏ßÂ∞Ü‰ª•ÈÄâ‰∏≠ÊâÄÊúâÂØπË±°Âú®Êó∂Èó¥Êù°‰∏≠ÊúâÂ∏ßÁöÑ‰ΩçÁΩÆËøõË°åÊã∑Ë¥ùÊìç‰Ωú"
+ ABbutton_tooltip_b_lag ="ÈÄêÂ∏ßÊã∑Ë¥ùÔºöÂú®Ê≠§Ê®°Âºè‰∏ãÊã∑Ë¥ùÂ∏ßÂ∞Ü‰ª•ÈÄêÂ∏ßÊñπÂºèËøõË°åÊã∑Ë¥ùÊìç‰Ωú" 
+ messagebox_a_lag     = "ËØ∑ÈÄâÊã©Ëá≥Â∞ë‰∏Ä‰∏™Áâ©‰Ωì"
+ messagebox_b_lag     = "Êó∂Èó¥ËåÉÂõ¥ÈîôËØØ"
+ messagebox_c_lag     ="Êú™ÊâæÂà∞ÈÄâÊã©PoseÔºåËØ∑Êõ¥Êñ∞ÂàóË°®"
+ messagebox_d_lag     = "Êú™ÊâæÂà∞ÈÄâÊã©AnimationÔºåËØ∑Êõ¥Êñ∞ÂàóË°®"
+ messagebox_e_lag     = "Âú∫ÊôØ‰∏≠Êó†Áâ©‰ΩìÂú®ÂßøÊÄÅÈõÜ‰∏≠"
+ messagebox_f_lag     = "ÈÄâÊã©‰∏≠ÊúâÈÉ®ÂàÜÊú™Ë¢´ËÆ∞ÂΩïÂßøÊÄÅ"
+ messagebox_a_title_lag = "ÊèêÁ§∫"
+ format_a_lag         = "Â∑≤ÂèñÊ∂à\n"
+ format_b_lag         = "ÂÆåÊàê\n"
+ format_c_lag         = "ËøõÂ∫¶"
+ Accuracy_offset_lag  = "Á≤æÂ∫¶"
+ Accuracy_offset_b_lag  = "Á≤æÂ∫¶ÔºöÈÄöËøáÁ≤æÂ∫¶Êï∞ÂÄºËøõË°åÈáçÂ§çÁ≤òË¥¥‰ª•ËææÂà∞ÊúÄÂáÜÁ°ÆÁöÑÊïàÊûúÔºàÊï∞ÂÄºË∂äÂ§ßÁî®Êó∂Ë∂äÈïøÔºâ"
+ obj_r_b_lag            = "–ü"
+ wcb_lag              = "√º"
+ rfl_lag              = "√ó"
+ language_a_lag       = "‰∏≠"
+ language_b_lag       = "ËØ≠Ë®Ä:ÂΩìÂâçÊòØ‰∏≠Êñá"
 )
 
 
@@ -215,13 +224,14 @@ fn english = (
  language_b_lag       = "Language: the current is in English"
 )
 
----------------------------------------------------------------------------------------------¥Úø™Œƒº˛º”‘ÿ
+---------------------------------------------------------------------------------------------ÊâìÂºÄÊñá‰ª∂Âä†ËΩΩ
 (
-makeDir  ((GetDir #export)+ "\\cptools_data\\")------¥¥Ω®¬∑æ∂
-tempdata = ((GetDir #export)+"\\cptools_data\\"+"temp.ini")-----÷∏∂®Œƒº˛
-testPath = doesFileExist tempdata------ºÏ≤‚Œƒº˛ «∑Ò¥Ê‘⁄
+makeDir  ((GetDir #export)+ "\\cptools_data\\")------ÂàõÂª∫Ë∑ØÂæÑ
+makeDir  ((GetDir #export)+ "\\cptools_data\\localMode\\")------ÂàõÂª∫Ë∑ØÂæÑ
+tempdata = ((GetDir #export)+"\\cptools_data\\"+"temp.ini")-----ÊåáÂÆöÊñá‰ª∂
+testPath = doesFileExist tempdata------Ê£ÄÊµãÊñá‰ª∂ÊòØÂê¶Â≠òÂú®
 if testPath == true then (
-open_tempdata   = openFile tempdata------¥Úø™tempŒƒº˛
+open_tempdata   = openFile tempdata------ÊâìÂºÄtempÊñá‰ª∂
 skip_tmepdata   = skiptostring open_tempdata "Language = "
 if skip_tmepdata ==ok then (
 	read_tempdata = readLine open_tempdata 
@@ -232,12 +242,12 @@ close open_tempdata
 )else (china())
 -----------------------------------------------------------------------------------------------------------------
 )
-rollout cpToolsPicWin "Àı¬‘Õº"
+rollout cpToolsPicWin "Áº©Áï•Âõæ"
 (
   
 
 	button yunCopyImgBtn "--------" width:180 height:170 offset:[0,0]
-	button yunCopyImgBtnGet "∏¸–¬"  offset:[0,0]
+	button yunCopyImgBtnGet "Êõ¥Êñ∞"  offset:[0,0]
 
 	on cpToolsPicWin open do(
 	cptools_P1 = vpSave_copy()
@@ -268,7 +278,7 @@ button ac "A" width:18 height:16 offset:[18,-20] enabled:false toolTip:ac_lag
 spinner Accuracy_offset "         " range:[1,10, 3] type:#integer  width:40 offset:[40,-19]  toolTip: Accuracy_offset_b_lag enabled:true
 spinner spn_start  "" range:[-99999,99999, stime]     fieldwidth:37 across: 2 offset:[-40,0] type:#integer  enabled:false
 spinner spn_end "To " range:[-99999,99999, etime]  fieldwidth:37	 offset:[-60,0] type:#integer  enabled:false
-button addToList "" width:92 offset:[-19,0]  toolTip:"∞¥œ¬ctrlµ•ª˜ø…“‘√¸√˚"
+button addToList "" width:92 offset:[-19,0]  toolTip:"Êåâ‰∏ãctrlÂçïÂáªÂèØ‰ª•ÂëΩÂêç"
 button pastepose "" width:58 height:42 offset:[61,-47]
 button ABbutton   "S" width:20   offset:[-77,-26] toolTip:ABbutton_lag  enabled:false
 
@@ -283,15 +293,25 @@ button obj_tcb "TCB"  width:32 height:18 offset:[-21,0] toolTip:obj_tcb_lag
 spinner paste_offset  "           " range:[-99999,99999, 0] type:#integer  width:90 offset:[-18,1]  toolTip:paste_offset_b_lag  enabled:false align:#center
 )	
 
-HyperLink lnk1 "                        " align:#center color:(color 150 150 150) hovercolor:(color 100 100 100) visitedcolor:(color 150 150 150) address:"http://www.cgwayne.com/" 
+HyperLink lnk1 "                        " align:#center color:(color 150 150 150) hovercolor:(color 100 100 100)  width:1 visitedcolor:(color 150 150 150) address:"http://www.cgwayne.com/" 
 dropdownlist testListAni items:#() tooltip:"select pose" width:135 enabled:true visible:false offset:[0,-171] 
-checkbox wayneCheckBox "" offset:[-5,120] toolTip:wayneCheckBox_lag
+checkbox wayneCheckBox "" offset:[-5,127] toolTip:wayneCheckBox_lag
+checkbox localModeCheckBox "local" offset:[35,-20] toolTip:"Êú¨Âú∞ËΩ¥ÂêëÊ®°Âºè"
+checkbox timeRangeCheckBox "Â∏ß" offset:[85,-20] toolTip:"Ëá™Âä®Âà∞Â∏ßÊï∞ËåÉÂõ¥"
+
 button language_btn ""  offset:[85,-18]  width:20 height:15 toolTip:language_b_lag
-button picShow "Õº"  offset:[60,-19]  width:20 height:15 toolTip:"¥Úø™ªÚπÿ±’Àı¬‘Õº"
+button picShow "Âõæ"  offset:[60,-19]  width:20 height:15 toolTip:"ÊâìÂºÄÊàñÂÖ≥Èó≠Áº©Áï•Âõæ"
 progressbar    doit_prog  offset:[-9,0]    width:190 height:8    color:red 
 
 
 
+on localModeCheckBox  changed theState do (
+	cptools.rloading.pressed ()	
+)
+
+on timeRangeCheckBox  changed theState do (
+if theState do (cptoolsSetAnimRange ())
+)
 
 
 
@@ -301,7 +321,7 @@ on language_btn pressed  do
 	(
 		china()
 		language_btn.text = language_a_lag
-		----------------------------------------------º«¬º◊¥Ã¨
+		----------------------------------------------ËÆ∞ÂΩïÁä∂ÊÄÅ
         hold_CB = wayneCheckBox.checked
 		hold_RB = rb_sel.state
 		hold_ST = spn_start.value
@@ -322,7 +342,7 @@ on language_btn pressed  do
 		postest = getDialogpos cptools
 	    destroyDialog cptools
         createDialog cptools  200 210 pos:postest
-		-----------------------------------------------ª÷∏¥◊¥Ã¨		
+		-----------------------------------------------ÊÅ¢Â§çÁä∂ÊÄÅ		
 		wayneCheckBox.checked  = hold_CB
 		rb_sel.state           = hold_RB
 		spn_start.value        = hold_ST
@@ -342,7 +362,7 @@ on language_btn pressed  do
 	)else(
 		english()
 		language_btn.text = language_a_lag
-		----------------------------------------------º«¬º◊¥Ã¨
+		----------------------------------------------ËÆ∞ÂΩïÁä∂ÊÄÅ
         hold_CB = wayneCheckBox.checked
 		hold_RB = rb_sel.state
 		hold_ST = spn_start.value
@@ -363,7 +383,7 @@ on language_btn pressed  do
 		postest = getDialogpos cptools
 	    destroyDialog cptools
         createDialog cptools  200 210 pos:postest
-        -----------------------------------------------ª÷∏¥◊¥Ã¨		
+        -----------------------------------------------ÊÅ¢Â§çÁä∂ÊÄÅ		
 		wayneCheckBox.checked  = hold_CB
 		rb_sel.state           = hold_RB
 		spn_start.value        = hold_ST
@@ -393,13 +413,13 @@ paste_offset.text    = paste_offset_lag
 wayneCheckBox.text   = wcb_lag
 language_btn.text    = language_a_lag
 lnk1.text            = lnk1_lag
----------------------------------------------------------------------------------------------¥Úø™Œƒº˛º”‘ÿ
+---------------------------------------------------------------------------------------------ÊâìÂºÄÊñá‰ª∂Âä†ËΩΩ
 
-makeDir  ((GetDir #export)+ "\\cptools_data\\")------¥¥Ω®¬∑æ∂
-tempdata = ((GetDir #export)+"\\cptools_data\\"+"temp.ini")-----÷∏∂®Œƒº˛
-testPath = doesFileExist tempdata------ºÏ≤‚Œƒº˛ «∑Ò¥Ê‘⁄
+makeDir  ((GetDir #export)+ "\\cptools_data\\")------ÂàõÂª∫Ë∑ØÂæÑ
+tempdata = ((GetDir #export)+"\\cptools_data\\"+"temp.ini")-----ÊåáÂÆöÊñá‰ª∂
+testPath = doesFileExist tempdata------Ê£ÄÊµãÊñá‰ª∂ÊòØÂê¶Â≠òÂú®
 if testPath == true do (
-open_tempdata   = openFile tempdata------¥Úø™tempŒƒº˛
+open_tempdata   = openFile tempdata------ÊâìÂºÄtempÊñá‰ª∂
 skiptostring open_tempdata "wayneCheckBox.checked ="
 	readChar open_tempdata
 read_tmepdata   = readLine open_tempdata 
@@ -407,7 +427,7 @@ if read_tmepdata != undefined do wayneCheckBox.checked = read_tmepdata as boolea
 close open_tempdata
 )
 ----------------------------------------------------------------------------------------------------------
----------------------------------------ªÒµ√Œƒº˛¡–±Ì
+---------------------------------------Ëé∑ÂæóÊñá‰ª∂ÂàóË°®
 file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\"+"*pose*.bps")
 
 for Fe in file_name_array do
@@ -427,45 +447,53 @@ testListAni.items = append testListAni.items (Bip_FilesName as string)
 
 )	
 
-on rloading pressed do 
-(
-if testList.items.count > 0 and testList.selection > 0 then 
-(
-testList.items = #() 
-)
+
+on rloading pressed do (
+	if testList.items.count > 0 and testList.selection > 0 then 
+	(
+	testList.items = #() 
+	)
+		
+	if testListAni.items.count > 0 and testListAni.selection > 0 then
+	(
+	testListAni.items = #()
+	)
 	
-if testListAni.items.count > 0 and testListAni.selection > 0 then
-(
-testListAni.items = #()
-)
+	if cptools.localModeCheckBox.checked==false then(
+		file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\"+"*pose*.bps")
+	) else (
+		file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\localMode\\"+"*pose*.bps")	
+	)
 
-file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\"+"*pose*.bps")
-
-for Fe in file_name_array do
-(
-Bip_FilesName=getFilenameFile Fe
-testList.items = append testList.items (Bip_FilesName as string)
-testList.selection = testList.items.count
-)
-
-file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\"+"animation*.bps")
-
-for Fe in file_name_array do
-(
-Bip_FilesName=getFilenameFile Fe
-testListAni.items = append testListAni.items (Bip_FilesName as string)
-testListAni.selection = testListAni.items.count
-)	
+	for Fe in file_name_array do
+	(
+	Bip_FilesName=getFilenameFile Fe
+	testList.items = append testList.items (Bip_FilesName as string)
+	testList.selection = testList.items.count
+	)
+	
+	if cptools.localModeCheckBox.checked==false then(
+	file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\"+"animation*.bps")
+	) else (
+		file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\localMode\\"+"*animation*.bps")	
+	)
+	
+	for Fe in file_name_array do
+	(
+	Bip_FilesName=getFilenameFile Fe
+	testListAni.items = append testListAni.items (Bip_FilesName as string)
+	testListAni.selection = testListAni.items.count
+	)	
 )
 
 
 on cptools close do 
 (
 --if wayneCheckBox.checked == false then(for f in getFiles ((GetDir #export)+ "\\cptools_data\\"+"*.bps") do deleteFile f)
----------------------------------------------------------------------------------------------ÕÀ≥ˆŒƒº˛º”‘ÿ
+---------------------------------------------------------------------------------------------ÈÄÄÂá∫Êñá‰ª∂Âä†ËΩΩ
 	
-makeDir  ((GetDir #export)+ "\\cptools_data\\")------¥¥Ω®¬∑æ∂
-tempdata = ((GetDir #export)+"\\cptools_data\\"+"temp.ini")-----÷∏∂®Œƒº˛
+makeDir  ((GetDir #export)+ "\\cptools_data\\")------ÂàõÂª∫Ë∑ØÂæÑ
+tempdata = ((GetDir #export)+"\\cptools_data\\"+"temp.ini")-----ÊåáÂÆöÊñá‰ª∂
 create_tempdata = createfile tempdata
 if wayneCheckBox.checked == true then formatdata = "wayneCheckBox.checked = true" else formatdata = "wayneCheckBox.checked = false"
 if language_btn.text  == "En" then forlagdata = "Language = true" else  forlagdata = "Language = false" 
@@ -535,120 +563,138 @@ on addToList pressed do
 	with undo "addList" on (
 	if(rb_sel.state==1)then(
 		
-	if(selection.count == 0 )then(messagebox messagebox_a_lag   title:messagebox_a_title_lag beep:false )else(	
-	----------------------------------------- ÷∂Ø ‰»Î----------------------------------------------
-	struct myCoolDialogs
-	 (
-		labelStr,
-	 
-		stringQuery = rollout stringQuery " ‰»Î√¸√˚"
-		(
-			local returnStr
-		
-			label lblHeader
-			editText etInput text:"_pose"
-	 
-			fn launch label: =
+	if(selection.count == 0 )then(messagebox messagebox_a_lag   title:messagebox_a_title_lag beep:false )
+	else(	
+		-----------------------------------------ÊâãÂä®ËæìÂÖ•----------------------------------------------
+		struct myCoolDialogs (
+			labelStr,
+		 
+			stringQuery = rollout stringQuery "ËæìÂÖ•ÂëΩÂêç"
 			(
-				destroyDialog myCoolDialogs.stringQuery
-				if label != unsupplied then
-					myCoolDialogs.labelStr = label
-				else myCoolDialogs.labelStr = "Enter some text:"
-				createDialog myCoolDialogs.stringQuery modal:true
-				returnStr -- only put it here if the dialog is modal
-			)
-	 
-			on stringQuery open do
-			(
-				lblHeader.text = myCoolDialogs.labelStr
-				setFocus etInput
-			)
-	 
-			on etInput entered str do
-			(
-				destroyDialog myCoolDialogs.stringQuery
-				returnStr = str
-	-- 			cptools.rloading.pressed()
+				local returnStr
+			
+				label lblHeader
+				editText etInput text:"_pose"
+		 
+				fn launch label: =
+				(
+					destroyDialog myCoolDialogs.stringQuery
+					if label != unsupplied then
+						myCoolDialogs.labelStr = label
+					else myCoolDialogs.labelStr = "Enter some text:"
+					createDialog myCoolDialogs.stringQuery modal:true
+					returnStr -- only put it here if the dialog is modal
+				)
+		 
+				on stringQuery open do
+				(
+					lblHeader.text = myCoolDialogs.labelStr
+					setFocus etInput
+				)
+		 
+				on etInput entered str do
+				(
+					destroyDialog myCoolDialogs.stringQuery
+					returnStr = str
+		-- 			cptools.rloading.pressed()
+					
+					)
+				 
+				on stringQuery close do 
+				(
+					destroyDialog myCoolDialogs.stringQuery
+					
+					returnStr = "Êú™ÂëΩÂêç_pose"
+		-- 			cptools.rloading.pressed()
 				
 				)
-			 
-			on stringQuery close do 
-			(
-				destroyDialog myCoolDialogs.stringQuery
 				
-				returnStr = "Œ¥√¸√˚_pose"
-	-- 			cptools.rloading.pressed()
-			
+			)
+		 )
+		 
+		if keyboard.controlPressed then (
+			myCoolDialogs = myCoolDialogs() -- as there are variables, an instance is needed
+			result = myCoolDialogs.stringQuery.launch label:"ÂõûËΩ¶Á°ÆËÆ§ÂëΩÂêç"
+
+			-----------------------------------------ÊâãÂä®ËæìÂÖ•----------------------------------------------
+				
+			testList.items = append testList.items (result+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
+
+			-- rloading.pressed()
+			-- cptools.rloading.pressed()
+
+			testList.selection = testList.items.count
+
+			---------------------------------------------------------------------------------------
+			tabtxt   = testList.selection
+			if cptools.localModeCheckBox.checked==false then(	
+				out_name = ((GetDir #export)+"\\cptools_data\\"+ result +tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")
+			) else (
+			out_name = ((GetDir #export)+"\\cptools_data\\localMode\\"+ result +tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")	
 			)
 			
+			out_file = createfile out_name
 		)
-	 )
-if keyboard.controlPressed then ( myCoolDialogs = myCoolDialogs() -- as there are variables, an instance is needed
-	 result = myCoolDialogs.stringQuery.launch label:"ªÿ≥µ»∑»œ√¸√˚"
+		else (
+			
+			testList.items = append testList.items ("Pose "+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
+			testList.selection = testList.items.count
+			tabtxt   = testList.selection	
+			
+			if cptools.localModeCheckBox.checked==false then(	
+				out_name = ((GetDir #export)+"\\cptools_data\\pose "+ tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")
+			)  else (
+				out_name = ((GetDir #export)+"\\cptools_data\\localMode\\pose "+ tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")	
+			)
+				out_file = createfile out_name
+		)
+		-------------------------------------Â∞ÜÈÄâÊã©ÈáçÊñ∞ÊéíÂ∫è
+		sort_array =#()
+		temp_sort_file = selection as array
+		sort_file = sort(for i in temp_sort_file collect i.name)
 
-
-	----------------------------------------- ÷∂Ø ‰»Î----------------------------------------------
-		
-	testList.items = append testList.items (result+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
-
-	-- rloading.pressed()
-	-- cptools.rloading.pressed()
-
-	testList.selection = testList.items.count
-
-	---------------------------------------------------------------------------------------
-	tabtxt   = testList.selection		
-	out_name = ((GetDir #export)+"\\cptools_data\\"+ result +tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")
-	out_file = createfile out_name
-)
-else (
-	
-	testList.items = append testList.items ("Pose "+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
-	testList.selection = testList.items.count
-	tabtxt   = testList.selection		
-	out_name = ((GetDir #export)+"\\cptools_data\\pose "+ tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")
-	out_file = createfile out_name
-)
-	-------------------------------------Ω´—°‘Ò÷ÿ–¬≈≈–Ú
-	sort_array =#()
-	temp_sort_file = selection as array
-	sort_file = sort(for i in temp_sort_file collect i.name)
-
-	for i=1 to sort_file.count do 
-	(
-	format "%|" sort_file[i] to: out_file -- ÃÌº”“ª∏ˆ—°‘ÒºØ
-	)
-	format "\n"  to:out_file
-
-	for i =1 to sort_file.count do 
-	(
-	obj =getnodebyname sort_file[i] 
-	append sort_array obj
-	)
-	select sort_array
-	-----------------------------------------
-	k=1
-	for o in selection do
-	(
-		if keyboard.escPressed do 
+		for i=1 to sort_file.count do 
 		(
-			format format_a_lag
-			exit
+		format "%|" sort_file[i] to: out_file -- Ê∑ªÂä†‰∏Ä‰∏™ÈÄâÊã©ÈõÜ
 		)
-	doit_prog.value = 100.*k/selection.count
-	if selection.count !=0 then 
-	(
-		format "$'%'.transform = %\n" o.name o.transform to:out_file
-	)
-	k=k+1
-	format (format_c_lag + ":(%/100)  \n")  doit_prog.value
-	if doit_prog.value == 100 do (format format_b_lag )
-	)
-	doit_prog.value = 0
+		format "\n"  to:out_file
 
-	close out_file
+		for i =1 to sort_file.count do 
+		(
+		obj =getnodebyname sort_file[i] 
+		append sort_array obj
+		)
+		select sort_array
+		-----------------------------------------
+		k=1
+		for o in selection do
+		(
+			if keyboard.escPressed do 
+			(
+				format format_a_lag
+				exit
+			)
+		doit_prog.value = 100.*k/selection.count
+		if selection.count !=0 then 	(
+			if cptools.localModeCheckBox.checked then(	
+				if 	o.parent==undefined then (messageBox "ËØ∑‰∏çË¶ÅÈÄâÊã©Ê†πÈ™®ËäÇ")
+				else (
+					theCoords=o.transform * (inverse o.parent.transform)
+					format "$'%'.transform = %\n" o.name theCoords to:out_file
+				)
+			) else (
+				format "$'%'.transform = %\n"  o.name o.transform to:out_file
+			)
+		)
+		k=k+1
+		format (format_c_lag + ":(%/100)  \n")  doit_prog.value
+		if doit_prog.value == 100 do (format format_b_lag )
+		)
+		doit_prog.value = 0
 
-	--format "You selected '%'!\n" testList.selection
+		close out_file
+
+		--format "You selected '%'!\n" testList.selection
 	)	
 			
 	)else(
@@ -662,8 +708,13 @@ else (
 	testListAni.items = append testListAni.items ("Animation "+ (testListAni.items.count+1) as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")" )
 	testListAni.selection = testListAni.items.count
 	---------------------------------------------------------------------------------------
-	tabtxt   = testListAni.selection		
-	out_name = ((GetDir #export)+"\\cptools_data\\animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
+	tabtxt   = testListAni.selection	
+	if cptools.localModeCheckBox.checked==false then(
+		out_name = ((GetDir #export)+"\\cptools_data\\animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
+	) else (		
+			out_name = ((GetDir #export)+"\\cptools_data\\localMode\\animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
+	)
+
 	out_file = createfile out_name
 
 	tempstime = animationrange.start
@@ -672,14 +723,14 @@ else (
 	animationRange = interval start_frame end_frame--time
 
 
-	-------------------------------------Ω´—°‘Ò÷ÿ–¬≈≈–Ú
+	-------------------------------------Â∞ÜÈÄâÊã©ÈáçÊñ∞ÊéíÂ∫è
 	sort_array =#()
 	temp_sort_file = selection as array
 	sort_file = sort(for i in temp_sort_file collect i.name)
 
 	for i=1 to sort_file.count do 
 	(
-	format "%|" sort_file[i] to: out_file -- ÃÌº”“ª∏ˆ—°‘ÒºØ
+	format "%|" sort_file[i] to: out_file -- Ê∑ªÂä†‰∏Ä‰∏™ÈÄâÊã©ÈõÜ
 	)
 	format "\n"  to:out_file
 
@@ -705,10 +756,17 @@ else (
 
 	for o in selection do
 	(
-	if selection.count !=0 then 
-	(
-		format  "<%>|%| = %\n" i o.name o.transform to:out_file
-	   )
+	if selection.count !=0 then 	(		
+		if cptools.localModeCheckBox.checked then(
+			if 	o.parent==undefined then (messageBox "ËØ∑‰∏çË¶ÅÈÄâÊã©Ê†πÈ™®ËäÇ")
+			else (
+				theCoords=o.transform * (inverse o.parent.transform)
+				format  "<%>|%| = %\n" i o.name theCoords to:out_file
+			)
+		) else (
+			format  "<%>|%| = %\n" i o.name o.transform to:out_file
+		)
+	)
 
 	)
 	format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
@@ -733,7 +791,7 @@ else (
 
 	format "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"  to:out_file
 
-	---------------------------------------------------------------πÿº¸÷°∂‘œÛŒª÷√–≈œ¢–¥»Î
+	---------------------------------------------------------------ÂÖ≥ÈîÆÂ∏ßÂØπË±°‰ΩçÁΩÆ‰ø°ÊÅØÂÜôÂÖ•
 	do
 
 	(
@@ -742,15 +800,22 @@ else (
 			format format_a_lag
 			exit
 		)
-		append frame_data a
-		
+		append frame_data a		
 		a_lost = a
 		
 		for o in selection do
 	(
-		if selection.count !=0 then 
-	   (
-		format  "<%>|%| = %\n" a o.name o.transform to:out_file
+		if selection.count !=0 then    (
+		   
+			if cptools.localModeCheckBox.checked then(
+				if 	o.parent==undefined then (messageBox "ËØ∑‰∏çË¶ÅÈÄâÊã©Ê†πÈ™®ËäÇ")
+				else (
+					theCoords=o.transform * (inverse o.parent.transform)
+					format  "<%>|%| = %\n" a o.name theCoords to:out_file
+				)
+			) else (
+				format  "<%>|%| = %\n" i o.name o.transform to:out_file
+			)
 	   )
 	)
 		a = trackbar.getnextkeytime()
@@ -769,7 +834,7 @@ else (
 	)
 
 	while a > animationrange.start	and a > a_lost 
-	----------------------------------------------------------------πÿº¸÷°∂‘œÛŒª÷√–≈œ¢–¥»Î  End
+	----------------------------------------------------------------ÂÖ≥ÈîÆÂ∏ßÂØπË±°‰ΩçÁΩÆ‰ø°ÊÅØÂÜôÂÖ•  End
 	doit_prog.value = 100
 
 	format format_b_lag
@@ -778,17 +843,17 @@ else (
 
 	seek out_file orgFilePos 
 
-	--------------------------------------------------------------πÿº¸÷°–¥»ÎŒƒº˛
+	--------------------------------------------------------------ÂÖ≥ÈîÆÂ∏ßÂÜôÂÖ•Êñá‰ª∂
 	format "frame:" to: out_file
 
 	for i=1 to frame_data .count do 
 	(
-	format "%|" frame_data [i] to: out_file -- ÃÌº”“ª∏ˆ÷°µƒ—°‘ÒºØ
+	format "%|" frame_data [i] to: out_file -- Ê∑ªÂä†‰∏Ä‰∏™Â∏ßÁöÑÈÄâÊã©ÈõÜ
 
 	)
 	format "\n"  to:out_file
 
-	--------------------------------------------------------------πÿº¸÷°–¥»ÎŒƒº˛ End
+	--------------------------------------------------------------ÂÖ≥ÈîÆÂ∏ßÂÜôÂÖ•Êñá‰ª∂ End
 
 	)
 
@@ -807,45 +872,52 @@ else (
 
 )
 
-on removeFromList pressed do
-(
-	
-if(rb_sel.state==1)then(
-if testList.items.count > 0 and testList.selection > 0 then(
+on removeFromList pressed do (	
+	if(rb_sel.state==1)then(
+		if testList.items.count > 0 and testList.selection > 0 then(				
+		tabtxt       = testList.selected	
 		
-tabtxt       = testList.selected
-delete_name  = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
+		if cptools.localModeCheckBox.checked==false then(	
+			delete_name  = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
+		)else (
+			delete_name  = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")
+		)
+		delete_file  = deleteFile delete_name 
+		if delete_file == undefined do ( messagebox messagebox_c_lag  beep:false Title:messagebox_a_title_lag  Return 0 )
+		testList.items = deleteItem testList.items testList.selection
+		testList.selection = testList.items.count
+		)
+	)else(
+		if testListAni.items.count > 0 and testListAni.selection > 0 then(
 
-delete_file  = deleteFile delete_name 
-if delete_file == undefined do ( messagebox messagebox_c_lag  beep:false Title:messagebox_a_title_lag  Return 0 )
---print tabtxt	
---print delete_name 
---print delete_file
-
-testList.items = deleteItem testList.items testList.selection
-testList.selection = testList.items.count
-)
-)else(
-if testListAni.items.count > 0 and testListAni.selection > 0 then(
-
-tabtxt       = testListAni.selected
---print tabtxt	
-delete_name = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-delete_file = deletefile delete_name
-if delete_file == undefined do ( messagebox messagebox_d_lag  beep:false Title:messagebox_a_title_lag Return 0 )
---print delete_name 
---print delete_file 
-testListAni.items = deleteItem testListAni.items testListAni.selection
-testListAni.selection = testListAni.items.count
-)
-)
+		tabtxt       = testListAni.selected
+		--print tabtxt	
+		if cptools.localModeCheckBox.checked==false then(	
+			delete_name = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
+		)else (
+			delete_name  = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")
+		)	
+			
+		delete_file = deletefile delete_name
+		if delete_file == undefined do ( messagebox messagebox_d_lag  beep:false Title:messagebox_a_title_lag Return 0 )
+		--print delete_name 
+		--print delete_file 
+		testListAni.items = deleteItem testListAni.items testListAni.selection
+		testListAni.selection = testListAni.items.count
+		)
+	)
 
 )
-----------------------------------------------—°‘Òpose÷–ÃÌº”ŒÔÃÂ
+----------------------------------------------ÈÄâÊã©pose‰∏≠Ê∑ªÂä†Áâ©‰Ωì
 on testList selected i do
 (
 	tabtxt = testList.items[i]
-	in_sel = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
+	if cptools.localModeCheckBox.checked==false then(	
+		in_sel = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
+	) else (
+		in_sel = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")
+	)
+
 	in_file = openFile in_sel
 	if in_file == undefined do  ( messagebox messagebox_c_lag beep:false Title:messagebox_a_title_lag Return 0 )
 
@@ -862,26 +934,26 @@ on testList selected i do
 	if arrayl.count !=0 then select arrayl else  ( messagebox messagebox_e_lag beep:false Title:messagebox_a_title_lag )
 	close in_file
 	
--- À¢Õº
-	if cptools.testList.visible  then   ---poseƒ£ Ω
+-- Âà∑Âõæ
+	if cptools.testList.visible  then   ---poseÊ®°Âºè
 	(
 		if cptools.testList.selected!=undefined then
 		(
 			picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")
 			if picSelName!=undefined then
 			(
-			forceReloadBitmapFile  picSelName;cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
+			versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
 			)
 			else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
 		)
 	)
-	else(         --∂Øª≠ƒ£ Ω
+	else(         --Âä®ÁîªÊ®°Âºè
 		if cptools.testListAni.selected!=undefined then
 		(
 			picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp")
 			if picSelName!=undefined then
 			(
-			forceReloadBitmapFile  picSelName;cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
+			versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
 			)
 			else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
 		)
@@ -889,311 +961,347 @@ on testList selected i do
 )
 
 ------------------
-on testListAni selected i do
-(
-tabtxt = testListAni.items[i]
-in_sel = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-in_file = openFile in_sel
-if in_file == undefined do ( messagebox messagebox_d_lag beep:false Title:messagebox_a_title_lag Return 0 )
+on testListAni selected i do  (
+	tabtxt = testListAni.items[i]			
+	if cptools.localModeCheckBox.checked==false then(	
+			in_sel = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
+	)else (
+		in_sel = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")	
+	)
 
-seek in_file 0
+	in_file = openFile in_sel
+	if in_file == undefined do ( messagebox messagebox_d_lag beep:false Title:messagebox_a_title_lag Return 0 )
 
-ss = readLine in_file
-
-tokens = filterString ss "|"
-
-arrayl=#()
-
-for i =1 to tokens.count do 
-(
-obj =getnodebyname tokens[i] 
-if obj != undefined do append arrayl obj
-)
-if arrayl.count !=0 then select arrayl else  ( messagebox messagebox_e_lag beep:false Title:messagebox_a_title_lag )
-close in_file
-
----À¢Õº
-if cptools.testList.visible  then   ---poseƒ£ Ω
+	seek in_file 0
+	ss = readLine in_file
+	tokens = filterString ss "|"
+	arrayl=#()
+	for i =1 to tokens.count do 
 	(
-		if cptools.testList.selected!=undefined then
-		(
-			picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")
-			if picSelName!=undefined then
-			(
-			forceReloadBitmapFile  picSelName;cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
-			)
-			else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
-		)
+	obj =getnodebyname tokens[i] 
+	if obj != undefined do append arrayl obj
 	)
-	else(         --∂Øª≠ƒ£ Ω
-		if cptools.testListAni.selected!=undefined then
+	if arrayl.count !=0 then select arrayl else  ( messagebox messagebox_e_lag beep:false Title:messagebox_a_title_lag )
+	close in_file
+
+	---Âà∑Âõæ
+	if cptools.testList.visible  then   ---poseÊ®°Âºè
 		(
-			picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp")
-			if picSelName!=undefined then
+			if cptools.testList.selected!=undefined then
 			(
-			forceReloadBitmapFile  picSelName;cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
+				picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")
+				if picSelName!=undefined then
+				(
+				versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
+				)
+				else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
 			)
-			else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
 		)
-	)
+		else(         --Âä®ÁîªÊ®°Âºè
+			if cptools.testListAni.selected!=undefined then
+			(
+				picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp")
+				if picSelName!=undefined then
+				(
+				versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
+				)
+				else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
+			)
+		)
+	if cptools.timeRangeCheckBox.state do (cptoolsSetAnimRange ())
 
 )
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-on pastepose pressed do 
-(
-	
--------------------------------------Ω´—°‘Ò÷ÿ–¬≈≈–Ú
-sort_array =#()
-temp_sort_file = selection as array
-sort_file = sort(for i in temp_sort_file collect i.name)
-for i =1 to sort_file.count do 
-(
-obj =getnodebyname sort_file[i] 
-append sort_array obj
-)
-select sort_array
-
-----------------------------------------
-	
-selectundefined = 0
-
-with undo "pasteList" on (
-	
-	for sec = 1 to Accuracy_offset.value do (
-	
-if(rb_sel.state==1)then(
-	
-if testList.items.count > 0 and testList.selection > 0 then(
-	
-tabtxt  = testList.selected	
-in_name =  ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-in_file = openFile in_name
-if in_file == undefined  do  ( messagebox messagebox_c_lag  beep:false Title:messagebox_a_title_lag  Return 0 )
---with animate on
---( 	
-seek in_file 0
-
-skipToNextLine in_file
-
-orgFilePos = filePos in_file
-
-for i=1 to selection.count do --takes every selected object and...
-(
-	--print i
-	if keyboard.escPressed do 
+on pastepose pressed do (		
+	-------------------------------------Â∞ÜÈÄâÊã©ÈáçÊñ∞ÊéíÂ∫è
+	sort_array =#()
+	temp_sort_file = selection as array
+	sort_file = sort(for i in temp_sort_file collect i.name)
+	for i =1 to sort_file.count do 
 	(
-		format format_a_lag
-		exit
+	obj =getnodebyname sort_file[i] 
+	append sort_array obj
 	)
-doit_prog.value = 100.*i/selection.count	
+	select sort_array
+	selectundefined = 0
+with undo "pasteList" on (		
+	for sec = 1 to Accuracy_offset.value do (		
+		if(rb_sel.state==1)then(			
+			if testList.items.count > 0 and testList.selection > 0 then(				
+			tabtxt  = testList.selected			
+				if cptools.localModeCheckBox.checked==false then( 		
+					in_name =  ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
+				) 
+				else (
+					in_name =  ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")	
+				) 
+			in_file = openFile in_name
+			if in_file == undefined  do  ( messagebox messagebox_c_lag  beep:false Title:messagebox_a_title_lag  Return 0 )
+			--with animate on
+			--( 	
+			seek in_file 0
+			skipToNextLine in_file
+			orgFilePos = filePos in_file
+				for i=1 to selection.count do  (--takes every selected object and...			
+						--print i
+						if keyboard.escPressed do	(format format_a_lag;exit)
+					doit_prog.value = 100.*i/selection.count	
+					o=selection[i]
+					seek in_file orgFilePos 
+					a= skiptostring in_file ((o.name)+"'.transform")						
+					if a==undefined then ( selectundefined =selectundefined+1 )else(
+						skiptostring in_file "="
+						ss = readLine in_file ---as stringStream
+						ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss						
+						-----ÂÜôÂÖ•Êú¨Âú∞ÂßøÂäøpose			
+						if cptools.localModeCheckBox.checked then (
+							--Â≠óÁ¨¶ËΩ¨ÊàêÁü©Èòµ
+							fn deserializeMatrix3 str =
+							(
+								local p = filterString str ","
+								local row1 = [p[1] as float, p[2] as float, p[3] as float]
+								local row2 = [p[4] as float, p[5] as float, p[6] as float]
+								local row3 = [p[7] as float, p[8] as float, p[9] as float]
+								local row4 = [p[10] as float, p[11] as float, p[12] as float]
+								return matrix3 row1 row2 row3 row4
+							)
+							str =ss
+							str=substituteString   str "(matrix3" ""
+							str=substituteString   str ")" ""
+							str=substituteString   str "] [" ","
+							str=substituteString   str "]" ""
+							str=substituteString   str "[" ""
+							theCoords_str2Mat = deserializeMatrix3 str
+							----ÂÜôÂÖ•ÊóãËΩ¨Âíå‰ΩçÁßª
+							rotLocal = theCoords_str2Mat.rotationPart
+							rotLocal.w=0-rotLocal.w
+							in coordsys  parent  o.rotation = rotLocal 
+							in coordsys  parent  o.pos = theCoords_str2Mat[4]		
+						)
+						--------------------------------------------------------ÂÜôÂÖ•ÁªìÊùü
+						else (
+							execute ex_tran	
+						)
+							
+						format (format_c_lag + ":(%/100)  \n")   doit_prog.value
+						if doit_prog.value == 100 do (format format_b_lag)	
+					)
+				)
+			doit_prog.value = 0
+			--)
+			close in_file
+			)
+		if selectundefined != 0 then(
+		--strmessage = "ÈÄâÊã©‰∏≠Êúâ"+ selectundefined as string +"‰∏™ÂØπË±°Êú™ËÆ∞ÂΩïPose" 
+		strmessage = messagebox_f_lag
+		messagebox strmessage   title:messagebox_a_title_lag beep:false
+		)
+		)else(
+			if testListAni.items.count > 0 and testListAni.selection > 0 then(
+					
+				if(selection.count == 0 )then(messagebox messagebox_a_lag  title:messagebox_a_title_lag beep:false )else(
+					
+				if ac.text =="C" then ( start_frame = spn_start.value+ paste_offset.value;end_frame = spn_end.value+ paste_offset.value)else (start_frame = animationrange.start+ paste_offset.value;end_frame = animationrange.end+ paste_offset.value)
 
-o=selection[i]
+				if (start_frame>=end_frame)then(messagebox messagebox_b_lag title:messagebox_a_title_lag beep:false )else(    --time
+					
+				tabtxt  = testListAni.selected
+				
+				if cptools.localModeCheckBox.checked==false then(
+					in_name =  ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
+				) else (
+					in_name =  ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")
+				)
+				
+				
+				in_file = openFile in_name
+				if in_file == undefined do (messagebox messagebox_d_lag beep:false Title:messagebox_a_title_lag Return 0 )
 
-seek in_file orgFilePos 
+				tempstime = animationrange.start
+				tempetime = animationrange.end
 
---ast =filePos in_file 	
---skiptostring in_file "="	
-a= skiptostring in_file ((o.name)+"'.transform")	
-	
-if a==undefined then ( selectundefined =selectundefined+1 )else(
+				animationRange = interval (start_frame) (end_frame)--time
 
-skiptostring in_file "="
+				------------Âà§Êñ≠SËøòÊòØK
 
-ss = readLine in_file ---as stringStream
+				s_or_k =  filterstring tabtxt "S"
+				with animate on
+				( 
+				if s_or_k.count != 1 then (	
+				for m=animationrange.start to animationrange.end do
+				(
+					if keyboard.escPressed do 
+					(
+						format format_a_lag
+						exit
+					)
+					doit_prog.value = 100.*m/animationrange.end
+					sliderTime = m
+					
+					seek in_file 0 
+					
+					skipToNextLine in_file	
+					
+					skiptostring in_file ("<"+((m-paste_offset.value) as String)+">")
+					
+					orgFilePos = filePos in_file
 
-ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss
-	
-execute ex_tran
-	
-format (format_c_lag + ":(%/100)  \n")   doit_prog.value
-if doit_prog.value == 100 do (format format_b_lag)	
-)
-)
-doit_prog.value = 0
---)
-close in_file
+				for i=1 to selection.count do --takes every selected object and...
+				(
+					if keyboard.escPressed do 
+					(
+						format format_a_lag
+						exit
+					)
+			
+				o=selection[i]
+				seek in_file orgFilePos 					
+				a = skiptostring in_file ("|"+(o.name)+"|")
 
-)if selectundefined != 0 then(
---strmessage = "—°‘Ò÷–”–"+ selectundefined as string +"∏ˆ∂‘œÛŒ¥º«¬ºPose" 
-strmessage = messagebox_f_lag
-messagebox strmessage   title:messagebox_a_title_lag beep:false
-)
-)else(
-if testListAni.items.count > 0 and testListAni.selection > 0 then(
-	
-if(selection.count == 0 )then(messagebox messagebox_a_lag  title:messagebox_a_title_lag beep:false )else(
-	
-if ac.text =="C" then ( start_frame = spn_start.value+ paste_offset.value;end_frame = spn_end.value+ paste_offset.value)else (start_frame = animationrange.start+ paste_offset.value;end_frame = animationrange.end+ paste_offset.value)
+				if a==undefined then ( selectundefined =selectundefined+1 )else(	
 
-if (start_frame>=end_frame)then(messagebox messagebox_b_lag title:messagebox_a_title_lag beep:false )else(    --time
-	
-tabtxt  = testListAni.selected
-in_name =  ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-in_file = openFile in_name
-if in_file == undefined do (messagebox messagebox_d_lag beep:false Title:messagebox_a_title_lag Return 0 )
+				skiptostring in_file "="
+				ss = readLine in_file ---as stringStream
+				ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss					
+				if cptools.localModeCheckBox.checked then (
+					-----ÂÜôÂÖ•Êú¨Âú∞ÂßøÂäøpose
+					--Â≠óÁ¨¶ËΩ¨ÊàêÁü©Èòµ
+					fn deserializeMatrix3 str =
+					(
+						local p = filterString str ","
+						local row1 = [p[1] as float, p[2] as float, p[3] as float]
+						local row2 = [p[4] as float, p[5] as float, p[6] as float]
+						local row3 = [p[7] as float, p[8] as float, p[9] as float]
+						local row4 = [p[10] as float, p[11] as float, p[12] as float]
+						return matrix3 row1 row2 row3 row4
+					)
+					str =ss
+					str=substituteString   str "(matrix3" ""
+					str=substituteString   str ")" ""
+					str=substituteString   str "] [" ","
+					str=substituteString   str "]" ""
+					str=substituteString   str "[" ""
+					theCoords_str2Mat = deserializeMatrix3 str
+					----ÂÜôÂÖ•ÊóãËΩ¨Âíå‰ΩçÁßª
+					rotLocal = theCoords_str2Mat.rotationPart
+					rotLocal.w=0-rotLocal.w
+					in coordsys  parent  o.rotation = rotLocal 
+					in coordsys  parent  o.pos = theCoords_str2Mat[4]
+				)
+				--------------------------------------------------------ÂÜôÂÖ•ÁªìÊùü	
+				else (
+							execute ex_tran	
+				)
+				--readDelimitedString in_file "end"
+				)
+				)
+				format (format_c_lag + ":(%/100)  \n")  doit_prog.value
+				if doit_prog.value == 100 do (format format_b_lag )
+				)
+				doit_prog.value = 0
+				)else(
+				----------------------------------------------------------------------------------------------------------------------------Á≤òË¥¥ÂÖ≥ÈîÆÂ∏ß‰ª£Á†Å
+				seek in_file 0
 
-tempstime = animationrange.start
-tempetime = animationrange.end
+				skipToNextLine in_file
 
-animationRange = interval (start_frame) (end_frame)--time
+				skiptostring in_file "frame:"
 
-------------≈–∂œSªπ «K
+				ss  = readLine in_file
 
-s_or_k =  filterstring tabtxt "S"
+				frame_array_filter = filterString ss "|"
 
-with animate on
-( 
-if s_or_k.count != 1 then (	
-for m=animationrange.start to animationrange.end do
-(
-	if keyboard.escPressed do 
-	(
-		format format_a_lag
-		exit
+				frame_arrayl =#()
+				-----Á≠õÈÄâ
+
+				for k =1 to frame_array_filter.count do 
+				(
+					if frame_array_filter[k] as time >= animationrange.start-paste_offset.value and  frame_array_filter[k] as time <= animationrange.end-paste_offset.value do
+					(
+						append frame_arrayl frame_array_filter[k] 
+						--sort frame_arrayl
+					)
+				)
+
+				for m=1 to frame_arrayl.count do
+				(
+					if keyboard.escPressed do 	(format format_a_lag;exit)
+					doit_prog.value = 100.*m/frame_arrayl.count
+					sliderTime = frame_arrayl[m] as time + paste_offset.value					
+					seek in_file 0
+					skipToNextLine in_file						
+					skipToNextLine in_file						
+					skiptostring in_file ("<"+( frame_arrayl[m] as String)+">")					
+					orgFilePos = filePos in_file
+
+				for i=1 to selection.count do (--takes every selected object and...				
+					if keyboard.escPressed do 	(format format_a_lag;exit)
+					o=selection[i]
+					seek in_file orgFilePos 					
+					a = skiptostring in_file ("|"+(o.name)+"|")
+					if a==undefined then ( selectundefined =selectundefined+1 )else(	
+						skiptostring in_file "="
+						ss = readLine in_file ---as stringStream
+						ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss					
+					if cptools.localModeCheckBox.checked then (				
+						-----ÂÜôÂÖ•Êú¨Âú∞ÂßøÂäøpose
+						--Â≠óÁ¨¶ËΩ¨ÊàêÁü©Èòµ
+						fn deserializeMatrix3 str =	(
+							local p = filterString str ","
+							local row1 = [p[1] as float, p[2] as float, p[3] as float]
+							local row2 = [p[4] as float, p[5] as float, p[6] as float]
+							local row3 = [p[7] as float, p[8] as float, p[9] as float]
+							local row4 = [p[10] as float, p[11] as float, p[12] as float]
+							return matrix3 row1 row2 row3 row4
+						)
+						str =ss
+						str=substituteString   str "(matrix3" ""
+						str=substituteString   str ")" ""
+						str=substituteString   str "] [" ","
+						str=substituteString   str "]" ""
+						str=substituteString   str "[" ""
+						theCoords_str2Mat = deserializeMatrix3 str
+
+						----ÂÜôÂÖ•ÊóãËΩ¨Âíå‰ΩçÁßª
+						rotLocal = theCoords_str2Mat.rotationPart
+						rotLocal.w=0-rotLocal.w
+						in coordsys  parent  o.rotation = rotLocal 
+						in coordsys  parent  o.pos = theCoords_str2Mat[4]
+						)
+						--------------------------------------------------------ÂÜôÂÖ•ÁªìÊùü
+						else (
+							execute ex_tran	
+						)
+						
+						--readDelimitedString in_file "end"
+					)
+				)
+				format (format_c_lag + ":(%/100)  \n")   doit_prog.value
+				if doit_prog.value == 100 do (format format_b_lag)
+				)
+				doit_prog.value = 0
+
+				)
+				)
+				close in_file
+
+				animationRange = interval tempstime tempetime
+
+				if selectundefined != 0 then(
+				selectundefined = selectundefined/(spn_end.value-spn_start.value)
+				--strmessage = "ÈÄâÊã©‰∏≠Êúâ"+ selectundefined as string +"‰∏™ÂØπË±°Êú™ËÆ∞ÂΩïPose" 
+				strmessage = messagebox_f_lag
+				messagebox strmessage   title:messagebox_a_title_lag beep:false
+				selectundefined = 0
+				)
+				)
+				)
+				)	
+		)
+		sec = sec + 1
+		sec = sec + 1
 	)
-	doit_prog.value = 100.*m/animationrange.end
-	sliderTime = m
-	
-	seek in_file 0 
-	
-    skipToNextLine in_file	
-	
-	skiptostring in_file ("<"+((m-paste_offset.value) as String)+">")
-	
-	orgFilePos = filePos in_file
-
-for i=1 to selection.count do --takes every selected object and...
-(
-	if keyboard.escPressed do 
-	(
-		format format_a_lag
-		exit
-	)
-	--seek in_file 0 
---skiptostring in_file ((m) as string)
-
-o=selection[i]
-
-seek in_file orgFilePos 
-	
-a = skiptostring in_file ("|"+(o.name)+"|")
-
-if a==undefined then ( selectundefined =selectundefined+1 )else(	
-
-skiptostring in_file "="
-
-ss = readLine in_file ---as stringStream
-
-ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss
-	
-execute ex_tran
-	
---readDelimitedString in_file "end"
-)
-)
-format (format_c_lag + ":(%/100)  \n")  doit_prog.value
-if doit_prog.value == 100 do (format format_b_lag )
-)
-doit_prog.value = 0
-)else(
-----------------------------------------------------------------------------------------------------------------------------’≥Ã˘πÿº¸÷°¥˙¬Î
-seek in_file 0
-
-skipToNextLine in_file
-
-skiptostring in_file "frame:"
-
-ss  = readLine in_file
-
-frame_array_filter = filterString ss "|"
-
-frame_arrayl =#()
------…∏—°
-
-for k =1 to frame_array_filter.count do 
-(
-	if frame_array_filter[k] as time >= animationrange.start-paste_offset.value and  frame_array_filter[k] as time <= animationrange.end-paste_offset.value do
-	(
-		append frame_arrayl frame_array_filter[k] 
-		--sort frame_arrayl
-	)
-)
-
-for m=1 to frame_arrayl.count do
-(
-	if keyboard.escPressed do 
-	(
-		format format_a_lag
-		exit
-	)
-	doit_prog.value = 100.*m/frame_arrayl.count
-	sliderTime = frame_arrayl[m] as time + paste_offset.value
-	
-	seek in_file 0 
-	
-    skipToNextLine in_file	
-	
-	skipToNextLine in_file	
-	
-	skiptostring in_file ("<"+( frame_arrayl[m] as String)+">")
-	
-	orgFilePos = filePos in_file
-
-for i=1 to selection.count do --takes every selected object and...
-(
-	if keyboard.escPressed do 
-	(
-		format format_a_lag
-		exit
-	)
---seek in_file 0 
---skiptostring in_file ((m) as string)
-
-o=selection[i]
-
-seek in_file orgFilePos 
-	
-a = skiptostring in_file ("|"+(o.name)+"|")
-
-if a==undefined then ( selectundefined =selectundefined+1 )else(	
-
-skiptostring in_file "="
-
-ss = readLine in_file ---as stringStream
-
-ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss
-	
-execute ex_tran
-	
---readDelimitedString in_file "end"
-)
-)
-format (format_c_lag + ":(%/100)  \n")   doit_prog.value
-if doit_prog.value == 100 do (format format_b_lag)
-)
-doit_prog.value = 0
-
-)
-)
-close in_file
-
-animationRange = interval tempstime tempetime
-
-if selectundefined != 0 then(
-selectundefined = selectundefined/(spn_end.value-spn_start.value)
---strmessage = "—°‘Ò÷–”–"+ selectundefined as string +"∏ˆ∂‘œÛŒ¥º«¬ºPose" 
-strmessage = messagebox_f_lag
-messagebox strmessage   title:messagebox_a_title_lag beep:false
-selectundefined = 0
-)
-)
-)
-)	
-)
-sec = sec + 1
-	sec = sec + 1
-)
 )
 )
 ---------------------------------------------------------------------------------------
@@ -1257,11 +1365,11 @@ createdialog cpToolsMaster
 	close croppedScreenGrab
 	
 	gc light:true
-	if cptools.testList.visible  then   ---poseƒ£ Ω
+	if cptools.testList.visible  then   ---poseÊ®°Âºè
 	(	if cptools.testList.selected!=undefined then (outputMap.filename =((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp"))
 	else 
 	(	if cptools.testListAni.selected!=undefined then (outputMap.filename =((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp"))
-	save outputMap --Save it to file
+	save outputMap quiet:true --Save it to file
 	outputMap
 )
 
@@ -1272,30 +1380,30 @@ cpToolsMaster.cpToolsParent1.height = 240
 cpToolsMaster.cpToolsParent1.width = 200
 cpToolsMaster.cpToolsParent2.pos = [210,0]
 cpToolsMaster.cpToolsParent2.height = 240
-cpToolsMaster.width =  410
+-- cpToolsMaster.width =  410
 cpToolsMaster.height = 240
--- cpToolsMaster.width =  200
+cpToolsMaster.width =  200
 
--- À¢Õº
-	if cptools.testList.visible  then   ---poseƒ£ Ω
+-- Âà∑Âõæ
+	if cptools.testList.visible  then   ---poseÊ®°Âºè
 	(
 		if cptools.testList.selected!=undefined then
 		(
 			picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")
 			if picSelName!=undefined then
 			(
-			forceReloadBitmapFile  picSelName;cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
+			versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
 			)
 			else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
 		)
 	)
-	else(         --∂Øª≠ƒ£ Ω
+	else(         --Âä®ÁîªÊ®°Âºè
 		if cptools.testListAni.selected!=undefined then
 		(
 			picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp")
 			if picSelName!=undefined then
 			(
-			forceReloadBitmapFile  picSelName;cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
+			versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
 			)
 			else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
 		)
