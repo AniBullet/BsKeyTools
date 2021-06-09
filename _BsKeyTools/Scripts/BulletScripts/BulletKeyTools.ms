@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-06-08 17:21:52
+ * @LastEditTime: 2021-05-31 22:56:08
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -487,8 +487,8 @@ fn fnSwitchIconStyle =
 
 rcmenu menuConfig
 (
-	local startupBsKeyTools = (getDir #Scripts) + "\\BsKeyTools_Startup.ms"
-	local startupPath = (getDir #StartupScripts)+ "\\BsKeyTools_Startup.ms"
+	local startupBsKeyTools = (getDir #Scripts) + "\\BulletKeyTools.ms"
+	local startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
 	menuItem mItemHelpDoc "【必看帮助文档】"
 	menuItem mItemIsStartup "是否随Max自启"
 	menuItem mItemAddToolBarBtn "添加工具栏按钮"
