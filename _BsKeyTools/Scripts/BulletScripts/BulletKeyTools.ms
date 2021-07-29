@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-07-14 11:46:29
+ * @LastEditTime: 2021-07-29 16:48:25
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1339,7 +1339,7 @@ rollout rolBsKeyTools "" width:200 height:248
 		button btnDelDecimalKeys "删小数帧" width:btnWidth height:btnHeight visible:false \
 		toolTip:"删除所有小数帧" pos:btnPos
 		button btnRescaleWU "蒙皮缩放" width:btnWidth height:btnHeight visible:false \
-		toolTip:"带有Skin的缩放" pos:btnPos
+		toolTip:"带有Skin的缩放,带批处理\r\n(右键打开老版本)" pos:btnPos
 		button btnSkinTools "Skin工具" width:btnWidth height:btnHeight visible:false \
 		toolTip:"Skin工具集成 (修改自San_oOo)" pos:btnPos
 		button btnKeyStepMode "切帧设置" width:btnWidth height:btnHeight visible:false pos:btnPos \
@@ -3354,6 +3354,12 @@ rollout rolBsKeyTools "" width:200 height:248
 	)
 
 	on btnRescaleWU pressed do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsBatchRescaleWU.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+	)
+
+	on btnRescaleWU rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\RescaleWU.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
