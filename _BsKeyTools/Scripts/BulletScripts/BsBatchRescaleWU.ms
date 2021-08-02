@@ -130,7 +130,7 @@ function fn_RWUdone size sel dia = /* Sent after click button:OK,RescaleWU done 
 --  Start Rollout --
 rollout rol_RescaleWorldUnits ("蒙皮缩放 ver:" + RescaleWU_ver)
 (
-	checkbox chkBatch "是否批处理修改" pos:[10,35] width:100
+	checkbox chkBatch "是否批量处理？" pos:[10,35] width:100
     button btnGetFiles "选择处理路径" pos:[125,30] width:120 height:25 enabled:false border:false
     edittext edtDirPath "" pos:[0,5] fieldWidth:240 height:20 readOnly:true enabled:false
 	spinner spn_scale "缩放系数" pos:[40,65] width:80 height:16 fieldWidth:50 range:[0.0001,10000,1] scale:0.01

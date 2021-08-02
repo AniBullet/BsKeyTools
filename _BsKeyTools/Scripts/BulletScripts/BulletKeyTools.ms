@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-07-29 16:48:25
+ * @LastEditTime: 2021-08-02 19:18:59
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -108,7 +108,10 @@ fn fnDelFileDir targetDel =  --删除文件
 			setFileAttribute targetDel #hidden false
 		)
 		try (SIOFile.Delete(targetDel);(print ("已删除: "+ filenameFromPath targetDel)))
-		catch (print ("删除失败: "+ filenameFromPath targetDel + ". 请尝试手动删除.");print "删除失败")
+		catch (
+			messagebox ("删除失败: "+ filenameFromPath targetDel + ". 请尝试手动删除。          ")
+			(shellLaunch (getfilenamepath targetDel) "")
+		)
 	)
 )
 fn fnDelDir dirDel =
@@ -120,7 +123,10 @@ fn fnDelDir dirDel =
 			setFileAttribute dirDel #readOnly false ; setFileAttribute dirDel #hidden false
 		)
 		try (SIODir.Delete(dirDel) true;(print ("已删除: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹")))
-		catch (print ("删除失败: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹. 请尝试手动删除.");print "删除失败")
+		catch (
+			messagebox ("删除失败: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹. 请尝试手动删除.")
+			(shellLaunch dirDel "")
+		)
 	)
 )
 
@@ -569,10 +575,18 @@ rcmenu menuConfig
 		(
 			if (not (SIOFile.Exists startupPath)) do
 			(
-				SIOFile.Copy startupBsKeyTools startupPath
-				print ("已打开自启: " + filenameFromPath startupPath)
-				mItemIsStartup.checked = true
-				setFileAttribute startupPath #readOnly true
+				try 
+				(
+					SIOFile.Copy startupBsKeyTools startupPath
+					print ("已打开自启: " + filenameFromPath startupPath)
+					mItemIsStartup.checked = true
+					setFileAttribute startupPath #readOnly true
+				)
+				catch
+				(
+					messagebox ("自启失败，烦请手动处理：\r\n把 BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					(shellLaunch (getfilenamepath startupBsKeyTools) "")
+				)
 			)
 		)
 	)
