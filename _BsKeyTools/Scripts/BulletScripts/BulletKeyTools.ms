@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-08-02 19:18:59
+ * @LastEditTime: 2021-08-04 15:58:15
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2117,41 +2117,16 @@ rollout rolBsKeyTools "" width:200 height:248
 
 	fn fnQuickSave =
 	(
-		local nameCurrentFile = getFilenameFile maxFileName
-		local strNameSplit = "_Backup"
-		local suffixFile = 1
+		local nameCurrentFile = (filterString (getFilenameFile maxFileName) "@Backup_")[1]
+		local arrTime = for i in (getLocalTime()) collect i as string
+		local strNameSplit = "@Backup_"
 		local fileSave = ""
-		local arrFiles = #()
-		local arrFilesNum = #()
-		
-		fn fnGetVerNum nameCurrentFile = 
-		(
-			numTempName = findstring nameCurrentFile "_Backup"
-			numTempVer = substring nameCurrentFile (numTempName + 7) nameCurrentFile.count
-			return numTempVer
-		)
 
-		if (matchPattern nameCurrentFile pattern:"*_Backup*" ignorCase:false) then
-		(
-			fnGetVerNum nameCurrentFile
-			numTempName = findstring nameCurrentFile "_Backup"
-			nameCurrentFile = substring nameCurrentFile 1 (numTempName - 1)
-		)
-		arrFiles = getfiles (maxFilePath + nameCurrentFile + "_Backup*.max")
-		if arrFiles.count > 0 then
-		(
-			for i in arrFiles where (i != undefined) do
-			(
-				tempNum = ((fnGetVerNum (getFilenameFile i)) as integer)
-				if tempNum != undefined then append arrFilesNum tempNum
-				sort arrFilesNum
-			)
-			suffixFile = arrFilesNum[arrFilesNum.count] + 1
-		)
-		else suffixFile = 1
-		fileSave = maxFilePath + nameCurrentFile + strNameSplit + (suffixFile as string) + ".max"
+		strNameSplit = strNameSplit + arrTime[2] + "_" + arrTime[4] + "_" + arrTime[5] + "h" + arrTime[6] + "m" + arrTime[7] + "s" + arrTime[8] + "ms"
+
+		fileSave = maxFilePath + nameCurrentFile + strNameSplit + ".max"
 		saveMaxFile fileSave
-		messagebox ("已快速备份至：" + fileSave) 
+		messagebox ("已快速备份至：\r\n" + fileSave) 
 	)
 
 	fn fnCutDisplayKeyRange keyFirst keyEnd =  ---显示首尾帧范围
