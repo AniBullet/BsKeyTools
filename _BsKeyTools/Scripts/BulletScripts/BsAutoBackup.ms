@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-08-04 17:53:51
+ * @LastEditTime: 2021-08-04 18:11:03
  * @Email: animator.bullet@foxmail.com
  */
 try
@@ -25,7 +25,6 @@ rollout rolAutoBackup "自动备份"
 	
 	local dnFontStyle = dotNetClass "System.Drawing.FontStyle"
 	local myFontStyle = dotnet.combineenums dnFontStyle.bold --dnFontStyle.italic
-	local timeColor = mcolor.FromArgb 152 227 213
 
 	button undock_BTN "" height:25 width:10 pos:[0,0] toolTip:"undock"
 	dotnetcontrol btnTimer "System.Windows.Forms.Button" height:25 width:80 pos:[10,0] --replace
@@ -46,7 +45,7 @@ rollout rolAutoBackup "自动备份"
 		
 		if clock.ticks < SaveInterval*60 then
 		(
-			btnTimer.backcolor = timeColor
+			btnTimer.backcolor = mcolor.white
 			btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
 		)
 	)
@@ -76,7 +75,7 @@ rollout rolAutoBackup "自动备份"
 				btnTimer.text = "关闭计时" 
 				saveInterval_FN "0" 
 				
-				btnTimer.backcolor = timeColor
+				btnTimer.backcolor = mcolor.white
 				btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
 				
 				clock.active = false
@@ -104,7 +103,7 @@ rollout rolAutoBackup "自动备份"
 			(
 				clock.ticks = 0
 				
-				btnTimer.backcolor = timeColor
+				btnTimer.backcolor = mcolor.white
 				btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
 			)
 		)
@@ -120,7 +119,7 @@ rollout rolAutoBackup "自动备份"
 			btnTimer.text = "请先保存" 
 			saveInterval_FN "0" 
 			
-			btnTimer.backcolor = timeColor
+			btnTimer.backcolor = mcolor.white
 			btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
 			
 			clock.active = false
@@ -173,24 +172,24 @@ rollout rolAutoBackup "自动备份"
 		)
 		btnTimer.text = "等待激活"
 		btnTimer.flatstyle = dotnetobject "System.Windows.Forms.FlatStyle" Flat
-		btnTimer.FlatAppearance.BorderColor = timeColor
+		btnTimer.FlatAppearance.BorderColor = mcolor.white
 		btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro 
-		btnTimer.backcolor = timeColor
+		btnTimer.backcolor = mcolor.white
 		btnTimer.font = dotNetObject "System.Drawing.Font" "Arial" 9 myFontStyle
 
 		btnBackup.text = "迭代"
 		btnBackup.flatstyle = dotnetobject "System.Windows.Forms.FlatStyle" Flat
-		btnBackup.FlatAppearance.BorderColor = timeColor
+		btnBackup.FlatAppearance.BorderColor = mcolor.white
 		btnBackup.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro 
-		btnBackup.backcolor = timeColor
+		btnBackup.backcolor = mcolor.white
 -- 		btnBackup.TextAlign = malign.BottomCenter
 -- 		btnBackup.font = dotNetObject "System.Drawing.Font" "Arial" 9 myFontStyle
 
 		btnSaveAs.text = "另存"
 		btnSaveAs.flatstyle = dotnetobject "System.Windows.Forms.FlatStyle" Flat
-		btnSaveAs.FlatAppearance.BorderColor = timeColor
+		btnSaveAs.FlatAppearance.BorderColor = mcolor.white
 		btnSaveAs.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro 
-		btnSaveAs.backcolor = timeColor
+		btnSaveAs.backcolor = mcolor.white
 	)
 	
 	on rolAutoBackup close do
@@ -234,7 +233,7 @@ rollout rolAutoBackup "自动备份"
 			
 			-- clock.ticks = 0
 			
-			-- btnTimer.backcolor = timeColor
+			-- btnTimer.backcolor = mcolor.white
 			-- btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
 
 			popUpMenu rcLIST pos:( [arg.x  , arg.y - 10 ] ) rollout:rolAutoBackup align:#align_topleft
@@ -254,7 +253,7 @@ rollout rolAutoBackup "自动备份"
 
 			clock.ticks = 0
 			
-			btnTimer.backcolor = timeColor
+			btnTimer.backcolor = mcolor.white
 			btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
 		)
 -- 		
@@ -272,7 +271,7 @@ rollout rolAutoBackup "自动备份"
 				
 				clock.ticks = 0
 				
-				btnTimer.backcolor = timeColor
+				btnTimer.backcolor = mcolor.white
 				btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
 				
 				clearlistener()
@@ -331,7 +330,7 @@ rollout rolAutoBackup "自动备份"
 					fnQuickSave()
 					clock.ticks = 0
 			
-					btnTimer.backcolor = timeColor
+					btnTimer.backcolor = mcolor.white
 					btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
 				)
 			)
@@ -347,7 +346,7 @@ rollout rolAutoBackup "自动备份"
 				)
 				else
 				(
-					COL = timeColor  
+					COL = mcolor.white  
 					
 					btnTimer.text = TimeTXT
 				)

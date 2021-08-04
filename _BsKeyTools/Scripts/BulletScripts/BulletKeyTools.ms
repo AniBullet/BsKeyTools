@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-08-04 17:52:28
+ * @LastEditTime: 2021-08-04 18:15:00
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1278,8 +1278,8 @@ rollout rolBsKeyTools "" width:200 height:248
 		toolTip:"选择集工具增强版" 
 		button btnPoseTool "库" pos:[50,187] width:20 height:30 \
 		toolTip:"参考库工具,待完善"
-		button btnQuickSave "迭代" pos:[70,187] width:30 height:30 \
-		toolTip:"快速备份" 
+		button btnQuickSave "帧栏" pos:[70,187] width:30 height:30 \
+		toolTip:"帧栏工具条" 
 		button btnSetFps "" pos:[100,187] width:45 height:30 \
 		toolTip:"设置帧率" 
 		button btnSetSpeed "" pos:[145,187] width:45 height:30 \
