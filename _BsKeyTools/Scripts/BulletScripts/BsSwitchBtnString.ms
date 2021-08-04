@@ -4,7 +4,7 @@ global fnSwitchBtnString
 
 fn fnSwitchBtnString =
 (
-    local arrTime = (getUniversalTime())
+    local arrTime = (getLocalTime())
     local dayWeekID = (mod arrTime[3] 7) as integer
     case dayWeekID of 
     (
