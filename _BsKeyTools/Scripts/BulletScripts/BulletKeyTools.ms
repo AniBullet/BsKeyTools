@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-08-04 17:50:58
+ * @LastEditTime: 2021-08-04 17:52:28
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2834,7 +2834,7 @@ rollout rolBsKeyTools "" width:200 height:248
 
 	on btnQuickSave pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsAutoBackup.ms")
+		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsAutoBackup.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 	)
 

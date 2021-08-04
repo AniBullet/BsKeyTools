@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-08-04 17:40:42
+ * @LastEditTime: 2021-08-04 17:53:51
  * @Email: animator.bullet@foxmail.com
  */
 try
@@ -152,7 +152,7 @@ rollout rolAutoBackup "自动备份"
 		SaveMenu() 
 		Inter = ( getINISetting INIfile "SaveButton" "SaveInterval" ) 
 		autobackup = ( getINISetting INIfile "SaveButton" "Autobackup" ) 
-		if autobackup == "" then (setINISetting INIfile "SaveButton" "Autobackup" "true";autobackup = "true")
+		if autobackup == "" then (setINISetting INIfile "SaveButton" "Autobackup" "false";autobackup = "false")
 
 		if Inter == "" then
 		( 
