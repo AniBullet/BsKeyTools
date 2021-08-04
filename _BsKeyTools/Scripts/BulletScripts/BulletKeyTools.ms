@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-08-04 15:58:15
+ * @LastEditTime: 2021-08-04 17:50:58
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1278,7 +1278,7 @@ rollout rolBsKeyTools "" width:200 height:248
 		toolTip:"选择集工具增强版" 
 		button btnPoseTool "库" pos:[50,187] width:20 height:30 \
 		toolTip:"参考库工具,待完善"
-		button btnQuickSave "备份" pos:[70,187] width:30 height:30 \
+		button btnQuickSave "迭代" pos:[70,187] width:30 height:30 \
 		toolTip:"快速备份" 
 		button btnSetFps "" pos:[100,187] width:45 height:30 \
 		toolTip:"设置帧率" 
@@ -2115,20 +2115,6 @@ rollout rolBsKeyTools "" width:200 height:248
 		if (getNodeByName deleteTrajName) != undefined then (delete (getNodeByName deleteTrajName))
 	)
 
-	fn fnQuickSave =
-	(
-		local nameCurrentFile = (filterString (getFilenameFile maxFileName) "@Backup_")[1]
-		local arrTime = for i in (getLocalTime()) collect i as string
-		local strNameSplit = "@Backup_"
-		local fileSave = ""
-
-		strNameSplit = strNameSplit + arrTime[2] + "_" + arrTime[4] + "_" + arrTime[5] + "h" + arrTime[6] + "m" + arrTime[7] + "s" + arrTime[8] + "ms"
-
-		fileSave = maxFilePath + nameCurrentFile + strNameSplit + ".max"
-		saveMaxFile fileSave
-		messagebox ("已快速备份至：\r\n" + fileSave) 
-	)
-
 	fn fnCutDisplayKeyRange keyFirst keyEnd =  ---显示首尾帧范围
 	(
 		if ((keyFirst != undefined) and (keyEnd != undefined)) then
@@ -2848,12 +2834,8 @@ rollout rolBsKeyTools "" width:200 height:248
 
 	on btnQuickSave pressed do 
 	(
-		if maxFilePath == "" then 
-		(
-			messagebox "------------------------------------\r\n当前场景未保存过,\r\n请先保存初始版本~"
-			max file saveas
-		)
-		else fnQuickSave ()
+		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsAutoBackup.ms")
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 	)
 
 	on btnQuickSave rightclick do (max file saveas)
