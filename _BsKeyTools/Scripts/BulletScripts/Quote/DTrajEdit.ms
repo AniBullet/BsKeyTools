@@ -1,4 +1,46 @@
+	Fn yun_refreshDT_byTime = 
+	(
+		if DTrajEdit_DTrajs.count > 0 then
+		(
+			for i = DTrajEdit_DTrajs.count to 1 by -1 do
+			(
+				checkIs = execute ("DTrajEdit_Rollout.time_FBONOff"+ (i as string)+".checked")
+				if checkIs then 
+				(	
+					execute ("DTrajEdit_Rollout.spn_Start"+ (i as string)+".value=(currentTime as integer)/TicksPerFrame - DTrajEdit_Rollout.time_FB"+ (i as string)+".value")
+					execute ("DTrajEdit_Rollout.spn_End"+ (i as string)+".value=(currentTime as integer)/TicksPerFrame + DTrajEdit_Rollout.time_FB"+ (i as string)+".value")
+					execute ("DTrajEdit_DTrajs["+ (i as string)+"].ReRange ((currentTime as integer)/TicksPerFrame - DTrajEdit_Rollout.time_FB"+ (i as string)+".value) ((currentTime as integer)/TicksPerFrame + DTrajEdit_Rollout.time_FB"+ (i as string)+".value )")			
+					execute ("try(unRegisterTimeCallback yun_refreshDT_byTime)catch();registerTimeCallback yun_refreshDT_byTime")	
+				)
+				else (execute ("try(unRegisterTimeCallback yun_refreshDT_byTime)catch()"))
+			)
+		)
+	)
 (
+	
+-- 	修改！！！！！！！
+	Fn yun_refreshDT_byTime = 
+	(
+		if DTrajEdit_DTrajs.count > 0 then
+		(
+			for i = DTrajEdit_DTrajs.count to 1 by -1 do
+			(
+				checkIs = execute ("DTrajEdit_Rollout.time_FBONOff"+ (i as string)+".checked")
+				if checkIs then 
+				(	
+					execute ("DTrajEdit_Rollout.spn_Start"+ (i as string)+".value=(currentTime as integer)/TicksPerFrame - DTrajEdit_Rollout.time_FB"+ (i as string)+".value")
+					execute ("DTrajEdit_Rollout.spn_End"+ (i as string)+".value=(currentTime as integer)/TicksPerFrame + DTrajEdit_Rollout.time_FB"+ (i as string)+".value")
+					execute ("DTrajEdit_DTrajs["+ (i as string)+"].ReRange ((currentTime as integer)/TicksPerFrame - DTrajEdit_Rollout.time_FB"+ (i as string)+".value) ((currentTime as integer)/TicksPerFrame + DTrajEdit_Rollout.time_FB"+ (i as string)+".value )")			
+					execute ("try(unRegisterTimeCallback yun_refreshDT_byTime)catch();registerTimeCallback yun_refreshDT_byTime")	
+				)
+				else (execute ("try(unRegisterTimeCallback yun_refreshDT_byTime)catch()"))
+			)
+		)
+	)
+-- !-------
+	
+	
+	
 	global pathIcons = ((getDir #scripts) + "\\BulletScripts\\Res")
 	-- 2.07
 	global DTrajEdit_DTrajs = #()
@@ -33,12 +75,14 @@
 		
 		function Move =
 		(
+-- 			yunGetAnimState = animButtonState
 			animButtonState = false
 			if IsValidNode nRoot then
 			(	
 				select nRoot
 				actionMan.executeAction 0 "50001"  -- Tools: Select and Move
 			)
+-- 			animButtonState = yunGetAnimState 
 		),
 		
 		function Update_Attributes =
@@ -233,6 +277,11 @@
 		function NewTraj _bPivot =
 		(
 			local nParent
+-- 					修改行！！！！！！！！！！！！！！！！！！！！！！！！修复虚拟体显示	
+			local yunHelperIsShow
+			yunHelperIsShow = hideByCategory.helpers
+			
+			
 			if _bPivot then
 			(
 				if selection.count == 1 then
@@ -262,6 +311,7 @@
 				if _bPivot then iFace = 1
 				if iFace != undefined then
 				(
+
 					nRoot = point name:(UniqueName "z_DTrajEdit_RootNode_") centermarker:off axistripod:off cross:off Box:off size:0.0 wirecolor:yellow transform:nParent.transform
 					
 					if _bPivot then
@@ -361,6 +411,8 @@
 					messagebox "Be sure to pick an UNFROZEN MESH..." title:"DTrajEdit"
 				)
 			)
+		-- 					修改行！！！！！！！！！！！！！！！！！！！！！！！！修复虚拟体显示		
+		hideByCategory.helpers = yunHelperIsShow
 		),
 		
 		function DeleteTraj _i =
@@ -611,6 +663,14 @@
 					local vStartPos = ([202,44+(vSpacing*(i-1))] as string) 
 					
 					local vDotCol = ([89,61+(vSpacing*(i-1))] as string) 
+						
+-- 					修改！！！！！！
+					local vtimeFB = ([39,61+(vSpacing*(i-1))] as string) 	
+					local vtimeFBOnOff = ([3,61+(vSpacing*(i-1))] as string)
+						
+					
+-- 					---------------
+						
 					local vSplineCol = ([104,61+(vSpacing*(i-1))] as string) 
 					local vMovePos = ([124,61+(vSpacing*(i-1))] as string) 
 					local vDotPos = ([140,61+(vSpacing*(i-1))] as string) 
@@ -643,6 +703,15 @@
 
 					szExecute += ("colorpicker col_Dot" + (i as string) + " \"\" pos:" + vDotCol + " width:20 height:16 color:" + (DTrajEdit_DTrajs[i].vDotCol as string) + " title:\"Spacing Dots\" \n")
 					szExecute += ("on col_Dot" + (i as string) + " changed col do DTrajEdit_DTrajs[" + (i as string) + "].DotCol col\n")
+					
+					
+-- 					修改！！！！！！！！！
+					szExecute += ("spinner time_FB" + (i as string) + " \"\" pos:" + vtimeFB + " width:52 height:16 type:#integer range:[1,999,10]\n")					
+					szExecute += ("on time_FB" + (i as string) + " changed val do yun_refreshDT_byTime()\n")					
+					szExecute += ("checkbox time_FBONOff" + (i as string) + " \"\" pos:" + vtimeFBOnOff + " width:16 height:16   tooltip:\"开关是否实时刷新轨迹长度\" \n")
+					szExecute += ("on time_FBONOff" + (i as string) + " changed theState do (yun_refreshDT_byTime();)\n")
+
+-- 					--------
 
 					szExecute += ("button btn_Dot" + (i as string) + " \"\" pos:" + vDotPos + " width:16 height:16 tooltip:\"HIDE Spacing Dots\" \n")
 					szExecute += ("on btn_Dot" + (i as string) + " pressed do DTrajEdit_DTrajs[" + (i as string) + "].ToggleDot() \n")
