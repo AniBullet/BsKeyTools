@@ -697,7 +697,7 @@ on addToList pressed do
 		--format "You selected '%'!\n" testList.selection
 	)	
 			
-	)else(
+	)else(     ---pose 和 动画在这里切换
 
 	if(selection.count == 0 )then(messagebox messagebox_a_lag title:messagebox_a_title_lag beep:false )else(
 
@@ -741,9 +741,41 @@ on addToList pressed do
 	)
 	select sort_array
 
-	----------------------------------------
-
+	----------------------------------------------逐帧模式动画记录开始
 	if ABbutton.text =="S" then (
+if  cptools.localModeCheckBox.checked then(     -----逐帧的本地模式记录
+	checkIsP = true
+	for o in selection do
+	(
+	if selection.count !=0 then 	(		
+			if 	o.parent==undefined then (checkIsP = false)  ----有根为假
+	)
+	)
+	
+	if  checkIsP then (
+		for i=animationrange.start to animationrange.end do
+		(
+				if keyboard.escPressed do 
+			(
+				format format_a_lag
+				exit
+			)
+			doit_prog.value = 100.*i/animationrange.end
+			slidertime = i
+
+		for o in selection do
+		(
+		if selection.count !=0 then 	(				
+			theCoords=o.transform * (inverse o.parent.transform)
+			format  "<%>|%| = %\n" i o.name theCoords to:out_file					
+		)
+		)
+		format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
+		if doit_prog.value == 100 do (format format_b_lag)
+		)
+	)else(messageBox "请不要选择根骨节")
+) else (     -----逐帧的非本地模式记录
+	
 	for i=animationrange.start to animationrange.end do
 	(
 			if keyboard.escPressed do 
@@ -757,24 +789,18 @@ on addToList pressed do
 	for o in selection do
 	(
 	if selection.count !=0 then 	(		
-		if cptools.localModeCheckBox.checked then(
-			if 	o.parent==undefined then (messageBox "请不要选择根骨节")
-			else (
-				theCoords=o.transform * (inverse o.parent.transform)
-				format  "<%>|%| = %\n" i o.name theCoords to:out_file
-			)
-		) else (
-			format  "<%>|%| = %\n" i o.name o.transform to:out_file
+				format  "<%>|%| = %\n" i o.name o.transform to:out_file				
 		)
-	)
-
 	)
 	format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
 	if doit_prog.value == 100 do (format format_b_lag)
 	)
-	doit_prog.value = 0
-
-	)else(
+			
+)
+doit_prog.value = 0
+)
+----------------------------------------------逐帧模式动画记录结束
+	else(      -------似乎是关键帧模式的动画记录
 
 
 	slidertime = animationrange.start
@@ -801,25 +827,29 @@ on addToList pressed do
 			exit
 		)
 		append frame_data a		
-		a_lost = a
+		a_lost = a	
 		
-		for o in selection do
+	 
+	checkIsP = true   
+	for o in selection do
 	(
-		if selection.count !=0 then    (
-		   
-			if cptools.localModeCheckBox.checked then(
-				if 	o.parent==undefined then (messageBox "请不要选择根骨节")
-				else (
-					theCoords=o.transform * (inverse o.parent.transform)
-					format  "<%>|%| = %\n" a o.name theCoords to:out_file
-				)
-			) else (
-				format  "<%>|%| = %\n" i o.name o.transform to:out_file
-			)
-	   )
+	if selection.count !=0 then 	(		
+			if 	o.parent==undefined then (checkIsP = false)   -------有根节点为假
 	)
+	)
+	if (not checkIsP) and cptools.localModeCheckBox.checked   then ( messageBox "请不要选择根骨节";Exit)	
+	
+			for o in selection do
+		(
+			if selection.count !=0 then    (			   
+				if cptools.localModeCheckBox.checked  then(		-----逐帧的本地模式记录			
+						theCoords=o.transform * (inverse o.parent.transform)
+						format  "<%>|%| = %\n" a o.name theCoords to:out_file
+				) else (format  "<%>|%| = %\n" a o.name o.transform to:out_file	)
+		   )
+		)
+	
 		a = trackbar.getnextkeytime()
-
 		doit_prog.value = 100.*a_lost/(animationrange.end-animationrange.start)
 
 	if a!=undefined and a > animationrange.start and  a <= animationrange.end  then (
