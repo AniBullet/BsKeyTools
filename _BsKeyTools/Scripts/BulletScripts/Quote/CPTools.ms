@@ -7,52 +7,88 @@ fn cptoolsSetAnimRange = (
 		animationRange=interval (rangeB[1] as time)  (rangeB[2] as time )
 	)
 )
+--function that creates array of the SELECTED objects in a sorted hierarchical order 
+--from an array of objects
+------------------------------------------------------------------------------------------
+fn sortSelObjs objArray =
+(
+	-- First find all the root hierarchy objects for selected.
+	--Puts them in a rootObjArray
+	rootObjArray = #()
+	for obj in objArray do
+	(
+		rootobj = obj
+		while rootobj.parent != undefined do rootobj = rootobj.parent
+		if (finditem rootObjArray rootobj) == 0 then append rootObjArray rootObj
+	)
+	--Find children of ALL objects in sorted order.
+	--Starts with the rootObjArray and then selects all the children
+	--in hierarchical order.
+	allObjArray = rootObjArray
 
+	for obj in allObjArray do
+	(
+		if obj.children != undefined do
+		(
+			for d in obj.children do
+			(
+				append allObjArray d
+			)
+		)
+	)
+	--create array of just the SELECTED objects in a sorted order.
+	sortedSelObjs = #()
+	for obj in allObjArray do
+	(
+		if obj.isSelected then append sortedSelObjs obj
+	)
+	sortedSelObjs
+)
 struct myCoolDialogs
- (
- 	labelStr,
- 
- 	stringQuery = rollout stringQuery "输入命名"
- 	(
- 		local returnStr
- 	
- 		label lblHeader
- 		editText etInput text:"_pose"
- 
- 		fn launch label: =
- 		(
- 			destroyDialog myCoolDialogs.stringQuery
- 			if label != unsupplied then
- 				myCoolDialogs.labelStr = label
- 			else myCoolDialogs.labelStr = "Enter some text:"
- 			createDialog myCoolDialogs.stringQuery modal:true
- 			returnStr -- only put it here if the dialog is modal
- 		)
- 
- 		on stringQuery open do
- 		(
- 			lblHeader.text = myCoolDialogs.labelStr
- 			setFocus etInput
- 		)
- 
- 		on etInput entered str do
- 		(
- 			destroyDialog myCoolDialogs.stringQuery
- 			returnStr = str
--- 			cptools.rloading.pressed()
+(
+	labelStr,
+
+	stringQuery = rollout stringQuery "输入命名"
+	(
+		local returnStr
+
+		label lblHeader
+		editText etInput text:"_pose"
+
+		fn launch label: =
+		(
+			destroyDialog myCoolDialogs.stringQuery
+			if label != unsupplied then
+				myCoolDialogs.labelStr = label
+			else myCoolDialogs.labelStr = "Enter some text:"
+			createDialog myCoolDialogs.stringQuery modal:true
+			returnStr -- only put it here if the dialog is modal
+		)
+
+		on stringQuery open do
+		(
+			lblHeader.text = myCoolDialogs.labelStr
+			setFocus etInput
+		)
+
+		on etInput entered str do
+		(
+			destroyDialog myCoolDialogs.stringQuery
+			returnStr = str
+	-- 			cptools.rloading.pressed()
 			
 			)
-		 
+			
 		on stringQuery close do 
 		(
 			destroyDialog myCoolDialogs.stringQuery
- 			
+			
 			returnStr = "未命名_pose"
--- 			cptools.rloading.pressed()
+	-- 			cptools.rloading.pressed()
 		
- 		)	
- 	)
- )
+		)	
+	)
+)
 	
 	fn MakeThumbnail_copy =(
 	grab_bmp = gw.getViewportDib()
@@ -246,7 +282,7 @@ rollout cpToolsPicWin "缩略图"
 (
   
 
-	button yunCopyImgBtn "--------" width:180 height:170 offset:[0,0]
+	button yunCopyImgBtn "--------" width:180 height:200 offset:[0,0]
 	button yunCopyImgBtnGet "更新"  offset:[0,0]
 
 	on cpToolsPicWin open do(
@@ -254,7 +290,7 @@ rollout cpToolsPicWin "缩略图"
 	)	
 	on yunCopyImgBtnGet pressed do (cptools_P1.saveTM() ; cptools_P1.setScreenGrab() ; yunCopyImgBtn.images = #(cptools_P1.screengrab, undefined, 1,1,1,1,1) )
 )
-rollout cpToolsMaster "cpToolsMaster" height:220 width: 230
+rollout cpToolsMaster "cpToolsMaster" height:244 width: 230
 (
   subrollout cpToolsParent1 "cpToolsParent1"
   subrollout cpToolsParent2 "cpToolsParent2"	
@@ -296,11 +332,14 @@ spinner paste_offset  "           " range:[-99999,99999, 0] type:#integer  width
 HyperLink lnk1 "                        " align:#center color:(color 150 150 150) hovercolor:(color 100 100 100)  width:1 visitedcolor:(color 150 150 150) address:"http://www.cgwayne.com/" 
 dropdownlist testListAni items:#() tooltip:"select pose" width:135 enabled:true visible:false offset:[0,-171] 
 checkbox wayneCheckBox "" offset:[-5,127] toolTip:wayneCheckBox_lag
-checkbox localModeCheckBox "local" offset:[35,-20] toolTip:"本地轴向模式"
-checkbox timeRangeCheckBox "帧" offset:[85,-20] toolTip:"自动到帧数范围"
+checkbox localModeCheckBox "父" offset:[21,-20] toolTip:"本地轴向模式"
+checkbox timeRangeCheckBox "帧" offset:[55,-20] toolTip:"自动到帧数范围"
+checkbox percentCheckBox "比" offset:[92,-20] toolTip:"自动到帧数范围"
 
 button language_btn ""  offset:[85,-18]  width:20 height:15 toolTip:language_b_lag
 button picShow "图"  offset:[60,-19]  width:20 height:15 toolTip:"打开或关闭缩略图"
+slider percentValue offset:[-9,0] range:[0.0,100.0,50.0] ticks:10 width:200 align:#left
+-- spinner tweenSp "Key % " offset:[-9,0]  range:[0.0,100.0,50.0]  width:90 
 progressbar    doit_prog  offset:[-9,0]    width:190 height:8    color:red 
 
 
@@ -652,7 +691,7 @@ on addToList pressed do
 		sort_array =#()
 		temp_sort_file = selection as array
 		sort_file = sort(for i in temp_sort_file collect i.name)
-
+-- 		sort_file = sortSelObjs  selection as array
 		for i=1 to sort_file.count do 
 		(
 		format "%|" sort_file[i] to: out_file -- 添加一个选择集
@@ -697,7 +736,7 @@ on addToList pressed do
 		--format "You selected '%'!\n" testList.selection
 	)	
 			
-	)else(
+	)else(     ---pose 和 动画在这里切换
 
 	if(selection.count == 0 )then(messagebox messagebox_a_lag title:messagebox_a_title_lag beep:false )else(
 
@@ -727,7 +766,7 @@ on addToList pressed do
 	sort_array =#()
 	temp_sort_file = selection as array
 	sort_file = sort(for i in temp_sort_file collect i.name)
-
+-- 	sort_file = sortSelObjs  selection as array
 	for i=1 to sort_file.count do 
 	(
 	format "%|" sort_file[i] to: out_file -- 添加一个选择集
@@ -741,9 +780,41 @@ on addToList pressed do
 	)
 	select sort_array
 
-	----------------------------------------
-
+	----------------------------------------------逐帧模式动画记录开始
 	if ABbutton.text =="S" then (
+if  cptools.localModeCheckBox.checked then(     -----逐帧的本地模式记录
+	checkIsP = true
+	for o in selection do
+	(
+	if selection.count !=0 then 	(		
+			if 	o.parent==undefined then (checkIsP = false)  ----有根为假
+	)
+	)
+	
+	if  checkIsP then (
+		for i=animationrange.start to animationrange.end do
+		(
+				if keyboard.escPressed do 
+			(
+				format format_a_lag
+				exit
+			)
+			doit_prog.value = 100.*i/animationrange.end
+			slidertime = i
+
+		for o in selection do
+		(
+		if selection.count !=0 then 	(				
+			theCoords=o.transform * (inverse o.parent.transform)
+			format  "<%>|%| = %\n" i o.name theCoords to:out_file					
+		)
+		)
+		format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
+		if doit_prog.value == 100 do (format format_b_lag)
+		)
+	)else(messageBox "请不要选择根骨节")
+) else (     -----逐帧的非本地模式记录
+	
 	for i=animationrange.start to animationrange.end do
 	(
 			if keyboard.escPressed do 
@@ -757,24 +828,18 @@ on addToList pressed do
 	for o in selection do
 	(
 	if selection.count !=0 then 	(		
-		if cptools.localModeCheckBox.checked then(
-			if 	o.parent==undefined then (messageBox "请不要选择根骨节")
-			else (
-				theCoords=o.transform * (inverse o.parent.transform)
-				format  "<%>|%| = %\n" i o.name theCoords to:out_file
-			)
-		) else (
-			format  "<%>|%| = %\n" i o.name o.transform to:out_file
+				format  "<%>|%| = %\n" i o.name o.transform to:out_file				
 		)
-	)
-
 	)
 	format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
 	if doit_prog.value == 100 do (format format_b_lag)
 	)
-	doit_prog.value = 0
-
-	)else(
+			
+)
+doit_prog.value = 0
+)
+----------------------------------------------逐帧模式动画记录结束
+	else(      -------似乎是关键帧模式的动画记录
 
 
 	slidertime = animationrange.start
@@ -801,25 +866,29 @@ on addToList pressed do
 			exit
 		)
 		append frame_data a		
-		a_lost = a
+		a_lost = a	
 		
-		for o in selection do
+	 
+	checkIsP = true   
+	for o in selection do
 	(
-		if selection.count !=0 then    (
-		   
-			if cptools.localModeCheckBox.checked then(
-				if 	o.parent==undefined then (messageBox "请不要选择根骨节")
-				else (
-					theCoords=o.transform * (inverse o.parent.transform)
-					format  "<%>|%| = %\n" a o.name theCoords to:out_file
-				)
-			) else (
-				format  "<%>|%| = %\n" i o.name o.transform to:out_file
-			)
-	   )
+	if selection.count !=0 then 	(		
+			if 	o.parent==undefined then (checkIsP = false)   -------有根节点为假
 	)
+	)
+	if (not checkIsP) and cptools.localModeCheckBox.checked   then ( messageBox "请不要选择根骨节";Exit)	
+	
+			for o in selection do
+		(
+			if selection.count !=0 then    (			   
+				if cptools.localModeCheckBox.checked  then(		-----逐帧的本地模式记录			
+						theCoords=o.transform * (inverse o.parent.transform)
+						format  "<%>|%| = %\n" a o.name theCoords to:out_file
+				) else (format  "<%>|%| = %\n" a o.name o.transform to:out_file	)
+		   )
+		)
+	
 		a = trackbar.getnextkeytime()
-
 		doit_prog.value = 100.*a_lost/(animationrange.end-animationrange.start)
 
 	if a!=undefined and a > animationrange.start and  a <= animationrange.end  then (
@@ -1017,7 +1086,12 @@ on pastepose pressed do (
 	-------------------------------------将选择重新排序
 	sort_array =#()
 	temp_sort_file = selection as array
+	
+	sortSelObjs selection as array
+	
+	
 	sort_file = sort(for i in temp_sort_file collect i.name)
+-- 	sort_file = sortSelObjs  selection as array
 	for i =1 to sort_file.count do 
 	(
 	obj =getnodebyname sort_file[i] 
@@ -1053,7 +1127,8 @@ with undo "pasteList" on (
 					if a==undefined then ( selectundefined =selectundefined+1 )else(
 						skiptostring in_file "="
 						ss = readLine in_file ---as stringStream
-						ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss						
+						ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss
+											
 						-----写入本地姿势pose			
 						if cptools.localModeCheckBox.checked then (
 							--字符转成矩阵
@@ -1080,14 +1155,43 @@ with undo "pasteList" on (
 							in coordsys  parent  o.pos = theCoords_str2Mat[4]		
 						)
 						--------------------------------------------------------写入结束
-						else (
-							execute ex_tran	
-						)
-							
+						else (	execute ex_tran	)							
 						format (format_c_lag + ":(%/100)  \n")   doit_prog.value
 						if doit_prog.value == 100 do (format format_b_lag)	
 					)
 				)
+			----百分比加入	strat
+				if percentCheckBox.checked then 
+				(
+				sortedSelObjs = sortSelObjs selection as array
+				perValue = cptools.percentValue.value/100	
+				for o in sortedSelObjs do
+				(	ss =o.transform							
+					if o.skinPosEnabled or o.skinRotEnabled or o.skinScaleEnabled then (o.assumeSkinPose())
+					else (messageBox "没有蒙皮姿势")
+					SkinPoseTransfrom = o.transform				
+					
+					posv = (ss.translationpart-SkinPoseTransfrom.translationpart)*perValue+SkinPoseTransfrom.translationpart
+					
+					r1 = SkinPoseTransfrom.rotationpart
+					r2 = ss.rotationpart
+					fn dotQuat q q_prev =
+					( 
+					   (q.w * q_prev.w + q.x * q_prev.x + q.y * q_prev.y + q.z * q_prev.z) < 0 
+					)
+					if (dotQuat r1 r2) do r1 *=-1
+					rotv = slerp (normalize r1) (normalize r2) perValue 	
+					scalev = (ss.scalepart - SkinPoseTransfrom.scalepart)*perValue+SkinPoseTransfrom.scalepart
+					
+					o.scale= scalev
+					o.rotation=  inverse rotv
+					o.position = posv
+				)
+				)	
+			---百分比加入	end	
+				
+			
+							
 			doit_prog.value = 0
 			--)
 			close in_file
@@ -1304,6 +1408,11 @@ with undo "pasteList" on (
 	)
 )
 )
+
+on percentValue buttonUp do(
+	if percentCheckBox.checked then  (cptools.pastepose.pressed()	)
+	)
+
 ---------------------------------------------------------------------------------------
 
 on obj_r pressed do 
@@ -1376,13 +1485,13 @@ createdialog cpToolsMaster
 AddSubRollout cpToolsMaster.cpToolsParent1 cptools
 AddSubRollout cpToolsMaster.cpToolsParent2 cpToolsPicWin
 cpToolsMaster.cpToolsParent1.pos = [0,0]
-cpToolsMaster.cpToolsParent1.height = 240
+cpToolsMaster.cpToolsParent1.height = 240+45
 cpToolsMaster.cpToolsParent1.width = 200
 cpToolsMaster.cpToolsParent2.pos = [210,0]
-cpToolsMaster.cpToolsParent2.height = 240
+cpToolsMaster.cpToolsParent2.height = 240+35
 -- cpToolsMaster.width =  410
-cpToolsMaster.height = 240
-cpToolsMaster.width =  200
+cpToolsMaster.height = 240+45
+cpToolsMaster.width =  410
 
 -- 刷图
 	if cptools.testList.visible  then   ---pose模式
