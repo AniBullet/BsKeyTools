@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-05-09 22:32:29
+ * @LastEditTime: 2021-12-28 18:28:02
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -358,7 +358,15 @@ rollout rolBsOpenTools "" width:340 height:365
 		(
 			for i = iniLikedFolder.count to 1 by -1 do
 			(
-				append arrDirItems iniLikedFolder[i].name
+				if (doesDirectoryExist iniLikedFolder[i].dir) then 
+				(
+					append arrDirItems iniLikedFolder[i].name
+				)
+				else 
+				(
+					messagebox (iniLikedFolder[i].dir + "\r\n文件夹不存在\r\n已从常用路径中删除                                                                          \r\n")
+					deleteitem iniLikedFolder i
+				)
 			)
 		)
 		else 
@@ -419,13 +427,12 @@ rollout rolBsOpenTools "" width:340 height:365
 		ckbLockWidth.images      = #("LockButtonExt_i.bmp","LockButtonExt_i.bmp",2,1,1,2,2,true,false)
 		btnOpenCurrentDir.images = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,5,5,5,5,true,false)
 		btnPrevFolder.images     = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,1,1,1,1,false,true)
-
+		stLoadConfigAll.fnLoadConfigBsOpenTools ()  ---------------脚本位置等赋值
+		stSetConfigAll.fnSetConfigBsOpenTools ()  ----------------保存位置信息到ini文件	
+		fnRefLikedFolderItems ()
 		fnRefreshAddress ()
 		fnRefreshList maxFilePath type: arrFileType[rdoFileType.state]
 		lblCountTips.text = "文件：" + arrFiles.count as string
-		stLoadConfigAll.fnLoadConfigBsOpenTools ()  ---------------脚本位置等赋值
-		stSetConfigAll.fnSetConfigBsOpenTools ()  ----------------保存位置信息到ini文件
-		fnRefLikedFolderItems ()
 		ltbFilterPrefix.selection = 0
 		fnRefreshFilterItems ()
 		ddlLikedFolder.selection = iniSelectedID
