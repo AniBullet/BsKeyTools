@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-08-04 18:15:00
+ * @LastEditTime: 2021-12-28 17:12:14
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2388,8 +2388,9 @@ rollout rolBsKeyTools "" width:200 height:248
 		-- )
 		if ((selection.count == 1) and (classof $ == Biped_Object) and ($.ishidden == false)) then 
 		(
-			execute ("select $'" + $.controller.rootNode.name + "*'")
-			execute ("deselect $'" + $.controller.rootNode.name + "*Footsteps'")
+			local tempSel = $
+			execute ("select $'" + tempSel.controller.rootNode.name + "*'")
+			execute ("deselect $'" + tempSel.controller.rootNode.name + "*Footsteps'")
 		)
 		else 
 		(
