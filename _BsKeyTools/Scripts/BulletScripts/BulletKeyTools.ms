@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-12-28 17:12:14
+ * @LastEditTime: 2022-01-29 17:46:31
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -496,24 +496,30 @@ rcmenu menuConfig
 	local startupBsKeyTools = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"
 	local startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
 	menuItem mItemHelpDoc "【必看帮助文档】"
+	menuItem mItemBugReport "【问题和建议】"
+	separator menuSepHelp
 	menuItem mItemIsStartup "是否随Max自启"
 	menuItem mItemAddToolBarBtn "添加工具栏按钮"
-	menuItem mItemIsIcon "切换图标模式"
 	menuItem mItemCustomSortBtn "自定义功能位置"
+	menuItem mItemIsIcon "切换图标模式"
+	separator menuSepCustom
 	subMenu "更新设置"
 	(
-		menuItem mItemCheckUpdate "检查更新"
-		menuItem mItemForceUpdate "强制更新"
-		menuItem mItemAutoCheckUpdate "自动检测"
-		menuItem mItemUpdateLog "更新记录"
-		menuItem mItemUndoVersion "回退版本"
+		menuItem mItemCheckUpdate "检查更新[需要联网]"
+		menuItem mItemForceUpdate "强制更新[无视版本]"
+		menuItem mItemAutoCheckUpdate "自动检测[需要联网]"
+		menuItem mItemUpdateLog "更新记录[需求何在]"
+		menuItem mItemUndoVersion "回退版本[上个版本]"
 	)
-	menuItem mItemScriptsPath "脚本目录"
-	menuItem mItemConfigFilePath "配置文件"
-	separator menuSepUninstall
+	subMenu "调试相关"
+	(
+		menuItem mItemScriptsPath "脚本目录"
+		menuItem mItemConfigFilePath "配置文件"
+	)
+	separator menuSepConf
 	menuItem mItemCleanVirus "杀毒方案"
 	menuItem mItemClose "关闭工具"
-	menuItem mItemUninstall "说了再见"
+	menuItem mItemUninstall "卸载工具"
 	subMenu "关于我"
 	(
 		menuItem mItemBilibili "Bilibili"
@@ -533,6 +539,9 @@ rcmenu menuConfig
 
 	on mItemHelpDoc picked do 
 	(shellLaunch "https://www.notion.so/bullet4869/BsKeyTools-17b5ba7c37ae45f6a69ce90f45fa0657" "")
+
+	on mItemBugReport picked do
+	(shellLaunch "https://github.com/AnimatorBullet/BsKeyTools/issues" "")
 
 	on mItemBilibili picked do 
 	(shellLaunch "https://space.bilibili.com/2031113" "")
