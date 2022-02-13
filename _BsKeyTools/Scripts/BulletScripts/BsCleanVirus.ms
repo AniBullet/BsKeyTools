@@ -1,3 +1,11 @@
+/*
+ * @Description: 杀毒工具
+ * @Author: Bullet.S
+ * @Date: 2022-02-13 15:37:02
+ * @LastEditors: Bullet.S
+ * @LastEditTime: 2022-02-14 02:58:25
+ * @Email: animator.bullet@foxmail.com
+ */
 global rolBsCleanVirus
 global rolBsVirusScanLog
 global iniStartupBsCleanVirus = 0
