@@ -30,7 +30,7 @@ struct stLoadConfigAll
 (
 	fn fnLoadConfigBsKeyToolsAll =
 	(
-		iniPos               = fnGetConfig iniPos "BulletKeyToolsSet" "Pos" (0 as string)
+		iniPos               = fnGetConfig iniPos "BulletKeyToolsSet" "Pos" "0"
 		switchToolPanel      = fnGetConfig switchToolPanel "BulletKeyToolsSet"  "ToolPanel" (switchToolPanel as string)
 		switchMSPanel        = fnGetConfig switchMSPanel "BulletKeyToolsSet"  "MSPanel" (switchMSPanel as string)
 		idBtn                = fnGetConfig idBtn "BulletKeyToolsSet"  "idBtn" (idBtn as string)
@@ -53,12 +53,12 @@ struct stLoadConfigAll
 	),
 	fn fnLoadConfigBsAnimButton =
 	(
-		iniPosAnimButtonTools = fnGetConfig iniPosAnimButtonTools "BsAnimButtonSet" "PosAnimButton" (0 as string)
+		iniPosAnimButtonTools = fnGetConfig iniPosAnimButtonTools "BsAnimButtonSet" "PosAnimButton" "0"
 		iniAnimButtonSelected = fnGetConfig iniAnimButtonSelected "BsAnimButtonSet" "AnimButtonSelected" "0"
 	),
 	fn fnLoadConfigBsOpenTools =
 	(
-		iniPosOpenTools   = fnGetConfig iniPosOpenTools "BsOpenToolsSet" "PosOpenTools" (0 as string)
+		iniPosOpenTools   = fnGetConfig iniPosOpenTools "BsOpenToolsSet" "PosOpenTools" "0"
 		iniSelectedID     = fnGetConfig iniSelectedID "BsOpenToolsSet" "SelectedID" (iniSelectedID as string)
 		iniLikedFolder    = fnGetConfig iniLikedFolder "BsOpenToolsSet"  "LikedFolder" (iniLikedFolder as string)
 		iniFilterPrefix   = fnGetConfig iniFilterPrefix "BsOpenToolsSet"  "FilterPrefix" (iniFilterPrefix as string)
@@ -67,7 +67,7 @@ struct stLoadConfigAll
 	),
 	fn fnLoadConfigBsRefTools =
 	(
-		iniPosRefTools   = fnGetConfig iniPosRefTools "BsRefToolsSet" "PosRefTools" (0 as string)
+		iniPosRefTools   = fnGetConfig iniPosRefTools "BsRefToolsSet" "PosRefTools" "0"
 		iniRefFolder1    = fnGetConfig iniRefFolder1 "BsRefToolsSet"  "RefFolder1" (iniRefFolder1 as string)
 		iniRefFolder2    = fnGetConfig iniRefFolder2 "BsRefToolsSet"  "RefFolder2" (iniRefFolder2 as string)
 		iniRefFolder3    = fnGetConfig iniRefFolder3 "BsRefToolsSet"  "RefFolder3" (iniRefFolder3 as string)
@@ -77,7 +77,11 @@ struct stLoadConfigAll
 	),
 	fn fnLoadConfigSelSetTools =
 	(
-		iniPosSelSetTools = fnGetConfig iniPosSelSetTools "BsSelSetToolsSet" "PosSelSetTools" (0 as string)
+		iniPosSelSetTools = fnGetConfig iniPosSelSetTools "BsSelSetToolsSet" "PosSelSetTools" "0"
+	),
+	fn fnLoadConfigBsCleanVirus =
+	(
+		iniStartupBsCleanVirus = fnGetConfig iniStartupBsCleanVirus "BsCleanVirus" "StartupBsCleanVirus" "0"
 	)
 )
 struct stSetConfigAll
@@ -120,5 +124,9 @@ struct stSetConfigAll
 	fn fnSetConfigSelSetTools =
 	(
 		SetINISetting BulletConfig "BsSelSetToolsSet"  "PosSelSetTools" (iniPosSelSetTools as string)
+	),
+	fn fnSetConfigBsCleanVirus =
+	(
+		SetINISetting BulletConfig "BsCleanVirus"  "StartupBsCleanVirus" (iniStartupBsCleanVirus as string)
 	)
 )

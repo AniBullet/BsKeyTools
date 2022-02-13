@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-01-29 17:46:31
+ * @LastEditTime: 2022-02-14 02:33:09
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -495,36 +495,37 @@ rcmenu menuConfig
 (
 	local startupBsKeyTools = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"
 	local startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
-	menuItem mItemHelpDoc "【必看帮助文档】"
-	menuItem mItemBugReport "【问题和建议】"
+	menuItem mItemHelpDoc ">> 必看帮助文档 <<"
+	menuItem mItemBugReport ">> 问题和和建议 <<"
 	separator menuSepHelp
-	menuItem mItemIsStartup "是否随Max自启"
-	menuItem mItemAddToolBarBtn "添加工具栏按钮"
-	menuItem mItemCustomSortBtn "自定义功能位置"
-	menuItem mItemIsIcon "切换图标模式"
+	menuItem mItemIsStartup "是否随3dsMax自启"
+	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
+	menuItem mItemCustomSortBtn "自定义功能按钮位置"
+	menuItem mItemIsIcon "切换图标模式 [实验]"
 	separator menuSepCustom
-	subMenu "更新设置"
+	menuItem mItemCleanVirus "杀毒工具 [测试中]"
+	subMenu "更新设置 [需要联网]"
 	(
-		menuItem mItemCheckUpdate "检查更新[需要联网]"
-		menuItem mItemForceUpdate "强制更新[无视版本]"
-		menuItem mItemAutoCheckUpdate "自动检测[需要联网]"
-		menuItem mItemUpdateLog "更新记录[需求何在]"
-		menuItem mItemUndoVersion "回退版本[上个版本]"
+		menuItem mItemCheckUpdate "检查更新 [需要联网]"
+		menuItem mItemForceUpdate "强制更新 [无视版本]"
+		menuItem mItemAutoCheckUpdate "自启检测 [需要联网]"
+		menuItem mItemUpdateLog "更新记录 [需求何在]"
+		menuItem mItemUndoVersion "回退版本 [上个版本]"
 	)
-	subMenu "调试相关"
+	subMenu "调试相关 [谨慎使用]"
 	(
-		menuItem mItemScriptsPath "脚本目录"
-		menuItem mItemConfigFilePath "配置文件"
+		menuItem mItemScriptsPath "脚本目录 [查错优化]"
+		menuItem mItemConfigFilePath "配置文件 [备份导入]"
+		menuItem mItemRolloutBuilder "脚本界面 [学习工具]"
 	)
 	separator menuSepConf
-	menuItem mItemCleanVirus "杀毒方案"
-	menuItem mItemClose "关闭工具"
-	menuItem mItemUninstall "卸载工具"
-	subMenu "关于我"
+	menuItem mItemClose "关闭 [空白处中键也可]"
+	menuItem mItemUninstall "卸载 [请期待更好的我]"
+	subMenu "关于我 [欢迎建议交流]"
 	(
-		menuItem mItemBilibili "Bilibili"
-		menuItem mItemTwitter "Twitter"
-		menuItem mItemQgroup "QQgroup"
+		menuItem mItemBilibili "📺 Bilibili"
+		menuItem mItemTwitter "🐦 Twitter"
+		menuItem mItemQgroup "🐧 Qgroup"
 	)
 
 	on menuConfig open do
@@ -561,16 +562,21 @@ rcmenu menuConfig
 
 	on mItemCleanVirus picked do
 	(
-		if (queryBox "是否跳转网页查看Max和Maya病毒解决方案合集?              " \
-		title:"是否跳转网页" beep:false) then
-		(shellLaunch "https://www.anibullet.com/post/6569.html" "")
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsCleanVirus.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 	)
 
 	on mItemConfigFilePath picked do
 	(
-		if (queryBox "是否打开配置文件目录？（配置文件：BulletConfig.ini）              " \
-		title:"是否打开" beep:false) then
+		if (queryBox "是否打开配置文件目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
+		title:"配置文件" beep:false) then
 		(shellLaunch (getFilenamePath BulletConfig) "")
+	)
+
+	on mItemRolloutBuilder picked do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\RolloutBuilder.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 	)
 
 	on mItemIsStartup picked do 
@@ -579,6 +585,7 @@ rcmenu menuConfig
 		(
 			fnDelFileDir startupPath
 			mItemIsStartup.checked = false
+			messagebox ("已解除 BsKeyTools 自启！                  ")  title:"自启设置"
 		)
 		else 
 		(
@@ -587,7 +594,7 @@ rcmenu menuConfig
 				try 
 				(
 					SIOFile.Copy startupBsKeyTools startupPath
-					print ("已打开自启: " + filenameFromPath startupPath)
+					messagebox ("已打开 BsKeyTools 自启！                  ")  title:"自启设置"
 					mItemIsStartup.checked = true
 					setFileAttribute startupPath #readOnly true
 				)
@@ -697,7 +704,7 @@ Global valueFps
 Global valuePlaySpeed = ""
 Global strCurrentFps = framerate as string + "FPS"
 
-fn fnRefFps =
+fn fnBsRefFps =
 (
 	local arrMenuSetFps = #(menuSetFps.menuSet60Fps,menuSetFps.menuSet30Fps, \
 							menuSetFps.menuSet24Fps,menuSetFps.menuCustomFps)
@@ -718,7 +725,7 @@ fn fnSetFps numFps =
 (
 	framerate = numFps
 	valueFps = numFps
-	fnRefFps ()
+	fnBsRefFps ()
 	slidertime -= 1
 	slidertime += 1
 )
@@ -772,7 +779,7 @@ rollout rolCustomFps ""
 	(
 		framerate = valueFps
 		labTips.text = "当前:" + framerate as string + "FPS"
-		fnRefFps ()
+		fnBsRefFps ()
 		slidertime -= 1
 		slidertime += 1
 	)
@@ -787,7 +794,7 @@ rcmenu menuSetFps
 	separator menuSepCustom
 	menuItem menuCustomFps "自定义帧率"
 
-	on menuSetFps open do (fnRefFps ())
+	on menuSetFps open do (fnBsRefFps ())
 
 	on menuSet60Fps picked do (fnSetFps 60)
 	on menuSet30Fps picked do(fnSetFps 30)
@@ -2332,7 +2339,7 @@ rollout rolBsKeyTools "" width:200 height:248
 		if(switchMSPanel == 0) then (ckbSwitchMyScripts.checked = false)
 		else (ckbSwitchMyScripts.checked = true)
 		fnRefPlaySpeedValue ()  -----判断播放速度
-		fnRefFps ()
+		fnBsRefFps ()
 		fnRefreshMagicBtn ()
 		-- if (switchToolPanel == 1) then
 		-- (
@@ -3372,13 +3379,13 @@ rollout rolBsKeyTools "" width:200 height:248
 if (iniPos != 0) then (Createdialog rolBsKeyTools fgcolor:myFgColor pos:iniPos style:#())
 else (Createdialog rolBsKeyTools fgcolor:myFgColor style:#())
 
-fn fnUpdateTimeRange = 
+fn fnBsUpdateTimeRange = 
 (
 	rolBsKeyTools.spiStartTime.value = (animationRange.start.frame as integer)   
 	rolBsKeyTools.spiEndTime.value = (animationRange.end.frame as integer)
 )
-callbacks.addScript #animationRangeChange "fnUpdateTimeRange()" id:#UpdateTimeRange
-callbacks.addScript #filePostOpen "fnRefFps()" id:#UpdateFps
+callbacks.addScript #animationRangeChange "fnBsUpdateTimeRange()" id:#UpdateTimeRange
+callbacks.addScript #filePostOpen "fnBsRefFps()" id:#UpdateFps
 gc()
 clearListener()  ---------清除侦听器
 
