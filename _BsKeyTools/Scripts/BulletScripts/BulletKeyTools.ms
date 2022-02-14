@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-02-14 10:23:37
+ * @LastEditTime: 2022-02-14 12:18:01
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -55,7 +55,7 @@ Global arrSourToolC2 = #()
 Global arrSourToolC3 = #()
 Global arrSourToolC4 = #()
 
-global curVerBsKeyTools = "0.9.8_[Beta]"
+global curVerBsKeyTools = "0.9.8"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
@@ -1241,7 +1241,7 @@ rollout rolBsKeyTools "" width:200 height:248
 		-- button btnZeroFrameDisplay "零帧" pos:[100,40] width:30 height:20 \
 		-- tooltip:"首帧回到0帧"
 		button btnHotAnimBtn "简单命令" pos:[130,40] width:60 height:25 \
-		tooltip:"动画相关3dsMax自带功能整合"
+		tooltip:"动画相关3dsMax自带功能整合" enabled:false
 		checkbutton ckbShadowCut "剪影" highlightcolor:myCheckedColor \
 		pos:[100,40] width:30 height:25 toolTip:"切换剪影显示"
 		button btnMagicBtn "" pos:[130,21] width:60 height:18  \
@@ -1295,7 +1295,7 @@ rollout rolBsKeyTools "" width:200 height:248
 		button btnPoseTool "库" pos:[50,187] width:20 height:30 \
 		toolTip:"参考库工具,待完善"
 		button btnQuickSave "帧栏" pos:[70,187] width:30 height:30 \
-		toolTip:"帧栏工具条" 
+		toolTip:"帧栏工具条" enabled:false
 		button btnSetFps "" pos:[100,187] width:45 height:30 \
 		toolTip:"设置帧率" 
 		button btnSetSpeed "" pos:[145,187] width:45 height:30 \
