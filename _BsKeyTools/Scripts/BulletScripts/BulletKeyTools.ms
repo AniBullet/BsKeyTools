@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-02-14 12:18:01
+ * @LastEditTime: 2022-02-17 12:38:54
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -55,7 +55,7 @@ Global arrSourToolC2 = #()
 Global arrSourToolC3 = #()
 Global arrSourToolC4 = #()
 
-global curVerBsKeyTools = "0.9.8"
+global curVerBsKeyTools = "0.9.9"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
@@ -474,7 +474,7 @@ fn fnSwitchIconStyle =
 	rolBsKeyTools.ckbFreezeMesh.images = #("UVWUnwrapView_24i.bmp","UVWUnwrapView_24a.bmp",27,17,19,17,19,true,false)
 	rolBsKeyTools.btnCutFrameDisplay.images = #("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,2,2,2,2,true,true)
 	rolBsKeyTools.btnAllFrameDisplay.images = #("TrackViewStatus_24i.bmp","TrackViewStatus_24i.bmp",27,3,3,3,3,true,true)
-	rolBsKeyTools.btnHotAnimBtn.images = #("PFSubObjectIcons_24i.bmp","PFSubObjectIcons_24i.bmp",2,2,2,2,2,true,true)
+	rolBsKeyTools.btnTrackBarTools.images = #("PFSubObjectIcons_24i.bmp","PFSubObjectIcons_24i.bmp",2,2,2,2,2,true,true)
 	rolBsKeyTools.ckbHideBones.images = #("Systems_24i.bmp","Systems_24i.bmp",3,1,1,1,1,true,true)
 	rolBsKeyTools.ckbHideBiped.images = #("CAT_ColourMode_i.bmp","CAT_ColourMode_a.bmp",10,2,1,2,1,true,false)
 	rolBsKeyTools.btnImageComp.images = #("TaskPanel_i.bmp","TaskPanel_i.bmp",6,2,2,2,2,true,false)
@@ -488,7 +488,7 @@ fn fnSwitchIconStyle =
 	rolBsKeyTools.btnLayerManager.images = #("AnimLayerToolbar_16i.bmp","AnimLayerToolbar_16i.bmp",12,1,1,1,1,true,true)
 	rolBsKeyTools.btnSelectionsetTools.images = #("enss_maintoolbar_16i.bmp","enss_maintoolbar_16i.bmp",1,1,1,1,1,true,true)
 	rolBsKeyTools.btnPoseTool.images = #("bip_modes_i.bmp","bip_modes_i.bmp",8,1,1,1,1,true,true)
-	rolBsKeyTools.btnQuickSave.images = #("bip_copy1paste_i.bmp","bip_copy1paste_i.bmp",10,3,3,3,3,true,true)
+	rolBsKeyTools.btnQuicksave.images = #("bip_copy1paste_i.bmp","bip_copy1paste_i.bmp",10,3,3,3,3,true,true)
 )
 
 rcmenu menuConfig
@@ -1240,8 +1240,8 @@ rollout rolBsKeyTools "" width:200 height:248
 		tooltip:"预览全部帧\r\n再点回到上次帧范围"
 		-- button btnZeroFrameDisplay "零帧" pos:[100,40] width:30 height:20 \
 		-- tooltip:"首帧回到0帧"
-		button btnHotAnimBtn "简单命令" pos:[130,40] width:60 height:25 \
-		tooltip:"动画相关3dsMax自带功能整合" enabled:false
+		button btnQuicksave "快速备份" pos:[130,40] width:60 height:25 \
+		tooltip:"快速备份当前文件"
 		checkbutton ckbShadowCut "剪影" highlightcolor:myCheckedColor \
 		pos:[100,40] width:30 height:25 toolTip:"切换剪影显示"
 		button btnMagicBtn "" pos:[130,21] width:60 height:18  \
@@ -1294,8 +1294,8 @@ rollout rolBsKeyTools "" width:200 height:248
 		toolTip:"选择集工具增强版" 
 		button btnPoseTool "库" pos:[50,187] width:20 height:30 \
 		toolTip:"参考库工具,待完善"
-		button btnQuickSave "帧栏" pos:[70,187] width:30 height:30 \
-		toolTip:"帧栏工具条" enabled:false
+		button btnTrackBarTools "帧栏" pos:[70,187] width:30 height:30 \
+		toolTip:"帧栏工具条"
 		button btnSetFps "" pos:[100,187] width:45 height:30 \
 		toolTip:"设置帧率" 
 		button btnSetSpeed "" pos:[145,187] width:45 height:30 \
@@ -2131,6 +2131,26 @@ rollout rolBsKeyTools "" width:200 height:248
 		if (getNodeByName deleteTrajName) != undefined then (delete (getNodeByName deleteTrajName))
 	)
 
+	fn fnQuickSave =
+	(
+		local nameCurrentFile = getFilenameFile maxFileName
+		local arrTime = for i in (getLocalTime()) collect i as string
+		local strNameSplit = "@Backup_"
+		local fileSave = ""
+
+		if (matchpattern nameCurrentFile pattern:("*" + strNameSplit + "*")) then
+		(
+			numSplitString = (findString (getFilenameFile maxFileName) "@Backup_")
+			nameCurrentFile = replace nameCurrentFile numSplitString (nameCurrentFile.count - numSplitString + 1) ""
+		)
+
+		strNameSplit = strNameSplit + arrTime[2] + "_" + arrTime[4] + "_" + arrTime[5] + "h" + arrTime[6] + "m" + arrTime[7] + "s" + arrTime[8] + "ms"
+
+		fileSave = maxFilePath + nameCurrentFile + strNameSplit + ".max"
+		saveMaxFile fileSave
+		messagebox ("已快速备份至：\r\n" + fileSave + "                                      ") 
+	)
+
 	fn fnCutDisplayKeyRange keyFirst keyEnd =  ---显示首尾帧范围
 	(
 		if ((keyFirst != undefined) and (keyEnd != undefined)) then
@@ -2849,13 +2869,17 @@ rollout rolBsKeyTools "" width:200 height:248
 		)
 	)
 
-	on btnQuickSave pressed do 
+	on btnQuicksave pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsAutoBackup.ms"))
-		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+		if maxFilePath == "" then 
+		(
+			messagebox "------------------------------------\r\n当前场景未保存过,\r\n请先保存初始版本~"
+			max file saveas
+		)
+		else fnQuickSave ()
 	)
 
-	on btnQuickSave rightclick do (max file saveas)
+	on btnQuicksave rightclick do (max file saveas)
 
 	on btnCutFrameDisplay pressed do with undo on  ---------------帧栏显示选定帧范围
 	(
@@ -3225,9 +3249,9 @@ rollout rolBsKeyTools "" width:200 height:248
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 	)
 
-	on btnHotAnimBtn pressed do 
+	on btnTrackBarTools pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsAnimButton.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsTrackBarTools.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 	)
 
