@@ -1,9 +1,9 @@
 --转自CGJOY:https://www.cgjoy.com/forum.php?mod=viewthread&tid=150585
 --原作者未知,Bullet.S精简修改,版权归原作者,请勿商用!后果自负!
 
-if doesFileExist (getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini") == false then
+if doesFileExist ((getDir #maxData) + "cstool.ini") == false then
 	(
-		f = createFile (getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini");close f
+		f = createFile ((getDir #maxData) + "cstool.ini");close f
 	)
 	
 	if ottool!=undefind then CloseRolloutfloater ottool
@@ -717,7 +717,7 @@ if doesFileExist (getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini") == fa
 	
 	function savedate  =
 		(
-		   f=createFile(getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini")
+		   f=createFile((getDir #maxData) + "cstool.ini")
 			format "%\t%\n" dialog_x dialog_y to:f
 			format "%\t%\t%\t%\t%\n" mystarttime myendtime myrangetime mymovetime myaddtime to:f
 		   format "%\n" bspeed to:f
@@ -730,7 +730,7 @@ if doesFileExist (getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini") == fa
 	
 	function savePathData  =
 		(
-		   f=createFile("$UI_ln\\bipPath.ini")
+		   f=createFile((getDir #maxData) + "bipPath.ini")
 		   for i=1 to 20 do
 			format "%\n" pathItems[i] to:f
 		   close f
@@ -739,7 +739,7 @@ if doesFileExist (getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini") == fa
 		
 	function loaddate  =
 	   (
-		f = openfile (getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini")
+		f = openfile ((getDir #maxData) + "cstool.ini")
 	
 		if f != undefined then 
 		   try
@@ -761,7 +761,7 @@ if doesFileExist (getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini") == fa
 		  else 
 		  try( 
 	
-		   f=createFile(getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini")
+		   f=createFile((getDir #maxData) + "cstool.ini")
 			format "%\t%\t%\n" dialog_x dialog_y to:f
 			format "%\t%\t%\t%\t%\n" mystarttime myendtime myrangetime mymovetime myaddtime to:f
 		   format "%\n" bspeed to:f
@@ -775,7 +775,7 @@ if doesFileExist (getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini") == fa
 		
 	function loadPathData  =
 	   (
-		f = openfile ("$UI_ln\\bipPath.ini")
+		f = openfile ((getDir #maxData) + "bipPath.ini")
 	
 		if f != undefined then 
 		   try
@@ -786,7 +786,7 @@ if doesFileExist (getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini") == fa
 		  ) 	catch()
 		  else  
 		  try( 
-		   f=createFile("$UI_ln\\bipPath.ini")
+		   f=createFile((getDir #maxData) + "bipPath.ini")
 		   for i=1 to 20 do
 			format "%\n" pathItems[i] to:f
 		   close f
@@ -1594,7 +1594,7 @@ if doesFileExist (getdir #maxroot+"UI_ln\\ICONS\\cstoolIcons\\cstool.ini") == fa
 		
 		on btn2 pressed do
 		(
-		 ShellLaunch "$UI_ln\\bipPath.ini" ""
+		 ShellLaunch (getDir #maxData) + "bipPath.ini" ""
 		)
 		
 	)

@@ -55,7 +55,7 @@ Global arrSourToolC2 = #()
 Global arrSourToolC3 = #()
 Global arrSourToolC4 = #()
 
-global curVerBsKeyTools = "0.9.8.1"
+global curVerBsKeyTools = "0.9.8.2"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
