@@ -935,7 +935,7 @@ else (Createdialog rolRefTools menu:RCmenuRefConfig fgcolor:myFgColor)
 macroScript BsRefTools
 category:"_[BulletTools]"
 buttonText:"BsRefTools"
-toolTip:"BsRefTools"
+toolTip:"参考工具"
 (
 	on execute do
 	(
