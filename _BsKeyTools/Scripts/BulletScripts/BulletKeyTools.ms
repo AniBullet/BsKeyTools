@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-02-28 11:08:35
+ * @LastEditTime: 2022-02-28 13:07:29
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -495,6 +495,8 @@ rcmenu menuConfig
 (
 	local startupBsKeyTools = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"
 	local startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
+	local startupMarcroPath = (getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"
+	local startupMenuBarPath = (getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"
 	menuItem mItemHelpDoc ">> 必看帮助文档 <<"
 	menuItem mItemBugReport ">> 问题和和建议 <<"
 	separator menuSepHelp
@@ -663,7 +665,14 @@ rcmenu menuConfig
 				iniAddToolbars = 0
 				SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
 			)
+			if ((menuMan.findMenu "🎮 BsKeyTools") != undefined) then 
+            (
+                menuMan.unRegisterMenu (menuMan.findMenu "🎮 BsKeyTools")
+                menuMan.updateMenuBar()
+            )
 			if (SIOFile.Exists startupPath) do (fnDelFileDir startupPath)
+			if (SIOFile.Exists startupMarcroPath) do (fnDelFileDir startupPath)
+			if (SIOFile.Exists startupMenuBarPath) do (fnDelFileDir startupPath)
 			arrDelPath = #(((getDir #Scripts)+ "\\BulletScripts"),((getDir #maxroot) + "\\UI_ln\\Icons\\cstoolIcons"))
 			for d in arrDelPath do (fnDelDir d)
 			try(destroydialog rolBsKeyTools)catch()
