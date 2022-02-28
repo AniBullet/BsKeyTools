@@ -28,7 +28,14 @@ SetCompressor lzma
 ; 安装过程页面
 !insertmacro MUI_PAGE_INSTFILES
 ; 安装完成页面
+!define MUI_FINISHPAGE_SHOWREADME
+!define MUI_FINISHPAGE_SHOWREADME_FUNCTION Info
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "推荐查看【更新日志】"
+
 !insertmacro MUI_PAGE_FINISH
+Function Info
+ExecShell "open" "https://www.notion.so/bullet4869/4e28c488d5474a9082e164b7c5b6926c"
+Functionend
 
 ; 安装卸载过程页面
 ;!insertmacro MUI_UNPAGE_INSTFILES
