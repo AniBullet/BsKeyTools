@@ -2,8 +2,8 @@
 	macroScript BulletKeyTools
 	category:"_[BulletTools]"
 	buttonText:"BsKeyTools"
-	toolTip:"BulletKeyTools"
-	icon:#("VCRControls", 25)
+	toolTip:"BsKeyTools"
+	-- icon:#("VCRControls", 25)
 	(
 		on execute do
 		(
