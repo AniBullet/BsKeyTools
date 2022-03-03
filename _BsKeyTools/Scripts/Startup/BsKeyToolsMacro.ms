@@ -3,6 +3,7 @@
 	category:"_[BulletTools]"
 	buttonText:"BsKeyTools"
 	toolTip:"BulletKeyTools"
+	icon:#("VCRControls", 17)
 	(
 		on execute do
 		(
