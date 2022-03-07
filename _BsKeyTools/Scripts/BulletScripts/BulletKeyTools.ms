@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-02-28 13:32:35
+ * @LastEditTime: 2022-03-04 16:04:13
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -55,7 +55,7 @@ Global arrSourToolC2 = #()
 Global arrSourToolC3 = #()
 Global arrSourToolC4 = #()
 
-global curVerBsKeyTools = "0.9.8.4"
+global curVerBsKeyTools = "0.9.9"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
@@ -131,6 +131,10 @@ fn fnDelDir dirDel =
 )
 
 ------------------添加toolbar-----------------------------------------------
+-- <Item typeID="2" type="CTB_MACROBUTTON" width="77" height="0" controlID="0" macroTypeID="3" macroType="MB_TYPE_ACTION" actionTableID="647394" imageID="-1" imageName="" actionID="BulletKeyTools`_[BulletTools]" tip="BsKeyTools" label="BsKeyTools" />
+
+-- <Item typeID="2" type="CTB_MACROBUTTON" width="0" height="0" controlID="0" macroTypeID="3" macroType="MB_TYPE_ACTION" actionTableID="647394" imageID="-1" imageName="" actionID="BulletKeyTools`_[BulletTools]" tip="BsKeyTools" label="BsKeyTools" />
+
 iniAddToolbars  = fnGetConfig iniAddToolbars "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
 fn addToolBarButton macro cat txt remove: false =
 (
@@ -191,7 +195,7 @@ fn addToolBarButton macro cat txt remove: false =
 		cui.loadConfig f
 		
 		l = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"0\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
-		delBtnLine = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"77\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
+		delBtnLine = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"0\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
 		if(remove) then
 		(			
 			insertContent f find: delBtnLine rewrite: true
@@ -613,14 +617,14 @@ rcmenu menuConfig
 	(
 		if (mItemAddToolBarBtn.checked == false) then 
 		(
-			addToolBarButton "BulletKeyTools" "BulletTools" "BulletKeyTools" remove: true
-			addToolBarButton "BulletKeyTools" "BulletTools" "BulletKeyTools"
+			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
+			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools"
 			mItemAddToolBarBtn.checked = true
 			iniAddToolbars = 1
 		)
 		else
 		(
-			addToolBarButton "BulletKeyTools" "BulletTools" "BulletKeyTools" remove: true
+			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
 			mItemAddToolBarBtn.checked = false
 			iniAddToolbars = 0
 		)
@@ -661,7 +665,7 @@ rcmenu menuConfig
 		(
 			if (iniAddToolbars == 1) then 
 			(
-				addToolBarButton "BulletKeyTools" "BulletTools" "BulletKeyTools" remove: true
+				addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
 				iniAddToolbars = 0
 				SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
 			)
