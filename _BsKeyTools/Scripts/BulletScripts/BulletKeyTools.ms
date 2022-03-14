@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-03-14 21:05:58
+ * @LastEditTime: 2022-03-14 21:51:11
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1110,6 +1110,7 @@ rollout rolAddMyScripts "我的脚本" width:205 height:220
 			)
 		)
 		try(destroydialog rolAddMyScripts)catch()
+		stSetConfigAll.fnSetConfigBsKeyTools ()
 	)
 
 	on btnClearMyScripts pressed do 
@@ -2296,6 +2297,7 @@ rollout rolBsKeyTools "" width:200 height:248
 			iniArrMyScripts[idMyScript].dir = dirScript
 			messagebox "右键可重新设置脚本快捷键!        "
 		)
+		stSetConfigAll.fnSetConfigBsKeyTools ()
 	)
 
 	fn fnRefreshMyScripts =
