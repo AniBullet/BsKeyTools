@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-03-04 16:04:13
+ * @LastEditTime: 2022-03-14 21:05:58
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -896,7 +896,7 @@ rollout rolAddMyScripts "我的脚本" width:205 height:220
 		if (iniArrMyScripts[id] != undefined) then
 		(
 			if edtRenameMs.text != "" then iniArrMyScripts[id].msName = edtRenameMs.text
-			else iniArrMyScripts[id].msName = "<未定脚本>"
+			else iniArrMyScripts[id].msName = "<＋＋>"
 		)
 	)
 
@@ -2294,8 +2294,8 @@ rollout rolBsKeyTools "" width:200 height:248
 			btnMyScript.text = nameMyScript
 			iniArrMyScripts[idMyScript].msName = nameMyScript
 			iniArrMyScripts[idMyScript].dir = dirScript
+			messagebox "右键可重新设置脚本快捷键!        "
 		)
-		messagebox "右键可重新设置脚本快捷键!        "
 	)
 
 	fn fnRefreshMyScripts =
@@ -2316,7 +2316,7 @@ rollout rolBsKeyTools "" width:200 height:248
 				(
 					arrMyScriptTemp[b].text = iniArrMyScripts[b].msName
 				)
-				else arrMyScriptTemp[b].text = "<未定脚本>"
+				else arrMyScriptTemp[b].text = "<＋＋>"
 			)
 		)
 	)
