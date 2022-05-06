@@ -1,5 +1,5 @@
 global dateTime = (dotNetClass "System.DateTime").Now
-global arrDayWeek = #("日", "一", "二", "三", "四", "五", "六")
+global arrDayWeek = #("一", "二", "三", "四", "五", "六", "日")
 global fnSwitchBtnString
 
 fn fnSwitchBtnString =
