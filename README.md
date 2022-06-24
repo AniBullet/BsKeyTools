@@ -1,16 +1,15 @@
-<!--
- * @Description: 
- * @Author: Bullet.S
- * @Date: 2019-11-10 12:36:47
- * @LastEditors: Bullet.S
- * @LastEditTime: 2021-05-15 20:05:15
- * @Email: animator.bullet@foxmail.com
- -->
 # BsKeyTools
 ![image](https://raw.githubusercontent.com/AnimatorBullet/BsKeyTools/main/BsKeyToolsPrev.gif)  
 KeyTools for 3ds Max...About animation.
+
+> 部分引用其他老师脚本，均有注明，侵删
+
+> 工具全开源无任何收费，请勿商用，仅供学习参考
+
 ## 帮助
-https://space.bilibili.com/2031113
+B 站视频：https://space.bilibili.com/2031113  
+帮助文档（建设中）：https://animatorbullet.github.io/
+
 ## 下载链接
 [![BsKeyTools](https://img.shields.io/badge/BsKeyTools-LatestReleases-success?style=flat-square&logo=github)](https://github.com/AnimatorBullet/BsKeyTools/releases/latest)
 
