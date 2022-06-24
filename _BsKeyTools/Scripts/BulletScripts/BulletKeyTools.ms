@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-03-14 21:51:11
+ * @LastEditTime: 2022-06-17 12:01:50
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -195,7 +195,7 @@ fn addToolBarButton macro cat txt remove: false =
 		cui.loadConfig f
 		
 		l = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"0\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
-		delBtnLine = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"0\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
+		delBtnLine = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"77\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
 		if(remove) then
 		(			
 			insertContent f find: delBtnLine rewrite: true
@@ -841,37 +841,39 @@ rcmenu menuSetSpeed
 	on menuSet4Speed picked do (fnSetSpeed 5)
 )
 ------------------帧率,播放速度------------------------------------------------------------
-rollout rolAddMyScripts "我的脚本" width:205 height:220
+rollout rolAddMyScripts "我的脚本" width:300 height:220
 (
-	label lblRename "↓请输入命名↓" pos:[20,5]
-	label lblReDir "指定路径" pos:[115,5]
-	label lblClearOneMs "!清除!" pos:[170,5]
-	edittext edtRenameMs1 "1"  pos:[5,25] width:105 height:20 text:""
-	edittext edtRenameMs2 "2"  pos:[5,45] width:105 height:20 text:""
-	edittext edtRenameMs3 "3"  pos:[5,65] width:105 height:20 text:""
-	edittext edtRenameMs4 "4"  pos:[5,85] width:105 height:20 text:""
-	edittext edtRenameMs5 "5"  pos:[5,105] width:105 height:20 text:""
-	edittext edtRenameMs6 "6"  pos:[5,125] width:105 height:20 text:""
-	edittext edtRenameMs7 "7"  pos:[5,145] width:105 height:20 text:""
-	edittext edtRenameMs8 "8"  pos:[5,165] width:105 height:20 text:""
-	button btnReAddMs1 "..."  pos:[115,25] width:50 height:20 border:true
-	button btnReAddMs2 "..."  pos:[115,45] width:50 height:20 border:true
-	button btnReAddMs3 "..."  pos:[115,65] width:50 height:20 border:true
-	button btnReAddMs4 "..."  pos:[115,85] width:50 height:20 border:true
-	button btnReAddMs5 "..."  pos:[115,105] width:50 height:20 border:true
-	button btnReAddMs6 "..."  pos:[115,125] width:50 height:20 border:true
-	button btnReAddMs7 "..."  pos:[115,145] width:50 height:20 border:true
-	button btnReAddMs8 "..."  pos:[115,165] width:50 height:20 border:true
-	button btnClearMs1 "X" pos:[170,25]  width:30 height:20 border:true
-	button btnClearMs2 "X" pos:[170,45]  width:30 height:20 border:true
-	button btnClearMs3 "X" pos:[170,65]  width:30 height:20 border:true
-	button btnClearMs4 "X" pos:[170,85]  width:30 height:20 border:true
-	button btnClearMs5 "X" pos:[170,105]  width:30 height:20 border:true
-	button btnClearMs6 "X" pos:[170,125]  width:30 height:20 border:true
-	button btnClearMs7 "X" pos:[170,145]  width:30 height:20 border:true
-	button btnClearMs8 "X" pos:[170,165]  width:30 height:20 border:true
-	button btnDoit "!注意确认!" pos:[125,190] width:75 height:25 border:true
-	button btnClearMyScripts "! 清除所有脚本引用 !" pos:[5,190] width:120 height:25 border:true
+	local btnMSWidth = 200
+
+	label lblRename "↓ 请输入命名 ↓" pos:[20,5]
+	label lblReDir "指定路径" pos:[210,5]
+	label lblClearOneMs "清除" pos:[265,5]
+	edittext edtRenameMs1 "1"  pos:[5,25] width:btnMSWidth height:20 text:""
+	edittext edtRenameMs2 "2"  pos:[5,45] width:btnMSWidth height:20 text:""
+	edittext edtRenameMs3 "3"  pos:[5,65] width:btnMSWidth height:20 text:""
+	edittext edtRenameMs4 "4"  pos:[5,85] width:btnMSWidth height:20 text:""
+	edittext edtRenameMs5 "5"  pos:[5,105] width:btnMSWidth height:20 text:""
+	edittext edtRenameMs6 "6"  pos:[5,125] width:btnMSWidth height:20 text:""
+	edittext edtRenameMs7 "7"  pos:[5,145] width:btnMSWidth height:20 text:""
+	edittext edtRenameMs8 "8"  pos:[5,165] width:btnMSWidth height:20 text:""
+	button btnReAddMs1 "..."  pos:[btnMSWidth + 10,25] width:50 height:20 border:true
+	button btnReAddMs2 "..."  pos:[btnMSWidth + 10,45] width:50 height:20 border:true
+	button btnReAddMs3 "..."  pos:[btnMSWidth + 10,65] width:50 height:20 border:true
+	button btnReAddMs4 "..."  pos:[btnMSWidth + 10,85] width:50 height:20 border:true
+	button btnReAddMs5 "..."  pos:[btnMSWidth + 10,105] width:50 height:20 border:true
+	button btnReAddMs6 "..."  pos:[btnMSWidth + 10,125] width:50 height:20 border:true
+	button btnReAddMs7 "..."  pos:[btnMSWidth + 10,145] width:50 height:20 border:true
+	button btnReAddMs8 "..."  pos:[btnMSWidth + 10,165] width:50 height:20 border:true
+	button btnClearMs1 "X" pos:[btnMSWidth + 65,25]  width:30 height:20 border:true
+	button btnClearMs2 "X" pos:[btnMSWidth + 65,45]  width:30 height:20 border:true
+	button btnClearMs3 "X" pos:[btnMSWidth + 65,65]  width:30 height:20 border:true
+	button btnClearMs4 "X" pos:[btnMSWidth + 65,85]  width:30 height:20 border:true
+	button btnClearMs5 "X" pos:[btnMSWidth + 65,105]  width:30 height:20 border:true
+	button btnClearMs6 "X" pos:[btnMSWidth + 65,125]  width:30 height:20 border:true
+	button btnClearMs7 "X" pos:[btnMSWidth + 65,145]  width:30 height:20 border:true
+	button btnClearMs8 "X" pos:[btnMSWidth + 65,165]  width:30 height:20 border:true
+	button btnClearMyScripts "! 清除所有脚本引用 !" pos:[15,190] width:160 height:25 border:true
+	button btnDoit "! 注意确认 !" pos:[175,190] width:120 height:25 border:true
 
 	fn fnRefreshBtnReAddMs btnMsName btnMsDir edtRenameMs id =
 	(
@@ -1492,37 +1494,9 @@ rollout rolBsKeyTools "" width:200 height:248
 		)
 	)
 
-	fn fnRefreshMagicBtn =
+	fn fnSwitchMagicBtn toggleID =
 	(
-		if switchToolPanel == 0 then
-		(
-			rolBsKeyTools.width        = 200
-			rolBsKeyTools.height       = 248
-			btnMagicBtn.text           = "✧(≖ ◡ ≖)"
-			ckbSwitchMyScripts.visible = false
-			btnMyScripts1.visible      = false
-			btnMyScripts2.visible      = false
-			btnMyScripts3.visible      = false
-			btnMyScripts4.visible      = false
-			btnMyScripts5.visible      = false
-			btnMyScripts6.visible      = false
-			btnMyScripts7.visible      = false
-			btnMyScripts8.visible      = false
-		)
-		else
-		(
-			rolBsKeyTools.width        = 335
-			rolBsKeyTools.height       = 273
-			btnMagicBtn.text           = "( = `▽`)"
-			ckbSwitchMyScripts.visible = true
-			fnRefreshMsPanel ()
-		)
-	)
-
-	fn fnSwitchMagicBtn =
-	(
-		fnRefreshMsPanel()
-		if switchToolPanel == 1 then
+		if toggleID == 1 then
 		(
 			rolBsKeyTools.width        = 200
 			rolBsKeyTools.height       = 248
@@ -1546,6 +1520,11 @@ rollout rolBsKeyTools "" width:200 height:248
 			switchToolPanel            = 1
 			ckbSwitchMyScripts.visible = true
 		)
+	)
+
+	fn fnRefreshMagicBtn =
+	(
+		if switchToolPanel == 0 then (fnSwitchMagicBtn 1) else (fnSwitchMagicBtn 0)
 	)
 
 	fn fnReloadToolsBtn =
@@ -1933,61 +1912,32 @@ rollout rolBsKeyTools "" width:200 height:248
 
 	fn fnAddKyes tempObj fnLink =   ---添加帧(主要是首尾帧),加个判断是否勾选link
 	(	
-		if fnLink == 1 then ------1代表勾选了link
+		if (classof tempObj != Biped_Object) then
 		(
-			if (classof tempObj != Biped_Object) then
+			if tempObj.controller != undefined then
 			(
-				if tempObj.controller != undefined then
+				if (classof tempObj.controller) == prs then
 				(
-					if (classof tempObj.controller) == prs then
+					for i = 1 to tempObj.controller.numsubs do 
 					(
-						for i = 1 to tempObj.controller.numsubs do 
-						(
-							fnAddPrsKeys tempObj i        ---非biped物体的位移旋转缩放帧
-						)
-					)
-					if (classof tempObj.controller) == Link_Constraint then
-					(
-						for i = 1 to tempObj.controller.numsubs do 
-						(
-							fnAddLinkTimesKeys tempObj i         ---------link属性的物体link帧和非link帧
-							fnAddLinkParamsKeys tempObj i
-						)
+						fnAddPrsKeys tempObj i        ---非biped物体的位移旋转缩放帧
 					)
 				)
-			)
-			else
-			(
-				fnAddBipedKeys tempObj   ---------biped帧
+				if (classof tempObj.controller) == Link_Constraint then
+				(
+					for i = 1 to tempObj.controller.numsubs do 
+					(
+						if fnLink == 1 then (fnAddLinkTimesKeys tempObj i)         ---------link属性的物体link帧和非link帧
+						fnAddLinkParamsKeys tempObj i
+					)
+				)
 			)
 		)
-		if fnLink == 0 then  --------跟上面一样,区别在于没有(link属性物体的link帧)
+		else
 		(
-			if (classof tempObj != Biped_Object) then
-			(
-				if tempObj.controller != undefined then
-				(
-					if (classof tempObj.controller) == prs then
-					(
-						for i = 1 to tempObj.controller.numsubs do 
-						(
-							fnAddPrsKeys tempObj i
-						)
-					)
-					if (classof tempObj.controller) == Link_Constraint then
-					(
-						for i = 1 to tempObj.controller.numsubs do 
-						(
-							fnAddLinkParamsKeys tempObj i
-						)
-					)
-				)
-			)
-			else
-			(
-				fnAddBipedKeys tempObj   ---------biped帧
-			)
-		)----------------收集各种帧
+			fnAddBipedKeys tempObj   ---------biped帧
+		)
+
 		-- arrKeysTime = makeUniqueArray arrKeysTime  ---去除重复帧数
 		sort arrKeysTime  ----帧数排序
 		sort arrKeysSelected
@@ -2376,6 +2326,7 @@ rollout rolBsKeyTools "" width:200 height:248
 		fnRefPlaySpeedValue ()  -----判断播放速度
 		fnBsRefFps ()
 		fnRefreshMagicBtn ()
+		fnRefreshMsPanel ()
 		-- if (switchToolPanel == 1) then
 		-- (
 			fnSwitchToolsBtn idBtn
@@ -2497,7 +2448,8 @@ rollout rolBsKeyTools "" width:200 height:248
 	
 	on btnMagicBtn pressed do  -------------切换整数帧小数帧,方便拖动滑条平滑预览
 	(
-		fnSwitchMagicBtn ()
+		fnSwitchMagicBtn switchToolPanel
+		fnRefreshMsPanel()
 	)
 
 	on ckbPlayBlocking changed state do (
@@ -3136,49 +3088,49 @@ rollout rolBsKeyTools "" width:200 height:248
 	(
 		try(destroydialog rolAddMyScripts)catch()
 		createDialog rolAddMyScripts fgcolor:myFgColor \
-		pos:[mouse.screenpos.x,mouse.screenpos.y + 20]
+		pos:[mouse.screenpos.x - 150,mouse.screenpos.y +20]
 	)
 	on btnMyScripts2 rightclick do 
 	(
 		try(destroydialog rolAddMyScripts)catch()
 		createDialog rolAddMyScripts fgcolor:myFgColor \
-		pos:[mouse.screenpos.x,mouse.screenpos.y + 20]
+		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
 	)
 	on btnMyScripts3 rightclick do 
 	(
 		try(destroydialog rolAddMyScripts)catch()
 		createDialog rolAddMyScripts fgcolor:myFgColor\
-		pos:[mouse.screenpos.x,mouse.screenpos.y + 20]
+		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
 	)
 	on btnMyScripts4 rightclick do 
 	(
 		try(destroydialog rolAddMyScripts)catch()
 		createDialog rolAddMyScripts fgcolor:myFgColor\
-		pos:[mouse.screenpos.x,mouse.screenpos.y + 20]
+		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
 	)
 	on btnMyScripts5 rightclick do 
 	(
 		try(destroydialog rolAddMyScripts)catch()
 		createDialog rolAddMyScripts fgcolor:myFgColor\
-		pos:[mouse.screenpos.x,mouse.screenpos.y + 20]
+		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
 	)
 	on btnMyScripts6 rightclick do 
 	(
 		try(destroydialog rolAddMyScripts)catch()
 		createDialog rolAddMyScripts fgcolor:myFgColor\
-		pos:[mouse.screenpos.x,mouse.screenpos.y + 20]
+		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
 	)
 	on btnMyScripts7 rightclick do 
 	(
 		try(destroydialog rolAddMyScripts)catch()
 		createDialog rolAddMyScripts fgcolor:myFgColor\
-		pos:[mouse.screenpos.x,mouse.screenpos.y + 20]
+		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
 	)
 	on btnMyScripts8 rightclick do 
 	(
 		try(destroydialog rolAddMyScripts)catch()
 		createDialog rolAddMyScripts fgcolor:myFgColor\
-		pos:[mouse.screenpos.x,mouse.screenpos.y + 20]
+		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
 	)
 
 	on btnHideUnSel pressed do 

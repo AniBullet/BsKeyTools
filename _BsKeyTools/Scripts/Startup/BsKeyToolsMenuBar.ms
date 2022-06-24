@@ -1,8 +1,8 @@
 (
     macroScript BsKeyToolsPosReset
 	category:"_[BulletTools]"
-	buttonText:"BsKeyTools 窗口找回"
-	toolTip:"BsKeyTools 窗口找回"
+	buttonText:"窗口位置重置"
+	toolTip:"BsKeyTools 窗口位置重置"
 	(
 		on execute do
 		(
@@ -14,7 +14,7 @@
     fn fnBsAddMenuBar =
     (
         local strMenuName = "🎮 BsKeyTools"
-        local arrToolName = #("BsKeyTools","🎮 BsKeyTools","BsKeyTools 窗口找回")
+        local arrToolName = #("BsKeyTools","🎮 BsKeyTools","窗口位置重置")
         
         for i in arrToolName do
         (
