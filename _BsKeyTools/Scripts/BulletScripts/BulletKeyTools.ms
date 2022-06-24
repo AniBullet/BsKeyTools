@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-06-17 12:01:50
+ * @LastEditTime: 2022-06-24 15:03:38
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1349,9 +1349,9 @@ rollout rolBsKeyTools "" width:200 height:248
 		toolTip:"清除所有帧\r\nLink帧请手动删" pos:btnPos
 		button btnCleanOutKeys "清无限帧" width:btnWidth height:btnHeight visible:false \
 		toolTip:"清范围外帧(无限帧)" pos:btnPos
-		button btnSelBiped "选择Biped" width:btnWidth height:btnHeight visible:false \
+		button btnSelBiped "选 Biped" width:btnWidth height:btnHeight visible:false \
 		toolTip:"选择所有biped" pos:btnPos
-		button btnSelBone "选择Bone" width:btnWidth height:btnHeight  visible:false \
+		button btnSelBone "选 Bone" width:btnWidth height:btnHeight  visible:false \
 		toolTip:"选择所有bone" pos:btnPos
 		button btnEndBone "增删末端" width:btnWidth height:btnHeight visible:false \
 		toolTip:"添加选择的Bone末端，可回退\r\n右键清除（注意 \"tempBoneEndAll\" 层）" pos:btnPos
@@ -1396,7 +1396,7 @@ rollout rolBsKeyTools "" width:200 height:248
 		toolTip:"为长动画分段动作区间 (修改自San_oOo)"
 		button btnXrSkinTool "蒙皮辅助" width:btnWidth height:btnHeight visible:false \
 		tooltip:"by:东见云" pos:btnPos
-		button btnTemp2 "待添加2" width:btnWidth height:btnHeight visible:false \
+		button btnRetargetTools "重重定向" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
 		button btnTemp3 "待添加3" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
@@ -1545,7 +1545,7 @@ rollout rolBsKeyTools "" width:200 height:248
 						rolBsKeyTools.btnHideBipedTwists,rolBsKeyTools.btnQuickPrev,
 						rolBsKeyTools.btnKeyStepMode,rolBsKeyTools.btnFnKeyType,
 						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnXrSkinTool,
-						rolBsKeyTools.btnTemp2,rolBsKeyTools.btnTemp3,
+						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnTemp3,
 						rolBsKeyTools.btnTemp4,rolBsKeyTools.btnTemp5)
 		arrSourToolC4 = #(rolBsKeyTools.btnTemp6,rolBsKeyTools.btnTemp7,
 						rolBsKeyTools.btnTemp8,rolBsKeyTools.btnTemp9,
@@ -3364,6 +3364,12 @@ rollout rolBsKeyTools "" width:200 height:248
 	on btnXrSkinTool pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Xr_SkinTool.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+	)
+
+	on btnRetargetTools pressed do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsRetargetTools.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 	)
 )
