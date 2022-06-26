@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-06-24 15:03:38
+ * @LastEditTime: 2022-06-26 04:01:39
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1397,9 +1397,9 @@ rollout rolBsKeyTools "" width:200 height:248
 		button btnXrSkinTool "蒙皮辅助" width:btnWidth height:btnHeight visible:false \
 		tooltip:"by:东见云" pos:btnPos
 		button btnRetargetTools "重重定向" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp3 "待添加3" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
+		tooltip:"动画重定向工具" pos:btnPos
+		button btnCombineDetachSkin "Skin 拆合" width:btnWidth height:btnHeight visible:false \
+		tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos enabled:false
 		button btnTemp4 "待添加4" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
 		button btnTemp5 "待添加5" width:btnWidth height:btnHeight visible:false \
@@ -1545,7 +1545,7 @@ rollout rolBsKeyTools "" width:200 height:248
 						rolBsKeyTools.btnHideBipedTwists,rolBsKeyTools.btnQuickPrev,
 						rolBsKeyTools.btnKeyStepMode,rolBsKeyTools.btnFnKeyType,
 						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnXrSkinTool,
-						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnTemp3,
+						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnTemp4,rolBsKeyTools.btnTemp5)
 		arrSourToolC4 = #(rolBsKeyTools.btnTemp6,rolBsKeyTools.btnTemp7,
 						rolBsKeyTools.btnTemp8,rolBsKeyTools.btnTemp9,
@@ -3370,6 +3370,12 @@ rollout rolBsKeyTools "" width:200 height:248
 	on btnRetargetTools pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsRetargetTools.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+	)
+
+	on btnCombineDetachSkin pressed do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Rigging_CombineSkin.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 	)
 )
