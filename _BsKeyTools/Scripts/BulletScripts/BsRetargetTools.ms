@@ -84,53 +84,53 @@ global boneNames = #(
 )
 
 global pattBipedNames = #(
-	#("Bip00?","*Hip","*Hips"), 				--1
-	#("*Pelvis"), 				--2
-	#("*Spine","*Waist"), 				--3
+	#("Bip00?","*Hip","*Hips"),				--1
+	#("*Pelvis"),				--2
+	#("*Spine","*Waist"),				--3
 	#("*Spine1","*Stomach"),			--4
 	#("*Spine2","*Chest"),			--5
 	#("*Neck"),				--6
 	#("*Neck1","*Neck?Middle"),			--7
 	#("*Head"),				--8
-	#("*HeadNub","*Head nub"),			--9
+	#("*HeadNub","*Head?nub"),			--9
 	
 	#("*L?Thigh"),			--10
 	#("*L?Calf","*L?Shin"),				--11
 	#("*L?Foot"),				--12
 	#("*L?Toe0","*L?Toe"),			--13
-	#("*L?Toe0Nub","*L?Toe nub"),		--14
+	#("*L?Toe0Nub","*L?Toe?nub","*L?Toe0?Nub"),		--14
 	
 	#("*R?Thigh"),			--15
 	#("*R?Calf","*R?Shin"),				--16
 	#("*R?Foot"),			--17
 	#("*R?Toe0","*R?Toe"),			--18
-	#("*R?Toe0Nub","*R?Toe nub"),		--19
+	#("*R?Toe0Nub","*R?Toe?nub","*R?Toe0?Nub"),		--19
 	
-	#("*L?Clavicle","*L?Shoulder"), 		--20
+	#("*L?Clavicle","*L?Shoulder"),		--20
 	#("*L?UpperArm"),		--21
 	#("*L?Forearm"),		--22
 	#("*L?Hand"),			--23
 	#("*L?Finger0","*L?Thumb1"),			--24
 	#("*L?Finger01","*L?Thumb2"),		--25
 	#("*L?Finger02","*L?Thumb3"),		--26
-	#("*L?Finger0Nub","*L?Thumb3 nub"),	--27
+	#("*L?Finger0Nub","*L?Thumb3?nub","*L?Finger02?nub"),	--27
 	#("*L?Finger1","*L?IndexF1"),			--28
 	#("*L?Finger11","*L?IndexF2"),		--29
 	#("*L?Finger12","*L?IndexF3"),		--30
-	#("*L?Finger1Nub","*L?IndexF3 nub"),	--31
+	#("*L?Finger1Nub","*L?IndexF3?nub","*L?Finger12?nub"),	--31
 	#("*L?Finger2","*L?MiddleF1"),			--32
 	#("*L?Finger21","*L?MiddleF2"),		--33
 	#("*L?Finger22","*L?MiddleF3"),		--34
-	#("*L?Finger2Nub","*L?MiddleF3 nub"),    --35
+	#("*L?Finger2Nub","*L?MiddleF3?nub","*L?Finger22?Nub"),--35
 	
 	#("*L?Finger3","*L?RingF1"),			--36
 	#("*L?Finger31","*L?RingF2"),		--37
 	#("*L?Finger32","*L?RingF3"),		--38
-	#("*L?Finger3Nub","*L?RingF3 nub"),	--39
+	#("*L?Finger3Nub","*L?RingF3?nub","*L?Finger32?Nub"),	--39
 	#("*L?Finger4","*L?PinkyF1"),			--40
 	#("*L?Finger41","*L?PinkyF2"),		--41
 	#("*L?Finger42","*L?PinkyF3"),		--42
-	#("*L?Finger4Nub","*L?PinkyF3 nub"),	--43
+	#("*L?Finger4Nub","*L?PinkyF3?nub","*L?Finger42?Nub"),	--43
 	
 	#("*R?Clavicle","*R?Shoulder"),		--44
 	#("*R?UpperArm"),		--45
@@ -139,23 +139,23 @@ global pattBipedNames = #(
 	#("*R?Finger0","*R?Thumb1"),		--48
 	#("*R?Finger01","*R?Thumb2"),		--49
 	#("*R?Finger02","*R?Thumb3"),		--50
-	#("*R?Finger0Nub","*R?Thumb3 nub"),	--51
+	#("*R?Finger0Nub","*R?Thumb3?nub","*R?Finger02?Nub"),	--51
 	#("*R?Finger1","*R?IndexF1"),		--52
 	#("*R?Finger11","*R?IndexF2"),		--53
 	#("*R?Finger12","*R?IndexF3"),		--54
-	#("*R?Finger1Nub","*R?IndexF3 nub"),	--55
+	#("*R?Finger1Nub","*R?IndexF3?nub","*R?Finger12?Nub"),	--55
 	#("*R?Finger2","*R?MiddleF1"),		--56
 	#("*R?Finger21","*R?MiddleF2"),		--57
 	#("*R?Finger22","*R?MiddleF3"),		--58
-	#("*R?Finger2Nub","*R?MiddleF3 nub"),	--59
+	#("*R?Finger2Nub","*R?MiddleF3?nub","*R?Finger22?Nub"),	--59
 	#("*R?Finger3","*R?RingF1"),		--60
 	#("*R?Finger31","*R?RingF2"),		--61
 	#("*R?Finger32","*R?RingF3"),		--62
-	#("*R?Finger3Nub","*R?RingF3 nub"),	--63
+	#("*R?Finger3Nub","*R?RingF3?nub","*R?Finger32?Nub"),	--63
 	#("*R?Finger4","*R?PinkyF1"),		--64
 	#("*R?Finger41","*R?PinkyF2"),		--65
 	#("*R?Finger42","*R?PinkyF3"),		--66
-	#("*R?Finger4Nub","*R?PinkyF3 nub")		--67	
+	#("*R?Finger4Nub","*R?PinkyF3?nub","*R?Finger42?Nub")		--67	
 )
 
 
@@ -753,7 +753,7 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 						local bipRot = bipRotList[f]
 						in coordsys world Biped.setTransform rootBone #rotation bipRot true
 
-						biped.addNewKey rootBone.transform.controller.vertical.controller t
+						-- biped.addNewKey rootBone.transform.controller.vertical.controller t
 					)
 				)
 				delete dummyRootMotion
@@ -2566,6 +2566,11 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 		if mappingCheckState then
 		(
 			pgbBar.value = 0
+
+			---断开质心防止旋转出问题，后面连上
+			rootMotionBone = (GetSkeletalNode 1 false).parent
+			(GetSkeletalNode 1 false).parent = undefined
+
 			-- 创建 Helper
 			if isValidNode headNub == false then headNub = point name:"_Helper_Head Nub" wirecolor:(color 0 255 0)
 	
@@ -2761,14 +2766,13 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 			rootBone = dummy pos:(GetBipedNode 1).transform.position -- rotation:(GetBonePos 1).transform.rotation
 			rootBone.name = ("RetargetHelper_" + (GetBipedNode 1).name)
 			rootBone.transform = (GetBipedNode 1).transform
-
-			rootMotionBone = (GetSkeletalNode 1 false).parent
+			bipedRetargetRM = undefined
+			boneRetargetRM = undefined
 			if rootMotionBone != undefined then
 			(
 				boneRetargetRM = dummy name:"RetargetHelper_Root"
 				boneRetargetRM.transform = rootMotionBone.transform
 				in coordsys gimbal boneRetargetRM.rotation = (eulerAngles 90 0 0)
-				rootBone.parent = boneRetargetRM
 				local pC = Position_Constraint()
 				pC.appendTarget rootMotionBone 100
 				boneRetargetRM.Position.controller = pC
@@ -2783,7 +2787,6 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 				bipedRetargetRM.transform = boneRetargetRM.transform
 				in coordsys gimbal bipedRetargetRM.rotation = (eulerAngles 90 0 0)
 				bipedRetargetRM.wirecolor = red
-				(GetBipedNode 1).parent = bipedRetargetRM
 			)
 			
 			--newBone = CreateFauxBone rootBundefined 1 2
@@ -2980,7 +2983,11 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 				delete footHelpers[2]
 				footHelpers[2] = undefined;
 			)
-	
+
+			(GetSkeletalNode 1 false).parent = rootMotionBone
+			(GetBipedNode 1).parent = bipedRetargetRM
+			rootBone.parent = boneRetargetRM
+
 			pgbBar.value = 100
 
 			messageBox "重定向 Biped 创建成功！\r\n\r\n如肩膀匹配不高，\r\n\r\n建议微调两边肩膀手臂和手，\r\n\r\n再点击重新对齐手指骨骼。                         "
@@ -3080,7 +3087,7 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 
     on btnLoadAnimPath pressed do
     (
-        local dirOpened = getSavePath caption:"请选择动画 FBX 文件路径:" initialDir:(maxFilePath)
+        local dirOpened = getSavePath caption:"请选择动画 FBX 文件路径:" initialDir:(maxFilePath + "AniFBX\\")
 
         fnRefreshDir dirOpened
     )
@@ -3116,7 +3123,7 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 		edtOutputPath.text = (maxFilePath + "ReOutput\\")
 		edtMappingFile.text = (maxFilePath + maxfilename)
 		edtSkinFile.text = (maxFilePath + "Skin.max")
-		fnRefreshDir maxFilePath
+		fnRefreshDir (maxFilePath + "AniFBX\\")
     )
 
 	on btnAutoMapping pressed do
@@ -3128,7 +3135,7 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 			(
 				for k in j do 
 				(
-					if (matchpattern tarNodeName pattern:k) then
+					if (matchpattern tarNodeName pattern:k ignoreCase:true) then
 					(
 						tarBonesIndex = (finditem pattBipedNames j)
 						-- print (tarBonesIndex as string)
@@ -3155,6 +3162,8 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 
 	on btnRetargetSelected pressed do
 	(
+		escapeEnable = true
+
 		if edtAnimFbxPath.text != edtOutputPath.text then
 		(
 			if (doesFileExist edtSkinFile.text) then
@@ -3171,6 +3180,8 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 
 	on btnRetargettAll pressed do 
 	(
+		escapeEnable = true
+
 		if edtAnimFbxPath.text != edtOutputPath.text then
 		(
 			if (doesFileExist edtSkinFile.text) then
