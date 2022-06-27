@@ -400,7 +400,7 @@ rcmenu menuQuickCreateNode
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
+rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Biped Bones 1 - 35" align:#left across:4 height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -645,6 +645,7 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 			mappingFilePath    = edtMappingFile.text
 			sourFileImportPath = arrExportRetargetAnim[index]
 			tarFileExportPath  = edtOutputPath.text + "\\" + (getfilenamefile arrExportRetargetAnim[index]) + ".FBX"
+			tempBip = edtOutputPath.text + "\\" + (getfilenamefile arrExportRetargetAnim[index]) + ".bip"
 			skinFile   = edtSkinFile.text
 			tarNewAnim = (edtOutputPath.text + (getfilenamefile arrExportRetargetAnim[index]) + ".FBX")
 			if (not (SIODir.Exists edtOutputPath.text)) do (SIODir.CreateDirectory edtOutputPath.text)
@@ -761,6 +762,7 @@ rollout biped_align_test "BsRetargetTools_v1.3  (BipedRigCreator_Enhanced)"
 				biped.collapseAtLayer rootBone.controller 0
 			)
 			saveMaxFile (substituteString tarNewAnim ".FBX" ".max") quiet:true
+			biped.saveBipFile (getnodebyname "Bip001").controller tempBip
 			-- print ("已保存新 Skin 动画：" + (substituteString tarNewAnim ".FBX" ".max"))
 		)
 	)
