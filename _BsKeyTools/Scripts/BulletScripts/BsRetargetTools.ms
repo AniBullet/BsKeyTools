@@ -436,9 +436,9 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 	button btnQuickTools "[可选]快速创建节点" pos:[160,505] width:(btnWidth + 20) height:25
     button alignBipedToHelper "🍖 创建和对齐 Biped" pos:[160,530] width:(btnWidth + 20) height:40
     button reAlignFingers "🤞🏼 重新对齐手指骨骼" pos:[160,570] width:(btnWidth + 20) height:30
-    button btnExportTPose "[可选]导出 Biped Figure Pose" pos:[305,505] width:(btnWidth + 35) height:25
+    -- button btnExportTPose "[可选]导出 Biped Figure Pose" pos:[305,505] width:(btnWidth + 35) height:25
+	checkbox chkRenameBiped "👇 Biped 保持 Bone 原名" checked:false pos:[306,505] width:(btnWidth + 35) height:20
 	button btnReplaceToBiped "[可选] Skin 替换为 Biped" pos:[305,530] width:(btnWidth + 35) height:25
-	-- button btnExportTPose "导出 Biped Figure Pose" pos:[305,530] width:(btnWidth + 35)
     checkbutton ckbExportFBXTools "🎮 动画批量重定向工具" pos:[305,555] width:(btnWidth + 35) height:45
     
     -- checkBox toggleBipedMode "形体模式开关" checked:true tooltip:"打开和关闭 Biped 体形模式" pos:[370,580] width:btnWidth
@@ -3007,17 +3007,17 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 		else (messageBox "请先验证并检查映射列表是否完整！                                       ")
     )
 
-    on btnExportTPose pressed do
-	(
-        if (GetBipedNode 1) != undefined then
-        (
-            oldFigureMode = ((GetBipedNode 1).transform.controller.figureMode)
-            (GetBipedNode 1).transform.controller.figureMode = true
-            biped.saveBipFileDlg (GetBipedNode 1).controller
-            (GetBipedNode 1).transform.controller.figureMode = oldFigureMode
-        )
-        else (messageBox "没有找到 Biped 骨骼！                                ")
-	)
+    -- on btnExportTPose pressed do
+	-- (
+    --     if (GetBipedNode 1) != undefined then
+    --     (
+    --         oldFigureMode = ((GetBipedNode 1).transform.controller.figureMode)
+    --         (GetBipedNode 1).transform.controller.figureMode = true
+    --         biped.saveBipFileDlg (GetBipedNode 1).controller
+    --         (GetBipedNode 1).transform.controller.figureMode = oldFigureMode
+    --     )
+    --     else (messageBox "没有找到 Biped 骨骼！                                ")
+	-- )
 
     on ckbExportFBXTools changed state do
     (
@@ -3164,8 +3164,6 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 
 	on btnRetargetSelected pressed do
 	(
-		escapeEnable = true
-
 		if edtAnimFbxPath.text != edtOutputPath.text then
 		(
 			if (doesFileExist edtSkinFile.text) then
@@ -3182,7 +3180,7 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 
 	on btnRetargettAll pressed do 
 	(
-		escapeEnable = true
+		-- escapeEnable = true
 
 		if edtAnimFbxPath.text != edtOutputPath.text then
 		(
@@ -3431,6 +3429,8 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 
 	on btnReplaceToBiped pressed do
 	(
+		-- escapeEnable = true
+
 		pgbBar.color = green
 		pgbBar.value = 0
 
@@ -3478,7 +3478,7 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 			meshSkin.always_deform = on
 		)
 
-		(biped_align_test.GetBipedNode 1).controller.rootname = bipedRootName
+		if (chkRenameBiped.state == false) then ((biped_align_test.GetBipedNode 1).controller.rootname = bipedRootName)
 
 		messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。                                              "
 	)
