@@ -94,22 +94,22 @@ global pattBipedNames = #(
 	#("*Head"),				--8
 	#("*HeadNub","*Head?nub"),			--9
 	
-	#("*L?Thigh"),			--10
-	#("*L?Calf","*L?Shin"),				--11
-	#("*L?Foot"),				--12
-	#("*L?Toe0","*L?Toe"),			--13
+	#("*L?Thigh","*Thigh?L"),			--10
+	#("*L?Calf","*L?Shin","*Calf?L"),				--11
+	#("*L?Foot","*Foot?L"),				--12
+	#("*L?Toe0","*L?Toe","*Toe?L"),			--13
 	#("*L?Toe0Nub","*L?Toe?nub","*L?Toe0?Nub"),		--14
 	
-	#("*R?Thigh"),			--15
-	#("*R?Calf","*R?Shin"),				--16
-	#("*R?Foot"),			--17
-	#("*R?Toe0","*R?Toe"),			--18
+	#("*R?Thigh","*Thigh?R"),			--15
+	#("*R?Calf","*R?Shin","*Calf?R"),				--16
+	#("*R?Foot","*Foot?R"),			--17
+	#("*R?Toe0","*R?Toe","*Toe?R"),			--18
 	#("*R?Toe0Nub","*R?Toe?nub","*R?Toe0?Nub"),		--19
 	
-	#("*L?Clavicle","*L?Shoulder"),		--20
-	#("*L?UpperArm"),		--21
-	#("*L?Forearm"),		--22
-	#("*L?Hand"),			--23
+	#("*L?Clavicle","*L?Shoulder","*Clavicle?L"),		--20
+	#("*L?UpperArm","*UpperArm?L"),		--21
+	#("*L?Forearm","*Forearm?L"),		--22
+	#("*L?Hand","*Hand?L"),			--23
 	#("*L?Finger0","*L?Thumb1"),			--24
 	#("*L?Finger01","*L?Thumb2"),		--25
 	#("*L?Finger02","*L?Thumb3"),		--26
@@ -132,10 +132,10 @@ global pattBipedNames = #(
 	#("*L?Finger42","*L?PinkyF3"),		--42
 	#("*L?Finger4Nub","*L?PinkyF3?nub","*L?Finger42?Nub"),	--43
 	
-	#("*R?Clavicle","*R?Shoulder"),		--44
-	#("*R?UpperArm"),		--45
-	#("*R?Forearm"),		--46
-	#("*R?Hand"),			--47
+	#("*R?Clavicle","*R?Shoulder","*Clavicle?R"),		--44
+	#("*R?UpperArm","*UpperArm?R"),		--45
+	#("*R?Forearm","*Forearm?R"),		--46
+	#("*R?Hand","*Hand?R"),			--47
 	#("*R?Finger0","*R?Thumb1"),		--48
 	#("*R?Finger01","*R?Thumb2"),		--49
 	#("*R?Finger02","*R?Thumb3"),		--50
