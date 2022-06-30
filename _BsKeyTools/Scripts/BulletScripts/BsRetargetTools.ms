@@ -1848,7 +1848,7 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 	on bipedBones selected nameIndex do
 	(
 		print (nameIndex)
-		if $ != undefined and $.count == 1 then
+		if $ != undefined and (selection as array).count == 1 then
 		(
 			local temp_array = characterBones.items;
 			temp_array[nameIndex] = $.name
@@ -1860,7 +1860,7 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 	on characterBones selected nameIndex do
 	(
 		print (nameIndex)
-		if $ != undefined and $.count == 1 then
+		if $ != undefined and (selection as array).count == 1 then
 		(
 			local temp_array = characterBones.items;
 			temp_array[nameIndex] = $.name
