@@ -400,7 +400,7 @@ rcmenu menuQuickCreateNode
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
+rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Biped Bones 1 - 35" align:#left across:4 height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
