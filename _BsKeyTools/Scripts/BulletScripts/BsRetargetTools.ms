@@ -741,12 +741,12 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 				-- 第三次遍历，创建新的Bip层，还原bip的位置以及旋转信息
 				biped.createLayer rootBone.controller 1 "layerRootMotionOffset"
 				biped.setcurrentlayer rootBone.controller 1
+				local f = 1
 				for t = (animationRange.start) to (animationRange.end) do
 				(
 					slidertime = t
 					with animate on
 					(
-						local f = (t.frame as integer) + 1
 						-- Pos
 						local bipPos = bipPosList[f]
 						in coordsys world Biped.setTransform rootBone #pos bipPos true
@@ -754,6 +754,7 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 						local bipRot = bipRotList[f]
 						in coordsys world Biped.setTransform rootBone #rotation bipRot true
 
+						f += 1
 						-- biped.addNewKey rootBone.transform.controller.vertical.controller t
 					)
 				)
