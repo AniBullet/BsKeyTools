@@ -3405,21 +3405,21 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 			tempParent = tarBone.parent
 			tarBiped.parent = tempParent
 
-			-- if matchpattern tarBiped.name pattern:"NewHip_*" then 
-			-- (
-			-- 	tarHipBone = getnodebyname (substituteString tarBiped.name "NewHip_" "")
-			-- 	tarHipBone.children.parent = tarBiped
-			-- 	tarBiped.parent = tarHipBone.parent
-			-- 	tarHipBone.parent = tarBiped
-			-- )
+			if matchpattern tarBiped.name pattern:"NewHip_*" then 
+			(
+				tarHipBone = getnodebyname (substituteString tarBiped.name "NewHip_" "")
+				tarHipBone.children.parent = tarBiped
+				tarBiped.parent = tarHipBone.parent
+				tarHipBone.parent = tarBiped
+			)
 
-			-- if matchpattern tarBiped.name pattern:"NewPelvis_*" then 
-			-- (
-			-- 	tarPelvisBone = getnodebyname (substituteString tarBiped.name "NewPelvis_" "")
-			-- 	tarPelvisBone.children.parent = tarBiped
-			-- 	tarBiped.parent = tarPelvisBone.parent
-			-- 	tarPelvisBone.parent = tarBiped
-			-- )
+			if matchpattern tarBiped.name pattern:"NewPelvis_*" then 
+			(
+				tarPelvisBone = getnodebyname (substituteString tarBiped.name "NewPelvis_" "")
+				tarPelvisBone.children.parent = tarBiped
+				tarBiped.parent = tarPelvisBone.parent
+				tarPelvisBone.parent = tarBiped
+			)
 		)
 	)
 
