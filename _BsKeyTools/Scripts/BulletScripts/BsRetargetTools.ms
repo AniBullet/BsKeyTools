@@ -3437,6 +3437,8 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 			pgbBar.color = green
 			pgbBar.value = 0
 
+			local boneRootMotion = (GetSkeletalNode 1 false).parent
+
 			(GetBipedNode 1).transform.controller.figureMode = false
 
 			arrTarSkinMesh = for g in objects as array where (classof g == Editable_mesh) or (classof g == PolyMeshObject) collect g
@@ -3481,13 +3483,16 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 				meshSkin.always_deform = on
 			)
 
-			if ((getnodebyname "Root" != undefined) and ((GetSkeletalNode 1 false).name != "Root")) then (delete $'Root')
+			if boneRootMotion != undefined then(if ((getnodebyname "Root" != undefined) and (boneRootMotion.name != "Root")) then (delete $'Root'))
 
 			if (chkRenameBiped.state == false) then 
 			(
 				(biped_align_test.GetBipedNode 1).controller.rootname = bipedRootName
-				if getnodebyname "Root" == undefined then ((GetSkeletalNode 1 false).name = "Root")
-				else (if (GetSkeletalNode 1 false).name != "Root" then (delete $'Root';(GetSkeletalNode 1 false).name = "Root")
+				if boneRootMotion != undefined then 
+				(
+					if getnodebyname "Root" == undefined then (boneRootMotion.name = "Root")
+					else (if boneRootMotion.name != "Root" then (delete $'Root';boneRootMotion.name = "Root"))
+				)
 			)
 
 			messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。                                              "
