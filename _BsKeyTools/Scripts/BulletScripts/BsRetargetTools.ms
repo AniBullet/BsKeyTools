@@ -359,7 +359,7 @@ rcmenu menuQuickCreateNode
 			rootDummy.Rotation.controller = oC
 			oC.relative = true
 
-			-- rootDummy.parent = root
+			-- rootDummy.parent = root.parent
 			dummyPelvis.parent = rootDummy
 			
 			tempItems = biped_align_test.characterBones.items
@@ -367,22 +367,22 @@ rcmenu menuQuickCreateNode
 			tempItems[2] = dummyPelvis.name
 			biped_align_test.characterBones.items = tempItems
 
-			if root.parent != undefined then
-			(
-				boneRootMotionTarget = root.parent
-				boneRootMotion = dummy name:("Root_" + boneRootMotionTarget.name)
-				boneRootMotion.transform = boneRootMotionTarget.transform
-				rootDummy.parent = boneRootMotion
-				local pC = Position_Constraint()
-				pC.appendTarget boneRootMotionTarget 100
-				boneRootMotion.Position.controller = pC
-				pC.relative = true
+			-- if root.parent != undefined then
+			-- (
+			-- 	boneRootMotionTarget = root.parent
+			-- 	boneRootMotion = dummy name:("Root_" + boneRootMotionTarget.name)
+			-- 	boneRootMotion.transform = boneRootMotionTarget.transform
+			-- 	-- rootDummy.parent = boneRootMotion
+			-- 	local pC = Position_Constraint()
+			-- 	pC.appendTarget boneRootMotionTarget 100
+			-- 	boneRootMotion.Position.controller = pC
+			-- 	pC.relative = true
 				
-				local oC = Orientation_Constraint()
-				oC.appendTarget boneRootMotionTarget 100
-				boneRootMotion.Rotation.controller = oC
-				oC.relative = true
-			)
+			-- 	local oC = Orientation_Constraint()
+			-- 	oC.appendTarget boneRootMotionTarget 100
+			-- 	boneRootMotion.Rotation.controller = oC
+			-- 	oC.relative = true
+			-- )
 
 			messagebox "已根据大腿重新创建符合 Biped 的质心和盆骨，并且更新了映射列表！                                                          "
 			-- hip.parent = rootDummy
@@ -3401,9 +3401,25 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 			)
 			tarBiped.name = tarBone.name
 			tarBone.name = "ReTempNode_" + tarBone.name
-			for i in tarBone.children where i != undefined do(i.parent = tarBiped)
+			for i in tarBone.children where i != undefined do (i.parent = tarBiped)
 			tempParent = tarBone.parent
 			tarBiped.parent = tempParent
+
+			-- if matchpattern tarBiped.name pattern:"NewHip_*" then 
+			-- (
+			-- 	tarHipBone = getnodebyname (substituteString tarBiped.name "NewHip_" "")
+			-- 	tarHipBone.children.parent = tarBiped
+			-- 	tarBiped.parent = tarHipBone.parent
+			-- 	tarHipBone.parent = tarBiped
+			-- )
+
+			-- if matchpattern tarBiped.name pattern:"NewPelvis_*" then 
+			-- (
+			-- 	tarPelvisBone = getnodebyname (substituteString tarBiped.name "NewPelvis_" "")
+			-- 	tarPelvisBone.children.parent = tarBiped
+			-- 	tarBiped.parent = tarPelvisBone.parent
+			-- 	tarPelvisBone.parent = tarBiped
+			-- )
 		)
 	)
 
@@ -3483,7 +3499,7 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 				meshSkin.always_deform = on
 			)
 
-			if boneRootMotion != undefined then(if ((getnodebyname "Root" != undefined) and (boneRootMotion.name != "Root")) then (delete $'Root'))
+			-- if boneRootMotion != undefined then (if ((getnodebyname "Root" != undefined) and (boneRootMotion.name != "Root")) then (delete $'Root'))
 
 			if (chkRenameBiped.state == false) then 
 			(
