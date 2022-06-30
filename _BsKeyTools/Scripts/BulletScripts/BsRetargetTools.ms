@@ -117,20 +117,20 @@ global pattBipedNames = #(
 	#("*L?Finger1","*L?IndexF1"),			--28
 	#("*L?Finger11","*L?IndexF2"),		--29
 	#("*L?Finger12","*L?IndexF3"),		--30
-	#("*L?Finger1Nub","*L?IndexF3?nub","*L?Finger12?nub"),	--31
+	#("*L?Finger1Nub","*L?IndexF3?nub","*L?Finger12?nub","*L?IndexF3?ss"),	--31
 	#("*L?Finger2","*L?MiddleF1"),			--32
 	#("*L?Finger21","*L?MiddleF2"),		--33
 	#("*L?Finger22","*L?MiddleF3"),		--34
-	#("*L?Finger2Nub","*L?MiddleF3?nub","*L?Finger22?Nub"),--35
+	#("*L?Finger2Nub","*L?MiddleF3?nub","*L?Finger22?Nub","*L?MiddleF3?ss"),--35
 	
 	#("*L?Finger3","*L?RingF1"),			--36
 	#("*L?Finger31","*L?RingF2"),		--37
 	#("*L?Finger32","*L?RingF3"),		--38
-	#("*L?Finger3Nub","*L?RingF3?nub","*L?Finger32?Nub"),	--39
+	#("*L?Finger3Nub","*L?RingF3?nub","*L?Finger32?Nub","*L?RingF3?ss"),	--39
 	#("*L?Finger4","*L?PinkyF1"),			--40
 	#("*L?Finger41","*L?PinkyF2"),		--41
 	#("*L?Finger42","*L?PinkyF3"),		--42
-	#("*L?Finger4Nub","*L?PinkyF3?nub","*L?Finger42?Nub"),	--43
+	#("*L?Finger4Nub","*L?PinkyF3?nub","*L?Finger42?Nub","*L?PinkyF3?ss"),	--43
 	
 	#("*R?Clavicle","*R?Shoulder","*Clavicle?R"),		--44
 	#("*R?UpperArm","*UpperArm?R"),		--45
@@ -139,23 +139,23 @@ global pattBipedNames = #(
 	#("*R?Finger0","*R?Thumb1"),		--48
 	#("*R?Finger01","*R?Thumb2"),		--49
 	#("*R?Finger02","*R?Thumb3"),		--50
-	#("*R?Finger0Nub","*R?Thumb3?nub","*R?Finger02?Nub"),	--51
+	#("*R?Finger0Nub","*R?Thumb3?nub","*R?Finger02?Nub","*R?Thumb3?ss"),	--51
 	#("*R?Finger1","*R?IndexF1"),		--52
 	#("*R?Finger11","*R?IndexF2"),		--53
 	#("*R?Finger12","*R?IndexF3"),		--54
-	#("*R?Finger1Nub","*R?IndexF3?nub","*R?Finger12?Nub"),	--55
+	#("*R?Finger1Nub","*R?IndexF3?nub","*R?Finger12?Nub","*R?IndexF3?ss"),	--55
 	#("*R?Finger2","*R?MiddleF1"),		--56
 	#("*R?Finger21","*R?MiddleF2"),		--57
 	#("*R?Finger22","*R?MiddleF3"),		--58
-	#("*R?Finger2Nub","*R?MiddleF3?nub","*R?Finger22?Nub"),	--59
+	#("*R?Finger2Nub","*R?MiddleF3?nub","*R?Finger22?Nub","*R?MiddleF3?ss"),	--59
 	#("*R?Finger3","*R?RingF1"),		--60
 	#("*R?Finger31","*R?RingF2"),		--61
 	#("*R?Finger32","*R?RingF3"),		--62
-	#("*R?Finger3Nub","*R?RingF3?nub","*R?Finger32?Nub"),	--63
+	#("*R?Finger3Nub","*R?RingF3?nub","*R?Finger32?Nub","*R?RingF3?ss"),	--63
 	#("*R?Finger4","*R?PinkyF1"),		--64
 	#("*R?Finger41","*R?PinkyF2"),		--65
 	#("*R?Finger42","*R?PinkyF3"),		--66
-	#("*R?Finger4Nub","*R?PinkyF3?nub","*R?Finger42?Nub")		--67	
+	#("*R?Finger4Nub","*R?PinkyF3?nub","*R?Finger42?Nub","*R?PinkyF3?ss")		--67	
 )
 
 
@@ -3432,57 +3432,67 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 	on btnReplaceToBiped pressed do
 	(
 		-- escapeEnable = true
-
-		pgbBar.color = green
-		pgbBar.value = 0
-
-		(GetBipedNode 1).transform.controller.figureMode = false
-
-		arrTarSkinMesh = for g in objects as array where (classof g == Editable_mesh) or (classof g == PolyMeshObject) collect g
-
-		for o = 1 to arrTarSkinMesh.count do 
+		if mappingCheckState then
 		(
-			local meshSkin = (getSkin arrTarSkinMesh[o])
-			select arrTarSkinMesh[o]
-			max modify mode
-			modpanel.setcurrentobject meshSkin
-			skinOps.saveEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[o].name + "_TempSkin.env")
-			pgbBar.value = 30.*o/(arrTarSkinMesh.count)
+			pgbBar.color = green
+			pgbBar.value = 0
+
+			(GetBipedNode 1).transform.controller.figureMode = false
+
+			arrTarSkinMesh = for g in objects as array where (classof g == Editable_mesh) or (classof g == PolyMeshObject) collect g
+
+			for o = 1 to arrTarSkinMesh.count do 
+			(
+				local meshSkin = (getSkin arrTarSkinMesh[o])
+				select arrTarSkinMesh[o]
+				max modify mode
+				modpanel.setcurrentobject meshSkin
+				skinOps.saveEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[o].name + "_TempSkin.env")
+				pgbBar.value = 30.*o/(arrTarSkinMesh.count)
+			)
+
+			
+
+			fnRenameBiped characterBones.items isB:false
+			fnRenameBiped characterBones_B.items isB:true
+			
+			for g = 1 to arrTarSkinMesh.count do 
+			(
+				-- print g.name
+				local meshSkin = (getSkin arrTarSkinMesh[g])
+				meshSkin.always_deform = off
+				select arrTarSkinMesh[g]
+				modpanel.setcurrentobject meshSkin
+				xchangeSkin arrTarSkinMesh[g]
+				fnLoadEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
+				fnDelFileDir ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
+				meshSkin.always_deform = on
+				pgbBar.value = 30 + (70.*g/(arrTarSkinMesh.count))
+			)
+
+			select $'ReTempNode_*'
+			selectmore $'RetargetHelper_*'
+			delete $
+
+			for g = 1 to arrTarSkinMesh.count do 
+			(
+				local meshSkin = (getSkin arrTarSkinMesh[g])
+				meshSkin.always_deform = off
+				meshSkin.always_deform = on
+			)
+
+			if ((getnodebyname "Root" != undefined) and ((GetSkeletalNode 1 false).name != "Root")) then (delete $'Root')
+
+			if (chkRenameBiped.state == false) then 
+			(
+				(biped_align_test.GetBipedNode 1).controller.rootname = bipedRootName
+				if getnodebyname "Root" == undefined then ((GetSkeletalNode 1 false).name = "Root")
+				else (if (GetSkeletalNode 1 false).name != "Root" then (delete $'Root';(GetSkeletalNode 1 false).name = "Root")
+			)
+
+			messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。                                              "
 		)
-
-		
-
-		fnRenameBiped characterBones.items isB:false
-		fnRenameBiped characterBones_B.items isB:true
-		
-		for g = 1 to arrTarSkinMesh.count do 
-		(
-			-- print g.name
-			local meshSkin = (getSkin arrTarSkinMesh[g])
-			meshSkin.always_deform = off
-			select arrTarSkinMesh[g]
-			modpanel.setcurrentobject meshSkin
-			xchangeSkin arrTarSkinMesh[g]
-			fnLoadEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
-			fnDelFileDir ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
-			meshSkin.always_deform = on
-			pgbBar.value = 30 + (70.*g/(arrTarSkinMesh.count))
-		)
-
-		select $'ReTempNode_*'
-		selectmore $'RetargetHelper_*'
-		delete $
-
-		for g = 1 to arrTarSkinMesh.count do 
-		(
-			local meshSkin = (getSkin arrTarSkinMesh[g])
-			meshSkin.always_deform = off
-			meshSkin.always_deform = on
-		)
-
-		if (chkRenameBiped.state == false) then ((biped_align_test.GetBipedNode 1).controller.rootname = bipedRootName)
-
-		messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。                                              "
+		else (messageBox "请先验证并检查映射列表是否完整！                                       ")
 	)
 )
 
