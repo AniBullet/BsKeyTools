@@ -1848,23 +1848,25 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 	on bipedBones selected nameIndex do
 	(
 		print (nameIndex)
-		if $ != undefined then
+		if $ != undefined and $.count == 1 then
 		(
 			local temp_array = characterBones.items;
 			temp_array[nameIndex] = $.name
 			characterBones.items = temp_array;
 		)
+		else (messagebox "只能填入一个有效骨骼节点!                                              ")
 	)
 	
 	on characterBones selected nameIndex do
 	(
 		print (nameIndex)
-		if $ != undefined then
+		if $ != undefined and $.count == 1 then
 		(
 			local temp_array = characterBones.items;
 			temp_array[nameIndex] = $.name
 			characterBones.items = temp_array;
 		)
+		else (messagebox "只能填入一个有效骨骼节点!                                              ")
 	)
 	
 	on bipedBones doubleClicked nameIndex do
