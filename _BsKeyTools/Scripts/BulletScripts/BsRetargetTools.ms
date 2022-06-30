@@ -3505,11 +3505,11 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 
 			if (chkRenameBiped.state == false) then 
 			(
-				(biped_align_test.GetBipedNode 1).controller.rootname = bipedRootName
-				if boneRootMotion != undefined then 
+				(GetBipedNode 1).controller.rootname = bipedRootName
+				if boneRootMotion != undefined and (getnodebyname "Root") != undefined then 
 				(
-					if getnodebyname "Root" == undefined then (boneRootMotion.name = "Root")
-					else (if boneRootMotion.name != "Root" then (delete $'Root';boneRootMotion.name = "Root"))
+					boneRootMotion.children.parent = (getnodebyname "Root")
+					delete boneRootMotion
 				)
 			)
 
