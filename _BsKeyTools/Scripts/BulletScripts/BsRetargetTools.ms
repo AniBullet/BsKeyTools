@@ -758,6 +758,7 @@ rollout biped_align_test "BsRetargetTools_v1.4  (BipedRigCreator_Enhanced)"
 						-- biped.addNewKey rootBone.transform.controller.vertical.controller t
 					)
 				)
+				dummyRootMotion.children.parent = dummyRootMotionTemp
 				delete dummyRootMotion
 				dummyRootMotionTemp.name = "Root"
 				biped.collapseAtLayer rootBone.controller 0
