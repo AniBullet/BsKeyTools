@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-06-26 04:01:39
+ * @LastEditTime: 2022-07-03 04:10:47
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -885,10 +885,7 @@ rollout rolAddMyScripts "我的脚本" width:300 height:220
 			btnMsName.text = nameMyScript
 			btnMsDir.text = "已修改"
 			if iniArrMyScripts[id] != undefined then iniArrMyScripts[id].dir = dirScript
-			else
-			(
-				append iniArrMyScripts (myScript id edtRenameMs.text dirScript)
-			)
+			else (append iniArrMyScripts (myScript id edtRenameMs.text dirScript))
 		)
 		-- print dirScript
 	)
@@ -930,7 +927,8 @@ rollout rolAddMyScripts "我的脚本" width:300 height:220
 	(
 		iniArrMyScripts[id].msName = "<＋＋>"
 		iniArrMyScripts[id].dir = ""
-		execute ("rolAddMyScripts.edtRenameMs" + (id as string) + ".text = \"\"")
+		execute ("rolAddMyScripts.edtRenameMs" + (id as string) + ".text = \"<＋＋>\"")
+		execute ("rolBsKeyTools.btnMyScripts" + (id as string) + ".tooltip = \"<＋＋>\"")
 	)
 
 	fn fnClearMyScripts = --清除脚本
@@ -974,6 +972,7 @@ rollout rolAddMyScripts "我的脚本" width:300 height:220
 			for b = 1 to arrMyScriptTemp.count do 
 			(
 				arrMyScriptTemp[b].text = "<＋＋>"
+				arrMyScriptTemp[b].tooltip = "<＋＋>"
 			)
 			for b = 1 to arrBtnTemp.count do 
 			(
@@ -988,6 +987,39 @@ rollout rolAddMyScripts "我的脚本" width:300 height:220
 		(
 			format "CANCEL\n"
 		)
+	)
+
+	fn fnApplyMyMs =
+	(
+		fnAddMsName 1 edtRenameMs1
+		fnAddMsName 2 edtRenameMs2
+		fnAddMsName 3 edtRenameMs3
+		fnAddMsName 4 edtRenameMs4
+		fnAddMsName 5 edtRenameMs5
+		fnAddMsName 6 edtRenameMs6
+		fnAddMsName 7 edtRenameMs7
+		fnAddMsName 8 edtRenameMs8
+
+		arrMyScriptTemp = #(rolBsKeyTools.btnMyScripts1, \
+		rolBsKeyTools.btnMyScripts2, \
+		rolBsKeyTools.btnMyScripts3, \
+		rolBsKeyTools.btnMyScripts4, \
+		rolBsKeyTools.btnMyScripts5, \
+		rolBsKeyTools.btnMyScripts6, \
+		rolBsKeyTools.btnMyScripts7, \
+		rolBsKeyTools.btnMyScripts8)
+		for b = 1 to arrMyScriptTemp.count do 
+		(
+			if iniArrMyScripts[b] != undefined then
+			(
+				if (iniArrMyScripts[b].msName != undefined) then 
+				(
+					arrMyScriptTemp[b].text = iniArrMyScripts[b].msName
+				)
+			)
+		)
+		try(destroydialog rolAddMyScripts)catch()
+		stSetConfigAll.fnSetConfigBsKeyTools ()
 	)
 
 	on rolAddMyScripts open do 
@@ -1077,48 +1109,16 @@ rollout rolAddMyScripts "我的脚本" width:300 height:220
 	on btnClearMs2 pressed do (fnClearOneMs 2)
 	on btnClearMs3 pressed do (fnClearOneMs 3)
 	on btnClearMs4 pressed do (fnClearOneMs 4)
-	on btnClearMs6 pressed do (fnClearOneMs 5)
-	on btnClearMs7 pressed do (fnClearOneMs 6)
-	on btnClearMs8 pressed do (fnClearOneMs 7)
-	on btnClearMs9 pressed do (fnClearOneMs 8)
+	on btnClearMs5 pressed do (fnClearOneMs 5)
+	on btnClearMs6 pressed do (fnClearOneMs 6)
+	on btnClearMs7 pressed do (fnClearOneMs 7)
+	on btnClearMs8 pressed do (fnClearOneMs 8)
 
-	on btnDoit pressed do
-	(
-		fnAddMsName 1 edtRenameMs1
-		fnAddMsName 2 edtRenameMs2
-		fnAddMsName 3 edtRenameMs3
-		fnAddMsName 4 edtRenameMs4
-		fnAddMsName 5 edtRenameMs5
-		fnAddMsName 6 edtRenameMs6
-		fnAddMsName 7 edtRenameMs7
-		fnAddMsName 8 edtRenameMs8
+	on btnDoit pressed do(fnApplyMyMs())
 
-		arrMyScriptTemp = #(rolBsKeyTools.btnMyScripts1, \
-		rolBsKeyTools.btnMyScripts2, \
-		rolBsKeyTools.btnMyScripts3, \
-		rolBsKeyTools.btnMyScripts4, \
-		rolBsKeyTools.btnMyScripts5, \
-		rolBsKeyTools.btnMyScripts6, \
-		rolBsKeyTools.btnMyScripts7, \
-		rolBsKeyTools.btnMyScripts8)
-		for b = 1 to arrMyScriptTemp.count do 
-		(
-			if iniArrMyScripts[b] != undefined then
-			(
-				if (iniArrMyScripts[b].msName != undefined) then 
-				(
-					arrMyScriptTemp[b].text = iniArrMyScripts[b].msName
-				)
-			)
-		)
-		try(destroydialog rolAddMyScripts)catch()
-		stSetConfigAll.fnSetConfigBsKeyTools ()
-	)
+	on rolAddMyScripts close do (fnApplyMyMs())
 
-	on btnClearMyScripts pressed do 
-	(
-		fnClearMyScripts ()
-	)
+	on btnClearMyScripts pressed do (fnClearMyScripts())
 )
 ---------------------滑动帧切换rollout---------------------------------
 rollout rolFnKeys "滑动帧切换 v1.1" width:280 height:120
@@ -1238,11 +1238,11 @@ rollout rolFnKeys "滑动帧切换 v1.1" width:280 height:120
 )
 -----------------------------------------------------------------
 -------------主UI-----------------------------------------------------------------
-rollout rolBsKeyTools "" width:200 height:248
+rollout rolBsKeyTools "" width:220 height:300
 (
 	local strMainRol = ("BsKeyTools_v" + curVerBsKeyTools)
 	---------------------------------UI--------------------------------------
-	groupbox gbxMainUI strMainRol pos:[5,5] width:190 height:217
+	groupbox gbxMainUI strMainRol pos:[5,5] width:210 height:217
 	
 		-- label lblRangeStartText "起始帧" pos:[15,21] width:80 height:20
 		-- label lblRangeEndText "结束帧" pos:[65,21] width:80 height:20
@@ -1250,83 +1250,87 @@ rollout rolBsKeyTools "" width:200 height:248
 		range:[-999999999,999999999,animationrange.start] scale:1
 		spinner spiEndTime "" pos:[70,21] width:60 height:20 type:#integer \
 		range:[-999999999,999999999,animationrange.end] scale:1
-		button btnCutFrameDisplay "选定帧" pos:[10,40] width:45 height:25 \
+
+		button btnMagicBtn "" pos:[130,20] width:80 height:18  \
+		tooltip:"点我点我点我~良心小工具" border:false
+		button btnHideUnSel "独显" pos:[10,40]width:40 height:30 \
+		toolTip:"隐藏当前显示的未选中物体，右键可重新显示"  
+		button btnSelBeforeKeys "" \
+		pos:[50,40] width:40 height:30 toolTip:"选择滑条前面关键帧"  
+		button btnSelAllKeys "" \
+		pos:[90,40] width:40 height:30 toolTip:"选择所有关键帧"  
+		button btnSelAfterKeys "" \
+		pos:[130,40] width:40 height:30 toolTip:"选择滑条后面关键帧"
+		checkbutton btnJudgeLinkKey "Link?" highlightcolor:myCheckedColor \
+		pos:[170,40] tooltip:"选择帧前确认是否存在 Link 帧?" width:40 height:30 checked:false
+		edittext edtMoveKey "" width:53 usePercentageWidth:true percentageWidth:44.0 \ 
+		pos:[6,72] labelOnTop:false text:"5f" bold:true readOnly:false height:17
+		button btnSet5 "±5f" width:35 pos:[60,70] height:20 \
+		toolTip:"恢复默认移动帧数\r\n左击：5f\r\n右击：-5f"
+		button btnSetAdd "左+右-" width:65 pos:[95,70] height:20 \
+		toolTip:"移动帧数设置增减 5 帧\r\n左击增加；右击减少"
+		-- button btnSetOpposite "负" width:30 pos:[160,85] height:20
+		button btnMoveKeys "移动帧" width:50 height:20 \
+		pos:[160,70] toolTip:"移动关键帧，先左边设定帧数\r\n左击：帧栏范围保持不变~\r\n右击：帧栏范围同步增减~"  
+
+		button btnCutFrameDisplay "选定帧" pos:[10,90] width:50 height:25 \
 		tooltip:"预览选择帧\r\n再点回到上次帧范围"
-		button btnAllFrameDisplay "首尾帧" pos:[55,40] width:45 height:25 \
+		button btnAllFrameDisplay "首尾帧" pos:[60,90] width:50 height:25 \
 		tooltip:"预览全部帧\r\n再点回到上次帧范围"
 		-- button btnZeroFrameDisplay "零帧" pos:[100,40] width:30 height:20 \
 		-- tooltip:"首帧回到0帧"
-		button btnQuicksave "快速备份" pos:[130,40] width:60 height:25 \
+		checkbutton ckbShadowCut "秀剪影" highlightcolor:myCheckedColor \
+		pos:[110,90] width:50 height:25 toolTip:"切换剪影显示"
+		button btnQuicksave "快备份" pos:[160,90] width:50 height:25 \
 		tooltip:"快速备份当前文件"
-		checkbutton ckbShadowCut "剪影" highlightcolor:myCheckedColor \
-		pos:[100,40] width:30 height:25 toolTip:"切换剪影显示"
-		button btnMagicBtn "" pos:[130,21] width:60 height:18  \
-		tooltip:"点我点我点我~良心小工具" border:false
-		-- edittext edtMoveKey "移动" width:70 usePercentageWidth:true percentageWidth:44.0 \ 
-		-- pos:[10,70] labelOnTop:false text:"5f" bold:true readOnly:false 
-		-- button btnSet5 "5f" width:35 pos:[90,67]
-		-- button btnSetAdd "+5f" width:35 pos:[125,67]
-		-- button btnSetOpposite "负" width:30 pos:[160,67]
-		button btnHideUnSel "独显" pos:[10,65]width:40 height:30 \
-		toolTip:"隐藏当前显示的未选中物体，右键可重新显示"
-		checkbutton btnJudgeLinkKey "Link?" highlightcolor:myCheckedColor \
-		pos:[50,65] tooltip:"是否存在Link帧?" width:35 height:30 checked:false  
-		button btnSelBeforeKeys "" \
-		pos:[85,65] width:35 height:30 toolTip:"选择滑条前面关键帧"  
-		button btnSelAllKeys "" \
-		pos:[120,65] width:35 height:30 toolTip:"选择所有关键帧"  
-		button btnSelAfterKeys "" \
-		pos:[155,65] width:35 height:30 toolTip:"选择滑条后面关键帧"
-		-- button btnMoveKeys " " width:30 height:30 \
-		-- pos:[160,93] toolTip:"移动关键帧,先左边选帧\r\n左：帧栏范围保持不变~\r\n右：帧栏范围同步增减~"  
 		checkbutton ckbFnBoxDisplay "BOX显"  highlightcolor:myCheckedColor \
-		width:45 height:30 toolTip:"骨骼切换Box显示" pos:[10,97]
+		width:50 height:25 toolTip:"骨骼切换Box显示" pos:[10,115]
 		checkbutton ckbFreezeMesh "冻模型" highlightcolor:myCheckedColor \
-		toolTip:"冻结解冻模型" width:45 height:30 pos:[55,97]
+		toolTip:"冻结解冻模型" width:50 height:25 pos:[60,115]
 		checkbutton ckbHideBones "隐Bone" highlightcolor:myCheckedColor \
-		width:45 height:30 toolTip:"显示隐藏 bone\r\n所在层若隐藏则不会显示" pos:[100,97]
-		checkbutton ckbHideBiped "隐Bip" width:45 height:30 highlightcolor:myCheckedColor \
-		toolTip:"显示隐藏 Bip\r\n所在层若隐藏则不会显示" pos:[145,97]
-		button btnImageComp "构图框" pos:[10,127] width:45 height:30 \
+		width:50 height:25 toolTip:"显示隐藏 bone\r\n所在层若隐藏则不会显示" pos:[110,115]
+		checkbutton ckbHideBiped "隐Bip" width:50 height:25 highlightcolor:myCheckedColor \
+		toolTip:"显示隐藏 Bip\r\n所在层若隐藏则不会显示" pos:[160,115]
+		button btnImageComp "构图框" pos:[10,140] width:50 height:25 \
 		tooltip:"各种经典分割视图以辅助构图"
-		button btnTrajedit "轨迹线" pos:[55,127] width:45 height:30 \
+		button btnTrajedit "轨迹线" pos:[60,140] width:50 height:25 \
 		tooltip:"动画轨迹工具个人优化版"
-		button btnFileOpen "时光机" pos:[100,127] width:45 height:30 \
+		button btnFileOpen "时光机" pos:[110,140] width:50 height:25 \
 		tooltip:"快速打开max文件\r\n可收藏常用目录"
-		button btnLightTable "洋葱皮" pos:[145,127] width:45 height:30 \
+		button btnLightTable "洋葱皮" pos:[160,140] width:50 height:25 \
 		toolTip:"显示运动重影 (修改自San_oOo)"
-		checkButton ckbPlayBlocking "跳帧播" pos:[10,157] width:45 height:30 
+		checkButton ckbPlayBlocking "跳帧播" pos:[10,165] width:50 height:25 
 		highlightcolor:myCheckedColor tooltip:"点击预览关键帧 Blocking 动画\r\n若有 Link 帧需要按下上面按钮" checked:false
 		timer clock "PlayClock" interval:1 active:false
-		button btnSpringMagic "飘带解" pos:[55,157] width:45 height:30 \
+		button btnSpringMagic "飘带解" pos:[60,165] width:50 height:25 \
 		tooltip:"左点新版,右点旧版" 
-		button btnCSTools "CS选择" pos:[100,157] width:45 height:30 \
+		button btnCSTools "CS选择" pos:[110,165] width:50 height:25 \
 		toolTip:"快速选择CS骨骼和调Biped等" 
-		button btnAnimCopyPaste "暴力贴"  pos:[145,157] width:45 height:30 \
+		button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
 		toolTip:"动画暴力粘贴东见云优化版\r\n(有时间我也会优化或新写)" 
-		button btnLayerManager "层" pos:[10,187] width:20 height:30 \
+		button btnLayerManager "层" pos:[10,190] width:20 height:25 \
 		toolTip:"模拟旧版层管理器" 
-		button btnSelectionsetTools "集" pos:[30,187] width:20 height:30 \
+		button btnSelectionsetTools "集" pos:[30,190] width:20 height:25 \
 		toolTip:"选择集工具增强版" 
-		button btnPoseTool "库" pos:[50,187] width:20 height:30 \
+		button btnPoseTool "库" pos:[50,190] width:20 height:25 \
 		toolTip:"参考库工具,待完善"
-		button btnTrackBarTools "帧栏" pos:[70,187] width:30 height:30 \
+		button btnTrackBarTools "帧栏" pos:[70,190] width:40 height:25 \
 		toolTip:"帧栏工具条" enabled:false
-		button btnSetFps "" pos:[100,187] width:45 height:30 \
+		button btnSetFps "" pos:[110,190] width:50 height:25 \
 		toolTip:"设置帧率" 
-		button btnSetSpeed "" pos:[145,187] width:45 height:30 \
+		button btnSetSpeed "" pos:[160,190] width:50 height:25 \
 		toolTip:"设置播放速度" 
 	
-	groupbox gbxMinTools "" pos:[200,5] width:130 height:240
+	groupbox gbxMinTools "" pos:[220,5] width:130 height:240
 	
 		checkbutton ckbC1 "" width:30 height:29 highlightcolor:myCheckedColor \
-		pos:[205,15] toolTip:"" border:false
+		pos:[225,15] toolTip:"" border:false
 		checkbutton ckbC2 "" width:30 height:29 highlightcolor:myCheckedColor \
-		pos:[235,15] toolTip:"" border:false
+		pos:[255,15] toolTip:"" border:false
 		checkbutton ckbC3 "" width:30 height:29 highlightcolor:myCheckedColor \
-		pos:[265,15] toolTip:"" border:false
+		pos:[285,15] toolTip:"" border:false
 		checkbutton ckbC4 "" width:30 height:29 highlightcolor:myCheckedColor \
-		pos:[295,15] toolTip:"" border:false
+		pos:[315,15] toolTip:"" border:false
 
 		local btnHeight = 32
 		local btnWidth = 60
@@ -1429,30 +1433,31 @@ rollout rolBsKeyTools "" width:200 height:248
 		button btnTemp17 "待添加17" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
 
-		local btnMsWidth = 72.5
-		checkbutton ckbSwitchMyScripts "切换" pos:[5,249] width:35 height:20
+		local btnMsWidth = 77.5
+		local btnMsPos = [40.5,250]
+		checkbutton ckbSwitchMyScripts "切换" pos:[5,250] width:35 height:20
 		tooltip:"切换自定义脚本按钮" border:true highlightcolor:myCheckedColor 
-		button btnMyScripts1 "<＋＋>" pos:[40.5,249] width:btnMsWidth height:20
-		tooltip:iniArrMyScripts[1].dir border:true visible:false
-		button btnMyScripts2 "<＋＋>" pos:[113,249] width:btnMsWidth height:20
-		tooltip:iniArrMyScripts[2].dir border:true visible:false
-		button btnMyScripts3 "<＋＋>" pos:[185,249] width:btnMsWidth height:20
-		tooltip:iniArrMyScripts[3].dir border:true visible:false
-		button btnMyScripts4 "<＋＋>" pos:[258,249] width:btnMsWidth height:20
-		tooltip:iniArrMyScripts[4].dir border:true visible:false
-		button btnMyScripts5 "<＋＋>" pos:[40.5,249] width:btnMsWidth height:20
-		tooltip:iniArrMyScripts[5].dir border:true visible:false
-		button btnMyScripts6 "<＋＋>" pos:[113,249] width:btnMsWidth height:20
-		tooltip:iniArrMyScripts[6].dir border:true visible:false
-		button btnMyScripts7 "<＋＋>" pos:[185,249] width:btnMsWidth height:20
-		tooltip:iniArrMyScripts[7].dir border:true visible:false
-		button btnMyScripts8 "<＋＋>" pos:[258,249] width:btnMsWidth height:20
-		tooltip:iniArrMyScripts[8].dir border:true visible:false
+		button btnMyScripts1 "<＋＋>" pos:btnMsPos width:btnMsWidth height:20
+		tooltip:iniArrMyScripts[1].msName border:true visible:false
+		button btnMyScripts2 "<＋＋>" pos:(btnMsPos + [btnMsWidth,0]) width:btnMsWidth height:20
+		tooltip:iniArrMyScripts[2].msName border:true visible:false
+		button btnMyScripts3 "<＋＋>" pos:(btnMsPos + [2 * btnMsWidth,0]) width:btnMsWidth height:20
+		tooltip:iniArrMyScripts[3].msName border:true visible:false
+		button btnMyScripts4 "<＋＋>" pos:(btnMsPos + [3 * btnMsWidth,0]) width:btnMsWidth height:20
+		tooltip:iniArrMyScripts[4].msName border:true visible:false
+		button btnMyScripts5 "<＋＋>" pos:btnMyScripts1.pos width:btnMsWidth height:20
+		tooltip:iniArrMyScripts[5].msName border:true visible:false
+		button btnMyScripts6 "<＋＋>" pos:btnMyScripts2.pos width:btnMsWidth height:20
+		tooltip:iniArrMyScripts[6].msName border:true visible:false
+		button btnMyScripts7 "<＋＋>" pos:btnMyScripts3.pos width:btnMsWidth height:20
+		tooltip:iniArrMyScripts[7].msName border:true visible:false
+		button btnMyScripts8 "<＋＋>" pos:btnMyScripts4.pos width:btnMsWidth height:20
+		tooltip:iniArrMyScripts[8].msName border:true visible:false
 
-	groupbox gbxTips "" pos:[5,215] width:190 height:30
+	groupbox gbxTips "" pos:[5,215] width:210 height:30
 	
 		label lblLink "2019.9[miHoYo_Bullet.S]4869" pos:[12,226] width:145 height:15
-		button btnConfig "设置" pos:[165,222] width:30 height:22 border:true
+		button btnConfig "⚙️设置" pos:[165,222] width:49 height:22 border:false
 
 	local m_PBKeyTimeArray
 	local m_PBKeyMiliSecArray
@@ -1498,27 +1503,17 @@ rollout rolBsKeyTools "" width:200 height:248
 	(
 		if toggleID == 1 then
 		(
-			rolBsKeyTools.width        = 200
-			rolBsKeyTools.height       = 248
-			btnMagicBtn.text           = "✧(≖ ◡ ≖)"
+			rolBsKeyTools.width        = 220
+			rolBsKeyTools.height       = 250
+			btnMagicBtn.text           = "✧(≖ ◡ ≖)✧"
 			switchToolPanel            = 0
-			ckbSwitchMyScripts.visible = false
-			btnMyScripts1.visible      = false
-			btnMyScripts2.visible      = false
-			btnMyScripts3.visible      = false
-			btnMyScripts4.visible      = false
-			btnMyScripts5.visible      = false
-			btnMyScripts6.visible      = false
-			btnMyScripts7.visible      = false
-			btnMyScripts8.visible      = false
 		)
 		else
 		(
-			rolBsKeyTools.width        = 335
-			rolBsKeyTools.height       = 273
-			btnMagicBtn.text           = "( = `▽`)"
+			rolBsKeyTools.width        = 355
+			rolBsKeyTools.height       = 275
+			btnMagicBtn.text           = "ヽ( = `▽`)ノ"
 			switchToolPanel            = 1
-			ckbSwitchMyScripts.visible = true
 		)
 	)
 
@@ -1580,11 +1575,11 @@ rollout rolBsKeyTools "" width:200 height:248
 		str += "	arrToolC" + idBtn as string + "[b].visible = true" + "\r\n"
 		str += "	if (mod b 2 == 1) then \r\n"
 		str += "	("
-		str += "		arrToolC" + idBtn as string + "[b].pos = " + [205,45] as string + " + [0,(b - 1) * 16.5]" + "\r\n"
+		str += "		arrToolC" + idBtn as string + "[b].pos = " + [225,45] as string + " + [0,(b - 1) * 16.5]" + "\r\n"
 		str += "	)"
 		str += "	else if (mod b 2 == 0) then"
 		str += "	("
-		str += "		arrToolC" + idBtn as string + "[b].pos = " + [265,45] as string + " + [0,(b - 2) * 16.5]" + "\r\n"
+		str += "		arrToolC" + idBtn as string + "[b].pos = " + [285,45] as string + " + [0,(b - 2) * 16.5]" + "\r\n"
 		str += "	)"
 		str += ")"
 		
@@ -2056,6 +2051,161 @@ rollout rolBsKeyTools "" width:200 height:248
 		)
 	)
 
+	mapped fn fnMoveKeysAndLinkKeys obj offset =  ----https://forums.cgsociety.org/t/moving-keys-from-link-constraint-keys-access/1575053
+	(
+		local arrTargetID  = #()
+		moveKeys obj offset #selection  ---先移动非link帧
+		if rolloutBulletKeyTools.btnJudgeLinkKey.checked == true then 
+		(
+			if classof obj.controller == Link_Constraint do
+			(
+				nTargets = obj.controller.getNumTargets()  ---得到link的帧数量
+	
+				if nTargets > 0 do
+				(
+					for i = nTargets to 1 by -1 do  ------如果大于0则从最后link帧开始移
+					(
+						fNumber = obj.controller.getFrameNo i
+						if ((fNumber >= keySelFirst) and (fNumber <= keySelEnd)) then
+						(
+							appendIfUnique arrTargetID i
+						)
+					)
+					if offset > 0 then  --------判断向前还是向后移动帧
+					(
+						for i = arrTargetID.count to 1 by -1 do  ------如果大于0则从最后link帧开始移
+						(
+							fNumber = obj.controller.getFrameNo arrTargetID[i]
+							obj.controller.setFrameNo i (fNumber + offset)
+						)
+					)
+					else
+					(
+						for i = 1 to arrTargetID.count do  ---如果移动帧小于0,从第一个link帧开始移
+						(
+							fNumber = obj.controller.getFrameNo arrTargetID[i]
+							obj.controller.setFrameNo i (fNumber + offset)
+						)
+					)
+				)
+			)
+		)
+	)
+
+	-- fn fnSplitSelBiped = --分开选择四肢和身体,例如同一条手臂只选择最父级的(方便移动帧)
+	-- (
+	-- 	arrSelBiped = for i in selection where classof i.controller == BipSlave_Control collect i 
+
+	-- )
+
+	fn fnMoveBipedKeys offsetFrame =  -------移动Biped帧
+	(
+		bipedRoot = #()   -------判断选择了几个biped骨架
+		for i in selection where ((classof i == Biped_Object) and (i.ishidden == false)) do  
+		(
+			appendIfUnique bipedRoot i.controller.rootNode  --添加到骨架数组
+		)
+		for c in bipedRoot do  ---按每个骨架处理
+		(
+			ctrlBiped = c.controller
+			bipedAll = #(biped.getNode ctrlBiped #pelvis, -----四肢同帧处理,只处理他首节biped
+						biped.getNode ctrlBiped #spine,
+						biped.getNode ctrlBiped #neck,
+						biped.getNode ctrlBiped #larm,
+						biped.getNode ctrlBiped #rarm,
+						biped.getNode ctrlBiped #lleg,
+						biped.getNode ctrlBiped #rleg,
+						biped.getNode ctrlBiped #prop1,
+						biped.getNode ctrlBiped #prop2,
+						biped.getNode ctrlBiped #prop3,
+						biped.getNode ctrlBiped #tail)
+
+			vertCtrl = ctrlBiped.vertical.controller  -----质心ctrl关键帧
+			horzCtrl = ctrlBiped.horizontal.controller
+			if (sysinfo.GetMaxLanguage())[3]=="CHS" then 
+			(turnCtrl = ctrlBiped.flip.controller)
+			else(turnCtrl = ctrlBiped.turning.controller)
+			bipCtrlTemp = #(vertCtrl,horzCtrl,turnCtrl)
+			for c in bipCtrlTemp do
+			(
+				biped.moveKeys c offsetFrame #selection  -----移动选定的质心帧
+			)
+			for nodeBiped in bipedAll where nodeBiped != undefined do  -----移动其他biped的选定帧
+			(
+				biped.moveKeys nodeBiped.controller offsetFrame #selection
+			)
+		)
+	)		
+
+	mapped fn fnMoveBipedScaleKeys tempObj offsetFrame =  -------移动biped的缩放帧
+	(
+		ctrlBiped = tempObj.controller
+		if classof ctrlBiped == BipSlave_Control then  --------下面判定子动画是否为scaleXYZ
+		(
+			if ((ctrlBiped[1][1] != undefined) and ((getSubAnimName ctrlBiped[1][1] 1) == #ScaleXYZ)) then
+			(
+				movekeys ctrlBiped[1][1][1] offsetFrame #selection
+			)
+		)
+	)
+
+	fn fnMoveAllKeys keyMovedOffset fnRange:off =
+	(
+		local rangEnd = animationrange.end
+		local rangeStart = animationrange.start
+		local n = 0  --n来判定是否有选中biped
+
+		if keyMovedOffset != undefined then
+		(
+			if selection.count != 0 then
+			(
+				for i in selection where (i.ishidden == false) do
+				(
+					if classof i != Biped_Object then
+					(
+						fnMoveKeysAndLinkKeys i keyMovedOffset
+					)
+					else 
+					(
+						fnMoveBipedScaleKeys i keyMovedOffset
+						n += 1
+					)
+				)
+				if n != 0 then  ----------分开解决biped多移动的问题,傻瓜式方法
+				(
+					fnMoveBipedKeys keyMovedOffset
+				)
+			)
+			else  ---跟上面一样,只是对所有物体
+			(
+				for i in objects where (i.ishidden == false) do
+				(
+					if classof i != Biped_Object then
+					(
+						fnMoveKeysAndLinkKeys i keyMovedOffset
+					)
+					else fnMoveBipedScaleKeys i keyMovedOffset
+				)
+				fnMoveBipedKeys keyMovedOffset
+			)
+			if fnRange == on then
+			(
+				if keyMovedOffset > 0 then 
+				(
+					rangEnd = animationrange.end + keyMovedOffset
+					animationrange = interval animationrange.start rangEnd
+				)
+				else if keyMovedOffset < 0 then 
+				(
+					rangeStart = animationrange.start + keyMovedOffset
+					animationrange = interval rangeStart animationrange.end
+				)
+			)
+			keySelFirst += keyMovedOffset
+			keySelEnd  += keyMovedOffset
+		)
+	)
+
 	fn fnAddTrajLayer strlayerName templayerTarget =
 	(
 		if (LayerManager.getLayerFromName strlayerName) != undefined then
@@ -2243,9 +2393,10 @@ rollout rolBsKeyTools "" width:200 height:248
 		(
 			nameMyScript = getFilenameFile dirScript
 			btnMyScript.text = nameMyScript
+			btnMyScript.tooltip = nameMyScript
 			iniArrMyScripts[idMyScript].msName = nameMyScript
 			iniArrMyScripts[idMyScript].dir = dirScript
-			messagebox "右键可重新设置脚本快捷键!        "
+			messagebox "右键可重新设置脚本快捷键!\r\n\r\n(按钮较窄,建议右键设置脚本昵称~)                                "
 		)
 		stSetConfigAll.fnSetConfigBsKeyTools ()
 	)
@@ -2313,7 +2464,7 @@ rollout rolBsKeyTools "" width:200 height:248
 		btnSelAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,11,11,11,11,true,true) 
 		btnSelAllKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,26,26,26,26,true,true)
 		-- btnMoveKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,21,21,21,21,true,true)
--- 		btnMoveAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,13,13,13,13,true,true)
+		-- btnMoveAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,13,13,13,13,true,true)
 		-- dotnet.AddEventHandler myTimer #elapsed fnRefreshHelpText
 		-- myTimer.Start()
 		-- timeDIsTemp      = timeDisplayMode  ----小数帧还是整数帧
@@ -2355,6 +2506,8 @@ rollout rolBsKeyTools "" width:200 height:248
 	)
 
 	on btnConfig pressed do (popupMenu menuConfig pos:[mouse.screenpos.x + 20,mouse.screenpos.y])
+
+	on btnConfig rightclick do (popupMenu menuConfig pos:[mouse.screenpos.x + 20,mouse.screenpos.y])
 
 	on rolBsKeyTools mbuttondown pos do 
 	(
@@ -2618,7 +2771,7 @@ rollout rolBsKeyTools "" width:200 height:248
 			keyMovedOffset = val as integer
 			rolBsKeyTools.edtMoveKey.text = keyMovedOffset as string + "f"
 		)
-		else messageBox "----------------------\r\n请输入正确帧数!"
+		else (print "[BskeyTools] warning: 请输入正确移动帧数!";edtMoveKey.text = "5f")
 	)
 
 	on btnSet5 pressed do 
@@ -2626,17 +2779,29 @@ rollout rolBsKeyTools "" width:200 height:248
 		edtMoveKey.text = "5f"
 		keyMovedOffset = 5
 	)
+
+	on btnSet5 rightclick do 
+	(
+		edtMoveKey.text = "-5f"
+		keyMovedOffset = -5
+	)
+
 	on btnSetAdd pressed do 
 	(
-		edtMoveKey.text = "+5f"
 		keyMovedOffset += 5
 		edtMoveKey.text = keyMovedOffset as string + "f"
 	)
-	on btnSetOpposite pressed do
+
+	on btnSetAdd rightclick do 
 	(
-		keyMovedOffset = - keyMovedOffset
+		keyMovedOffset -= 5
 		edtMoveKey.text = keyMovedOffset as string + "f"
 	)
+	-- on btnSetOpposite pressed do
+	-- (
+	-- 	keyMovedOffset = - keyMovedOffset
+	-- 	edtMoveKey.text = keyMovedOffset as string + "f"
+	-- )
 	on btnMoveKeys pressed do with undo on   ------移动选定帧
 	(
 		fnMoveAllKeys keyMovedOffset fnRange:off
