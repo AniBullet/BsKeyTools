@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-03 04:10:47
+ * @LastEditTime: 2022-07-03 04:14:40
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1255,14 +1255,14 @@ rollout rolBsKeyTools "" width:220 height:300
 		tooltip:"点我点我点我~良心小工具" border:false
 		button btnHideUnSel "独显" pos:[10,40]width:40 height:30 \
 		toolTip:"隐藏当前显示的未选中物体，右键可重新显示"  
-		button btnSelBeforeKeys "" \
-		pos:[50,40] width:40 height:30 toolTip:"选择滑条前面关键帧"  
-		button btnSelAllKeys "" \
-		pos:[90,40] width:40 height:30 toolTip:"选择所有关键帧"  
-		button btnSelAfterKeys "" \
-		pos:[130,40] width:40 height:30 toolTip:"选择滑条后面关键帧"
 		checkbutton btnJudgeLinkKey "Link?" highlightcolor:myCheckedColor \
-		pos:[170,40] tooltip:"选择帧前确认是否存在 Link 帧?" width:40 height:30 checked:false
+		pos:[50,40] tooltip:"选择帧前确认是否存在 Link 帧?" width:40 height:30 checked:false
+		button btnSelBeforeKeys "" \
+		pos:[90,40] width:40 height:30 toolTip:"选择滑条前面关键帧"  
+		button btnSelAllKeys "" \
+		pos:[130,40] width:40 height:30 toolTip:"选择所有关键帧"  
+		button btnSelAfterKeys "" \
+		pos:[170,40] width:40 height:30 toolTip:"选择滑条后面关键帧"
 		edittext edtMoveKey "" width:53 usePercentageWidth:true percentageWidth:44.0 \ 
 		pos:[6,72] labelOnTop:false text:"5f" bold:true readOnly:false height:17
 		button btnSet5 "±5f" width:35 pos:[60,70] height:20 \
