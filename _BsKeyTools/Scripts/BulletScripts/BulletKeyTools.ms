@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-03 04:14:40
+ * @LastEditTime: 2022-07-03 04:17:25
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2055,7 +2055,7 @@ rollout rolBsKeyTools "" width:220 height:300
 	(
 		local arrTargetID  = #()
 		moveKeys obj offset #selection  ---先移动非link帧
-		if rolloutBulletKeyTools.btnJudgeLinkKey.checked == true then 
+		if rolBsKeyTools.btnJudgeLinkKey.checked == true then 
 		(
 			if classof obj.controller == Link_Constraint do
 			(
