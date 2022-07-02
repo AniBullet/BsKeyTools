@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-03 04:17:25
+ * @LastEditTime: 2022-07-03 04:31:37
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2804,10 +2804,12 @@ rollout rolBsKeyTools "" width:220 height:300
 	-- )
 	on btnMoveKeys pressed do with undo on   ------移动选定帧
 	(
+		fnCollectKeys ()
 		fnMoveAllKeys keyMovedOffset fnRange:off
 	)
 	on btnMoveKeys rightclick do with undo on
 	(
+		fnCollectKeys ()
 		fnMoveAllKeys keyMovedOffset fnRange:on
 	)
 	on btnSelBeforeKeys pressed do  ------------选择滑条之前帧
