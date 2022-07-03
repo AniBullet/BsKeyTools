@@ -467,7 +467,7 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 	listBox ltbFilesList "" selection:0 \
 	height:34 width:200 pos:[20,25] visible:false
 
-	button btnLoadAnimPath "选择动画目录" tooltip:"选择动画目录" \
+	button btnLoadAnimPath "选择动画目录" tooltip:"选择原始动画目录" \
 	height:22 width:115 pos:[225,65] visible:false
 	button btnRefreshAnimFiles "刷新" \
 	height:22 width:60 pos:[340,65] visible:false
@@ -490,7 +490,7 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
     editText edtMappingFile "" text:"" labelOnTop:true \
 	height:22 fieldWidth:235 pos:[225,210] readOnly:true visible:false
 	
-	button btnSelectSkinFile "选择 Skin 文件" pos:[225,245] width:160 visible:false \
+	button btnSelectSkinFile "选择新 Skin 文件" pos:[225,245] width:160 visible:false \
 	tooltip:"选择新的 Skin 文件"
 	button btnOpenSkinFile "打开" pos:[385,245] width:75 visible:false \
 	tooltip:"打开新 Skin 文件"
