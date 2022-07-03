@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-04 02:34:16
+ * @LastEditTime: 2022-07-04 02:43:19
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -67,6 +67,7 @@ global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误�
 struct myScript (id,msName,dir)
 
 Global rolBsKeyTools
+global rolAddMyScripts
 Global posMouMoved       = [0,0]
 Global switchMouseState  = false
 Global switchSelKeyRange = 0
