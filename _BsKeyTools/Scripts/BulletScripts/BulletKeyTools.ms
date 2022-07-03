@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-03 04:31:37
+ * @LastEditTime: 2022-07-03 19:33:25
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1289,7 +1289,7 @@ rollout rolBsKeyTools "" width:220 height:300
 		toolTip:"冻结解冻模型" width:50 height:25 pos:[60,115]
 		checkbutton ckbHideBones "隐Bone" highlightcolor:myCheckedColor \
 		width:50 height:25 toolTip:"显示隐藏 bone\r\n所在层若隐藏则不会显示" pos:[110,115]
-		checkbutton ckbHideBiped "隐Bip" width:50 height:25 highlightcolor:myCheckedColor \
+		checkbutton ckbHideBiped "隐Biped" width:50 height:25 highlightcolor:myCheckedColor \
 		toolTip:"显示隐藏 Bip\r\n所在层若隐藏则不会显示" pos:[160,115]
 		button btnImageComp "构图框" pos:[10,140] width:50 height:25 \
 		tooltip:"各种经典分割视图以辅助构图"
@@ -1983,8 +1983,7 @@ rollout rolBsKeyTools "" width:220 height:300
 				for i in (objects as array) where (i.ishidden == false) do 
 				(
 					if rolBsKeyTools.btnJudgeLinkKey.checked == false then fnAddKyes i 0
-					else 
-					fnAddKyes i 1  -----------根据是否勾选link处理收集帧
+					else (fnAddKyes i 1)  -----------根据是否勾选link处理收集帧
 				)
 			)
 			default:
@@ -1992,8 +1991,7 @@ rollout rolBsKeyTools "" width:220 height:300
 				for i in (selection as array) where (i.ishidden == false) do 
 				(
 					if rolBsKeyTools.btnJudgeLinkKey.checked == false then fnAddKyes i 0
-					else 
-					fnAddKyes i 1  -----------根据是否勾选link处理收集帧
+					else (fnAddKyes i 1)  -----------根据是否勾选link处理收集帧
 				)
 			)
 		)
@@ -2804,12 +2802,16 @@ rollout rolBsKeyTools "" width:220 height:300
 	-- )
 	on btnMoveKeys pressed do with undo on   ------移动选定帧
 	(
+		if (selection as array).count == 0 then select objects
 		fnCollectKeys ()
+		if arrKeysSelected.count == 0 then (btnSelAllKeys.pressed())
 		fnMoveAllKeys keyMovedOffset fnRange:off
 	)
 	on btnMoveKeys rightclick do with undo on
 	(
+		if (selection as array).count == 0 then select objects
 		fnCollectKeys ()
+		if arrKeysSelected.count == 0 then (btnSelAllKeys.pressed())
 		fnMoveAllKeys keyMovedOffset fnRange:on
 	)
 	on btnSelBeforeKeys pressed do  ------------选择滑条之前帧
@@ -2967,13 +2969,13 @@ rollout rolBsKeyTools "" width:220 height:300
 		if state == false then
 		(
 			for o in geometry as array where (classof o == Biped_Object and o.layer.ishidden != true) do o.isHidden = false
-			rolBsKeyTools.ckbHideBiped.text = "隐Bip"
+			rolBsKeyTools.ckbHideBiped.text = "隐Biped"
 		)
 		else
 		(
 			arrHiddenBones = #()
 			for o in geometry as array where (classof o == Biped_Object) do o.isHidden = true
-			rolBsKeyTools.ckbHideBiped.text = "显Bip"
+			rolBsKeyTools.ckbHideBiped.text = "显Biped"
 		)
 	)
 
