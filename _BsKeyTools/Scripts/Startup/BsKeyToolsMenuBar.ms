@@ -2,7 +2,7 @@
     macroScript BsKeyToolsPosReset
 	category:"_[BulletTools]"
 	buttonText:"窗口位置重置"
-	toolTip:"BsKeyTools 窗口位置重置"
+	toolTip:"窗口位置重置"
 	(
 		on execute do
 		(

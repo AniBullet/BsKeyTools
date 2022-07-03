@@ -38,7 +38,7 @@ struct stLoadConfigAll
 		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet"  "IsIcon" (iniIsIcon as string)
 		fnLoadToolBtnConfig()
-		if (iniArrMyScripts.count != 8) then
+		if (iniArrMyScripts.count != 10) then
 		(
 			iniArrMyScripts = #((myScript id:1 msName:"<＋＋>" dir:""), \
 			(myScript id:2 msName:"<＋＋>" dir:""), \
@@ -47,7 +47,9 @@ struct stLoadConfigAll
 			(myScript id:5 msName:"<＋＋>" dir:""), \
 			(myScript id:6 msName:"<＋＋>" dir:""), \
 			(myScript id:7 msName:"<＋＋>" dir:""), \
-			(myScript id:8 msName:"<＋＋>" dir:""))
+			(myScript id:8 msName:"<＋＋>" dir:""),
+			(myScript id:9 msName:"<＋＋>" dir:""),
+			(myScript id:10 msName:"<＋＋>" dir:""))
 		)
 		-- print "Loaded BsKeyTools Config"
 	),
