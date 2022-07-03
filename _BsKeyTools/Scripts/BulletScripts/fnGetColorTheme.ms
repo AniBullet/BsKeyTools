@@ -7,6 +7,9 @@ global BsDotFont
 global dotColor = dotnetclass "System.Drawing.Color"
 
 (
+	local curColorThemeFile = colorMan.getFileName()
+	local maxuiBgColor = (colorman.getcolor #background) * 255
+	
 	if (curColorThemeFile != undefined) then
 	(
 		if (matchpattern curColorThemeFile pattern:"*light*") then
@@ -29,9 +32,6 @@ global dotColor = dotnetclass "System.Drawing.Color"
 		myCheckedColor = (color 10 140 120)
 	)
 	----获取当前主题是深色还是浅色,来更改文字颜色 fnGetColorTheme.ms
-
-	local curColorThemeFile = colorMan.getFileName()
-	local maxuiBgColor = (colorman.getcolor #background) * 255
 
 	BsDotFont      = dotnetobject "System.Drawing.Font" "Roboto" 8
 	BsDotBackColor = dotColor.FromArgb maxuiBgColor[1] maxuiBgColor[2] maxuiBgColor[3]
