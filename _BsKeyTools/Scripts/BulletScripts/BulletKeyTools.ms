@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-04 18:53:34
+ * @LastEditTime: 2022-07-04 20:01:55
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -140,6 +140,18 @@ Global iniArrMyScripts5   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:10 msName:"<＋＋>" dir:""))
 -- Global myTimer = dotnetobject "System.Timers.Timer" 500 autoreset:true
 ------------------全局变量-------------------------------------------------------------------
+fn fnLoadMsArray =
+(
+	if idMsBtn == 1 then strMsBtn = "" else strMsBtn = idMsBtn as string
+	execute ("arrMsTemp = for i in iniArrMyScripts" + strMsBtn + " collect i")
+	return arrMsTemp
+)
+
+fn fnSaveMsArray =
+(
+	if idMsBtn == 1 then strMsBtn = "" else strMsBtn = idMsBtn as string
+	execute ("iniArrMyScripts" + strMsBtn + " = for i in arrMsTemp collect i")
+)
 
 fn fnRefreshMyMsBtn = 
 (
@@ -601,11 +613,13 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 	button btnClearMs8 "X" pos:[btnMSWidth + 65,165]  width:30 height:20 border:true
 	button btnClearMs9 "X" pos:[btnMSWidth + 65,185]  width:30 height:20 border:true
 	button btnClearMs10 "X" pos:[btnMSWidth + 65,205]  width:30 height:20 border:true
-	button btnClearMyScripts "! 清除所有脚本引用 !" pos:[15,230] width:160 height:25 border:true
+	button btnClearMyScripts "! 清除当前切页脚本引用 !" pos:[15,230] width:160 height:25 border:true
 	button btnDoit "! 注意确认 !" pos:[175,230] width:120 height:25 border:true
 
 	fn fnRefreshBtnReAddMs btnMsName btnMsDir edtRenameMs id =
 	(
+		arrMsTemp = fnLoadMsArray()
+
 		dirScript = getOpenFileName caption:"请选择添加的Max脚本:" historyCategory:"myScripts" \
 		types:"maxscript(*.ms,*.mse)|*.ms*|All(*.*)|*.*" filename:(getDir #scripts + @"\") 
 		if (dirScript != undefined) then
@@ -613,31 +627,35 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 			nameMyScript = getFilenameFile dirScript
 			btnMsName.text = nameMyScript
 			btnMsDir.text = "已修改"
-			if iniArrMyScripts[id] != undefined then iniArrMyScripts[id].dir = dirScript
-			else (append iniArrMyScripts (myScript id edtRenameMs.text dirScript))
+			if arrMsTemp[id] != undefined then arrMsTemp[id].dir = dirScript
+			else (append arrMsTemp (myScript id edtRenameMs.text dirScript))
+			fnSaveMsArray()
 		)
 		-- print dirScript
 	)
 
 	fn fnAddMsName id edtRenameMs =
 	(
-		if (iniArrMyScripts[id] != undefined) then
+		arrMsTemp = fnLoadMsArray()
+		if (arrMsTemp[id] != undefined) then
 		(
-			if edtRenameMs.text != "" then iniArrMyScripts[id].msName = edtRenameMs.text
-			else iniArrMyScripts[id].msName = "<＋＋>"
+			if edtRenameMs.text != "" then arrMsTemp[id].msName = edtRenameMs.text
+			else arrMsTemp[id].msName = "<＋＋>"
+			fnSaveMsArray()
 		)
 	)
 
 	fn fnRefreshMyScriptsUI =
 	(
 		fnRefreshMyMsBtn()
+		arrMsTemp = fnLoadMsArray()
 		for b = 1 to arrAddMyMsBtn.count do
 		(
-			if iniArrMyScripts[b] != undefined then
+			if arrMsTemp[b] != undefined then
 			(
-				if iniArrMyScripts[b].msName != undefined then 
+				if arrMsTemp[b].msName != undefined then 
 				(
-					arrAddMyMsBtn[b].text = iniArrMyScripts[b].msName 
+					arrAddMyMsBtn[b].text = arrMsTemp[b].msName 
 				)
 				else arrAddMyMsBtn[b].text = ""
 			)
@@ -648,6 +666,14 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 	(
 		iniArrMyScripts[id].msName = "<＋＋>"
 		iniArrMyScripts[id].dir = ""
+		iniArrMyScripts2[id].msName = "<＋＋>"
+		iniArrMyScripts2[id].dir = ""
+		iniArrMyScripts3[id].msName = "<＋＋>"
+		iniArrMyScripts3[id].dir = ""
+		iniArrMyScripts4[id].msName = "<＋＋>"
+		iniArrMyScripts4[id].dir = ""
+		iniArrMyScripts5[id].msName = "<＋＋>"
+		iniArrMyScripts5[id].dir = ""
 		execute ("rolAddMyScripts.edtRenameMs" + (id as string) + ".text = \"<＋＋>\"")
 		execute ("rolBsKeyTools.btnMyScripts" + (id as string) + ".tooltip = \"<＋＋>\"")
 	)
@@ -663,12 +689,14 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 		local defaultButton = dotNetClass "System.Windows.Forms.MessageBoxDefaultButton"
 		local dialogResult = dotNetClass "System.Windows.Forms.DialogResult"
 
-		local result = mb.show "确定清除所有引用的脚本按钮吗 ?" "自定脚本一键清除" buttons.YesNoCancel icons.Information defaultButton.Button3
+		local result = mb.show "确定清除【当前切页】引用的脚本按钮吗 ?" "自定脚本一键清除" buttons.YesNoCancel icons.Information defaultButton.Button3
+
+		arrMsTemp = fnLoadMsArray()
 
 		--选项按钮
 		if ( result == dialogResult.Yes ) then
 		(
-			iniArrMyScripts = #((myScript id:1 msName:"<＋＋>" dir:""), \
+			arrMsTemp   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 			(myScript id:2 msName:"<＋＋>" dir:""), \
 			(myScript id:3 msName:"<＋＋>" dir:""), \
 			(myScript id:4 msName:"<＋＋>" dir:""), \
@@ -678,6 +706,8 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 			(myScript id:8 msName:"<＋＋>" dir:""),
 			(myScript id:9 msName:"<＋＋>" dir:""),
 			(myScript id:10 msName:"<＋＋>" dir:""))
+
+			fnSaveMsArray()
 
 			for b = 1 to arrMyMsBtn.count do 
 			(
@@ -714,16 +744,19 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 		fnAddMsName 9 edtRenameMs9
 		fnAddMsName 10 edtRenameMs10
 
+		arrMsTemp = fnLoadMsArray()
+
 		for b = 1 to arrMyMsBtn.count do 
 		(
-			if iniArrMyScripts[b] != undefined then
+			if arrMsTemp[b] != undefined then
 			(
-				if (iniArrMyScripts[b].msName != undefined) then 
+				if (arrMsTemp[b].msName != undefined) then 
 				(
-					arrMyMsBtn[b].text = iniArrMyScripts[b].msName
+					arrMyMsBtn[b].text = arrMsTemp[b].msName
 				)
 			)
 		)
+		fnSaveMsArray()
 		try(destroydialog rolAddMyScripts)catch()
 		stSetConfigAll.fnSetConfigBsKeyTools ()
 	)
@@ -1587,6 +1620,7 @@ rollout rolBsKeyTools "" width:220 height:250
 	local m_PBStartTime
 	local m_PBPointer
 ----------------------------------UI及作者ID------------------------------------------------
+
 	fn fnSwitchToolBtnName =
 	(
 		local strBtnName = fnSwitchBtnString()
@@ -1711,6 +1745,13 @@ rollout rolBsKeyTools "" width:220 height:250
 		str += ")"
 		
 		execute str
+	)
+
+	fn fnSwitchMsBtn idMsBtn =
+	(
+		if idMsBtn == 1 then strMsBtn = "" else strMsBtn = idMsBtn as string
+		execute ("arrMsTemp = for i in iniArrMyScripts" + strMsBtn + " collect i")
+		
 	)
 
 	fn fnSwitchToolBtnChecked Btn isMsBtn:false =
@@ -2518,11 +2559,13 @@ rollout rolBsKeyTools "" width:220 height:250
 		types:"maxscript(*.ms,*.mse)|*.ms*|All(*.*)|*.*" filename:(getDir #scripts + @"\") 
 		if (dirScript != undefined) then
 		(
-			nameMyScript = getFilenameFile dirScript
-			btnMyScript.text = nameMyScript
+			arrMsTemp           = fnLoadMsArray()
+			nameMyScript        = getFilenameFile dirScript
+			btnMyScript.text    = nameMyScript
 			btnMyScript.tooltip = nameMyScript
-			iniArrMyScripts[idMyScript].msName = nameMyScript
-			iniArrMyScripts[idMyScript].dir = dirScript
+			arrMsTemp[idMyScript].msName = nameMyScript
+			arrMsTemp[idMyScript].dir    = dirScript
+			fnSaveMsArray()
 			messagebox "右键可重新设置脚本快捷键!\r\n\r\n(按钮较窄,建议右键设置脚本昵称~)                                "
 		)
 		stSetConfigAll.fnSetConfigBsKeyTools ()
@@ -2531,17 +2574,24 @@ rollout rolBsKeyTools "" width:220 height:250
 	fn fnRefreshMyScripts =
 	(
 		fnRefreshMyMsBtn()
+		arrMsTemp = fnLoadMsArray()
 		for b = 1 to arrMyMsBtn.count do 
 		(
-			if iniArrMyScripts[b] != undefined then
+			if arrMsTemp[b] != undefined then
 			(
-				if (iniArrMyScripts[b].msName != undefined) then 
+				if (arrMsTemp[b].msName != undefined) then 
 				(
-					arrMyMsBtn[b].text = iniArrMyScripts[b].msName
+					arrMyMsBtn[b].text    = arrMsTemp[b].msName
+					arrMyMsBtn[b].tooltip = arrMsTemp[b].msName
 				)
-				else arrMyMsBtn[b].text = "<＋＋>"
+				else 
+				(
+					arrMyMsBtn[b].text    = "<＋＋>"
+					arrMyMsBtn[b].tooltip = "<＋＋>"
+				)
 			)
 		)
+		fnSaveMsArray()
 	)
 
 	fn fnGetAllBipedTwist =
@@ -3231,6 +3281,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		if state == true then 
 		(
 			fnSwitchToolBtnChecked 1 isMsBtn:true
+			fnRefreshMyScripts()
 		)
 		else ckbMs1.checked = true
 	)
@@ -3239,6 +3290,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		if state == true then 
 		(
 			fnSwitchToolBtnChecked 2 isMsBtn:true
+			fnRefreshMyScripts()
 		)
 		else ckbC2.checked = true
 	)
@@ -3247,6 +3299,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		if state == true then 
 		(
 			fnSwitchToolBtnChecked 3 isMsBtn:true
+			fnRefreshMyScripts()
 		)
 		else ckbC3.checked = true
 	)
@@ -3255,6 +3308,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		if state == true then 
 		(
 			fnSwitchToolBtnChecked 4 isMsBtn:true
+			fnRefreshMyScripts()
 		)
 		else ckbC4.checked = true
 	)
@@ -3263,6 +3317,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		if state == true then 
 		(
 			fnSwitchToolBtnChecked 5 isMsBtn:true
+			fnRefreshMyScripts()
 		)
 		else ckbC5.checked = true
 	)
@@ -3359,81 +3414,91 @@ rollout rolBsKeyTools "" width:220 height:250
 
 	on btnMyScripts1 pressed do 
 	(
-		if ((iniArrMyScripts[1] != undefined) and (doesfileexist iniArrMyScripts[1].dir)) then 
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[1] != undefined) and (doesfileexist arrMsTemp[1].dir)) then 
 		(
-			fileIn iniArrMyScripts[1].dir
+			fileIn arrMsTemp[1].dir
 		)
 		else fnAddMyScript btnMyScripts1 1
 	)
 	on btnMyScripts2 pressed do 
 	(
-		if ((iniArrMyScripts[2] != undefined) and (doesfileexist iniArrMyScripts[2].dir)) then 
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[2] != undefined) and (doesfileexist arrMsTemp[2].dir)) then 
 		(
-			fileIn iniArrMyScripts[2].dir
+			fileIn arrMsTemp[2].dir
 		)
 		else fnAddMyScript btnMyScripts2 2
 	)
 	on btnMyScripts3 pressed do 
 	(
-		if ((iniArrMyScripts[3] != undefined) and (doesfileexist iniArrMyScripts[3].dir)) then 
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[3] != undefined) and (doesfileexist arrMsTemp[3].dir)) then 
 		(
-			fileIn iniArrMyScripts[3].dir
+			fileIn arrMsTemp[3].dir
 		)
 		else fnAddMyScript btnMyScripts3 3
 	)
 	on btnMyScripts4 pressed do 
 	(
-		if ((iniArrMyScripts[4] != undefined) and (doesfileexist iniArrMyScripts[4].dir)) then 
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[4] != undefined) and (doesfileexist arrMsTemp[4].dir)) then 
 		(
-			fileIn iniArrMyScripts[4].dir
+			fileIn arrMsTemp[4].dir
 		)
 		else fnAddMyScript btnMyScripts4 4
 	)
 	on btnMyScripts5 pressed do 
 	(
-		if ((iniArrMyScripts[5] != undefined) and (doesfileexist iniArrMyScripts[5].dir)) then 
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[5] != undefined) and (doesfileexist arrMsTemp[5].dir)) then 
 		(
-			fileIn iniArrMyScripts[5].dir
+			fileIn arrMsTemp[5].dir
 		)
 		else fnAddMyScript btnMyScripts5 5
 	)
 	on btnMyScripts6 pressed do 
 	(
-		if ((iniArrMyScripts[6] != undefined) and (doesfileexist iniArrMyScripts[6].dir)) then 
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[6] != undefined) and (doesfileexist arrMsTemp[6].dir)) then 
 		(
-			fileIn iniArrMyScripts[6].dir
+			fileIn arrMsTemp[6].dir
 		)
 		else fnAddMyScript btnMyScripts6 6
 	)
 	on btnMyScripts7 pressed do 
 	(
-		if ((iniArrMyScripts[7] != undefined) and (doesfileexist iniArrMyScripts[7].dir)) then 
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[7] != undefined) and (doesfileexist arrMsTemp[7].dir)) then 
 		(
-			fileIn iniArrMyScripts[7].dir
+			fileIn arrMsTemp[7].dir
 		)
 		else fnAddMyScript btnMyScripts7 7
 	)
 	on btnMyScripts8 pressed do 
 	(
-		if ((iniArrMyScripts[8] != undefined) and (doesfileexist iniArrMyScripts[8].dir)) then 
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[8] != undefined) and (doesfileexist arrMsTemp[8].dir)) then 
 		(
-			fileIn iniArrMyScripts[8].dir
+			fileIn arrMsTemp[8].dir
 		)
 		else fnAddMyScript btnMyScripts8 8
 	)
 	on btnMyScripts9 pressed do 
 	(
-		if ((iniArrMyScripts[9] != undefined) and (doesfileexist iniArrMyScripts[9].dir)) then 
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[9] != undefined) and (doesfileexist arrMsTemp[9].dir)) then 
 		(
-			fileIn iniArrMyScripts[9].dir
+			fileIn arrMsTemp[9].dir
 		)
 		else fnAddMyScript btnMyScripts9 9
 	)
 	on btnMyScripts10 pressed do 
 	(
-		if ((iniArrMyScripts[10] != undefined) and (doesfileexist iniArrMyScripts[10].dir)) then 
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[10] != undefined) and (doesfileexist arrMsTemp[10].dir)) then 
 		(
-			fileIn iniArrMyScripts[10].dir
+			fileIn arrMsTemp[10].dir
 		)
 		else fnAddMyScript btnMyScripts10 10
 	)
