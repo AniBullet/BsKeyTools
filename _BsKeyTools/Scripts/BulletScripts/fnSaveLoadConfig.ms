@@ -1,18 +1,21 @@
 Global BulletConfig = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 global fnLoadToolBtnConfig
 global fnSetToolBtnConfig
+global fnLoadMsBtnConfig
+global fnSetMsBtnConfig
 global stSetConfigAll
 global stLoadConfigAll
 global fnGetConfig
+struct myScript (id,msName,dir)
 
 fn fnGetConfig attr nameAttrClass nameAttr valueAttr =  --设置初始信息方法
 (
 	local oldPrintAllElements  = options.printAllelements
 	options.printAllelements = true
 	attr = (GetINISetting BulletConfig nameAttrClass nameAttr) as string  --先提取文件中的记录
-	if ((nameAttr == "ArrMyScripts") or (nameAttr == "LikedFolder") \
+	if ((matchpattern nameAttr pattern:"ArrMyScripts?" == true) or (nameAttr == "LikedFolder") \
 	or (nameAttr == "Desktop") or (matchpattern nameAttr  pattern:"RefFolder*") \
-	or (nameAttr == "LastRefFolder")) then(attr = substituteString attr "dir:" "dir:@")
+	or (nameAttr == "LastRefFolder")) then (attr = substituteString attr "dir:" "dir:@")
 	if attr == "" then (attr = execute valueAttr) else (attr = execute attr) --判断记录为空与否得到需要的记录参数
 	options.printAllelements = oldPrintAllElements
 	attr
@@ -26,26 +29,21 @@ fn fnSetToolBtnConfig =
 	SetINISetting BulletConfig "BulletKeyToolsSet" "ToolBtnAll" (with printAllelements on (iniToolBtnAll as string))
 )
 
-struct stLoadConfigAll
+fn fnLoadMsBtnConfig =
 (
-	fn fnLoadConfigBsKeyToolsAll =
+	iniArrMyScripts      = fnGetConfig iniArrMyScripts "BulletKeyToolsSet"  "ArrMyScripts" (iniArrMyScripts as string)
+	iniArrMyScripts2     = fnGetConfig iniArrMyScripts2 "BulletKeyToolsSet"  "ArrMyScripts2" (iniArrMyScripts2 as string)
+	iniArrMyScripts3     = fnGetConfig iniArrMyScripts3 "BulletKeyToolsSet"  "ArrMyScripts3" (iniArrMyScripts3 as string)
+	iniArrMyScripts4     = fnGetConfig iniArrMyScripts4 "BulletKeyToolsSet"  "ArrMyScripts4" (iniArrMyScripts4 as string)
+	iniArrMyScripts5     = fnGetConfig iniArrMyScripts5 "BulletKeyToolsSet"  "ArrMyScripts5" (iniArrMyScripts5 as string)
+
+	local arrMyScriptsSet = #(iniArrMyScripts,iniArrMyScripts2,iniArrMyScripts4,iniArrMyScripts4,iniArrMyScripts5)
+	local tempMsArrayCount = 1
+	for i in arrMyScriptsSet do
 	(
-		iniPos               = fnGetConfig iniPos "BulletKeyToolsSet" "Pos" "0"
-		switchToolPanel      = fnGetConfig switchToolPanel "BulletKeyToolsSet"  "ToolPanel" (switchToolPanel as string)
-		switchMSPanel        = fnGetConfig switchMSPanel "BulletKeyToolsSet"  "MSPanel" (switchMSPanel as string)
-		idBtn                = fnGetConfig idBtn "BulletKeyToolsSet"  "idBtn" (idBtn as string)
-		idMsBtn              = fnGetConfig idMsBtn "BulletKeyToolsSet"  "idMsBtn" (idMsBtn as string)
-		iniArrMyScripts      = fnGetConfig iniArrMyScripts "BulletKeyToolsSet"  "ArrMyScripts" (iniArrMyScripts as string)
-		iniArrMyScripts2     = fnGetConfig iniArrMyScripts2 "BulletKeyToolsSet"  "ArrMyScripts2" (iniArrMyScripts2 as string)
-		iniArrMyScripts3     = fnGetConfig iniArrMyScripts3 "BulletKeyToolsSet"  "ArrMyScripts3" (iniArrMyScripts3 as string)
-		iniArrMyScripts4     = fnGetConfig iniArrMyScripts4 "BulletKeyToolsSet"  "ArrMyScripts4" (iniArrMyScripts4 as string)
-		iniArrMyScripts5     = fnGetConfig iniArrMyScripts5 "BulletKeyToolsSet"  "ArrMyScripts5" (iniArrMyScripts5 as string)
-		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
-		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet"  "IsIcon" (iniIsIcon as string)
-		fnLoadToolBtnConfig()
-		if (iniArrMyScripts.count != 10) then
+		if (i != undefined and i.count != 10) or i == undefined then
 		(
-			iniArrMyScripts = #((myScript id:1 msName:"<＋＋>" dir:""), \
+			i = #((myScript id:1 msName:"<＋＋>" dir:""), \
 			(myScript id:2 msName:"<＋＋>" dir:""), \
 			(myScript id:3 msName:"<＋＋>" dir:""), \
 			(myScript id:4 msName:"<＋＋>" dir:""), \
@@ -55,7 +53,44 @@ struct stLoadConfigAll
 			(myScript id:8 msName:"<＋＋>" dir:""),
 			(myScript id:9 msName:"<＋＋>" dir:""),
 			(myScript id:10 msName:"<＋＋>" dir:""))
+			messagebox ("自定脚本列表 " + tempMsArrayCount as string + " 初始化或读取失败，已重置...                                                         ")
+			if tempMsArrayCount == 1 then 
+			(
+				SetINISetting BulletConfig "BulletKeyToolsSet" "ArrMyScripts" (i as string)
+				iniArrMyScripts = i
+			)
+			else 
+			(
+				SetINISetting BulletConfig "BulletKeyToolsSet" ("ArrMyScripts" + tempMsArrayCount as string) (i as string)
+				arrMyScriptsSet[tempMsArrayCount] = i
+			)
 		)
+		tempMsArrayCount += 1
+	)
+)
+
+fn fnSetMsBtnConfig =
+(
+	SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts" (iniArrMyScripts as string)
+	SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts2" (iniArrMyScripts2 as string)
+	SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts3" (iniArrMyScripts3 as string)
+	SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts4" (iniArrMyScripts4 as string)
+	SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts5" (iniArrMyScripts5 as string)
+)
+
+struct stLoadConfigAll
+(
+	fn fnLoadConfigBsKeyToolsAll =
+	(
+		iniPos               = fnGetConfig iniPos "BulletKeyToolsSet" "Pos" "0"
+		switchToolPanel      = fnGetConfig switchToolPanel "BulletKeyToolsSet"  "ToolPanel" (switchToolPanel as string)
+		switchMSPanel        = fnGetConfig switchMSPanel "BulletKeyToolsSet"  "MSPanel" (switchMSPanel as string)
+		idBtn                = fnGetConfig idBtn "BulletKeyToolsSet"  "idBtn" (idBtn as string)
+		idMsBtn              = fnGetConfig idMsBtn "BulletKeyToolsSet"  "idMsBtn" (idMsBtn as string)
+		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
+		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet"  "IsIcon" (iniIsIcon as string)
+		fnLoadToolBtnConfig()
+		fnLoadMsBtnConfig()
 		-- print "Loaded BsKeyTools Config"
 	),
 	fn fnLoadConfigBsAnimButton =
@@ -100,14 +135,10 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "MSPanel" (switchMSPanel as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "idBtn" (idBtn as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "idMsBtn" (idMsBtn as string)
-		SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts" (iniArrMyScripts as string)
-		SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts2" (iniArrMyScripts2 as string)
-		SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts3" (iniArrMyScripts3 as string)
-		SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts4" (iniArrMyScripts4 as string)
-		SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts5" (iniArrMyScripts5 as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "IsIcon" (iniIsIcon as string)
 		fnSetToolBtnConfig()
+		fnSetMsBtnConfig()
 	),
 	fn fnSetConfigBsAnimButton =
 	(

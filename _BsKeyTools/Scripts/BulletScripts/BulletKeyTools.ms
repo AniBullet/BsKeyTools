@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-04 20:01:55
+ * @LastEditTime: 2022-07-05 02:53:49
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -15,6 +15,57 @@ try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
+struct myScript (id,msName,dir)
+Global iniArrMyScripts   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+(myScript id:2 msName:"<＋＋>" dir:""), \
+(myScript id:3 msName:"<＋＋>" dir:""), \
+(myScript id:4 msName:"<＋＋>" dir:""), \
+(myScript id:5 msName:"<＋＋>" dir:""), \
+(myScript id:6 msName:"<＋＋>" dir:""), \
+(myScript id:7 msName:"<＋＋>" dir:""), \
+(myScript id:8 msName:"<＋＋>" dir:""),
+(myScript id:9 msName:"<＋＋>" dir:""),
+(myScript id:10 msName:"<＋＋>" dir:""))
+Global iniArrMyScripts2   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+(myScript id:2 msName:"<＋＋>" dir:""), \
+(myScript id:3 msName:"<＋＋>" dir:""), \
+(myScript id:4 msName:"<＋＋>" dir:""), \
+(myScript id:5 msName:"<＋＋>" dir:""), \
+(myScript id:6 msName:"<＋＋>" dir:""), \
+(myScript id:7 msName:"<＋＋>" dir:""), \
+(myScript id:8 msName:"<＋＋>" dir:""),
+(myScript id:9 msName:"<＋＋>" dir:""),
+(myScript id:10 msName:"<＋＋>" dir:""))
+Global iniArrMyScripts3   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+(myScript id:2 msName:"<＋＋>" dir:""), \
+(myScript id:3 msName:"<＋＋>" dir:""), \
+(myScript id:4 msName:"<＋＋>" dir:""), \
+(myScript id:5 msName:"<＋＋>" dir:""), \
+(myScript id:6 msName:"<＋＋>" dir:""), \
+(myScript id:7 msName:"<＋＋>" dir:""), \
+(myScript id:8 msName:"<＋＋>" dir:""),
+(myScript id:9 msName:"<＋＋>" dir:""),
+(myScript id:10 msName:"<＋＋>" dir:""))
+Global iniArrMyScripts4   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+(myScript id:2 msName:"<＋＋>" dir:""), \
+(myScript id:3 msName:"<＋＋>" dir:""), \
+(myScript id:4 msName:"<＋＋>" dir:""), \
+(myScript id:5 msName:"<＋＋>" dir:""), \
+(myScript id:6 msName:"<＋＋>" dir:""), \
+(myScript id:7 msName:"<＋＋>" dir:""), \
+(myScript id:8 msName:"<＋＋>" dir:""),
+(myScript id:9 msName:"<＋＋>" dir:""),
+(myScript id:10 msName:"<＋＋>" dir:""))
+Global iniArrMyScripts5   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+(myScript id:2 msName:"<＋＋>" dir:""), \
+(myScript id:3 msName:"<＋＋>" dir:""), \
+(myScript id:4 msName:"<＋＋>" dir:""), \
+(myScript id:5 msName:"<＋＋>" dir:""), \
+(myScript id:6 msName:"<＋＋>" dir:""), \
+(myScript id:7 msName:"<＋＋>" dir:""), \
+(myScript id:8 msName:"<＋＋>" dir:""),
+(myScript id:9 msName:"<＋＋>" dir:""),
+(myScript id:10 msName:"<＋＋>" dir:""))
 Global BulletConfig = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 Global iniPos  	--位置保存记录
 global arrMyMsBtn           = #()
@@ -86,71 +137,23 @@ Global menuSetFps
 Global menuSetSpeed
 Global SIOFile = dotNetClass "System.IO.File"
 Global SIODir = dotNetClass "System.IO.Directory"
-
-struct myScript (id,msName,dir)
-Global iniArrMyScripts   = #((myScript id:1 msName:"<＋＋>" dir:""), \
-(myScript id:2 msName:"<＋＋>" dir:""), \
-(myScript id:3 msName:"<＋＋>" dir:""), \
-(myScript id:4 msName:"<＋＋>" dir:""), \
-(myScript id:5 msName:"<＋＋>" dir:""), \
-(myScript id:6 msName:"<＋＋>" dir:""), \
-(myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
-Global iniArrMyScripts2   = #((myScript id:1 msName:"<＋＋>" dir:""), \
-(myScript id:2 msName:"<＋＋>" dir:""), \
-(myScript id:3 msName:"<＋＋>" dir:""), \
-(myScript id:4 msName:"<＋＋>" dir:""), \
-(myScript id:5 msName:"<＋＋>" dir:""), \
-(myScript id:6 msName:"<＋＋>" dir:""), \
-(myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
-Global iniArrMyScripts3   = #((myScript id:1 msName:"<＋＋>" dir:""), \
-(myScript id:2 msName:"<＋＋>" dir:""), \
-(myScript id:3 msName:"<＋＋>" dir:""), \
-(myScript id:4 msName:"<＋＋>" dir:""), \
-(myScript id:5 msName:"<＋＋>" dir:""), \
-(myScript id:6 msName:"<＋＋>" dir:""), \
-(myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
-Global iniArrMyScripts4   = #((myScript id:1 msName:"<＋＋>" dir:""), \
-(myScript id:2 msName:"<＋＋>" dir:""), \
-(myScript id:3 msName:"<＋＋>" dir:""), \
-(myScript id:4 msName:"<＋＋>" dir:""), \
-(myScript id:5 msName:"<＋＋>" dir:""), \
-(myScript id:6 msName:"<＋＋>" dir:""), \
-(myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
-Global iniArrMyScripts5   = #((myScript id:1 msName:"<＋＋>" dir:""), \
-(myScript id:2 msName:"<＋＋>" dir:""), \
-(myScript id:3 msName:"<＋＋>" dir:""), \
-(myScript id:4 msName:"<＋＋>" dir:""), \
-(myScript id:5 msName:"<＋＋>" dir:""), \
-(myScript id:6 msName:"<＋＋>" dir:""), \
-(myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
 -- Global myTimer = dotnetobject "System.Timers.Timer" 500 autoreset:true
 ------------------全局变量-------------------------------------------------------------------
+global fnLoadMsArray
 fn fnLoadMsArray =
 (
-	if idMsBtn == 1 then strMsBtn = "" else strMsBtn = idMsBtn as string
-	execute ("arrMsTemp = for i in iniArrMyScripts" + strMsBtn + " collect i")
-	return arrMsTemp
+	local arrMyScriptsArrayINI = #(iniArrMyScripts,iniArrMyScripts2,iniArrMyScripts3,iniArrMyScripts4,iniArrMyScripts5)
+	return arrMyScriptsArrayINI[idMsBtn]
 )
-
-fn fnSaveMsArray =
+global fnSaveMsArray
+fn fnSaveMsArray arrMsTemp =
 (
 	if idMsBtn == 1 then strMsBtn = "" else strMsBtn = idMsBtn as string
-	execute ("iniArrMyScripts" + strMsBtn + " = for i in arrMsTemp collect i")
+	if strMsBtn == "" then strMsBtnINI = "1" else strMsBtnINI = strMsBtn
+	local arrMyScriptsArrayINI = #(iniArrMyScripts,iniArrMyScripts2,iniArrMyScripts3,iniArrMyScripts4,iniArrMyScripts5)
+	arrMyScriptsArrayINI[idMsBtn] = for i in arrMsTemp collect i
+	-- execute ("iniArrMyScripts" + strMsBtn + " = for i in arrMyScriptsArrayINI[" + strMsBtnINI + "] collect i")
+	fnSetMsBtnConfig()
 )
 
 fn fnRefreshMyMsBtn = 
@@ -629,7 +632,8 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 			btnMsDir.text = "已修改"
 			if arrMsTemp[id] != undefined then arrMsTemp[id].dir = dirScript
 			else (append arrMsTemp (myScript id edtRenameMs.text dirScript))
-			fnSaveMsArray()
+			fnSaveMsArray arrMsTemp
+			-- fnSetMsBtnConfig()
 		)
 		-- print dirScript
 	)
@@ -641,7 +645,8 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 		(
 			if edtRenameMs.text != "" then arrMsTemp[id].msName = edtRenameMs.text
 			else arrMsTemp[id].msName = "<＋＋>"
-			fnSaveMsArray()
+			fnSaveMsArray arrMsTemp
+			-- fnSetMsBtnConfig()
 		)
 	)
 
@@ -664,18 +669,11 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 
 	fn fnClearOneMs id =
 	(
-		iniArrMyScripts[id].msName = "<＋＋>"
-		iniArrMyScripts[id].dir = ""
-		iniArrMyScripts2[id].msName = "<＋＋>"
-		iniArrMyScripts2[id].dir = ""
-		iniArrMyScripts3[id].msName = "<＋＋>"
-		iniArrMyScripts3[id].dir = ""
-		iniArrMyScripts4[id].msName = "<＋＋>"
-		iniArrMyScripts4[id].dir = ""
-		iniArrMyScripts5[id].msName = "<＋＋>"
-		iniArrMyScripts5[id].dir = ""
-		execute ("rolAddMyScripts.edtRenameMs" + (id as string) + ".text = \"<＋＋>\"")
+		if idMsBtn == 1 then strMsBtn = "" else strMsBtn = idMsBtn as string
+		execute ("iniArrMyScripts" + strMsBtn + "[" + (id as string) + "].msName = \"<＋＋>\"")
+		execute ("iniArrMyScripts" + strMsBtn + "[" + (id as string) + "].dir = \"<＋＋>\"")
 		execute ("rolBsKeyTools.btnMyScripts" + (id as string) + ".tooltip = \"<＋＋>\"")
+		fnRefreshMyScriptsUI()
 	)
 
 	fn fnClearMyScripts = --清除脚本
@@ -707,7 +705,8 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 			(myScript id:9 msName:"<＋＋>" dir:""),
 			(myScript id:10 msName:"<＋＋>" dir:""))
 
-			fnSaveMsArray()
+			fnSaveMsArray arrMsTemp
+			-- fnSetMsBtnConfig()
 
 			for b = 1 to arrMyMsBtn.count do 
 			(
@@ -756,7 +755,8 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 				)
 			)
 		)
-		fnSaveMsArray()
+		fnSaveMsArray arrMsTemp
+		-- fnSetMsBtnConfig()
 		try(destroydialog rolAddMyScripts)catch()
 		stSetConfigAll.fnSetConfigBsKeyTools ()
 	)
@@ -1569,25 +1569,25 @@ rollout rolBsKeyTools "" width:220 height:250
 		pos:[480,15] toolTip:"" border:false
 
 		button btnMyScripts1 "<＋＋>" pos:btnMsPos width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[1].msName border:true visible:false
+		tooltip:iniArrMyScripts[1].msName border:true visible:true
 		button btnMyScripts2 "<＋＋>" pos:(btnMsPos + [0,btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[2].msName border:true visible:false
+		tooltip:iniArrMyScripts[2].msName border:true visible:true
 		button btnMyScripts3 "<＋＋>" pos:(btnMsPos + [0,2 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[3].msName border:true visible:false
+		tooltip:iniArrMyScripts[3].msName border:true visible:true
 		button btnMyScripts4 "<＋＋>" pos:(btnMsPos + [0,3 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[4].msName border:true visible:false
+		tooltip:iniArrMyScripts[4].msName border:true visible:true
 		button btnMyScripts5 "<＋＋>" pos:(btnMsPos + [0,4 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[5].msName border:true visible:false
+		tooltip:iniArrMyScripts[5].msName border:true visible:true
 		button btnMyScripts6 "<＋＋>" pos:(btnMsPos + [0,5 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[6].msName border:true visible:false
+		tooltip:iniArrMyScripts[6].msName border:true visible:true
 		button btnMyScripts7 "<＋＋>" pos:(btnMsPos + [0,6 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[7].msName border:true visible:false
+		tooltip:iniArrMyScripts[7].msName border:true visible:true
 		button btnMyScripts8 "<＋＋>" pos:(btnMsPos + [0,7 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[8].msName border:true visible:false
+		tooltip:iniArrMyScripts[8].msName border:true visible:true
 		button btnMyScripts9 "<＋＋>" pos:(btnMsPos + [0,8 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[9].msName border:true visible:false
+		tooltip:iniArrMyScripts[9].msName border:true visible:true
 		button btnMyScripts10 "<＋＋>" pos:(btnMsPos + [0,9 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[10].msName border:true visible:false
+		tooltip:iniArrMyScripts[10].msName border:true visible:true
 
 	groupbox gbxTips "" pos:[5,215] width:210 height:30
 	
@@ -1630,35 +1630,35 @@ rollout rolBsKeyTools "" width:220 height:250
 		ckbC4.text = strBtnName[4]
 	)
 
-	fn fnRefreshMsPanel =
-	(
-		if switchMSPanel == 0 then 
-		(
-			btnMyScripts1.visible = true
-			btnMyScripts2.visible = true
-			btnMyScripts3.visible = true
-			btnMyScripts4.visible = true
-			btnMyScripts5.visible = true
-			btnMyScripts6.visible = true
-			btnMyScripts7.visible = true
-			btnMyScripts8.visible = true
-			btnMyScripts9.visible = true
-			btnMyScripts10.visible = true
-		)
-		else 
-		(
-			btnMyScripts1.visible = true
-			btnMyScripts2.visible = true
-			btnMyScripts3.visible = true
-			btnMyScripts4.visible = true
-			btnMyScripts5.visible = true
-			btnMyScripts6.visible = true
-			btnMyScripts7.visible = true
-			btnMyScripts8.visible = true
-			btnMyScripts9.visible = true
-			btnMyScripts10.visible = true
-		)
-	)
+	-- fn fnRefreshMsPanel =
+	-- (
+	-- 	if switchMSPanel == 0 then 
+	-- 	(
+	-- 		btnMyScripts1.visible = true
+	-- 		btnMyScripts2.visible = true
+	-- 		btnMyScripts3.visible = true
+	-- 		btnMyScripts4.visible = true
+	-- 		btnMyScripts5.visible = true
+	-- 		btnMyScripts6.visible = true
+	-- 		btnMyScripts7.visible = true
+	-- 		btnMyScripts8.visible = true
+	-- 		btnMyScripts9.visible = true
+	-- 		btnMyScripts10.visible = true
+	-- 	)
+	-- 	else 
+	-- 	(
+	-- 		btnMyScripts1.visible = true
+	-- 		btnMyScripts2.visible = true
+	-- 		btnMyScripts3.visible = true
+	-- 		btnMyScripts4.visible = true
+	-- 		btnMyScripts5.visible = true
+	-- 		btnMyScripts6.visible = true
+	-- 		btnMyScripts7.visible = true
+	-- 		btnMyScripts8.visible = true
+	-- 		btnMyScripts9.visible = true
+	-- 		btnMyScripts10.visible = true
+	-- 	)
+	-- )
 
 	fn fnSwitchMagicBtn toggleID =
 	(
@@ -1751,7 +1751,6 @@ rollout rolBsKeyTools "" width:220 height:250
 	(
 		if idMsBtn == 1 then strMsBtn = "" else strMsBtn = idMsBtn as string
 		execute ("arrMsTemp = for i in iniArrMyScripts" + strMsBtn + " collect i")
-		
 	)
 
 	fn fnSwitchToolBtnChecked Btn isMsBtn:false =
@@ -2565,7 +2564,8 @@ rollout rolBsKeyTools "" width:220 height:250
 			btnMyScript.tooltip = nameMyScript
 			arrMsTemp[idMyScript].msName = nameMyScript
 			arrMsTemp[idMyScript].dir    = dirScript
-			fnSaveMsArray()
+			fnSaveMsArray arrMsTemp
+			-- fnSetMsBtnConfig()
 			messagebox "右键可重新设置脚本快捷键!\r\n\r\n(按钮较窄,建议右键设置脚本昵称~)                                "
 		)
 		stSetConfigAll.fnSetConfigBsKeyTools ()
@@ -2591,7 +2591,8 @@ rollout rolBsKeyTools "" width:220 height:250
 				)
 			)
 		)
-		fnSaveMsArray()
+		fnSaveMsArray arrMsTemp
+		-- fnSetMsBtnConfig()
 	)
 
 	fn fnGetAllBipedTwist =
@@ -2653,7 +2654,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		fnRefPlaySpeedValue ()  -----判断播放速度
 		fnBsRefFps ()
 		fnRefreshMagicBtn ()
-		fnRefreshMsPanel ()
+		-- fnRefreshMsPanel ()
 		-- if (switchToolPanel == 1) then
 		-- (
 			fnSwitchToolsBtn idBtn
@@ -2779,7 +2780,7 @@ rollout rolBsKeyTools "" width:220 height:250
 	on btnMagicBtn pressed do  -------------切换整数帧小数帧,方便拖动滑条平滑预览
 	(
 		fnSwitchMagicBtn switchToolPanel
-		fnRefreshMsPanel()
+		-- fnRefreshMsPanel()
 	)
 
 	on ckbPlayBlocking changed state do (
@@ -3292,7 +3293,7 @@ rollout rolBsKeyTools "" width:220 height:250
 			fnSwitchToolBtnChecked 2 isMsBtn:true
 			fnRefreshMyScripts()
 		)
-		else ckbC2.checked = true
+		else ckbMs2.checked = true
 	)
 	on ckbMs3 changed state do 
 	(
@@ -3301,7 +3302,7 @@ rollout rolBsKeyTools "" width:220 height:250
 			fnSwitchToolBtnChecked 3 isMsBtn:true
 			fnRefreshMyScripts()
 		)
-		else ckbC3.checked = true
+		else ckbMs3.checked = true
 	)
 	on ckbMs4 changed state do 
 	(
@@ -3310,7 +3311,7 @@ rollout rolBsKeyTools "" width:220 height:250
 			fnSwitchToolBtnChecked 4 isMsBtn:true
 			fnRefreshMyScripts()
 		)
-		else ckbC4.checked = true
+		else ckbMs4.checked = true
 	)
 	on ckbMs5 changed state do 
 	(
@@ -3319,7 +3320,7 @@ rollout rolBsKeyTools "" width:220 height:250
 			fnSwitchToolBtnChecked 5 isMsBtn:true
 			fnRefreshMyScripts()
 		)
-		else ckbC5.checked = true
+		else ckbMs5.checked = true
 	)
 	--------------------------------------------------------------------
 
