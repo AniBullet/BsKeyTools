@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-04 14:04:22
+ * @LastEditTime: 2022-07-04 18:53:34
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -17,17 +17,6 @@ try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
 Global BulletConfig = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 Global iniPos  	--位置保存记录
-struct myScript (id,msName,dir)
-Global iniArrMyScripts   = #((myScript id:1 msName:"<＋＋>" dir:""), \
-(myScript id:2 msName:"<＋＋>" dir:""), \
-(myScript id:3 msName:"<＋＋>" dir:""), \
-(myScript id:4 msName:"<＋＋>" dir:""), \
-(myScript id:5 msName:"<＋＋>" dir:""), \
-(myScript id:6 msName:"<＋＋>" dir:""), \
-(myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
 global arrMyMsBtn           = #()
 global arrAddMyMsBtn        = #()
 Global idBtn                = 1
@@ -65,8 +54,6 @@ global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKe
 global dlUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
 
-struct myScript (id,msName,dir)
-
 Global rolBsKeyTools
 global rolAddMyScripts
 Global posMouMoved       = [0,0]
@@ -99,6 +86,58 @@ Global menuSetFps
 Global menuSetSpeed
 Global SIOFile = dotNetClass "System.IO.File"
 Global SIODir = dotNetClass "System.IO.Directory"
+
+struct myScript (id,msName,dir)
+Global iniArrMyScripts   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+(myScript id:2 msName:"<＋＋>" dir:""), \
+(myScript id:3 msName:"<＋＋>" dir:""), \
+(myScript id:4 msName:"<＋＋>" dir:""), \
+(myScript id:5 msName:"<＋＋>" dir:""), \
+(myScript id:6 msName:"<＋＋>" dir:""), \
+(myScript id:7 msName:"<＋＋>" dir:""), \
+(myScript id:8 msName:"<＋＋>" dir:""),
+(myScript id:9 msName:"<＋＋>" dir:""),
+(myScript id:10 msName:"<＋＋>" dir:""))
+Global iniArrMyScripts2   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+(myScript id:2 msName:"<＋＋>" dir:""), \
+(myScript id:3 msName:"<＋＋>" dir:""), \
+(myScript id:4 msName:"<＋＋>" dir:""), \
+(myScript id:5 msName:"<＋＋>" dir:""), \
+(myScript id:6 msName:"<＋＋>" dir:""), \
+(myScript id:7 msName:"<＋＋>" dir:""), \
+(myScript id:8 msName:"<＋＋>" dir:""),
+(myScript id:9 msName:"<＋＋>" dir:""),
+(myScript id:10 msName:"<＋＋>" dir:""))
+Global iniArrMyScripts3   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+(myScript id:2 msName:"<＋＋>" dir:""), \
+(myScript id:3 msName:"<＋＋>" dir:""), \
+(myScript id:4 msName:"<＋＋>" dir:""), \
+(myScript id:5 msName:"<＋＋>" dir:""), \
+(myScript id:6 msName:"<＋＋>" dir:""), \
+(myScript id:7 msName:"<＋＋>" dir:""), \
+(myScript id:8 msName:"<＋＋>" dir:""),
+(myScript id:9 msName:"<＋＋>" dir:""),
+(myScript id:10 msName:"<＋＋>" dir:""))
+Global iniArrMyScripts4   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+(myScript id:2 msName:"<＋＋>" dir:""), \
+(myScript id:3 msName:"<＋＋>" dir:""), \
+(myScript id:4 msName:"<＋＋>" dir:""), \
+(myScript id:5 msName:"<＋＋>" dir:""), \
+(myScript id:6 msName:"<＋＋>" dir:""), \
+(myScript id:7 msName:"<＋＋>" dir:""), \
+(myScript id:8 msName:"<＋＋>" dir:""),
+(myScript id:9 msName:"<＋＋>" dir:""),
+(myScript id:10 msName:"<＋＋>" dir:""))
+Global iniArrMyScripts5   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+(myScript id:2 msName:"<＋＋>" dir:""), \
+(myScript id:3 msName:"<＋＋>" dir:""), \
+(myScript id:4 msName:"<＋＋>" dir:""), \
+(myScript id:5 msName:"<＋＋>" dir:""), \
+(myScript id:6 msName:"<＋＋>" dir:""), \
+(myScript id:7 msName:"<＋＋>" dir:""), \
+(myScript id:8 msName:"<＋＋>" dir:""),
+(myScript id:9 msName:"<＋＋>" dir:""),
+(myScript id:10 msName:"<＋＋>" dir:""))
 -- Global myTimer = dotnetobject "System.Timers.Timer" 500 autoreset:true
 ------------------全局变量-------------------------------------------------------------------
 
