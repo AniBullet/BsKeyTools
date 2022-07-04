@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-04 02:43:19
+ * @LastEditTime: 2022-07-04 14:04:22
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -31,6 +31,7 @@ Global iniArrMyScripts   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 global arrMyMsBtn           = #()
 global arrAddMyMsBtn        = #()
 Global idBtn                = 1
+global idMsBtn				= 1
 global iniBsAutoCheckUpdate = true
 Global switchToolPanel      = 0
 global switchMSPanel        = 0
@@ -524,352 +525,6 @@ fn fnSwitchIconStyle =
 	rolBsKeyTools.btnQuicksave.images = #("bip_copy1paste_i.bmp","bip_copy1paste_i.bmp",10,3,3,3,3,true,true)
 )
 
-rcmenu menuConfig
-(
-	local startupBsKeyTools = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"
-	local startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
-	local startupMarcroPath = (getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"
-	local startupMenuBarPath = (getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"
-	menuItem mItemHelpDoc ">> 必看帮助文档 <<"
-	menuItem mItemBugReport ">> 问题和和建议 <<"
-	separator menuSepHelp
-	menuItem mItemIsStartup "是否随3dsMax自启"
-	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
-	menuItem mItemCustomSortBtn "自定义功能按钮位置"
-	menuItem mItemIsIcon "切换图标模式 [实验]"
-	separator menuSepCustom
-	menuItem mItemCleanVirus "杀毒工具 [测试中]"
-	subMenu "更新设置 [需要联网]"
-	(
-		menuItem mItemCheckUpdate "检查更新 [需要联网]"
-		menuItem mItemForceUpdate "强制更新 [无视版本]"
-		menuItem mItemAutoCheckUpdate "自启检测 [需要联网]"
-		menuItem mItemUpdateLog "更新记录 [需求何在]"
-		menuItem mItemUndoVersion "回退版本 [上个版本]"
-	)
-	subMenu "调试相关 [谨慎使用]"
-	(
-		menuItem mItemScriptsPath "脚本目录 [查错优化]"
-		menuItem mItemConfigFilePath "配置文件 [备份导入]"
-		menuItem mItemRolloutBuilder "脚本界面 [学习工具]"
-	)
-	separator menuSepConf
-	menuItem mItemClose "关闭 [空白处中键也可]"
-	menuItem mItemUninstall "卸载 [请期待更好的我]"
-	subMenu "关于我 [欢迎建议交流]"
-	(
-		menuItem mItemBilibili "📺 Bilibili"
-		menuItem mItemTwitter "🐦 Twitter"
-		menuItem mItemQgroup "🐧 Qgroup"
-	)
-
-	on menuConfig open do
-	(
-		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
-		else (mItemIsStartup.checked = false)
-		if (iniAddToolbars == 1) then (mItemAddToolBarBtn.checked = true)
-		else (mItemAddToolBarBtn.checked = false)
-		mItemAutoCheckUpdate.checked = iniBsAutoCheckUpdate
-		mItemIsIcon.checked = iniIsIcon
-	)
-
-	on mItemHelpDoc picked do 
-	(shellLaunch "https://www.notion.so/bullet4869/BsKeyTools-17b5ba7c37ae45f6a69ce90f45fa0657" "")
-
-	on mItemBugReport picked do
-	(shellLaunch "https://github.com/AnimatorBullet/BsKeyTools/issues" "")
-
-	on mItemBilibili picked do 
-	(shellLaunch "https://space.bilibili.com/2031113" "")
-
-	on mItemTwitter picked do 
-	(shellLaunch "https://twitter.com/aniBulletCom" "")
-
-	on mItemScriptsPath picked do 
-	(shellLaunch (getdir #Scripts) "")
-
-	on mItemQgroup picked do
-	(
-		if (queryBox "是否加入个人分享交流群？\r\n\r\n(游戏，动画爱好者休闲吹水正能量分享群)\r\n\r\n子弹工具人(993590655)，确认可直接跳转链接~          \r\n        " \
-		title:"加入交流群" beep:false) then
-		(shellLaunch "https://jq.qq.com/?_wv=1027&k=hmeHhTwu" "")
-	)
-
-	on mItemCleanVirus picked do
-	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsCleanVirus.ms"))
-		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
-	)
-
-	on mItemConfigFilePath picked do
-	(
-		if (queryBox "是否打开配置文件目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
-		title:"配置文件" beep:false) then
-		(shellLaunch (getFilenamePath BulletConfig) "")
-	)
-
-	on mItemRolloutBuilder picked do
-	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\RolloutBuilder.ms"))
-		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
-	)
-
-	on mItemIsStartup picked do 
-	(
-		if (mItemIsStartup.checked == true) then 
-		(
-			fnDelFileDir startupPath
-			mItemIsStartup.checked = false
-			messagebox ("已解除 BsKeyTools 自启！                  ")  title:"自启设置"
-		)
-		else 
-		(
-			if (not (SIOFile.Exists startupPath)) do
-			(
-				try 
-				(
-					SIOFile.Copy startupBsKeyTools startupPath
-					messagebox ("已打开 BsKeyTools 自启！                  ")  title:"自启设置"
-					mItemIsStartup.checked = true
-					setFileAttribute startupPath #readOnly true
-				)
-				catch
-				(
-					messagebox ("自启失败，烦请手动处理：\r\n把 BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
-					(shellLaunch (getfilenamepath startupBsKeyTools) "")
-				)
-			)
-		)
-	)
-
-	on mItemAddToolBarBtn picked do
-	(
-		if (mItemAddToolBarBtn.checked == false) then 
-		(
-			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
-			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools"
-			mItemAddToolBarBtn.checked = true
-			iniAddToolbars = 1
-		)
-		else
-		(
-			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
-			mItemAddToolBarBtn.checked = false
-			iniAddToolbars = 0
-		)
-		SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
-	)
-
-	on mItemCheckUpdate picked do 
-	(fnCheckUpdate curVerBsKeyTools verUrlBsKeyTools dlUrlBsKeyTools dlFileBsKeyTools isForceUpdate:false)
-
-	on mItemForceUpdate picked do 
-	(fnCheckUpdate curVerBsKeyTools verUrlBsKeyTools dlUrlBsKeyTools dlFileBsKeyTools isForceUpdate:true)
-
-	on mItemUndoVersion picked do 
-	(
-		local dlUrlPreviousVersion = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_PreviousVersion.exe"
-		local dlFilePreviousVersion = (getdir #temp) + "\\_PreviousVersion.exe"
-		fnCheckUpdate curVerBsKeyTools verUrlBsKeyTools dlUrlPreviousVersion dlFilePreviousVersion isForceUpdate:true
-	)
-
-	on mItemAutoCheckUpdate picked do 
-	(
-		if (mItemAutoCheckUpdate.checked == true) then (mItemAutoCheckUpdate.checked = false)
-		else (mItemAutoCheckUpdate.checked = true)
-		iniBsAutoCheckUpdate = mItemAutoCheckUpdate.checked
-	)
-
-	on mItemClose picked do 
-	(
-		try(destroydialog rolBsKeyTools)catch()
-		try(destroydialog rolFnKeys)catch()
-		try(destroydialog rolAddMyScripts)catch()
-	)
-
-	on mItemUninstall picked do
-	(
-		if (queryBox "是否彻底清除 BsKeyTools？          \r\n( 配置文件默认保留 )" \
-		title:"有缘再会" beep:false) then
-		(
-			if (iniAddToolbars == 1) then 
-			(
-				addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
-				iniAddToolbars = 0
-				SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
-			)
-			if ((menuMan.findMenu "🎮 BsKeyTools") != undefined) then 
-            (
-                menuMan.unRegisterMenu (menuMan.findMenu "🎮 BsKeyTools")
-                menuMan.updateMenuBar()
-            )
-			if (SIOFile.Exists startupPath) do (fnDelFileDir startupPath)
-			if (SIOFile.Exists startupMarcroPath) do (fnDelFileDir startupMarcroPath)
-			if (SIOFile.Exists startupMenuBarPath) do (fnDelFileDir startupMenuBarPath)
-			arrDelPath = #(((getDir #Scripts)+ "\\BulletScripts"),((getDir #maxroot) + "\\UI_ln\\Icons\\cstoolIcons"))
-			for d in arrDelPath do (fnDelDir d)
-			try(destroydialog rolBsKeyTools)catch()
-			try(destroydialog rolFnKeys)catch()
-			try(destroydialog rolAddMyScripts)catch()
-			(messagebox "已清理干净，保留配置文件备用...    \r\n" beep:false title:"卸载成功！")
-		)
-	)
-
-	on mItemUpdateLog picked do (shellLaunch "https://www.notion.so/bullet4869/4e28c488d5474a9082e164b7c5b6926c" "")
-
-	on mItemCustomSortBtn picked do 
-	(
-		try(destroydialog rolCustomBtn)catch()
-		Createdialog rolCustomBtn fgcolor:myFgColor pos:((getdialogpos rolBsKeyTools)+[0,rolBsKeyTools.height]) parent:rolBsKeyTools.hwnd
-	)
-
-	on mItemIsIcon picked do 
-	(
-		if (mItemIsIcon.checked == false) then 
-		(
-			fnSwitchIconStyle()
-			mItemIsIcon.checked = not mItemIsIcon.checked
-			iniIsIcon = mItemIsIcon.checked
-		)
-		else
-		(
-			mItemIsIcon.checked = not mItemIsIcon.checked
-			iniIsIcon = mItemIsIcon.checked
-			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
-			catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
-		)
-	)
-)
-
--------------------帧率,播放速度--------------------------------------------------------------
-Global valueFps
-Global valuePlaySpeed = ""
-Global strCurrentFps = framerate as string + "FPS"
-
-fn fnBsRefFps =
-(
-	local arrMenuSetFps = #(menuSetFps.menuSet60Fps,menuSetFps.menuSet30Fps, \
-							menuSetFps.menuSet24Fps,menuSetFps.menuCustomFps)
-	for i in arrMenuSetFps do i.checked = false
-	case of
-	(
-		(framerate == 60):(menuSetFps.menuSet60Fps.checked = true)
-		(framerate == 30):(menuSetFps.menuSet30Fps.checked = true)
-		(framerate == 24):(menuSetFps.menuSet24Fps.checked = true)
-		default:(menuSetFps.menuCustomFps.checked = true)
-	)
-	menuSetFps.menuCurrentFps.text = "当前: " + framerate as string + "FPS"
-	strCurrentFps = framerate as string + "FPS"
-	rolBsKeyTools.btnSetFps.text = strCurrentFps
-)
-
-fn fnSetFps numFps =
-(
-	framerate = numFps
-	valueFps = numFps
-	fnBsRefFps ()
-	slidertime -= 1
-	slidertime += 1
-)
-
-fn fnRefPlaySpeedValue =
-(
-	local arrMenuSetSpeed = #(menuSetSpeed.menuSet14Speed,menuSetSpeed.menuSet12Speed, \
-		menuSetSpeed.menuSet1Speed,menuSetSpeed.menuSet2Speed,menuSetSpeed.menuSet4Speed)
-		for i in arrMenuSetSpeed do i.checked = false
-	case of
-	(
-		(timeConfiguration.playbackSpeed == 1):(valuePlaySpeed = "-1/4x-";menuSetSpeed.menuSet14Speed.checked =true)
-		(timeConfiguration.playbackSpeed == 2):(valuePlaySpeed = "-1/2x-";menuSetSpeed.menuSet12Speed.checked =true)
-		(timeConfiguration.playbackSpeed == 3):(valuePlaySpeed = "- 1x -";menuSetSpeed.menuSet1Speed.checked =true)
-		(timeConfiguration.playbackSpeed == 4):(valuePlaySpeed = "- 2x -";menuSetSpeed.menuSet2Speed.checked =true)
-		(timeConfiguration.playbackSpeed == 5):(valuePlaySpeed = "- 4x -";menuSetSpeed.menuSet4Speed.checked =true)
-	)
-	rolBsKeyTools.btnSetSpeed.text = valuePlaySpeed
-	menuSetSpeed.menuCurrentSpeed.text = "当前: " + valuePlaySpeed
-)
-
-fn fnSetSpeed numSpeed =
-(
-	timeConfiguration.playbackSpeed = numSpeed
-	fnRefPlaySpeedValue ()
-)
-
-rollout rolCustomFps ""
-(
-	edittext edtFpsValue "FPS: "  pos:[10,10] width:60 usePercentageWidth:true \
-	percentageWidth:44.0 labelOnTop:false text:"60" bold:true readOnly:false --帧率数值
-	button btnSetFps "Set" pos:[80,8]
-	label labTips strCurrentFps
-
-	on rolCustomFps open do 
-	(
-		edtFpsValue.text = framerate as string
-		labTips.text = "当前:" + framerate as string + "FPS"
-		valueFps = framerate as integer
-	)
-
-	on edtFpsValue entered val do 
-	(
-		if ((val != ".") and (val as integer != undefined) and (val != "") and (val as integer >= 0)) then
-		(
-			valueFps = (val as integer)
-		)
-		else messagebox "---------------------------\r\n请输入正确帧率数值\r\n"
-	)
-	on btnSetFps pressed do 
-	(
-		framerate = valueFps
-		labTips.text = "当前:" + framerate as string + "FPS"
-		fnBsRefFps ()
-		slidertime -= 1
-		slidertime += 1
-	)
-)
-
-rcmenu menuSetFps
-(
-	menuItem menuCurrentFps "" enabled:false
-	menuItem menuSet60Fps "- 60Fps -"
-	menuItem menuSet30Fps "- 30Fps -"
-	menuItem menuSet24Fps "- 24Fps -"
-	separator menuSepCustom
-	menuItem menuCustomFps "自定义帧率"
-
-	on menuSetFps open do (fnBsRefFps ())
-
-	on menuSet60Fps picked do (fnSetFps 60)
-	on menuSet30Fps picked do(fnSetFps 30)
-	on menuSet24Fps picked do (fnSetFps 24)
-
-	on menuCustomFps picked do
-	(
-		try (destroyDialog rolCustomFps) catch()
-		createdialog rolCustomFps 120 55 fgcolor:myFgColor \
-		pos:[mouse.screenpos.x,mouse.screenpos.y]
-	)
-)
-
-rcmenu menuSetSpeed
-(
-	menuItem menuCurrentSpeed "" enabled:false
-	menuItem menuSet14Speed "-1/4x-"
-	menuItem menuSet12Speed "-1/2x-"
-	separator menuSepSpeedLow
-	menuItem menuSet1Speed "- 1x -"
-	separator menuSepSpeedHigh
-	menuItem menuSet2Speed "- 2x -"
-	menuItem menuSet4Speed "- 4x -"
-
-	on menuSetSpeed open do (fnRefPlaySpeedValue ())
-
-	on menuSet14Speed picked do (fnSetSpeed 1)
-	on menuSet12Speed picked do(fnSetSpeed 2)
-	on menuSet1Speed picked do (fnSetSpeed 3)
-	on menuSet2Speed picked do (fnSetSpeed 4)
-	on menuSet4Speed picked do (fnSetSpeed 5)
-)
-------------------帧率,播放速度------------------------------------------------------------
 rollout rolAddMyScripts "我的脚本" width:300 height:260
 (
 	local btnMSWidth = 200
@@ -1152,6 +807,362 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 
 	on btnClearMyScripts pressed do (fnClearMyScripts())
 )
+
+rcmenu menuConfig
+(
+	local startupBsKeyTools = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"
+	local startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
+	local startupMarcroPath = (getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"
+	local startupMenuBarPath = (getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"
+	menuItem mItemHelpDoc ">> 必看帮助文档 <<"
+	menuItem mItemBugReport ">> 问题和和建议 <<"
+	separator menuSepHelp
+	menuItem mItemIsStartup "是否随3dsMax自启"
+	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
+	menuItem mItemCustomSortBtn "自定义功能按钮位置"
+	menuItem mItemCustomScripts "自定义脚本配置管理"
+	menuItem mItemIsIcon "切换图标模式 [实验]"
+	separator menuSepCustom
+	menuItem mItemCleanVirus "杀毒工具 [测试中]"
+	subMenu "更新设置 [需要联网]"
+	(
+		menuItem mItemCheckUpdate "检查更新 [需要联网]"
+		menuItem mItemForceUpdate "强制更新 [无视版本]"
+		menuItem mItemAutoCheckUpdate "自启检测 [需要联网]"
+		menuItem mItemUpdateLog "更新记录 [需求何在]"
+		menuItem mItemUndoVersion "回退版本 [上个版本]"
+	)
+	subMenu "调试相关 [谨慎使用]"
+	(
+		menuItem mItemScriptsPath "脚本目录 [查错优化]"
+		menuItem mItemConfigFilePath "配置文件 [备份导入]"
+		menuItem mItemRolloutBuilder "脚本界面 [学习工具]"
+	)
+	separator menuSepConf
+	menuItem mItemClose "关闭 [空白处中键也可]"
+	menuItem mItemUninstall "卸载 [请期待更好的我]"
+	subMenu "关于我 [欢迎建议交流]"
+	(
+		menuItem mItemBilibili "📺 Bilibili"
+		menuItem mItemTwitter "🐦 Twitter"
+		menuItem mItemQgroup "🐧 Qgroup"
+	)
+
+	on menuConfig open do
+	(
+		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
+		else (mItemIsStartup.checked = false)
+		if (iniAddToolbars == 1) then (mItemAddToolBarBtn.checked = true)
+		else (mItemAddToolBarBtn.checked = false)
+		mItemAutoCheckUpdate.checked = iniBsAutoCheckUpdate
+		mItemIsIcon.checked = iniIsIcon
+	)
+
+	on mItemHelpDoc picked do 
+	(shellLaunch "https://www.notion.so/bullet4869/BsKeyTools-17b5ba7c37ae45f6a69ce90f45fa0657" "")
+
+	on mItemBugReport picked do
+	(shellLaunch "https://github.com/AnimatorBullet/BsKeyTools/issues" "")
+
+	on mItemBilibili picked do 
+	(shellLaunch "https://space.bilibili.com/2031113" "")
+
+	on mItemTwitter picked do 
+	(shellLaunch "https://twitter.com/aniBulletCom" "")
+
+	on mItemScriptsPath picked do 
+	(shellLaunch (getdir #Scripts) "")
+
+	on mItemQgroup picked do
+	(
+		if (queryBox "是否加入个人分享交流群？\r\n\r\n(游戏，动画爱好者休闲吹水正能量分享群)\r\n\r\n子弹工具人(993590655)，确认可直接跳转链接~          \r\n        " \
+		title:"加入交流群" beep:false) then
+		(shellLaunch "https://jq.qq.com/?_wv=1027&k=hmeHhTwu" "")
+	)
+
+	on mItemCleanVirus picked do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsCleanVirus.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+	)
+
+	on mItemConfigFilePath picked do
+	(
+		if (queryBox "是否打开配置文件目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
+		title:"配置文件" beep:false) then
+		(shellLaunch (getFilenamePath BulletConfig) "")
+	)
+
+	on mItemRolloutBuilder picked do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\RolloutBuilder.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+	)
+
+	on mItemIsStartup picked do 
+	(
+		if (mItemIsStartup.checked == true) then 
+		(
+			fnDelFileDir startupPath
+			mItemIsStartup.checked = false
+			messagebox ("已解除 BsKeyTools 自启！                  ")  title:"自启设置"
+		)
+		else 
+		(
+			if (not (SIOFile.Exists startupPath)) do
+			(
+				try 
+				(
+					SIOFile.Copy startupBsKeyTools startupPath
+					messagebox ("已打开 BsKeyTools 自启！                  ")  title:"自启设置"
+					mItemIsStartup.checked = true
+					setFileAttribute startupPath #readOnly true
+				)
+				catch
+				(
+					messagebox ("自启失败，烦请手动处理：\r\n把 BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					(shellLaunch (getfilenamepath startupBsKeyTools) "")
+				)
+			)
+		)
+	)
+
+	on mItemAddToolBarBtn picked do
+	(
+		if (mItemAddToolBarBtn.checked == false) then 
+		(
+			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
+			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools"
+			mItemAddToolBarBtn.checked = true
+			iniAddToolbars = 1
+		)
+		else
+		(
+			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
+			mItemAddToolBarBtn.checked = false
+			iniAddToolbars = 0
+		)
+		SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
+	)
+
+	on mItemCheckUpdate picked do 
+	(fnCheckUpdate curVerBsKeyTools verUrlBsKeyTools dlUrlBsKeyTools dlFileBsKeyTools isForceUpdate:false)
+
+	on mItemForceUpdate picked do 
+	(fnCheckUpdate curVerBsKeyTools verUrlBsKeyTools dlUrlBsKeyTools dlFileBsKeyTools isForceUpdate:true)
+
+	on mItemUndoVersion picked do 
+	(
+		local dlUrlPreviousVersion = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_PreviousVersion.exe"
+		local dlFilePreviousVersion = (getdir #temp) + "\\_PreviousVersion.exe"
+		fnCheckUpdate curVerBsKeyTools verUrlBsKeyTools dlUrlPreviousVersion dlFilePreviousVersion isForceUpdate:true
+	)
+
+	on mItemAutoCheckUpdate picked do 
+	(
+		if (mItemAutoCheckUpdate.checked == true) then (mItemAutoCheckUpdate.checked = false)
+		else (mItemAutoCheckUpdate.checked = true)
+		iniBsAutoCheckUpdate = mItemAutoCheckUpdate.checked
+	)
+
+	on mItemClose picked do 
+	(
+		try(destroydialog rolBsKeyTools)catch()
+		try(destroydialog rolFnKeys)catch()
+		try(destroydialog rolAddMyScripts)catch()
+	)
+
+	on mItemUninstall picked do
+	(
+		if (queryBox "是否彻底清除 BsKeyTools？          \r\n( 配置文件默认保留 )" \
+		title:"有缘再会" beep:false) then
+		(
+			if (iniAddToolbars == 1) then 
+			(
+				addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
+				iniAddToolbars = 0
+				SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
+			)
+			if ((menuMan.findMenu "🎮 BsKeyTools") != undefined) then 
+            (
+                menuMan.unRegisterMenu (menuMan.findMenu "🎮 BsKeyTools")
+                menuMan.updateMenuBar()
+            )
+			if (SIOFile.Exists startupPath) do (fnDelFileDir startupPath)
+			if (SIOFile.Exists startupMarcroPath) do (fnDelFileDir startupMarcroPath)
+			if (SIOFile.Exists startupMenuBarPath) do (fnDelFileDir startupMenuBarPath)
+			arrDelPath = #(((getDir #Scripts)+ "\\BulletScripts"),((getDir #maxroot) + "\\UI_ln\\Icons\\cstoolIcons"))
+			for d in arrDelPath do (fnDelDir d)
+			try(destroydialog rolBsKeyTools)catch()
+			try(destroydialog rolFnKeys)catch()
+			try(destroydialog rolAddMyScripts)catch()
+			(messagebox "已清理干净，保留配置文件备用...    \r\n" beep:false title:"卸载成功！")
+		)
+	)
+
+	on mItemUpdateLog picked do (shellLaunch "https://www.notion.so/bullet4869/4e28c488d5474a9082e164b7c5b6926c" "")
+
+	on mItemCustomSortBtn picked do 
+	(
+		try(destroydialog rolCustomBtn)catch()
+		Createdialog rolCustomBtn fgcolor:myFgColor pos:((getdialogpos rolBsKeyTools)+[0,rolBsKeyTools.height]) parent:rolBsKeyTools.hwnd
+	)
+
+	on mItemCustomScripts picked do 
+	(
+		try(destroydialog rolAddMyScripts)catch()
+		createDialog rolAddMyScripts fgcolor:myFgColor \
+		pos:[mouse.screenpos.x - 150,mouse.screenpos.y +20]
+	)
+
+	on mItemIsIcon picked do 
+	(
+		if (mItemIsIcon.checked == false) then 
+		(
+			fnSwitchIconStyle()
+			mItemIsIcon.checked = not mItemIsIcon.checked
+			iniIsIcon = mItemIsIcon.checked
+		)
+		else
+		(
+			mItemIsIcon.checked = not mItemIsIcon.checked
+			iniIsIcon = mItemIsIcon.checked
+			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
+			catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+		)
+	)
+)
+
+-------------------帧率,播放速度--------------------------------------------------------------
+Global valueFps
+Global valuePlaySpeed = ""
+Global strCurrentFps = framerate as string + "FPS"
+
+fn fnBsRefFps =
+(
+	local arrMenuSetFps = #(menuSetFps.menuSet60Fps,menuSetFps.menuSet30Fps, \
+							menuSetFps.menuSet24Fps,menuSetFps.menuCustomFps)
+	for i in arrMenuSetFps do i.checked = false
+	case of
+	(
+		(framerate == 60):(menuSetFps.menuSet60Fps.checked = true)
+		(framerate == 30):(menuSetFps.menuSet30Fps.checked = true)
+		(framerate == 24):(menuSetFps.menuSet24Fps.checked = true)
+		default:(menuSetFps.menuCustomFps.checked = true)
+	)
+	menuSetFps.menuCurrentFps.text = "当前: " + framerate as string + "FPS"
+	strCurrentFps = framerate as string + "FPS"
+	rolBsKeyTools.btnSetFps.text = strCurrentFps
+)
+
+fn fnSetFps numFps =
+(
+	framerate = numFps
+	valueFps = numFps
+	fnBsRefFps ()
+	slidertime -= 1
+	slidertime += 1
+)
+
+fn fnRefPlaySpeedValue =
+(
+	local arrMenuSetSpeed = #(menuSetSpeed.menuSet14Speed,menuSetSpeed.menuSet12Speed, \
+		menuSetSpeed.menuSet1Speed,menuSetSpeed.menuSet2Speed,menuSetSpeed.menuSet4Speed)
+		for i in arrMenuSetSpeed do i.checked = false
+	case of
+	(
+		(timeConfiguration.playbackSpeed == 1):(valuePlaySpeed = "-1/4x-";menuSetSpeed.menuSet14Speed.checked =true)
+		(timeConfiguration.playbackSpeed == 2):(valuePlaySpeed = "-1/2x-";menuSetSpeed.menuSet12Speed.checked =true)
+		(timeConfiguration.playbackSpeed == 3):(valuePlaySpeed = "- 1x -";menuSetSpeed.menuSet1Speed.checked =true)
+		(timeConfiguration.playbackSpeed == 4):(valuePlaySpeed = "- 2x -";menuSetSpeed.menuSet2Speed.checked =true)
+		(timeConfiguration.playbackSpeed == 5):(valuePlaySpeed = "- 4x -";menuSetSpeed.menuSet4Speed.checked =true)
+	)
+	rolBsKeyTools.btnSetSpeed.text = valuePlaySpeed
+	menuSetSpeed.menuCurrentSpeed.text = "当前: " + valuePlaySpeed
+)
+
+fn fnSetSpeed numSpeed =
+(
+	timeConfiguration.playbackSpeed = numSpeed
+	fnRefPlaySpeedValue ()
+)
+
+rollout rolCustomFps ""
+(
+	edittext edtFpsValue "FPS: "  pos:[10,10] width:60 usePercentageWidth:true \
+	percentageWidth:44.0 labelOnTop:false text:"60" bold:true readOnly:false --帧率数值
+	button btnSetFps "Set" pos:[80,8]
+	label labTips strCurrentFps
+
+	on rolCustomFps open do 
+	(
+		edtFpsValue.text = framerate as string
+		labTips.text = "当前:" + framerate as string + "FPS"
+		valueFps = framerate as integer
+	)
+
+	on edtFpsValue entered val do 
+	(
+		if ((val != ".") and (val as integer != undefined) and (val != "") and (val as integer >= 0)) then
+		(
+			valueFps = (val as integer)
+		)
+		else messagebox "---------------------------\r\n请输入正确帧率数值\r\n"
+	)
+	on btnSetFps pressed do 
+	(
+		framerate = valueFps
+		labTips.text = "当前:" + framerate as string + "FPS"
+		fnBsRefFps ()
+		slidertime -= 1
+		slidertime += 1
+	)
+)
+
+rcmenu menuSetFps
+(
+	menuItem menuCurrentFps "" enabled:false
+	menuItem menuSet60Fps "- 60Fps -"
+	menuItem menuSet30Fps "- 30Fps -"
+	menuItem menuSet24Fps "- 24Fps -"
+	separator menuSepCustom
+	menuItem menuCustomFps "自定义帧率"
+
+	on menuSetFps open do (fnBsRefFps ())
+
+	on menuSet60Fps picked do (fnSetFps 60)
+	on menuSet30Fps picked do(fnSetFps 30)
+	on menuSet24Fps picked do (fnSetFps 24)
+
+	on menuCustomFps picked do
+	(
+		try (destroyDialog rolCustomFps) catch()
+		createdialog rolCustomFps 120 55 fgcolor:myFgColor \
+		pos:[mouse.screenpos.x,mouse.screenpos.y]
+	)
+)
+
+rcmenu menuSetSpeed
+(
+	menuItem menuCurrentSpeed "" enabled:false
+	menuItem menuSet14Speed "-1/4x-"
+	menuItem menuSet12Speed "-1/2x-"
+	separator menuSepSpeedLow
+	menuItem menuSet1Speed "- 1x -"
+	separator menuSepSpeedHigh
+	menuItem menuSet2Speed "- 2x -"
+	menuItem menuSet4Speed "- 4x -"
+
+	on menuSetSpeed open do (fnRefPlaySpeedValue ())
+
+	on menuSet14Speed picked do (fnSetSpeed 1)
+	on menuSet12Speed picked do(fnSetSpeed 2)
+	on menuSet1Speed picked do (fnSetSpeed 3)
+	on menuSet2Speed picked do (fnSetSpeed 4)
+	on menuSet4Speed picked do (fnSetSpeed 5)
+)
+------------------帧率,播放速度------------------------------------------------------------
+
 ---------------------滑动帧切换rollout---------------------------------
 rollout rolFnKeys "滑动帧切换 v1.1" width:280 height:120
 (
@@ -1465,14 +1476,26 @@ rollout rolBsKeyTools "" width:220 height:250
 		button btnTemp17 "待添加17" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
 
-	groupbox gbxMyTools "" pos:[355,5] width:170 height:240
+	groupbox gbxMyTools "" pos:[355,5] width:160 height:240
 	-- dotnetcontrol panelMyTools "UserControl" pos:[360,15] width:190 height:225
 
-		local btnMsWidth  = 160
+		local btnMsWidth  = 150
 		local btnMsHeight = 20
 		local btnMsPos    = [360,42]
 		-- checkbutton ckbSwitchMyScripts "切换" pos:[5,250] width:35 height:btnMsHeight
 		-- tooltip:"切换自定义脚本按钮" border:true highlightcolor:myCheckedColor 
+		
+		checkbutton ckbMs1 "生" width:30 height:26 highlightcolor:myCheckedColor \
+		pos:[360,15] toolTip:"" border:false
+		checkbutton ckbMs2 "死" width:30 height:26 highlightcolor:myCheckedColor \
+		pos:[390,15] toolTip:"" border:false
+		checkbutton ckbMs3 "时" width:30 height:26 highlightcolor:myCheckedColor \
+		pos:[420,15] toolTip:"" border:false
+		checkbutton ckbMs4 "空" width:30 height:26 highlightcolor:myCheckedColor \
+		pos:[450,15] toolTip:"" border:false
+		checkbutton ckbMs5 "理" width:30 height:26 highlightcolor:myCheckedColor \
+		pos:[480,15] toolTip:"" border:false
+
 		button btnMyScripts1 "<＋＋>" pos:btnMsPos width:btnMsWidth height:btnMsHeight
 		tooltip:iniArrMyScripts[1].msName border:true visible:false
 		button btnMyScripts2 "<＋＋>" pos:(btnMsPos + [0,btnMsHeight]) width:btnMsWidth height:btnMsHeight
@@ -1575,7 +1598,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		)
 		else
 		(
-			rolBsKeyTools.width        = 530
+			rolBsKeyTools.width        = 520
 			-- rolBsKeyTools.height       = 250
 			btnMagicBtn.text           = "ヽ( = `▽`)ノ"
 			switchToolPanel            = 1
@@ -1651,19 +1674,21 @@ rollout rolBsKeyTools "" width:220 height:250
 		execute str
 	)
 
-	fn fnSwitchToolBtnChecked Btn =
+	fn fnSwitchToolBtnChecked Btn isMsBtn:false =
 	(
-		arrBtnTemp = #(ckbC1,ckbC2,ckbC3,ckbC4)
-		for i = 1 to arrBtnTemp.count do
+		arrToolsBtn = #(rolBsKeyTools.ckbC1,rolBsKeyTools.ckbC2,rolBsKeyTools.ckbC3,rolBsKeyTools.ckbC4)
+		arrMsBtn    = #(rolBsKeyTools.ckbMs1,rolBsKeyTools.ckbMs2,rolBsKeyTools.ckbMs3,rolBsKeyTools.ckbMs4,rolBsKeyTools.ckbMs5)
+		if isMsBtn == false then (arrBtn = arrToolsBtn) else (arrBtn = arrMsBtn)
+		for i = 1 to arrBtn.count do
 		(
 			if i != Btn then 
 			(
-				arrBtnTemp[i].checked = false
+				arrBtn[i].checked = false
 			)
 			else 
 			(
-				idBtn = Btn
-				arrBtnTemp[idBtn].checked = true
+				if isMsBtn == false then (idBtn = Btn) else (idMsBtn = Btn)
+				arrBtn[Btn].checked = true
 			)
 		)
 	)
@@ -2544,6 +2569,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		-- (
 			fnSwitchToolsBtn idBtn
 			fnSwitchToolBtnChecked idBtn
+			fnSwitchToolBtnChecked idMsBtn isMsBtn:true
 			fnRefreshMyScripts()
 		-- )
 		ckbPlayBlocking.state = false
@@ -3156,10 +3182,50 @@ rollout rolBsKeyTools "" width:220 height:250
 		)
 		else ckbC4.checked = true
 	)
-	on ckbSwitchMyScripts changed state do 
+	-- on ckbSwitchMyScripts changed state do 
+	-- (
+	-- 	if state then switchMSPanel = 1 else switchMSPanel = 0
+	-- 	fnRefreshMsPanel()
+	-- )
+	on ckbMs1 changed state do 
 	(
-		if state then switchMSPanel = 1 else switchMSPanel = 0
-		fnRefreshMsPanel()
+		if state == true then 
+		(
+			fnSwitchToolBtnChecked 1 isMsBtn:true
+		)
+		else ckbMs1.checked = true
+	)
+	on ckbMs2 changed state do 
+	(
+		if state == true then 
+		(
+			fnSwitchToolBtnChecked 2 isMsBtn:true
+		)
+		else ckbC2.checked = true
+	)
+	on ckbMs3 changed state do 
+	(
+		if state == true then 
+		(
+			fnSwitchToolBtnChecked 3 isMsBtn:true
+		)
+		else ckbC3.checked = true
+	)
+	on ckbMs4 changed state do 
+	(
+		if state == true then 
+		(
+			fnSwitchToolBtnChecked 4 isMsBtn:true
+		)
+		else ckbC4.checked = true
+	)
+	on ckbMs5 changed state do 
+	(
+		if state == true then 
+		(
+			fnSwitchToolBtnChecked 5 isMsBtn:true
+		)
+		else ckbC5.checked = true
 	)
 	--------------------------------------------------------------------
 
