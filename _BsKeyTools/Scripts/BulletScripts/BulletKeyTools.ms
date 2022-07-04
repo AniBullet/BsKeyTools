@@ -621,7 +621,7 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 		arrMsTemp = fnLoadMsArray()
 
 		dirScript = getOpenFileName caption:"请选择添加的Max脚本:" historyCategory:"myScripts" \
-		types:"maxscript(*.ms,*.mse)|*.ms*|All(*.*)|*.*" filename:(getDir #scripts + @"\") 
+		types:"maxscript(*.ms,*.mse,*.mzp)|*.m*|All(*.*)|*.*" filename:(getDir #scripts + @"\") 
 		if (dirScript != undefined) then
 		(
 			nameMyScript = getFilenameFile dirScript
@@ -2556,7 +2556,7 @@ rollout rolBsKeyTools "" width:220 height:250
 	fn fnAddMyScript btnMyScript idMyScript =
 	(
 		dirScript = getOpenFileName caption:"请选择添加的Max脚本:" historyCategory:"myScripts" \
-		types:"maxscript(*.ms,*.mse)|*.ms*|All(*.*)|*.*" filename:(getDir #scripts + @"\") 
+		types:"maxscript(*.ms,*.mse,*.mzp)|*.m*|All(*.*)|*.*" filename:(getDir #scripts + @"\") 
 		if (dirScript != undefined) then
 		(
 			arrMsTemp           = fnLoadMsArray()
