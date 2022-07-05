@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-05 10:19:29
+ * @LastEditTime: 2022-07-05 10:23:04
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -145,10 +145,10 @@ fn fnLoadMsArray =
 	case idMsBtn of
 	(
 		(1):(return iniArrMyScripts)
-		(2):(return iniArrMyScripts)
-		(3):(return iniArrMyScripts)
-		(4):(return iniArrMyScripts)
-		(5):(return iniArrMyScripts)
+		(2):(return iniArrMyScripts2)
+		(3):(return iniArrMyScripts3)
+		(4):(return iniArrMyScripts4)
+		(5):(return iniArrMyScripts5)
 		default:((return undefined))
 	)
 )
