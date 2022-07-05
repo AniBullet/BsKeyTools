@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-05 02:53:49
+ * @LastEditTime: 2022-07-05 10:19:29
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -142,17 +142,27 @@ Global SIODir = dotNetClass "System.IO.Directory"
 global fnLoadMsArray
 fn fnLoadMsArray =
 (
-	local arrMyScriptsArrayINI = #(iniArrMyScripts,iniArrMyScripts2,iniArrMyScripts3,iniArrMyScripts4,iniArrMyScripts5)
-	return arrMyScriptsArrayINI[idMsBtn]
+	case idMsBtn of
+	(
+		(1):(return iniArrMyScripts)
+		(2):(return iniArrMyScripts)
+		(3):(return iniArrMyScripts)
+		(4):(return iniArrMyScripts)
+		(5):(return iniArrMyScripts)
+		default:((return undefined))
+	)
 )
 global fnSaveMsArray
 fn fnSaveMsArray arrMsTemp =
 (
-	if idMsBtn == 1 then strMsBtn = "" else strMsBtn = idMsBtn as string
-	if strMsBtn == "" then strMsBtnINI = "1" else strMsBtnINI = strMsBtn
-	local arrMyScriptsArrayINI = #(iniArrMyScripts,iniArrMyScripts2,iniArrMyScripts3,iniArrMyScripts4,iniArrMyScripts5)
-	arrMyScriptsArrayINI[idMsBtn] = for i in arrMsTemp collect i
-	-- execute ("iniArrMyScripts" + strMsBtn + " = for i in arrMyScriptsArrayINI[" + strMsBtnINI + "] collect i")
+	case idMsBtn of
+	(
+		(1):(iniArrMyScripts = for i in arrMsTemp collect i)
+		(2):(iniArrMyScripts2 = for i in arrMsTemp collect i)
+		(3):(iniArrMyScripts3 = for i in arrMsTemp collect i)
+		(4):(iniArrMyScripts4 = for i in arrMsTemp collect i)
+		(5):(iniArrMyScripts5 = for i in arrMsTemp collect i)
+	)
 	fnSetMsBtnConfig()
 )
 
