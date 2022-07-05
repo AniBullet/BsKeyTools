@@ -1,5 +1,6 @@
 try(destroydialog test)catch()
 rollout test "test" width:200 height:100 (
+
     local ui_clientOffset = undefined
 
     checkbutton helpmode "?" tooltip:"help mode"
@@ -12,11 +13,16 @@ rollout test "test" width:200 height:100 (
             
             local dialogPos = getDialogPos test
             local dialogBox = (Box2 dialogPos.x dialogPos.y test.width test.height)
+            
             if (contains dialogBox mouse.screenPos) then (
-                print "The mouse is inside the dialog's client area"
+                test.height = 40
+                print (test.height as string)
+                print (dialogBox as string + " // " + mouse.screenPos as string)
             )
             else (
-                print "The mouse is outside the dialog's client area"
+                test.height = 100
+                print (test.height as string)
+                print (dialogBox as string + " // " + mouse.screenPos as string)
             )
         )
     )
