@@ -1,44 +1,91 @@
 try(destroydialog rolTogglePanel)catch()
+try(destroydialog rolBsKeyTools)catch()
+try(destroydialog rolFnKeys)catch()
+try(destroydialog rolAddMyScripts)catch()
+try(destroydialog rolCustomFps)catch()
+try(destroydialog rolCustomBtn)catch()
 
-Global toggleToolMouseState    = off
-Global posToggleToolMouseMoved = [0,0]
-global heightToggleClose       = 20
-global heightToggleOpen        = 100
-global widthToggleTools        = 300
-rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightToggleClose (
+global heightToggleClose = 60
+global heightToggleOpen  = 200
+global widthToggleTools  = 400
+global iniTogglePanelPos
 
-    local ui_clientOffset = undefined
+try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
+catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
+try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
+catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
+stLoadConfigAll.fnLoadConfigBsTogglePanel()
 
-    -- dotNetControl btn1 "button" pos:[0,0] width:widthToggleTools height:heightToggleClose
+rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightToggleClose 
+(
+    local ui_clientOffset         = undefined
+    -- local isMouseInside           = true
+    local toggleToolMouseState    = off
+    local posToggleToolMouseMoved = [0,0]
 
-    timer timerTickTock interval:100 active:true
+    dotNetControl lblClosedString "Label" pos:[(widthToggleTools/4),(heightToggleClose/4)] width:(widthToggleTools/2) height:(heightToggleClose/2)
 
-    -- on rolTogglePanel open do
-    -- (
-    --     btn1.flatstyle = (dotnetclass "System.Windows.Forms.Flatstyle").flat
-    --     btn1.Text = "A Flat DotNet Button!!"	
-    --     btn1.TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleCenter
-    --     btn1.flatappearance.MouseoverBackColor = (dotnetclass"System.Drawing.color").yellow
-    --     btn1.flatappearance.MousedownBackColor = (dotnetclass"System.Drawing.color").limegreen
-    -- )
+    timer timerTickTock interval:200 active:true
+    
+    on rolTogglePanel open do 
+    (
+        lblClosedString.flatstyle = (dotnetclass "System.Windows.Forms.Flatstyle").flat
+        lblClosedString.Text = "A Flat DotNet Button!!"	
+        lblClosedString.TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleCenter
+        lblClosedString.ForeColor = (dotnetclass"System.Drawing.color").limegreen
+        lblClosedString.Font      = dotnetobject "System.Drawing.Font" "Roboto" 16
+        lblClosedString.backcolor = BsDotBackColor
+        lblClosedString.forecolor = BsDotForeColor
 
-    on timerTickTock tick do (
+        local arrTime = (getUniversalTime())
+		local dayWeekID = (mod arrTime[3] 7) as integer
+		lblClosedString.text = dateTime.Year as string + "/" + dateTime.Month as string + "/" \
+		+ dateTime.Day as string + "  星期" + arrDayWeek[dayWeekID + 1] as string
+    )
+
+    on rolTogglePanel close do 
+    (
+        iniTogglePanelPos   = (GetDialogPos rolTogglePanel)
+        stSetConfigAll.fnSetConfigBsTogglePanel()
+    )
+
+    on timerTickTock tick do 
+    (
         if (ui_clientOffset != undefined) then (
             local mouseClientPos = mouse.screenPos - (getDialogPos rolTogglePanel) + ui_clientOffset
             
             local dialogPos = getDialogPos rolTogglePanel
             local dialogBox = (Box2 dialogPos.x dialogPos.y rolTogglePanel.width rolTogglePanel.height)
             
-            if (contains dialogBox mouse.screenPos) then (
-                rolTogglePanel.height = heightToggleOpen
-                -- print (rolTogglePanel.height as string)
-                -- print (dialogBox as string + " // " + mouse.screenPos as string)
+            if (contains dialogBox mouse.screenPos) then 
+            (
+                -- if isMouseInside then
+                -- (
+                    try(destroydialog rolBsKeyTools)catch()
+                    try(destroydialog rolFnKeys)catch()
+                    try(destroydialog rolAddMyScripts)catch()
+                    try(destroydialog rolCustomFps)catch()
+                    try(destroydialog rolCustomBtn)catch()
+                    iniPos = (getDialogPos rolTogglePanel)
+                    SetINISetting BulletConfig "BulletKeyToolsSet"  "Pos" (iniPos as string)
+                    try
+                    (
+                        fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms")
+                    )
+                    catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+                    -- rolTogglePanel.height = heightToggleOpen
+                    -- isMouseInside = false
+                    -- print (rolTogglePanel.height as string)
+                    -- print (dialogBox as string + " // " + mouse.screenPos as string)
+                -- )
             )
-            else (
-                rolTogglePanel.height = heightToggleClose
-                -- print (rolTogglePanel.height as string)
-                -- print (dialogBox as string + " // " + mouse.screenPos as string)
-            )
+            -- else if (not isMouseInside) then 
+            -- (
+            --     rolTogglePanel.height = heightToggleClose
+            --     isMouseInside = true
+            --     -- print (rolTogglePanel.height as string)
+            --     -- print (dialogBox as string + " // " + mouse.screenPos as string)
+            -- )
         )
     )
 
@@ -64,24 +111,4 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     )
 
 )
-createDialog rolTogglePanel style:#()
-
--- rollout dnb "" width:323 height:114
--- (
---     dotNetControl btn1 "button" pos:[4,5] width:152 height:105
---     dotNetControl btn2 "button" pos:[164,5] width:152 height:105    
-    
---     on dnb open do
---     (
---         btn1.flatstyle = (dotnetclass "System.Windows.Forms.Flatstyle").flat
---         btn1.Text = "A Flat DotNet Button!!"	
---         btn1.TextAlign = (dotnetclass "system.drawing.contentalignment").bottomcenter
---         btn1.flatappearance.MouseoverBackColor = (dotnetclass"System.Drawing.color").yellow
---         btn1.flatappearance.MousedownBackColor = (dotnetclass"System.Drawing.color").limegreen
-        
---         btn2.flatstyle = (dotnetclass "System.Windows.Forms.Flatstyle").popup
---         btn2.Text = "A Popup DotNet Button!!"	
---         btn2.TextAlign = (dotnetclass "system.drawing.contentalignment").topcenter		
---     )
--- )
--- createdialog dnb
+createDialog rolTogglePanel fgcolor:myFgColor pos:iniTogglePanelPos style:#()

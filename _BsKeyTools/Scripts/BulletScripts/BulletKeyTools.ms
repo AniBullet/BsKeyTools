@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-05 10:23:04
+ * @LastEditTime: 2022-07-07 02:24:29
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -12,6 +12,7 @@ try(destroydialog rolFnKeys)catch()
 try(destroydialog rolAddMyScripts)catch()
 try(destroydialog rolCustomFps)catch()
 try(destroydialog rolCustomBtn)catch()
+try(destroydialog rolTogglePanel)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
@@ -73,6 +74,7 @@ global arrAddMyMsBtn        = #()
 Global idBtn                = 1
 global idMsBtn				= 1
 global iniBsAutoCheckUpdate = true
+global iniIsCollopse		= false
 Global switchToolPanel      = 0
 global switchMSPanel        = 0
 Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
@@ -903,6 +905,7 @@ rcmenu menuConfig
 	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
 	menuItem mItemCustomSortBtn "自定义功能按钮位置"
 	menuItem mItemCustomScripts "自定义脚本配置管理"
+	menuItem mItemCollapse "自动收缩或展开面板"
 	menuItem mItemIsIcon "切换图标模式 [实验]"
 	separator menuSepCustom
 	menuItem mItemCleanVirus "杀毒工具 [测试中]"
@@ -932,12 +935,20 @@ rcmenu menuConfig
 
 	on menuConfig open do
 	(
+		rolBsKeyTools.timerTickTock.active = false
 		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
 		else (mItemIsStartup.checked = false)
 		if (iniAddToolbars == 1) then (mItemAddToolBarBtn.checked = true)
 		else (mItemAddToolBarBtn.checked = false)
 		mItemAutoCheckUpdate.checked = iniBsAutoCheckUpdate
 		mItemIsIcon.checked = iniIsIcon
+		mItemCollapse.checked = iniIsCollopse
+	)
+
+	on menuConfig close do
+	(
+		stSetConfigAll.fnSetConfigBsKeyTools ()
+		rolBsKeyTools.timerTickTock.active = true
 	)
 
 	on mItemHelpDoc picked do 
@@ -1112,6 +1123,13 @@ rcmenu menuConfig
 			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
 			catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 		)
+	)
+
+	on mItemCollapse picked do 
+	(
+		mItemCollapse.checked = not mItemCollapse.checked
+		iniIsCollopse = mItemCollapse.checked
+		rolBsKeyTools.timerTickTock.active = iniIsCollopse
 	)
 )
 
@@ -1365,7 +1383,8 @@ rollout rolFnKeys "滑动帧切换 v1.1" width:280 height:120
 -------------主UI-----------------------------------------------------------------
 rollout rolBsKeyTools "" width:220 height:250
 (
-	local strMainRol = ("BsKeyTools_v" + curVerBsKeyTools)
+	local strMainRol      = ("BsKeyTools_v" + curVerBsKeyTools)
+	local ui_clientOffset = undefined
 	---------------------------------UI--------------------------------------
 	groupbox gbxMainUI strMainRol pos:[5,5] width:210 height:217
 	
@@ -1605,25 +1624,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		dotnetcontrol lblLink "Label" text:"2019.9 [ miHoYo_Bullet.S ]✨" pos:[12,226] width:145 height:15
 		button btnConfig "⚙️设置" pos:[165,222] width:49 height:22 border:false
 
-	-- fn fnAddDotButton =
-	-- (
-	-- 	local arrDotButton = #()
-	-- 	for i = 1 to 10 do 
-	-- 	(
-	-- 		execute ("btnMyScripts" + i as string + " = dotnetobject \"Button\"")
-	-- 		execute ("rolBsKeyTools.panelMyTools.controls.add btnMyScripts" + i as string)
-	-- 		execute ("tempDotButton = btnMyScripts" + i as string)
-	-- 		append arrDotButton tempDotButton
-	-- 	)
-	-- 	for i = 1 to arrDotButton.count do
-	-- 	(
-	-- 		arrDotButton[i].width = 160
-	-- 		arrDotButton[i].flatstyle = (dotnetclass "System.Windows.Forms.Flatstyle").flat
-	-- 		arrDotButton[i].TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleLeft
-	-- 		arrDotButton[i].top = 24 * (i - 1)
-	-- 		-- rolBsKeyTools.panelMyTools.controls.add arrDotButton[i]
-	-- 	)
-	-- )
+	timer timerTickTock interval:100 active:true
 
 	local m_PBKeyTimeArray
 	local m_PBKeyMiliSecArray
@@ -2716,11 +2717,36 @@ rollout rolBsKeyTools "" width:220 height:250
 	on rolBsKeyTools mouseMove pos do
 	(
 		-- myTimer.Start()
+		if (ui_clientOffset == undefined) and (switchMouseState == off) then 
+		(ui_clientOffset = pos - (mouse.screenPos - (getDialogPos rolBsKeyTools)))
 		if switchMouseState == on then
 		(
 			SetDialogPos rolBsKeyTools (mouse.screenpos - posMouMoved)			
 		)
 	)
+
+	on timerTickTock tick do 
+    (
+        if (ui_clientOffset != undefined) and (iniIsCollopse) then 
+		(
+            local mouseClientPos = mouse.screenPos - (getDialogPos rolBsKeyTools) + ui_clientOffset
+            
+            local dialogPos = getDialogPos rolBsKeyTools
+            local dialogBox = (Box2 dialogPos.x dialogPos.y rolBsKeyTools.width rolBsKeyTools.height)
+
+			if not (contains dialogBox mouse.screenPos) then
+			(
+				try(destroydialog rolTogglePanel)catch()
+				iniTogglePanelPos = (getDialogPos rolBsKeyTools)
+				stSetConfigAll.fnSetConfigBsTogglePanel()
+				try
+				(
+					fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms")
+				)
+				catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+			)
+        )
+    )
 	---------------------上面设置拖动脚本窗口,去掉标题栏后默认无法拖动---------------------
 	on btnSelBiped pressed do ----选择biped
 	(

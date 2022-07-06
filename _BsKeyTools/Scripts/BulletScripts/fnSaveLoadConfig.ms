@@ -89,6 +89,7 @@ struct stLoadConfigAll
 		idMsBtn              = fnGetConfig idMsBtn "BulletKeyToolsSet"  "idMsBtn" (idMsBtn as string)
 		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet"  "IsIcon" (iniIsIcon as string)
+		iniIsCollopse		 = fnGetConfig iniIsIcon "BulletKeyToolsSet"  "IsCollopse" (iniIsCollopse as string)
 		fnLoadToolBtnConfig()
 		fnLoadMsBtnConfig()
 		-- print "Loaded BsKeyTools Config"
@@ -124,6 +125,10 @@ struct stLoadConfigAll
 	fn fnLoadConfigBsCleanVirus =
 	(
 		iniStartupBsCleanVirus = fnGetConfig iniStartupBsCleanVirus "BsCleanVirus" "StartupBsCleanVirus" "0"
+	),
+	fn fnLoadConfigBsTogglePanel =
+	(
+		iniTogglePanelPos = fnGetConfig iniTogglePanelPos "BsTogglePanelSet" "TogglePanelPos" "0"
 	)
 )
 struct stSetConfigAll
@@ -137,6 +142,7 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "idMsBtn" (idMsBtn as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "IsIcon" (iniIsIcon as string)
+		SetINISetting BulletConfig "BulletKeyToolsSet"  "IsCollopse" (iniIsCollopse as string)
 		fnSetToolBtnConfig()
 		fnSetMsBtnConfig()
 	),
@@ -171,5 +177,9 @@ struct stSetConfigAll
 	fn fnSetConfigBsCleanVirus =
 	(
 		SetINISetting BulletConfig "BsCleanVirus"  "StartupBsCleanVirus" (iniStartupBsCleanVirus as string)
+	),
+	fn fnSetConfigBsTogglePanel =
+	(
+		SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" (iniTogglePanelPos as string)
 	)
 )
