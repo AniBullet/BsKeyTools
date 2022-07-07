@@ -111,4 +111,5 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     )
 
 )
-createDialog rolTogglePanel fgcolor:myFgColor pos:iniTogglePanelPos style:#()
+if (iniTogglePanelPos != 0) then (Createdialog rolTogglePanel fgcolor:myFgColor pos:iniTogglePanelPos style:#())
+else (Createdialog rolTogglePanel fgcolor:myFgColor style:#())
