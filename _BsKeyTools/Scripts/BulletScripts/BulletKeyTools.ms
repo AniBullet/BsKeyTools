@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-07 02:24:29
+ * @LastEditTime: 2022-07-07 11:51:00
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -69,6 +69,7 @@ Global iniArrMyScripts5   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:10 msName:"<＋＋>" dir:""))
 Global BulletConfig = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 Global iniPos  	--位置保存记录
+global iniTogglePanelPos
 global arrMyMsBtn           = #()
 global arrAddMyMsBtn        = #()
 Global idBtn                = 1
