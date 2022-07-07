@@ -22,6 +22,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     -- local isMouseInside           = true
     local toggleToolMouseState    = off
     local posToggleToolMouseMoved = [0,0]
+    local arrDayWeek = #("日", "一", "二", "三", "四", "五", "六")
 
     dotNetControl lblClosedString "Label" pos:[(widthToggleTools/4),(heightToggleClose/4)] width:(widthToggleTools/2) height:(heightToggleClose/2)
 
