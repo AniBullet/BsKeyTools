@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-07 14:46:24
+ * @LastEditTime: 2022-07-08 00:28:02
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -3124,9 +3124,9 @@ rollout rolBsKeyTools "" width:220 height:250
 		)
 	)
 	
-	on btnSetFps pressed do popupMenu menuSetFps
+	on btnSetFps pressed do (popupMenu menuSetFps pos:[mouse.screenpos.x - 120,mouse.screenpos.y - 120])
 		
-	on btnSetSpeed pressed do popupMenu menuSetSpeed
+	on btnSetSpeed pressed do (popupMenu menuSetSpeed pos:[mouse.screenpos.x,mouse.screenpos.y - 160])
 
 	on btnJudgeLinkKey changed state do   --切换是否勾选link
 	(

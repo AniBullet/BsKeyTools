@@ -1,9 +1,9 @@
 try(destroydialog rolTogglePanel)catch()
 try(destroydialog rolBsKeyTools)catch()
-try(destroydialog rolFnKeys)catch()
-try(destroydialog rolAddMyScripts)catch()
-try(destroydialog rolCustomFps)catch()
-try(destroydialog rolCustomBtn)catch()
+-- try(destroydialog rolFnKeys)catch()
+-- try(destroydialog rolAddMyScripts)catch()
+-- try(destroydialog rolCustomFps)catch()
+-- try(destroydialog rolCustomBtn)catch()
 
 global heightToggleClose = 60
 global heightToggleOpen  = 200
@@ -62,11 +62,11 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
             (
                 -- if isMouseInside then
                 -- (
-                    try(destroydialog rolBsKeyTools)catch()
-                    try(destroydialog rolFnKeys)catch()
-                    try(destroydialog rolAddMyScripts)catch()
-                    try(destroydialog rolCustomFps)catch()
-                    try(destroydialog rolCustomBtn)catch()
+                    -- try(destroydialog rolBsKeyTools)catch()
+                    -- try(destroydialog rolFnKeys)catch()
+                    -- try(destroydialog rolAddMyScripts)catch()
+                    -- try(destroydialog rolCustomFps)catch()
+                    -- try(destroydialog rolCustomBtn)catch()
                     iniPos = (getDialogPos rolTogglePanel)
                     SetINISetting BulletConfig "BulletKeyToolsSet"  "Pos" (iniPos as string)
                     try
