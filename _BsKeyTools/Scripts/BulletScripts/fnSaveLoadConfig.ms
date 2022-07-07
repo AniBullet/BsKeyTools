@@ -16,7 +16,7 @@ fn fnGetConfig attr nameAttrClass nameAttr valueAttr =  --设置初始信息方�
 	if ((matchpattern nameAttr pattern:"ArrMyScripts?" == true) or (nameAttr == "LikedFolder") \
 	or (nameAttr == "Desktop") or (matchpattern nameAttr  pattern:"RefFolder*") \
 	or (nameAttr == "LastRefFolder")) then (attr = substituteString attr "dir:" "dir:@")
-	if attr == "" then (attr = execute valueAttr) else (attr = execute attr) --判断记录为空与否得到需要的记录参数
+	if (attr == "") or (attr == undefined) then (attr = execute valueAttr) else (attr = execute attr) --判断记录为空与否得到需要的记录参数
 	options.printAllelements = oldPrintAllElements
 	attr
 )
