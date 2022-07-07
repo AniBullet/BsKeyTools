@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-07 11:51:00
+ * @LastEditTime: 2022-07-07 14:46:24
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -899,17 +899,31 @@ rcmenu menuConfig
 	local startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
 	local startupMarcroPath = (getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"
 	local startupMenuBarPath = (getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"
-	menuItem mItemHelpDoc ">> 必看帮助文档 <<"
-	menuItem mItemBugReport ">> 问题和和建议 <<"
+	subMenu "帮助  /  Help"
+	(
+		menuItem mItemHelpDoc ">> 帮助文档 <<"
+		menuItem mItemBugReport ">> 问题建议 <<"
+		menuItem mItemClose "关闭 [空白处中键]"
+		menuItem mItemUninstall "卸载 [期待再见]"
+		subMenu "关于我 [欢迎交流]"
+		(
+			menuItem mItemBilibili "📺 Bilibili"
+			menuItem mItemTwitter "🐦 Twitter"
+			menuItem mItemQgroup "🐧 Qgroup"
+		)
+	)
 	separator menuSepHelp
+	menuItem mItemCleanVirus "杀毒工具 [推荐开启]"
 	menuItem mItemIsStartup "是否随3dsMax自启"
 	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
-	menuItem mItemCustomSortBtn "自定义功能按钮位置"
-	menuItem mItemCustomScripts "自定义脚本配置管理"
-	menuItem mItemCollapse "自动收缩或展开面板"
-	menuItem mItemIsIcon "切换图标模式 [实验]"
+	subMenu "自定义功能配置"
+	(
+		menuItem mItemCustomSortBtn "自定义功能按钮位置"
+		menuItem mItemCustomScripts "自定义脚本配置管理"
+		menuItem mItemCollapse "自动收缩或展开面板"
+		menuItem mItemIsIcon "切换图标模式 [实验]"
+	)
 	separator menuSepCustom
-	menuItem mItemCleanVirus "杀毒工具 [测试中]"
 	subMenu "更新设置 [需要联网]"
 	(
 		menuItem mItemCheckUpdate "检查更新 [需要联网]"
@@ -924,19 +938,10 @@ rcmenu menuConfig
 		menuItem mItemConfigFilePath "配置文件 [备份导入]"
 		menuItem mItemRolloutBuilder "脚本界面 [学习工具]"
 	)
-	separator menuSepConf
-	menuItem mItemClose "关闭 [空白处中键也可]"
-	menuItem mItemUninstall "卸载 [请期待更好的我]"
-	subMenu "关于我 [欢迎建议交流]"
-	(
-		menuItem mItemBilibili "📺 Bilibili"
-		menuItem mItemTwitter "🐦 Twitter"
-		menuItem mItemQgroup "🐧 Qgroup"
-	)
 
 	on menuConfig open do
 	(
-		rolBsKeyTools.timerTickTock.active = false
+		-- rolBsKeyTools.timerTickTock.active = false
 		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
 		else (mItemIsStartup.checked = false)
 		if (iniAddToolbars == 1) then (mItemAddToolBarBtn.checked = true)
@@ -946,11 +951,12 @@ rcmenu menuConfig
 		mItemCollapse.checked = iniIsCollopse
 	)
 
-	on menuConfig close do
-	(
-		stSetConfigAll.fnSetConfigBsKeyTools ()
-		rolBsKeyTools.timerTickTock.active = true
-	)
+	-- on menuConfig close do
+	-- (
+	-- 	print "111"
+	-- 	stSetConfigAll.fnSetConfigBsKeyTools ()
+	-- 	rolBsKeyTools.timerTickTock.active = true
+	-- )
 
 	on mItemHelpDoc picked do 
 	(shellLaunch "https://www.notion.so/bullet4869/BsKeyTools-17b5ba7c37ae45f6a69ce90f45fa0657" "")
@@ -2692,12 +2698,12 @@ rollout rolBsKeyTools "" width:220 height:250
 	-----------------------------------------------------------------------------------------
 	on rolBsKeyTools rbuttondown pos do 
 	(
-		popupMenu menuConfig pos:[mouse.screenpos.x + 20,mouse.screenpos.y]
+		popupMenu menuConfig pos:(GetDialogPos rolBsKeyTools)
 	)
 
-	on btnConfig pressed do (popupMenu menuConfig pos:[mouse.screenpos.x + 20,mouse.screenpos.y])
+	on btnConfig pressed do (popupMenu menuConfig pos:(GetDialogPos rolBsKeyTools))
 
-	on btnConfig rightclick do (popupMenu menuConfig pos:[mouse.screenpos.x + 20,mouse.screenpos.y])
+	on btnConfig rightclick do (popupMenu menuConfig pos:(GetDialogPos rolBsKeyTools))
 
 	on rolBsKeyTools mbuttondown pos do 
 	(

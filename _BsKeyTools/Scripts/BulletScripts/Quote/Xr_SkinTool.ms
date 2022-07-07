@@ -1,11 +1,11 @@
-fn PPcross p1 p2 = (return p1.x*p2.y - p1.y*p2.x	) ----¼ÆËã²æ»ı  Cross 
-fn PPdot  p1 p2 = (return p1.x*p2.x + p1.y*p2.y) ----¼ÆËãµã»ı dot 
-fn PPNum_dot  a b = ( return [a.x*b,a.y*b] ) 								-----Êı³Ë
-fn disVerToLine a b  c =    ---cµ½Ö±ÏßabµÄ¾àÀë
+fn PPcross p1 p2 = (return p1.x*p2.y - p1.y*p2.x	) ----è®¡ç®—å‰ç§¯  Cross 
+fn PPdot  p1 p2 = (return p1.x*p2.x + p1.y*p2.y) ----è®¡ç®—ç‚¹ç§¯ dot 
+fn PPNum_dot  a b = ( return [a.x*b,a.y*b] ) 								-----æ•°ä¹˜
+fn disVerToLine a b  c =    ---cåˆ°ç›´çº¿abçš„è·ç¦»
 ( 
 	return abs( (PPcross (c-a) (c-b))/(distance a b) )	
 )
-fn PPinter a b c d =     --Ö±ÏßabºÍcdµÄ½»²æµã
+fn PPinter a b c d =     --ç›´çº¿abå’Œcdçš„äº¤å‰ç‚¹
 (
 	s = PPcross (c-a) (d-a)
 	ss = s+(PPcross (d-b) (c-b))
@@ -18,7 +18,7 @@ fn angelCmp a b  c =
 	if t1!=t2 then ( return t1<t2 )
 	else ( return a.x-c.x<b.x-c.x ) 
 )
-fn multi ppp1 ppp2  ppp0 = ----¼ÆËã²æ»ı  Cross 
+fn multi ppp1 ppp2  ppp0 = ----è®¡ç®—å‰ç§¯  Cross 
 (
 x1 = ppp1.x - ppp0.x + 0.0
 y1 = ppp1.y - ppp0.y + 0.0
@@ -36,7 +36,7 @@ else (return  (PPcross (p1-baseP) (p2-baseP)>0) )
 fn GetVectorsAngle v1 v2 =
 (theAngle = acos(dot (normalize v1) (normalize v2)))
 	
-fn yunGetvertsSkinOrPoly  =   ---»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤»ò¿É±à¼­¶à±ßĞÎµã¶ù£¬Êä³öÖµÊÇÆÕÍ¨Êı×éÀı£º#(293,294,570)
+fn yunGetvertsSkinOrPoly  =   ---è·å–é€‰æ‹©çš„è’™çš®æˆ–å¯ç¼–è¾‘å¤šè¾¹å½¢ç‚¹å„¿ï¼Œè¾“å‡ºå€¼æ˜¯æ™®é€šæ•°ç»„ä¾‹ï¼š#(293,294,570)
 (
 	modCheck = modpanel.getcurrentobject() 
 	verts = #()
@@ -44,7 +44,7 @@ fn yunGetvertsSkinOrPoly  =   ---»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤»ò¿É±à¼­¶à±ßĞÎµã¶ù£¬Êä³öÖµÊÇÆÕÍ¨Ê
 	if (classOf modCheck) == Editable_Poly then (verts = (polyop.getVertSelection selection[1]) as array)
 	return verts
 )
-fn yunSelvertsSkinOrPoly selVerts =   ---Ñ¡ÔñÃÉÆ¤»ò¿É±à¼­¶à±ßĞÎµã¶ù£¬ÊäÈëÖµÊÇÆÕÍ¨Êı×éÀı£º#(293,294,570)
+fn yunSelvertsSkinOrPoly selVerts =   ---é€‰æ‹©è’™çš®æˆ–å¯ç¼–è¾‘å¤šè¾¹å½¢ç‚¹å„¿ï¼Œè¾“å…¥å€¼æ˜¯æ™®é€šæ•°ç»„ä¾‹ï¼š#(293,294,570)
 (
 	modCheck = modpanel.getcurrentobject() 
 	if (classOf modCheck) == Skin do (skinOps.SelectVertices modCheck selVerts;modCheck.effect = 0)
@@ -52,7 +52,7 @@ fn yunSelvertsSkinOrPoly selVerts =   ---Ñ¡ÔñÃÉÆ¤»ò¿É±à¼­¶à±ßĞÎµã¶ù£¬ÊäÈëÖµÊÇÆÕÍ
 	return (classOf modCheck)
 )
 	
-fn yunSelInBoundingBox = -------------------------ÅĞ¶ÏÊÇ·ñÊÇÔÚÄ£ĞÍ****´ÖÂÔ--------------------	
+fn yunSelInBoundingBox = -------------------------åˆ¤æ–­æ˜¯å¦æ˜¯åœ¨æ¨¡å‹****ç²—ç•¥--------------------	
 (	
 	obj = selection
 	yunRingSelBitArrat = #()
@@ -68,7 +68,7 @@ fn yunSelInBoundingBox = -------------------------ÅĞ¶ÏÊÇ·ñÊÇÔÚÄ£ĞÍ****´ÖÂÔ------
 	yunSelvertsSkinOrPoly yunRingSelInFirstCheck
 	return  yunRingSelInFirstCheck
 )
--- ¼ì²éÊı×éÀïÄ³¸öÔªËØ³öÏÖµÄ´ÎÊı	
+-- æ£€æŸ¥æ•°ç»„é‡ŒæŸä¸ªå…ƒç´ å‡ºç°çš„æ¬¡æ•°	
 fn countOccurrences arr n x = 
 (	res = 0
 	for i=1 to n  do 
@@ -76,54 +76,54 @@ fn countOccurrences arr n x =
 	(res += 1))
 	return res	
 )
---ÅĞ¶Ï²¢ĞŞ¸´È¨ÖØµã¶ù
+--åˆ¤æ–­å¹¶ä¿®å¤æƒé‡ç‚¹å„¿
 fn yunSkinFixOne vertOne = 
 (
 	
 -- 	vertOne = 1199
-	----------------------------------Ò»ÂÖÀ©Ñ¡----------------------------------
+	----------------------------------ä¸€è½®æ‰©é€‰----------------------------------
 		sk = modpanel.getcurrentobject() 
 		skinOps.SelectVertices sk vertOne
 		sk.effect = 0
 		skinOps.growSelection sk
-	vertsSecond = #()---À«Ñ¡Ò»È¦ºóµÄÈ¨ÖØµã¶ù
+	vertsSecond = #()---é˜”é€‰ä¸€åœˆåçš„æƒé‡ç‚¹å„¿
 	for i = 1 to skinops.getnumbervertices sk do
 	(
 		if (skinOps.IsVertexSelected sk i) == 1 then append vertsSecond i
 	)
-	---------------------------Ñ¡Ôñµã¹Ç÷ÀÁĞ±íÓëÆäËûµã¹Ç÷ÀÁĞ±í¶Ô±È------------------	
+	---------------------------é€‰æ‹©ç‚¹éª¨éª¼åˆ—è¡¨ä¸å…¶ä»–ç‚¹éª¨éª¼åˆ—è¡¨å¯¹æ¯”------------------	
 	weightCount = skinOps.GetVertexWeightCount sk vertOne
-	boneEffect 	= #()  --Ò»È¦µã¶ùÀïËùÓĞÏà¹ØµÄ¹Ç÷À
-	for vb in vertsSecond do ---ËùÓĞµãÑ­»·
+	boneEffect 	= #()  --ä¸€åœˆç‚¹å„¿é‡Œæ‰€æœ‰ç›¸å…³çš„éª¨éª¼
+	for vb in vertsSecond do ---æ‰€æœ‰ç‚¹å¾ªç¯
 	( 
 		weightCountAll = skinOps.GetVertexWeightCount sk vb
 		for i = 1 to weightCountAll do	(append  boneEffect (skinOps.GetVertexWeightBoneID sk vb i)	)				
 	)			
 	boneEffectUniquet = makeUniqueArray  boneEffect	
 	
-	boneEffectOne = #() -- »ñÈ¡Ñ¡Ôñµã¶ÔÓ¦µÄÈ¨ÖØ¹Ç÷À
+	boneEffectOne = #() -- è·å–é€‰æ‹©ç‚¹å¯¹åº”çš„æƒé‡éª¨éª¼
 	for i = 1 to weightCount do
 		(append  boneEffectOne (skinOps.GetVertexWeightBoneID sk vertOne i)	)			
-	-- µ¥µãÀï¹Ç÷À´ÎÊı
+	-- å•ç‚¹é‡Œéª¨éª¼æ¬¡æ•°
 	boneEffectUniquetNum = #()
 	for i in boneEffectOne do
 	(append  boneEffectUniquetNum (countOccurrences boneEffect boneEffect.count i))
 	boneEffectCheckBone = sort boneEffectUniquetNum
 		
--- ÅĞ¶Ïµ¥µã¹Ç÷ÀÀïÊÇ·ñÓĞÖ»Ó°Ïì   *  3  *  ¸öÒÔÏÂµãµÄ¹Ç÷À£¬ÓĞÔõÅĞ¶ÏÎ´È¨ÖØ´íÎó
+-- åˆ¤æ–­å•ç‚¹éª¨éª¼é‡Œæ˜¯å¦æœ‰åªå½±å“   *  3  *  ä¸ªä»¥ä¸‹ç‚¹çš„éª¨éª¼ï¼Œæœ‰æ€åˆ¤æ–­æœªæƒé‡é”™è¯¯
 	checkErrorState = false
 	for i in boneEffectUniquetNum do
 	(if i <= 3 then (checkErrorState = true))		
 	
-------===============================ĞŞ¸´È¨ÖØif¿ªÊ¼============================
+------===============================ä¿®å¤æƒé‡ifå¼€å§‹============================
 if checkErrorState then
 (
-		-- ¾ÅµãÀïËùÓĞ¹Ç÷À´ÎÊı
+		-- ä¹ç‚¹é‡Œæ‰€æœ‰éª¨éª¼æ¬¡æ•°
 		boneEffectUniquetNum_Nine = #()		
 		for i in boneEffectUniquet do
 		(append  boneEffectUniquetNum_Nine (countOccurrences boneEffect boneEffect.count i)	)
 		
-		-- ºÏ²¢µÄÊı×é£¬Ç°ÊÇ¹Ç÷À±äºÅ£¬ºóÊÇ¹Ç÷À³öÏÖ´ÎÊı
+		-- åˆå¹¶çš„æ•°ç»„ï¼Œå‰æ˜¯éª¨éª¼å˜å·ï¼Œåæ˜¯éª¨éª¼å‡ºç°æ¬¡æ•°
 		boneEffectCombine_Nine = #()
 		boneEffectCheckBone_Nine = #()		
 		for i=1 to boneEffectUniquet.count do
@@ -134,8 +134,8 @@ if checkErrorState then
 			)
 		boneEffectCheckBone_Nine = sort boneEffectUniquetNum_Nine
 			
--------------------ĞŞ¸´È¨ÖØÈ¡×î¶àµÄËÄ¸ö¹Ç÷À£¬°Ñµ±Ç°¹Ç÷ÀÔÚÕâËÄ¸ö¹Ç÷ÀÉÏblend----------------			
-	-- Ã°ÅİÅÅĞò
+-------------------ä¿®å¤æƒé‡å–æœ€å¤šçš„å››ä¸ªéª¨éª¼ï¼ŒæŠŠå½“å‰éª¨éª¼åœ¨è¿™å››ä¸ªéª¨éª¼ä¸Šblend----------------			
+	-- å†’æ³¡æ’åº
 	for i=1 to boneEffectCombine_Nine.count do 
 	(
 		for j = 1 to boneEffectCombine_Nine.count-i do
@@ -150,7 +150,7 @@ if checkErrorState then
 			
 		)	
 	)
-	-----»ñÈ¡Ç°2¶à³öÏÖµÄ¹Ç÷À
+	-----è·å–å‰2å¤šå‡ºç°çš„éª¨éª¼
 	boneChoosen = #()
 	for i=1 to 4 do 
 	(
@@ -163,25 +163,25 @@ if checkErrorState then
 	skinOps.setWeight sk 1
 	skinOps.RemoveZeroWeights sk
 	sk.effect = 0
--- 	ÏÈ¸øµÚÒ»¸ö¹Ç÷À1È¨ÖØÔÚÒÆ³ıËùÓĞ0È¨ÖØÎªÏÂ±ß×ö×¼±¸
+-- 	å…ˆç»™ç¬¬ä¸€ä¸ªéª¨éª¼1æƒé‡åœ¨ç§»é™¤æ‰€æœ‰0æƒé‡ä¸ºä¸‹è¾¹åšå‡†å¤‡
 	for i in boneChoosen do
 		(
 		skinOps.SelectBone sk i
 		skinOps.setWeight sk 0.5		
 		)
 		
-	choosenWeight = #()----Ëã³öÆ½¾ùÈ¨ÖØ±¸ÁÏ
-	for b=1 to boneChoosen.count do --Ã¿¸ù¹Ç÷À
+	choosenWeight = #()----ç®—å‡ºå¹³å‡æƒé‡å¤‡æ–™
+	for b=1 to boneChoosen.count do --æ¯æ ¹éª¨éª¼
 	( 
 		append choosenWeight #(#(boneChoosen[b]),#())
-		for vb in vertsSecond do  ---Ã¿¸öµã
+		for vb in vertsSecond do  ---æ¯ä¸ªç‚¹
 		(		
 			weightCountAll = skinOps.GetVertexWeightCount sk  vb
 				
-			for i = 1 to weightCountAll do  --¹Ç÷ÀÁĞ±í
+			for i = 1 to weightCountAll do  --éª¨éª¼åˆ—è¡¨
 			(
-				BoneandweightCC = #() --µ¥ÔªËØ
-				if (skinOps.GetVertexWeightBoneID sk vb i)==boneChoosen[b] then 	 --ÊÇµ±Ç°¹Ç÷ÀºÅ	
+				BoneandweightCC = #() --å•å…ƒç´ 
+				if (skinOps.GetVertexWeightBoneID sk vb i)==boneChoosen[b] then 	 --æ˜¯å½“å‰éª¨éª¼å·	
 				(	
 					append 	choosenWeight[b][2] (skinOps.GetVertexWeight  sk vb i)						
 				)
@@ -191,18 +191,18 @@ if checkErrorState then
   
 	for i=1 to choosenWeight.count do
 	(
-		-- 	ÇóÆ½¾ùÈ¨ÖØ
+		-- 	æ±‚å¹³å‡æƒé‡
 		sumVal = 0; for val in choosenWeight[i][2] do ( sumVal += val )
 		weightAverage = sumVal/choosenWeight[i][2].count
 		skinOps.SelectBone sk choosenWeight[i][1][1]
 		skinOps.setWeight sk weightAverage			
 	)
-)--ĞŞ¸´È¨ÖØifµÄ½áÎ²²»ÄÜÉ¾³ı
+)--ä¿®å¤æƒé‡ifçš„ç»“å°¾ä¸èƒ½åˆ é™¤
 	
 return checkErrorState
 
-) ---fn µÄ½áÎ²
-fn getVertexNormal vert = ----·¨Ïß
+) ---fn çš„ç»“å°¾
+fn getVertexNormal vert = ----æ³•çº¿
 (
 	sel = selection[1]
 	vertFaces = polyOp.getFacesUsingVert sel vert
@@ -210,52 +210,52 @@ fn getVertexNormal vert = ----·¨Ïß
 -- 	t01 = tNormal / vertFaces.numberSet
 	return normalize (tNormal / vertFaces.numberSet)
 )
-fn getFourDirVert vert =  ---ÒÀ´Î·µ»ØÓÒ×óÉÏÏÂµÄ×î½üµã¶ù£¬Ïà¶ÔÊÓÍ¼
+fn getFourDirVert vert =  ---ä¾æ¬¡è¿”å›å³å·¦ä¸Šä¸‹çš„æœ€è¿‘ç‚¹å„¿ï¼Œç›¸å¯¹è§†å›¾
 (
 		obj = selection[1] --get selected object
 		PVAll_left = #()
 		PVAll_right= #()
 		PVAll_up = #()
 		PVAll_down = #()
-		combinedArray = #()  --µãºÍ¶ÈÊı
+		combinedArray = #()  --ç‚¹å’Œåº¦æ•°
 	
 		polyVertexOne = vert	
 		Ori_Pos = polyOp.getVert obj polyVertexOne 	
-		normalVec = getVertexNormal polyVertexOne --·¨ÏòÁ¿	
+		normalVec = getVertexNormal polyVertexOne --æ³•å‘é‡	
 	
 		edges_A = polyop.getEdgesUsingVert obj (#(polyVertexOne) as BitArray)
 		polyVertexFive = polyop.getVertsUsingEdge obj edges_A
-		polyVertexFour = deleteItem  polyVertexFive  polyVertexOne --ËÄµã ¿ÉÄÜ¶à	
+		polyVertexFour = deleteItem  polyVertexFive  polyVertexOne --å››ç‚¹ å¯èƒ½å¤š	
 		
-		-- 	½Ç¶ÈËã·¨	»ñÈ¡Ïà¶Ô   ´¹Ö±ÓÚµã·¨ÏßµÄÆ½ÃæµÄ µ¥Î» ½Ç¶È
+		-- 	è§’åº¦ç®—æ³•	è·å–ç›¸å¯¹   å‚ç›´äºç‚¹æ³•çº¿çš„å¹³é¢çš„ å•ä½ è§’åº¦
 		for pt in (polyVertexFour as array) do 
 		(
-	-- 		ÊÓÍ¼ÉÏ·½Ïò
+	-- 		è§†å›¾ä¸Šæ–¹å‘
 			CurrentViewMatrix = inverse(viewport.getTM()) 
 			upVec = CurrentViewMatrix.row2					
-			PV_Pos = polyOp.getVert obj pt  ---µãÎ»ÖÃÏòÁ¿		
-			PV_Pos = PV_Pos - Ori_Pos  ----¼ÆËã½Ç¶ÈÎïÁÏ	
+			PV_Pos = polyOp.getVert obj pt  ---ç‚¹ä½ç½®å‘é‡		
+			PV_Pos = PV_Pos - Ori_Pos  ----è®¡ç®—è§’åº¦ç‰©æ–™	
 				
-			--·¨Ïß´¹Ö±Æ½ÃæÉÏµÄÍ¶Ó°		
+			--æ³•çº¿å‚ç›´å¹³é¢ä¸Šçš„æŠ•å½±		
 			finalNormal = PV_Pos - normalVec * dot (normalize  PV_Pos) (normalize normalVec) / dot(normalize normalVec) (normalize normalVec)
 			
 			upVecPP = upVec - normalVec * dot (normalize  upVec) (normalize normalVec) / dot(normalize normalVec) (normalize normalVec)
 			upVecPP = normalize (upVecPP)
 				
-	-----Ğı×ªµÃµ½zµ¥Î»ÏòÁ¿					
+	-----æ—‹è½¬å¾—åˆ°zå•ä½å‘é‡					
 			XVecPP =  upVecPP*cos(-90)+	(cross normalVec upVecPP)*sin(-90)
 			XVecPP = normalize(XVecPP)		
 	
-		ZZZ = (dot finalNormal upVecPP)/length(upVecPP) ----ÔÚÏòÁ¿ÉÏµÄÍ¶Ó° 
-		XXX = (dot finalNormal XVecPP)/length(XVecPP) ----ÔÚÏòÁ¿ÉÏµÄÍ¶Ó°
+		ZZZ = (dot finalNormal upVecPP)/length(upVecPP) ----åœ¨å‘é‡ä¸Šçš„æŠ•å½± 
+		XXX = (dot finalNormal XVecPP)/length(XVecPP) ----åœ¨å‘é‡ä¸Šçš„æŠ•å½±
 		angleCal = atan2 XXX ZZZ	
 		append combinedArray #(pt,angleCal)
 		)
 			
-	-- ÓÒ±ß	
+	-- å³è¾¹	
 		angleGoalR = 90
-		currR = combinedArray[1][2]	 --µÚÒ»¸öied¶ÈÊı
-		currvertR = combinedArray[1][1]	--µÚÒ»¸öµÄµãĞòºÅ
+		currR = combinedArray[1][2]	 --ç¬¬ä¸€ä¸ªiedåº¦æ•°
+		currvertR = combinedArray[1][1]	--ç¬¬ä¸€ä¸ªçš„ç‚¹åºå·
 		for i in combinedArray do
 			(
 			if 	abs(angleGoalR - i[2])<abs(angleGoalR - currR) then
@@ -265,7 +265,7 @@ fn getFourDirVert vert =  ---ÒÀ´Î·µ»ØÓÒ×óÉÏÏÂµÄ×î½üµã¶ù£¬Ïà¶ÔÊÓÍ¼
 				)
 			)
 		append PVAll_right currvertR
-	-- ×ó±ß		
+	-- å·¦è¾¹		
 		angleGoalL = -90
 		currL = combinedArray[1][2]	
 		currvertL =  combinedArray[1][1]		
@@ -278,7 +278,7 @@ fn getFourDirVert vert =  ---ÒÀ´Î·µ»ØÓÒ×óÉÏÏÂµÄ×î½üµã¶ù£¬Ïà¶ÔÊÓÍ¼
 				)
 			)
 		append PVAll_left currvertL
-	-- ÉÏ±ß		
+	-- ä¸Šè¾¹		
 		angleGoalUp = 0
 		currUp = combinedArray[1][2]	
 		currvertUp =  combinedArray[1][1]	
@@ -293,7 +293,7 @@ fn getFourDirVert vert =  ---ÒÀ´Î·µ»ØÓÒ×óÉÏÏÂµÄ×î½üµã¶ù£¬Ïà¶ÔÊÓÍ¼
 				
 			)
 		append PVAll_up currvertUp
--- ÏÂ±ß		
+-- ä¸‹è¾¹		
 	angleGoalDown = 180  
 	currDown = combinedArray[1][2]	
 	currvertDown =  combinedArray[1][1]	
@@ -307,7 +307,7 @@ fn getFourDirVert vert =  ---ÒÀ´Î·µ»ØÓÒ×óÉÏÏÂµÄ×î½üµã¶ù£¬Ïà¶ÔÊÓÍ¼
 			(
 			currDown =i[2]
 			currvertDown = i[1]	
--- 		    print "ÏÂ±ß"
+-- 		    print "ä¸‹è¾¹"
 -- 			print (angleGoalDown - i[2])
 -- 			print currvertDown
 			)	
@@ -317,7 +317,7 @@ fn getFourDirVert vert =  ---ÒÀ´Î·µ»ØÓÒ×óÉÏÏÂµÄ×î½üµã¶ù£¬Ïà¶ÔÊÓÍ¼
 			(
 			currDown =i[2]
 			currvertDown = i[1]	
--- 		    print "ÏÂ±ß"
+-- 		    print "ä¸‹è¾¹"
 -- 			print (angleGoalDown - i[2])
 -- 			print currvertDown
 			)
@@ -327,19 +327,19 @@ fn getFourDirVert vert =  ---ÒÀ´Î·µ»ØÓÒ×óÉÏÏÂµÄ×î½üµã¶ù£¬Ïà¶ÔÊÓÍ¼
 		return #(PVAll_right[1],PVAll_left[1],PVAll_up[1],PVAll_down[1])	
 	
 )
-fn setFourDirVert selDirection =   ---ÒÆ¶¯Ñ¡Ôñµã¶ù
+fn setFourDirVert selDirection =   ---ç§»åŠ¨é€‰æ‹©ç‚¹å„¿
 (
 		
 	sk = modpanel.getcurrentobject() 
 	if sk as string == "Skin:Skin" then
 	(
-		-- ÃÉÆ¤µãÄ£Ê½
+		-- è’™çš®ç‚¹æ¨¡å¼
 		obj = selection[1] --get selected object
 		PVselvert = #()
 			for i = 1 to skinops.getnumbervertices sk do
 			(
 				if (skinOps.IsVertexSelected sk i) == 1 then append PVselvert i
-			)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid
+			)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id
 		-- print PVselvert
 		selVertexsArray = #{}
 		for vert in (PVselvert as array) do
@@ -349,18 +349,18 @@ fn setFourDirVert selDirection =   ---ÒÆ¶¯Ñ¡Ôñµã¶ù
 			if selDirection =="up" then (append selVertexsArray (getFourDirVert vert)[3])
 			if selDirection =="down" then (append selVertexsArray (getFourDirVert vert)[4])
 			
--- 			append selVertexsArray vert  ---¼ÓÑ¡ÓÃ
+-- 			append selVertexsArray vert  ---åŠ é€‰ç”¨
 		)
 		skinOps.SelectVertices sk selVertexsArray;	sk.effect = 0
 	)	
 	
 	else if sk as string == "Editable Poly" then
 	(
-		-- polyÄ£Ê½
+		-- polyæ¨¡å¼
 		obj = selection[1] --get selected object
 		PVselvert = polyop.getVertSelection obj
 		selVertexsArray = #{}
-		-- ËùÑ¡µãÑ­»·
+		-- æ‰€é€‰ç‚¹å¾ªç¯
 
 		for vert in (PVselvert as array) do
 		(
@@ -368,26 +368,26 @@ fn setFourDirVert selDirection =   ---ÒÆ¶¯Ñ¡Ôñµã¶ù
 			if selDirection =="left" then (append selVertexsArray (getFourDirVert vert)[2])
 			if selDirection =="up" then (append selVertexsArray (getFourDirVert vert)[3])
 			if selDirection =="down" then (append selVertexsArray (getFourDirVert vert)[4])			
--- 			append selVertexsArray vert  ---¼ÓÑ¡ÓÃ
+-- 			append selVertexsArray vert  ---åŠ é€‰ç”¨
 		)
 		
 		
 		obj.EditablePoly.SetSelection #Vertex selVertexsArray
 	)
-	else (messageBox "²»ÊÇPoly»òSkin")
+	else (messageBox "ä¸æ˜¯Polyæˆ–Skin")
 )
-fn setFourDirVert_add selDirection =   --¼ÓÑ¡µã¶ù
+fn setFourDirVert_add selDirection =   --åŠ é€‰ç‚¹å„¿
 (
 	sk = modpanel.getcurrentobject() 
 	if sk as string == "Skin:Skin" then
 	(
-		-- ÃÉÆ¤µãÄ£Ê½
+		-- è’™çš®ç‚¹æ¨¡å¼
 		obj = selection[1] --get selected object
 		PVselvert = #()
 			for i = 1 to skinops.getnumbervertices sk do
 			(
 				if (skinOps.IsVertexSelected sk i) == 1 then append PVselvert i
-			)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid
+			)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id
 		-- print PVselvert
 		selVertexsArray = #{}
 		for vert in (PVselvert as array) do
@@ -397,18 +397,18 @@ fn setFourDirVert_add selDirection =   --¼ÓÑ¡µã¶ù
 			if selDirection =="up" then (append selVertexsArray (getFourDirVert vert)[3])
 			if selDirection =="down" then (append selVertexsArray (getFourDirVert vert)[4])
 			
-			append selVertexsArray vert  ---¼ÓÑ¡ÓÃ
+			append selVertexsArray vert  ---åŠ é€‰ç”¨
 		)
 		skinOps.SelectVertices sk selVertexsArray;	sk.effect = 0
 	)	
 	
 	else if sk as string == "Editable Poly" then
 	(
-		-- polyÄ£Ê½
+		-- polyæ¨¡å¼
 		obj = selection[1] --get selected object
 		PVselvert = polyop.getVertSelection obj
 		selVertexsArray = #{}
-		-- ËùÑ¡µãÑ­»·
+		-- æ‰€é€‰ç‚¹å¾ªç¯
 
 		for vert in (PVselvert as array) do
 		(
@@ -417,28 +417,28 @@ fn setFourDirVert_add selDirection =   --¼ÓÑ¡µã¶ù
 			if selDirection =="up" then (append selVertexsArray (getFourDirVert vert)[3])
 			if selDirection =="down" then (append selVertexsArray (getFourDirVert vert)[4])
 			
-			append selVertexsArray vert  ---¼ÓÑ¡ÓÃ
+			append selVertexsArray vert  ---åŠ é€‰ç”¨
 		)
 		obj.EditablePoly.SetSelection #Vertex selVertexsArray
 	)
-	else (messageBox "²»ÊÇPoly»òSkin")
+	else (messageBox "ä¸æ˜¯Polyæˆ–Skin")
 )
 fn yunSkinOther_selRing =
 (	
 	obj = selection[1] --get selected object
-	-- polyÄ£Ê½
+	-- polyæ¨¡å¼
 	PVselvert = #{155}
 	PVselvert = polyop.getVertSelection obj
 	PVAll_left = #()
 	PVAll_right= #()
 	PVAll_up = #()
 	PVAll_down = #()
-	combinedArray = #()  --µãºÍ¶ÈÊı		
+	combinedArray = #()  --ç‚¹å’Œåº¦æ•°		
 	clearListener()
-	seledVertexs = (polyop.getVertSelection obj) as array  -----µ±Ç°Ñ¡ÔñµÄµã¶ù
+	seledVertexs = (polyop.getVertSelection obj) as array  -----å½“å‰é€‰æ‹©çš„ç‚¹å„¿
 	polyVertexOne = vert =(seledVertexs[1])	
 	Ori_Pos = polyOp.getVert obj polyVertexOne 	
-	normalVec = getVertexNormal polyVertexOne --·¨ÏòÁ¿	
+	normalVec = getVertexNormal polyVertexOne --æ³•å‘é‡	
 
 	if seledVertexs.count==1 then (nearByert = getFourDirVert polyVertexOne;lastVertexPos = polyOp.getVert obj nearByert[1])
 	else (lastVertexPos = polyOp.getVert obj (seledVertexs[seledVertexs.count]))	
@@ -453,13 +453,13 @@ fn yunSkinOther_selRing =
 		p2plane.name = "yunLoopVertexSel"
 		p3plane.isHidden = true	
 		p3plane.name = "yunLoopVertexSelFatherHiden"
-	-- 		ÖĞĞÄÖØÖÃ
+	-- 		ä¸­å¿ƒé‡ç½®
 		mapped fn center_pivot o =(o.pivot = o.center)  undo on (center_pivot $yunLoopVertexSel)	
 		in coordsys parent $yunLoopVertexSel.pos = [0,0,0]
 		p2plane.xray = on
 	)
 	g = Ori_Pos+normalVec*20
-	r = Ori_Pos   ----ÖĞĞÄÔÚÕâÀï
+	r = Ori_Pos   ----ä¸­å¿ƒåœ¨è¿™é‡Œ
 	b = lastVertexPos
 
 	v1 = normalize (g - r)
@@ -478,7 +478,7 @@ try(closerolloutfloater  Xr_SkinTools_UI )catch()
 
 global yunSkinTools_mode 
 yunSkinTools_mode  = 1
-rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
+rollout Xr_WeightTool	"æƒé‡å·¥å…·"
 (
 	local UpdataSMUI
 	local sVerCount = 0
@@ -491,12 +491,12 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 	local MS_Class = 0
 	
 	
-	checkbutton Xr_Btn_EditSkin ">>>   ±à¼­·âÌ×   <<<" pos:[10,6] width:175 height:24
+	checkbutton Xr_Btn_EditSkin ">>>   ç¼–è¾‘å°å¥—   <<<" pos:[10,6] width:175 height:24
 
-	button Xr_Btn_Shrink "ÊÕËõ" pos:[6,36] width:43 height:24
-	button Xr_Btn_Grow "À©´ó" pos:[52,36] width:43 height:24
-	button Xr_Btn_Ring "»·" pos:[101,36] width:43 height:24
-	button Xr_Btn_Loop "Ñ­»·" pos:[150,36] width:43 height:24
+	button Xr_Btn_Shrink "æ”¶ç¼©" pos:[6,36] width:43 height:24
+	button Xr_Btn_Grow "æ‰©å¤§" pos:[52,36] width:43 height:24
+	button Xr_Btn_Ring "ç¯" pos:[101,36] width:43 height:24
+	button Xr_Btn_Loop "å¾ªç¯" pos:[150,36] width:43 height:24
 	
 	button 'Xr_Btn_WeightsValue0' "0" pos:[6,66] width:20 height:20 
 	button 'Xr_Btn_WeightsValue0.1' ".1" pos:[32,66] width:20 height:20
@@ -506,36 +506,41 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 	button 'Xr_Btn_WeightsValue0.9' ".9" pos:[147,66] width:20 height:20
 	button 'Xr_Btn_WeightsValue1' "1" pos:[173,66] width:20 height:20
 	
-	button Xr_Btn_SetWeights ">ÉèÖÃÈ¨ÖØ<" pos:[6,96] width:66 height:24
+	button Xr_Btn_SetWeights ">è®¾ç½®æƒé‡<" pos:[6,96] width:66 height:24
 	spinner Xr_Btn_SetWeightsValue ""  pos:[75,101] width:55 height:16 range:[0,1,0.5] type:#float scale:0.01
 	button Xr_Btn_SetWeightsAdd "+" pos:[139,98] width:25 height:22
 	button Xr_Btn_SetWeightsReduce "-" pos:[168,98] width:25 height:22
 	
-	button Xr_Btn_WeightsCopy "¸´ÖÆ" pos:[6,128] width:40 height:24
-	button Xr_Btn_WeightsPaste "Õ³Ìù" pos:[50,128] width:40 height:24
-	button Xr_Btn_WeightsPastePoss "Õ³Ìù×ËÌ¬" pos:[95,128] width:55 height:24
-	button Xr_Btn_WeightsBlend "»ìºÏ" pos:[153,128] width:40 height:24
+	button Xr_Btn_WeightsCopy "å¤åˆ¶" pos:[6,128] width:40 height:24
+	button Xr_Btn_WeightsPaste "ç²˜è´´" pos:[50,128] width:40 height:24
+	button Xr_Btn_WeightsPastePoss "ç²˜è´´å§¿æ€" pos:[95,128] width:55 height:24
+	button Xr_Btn_WeightsBlend "æ··åˆ" pos:[153,128] width:40 height:24
 	
-	label Xr_Lbl_vCount "0 Ñ¡¶¨µÄ¶¥µã" pos:[16,161] width:160
+	label Xr_Lbl_vCount "0 é€‰å®šçš„é¡¶ç‚¹" pos:[16,161] width:160
 	listbox Xr_Lbx_BoneList "" pos:[6,177] width:185 height:7 selection:1
-	label Xr_Lbl_ShowBones "ÃÉÆ¤¹Ç÷ÀÊı: ***" pos:[80,279] width:160
+	label Xr_Lbl_ShowBones "è’™çš®éª¨éª¼æ•°: ***" pos:[80,279] width:160
 	
-	button Xr_Btn_SelectVertex "Ñ¡Ôñ¶¥µã" pos:[6, 300] width:88 height:24 tooltip:"Ñ¡Ôñµ±Ç°·âÌ×»ò¹Ç÷ÀµÄËùÓĞÈ¨ÖØ¶¥µã" 
-	button Xr_Btn_SelectMirrorVertex "¾µÏñÑ¡Ôñ¶¥µã" pos:[105, 300] width:85 height:24 tooltip:"¾µÏñÑ¡Ôñµ±Ç°·âÌ×»ò¹Ç÷ÀµÄËùÓĞÈ¨ÖØ¶¥µã" 
+	button Xr_Btn_SelectVertex "é€‰æ‹©é¡¶ç‚¹" pos:[6, 300] width:88 height:24 tooltip:"é€‰æ‹©å½“å‰å°å¥—æˆ–éª¨éª¼çš„æ‰€æœ‰æƒé‡é¡¶ç‚¹" 
+	button Xr_Btn_SelectMirrorVertex "é•œåƒé€‰æ‹©é¡¶ç‚¹" pos:[105, 300] width:85 height:24 tooltip:"é•œåƒé€‰æ‹©å½“å‰å°å¥—æˆ–éª¨éª¼çš„æ‰€æœ‰æƒé‡é¡¶ç‚¹" 
 	
 	groupBox Xr_GroupBox_1 "" pos:[5,324] width:185 height:105 align:#left	
 	
-	spinner Xr_Spn_ZeroLimit "ÒÆ³ıÁãÏŞÖÆ:" pos:[42,344] width:83 range:[0,1,0.005] scale:0.001 type:#float
-	button Xr_Btn_LimitRemove "ÒÆ³ı" pos:[128, 340] width:56
-	spinner Xr_Spn_MaxBoneCount "¹Ç÷ÀÓ°Ïì:" pos:[42,375] width:83 range:[1,8,4] type:#integer
-	button Xr_Btn_BoneRematch "È·¶¨" pos:[128, 371] width:56
+	spinner Xr_Spn_ZeroLimit "ç§»é™¤é›¶é™åˆ¶:" pos:[42,344] width:83 range:[0,1,0.005] scale:0.001 type:#float
+	button Xr_Btn_LimitRemove "ç§»é™¤" pos:[128, 340] width:56
+	spinner Xr_Spn_MaxBoneCount "éª¨éª¼å½±å“:" pos:[42,375] width:83 range:[1,8,4] type:#integer
+	button Xr_Btn_BoneRematch "ç¡®å®š" pos:[128, 371] width:56
 	
-	button Xr_Btn_RemoveUnuseBone "ÒÆ³ıÎ´ÓÃ¹Ç÷À" pos:[10,401] width:83 height:23
+	button Xr_Btn_RemoveUnuseBone "ç§»é™¤æœªç”¨éª¨éª¼" pos:[10,401] width:83 height:23
 	
-	button Xr_Btn_WeightTransfer "È¨ÖØ×ªÒÆ" pos:[102,401] width:83 height:23
+	button Xr_Btn_WeightTransfer "æƒé‡è½¬ç§»" pos:[102,401] width:83 height:23
+	
+	---æ£€æŸ¥è’™çš®æ¨¡å¼å·²ç»å¼€å¯
 	fn checkSkinModifierWorking = (
 		return ((try(classof $.modifiers[#Skin] == Skin)catch(false)) and (getCommandPanelTaskMode() == #modify) and (classof (modPanel.getCurrentObject()) == Skin))
 	)
+	
+	
+	------å®æ—¶åˆ·æ–°æƒé‡åˆ—è¡¨å›è°ƒ
 	fn UpdataSMUI =
 	(
 		if checkSkinModifierWorking() then
@@ -551,7 +556,7 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 					fSelVer = i
 				)
 			)
-			Xr_Lbl_vCount.text = (sVerCount as String) + " Ñ¡¶¨µÄ¶¥µã"
+			Xr_Lbl_vCount.text = (sVerCount as String) + " é€‰å®šçš„é¡¶ç‚¹"
 			LSI = 0
 			if fSelVer > 0  then
 			(
@@ -578,17 +583,21 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 				Xr_Lbx_BoneList.items = #()
 			)
 			sVerCount = 0
-			Xr_Lbl_ShowBones.text = "ÃÉÆ¤¹Ç÷ÀÊı: " + ((skinOps.GetNumberBones $.modifiers[#Skin]) as String)
+			Xr_Lbl_ShowBones.text = "è’™çš®éª¨éª¼æ•°: " + ((skinOps.GetNumberBones $.modifiers[#Skin]) as String)
 			
 		)
 		else
 		(
 			sVerCount = 0
-			Xr_Lbl_vCount.text = "0 Ñ¡¶¨µÄ¶¥µã"
-			Xr_Lbl_ShowBones.text =  "ÃÉÆ¤¹Ç÷ÀÊı: ***"
+			Xr_Lbl_vCount.text = "0 é€‰å®šçš„é¡¶ç‚¹"
+			Xr_Lbl_ShowBones.text =  "è’™çš®éª¨éª¼æ•°: ***"
 			Xr_Lbx_BoneList.items = #()
 		)
 	)
+	
+		---åˆ·æ–°æƒé‡è¡¨çš„timer
+	timer skinList "skinList" interval:800 --tick once a second
+	on skinList tick do(	UpdataSMUI())
 	
 	fn readObjectVerts obj =
 	(
@@ -611,7 +620,7 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 		axisoffset = (b-c)
 		oxlist = #()
 	)
-
+-----è·å–é•œåƒç‚¹å„¿
 	fn mirrorVerts SelVerts =
 	(
 		enableUpdate = false
@@ -674,7 +683,7 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 		)
 		return mirrorSel
 	)
-	-------------------------------------------È¨ÖØ×ªÒÆ
+	-------------------------------------------æƒé‡è½¬ç§»
 	fn collectSkinBones sk = 
 	(
 		a = #()
@@ -719,7 +728,7 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 	)
 	fn getTargetPair sk = 
 	(
-		sel = selectByName title:"½«ÖØÁ¿×ªÒÆµ½£¿" single:true
+		sel = selectByName title:"å°†é‡é‡è½¬ç§»åˆ°ï¼Ÿ" single:true
 		s = findItem (collectSkinBones sk) sel -- no find return 0
 	)
 	
@@ -729,7 +738,7 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 		sk = modpanel.getcurrentobject() 
 		if not iskindof sk Skin then
 		(
-			messagebox "ÃÉÆ¤ĞŞ¸ÄÆ÷±ØĞëÔÚ¡°ĞŞ¸ÄÆ÷¡±Ãæ°åÖĞ´ò¿ª" 
+			messagebox "è’™çš®ä¿®æ”¹å™¨å¿…é¡»åœ¨â€œä¿®æ”¹å™¨â€é¢æ¿ä¸­æ‰“å¼€" 
 		)
 		else
 		(
@@ -742,7 +751,7 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 		)
 
 	)
-	-------------------------------------------È¨ÖØ×ªÒÆEnd
+	-------------------------------------------æƒé‡è½¬ç§»End
 	
 	on Xr_Btn_EditSkin changed state  do
 	(
@@ -864,7 +873,7 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 	(
 		try(skinOps.pasteWeights $.modifiers[#Skin])catch()
 		UpdataSMUI()
-		)
+		)t
 		
 	on Xr_Btn_WeightsPastePoss pressed do
 	(
@@ -1047,10 +1056,17 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 	)
 	fn UpdataSMUI_exc=
 	(
-		if (findItem  mouse.buttonStates 1)	==1 or
-		keyboard.altPressed or 
-		keyboard.shiftPressed or
-		keyboard.controlPressed do (UpdataSMUI())
+		if not Xr_SkinBrush == undefined do
+		(
+		if not Xr_SkinBrush.open and Xr_WeightTool.open do	
+		(
+				if 	(findItem  mouse.buttonStates 1)	==1 --or  -----å•å‡»åˆ·æ–°
+		-- 		keyboard.altPressed or 
+		-- 		keyboard.shiftPressed or
+		-- 		keyboard.controlPressed and				
+			do  (UpdataSMUI()	)		
+		)
+		)
 	)
 	
 	on Xr_WeightTool open do
@@ -1065,21 +1081,28 @@ rollout Xr_WeightTool	"È¨ÖØ¹¤¾ß"
 		)
 		
 )
-rollout Xr_SkinBrush "±ÊË¢ " 
+	try (makeDir @"D:\yunSets\skinTool") catch()
+	paintBrushDate =("D:\yunSets\skinTool\brush.ini")
+rollout Xr_SkinBrush "ç¬”åˆ· " 
 (
-	button Xr_Btn_Paints ">>>   ¿ªÆô±ÊË¢   <<<"  pos:[10,6] width:175 height:24 toolTip:"°´shift¼ü0.5sÇĞ»»±ÊË¢"
-	checkbutton Xr_Btn_Blends "»æÖÆ»ìºÏÈ¨ÖØ" pos:[10,37] width:175 height:23
+	
+
+
+	button Xr_Btn_Paints ">>>   ç¬”åˆ·ï¼šOFF   <<<"  pos:[10,6] width:175 height:24 toolTip:"æŒ‰shifté”®0.5såˆ‡æ¢ç¬”åˆ·"
+	checkbutton Xr_Btn_Blends "ç»˜åˆ¶æ··åˆæƒé‡" pos:[10,37] width:175 height:23
 	
 	groupBox Xr_GroupBox_2 "" pos:[5,65] width:185 height:125 align:#left	
 	
-	spinner Xr_WeightIntValue "È¨ÖØÇ¿¶È:  " pos:[16,80] width:160 height:16 range:[-999,999,1] scale:0.1
-	spinner Xr_PaintsSizeValue "³ß´ç´óĞ¡:  " pos:[16,100] width:160 height:16 range:[0,999,1] scale:0.1
+-- 	spinner Xr_WeightIntValue_ori "" pos:[10,80] width:50 height:16 range:[-999,999,1] scale:0.01
 
-	checkBox Xr_PaintsMirror "¾µÏñ" pos:[25,125] checked:false
+	spinner Xr_WeightIntValue "å¼ºåº¦-->" pos:[16,80] width:160 height:16 range:[-999,999,0.02] scale:0.01
+	spinner Xr_PaintsSizeValue "å¤§å°-->" pos:[16,100] width:160 height:16 range:[0,999,1] scale:0.1
+
+	checkBox Xr_PaintsMirror "é•œåƒ" pos:[25,125] checked:false
 	dropdownlist Xr_PaintsMirror_Axle "" pos:[80,123] enabled:false items:#("X","Y","Z") width:50
 	
-	spinner Xr_PaintsMirror_Offset "¾µÏñÆ«ÒÆ:  " pos:[16,148] width:160 height:16 range:[-1e+006,1e+006,0] scale:0.001
-	spinner Xr_PaintsMirror_GizmoSize "Gizmo´óĞ¡:" pos:[16,171]  width:160 height:16 range:[0,1e+006,1] scale:0.001
+	spinner Xr_PaintsMirror_Offset "é•œåƒåç§»:  " pos:[16,148] width:160 height:16 range:[-1e+006,1e+006,0] scale:0.001
+	spinner Xr_PaintsMirror_GizmoSize "Gizmoå¤§å°:" pos:[16,171]  width:160 height:16 range:[0,1e+006,1] scale:0.001
 	
 	on Xr_Btn_Paints pressed do
 	(
@@ -1095,8 +1118,27 @@ rollout Xr_SkinBrush "±ÊË¢ "
 					selection[1].modifiers[#Skin].showNoEnvelopes = on
 					skinOps.paintWeightsButton selection[1].modifiers[#Skin]
 					thePainterInterface.maxStr = Xr_WeightIntValue.value
+					if Xr_Btn_Paints.text == ">>>   ç¬”åˆ·ï¼šOFF   <<<" then (Xr_Btn_Paints.text = ">>>   ç¬”åˆ·ï¼šON   <<<")
+					else (Xr_Btn_Paints.text = ">>>   ç¬”åˆ·ï¼šOFF   <<<")
+					
+					
+					if Xr_SkinBrush.Xr_Btn_Blends.state then 
+					(
+						Xr_WeightIntValue.value = (getINISetting paintBrushDate   "brush" "strength_Blend") as float
+						thePainterInterface.maxStr = Xr_WeightIntValue.value
+					)
+					else
+					(
+					Xr_WeightIntValue.value = (getINISetting paintBrushDate   "brush" "strength") as float
+					thePainterInterface.maxStr = Xr_WeightIntValue.value
+					)
+					Xr_PaintsSizeValue.value = (getINISetting paintBrushDate   "brush" "size") as float
+					thePainterInterface.maxSize  = Xr_PaintsSizeValue.value
+					
+					
+					
 				)
-				else(messageBox "ÇëÑ¡ÔñÃÉÆ¤Ä£ĞÍ ")
+				else(messageBox "è¯·é€‰æ‹©è’™çš®æ¨¡å‹ ")
 			)catch()
 		)
 	
@@ -1106,16 +1148,17 @@ rollout Xr_SkinBrush "±ÊË¢ "
 				if Xr_Btn_Blends.state == true then
 					(
 						$.modifiers[#Skin].paintBlendMode = on
-						thePainterInterface.maxStr = 2
-						Xr_WeightIntValue.value =2
+						Xr_WeightIntValue.value = (getINISetting paintBrushDate   "brush" "strength_Blend") as float
+						thePainterInterface.maxStr = Xr_WeightIntValue.value
+						
 						
 						)
 				else
 						(
 							$.modifiers[#Skin].paintBlendMode = off
 							
-							thePainterInterface.maxStr = 0.01
-							Xr_WeightIntValue.value=0.01
+							Xr_WeightIntValue.value = (getINISetting paintBrushDate   "brush" "strength") as float
+							thePainterInterface.maxStr = Xr_WeightIntValue.value
 							
 							)
 				)catch()
@@ -1126,6 +1169,18 @@ rollout Xr_SkinBrush "±ÊË¢ "
 		try(
 				Xr_WeightIntValue.value = val 
 				thePainterInterface.maxStr = Xr_WeightIntValue.value
+				
+				
+				if Xr_SkinBrush.Xr_Btn_Blends.state then 
+				(
+					delIniSetting paintBrushDate  "brush"  "strength_Blend"  
+					setINISetting paintBrushDate  "brush" "strength_Blend"  (thePainterInterface.maxStr as string)
+				)
+				else 
+				(
+					delIniSetting paintBrushDate  "brush"  "strength"  
+					setINISetting paintBrushDate  "brush" "strength"  (thePainterInterface.maxStr as string)	
+				)
 				)catch()
 		)	
 		
@@ -1134,6 +1189,9 @@ rollout Xr_SkinBrush "±ÊË¢ "
 		try(
 				Xr_PaintsSizeValue.value = val 
 				thePainterInterface.maxSize  = Xr_PaintsSizeValue.value
+			
+				delIniSetting paintBrushDate  "brush" "size"  
+				setINISetting paintBrushDate  "brush"  "size"  (thePainterInterface.maxSize as string)			
 				)catch()
 		)
 	
@@ -1167,63 +1225,63 @@ rollout Xr_SkinBrush "±ÊË¢ "
 		)
 		
 )
-rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
+rollout Xr_SkinCheck "è’™çš®æ£€æŸ¥"
 (
-	local un_id =#() 					---ÎŞÈ¨ÖØµÄ¹Ç÷ÀID
-	local Un_BoneName =#() 			--ÎŞÈ¨ÖØ¹Ç÷ÀÃû×Ö
-	local objSkin  					---¼ñÈ¡µÄÃÉÆ¤ĞÅÏ¢
-	local val_num =100   				---È¨ÖØÎ»Êı£¬Ä¬ÈÏ0.001
-	local skin_num = 0 				---ÃÉÆ¤¹Ç÷ÀÊı
+	local un_id =#() 					---æ— æƒé‡çš„éª¨éª¼ID
+	local Un_BoneName =#() 			--æ— æƒé‡éª¨éª¼åå­—
+	local objSkin  					---æ¡å–çš„è’™çš®ä¿¡æ¯
+	local val_num =100   				---æƒé‡ä½æ•°ï¼Œé»˜è®¤0.001
+	local skin_num = 0 				---è’™çš®éª¨éª¼æ•°
 	local Bone_Name =#()
 	
-	button Xr_Btn_SkinCheck ">>>   ¼ì²éÃÉÆ¤   <<<" pos:[10,6] width:175 height:24
-	listbox Xr_Btn_SkinCheckNoWeight "ÎŞÈ¨ÖØµÄ¹Ç÷À£º" tooltip:"Ë«»÷»òÕßÓÒ»÷Ñ¡ÔñÉ¾³ı"
-	button Xr_Btn_Quick_Remove "È«²¿ÒÆ³ı" pos:[10,193] width:175 height:24 tooltip:"ÒÆ³ıÁĞ±íÖĞËùÓĞÎŞÈ¨ÖØ¹Ç÷À" 
-	button 'Xr_Btn_Batch_Remove_0.001' "0.001" pos:[9,220] width:85 height:23 toolTip:"È¥³ı0.001Î»È¨ÖØ"
-	button 'Xr_Btn_Batch_Remove_0.01' "0.01" pos:[100,220] width:85 height:23 toolTip:"È¥³ı0.001Î»È¨ÖØ"
-	button 'Xr_Btn_Batch_check' "¼ì²é¹æ·¶" pos:[9,248] width:85 height:23 toolTip:"¼ì²éÊÇ·ñ·ûºÏÃÉÆ¤¹æ·¶"
-	button 'Xr_Btn_Batch_fix' "ĞŞ¸´" pos:[100,248] width:85 height:23 toolTip:"³¢ÊÔĞŞ¸´"
-	progressBar QR_bar  color:blue		---½ø¶ÈÌõ
+	button Xr_Btn_SkinCheck ">>>   æ£€æŸ¥è’™çš®   <<<" pos:[10,6] width:175 height:24
+	listbox Xr_Btn_SkinCheckNoWeight "æ— æƒé‡çš„éª¨éª¼ï¼š" tooltip:"åŒå‡»æˆ–è€…å³å‡»é€‰æ‹©åˆ é™¤"
+	button Xr_Btn_Quick_Remove "å…¨éƒ¨ç§»é™¤" pos:[10,193] width:175 height:24 tooltip:"ç§»é™¤åˆ—è¡¨ä¸­æ‰€æœ‰æ— æƒé‡éª¨éª¼" 
+	button 'Xr_Btn_Batch_Remove_0.001' "0.001" pos:[9,220] width:85 height:23 toolTip:"å»é™¤0.001ä½æƒé‡"
+	button 'Xr_Btn_Batch_Remove_0.01' "0.01" pos:[100,220] width:85 height:23 toolTip:"å»é™¤0.001ä½æƒé‡"
+	button 'Xr_Btn_Batch_check' "æ£€æŸ¥è§„èŒƒ" pos:[9,248] width:85 height:23 toolTip:"æ£€æŸ¥æ˜¯å¦ç¬¦åˆè’™çš®è§„èŒƒ"
+	button 'Xr_Btn_Batch_fix' "ä¿®å¤" pos:[100,248] width:85 height:23 toolTip:"å°è¯•ä¿®å¤"
+	progressBar QR_bar  color:blue		---è¿›åº¦æ¡
 		on Xr_Btn_Batch_check pressed do
 	(
 		max modify mode
 		poly = selection as array
-		-- Ã»ÓĞÑ¡ÔñÎïÌå
+		-- æ²¡æœ‰é€‰æ‹©ç‰©ä½“
 		if poly.count<1 do 
 		(
-			--Ñ¡ÔñËùÓĞ
+			--é€‰æ‹©æ‰€æœ‰
 			allPoly = (for o in geometry where classOf o == PolyMeshObject collect o)
 			poly = allPoly
 		) 
-		---±¨´íĞÅÏ¢
+		---æŠ¥é”™ä¿¡æ¯
 		messInfo = ""
 		--   for i in poly do (	print(i.name))
 		--   o = poly[1]
 		for o in poly do
 		(
 			-- 	select o
-			messInfo += "¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª\n"
+			messInfo += "â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”\n"
 			messInfo +=o.name+":\n"
 			modNum = o.modifiers
 			if modNum.count ==1 then
 			(
-				--¼ì²éÊÇ²»ÊÇ¶à±ßĞÎ
-				if classOf o.baseObject != Editable_poly  do (messInfo+= "²»ÊÇ¶à±ßĞÎ£¬Çë¼ì²é£¡£¡  \n")
-				--¼ì²éÎ»ÒÆ
-				if o.pos !=  [0,0,0] do (messInfo+= "Ä£ĞÍÎ»ÖÃÃ»ÓĞ¹éÁã£¡£¡  \n")
-				if o.rotation !=  (quat 0.707107 0 0 0.707107) do (messInfo+= "Ä£ĞÍĞı×ªÃ»ÓĞµ÷³É£¨90£¬0£¬0£©£¡£¡  \n")		
-				--¼ì²éÃÉÆ¤
+				--æ£€æŸ¥æ˜¯ä¸æ˜¯å¤šè¾¹å½¢
+				if classOf o.baseObject != Editable_poly  do (messInfo+= "ä¸æ˜¯å¤šè¾¹å½¢ï¼Œè¯·æ£€æŸ¥ï¼ï¼  \n")
+				--æ£€æŸ¥ä½ç§»
+				if o.pos !=  [0,0,0] do (messInfo+= "æ¨¡å‹ä½ç½®æ²¡æœ‰å½’é›¶ï¼ï¼  \n")
+				if o.rotation !=  (quat 0.707107 0 0 0.707107) do (messInfo+= "æ¨¡å‹æ—‹è½¬æ²¡æœ‰è°ƒæˆï¼ˆ90ï¼Œ0ï¼Œ0ï¼‰ï¼ï¼  \n")		
+				--æ£€æŸ¥è’™çš®
 				modPanel.setCurrentObject  o.modifiers[modNum.count]		
 				sk = modpanel.getcurrentobject()
 				if classof sk == skin then 
 				(
-					if sk.always_deform == false do ( messInfo+= "Î´¿ª×ÜÊÇÓ°Ïì£¡£¡  \n")
-					if sk.bone_Limit != 4 do (messInfo+= "¹Ç÷ÀÓ°Ïì²»ÊÇ4¸ù£¡£¡  \n")			
-					if sk.ref_frame !=0 do (messInfo+= "²Î¿¼Ö¡²»ÔÚ 0f£¡£¡   \n")		
+					if sk.always_deform == false do ( messInfo+= "æœªå¼€æ€»æ˜¯å½±å“ï¼ï¼  \n")
+					if sk.bone_Limit != 4 do (messInfo+= "éª¨éª¼å½±å“ä¸æ˜¯4æ ¹ï¼ï¼  \n")			
+					if sk.ref_frame !=0 do (messInfo+= "å‚è€ƒå¸§ä¸åœ¨ 0fï¼ï¼   \n")		
 				)
-				else(messInfo+= "ÃÉÆ¤ĞŞ¸ÄÆ÷Î´¼¤»î£¡£¡  \n")		
+				else(messInfo+= "è’™çš®ä¿®æ”¹å™¨æœªæ¿€æ´»ï¼ï¼  \n")		
 			)
-			else (messInfo+= "ÓĞ¶à¸öĞŞ¸ÄÆ÷£¬Çë¼ì²éÊÇ·ñÎ´ËúÏİbonepro£¡£¡ \n")
+			else (messInfo+= "æœ‰å¤šä¸ªä¿®æ”¹å™¨ï¼Œè¯·æ£€æŸ¥æ˜¯å¦æœªå¡Œé™·boneproï¼ï¼ \n")
 		)
 		messageBox messInfo
 		select poly			
@@ -1233,7 +1291,7 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 	(
 		max modify mode
 		--    o = poly[1]
-		-- ĞŞ¸´
+		-- ä¿®å¤
 		poly = selection as array
 		for o in poly do
 		(
@@ -1254,37 +1312,37 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 		select poly			
 	)
 	
-	fn UnSkinBoneId   =  ---²éÕÒÎŞÈ¨ÖØ¹Ç÷ÀID
+	fn UnSkinBoneId   =  ---æŸ¥æ‰¾æ— æƒé‡éª¨éª¼ID
 	(
 		
-		skin_index=#{1.. skin_num} --¹Ç÷ÀÃÉÆ¤IDÁĞ±í
+		skin_index=#{1.. skin_num} --éª¨éª¼è’™çš®IDåˆ—è¡¨
 		
-		numSkinVerts = #{1..(skinOps.getNumberVertices objSkin)} --»ñÈ¡²ÎÓëÃÉÆ¤µÄµã
+		numSkinVerts = #{1..(skinOps.getNumberVertices objSkin)} --è·å–å‚ä¸è’™çš®çš„ç‚¹
 		
-		global SkinBoneID = #()  --ÓĞÈ¨ÖØ¹Ç÷ÀID¼¯ºÏ
+		global SkinBoneID = #()  --æœ‰æƒé‡éª¨éª¼IDé›†åˆ
 		
 		for n=1 to numSkinVerts.count do
 		(
-			numBoneWeights = skinOps.getVertexWeightCount objSkin n    --Ã¿¸öµãÓĞ¼¸¸ù¹Ç÷ÀÓ°Ïì
+			numBoneWeights = skinOps.getVertexWeightCount objSkin n    --æ¯ä¸ªç‚¹æœ‰å‡ æ ¹éª¨éª¼å½±å“
 			
             for b=1 to numBoneWeights do
 			(
-				boneID       = skinOps.getVertexWeightBoneID objSkin n b  --»ñÈ¡µÚn¸öµã²ÎÓëµÄµÚb¸ö¹Ç÷ÀµÄID
+				boneID       = skinOps.getVertexWeightBoneID objSkin n b  --è·å–ç¬¬nä¸ªç‚¹å‚ä¸çš„ç¬¬bä¸ªéª¨éª¼çš„ID
 				append SkinBoneID boneID
 				)
 
 			)
-		SkinBoneID=makeUniqueArray SkinBoneID ----È¥³ıÊı×éÖĞÖØ¸´µÄÔªËØ
-		SkinBoneID = sort SkinBoneID  ----Êı×éÅÅĞò
-		skin_index = skin_index as array    ----Î»Êı×é×ªÊı×é
+		SkinBoneID=makeUniqueArray SkinBoneID ----å»é™¤æ•°ç»„ä¸­é‡å¤çš„å…ƒç´ 
+		SkinBoneID = sort SkinBoneID  ----æ•°ç»„æ’åº
+		skin_index = skin_index as array    ----ä½æ•°ç»„è½¬æ•°ç»„
 		
-		struct bone_weight  ---°ó¶¨¹Ç÷ÀIDºÍ¹Ç÷ÀÃû
+		struct bone_weight  ---ç»‘å®šéª¨éª¼IDå’Œéª¨éª¼å
 		(
 			n_ame,
 			index
 			)
 		
-		un_id =#() -- ÎŞÈ¨ÖØ¹Ç÷ÀID
+		un_id =#() -- æ— æƒé‡éª¨éª¼ID
 
 		for i =1 to skin_index.count  do    ---skin_index - SkinBoneID
 		(
@@ -1299,7 +1357,7 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 	
 	)
 	
-	fn Get_NumberBones = ---¼ì²éÃÉÆ¤¹Ç÷ÀÊı
+	fn Get_NumberBones = ---æ£€æŸ¥è’™çš®éª¨éª¼æ•°
 	(
 		max modify mode
 		objSkin  = $.modifiers[#Skin]
@@ -1308,7 +1366,7 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 
 		)
 	
-	fn ChangeBoneName  a_array = ---×ª»»ID¹Ç÷ÀÃû
+	fn ChangeBoneName  a_array = ---è½¬æ¢IDéª¨éª¼å
 	(
 		
 		Un_BoneName =#()
@@ -1321,39 +1379,39 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 		
 		)
 
-	fn rounding_off val  = --- ËÄÉáÎåÈë
+	fn rounding_off val  = --- å››èˆäº”å…¥
 	(
 		val = (val*val_num+0.5) as integer
 		val = (val as float)/val_num
 		)
 	
-	fn round_off val  = --- È¡Õû
+	fn round_off val  = --- å–æ•´
 	(
 		val = (val*val_num) as integer
 		val = (val as float)/val_num
 		)
 	
-	fn ShowBone  =   ---ÏÔÊ¾
+	fn ShowBone  =   ---æ˜¾ç¤º
 	(
 		Xr_Btn_SkinCheckNoWeight.items=Un_BoneName
 		)
 
-	fn SkinBoneId  = ---ÓÅ»¯È¨ÖØÎ»Êı
+	fn SkinBoneId  = ---ä¼˜åŒ–æƒé‡ä½æ•°
 	(
 		
 		
-		numSkinVerts = #{1..(skinOps.getNumberVertices objSkin)} --»ñÈ¡²ÎÓëÃÉÆ¤µÄµã
+		numSkinVerts = #{1..(skinOps.getNumberVertices objSkin)} --è·å–å‚ä¸è’™çš®çš„ç‚¹
 		
 		local tem_id = #()
 		local tem_val = #()
 		
 		for n=1 to numSkinVerts.count do
 		(
-			numBoneWeights = skinOps.getVertexWeightCount objSkin n    --Ã¿¸öµãÓĞ¼¸¸ù¹Ç÷ÀÓ°Ïì
+			numBoneWeights = skinOps.getVertexWeightCount objSkin n    --æ¯ä¸ªç‚¹æœ‰å‡ æ ¹éª¨éª¼å½±å“
 			
             for b=1 to numBoneWeights do
 			(
-				vertexWeight = skinOps.getVertexWeight objSkin n b --»ñÈ¡µÚn¸öµã²ÎÓëµÄµÚb¸ö¹Ç÷ÀµÄID
+				vertexWeight = skinOps.getVertexWeight objSkin n b --è·å–ç¬¬nä¸ªç‚¹å‚ä¸çš„ç¬¬bä¸ªéª¨éª¼çš„ID
 				
 				tem_id[b]  = skinOps.getVertexWeightBoneID objSkin n b
 				
@@ -1387,7 +1445,7 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 			)
 		else
 		(
-			messageBox "Ñ¡Ôñµ¥¸öÄ£ĞÍ "
+			messageBox "é€‰æ‹©å•ä¸ªæ¨¡å‹ "
 			Un_BoneName =#()
 			)
 		
@@ -1395,13 +1453,13 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 		skin_num = 0
 		)
 		
-	on Xr_Btn_SkinCheckNoWeight selected nameIndex do  ---Ñ¡Ôñ
+	on Xr_Btn_SkinCheckNoWeight selected nameIndex do  ---é€‰æ‹©
 	(
-		local a_index = (un_id[Xr_Btn_SkinCheckNoWeight.selection]).index  ---»ñÈ¡¹Ç÷ÀID
-		skinOps.SelectBone objSkin a_index     ----Ñ¡È¡ID¹Ç÷À
+		local a_index = (un_id[Xr_Btn_SkinCheckNoWeight.selection]).index  ---è·å–éª¨éª¼ID
+		skinOps.SelectBone objSkin a_index     ----é€‰å–IDéª¨éª¼
 		)
 		
-	on Xr_Btn_SkinCheckNoWeight doubleClicked sel do  ---Ë«»÷É¾³ı
+	on Xr_Btn_SkinCheckNoWeight doubleClicked sel do  ---åŒå‡»åˆ é™¤
 	(
 		local a_index = (un_id[Xr_Btn_SkinCheckNoWeight.selection]).index
 
@@ -1424,7 +1482,7 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 		skin_num = 0
 		)
 	
-	on Xr_Btn_SkinCheckNoWeight rightClick sel do  ---ÓÒ»÷É¾³ı
+	on Xr_Btn_SkinCheckNoWeight rightClick sel do  ---å³å‡»åˆ é™¤
 	(
 		local a_index = (un_id[Xr_Btn_SkinCheckNoWeight.selection]).index
 
@@ -1447,7 +1505,7 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 		skin_num = 0
 		)
 		
-	on Xr_Btn_Quick_Remove pressed do  ---¿ìËÙÒÆ³ı
+	on Xr_Btn_Quick_Remove pressed do  ---å¿«é€Ÿç§»é™¤
 	(
 		
 		max modify mode
@@ -1455,25 +1513,25 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 		for i =un_id.count to 1 by -1 do
 		(
 			local a_id = un_id[i].index
-			modPanel.setCurrentObject objSkin ---Ñ¡ÔñÃÉÆ¤²ã
+			modPanel.setCurrentObject objSkin ---é€‰æ‹©è’™çš®å±‚
 			skinOps.removebone objSkin a_id
 			QR_bar.value = 100-100.*i/un_id.count
 		)
 		
-		Get_NumberBones () ---¼ì²éÃÉÆ¤¹Ç÷ÀÊı
+		Get_NumberBones () ---æ£€æŸ¥è’™çš®éª¨éª¼æ•°
 				
-		UnSkinBoneId () ---²éÕÒÎŞÈ¨ÖØ¹Ç÷ÀID
+		UnSkinBoneId () ---æŸ¥æ‰¾æ— æƒé‡éª¨éª¼ID
 
-		ChangeBoneName un_id ---×ª»»ID¹Ç÷ÀÃû
+		ChangeBoneName un_id ---è½¬æ¢IDéª¨éª¼å
 		
-		ShowBone() ---ÏÔÊ¾
+		ShowBone() ---æ˜¾ç¤º
 
 		skin_num = 0
 		
 		QR_bar.value = 0
 		)
 		
-	on Xr_Btn_Batch_Remove_0.001 pressed do  ---È¥³ı0.001Î»
+	on Xr_Btn_Batch_Remove_0.001 pressed do  ---å»é™¤0.001ä½
 	(
 		val_num =100
 		if selection.count == 1 then	
@@ -1483,11 +1541,11 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 		)
 		else
 		(
-			messageBox "Ñ¡Ôñµ¥¸öÄ£ĞÍ "
+			messageBox "é€‰æ‹©å•ä¸ªæ¨¡å‹ "
 			)
 	)
 	
-	on Xr_Btn_Batch_Remove_0.01 pressed do ---È¥³ı0.01Î»
+	on Xr_Btn_Batch_Remove_0.01 pressed do ---å»é™¤0.01ä½
 	(
 		val_num =10
 		if selection.count == 1 then	
@@ -1497,39 +1555,39 @@ rollout Xr_SkinCheck "ÃÉÆ¤¼ì²é"
 			)
 		else
 		(
-			messageBox "Ñ¡Ôñµ¥¸öÄ£ĞÍ "
+			messageBox "é€‰æ‹©å•ä¸ªæ¨¡å‹ "
 			)
 		)
 		
 )
-rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´" 
+rollout yunSkinToolWin "è’™çš®ä¿®å¤" 
 (
 	
-	groupBox 'grp1' "´Ö´ÖĞŞ" pos:[1,3] width:195 height:50 align:#left
-	button 'yunSkinFix_btn' "´ÖĞŞ" pos:[15,23] width:74 height:25 align:#left	
-	button 'yunSkinTool_selfBlend_btn' "×Ô»ìºÏÈ¨ÖØ" pos:[115,23] width:70 height:25 align:#left
+	groupBox 'grp1' "ç²—ç²—ä¿®" pos:[1,3] width:195 height:50 align:#left
+	button 'yunSkinFix_btn' "ç²—ä¿®" pos:[15,23] width:74 height:25 align:#left	
+	button 'yunSkinTool_selfBlend_btn' "è‡ªæ··åˆæƒé‡" pos:[115,23] width:70 height:25 align:#left
 	
-	groupBox 'grp3' "´ÖĞŞ" pos:[1,62] width:195 height:196 align:#left	
-	checkbox 'yunSkinTool_moveVertSMode' "ÒÆÑ¡Ôñ" pos:[10,109] width:60 height:30 align:#left checked:true 
+	groupBox 'grp3' "ç²—ä¿®" pos:[1,62] width:195 height:196 align:#left	
+	checkbox 'yunSkinTool_moveVertSMode' "ç§»é€‰æ‹©" pos:[10,109] width:60 height:30 align:#left checked:true 
 	button 'yunSkinTool_left_btn' "left" pos:[10,152] width:60 height:30 align:#left
-	button 'yunSkinTool_deleteZero_btn' "È¥0È¨ÖØ" pos:[10,206] width:60 height:30 align:#left
+	button 'yunSkinTool_deleteZero_btn' "å»0æƒé‡" pos:[10,206] width:60 height:30 align:#left
 	
 	
 	
 	button 'yunSkinTool_up_btn' "up" pos:[73,96] width:55 height:30 align:#left
-	button 'yunSkinTool_selMostBone_btn' "Ñ¡¹Ç" pos:[73,152] width:55 height:30 align:#left  tooltip:"Ñ¡È¡¶Ôµ±Ç°µãÓ°Ïì×î´óµÄ¹Ç÷À"	
+	button 'yunSkinTool_selMostBone_btn' "é€‰éª¨" pos:[73,152] width:55 height:30 align:#left  tooltip:"é€‰å–å¯¹å½“å‰ç‚¹å½±å“æœ€å¤§çš„éª¨éª¼"	
 	button 'yunSkinTool_down_btn' "down" pos:[73,206] width:55 height:30 align:#left
 	
-	checkbox 'yunSkinTool_addVertSMode' "¼ÓÑ¡Ôñ" pos:[133,109] width:60 height:30 align:#left checked:false 
+	checkbox 'yunSkinTool_addVertSMode' "åŠ é€‰æ‹©" pos:[133,109] width:60 height:30 align:#left checked:false 
 	button 'yunSkinTool_right_btn' "right" pos:[133,152] width:60 height:30 align:#left
-	checkbox 'yunSkinTool_copyVertWeightMode' "È¨ÖØcopy" pos:[133,210] width:60 height:30 align:#left checked:false 
+	checkbox 'yunSkinTool_copyVertWeightMode' "æƒé‡copy" pos:[133,210] width:60 height:30 align:#left checked:false 
 	
 
 	on yunSkinTool_deleteZero_btn pressed do
 		(
 		sk = modpanel.getcurrentobject() 
 		skinOps.RemoveZeroWeights sk
-		---ÒÆ³ıËùÑ¡µãÓ°Ïì0È¨ÖØ¹Ç÷À	
+		---ç§»é™¤æ‰€é€‰ç‚¹å½±å“0æƒé‡éª¨éª¼	
 		)
 	on yunSkinTool_selMostBone_btn pressed do
 		(			  
@@ -1540,13 +1598,13 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 				for i = 1 to skinops.getnumbervertices sk do
 				(
 					if (skinOps.IsVertexSelected sk i) == 1 then append vertsSel i
-				)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid
+				)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id
 				boneIds = #()
 		-- 		i = vertsSel[1]
 				for i in vertsSel  do  
 					(
 						weightCount = skinOps.GetVertexWeightCount sk  i
-						-- 	»ñÈ¡¹Ç÷ÀÁĞ±í¸öÊı
+						-- 	è·å–éª¨éª¼åˆ—è¡¨ä¸ªæ•°
 						
 						for vb = 1 to weightCount do 
 						(
@@ -1577,7 +1635,7 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 				for i = 1 to skinops.getnumbervertices sk do
 				(
 					if (skinOps.IsVertexSelected sk i) == 1 then append verts i
-				)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid
+				)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id
 			boneSel = skinOps.GetSelectedBone sk
 				
 			undo on 
@@ -1585,7 +1643,7 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 			if verts.count ==1 then 
 			(
 				weightCount = skinOps.GetVertexWeightCount sk  verts[1]
-				-- 	»ñÈ¡¹Ç÷ÀÁĞ±í¸öÊı
+				-- 	è·å–éª¨éª¼åˆ—è¡¨ä¸ªæ•°
 				for vb = 1 to weightCount do
 				(
 				boneId = skinOps.GetVertexWeightBoneID sk verts[1] vb
@@ -1606,7 +1664,7 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 				)
 			)
 			else
-			(messageBox  "Ö»ÄÜÑ¡ÔñÒ»¸öµã~~Å¶~~")
+			(messageBox  "åªèƒ½é€‰æ‹©ä¸€ä¸ªç‚¹~~å“¦~~")
 			skinOps.SelectVertices sk verts
 			skinOps.SelectBone sk boneSel
 			)
@@ -1614,13 +1672,13 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 		)
 	on yunSkinFix_btn pressed do
 		(
-		-- ---=======================ÔËĞĞ²¿·Ö=========
+		-- ---=======================è¿è¡Œéƒ¨åˆ†=========
 		sk = modpanel.getcurrentobject() 
 		vertsSel = #()
 		for i = 1 to skinops.getnumbervertices sk do
 		(
 			if (skinOps.IsVertexSelected sk i) == 1 then append vertsSel i
-		)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid
+		)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id
 		for i in vertsSel do
 		(
 		yunSkinFixOne i
@@ -1634,7 +1692,7 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 		(
 			if yunSkinTool_moveVertSMode_State == true then				 
 			(
-				yunSkinTools_mode = 1 --ÒÆ¶¯Ñ¡Ôñ				
+				yunSkinTools_mode = 1 --ç§»åŠ¨é€‰æ‹©				
 				yunSkinTool_addVertSMode.checked = false
 				yunSkinToolWin.yunSkinTool_addVertSMode.checked  =false
 				yunSkinTool_copyVertWeightMode.checked = false
@@ -1644,7 +1702,7 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 		(
 			if yunSkinTool_copyVertWeightMode_State == true then				 
 			(
-				yunSkinTools_mode = 2 --È¨ÖØcopy				
+				yunSkinTools_mode = 2 --æƒé‡copy				
 				yunSkinTool_moveVertSMode.checked = false
 				yunSkinTool_addVertSMode.checked = false
 			)
@@ -1653,7 +1711,7 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 		(
 			if yunSkinTool_addVertSMode_State == true then				 
 			(
-				yunSkinTools_mode = 3 --¼ÓÑ¡Ñ¡Ôñ				
+				yunSkinTools_mode = 3 --åŠ é€‰é€‰æ‹©				
 				yunSkinTool_moveVertSMode.checked = false
 				yunSkinTool_copyVertWeightMode.checked = false
 			)
@@ -1661,7 +1719,7 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 
 	on yunSkinTool_right_btn pressed  do
 		(
-			case yunSkinTools_mode of --Ä£Ê½ÅĞ¶Ï  1ÊÇÒÆ¶¯Ñ¡Ôñ£»2ÊÇ¸´ÖÆÃÉÆ¤£»3ÊÇ¼ÓÑ¡£»
+			case yunSkinTools_mode of --æ¨¡å¼åˆ¤æ–­  1æ˜¯ç§»åŠ¨é€‰æ‹©ï¼›2æ˜¯å¤åˆ¶è’™çš®ï¼›3æ˜¯åŠ é€‰ï¼›
 			(	
 			1: (setFourDirVert "right" 	)	
 			2: (
@@ -1671,17 +1729,17 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 					for i = 1 to skinops.getnumbervertices sk do
 					(
 						if (skinOps.IsVertexSelected sk i) == 1 then append verts i
-					)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid
+					)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id
 				if verts.count == 1 then
 				(	
-				skinOps.SelectVertices sk #{(getFourDirVert verts[1] )[1]}	  ---·½Ïò
+				skinOps.SelectVertices sk #{(getFourDirVert verts[1] )[1]}	  ---æ–¹å‘
 				skinOps.copyWeights sk 
 				skinOps.copyWeights sk
 				skinOps.SelectVertices sk #{verts[1]}
 				skinOps.pasteWeights sk
 				sk.effect = 0
 				)
-				else( messageBox "ÇëÖ»Ñ¡Ò»¸öµã~~¶ù")
+				else( messageBox "è¯·åªé€‰ä¸€ä¸ªç‚¹~~å„¿")
 
 				)
 			3: ( setFourDirVert_add "right" 	)
@@ -1691,7 +1749,7 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 			
 	on yunSkinTool_left_btn pressed  do
 		(
-			case yunSkinTools_mode of --Ä£Ê½ÅĞ¶Ï  1ÊÇÒÆ¶¯Ñ¡Ôñ£»2ÊÇ¸´ÖÆÃÉÆ¤£»3ÊÇ¼ÓÑ¡£»
+			case yunSkinTools_mode of --æ¨¡å¼åˆ¤æ–­  1æ˜¯ç§»åŠ¨é€‰æ‹©ï¼›2æ˜¯å¤åˆ¶è’™çš®ï¼›3æ˜¯åŠ é€‰ï¼›
 			(	
 			1: (setFourDirVert "left" 	)	
 			2: 
@@ -1702,17 +1760,17 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 					for i = 1 to skinops.getnumbervertices sk do
 					(
 						if (skinOps.IsVertexSelected sk i) == 1 then append verts i
-					)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid
+					)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id
 				if verts.count == 1 then
 				(	
-				skinOps.SelectVertices sk #{(getFourDirVert verts[1] )[2]}	  ---·½Ïò
+				skinOps.SelectVertices sk #{(getFourDirVert verts[1] )[2]}	  ---æ–¹å‘
 				skinOps.copyWeights sk 
 				skinOps.copyWeights sk
 				skinOps.SelectVertices sk #{verts[1]}
 				skinOps.pasteWeights sk
 				sk.effect = 0
 				)
-				else( messageBox "ÇëÖ»Ñ¡Ò»¸öµã~~¶ù")
+				else( messageBox "è¯·åªé€‰ä¸€ä¸ªç‚¹~~å„¿")
 			)
 			
 			3: (setFourDirVert_add "left" 	)
@@ -1721,7 +1779,7 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 		)
 	on yunSkinTool_up_btn pressed  do
 		(
-			case yunSkinTools_mode of --Ä£Ê½ÅĞ¶Ï  1ÊÇÒÆ¶¯Ñ¡Ôñ£»2ÊÇ¸´ÖÆÃÉÆ¤£»3ÊÇ¼ÓÑ¡£»
+			case yunSkinTools_mode of --æ¨¡å¼åˆ¤æ–­  1æ˜¯ç§»åŠ¨é€‰æ‹©ï¼›2æ˜¯å¤åˆ¶è’™çš®ï¼›3æ˜¯åŠ é€‰ï¼›
 			(	
 			1: (setFourDirVert "up" 	)	
 			2: 
@@ -1732,17 +1790,17 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 					for i = 1 to skinops.getnumbervertices sk do
 					(
 						if (skinOps.IsVertexSelected sk i) == 1 then append verts i
-					)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid
+					)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id
 				if verts.count == 1 then
 				(	
-				skinOps.SelectVertices sk #{(getFourDirVert verts[1] )[3]}	  ---·½Ïò
+				skinOps.SelectVertices sk #{(getFourDirVert verts[1] )[3]}	  ---æ–¹å‘
 				skinOps.copyWeights sk 
 				skinOps.copyWeights sk
 				skinOps.SelectVertices sk #{verts[1]}
 				skinOps.pasteWeights sk
 				sk.effect = 0
 				)
-				else( messageBox "ÇëÖ»Ñ¡Ò»¸öµã~~¶ù")
+				else( messageBox "è¯·åªé€‰ä¸€ä¸ªç‚¹~~å„¿")
 			)
 			3: (setFourDirVert_add "up" 	)
 			)			
@@ -1750,7 +1808,7 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 		)
 	on yunSkinTool_down_btn pressed  do
 		(
-			case yunSkinTools_mode of --Ä£Ê½ÅĞ¶Ï  1ÊÇÒÆ¶¯Ñ¡Ôñ£»2ÊÇ¸´ÖÆÃÉÆ¤£»3ÊÇ¼ÓÑ¡£»
+			case yunSkinTools_mode of --æ¨¡å¼åˆ¤æ–­  1æ˜¯ç§»åŠ¨é€‰æ‹©ï¼›2æ˜¯å¤åˆ¶è’™çš®ï¼›3æ˜¯åŠ é€‰ï¼›
 			(	
 			1: (setFourDirVert "down" 	)	
 			2: 
@@ -1761,17 +1819,17 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 					for i = 1 to skinops.getnumbervertices sk do
 					(
 						if (skinOps.IsVertexSelected sk i) == 1 then append verts i
-					)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid
+					)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id
 				if verts.count == 1 then
 				(	
-				skinOps.SelectVertices sk #{(getFourDirVert verts[1] )[4]}	  ---·½Ïò
+				skinOps.SelectVertices sk #{(getFourDirVert verts[1] )[4]}	  ---æ–¹å‘
 				skinOps.copyWeights sk 
 				skinOps.copyWeights sk
 				skinOps.SelectVertices sk #{verts[1]}
 				skinOps.pasteWeights sk
 				sk.effect = 0
 				)
-				else( messageBox "ÇëÖ»Ñ¡Ò»¸öµã~~¶ù")
+				else( messageBox "è¯·åªé€‰ä¸€ä¸ªç‚¹~~å„¿")
 			)
 			3: (setFourDirVert_add "down" 	)
 			)		
@@ -1781,31 +1839,31 @@ rollout yunSkinToolWin "ÃÉÆ¤ĞŞ¸´"
 		
 		
 )
-rollout yunSkinOtherWin "ÆäËû.." 
+rollout yunSkinOtherWin "å…¶ä»–.." 
 (
-button yunSkinOther_exportBoneList "µ¼³ö¹Ç÷ÀÁĞ±í" pos:[10,10] width:80 height:24 tooltip:"µ¼³öÃÉÆ¤µÄ¹Ç÷ÀÁĞ±í" 	
-button yunSkinOther_importBoneList "µ¼Èë¹Ç÷ÀÁĞ±í" pos:[100,10] width:80 height:24 tooltip:"µ¼riÃÉÆ¤µÄ¹Ç÷ÀÁĞ±í"
+button yunSkinOther_exportBoneList "å¯¼å‡ºéª¨éª¼åˆ—è¡¨" pos:[10,10] width:80 height:24 tooltip:"å¯¼å‡ºè’™çš®çš„éª¨éª¼åˆ—è¡¨" 	
+button yunSkinOther_importBoneList "å¯¼å…¥éª¨éª¼åˆ—è¡¨" pos:[100,10] width:80 height:24 tooltip:"å¯¼riè’™çš®çš„éª¨éª¼åˆ—è¡¨"
 	
-groupBox yunSkinOther_grp1 "°´È¨ÖØ·¶Î§Ñ¡µã" pos:[0,45] width:195 height:80 align:#left		
-spinner yunSkinOther_minWeight "×îĞ¡:" pos:[1,71] width:150 height:16 range:[0,1,0.001] scale:0.001 type:#float 
-button yunSkinOther_minWeight_btn "¡À.1" pos:[162,71] width:22 height:16 	
+groupBox yunSkinOther_grp1 "æŒ‰æƒé‡èŒƒå›´é€‰ç‚¹" pos:[0,45] width:195 height:80 align:#left		
+spinner yunSkinOther_minWeight "æœ€å°:" pos:[1,71] width:150 height:16 range:[0,1,0.001] scale:0.001 type:#float 
+button yunSkinOther_minWeight_btn "Â±.1" pos:[162,71] width:22 height:16 	
 	
-spinner yunSkinOther_MaxWeight "×î´ó:" pos:[1,95] width:150 height:16 range:[0,1,1] scale:0.001 type:#float \
-button yunSkinOther_maxWeight_btn "¡À.1" pos:[162,95] width:22 height:16 	
+spinner yunSkinOther_MaxWeight "æœ€å¤§:" pos:[1,95] width:150 height:16 range:[0,1,1] scale:0.001 type:#float \
+button yunSkinOther_maxWeight_btn "Â±.1" pos:[162,95] width:22 height:16 	
 	
--- button yunSkinOther_selWeightRangeVertex "Ñ¡µã" pos:[110,64] width:80 height:45 tooltip:"Ñ¡"	
+-- button yunSkinOther_selWeightRangeVertex "é€‰ç‚¹" pos:[110,64] width:80 height:45 tooltip:"é€‰"	
 	
-button yunSkinOther_crowSelVert_small "ÏòÉÏÑ¡" pos:[5,130] width:80 height:25 tooltip:"ÏòĞ¡À©Ñ¡Ñ¡"	
-button yunSkinOther_crowSelVert_big "ÏòÏÂÑ¡" pos:[110,130] width:80 height:25 tooltip:"Ïò´óÀ©Ñ¡Ñ¡"
-button yunSkinOther_GrowSelVert_up "ÏòÉÏÀ©Ñ¡" pos:[5,165] width:80 height:25 tooltip:"ÏòĞ¡À©Ñ¡Ñ¡"	
-button yunSkinOther_GrowSelVert_down "ÏòÏÂÀ©Ñ¡" pos:[110,165] width:80 height:25 tooltip:"Ïò´óÀ©Ñ¡Ñ¡"
+button yunSkinOther_crowSelVert_small "å‘ä¸Šé€‰" pos:[5,130] width:80 height:25 tooltip:"å‘å°æ‰©é€‰é€‰"	
+button yunSkinOther_crowSelVert_big "å‘ä¸‹é€‰" pos:[110,130] width:80 height:25 tooltip:"å‘å¤§æ‰©é€‰é€‰"
+button yunSkinOther_GrowSelVert_up "å‘ä¸Šæ‰©é€‰" pos:[5,165] width:80 height:25 tooltip:"å‘å°æ‰©é€‰é€‰"	
+button yunSkinOther_GrowSelVert_down "å‘ä¸‹æ‰©é€‰" pos:[110,165] width:80 height:25 tooltip:"å‘å¤§æ‰©é€‰é€‰"
 
 	
-groupBox yunSkinOther_selRing "Ñ¡»·Ïß" pos:[0,200] width:195 height:250 align:#left	
-button yunSkinOther_selRing_start "¿ªÊ¼»·ÏßÑ¡Ôñ   #µãÊı:" pos:[15,220] width:120 height:25 tooltip:""	
+groupBox yunSkinOther_selRing "é€‰ç¯çº¿" pos:[0,200] width:195 height:250 align:#left	
+button yunSkinOther_selRing_start "å¼€å§‹ç¯çº¿é€‰æ‹©   #ç‚¹æ•°:" pos:[15,220] width:120 height:25 tooltip:""	
 label yunSkinOther_vertsCount "0" pos:[150,228] width:25 height:25
-spinner yunSkinOther_selRing_H "ºá:" pos:[20,256] width:150 height:16 range:[0,99999,15] scale:0.01 type:#worldunits  
-spinner yunSkinOther_selRing_V "Êú:" pos:[20,280] width:150 height:16 range:[0,99999,2] scale:0.01 type:#worldunits  
+spinner yunSkinOther_selRing_H "æ¨ª:" pos:[20,256] width:150 height:16 range:[0,99999,15] scale:0.01 type:#worldunits  
+spinner yunSkinOther_selRing_V "ç«–:" pos:[20,280] width:150 height:16 range:[0,99999,2] scale:0.01 type:#worldunits  
 
 
 spinner yunSkinOther_selRing_tx "tx:" pos:[20,315] width:60 height:16 range:[-9999,9999,0] scale:0.1 type:#worldunits  
@@ -1816,10 +1874,10 @@ spinner yunSkinOther_selRing_rx "rx:" pos:[95,315] width:60 height:16 range:[-99
 spinner yunSkinOther_selRing_ry "ry:" pos:[95,340] width:60 height:16 range:[-9999,9999,0] scale:0.1 type:#float 
 spinner yunSkinOther_selRing_rz "rz:" pos:[95,365] width:60 height:16 range:[-9999,9999,0] scale:0.1 type:#float 	
 
-button yunSkinOther_selRing_btn_rx "¡À90" pos:[162,315] width:22 height:16 
-button yunSkinOther_selRing_btn_ry "¡À90" pos:[162,340] width:22 height:16  
-button yunSkinOther_selRing_btn_rz "¡À90" pos:[162,365] width:22 height:16 
-button yunSkinOther_selRing_end "½áÊø»·ÏßÑ¡Ôñ" pos:[20,394] width:160 height:25 tooltip:""	
+button yunSkinOther_selRing_btn_rx "Â±90" pos:[162,315] width:22 height:16 
+button yunSkinOther_selRing_btn_ry "Â±90" pos:[162,340] width:22 height:16  
+button yunSkinOther_selRing_btn_rz "Â±90" pos:[162,365] width:22 height:16 
+button yunSkinOther_selRing_end "ç»“æŸç¯çº¿é€‰æ‹©" pos:[20,394] width:160 height:25 tooltip:""	
 
 on yunSkinOther_exportBoneList pressed do
 	(
@@ -1827,26 +1885,26 @@ on yunSkinOther_exportBoneList pressed do
 		if vcheck[1]>16000 then
 		(
 				makeDir @"C:\Maxscript_XrTools\Conf\" all:true
-			------µ¼³ö¹Ç÷ÀÁĞ±í
+			------å¯¼å‡ºéª¨éª¼åˆ—è¡¨
 			sk = modpanel.getcurrentobject() 
 			obj = getCurrentSelection()
 			
-			delIniSetting "C:\Maxscript_XrTools\Conf\\boneList.ini" ("ÈÎÒâÄ£ĞÍ")
+			delIniSetting "C:\Maxscript_XrTools\Conf\\boneList.ini" ("ä»»æ„æ¨¡å‹")
 			boneCount = skinOps.GetNumberBones sk
-			--»ñÈ¡ÊÜÓ°ÏìµÄ¹Ç÷ÀµÄ¸öÊı
+			--è·å–å—å½±å“çš„éª¨éª¼çš„ä¸ªæ•°
 			for i = 1 to  boneCount do 
 			(
 			boneId = skinOps.GetBoneIDByListID sk i		
 			boneName = skinOps.GetBoneName  sk boneId 1	
-			setINISetting "C:\Maxscript_XrTools\Conf\\boneList.ini" ("ÈÎÒâÄ£ĞÍ") (i as string) (boneName)
+			setINISetting "C:\Maxscript_XrTools\Conf\\boneList.ini" ("ä»»æ„æ¨¡å‹") (i as string) (boneName)
 			)
 		)	
-		else(messageBox "15ÒÔÏÂÎŞ·¨µ¼³ö   .")
+		else(messageBox "15ä»¥ä¸‹æ— æ³•å¯¼å‡º   .")
 	)
 on yunSkinOther_importBoneList pressed do
 	(	
 			
-		------µ¼Èë¹Ç÷ÀÁĞ±í
+		------å¯¼å…¥éª¨éª¼åˆ—è¡¨
 		obj = getCurrentSelection()
 		hasSkin = false
 		for i = 1 to obj[1].modifiers.count do
@@ -1857,10 +1915,10 @@ on yunSkinOther_importBoneList pressed do
 
 		if hasSkin==false then (modPanel.addModToSelection (Skin ()) ui:on	)			
 		sk = modpanel.getcurrentobject() 	
-		boneCountNew = getINISetting "C:\Maxscript_XrTools\Conf\\boneList.ini" ("ÈÎÒâÄ£ĞÍ") 
+		boneCountNew = getINISetting "C:\Maxscript_XrTools\Conf\\boneList.ini" ("ä»»æ„æ¨¡å‹") 
 		for i in  boneCountNew do 
 		(
-		getBone = getINISetting "C:\Maxscript_XrTools\Conf\\boneList.ini" ("ÈÎÒâÄ£ĞÍ")  (i)
+		getBone = getINISetting "C:\Maxscript_XrTools\Conf\\boneList.ini" ("ä»»æ„æ¨¡å‹")  (i)
 		getBoneObj = getNodeByName 	getBone
 		skinOps.addBone sk getBoneObj 1	
 		)	
@@ -1869,8 +1927,8 @@ on yunSkinOther_crowSelVert_small pressed do
 	(		
 	undo on
 	(
-	seledVertexs = yunGetvertsSkinOrPoly()  -----µ±Ç°Ñ¡ÔñµÄµã¶ù
-	if seledVertexs.count<3 then (messageBox "Çë×îÉÙÑ¡ÔñÈı¸öµã")
+	seledVertexs = yunGetvertsSkinOrPoly()  -----å½“å‰é€‰æ‹©çš„ç‚¹å„¿
+	if seledVertexs.count<3 then (messageBox "è¯·æœ€å°‘é€‰æ‹©ä¸‰ä¸ªç‚¹")
 	else
 	(	
 		Xr_SkinTools_UI.rollouts[5].yunSkinOther_selRing_start.pressed()
@@ -1881,7 +1939,7 @@ on yunSkinOther_crowSelVert_small pressed do
 			for i = 1 to skinops.getnumbervertices sk do
 			(
 				if (skinOps.IsVertexSelected sk i) == 1 then append verts i
-			)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid	
+			)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id	
 		skinOps.growSelection sk	
 			vertsGrowed = #()
 			for i = 1 to skinops.getnumbervertices sk do
@@ -1894,9 +1952,9 @@ on yunSkinOther_crowSelVert_small pressed do
 				(deleteItem vertsGrowed index)
 		skinOps.SelectVertices sk vertsGrowed
 		$.modifiers[#Skin].effect = 0		
-		---À©Ñ¡½áÊø		
+		---æ‰©é€‰ç»“æŸ		
 			verts = #()
-			for i = 1 to skinops.getnumbervertices sk do (if (skinOps.IsVertexSelected sk i) == 1 then append verts i)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid		
+			for i = 1 to skinops.getnumbervertices sk do (if (skinOps.IsVertexSelected sk i) == 1 then append verts i)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id		
 			vertsUp = #()
 			vertsDown = #()
 		-- 	i = verts[1]
@@ -1919,8 +1977,8 @@ on yunSkinOther_crowSelVert_big pressed do
 	(
 	undo on
 	(
-	seledVertexs = yunGetvertsSkinOrPoly()  -----µ±Ç°Ñ¡ÔñµÄµã¶ù
-	if seledVertexs.count<3 then (messageBox "Çë×îÉÙÑ¡ÔñÈı¸öµã")
+	seledVertexs = yunGetvertsSkinOrPoly()  -----å½“å‰é€‰æ‹©çš„ç‚¹å„¿
+	if seledVertexs.count<3 then (messageBox "è¯·æœ€å°‘é€‰æ‹©ä¸‰ä¸ªç‚¹")
 	else
 	(	
 		Xr_SkinTools_UI.rollouts[5].yunSkinOther_selRing_start.pressed()	
@@ -1929,7 +1987,7 @@ on yunSkinOther_crowSelVert_big pressed do
 			for i = 1 to skinops.getnumbervertices sk do
 			(
 				if (skinOps.IsVertexSelected sk i) == 1 then append verts i
-			)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid	
+			)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id	
 		skinOps.growSelection sk	
 			vertsGrowed = #()
 			for i = 1 to skinops.getnumbervertices sk do
@@ -1942,9 +2000,9 @@ on yunSkinOther_crowSelVert_big pressed do
 				(deleteItem vertsGrowed index)
 		skinOps.SelectVertices sk vertsGrowed
 		$.modifiers[#Skin].effect = 0		
-		---À©Ñ¡½áÊø		
+		---æ‰©é€‰ç»“æŸ		
 			verts = #()
-			for i = 1 to skinops.getnumbervertices sk do (if (skinOps.IsVertexSelected sk i) == 1 then append verts i)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid		
+			for i = 1 to skinops.getnumbervertices sk do (if (skinOps.IsVertexSelected sk i) == 1 then append verts i)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id		
 			vertsUp = #()
 			vertsDown = #()
 		-- 	i = verts[1]
@@ -1966,8 +2024,8 @@ on yunSkinOther_GrowSelVert_up pressed do
 	(
 	undo on
 	(
-	seledVertexs = yunGetvertsSkinOrPoly()  -----µ±Ç°Ñ¡ÔñµÄµã¶ù
-	if seledVertexs.count<3 then (messageBox "Çë×îÉÙÑ¡ÔñÈı¸öµã")
+	seledVertexs = yunGetvertsSkinOrPoly()  -----å½“å‰é€‰æ‹©çš„ç‚¹å„¿
+	if seledVertexs.count<3 then (messageBox "è¯·æœ€å°‘é€‰æ‹©ä¸‰ä¸ªç‚¹")
 	else
 	(
 		Xr_SkinTools_UI.rollouts[5].yunSkinOther_selRing_start.pressed()	
@@ -1976,7 +2034,7 @@ on yunSkinOther_GrowSelVert_up pressed do
 			for i = 1 to skinops.getnumbervertices sk do
 			(
 				if (skinOps.IsVertexSelected sk i) == 1 then append vertsBefore i
-			)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid	
+			)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id	
 		skinOps.growSelection sk	
 			vertsGrowed = #()
 			for i = 1 to skinops.getnumbervertices sk do
@@ -1989,9 +2047,9 @@ on yunSkinOther_GrowSelVert_up pressed do
 				(deleteItem vertsGrowed index)
 		skinOps.SelectVertices sk vertsGrowed
 		$.modifiers[#Skin].effect = 0		
-		---À©Ñ¡½áÊø		
+		---æ‰©é€‰ç»“æŸ		
 			verts = #()
-			for i = 1 to skinops.getnumbervertices sk do (if (skinOps.IsVertexSelected sk i) == 1 then append verts i)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid		
+			for i = 1 to skinops.getnumbervertices sk do (if (skinOps.IsVertexSelected sk i) == 1 then append verts i)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id		
 			vertsUp = #()
 			vertsDown = #()
 		-- 	i = verts[1]
@@ -2015,8 +2073,8 @@ on yunSkinOther_GrowSelVert_down pressed do
 	(
 		undo on
 		(
-		seledVertexs = yunGetvertsSkinOrPoly()  -----µ±Ç°Ñ¡ÔñµÄµã¶ù
-	if seledVertexs.count<3 then (messageBox "Çë×îÉÙÑ¡ÔñÈı¸öµã")
+		seledVertexs = yunGetvertsSkinOrPoly()  -----å½“å‰é€‰æ‹©çš„ç‚¹å„¿
+	if seledVertexs.count<3 then (messageBox "è¯·æœ€å°‘é€‰æ‹©ä¸‰ä¸ªç‚¹")
 	else
 	(
 		Xr_SkinTools_UI.rollouts[5].yunSkinOther_selRing_start.pressed()	
@@ -2025,7 +2083,7 @@ on yunSkinOther_GrowSelVert_down pressed do
 			for i = 1 to skinops.getnumbervertices sk do
 			(
 				if (skinOps.IsVertexSelected sk i) == 1 then append vertsBefore i
-			)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid	
+			)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id	
 		skinOps.growSelection sk	
 			vertsGrowed = #()
 			for i = 1 to skinops.getnumbervertices sk do
@@ -2038,9 +2096,9 @@ on yunSkinOther_GrowSelVert_down pressed do
 				(deleteItem vertsGrowed index)
 		skinOps.SelectVertices sk vertsGrowed
 		$.modifiers[#Skin].effect = 0		
-		---À©Ñ¡½áÊø		
+		---æ‰©é€‰ç»“æŸ		
 			verts = #()
-			for i = 1 to skinops.getnumbervertices sk do (if (skinOps.IsVertexSelected sk i) == 1 then append verts i)----»ñÈ¡Ñ¡ÔñµÄÃÉÆ¤µãid		
+			for i = 1 to skinops.getnumbervertices sk do (if (skinOps.IsVertexSelected sk i) == 1 then append verts i)----è·å–é€‰æ‹©çš„è’™çš®ç‚¹id		
 			vertsUp = #()
 			vertsDown = #()
 		-- 	i = verts[1]
@@ -2072,7 +2130,7 @@ on yunSkinOther_minWeight changed val do
 			for i = 1 to skinops.getnumbervertices sk do	(append verts i	)
 			vertsNew = #()
 			boneWeight = #()
-			for vb in verts do ---ËùÓĞµãÑ­»·
+			for vb in verts do ---æ‰€æœ‰ç‚¹å¾ªç¯
 			( 
 				weightCountAll = skinOps.GetVertexWeightCount sk vb
 				for i = 1 to weightCountAll do				
@@ -2092,7 +2150,7 @@ on yunSkinOther_minWeight changed val do
 		yunSkinOther_vertsCount.text = (yunGetvertsSkinOrPoly()).count  as string		
 	)	
 	
-on yunSkinOther_minWeight_btn pressed  do  ---¼Ó1
+on yunSkinOther_minWeight_btn pressed  do  ---åŠ 1
 	(
 	yunSkinOther_minWeight.value=yunSkinOther_minWeight.value+0.1
 	weightLimitMin = yunSkinOtherWin.yunSkinOther_minWeight.value
@@ -2105,7 +2163,7 @@ on yunSkinOther_minWeight_btn pressed  do  ---¼Ó1
 			for i = 1 to skinops.getnumbervertices sk do	(append verts i	)
 			vertsNew = #()
 			boneWeight = #()
-			for vb in verts do ---ËùÓĞµãÑ­»·
+			for vb in verts do ---æ‰€æœ‰ç‚¹å¾ªç¯
 			( 
 				weightCountAll = skinOps.GetVertexWeightCount sk vb
 				for i = 1 to weightCountAll do				
@@ -2124,7 +2182,7 @@ on yunSkinOther_minWeight_btn pressed  do  ---¼Ó1
 		sk.effect = 0
 		yunSkinOther_vertsCount.text = (yunGetvertsSkinOrPoly()).count  as string
 	)
-on yunSkinOther_minWeight_btn rightClick  do  ---¼õ1
+on yunSkinOther_minWeight_btn rightClick  do  ---å‡1
 	(
 
 	yunSkinOther_minWeight.value=yunSkinOther_minWeight.value-0.1
@@ -2138,7 +2196,7 @@ on yunSkinOther_minWeight_btn rightClick  do  ---¼õ1
 			for i = 1 to skinops.getnumbervertices sk do	(append verts i	)
 			vertsNew = #()
 			boneWeight = #()
-			for vb in verts do ---ËùÓĞµãÑ­»·
+			for vb in verts do ---æ‰€æœ‰ç‚¹å¾ªç¯
 			( 
 				weightCountAll = skinOps.GetVertexWeightCount sk vb
 				for i = 1 to weightCountAll do				
@@ -2157,7 +2215,7 @@ on yunSkinOther_minWeight_btn rightClick  do  ---¼õ1
 		sk.effect = 0
 		yunSkinOther_vertsCount.text = (yunGetvertsSkinOrPoly()).count  as string
 	)
-on yunSkinOther_maxWeight_btn pressed  do  ---¼Ó1
+on yunSkinOther_maxWeight_btn pressed  do  ---åŠ 1
 	(
 	yunSkinOther_maxWeight.value=yunSkinOther_maxWeight.value+0.1
 	weightLimitMin = yunSkinOtherWin.yunSkinOther_minWeight.value
@@ -2170,7 +2228,7 @@ on yunSkinOther_maxWeight_btn pressed  do  ---¼Ó1
 			for i = 1 to skinops.getnumbervertices sk do	(append verts i	)
 			vertsNew = #()
 			boneWeight = #()
-			for vb in verts do ---ËùÓĞµãÑ­»·
+			for vb in verts do ---æ‰€æœ‰ç‚¹å¾ªç¯
 			( 
 				weightCountAll = skinOps.GetVertexWeightCount sk vb
 				for i = 1 to weightCountAll do				
@@ -2189,7 +2247,7 @@ on yunSkinOther_maxWeight_btn pressed  do  ---¼Ó1
 		sk.effect = 0
 		yunSkinOther_vertsCount.text = (yunGetvertsSkinOrPoly()).count  as string
 	)
-on yunSkinOther_maxWeight_btn rightClick  do  ---¼õ1
+on yunSkinOther_maxWeight_btn rightClick  do  ---å‡1
 	(
 	yunSkinOther_maxWeight.value=yunSkinOther_maxWeight.value-0.1
 	weightLimitMin = yunSkinOtherWin.yunSkinOther_minWeight.value
@@ -2202,7 +2260,7 @@ on yunSkinOther_maxWeight_btn rightClick  do  ---¼õ1
 			for i = 1 to skinops.getnumbervertices sk do	(append verts i	)
 			vertsNew = #()
 			boneWeight = #()
-			for vb in verts do ---ËùÓĞµãÑ­»·
+			for vb in verts do ---æ‰€æœ‰ç‚¹å¾ªç¯
 			( 
 				weightCountAll = skinOps.GetVertexWeightCount sk vb
 				for i = 1 to weightCountAll do				
@@ -2236,7 +2294,7 @@ on yunSkinOther_MaxWeight changed val do
 			for i = 1 to skinops.getnumbervertices sk do	(append verts i	)
 			vertsNew = #()
 			boneWeight = #()
-			for vb in verts do ---ËùÓĞµãÑ­»·
+			for vb in verts do ---æ‰€æœ‰ç‚¹å¾ªç¯
 			( 
 				weightCountAll = skinOps.GetVertexWeightCount sk vb
 				for i = 1 to weightCountAll do				
@@ -2257,21 +2315,21 @@ on yunSkinOther_MaxWeight changed val do
 	)
 	)	
 	
-on yunSkinOther_selRing_start pressed  do ---¿ªÊ¼»·ÏßÑ¡Ôñ
+on yunSkinOther_selRing_start pressed  do ---å¼€å§‹ç¯çº¿é€‰æ‹©
 	(
 	undo on
 	(
 		if (getNodeByName "yunLoopVertexSelFatherHiden")!=undefined do (delete (getNodeByName "yunLoopVertexSelFatherHiden"))
 		if (getNodeByName "yunLoopVertexSel")!=undefined do (delete (getNodeByName "yunLoopVertexSel"))
 		objStart = selection[1] --get selected object
-		-- polyÄ£Ê½	
-		seledVertexs = yunGetvertsSkinOrPoly()  -----µ±Ç°Ñ¡ÔñµÄµã¶ù
+		-- polyæ¨¡å¼	
+		seledVertexs = yunGetvertsSkinOrPoly()  -----å½“å‰é€‰æ‹©çš„ç‚¹å„¿
 		polyVertexOne = vert =(seledVertexs[1])	
-		if seledVertexs.count<3 then (messageBox "Çë×îÉÙÑ¡ÔñÈı¸öµã")
+		if seledVertexs.count<3 then (messageBox "è¯·æœ€å°‘é€‰æ‹©ä¸‰ä¸ªç‚¹")
 		else 
 		(
 			lastVertexPos = polyOp.getVert objStart (seledVertexs[seledVertexs.count])		
-			vertexs_pos = #()	----ËùÓĞµãµÄÎ»ÖÃĞÅÏ¢
+			vertexs_pos = #()	----æ‰€æœ‰ç‚¹çš„ä½ç½®ä¿¡æ¯
 			for i in seledVertexs do ( append vertexs_pos (polyOp.getVert objStart i))
 			pos_sum_x = 0
 			for i in vertexs_pos do ( pos_sum_x = pos_sum_x+i[1])
@@ -2279,13 +2337,13 @@ on yunSkinOther_selRing_start pressed  do ---¿ªÊ¼»·ÏßÑ¡Ôñ
 			for i in vertexs_pos do ( pos_sum_y = pos_sum_y+i[2])
 			pos_sum_z = 0 	
 			for i in vertexs_pos do ( pos_sum_z = pos_sum_z+i[3])	
-	-- 		---Æ½¾ùÖĞĞÄµã
+	-- 		---å¹³å‡ä¸­å¿ƒç‚¹
 			pos_average_x = pos_sum_x/vertexs_pos.count
 			pos_average_y = pos_sum_y/vertexs_pos.count
 			pos_average_z = pos_sum_z/vertexs_pos.count
 			midPos = [pos_average_x,pos_average_y,pos_average_z] 			
 	
-	-- 		²æ³ËËã´¹Ö±Ïß
+	-- 		å‰ä¹˜ç®—å‚ç›´çº¿
 			dotVec = #()	
 			for i=1 to vertexs_pos.count-1 do 	(append dotVec (cross  (vertexs_pos[i]-midPos) (vertexs_pos[i+1]-midPos))	)	
 			dotVec_normalize = 	 #()
@@ -2295,10 +2353,10 @@ on yunSkinOther_selRing_start pressed  do ---¿ªÊ¼»·ÏßÑ¡Ôñ
 			else (append dotVec_normalize ([0,0,0]-(normalize (i))))
 			)
 
--- ÇóÍ¹±ß
+-- æ±‚å‡¸è¾¹
 point_node = #()
 for i in vertexs_pos do ( append point_node (point2  i[1] i[3])  )	
--- °´zÖá´óĞ¡ÅÅĞò
+-- æŒ‰zè½´å¤§å°æ’åº
 for i= 1  to point_node.count do 
 (
 	for j = 1 to   point_node.count - i do 
@@ -2311,7 +2369,7 @@ for i= 1  to point_node.count do
 	)	
 	)	
 )
--- ¼«½ÇÅÅĞò
+-- æè§’æ’åº
 base = point_node[1]
 deleteItem  point_node 1
 for i= 1 to point_node.count do 
@@ -2327,15 +2385,15 @@ for i= 1 to point_node.count do
 	)	
 )
 insertItem base point_node   1
-num =#(point_node[1],point_node[2])  ---´¢´æÍ¹±ß
+num =#(point_node[1],point_node[2])  ---å‚¨å­˜å‡¸è¾¹
 top = 2
-for i = 3 to point_node.count do    ----¶ÑÕ»ÅÅ³ı
+for i = 3 to point_node.count do    ----å †æ ˆæ’é™¤
 (
 while  top>1 and  (PPcross  (num[top]-num[top-1])  (point_node[i]-num[top-1])<0)  do 	(top=top-1)
 top = top + 1
 num[top] = point_node[i]
 )
--- Ğı×ª¿¨¿Ç
+-- æ—‹è½¬å¡å£³
 PP=#()
 PP = num
 append PP num[1]
@@ -2345,7 +2403,7 @@ u = 1
 r = 1
 l = 1
 while disVerToLine PP[1] PP[2] PP[u] <= disVerToLine PP[1] PP[2] PP[u+1] do ( u = (mod  u cnt) as integer  + 1 ) 
-l = u   ----È·¶¨×î×óµãµÄ³õÊ¼Î»ÖÃ£¬ÒòÎª×î×óµã±ØĞëÔÚ×îÓÒµãµÄºóÃæ£¬·ñÔò³õÊ¼ÖµÎª1¾Í»áÕÒµ½´íÎóµÄµã»ı´óÓÚ0µÄµã
+l = u   ----ç¡®å®šæœ€å·¦ç‚¹çš„åˆå§‹ä½ç½®ï¼Œå› ä¸ºæœ€å·¦ç‚¹å¿…é¡»åœ¨æœ€å³ç‚¹çš„åé¢ï¼Œå¦åˆ™åˆå§‹å€¼ä¸º1å°±ä¼šæ‰¾åˆ°é”™è¯¯çš„ç‚¹ç§¯å¤§äº0çš„ç‚¹
 min_s = 99999999999				
 
 for i = 1 to PP.count-1 do 
@@ -2365,13 +2423,13 @@ for i = 1 to PP.count-1 do
 )
 
 
--- ½Ç¶ÈºÍ³¤¿í
+-- è§’åº¦å’Œé•¿å®½
 box_angle  = atan2 (ans[2] - ans[3]).y  (ans[2]-ans[3]).x 
 box_height = distance ans[2] ans[1]
 box_widht  = distance ans[2] ans[3]/2
 box_height = box_height*1.15
 box_widht = box_widht*1.15
--- 	-- 		---ÖĞĞÄµã
+-- 	-- 		---ä¸­å¿ƒç‚¹
 dotVec_average_x = (ans[2].x+ans[1].x+ans[3].x+ans[4].x)/4
 dotVec_average_z = (ans[2].y+ans[1].y+ans[3].y+ans[4].y)/4
 middotVec = [dotVec_average_x,pos_average_y,dotVec_average_z] 
@@ -2384,7 +2442,7 @@ middotVec = [dotVec_average_x,pos_average_y,dotVec_average_z]
 				p2plane.name = "yunLoopVertexSel"
 -- 				p3plane.isHidden = true	
 				p3plane.name = "yunLoopVertexSelFatherHiden"
-			-- 		ÖĞĞÄÖØÖÃ
+			-- 		ä¸­å¿ƒé‡ç½®
 				mapped fn center_pivot o =(o.pivot = o.center)  undo on (center_pivot p2plane)	
 				in coordsys parent $yunLoopVertexSel.pos = [0,0,0]
 				p2plane.xray = on	
@@ -2392,17 +2450,17 @@ middotVec = [dotVec_average_x,pos_average_y,dotVec_average_z]
  			
 			in coordsys  world $yunLoopVertexSelFatherHiden.rotation = (eulerAngles 0 0 0)
 			in coordsys parent $yunLoopVertexSelFatherHiden.rotation = (eulerAngles 0 box_angle 0 )
-			$yunLoopVertexSelFatherHiden.pos = middotVec	----ÖĞĞÄÔÚÕâÀï	
+			$yunLoopVertexSelFatherHiden.pos = middotVec	----ä¸­å¿ƒåœ¨è¿™é‡Œ	
 			
 			$yunLoopVertexSel.radius	= box_widht
 			$yunLoopVertexSel.height	= 	box_height
 			mapped fn center_pivot o =(o.pivot = o.center)  undo on (center_pivot $yunLoopVertexSel)	
 			in coordsys parent $yunLoopVertexSel.pos = [0,0,0]	
--- 			½Ç¶È³£ÉÏĞŞÕı						
+-- 			è§’åº¦å¸¸ä¸Šä¿®æ­£						
 			in coordsys $yunLoopVertexSelFatherHiden $yunLoopVertexSel.pos = [0,0,10]
 			OriParentPos = in coordsys world $yunLoopVertexSelFatherHiden.pos
 			comlparePos = in coordsys world $yunLoopVertexSel.pos
-			if comlparePos[3] < OriParentPos[3] then   ----Í³Ò»³¬ÉÏ
+			if comlparePos[3] < OriParentPos[3] then   ----ç»Ÿä¸€è¶…ä¸Š
 			(
 			beforeRot = in coordsys parent $yunLoopVertexSelFatherHiden.rotation 
 			beforepos = in coordsys parent $yunLoopVertexSelFatherHiden.pos 	
