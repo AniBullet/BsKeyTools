@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-08 19:20:47
+ * @LastEditTime: 2022-07-09 02:31:17
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -12,7 +12,6 @@ try(destroydialog rolFnKeys)catch()
 try(destroydialog rolAddMyScripts)catch()
 try(destroydialog rolCustomFps)catch()
 try(destroydialog rolCustomBtn)catch()
-try(destroydialog rolTogglePanel)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
@@ -75,7 +74,7 @@ global arrAddMyMsBtn        = #()
 Global idBtn                = 1
 global idMsBtn				= 1
 global iniBsAutoCheckUpdate = true
-global iniIsCollopse		= false
+global iniIsCollopse		= true
 Global switchToolPanel      = 0
 global switchMSPanel        = 0
 Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
@@ -83,7 +82,7 @@ Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
 							301,302,303,304,305,306,307,308,309,310,311,312,
 							401,402,403,404,405,406,407,408,409,410,411,412)
 global iniIsIcon = false
-global isMouseInBsKeyTools = true
+-- global isMouseInBsKeyTools = true
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
@@ -111,6 +110,7 @@ global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误�
 
 Global rolBsKeyTools
 global rolAddMyScripts
+global rolTogglePanel
 Global posMouMoved       = [0,0]
 Global switchMouseState  = false
 Global switchSelKeyRange = 0
@@ -937,6 +937,7 @@ rcmenu menuConfig
 	(
 		menuItem mItemScriptsPath "脚本目录 [查错优化]"
 		menuItem mItemConfigFilePath "配置文件 [备份导入]"
+		menuItem mItemBackupConfigFile "备份配置 [电脑桌面]"
 		menuItem mItemRolloutBuilder "脚本界面 [学习工具]"
 	)
 
@@ -990,8 +991,7 @@ rcmenu menuConfig
 	on mItemConfigFilePath picked do
 	(
 		if (queryBox "是否打开配置文件目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
-		title:"配置文件" beep:false) then
-		(shellLaunch (getFilenamePath BulletConfig) "")
+		title:"配置文件" beep:false) then (shellLaunch (getFilenamePath BulletConfig) "")
 	)
 
 	on mItemRolloutBuilder picked do
@@ -1026,6 +1026,20 @@ rcmenu menuConfig
 				)
 			)
 		)
+	)
+
+	on mItemBackupConfigFile picked do 
+	(
+		local pathDesktop = (@"C:\Users\" + (filterString  (getdir #userscripts) @"\")[3] + @"\Desktop\")
+		local fileConfigBcakup = (pathDesktop + "//BulletConfig.ini")
+		if (SIOFile.Exists fileConfigBcakup) then 
+		(
+			fnDelFileDir fileConfigBcakup
+			SIOFile.Copy BulletConfig fileConfigBcakup
+		)
+		else (SIOFile.Copy BulletConfig fileConfigBcakup)
+		if (queryBox "是否打开配置文件备份目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
+		title:"备份配置文件" beep:false) then (shellLaunch pathDesktop "")
 	)
 
 	on mItemAddToolBarBtn picked do
@@ -1632,7 +1646,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		dotnetcontrol lblLink "Label" text:"2019.9 [ miHoYo_Bullet.S ]✨" pos:[12,226] width:145 height:15
 		button btnConfig "⚙️设置" pos:[165,222] width:49 height:22 border:false
 
-	timer timerTickTock interval:100 active:true
+	timer timerTickTock interval:200 active:true
 
 	local m_PBKeyTimeArray
 	local m_PBKeyMiliSecArray
@@ -2686,6 +2700,14 @@ rollout rolBsKeyTools "" width:220 height:250
 		if iniIsIcon do fnSwitchIconStyle()
 		if (iniBsAutoCheckUpdate == true) then 
 		(fnAutoCheckVersion curVerBsKeyTools verUrlBsKeyTools dlUrlBsKeyTools dlFileBsKeyTools)
+		if iniIsCollopse then
+		(
+			tempTogglePanelPos = (getDialogPos rolBsKeyTools)
+			SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" (tempTogglePanelPos as string)
+			rolBsKeyTools.height = 0
+			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
+			catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+		)
 		-- print ("iniBsAutoCheckUpdate: " + iniBsAutoCheckUpdate as string)
 	)
 	
@@ -2695,6 +2717,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		stSetConfigAll.fnSetConfigBsKeyTools ()
 		try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 		try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
+		try(destroydialog rolTogglePanel)catch()
 	)
 	-----------------------------------------------------------------------------------------
 	on rolBsKeyTools rbuttondown pos do 
@@ -2744,27 +2767,28 @@ rollout rolBsKeyTools "" width:220 height:250
 
 			if not (contains dialogBox mouse.screenPos) then
 			(
-				if (not isMouseInBsKeyTools) then 
-				(
-					rolTogglePanel.height = 30
-                    rolBsKeyTools.height = 0
-					try(destroydialog rolTogglePanel)catch()
-					iniTogglePanelPos = (getDialogPos rolBsKeyTools)
-					stSetConfigAll.fnSetConfigBsTogglePanel()
-					try
-					(
-						fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms")
-					)
-					catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
-                    isMouseInBsKeyTools = true
-				)
+				-- if (not isMouseInBsKeyTools) then 
+				-- (
+					-- if rolTogglePanel == undefined or rolTogglePanel.open == false then 
+					-- (
+					-- 	tempTogglePanelPos = (getDialogPos rolBsKeyTools)
+					-- 	SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" (tempTogglePanelPos as string)
+					-- 	rolBsKeyTools.height = 0
+					-- 	try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
+					-- 	catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+					-- )
+					-- else 
+					-- (
+						rolTogglePanel.timerTickTock.active = true
+						SetDialogPos rolTogglePanel (getDialogPos rolBsKeyTools)
+						rolTogglePanel.height = 60
+						rolBsKeyTools.height = 0
+					-- )
+                    -- isMouseInBsKeyTools = true
+				-- )
+				rolBsKeyTools.timerTickTock.active = false
 			)
-			else 
-			(
-				rolTogglePanel.height = 0
-                rolBsKeyTools.height = 250
-                isMouseInBsKeyTools = false
-			)
+			else (rolTogglePanel.timerTickTock.active = false)
         )
     )
 	---------------------上面设置拖动脚本窗口,去掉标题栏后默认无法拖动---------------------

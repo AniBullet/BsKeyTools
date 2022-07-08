@@ -1,14 +1,12 @@
 try(destroydialog rolTogglePanel)catch()
-try(destroydialog rolBsKeyTools)catch()
--- try(destroydialog rolFnKeys)catch()
--- try(destroydialog rolAddMyScripts)catch()
--- try(destroydialog rolCustomFps)catch()
--- try(destroydialog rolCustomBtn)catch()
 
+global rolTogglePanel
 global iniTogglePanelPos
-global heightTogglePanel    = 30
+global heightTogglePanel    = 60
 global widthToggleTools     = 520
 global isMouseInBsToolPanel = true
+global bsInitTime = #()
+global bsTimeCost = #()
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
@@ -16,55 +14,67 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
 stLoadConfigAll.fnLoadConfigBsTogglePanel()
 
-fn fnGetHitokoto = 
-(
-    local isConnectInternet = (internet.CheckConnection url:"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&charset=gbk" force:true)
-
-    if isConnectInternet == true then
-    (
-        local urlLine = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&charset=gbk&max_length=20"
-        local strAllLine = (dotNetObject "System.Net.WebClient").downloadString urlLine
-        if	strAllLine != undefined then
-        (
-            arrAllLine = filterString strAllLine "\""
-            strMainLine = arrAllLine[10]
-            strFrom = arrAllLine[18]
-            -- strFromWho = if arrAllLine[21] == ":null," then "未知" else arrAllLine[22]
-            strOneLine = ("\"" + strMainLine + "\"" + " 《" + strFrom + "》")
-            -- print strAllLine
-            -- print strOneLine
-            return strOneLine
-        )
-    )
-    else 
-    (
-        local arrDayWeek = #("日", "一", "二", "三", "四", "五", "六")
-        local arrTime = (getUniversalTime())
-		local dayWeekID = (mod arrTime[3] 7) as integer
-		return (dateTime.Year as string + "/" + dateTime.Month as string + "/" + dateTime.Day as string + "  星期" + arrDayWeek[dayWeekID + 1] as string)
-    )
-)
-
 rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogglePanel 
 (
     local ui_clientOffset         = undefined
     local toggleToolMouseState    = off
     local posToggleToolMouseMoved = [0,0]
+    local strDayLine              = ""
 
-    dotNetControl lblClosedString "Label" pos:[3,3] width:(widthToggleTools - 6) height:(heightTogglePanel - 6)
+    dotNetControl lblOneWord "Label" pos:[3,3] width:(widthToggleTools - 6) height:(heightTogglePanel - 6)
 
-    timer timerTickTock interval:100 active:true
+    timer timerTickTock interval:200 active:true
     
+    fn fnGetHitokoto = 
+    (
+        local isConnectInternet = (internet.CheckConnection url:"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&charset=gbk" force:true)
+    
+        if isConnectInternet == true then
+        (
+            local urlLine = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&charset=gbk&max_length=20"
+            local strAllLine = (dotNetObject "System.Net.WebClient").downloadString urlLine
+            if	strAllLine != undefined then
+            (
+                arrAllLine = filterString strAllLine "\""
+                strMainLine = arrAllLine[10]
+                strFrom = arrAllLine[18]
+                -- strFromWho = if arrAllLine[21] == ":null," then "未知" else arrAllLine[22]
+                strOneLine = ("\"" + strMainLine + "\"" + " 《" + strFrom + "》")
+                -- print strAllLine
+                -- print strOneLine
+                return strOneLine
+            )
+        )
+    )
+
+    fn fnGetDateTimeString =
+    (
+        local dateTime = (dotNetClass "System.DateTime").Now
+        local arrDayWeek = #("一", "二", "三", "四", "五", "六", "日")
+        local arrTime = (getLocalTime())
+        local dayWeek = arrDayWeek[(mod arrTime[3] 7) as integer]
+
+        return (dateTime.Year as string + "/" + dateTime.Month as string + "/" + \
+        dateTime.Day as string + "  星期" + dayWeek + "  " + dateTime.Hour as string +" 时 " + \
+        dateTime.Minute as string + " 分 " + dateTime.Second as string + " 秒")
+    )
+
+    fn fnStylizeLabel tempLabel =
+    (
+        tempLabel.backcolor = BsDotBackColor
+        tempLabel.forecolor = BsDotForeColor
+        tempLabel.flatstyle = (dotnetclass "System.Windows.Forms.Flatstyle").flat
+        tempLabel.TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleCenter
+        tempLabel.Font      = dotnetobject "System.Drawing.Font" "Microsoft YaHei" 10
+    )
+
     on rolTogglePanel open do 
     (
-        local strDayLine = fnGetHitokoto()
-        lblClosedString.backcolor = BsDotBackColor
-        lblClosedString.forecolor = BsDotForeColor
-        lblClosedString.flatstyle = (dotnetclass "System.Windows.Forms.Flatstyle").flat
-        lblClosedString.TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleCenter
-        lblClosedString.Font      = dotnetobject "System.Drawing.Font" "Microsoft YaHei" 10
-        -- lblClosedString.Font      = BsDotFont
-        lblClosedString.Text = strDayLine
+        local dateTime = (dotNetClass "System.DateTime").Now
+        bsInitTime = (dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second)
+        strDayLine = fnGetHitokoto()
+        fnStylizeLabel lblOneWord
+        -- lblOneWord.Font      = BsDotFont
     )
 
     on rolTogglePanel close do 
@@ -75,6 +85,14 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
 
     on timerTickTock tick do 
     (
+        local dateTime = (dotNetClass "System.DateTime").Now
+        bsSecondTime = (dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second)
+        bsTimeCost = (bsSecondTime - bsInitTime)
+        lblOneWord.Text = "已专注动画：" + ((bsTimeCost/86400) as integer) as string + " 天 " + 
+        ((((mod bsTimeCost 86400) as integer)/3600) as integer) as string + " 小时 " + 
+        ((((mod ((mod bsTimeCost 86400) as integer) 3600) as integer)/60) as integer) as string + " 分钟 " + 
+        ((mod ((mod ((mod ((mod bsTimeCost 86400) as integer) 3600) as integer) 60) as integer) 60) as integer) as string + " 秒钟 " + "\r\n" + "当前时间：" +
+        fnGetDateTimeString()  + "\r\n" + strDayLine
         if (ui_clientOffset != undefined) then (
             local mouseClientPos = mouse.screenPos - (getDialogPos rolTogglePanel) + ui_clientOffset
             
@@ -97,20 +115,14 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
                     --     fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms")
                     -- )
                     -- catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+                    rolTogglePanel.timerTickTock.active = false
                     rolTogglePanel.height = 0
                     rolBsKeyTools.height = 250
-                    isMouseInBsToolPanel = false
+                    rolBsKeyTools.timerTickTock.active = true
+                    -- isMouseInBsToolPanel = false
                     -- print (rolTogglePanel.height as string)
                     -- print (dialogBox as string + " // " + mouse.screenPos as string)
                 )
-            )
-            else if (not isMouseInBsToolPanel) then 
-            (
-                rolTogglePanel.height = 30
-                rolBsKeyTools.height = 0
-                isMouseInBsToolPanel = true
-            --     -- print (rolTogglePanel.height as string)
-            --     -- print (dialogBox as string + " // " + mouse.screenPos as string)
             )
         )
     )
