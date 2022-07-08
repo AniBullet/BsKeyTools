@@ -88,7 +88,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         local dateTime = (dotNetClass "System.DateTime").Now
         bsSecondTime = (dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second)
         bsTimeCost = (bsSecondTime - bsInitTime)
-        lblOneWord.Text = "已专注动画：" + ((bsTimeCost/86400) as integer) as string + " 天 " + 
+        lblOneWord.Text = "已运行：" + ((bsTimeCost/86400) as integer) as string + " 天 " + 
         ((((mod bsTimeCost 86400) as integer)/3600) as integer) as string + " 小时 " + 
         ((((mod ((mod bsTimeCost 86400) as integer) 3600) as integer)/60) as integer) as string + " 分钟 " + 
         ((mod ((mod ((mod ((mod bsTimeCost 86400) as integer) 3600) as integer) 60) as integer) 60) as integer) as string + " 秒钟 " + "\r\n" + "当前时间：" +
