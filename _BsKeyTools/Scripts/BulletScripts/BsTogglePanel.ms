@@ -54,14 +54,14 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     on rolTogglePanel open do 
     (
         local strDayLine = fnGetHitokoto()
+        lblClosedString.backcolor = BsDotBackColor
+        lblClosedString.forecolor = BsDotForeColor
         lblClosedString.flatstyle = (dotnetclass "System.Windows.Forms.Flatstyle").flat
-        lblClosedString.Text = strDayLine
         lblClosedString.TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleCenter
         lblClosedString.ForeColor = (dotnetclass"System.Drawing.color").limegreen
         lblClosedString.Font      = dotnetobject "System.Drawing.Font" "Microsoft YaHei" 10
         -- lblClosedString.Font      = BsDotFont
-        lblClosedString.backcolor = BsDotBackColor
-        lblClosedString.forecolor = BsDotForeColor
+        lblClosedString.Text = strDayLine
 
         -- local arrTime = (getUniversalTime())
 		-- local dayWeekID = (mod arrTime[3] 7) as integer
