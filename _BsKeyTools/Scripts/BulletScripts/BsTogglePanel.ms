@@ -36,7 +36,13 @@ fn fnGetHitokoto =
             return strOneLine
         )
     )
-    else (messagebox "请求失败，请检查网络连接后重试！"                                                        )
+    else 
+    (
+        local arrDayWeek = #("日", "一", "二", "三", "四", "五", "六")
+        local arrTime = (getUniversalTime())
+		local dayWeekID = (mod arrTime[3] 7) as integer
+		return (dateTime.Year as string + "/" + dateTime.Month as string + "/" + dateTime.Day as string + "  星期" + arrDayWeek[dayWeekID + 1] as string)
+    )
 )
 
 rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightToggleClose 
@@ -45,7 +51,6 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     -- local isMouseInside           = true
     local toggleToolMouseState    = off
     local posToggleToolMouseMoved = [0,0]
-    -- local arrDayWeek = #("日", "一", "二", "三", "四", "五", "六")
 
     dotNetControl lblClosedString "Label" pos:[3,3] width:(widthToggleTools - 6) height:(heightToggleClose - 6)
 
@@ -61,11 +66,6 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         lblClosedString.Font      = dotnetobject "System.Drawing.Font" "Microsoft YaHei" 10
         -- lblClosedString.Font      = BsDotFont
         lblClosedString.Text = strDayLine
-
-        -- local arrTime = (getUniversalTime())
-		-- local dayWeekID = (mod arrTime[3] 7) as integer
-		-- lblClosedString.text = dateTime.Year as string + "/" + dateTime.Month as string + "/" \
-		-- + dateTime.Day as string + "  星期" + arrDayWeek[dayWeekID + 1] as string
     )
 
     on rolTogglePanel close do 
