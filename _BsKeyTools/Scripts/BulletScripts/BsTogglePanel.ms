@@ -60,7 +60,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         lblClosedString.ForeColor = (dotnetclass"System.Drawing.color").limegreen
         lblClosedString.Font      = dotnetobject "System.Drawing.Font" "Microsoft YaHei" 10
         -- lblClosedString.Font      = BsDotFont
-        -- lblClosedString.backcolor = BsDotBackColor
+        lblClosedString.backcolor = BsDotBackColor
         lblClosedString.forecolor = BsDotForeColor
 
         -- local arrTime = (getUniversalTime())
