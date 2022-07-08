@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-08 00:28:02
+ * @LastEditTime: 2022-07-08 19:20:47
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -83,6 +83,7 @@ Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
 							301,302,303,304,305,306,307,308,309,310,311,312,
 							401,402,403,404,405,406,407,408,409,410,411,412)
 global iniIsIcon = false
+global isMouseInBsKeyTools = true
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
@@ -2743,14 +2744,26 @@ rollout rolBsKeyTools "" width:220 height:250
 
 			if not (contains dialogBox mouse.screenPos) then
 			(
-				try(destroydialog rolTogglePanel)catch()
-				iniTogglePanelPos = (getDialogPos rolBsKeyTools)
-				stSetConfigAll.fnSetConfigBsTogglePanel()
-				try
+				if (not isMouseInBsKeyTools) then 
 				(
-					fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms")
+					rolTogglePanel.height = 30
+                    rolBsKeyTools.height = 0
+					try(destroydialog rolTogglePanel)catch()
+					iniTogglePanelPos = (getDialogPos rolBsKeyTools)
+					stSetConfigAll.fnSetConfigBsTogglePanel()
+					try
+					(
+						fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms")
+					)
+					catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+                    isMouseInBsKeyTools = true
 				)
-				catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+			)
+			else 
+			(
+				rolTogglePanel.height = 0
+                rolBsKeyTools.height = 250
+                isMouseInBsKeyTools = false
 			)
         )
     )

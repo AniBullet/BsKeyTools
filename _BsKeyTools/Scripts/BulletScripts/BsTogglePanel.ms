@@ -5,8 +5,7 @@ try(destroydialog rolBsKeyTools)catch()
 -- try(destroydialog rolCustomFps)catch()
 -- try(destroydialog rolCustomBtn)catch()
 
-global heightToggleClose = 30
--- global heightToggleOpen  = 200
+global heightTogglePanel = 30
 global widthToggleTools  = 520
 global iniTogglePanelPos
 
@@ -45,14 +44,14 @@ fn fnGetHitokoto =
     )
 )
 
-rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightToggleClose 
+rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogglePanel 
 (
     local ui_clientOffset         = undefined
-    -- local isMouseInside           = true
+    local isMouseInside           = true
     local toggleToolMouseState    = off
     local posToggleToolMouseMoved = [0,0]
 
-    dotNetControl lblClosedString "Label" pos:[3,3] width:(widthToggleTools - 6) height:(heightToggleClose - 6)
+    dotNetControl lblClosedString "Label" pos:[3,3] width:(widthToggleTools - 6) height:(heightTogglePanel - 6)
 
     timer timerTickTock interval:100 active:true
     
@@ -84,33 +83,35 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
             
             if (contains dialogBox mouse.screenPos) then 
             (
-                -- if isMouseInside then
-                -- (
+                if isMouseInside then
+                (
                     -- try(destroydialog rolBsKeyTools)catch()
                     -- try(destroydialog rolFnKeys)catch()
                     -- try(destroydialog rolAddMyScripts)catch()
                     -- try(destroydialog rolCustomFps)catch()
                     -- try(destroydialog rolCustomBtn)catch()
-                    iniPos = (getDialogPos rolTogglePanel)
-                    SetINISetting BulletConfig "BulletKeyToolsSet"  "Pos" (iniPos as string)
-                    try
-                    (
-                        fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms")
-                    )
-                    catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
-                    -- rolTogglePanel.height = heightToggleOpen
-                    -- isMouseInside = false
+                    -- iniPos = (getDialogPos rolTogglePanel)
+                    -- SetINISetting BulletConfig "BulletKeyToolsSet"  "Pos" (iniPos as string)
+                    -- try
+                    -- (
+                    --     fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms")
+                    -- )
+                    -- catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+                    rolTogglePanel.height = 0
+                    rolBsKeyTools.height = 250
+                    isMouseInside = false
                     -- print (rolTogglePanel.height as string)
                     -- print (dialogBox as string + " // " + mouse.screenPos as string)
-                -- )
+                )
             )
-            -- else if (not isMouseInside) then 
-            -- (
-            --     rolTogglePanel.height = heightToggleClose
-            --     isMouseInside = true
+            else if (not isMouseInside) then 
+            (
+                rolTogglePanel.height = 30
+                rolBsKeyTools.height = 0
+                isMouseInside = true
             --     -- print (rolTogglePanel.height as string)
             --     -- print (dialogBox as string + " // " + mouse.screenPos as string)
-            -- )
+            )
         )
     )
 
