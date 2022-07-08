@@ -5,9 +5,10 @@ try(destroydialog rolBsKeyTools)catch()
 -- try(destroydialog rolCustomFps)catch()
 -- try(destroydialog rolCustomBtn)catch()
 
-global heightTogglePanel = 30
-global widthToggleTools  = 520
 global iniTogglePanelPos
+global heightTogglePanel    = 30
+global widthToggleTools     = 520
+global isMouseInBsToolPanel = true
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
@@ -47,7 +48,6 @@ fn fnGetHitokoto =
 rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogglePanel 
 (
     local ui_clientOffset         = undefined
-    local isMouseInside           = true
     local toggleToolMouseState    = off
     local posToggleToolMouseMoved = [0,0]
 
@@ -83,7 +83,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
             
             if (contains dialogBox mouse.screenPos) then 
             (
-                if isMouseInside then
+                if isMouseInBsToolPanel then
                 (
                     -- try(destroydialog rolBsKeyTools)catch()
                     -- try(destroydialog rolFnKeys)catch()
@@ -99,16 +99,16 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
                     -- catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
                     rolTogglePanel.height = 0
                     rolBsKeyTools.height = 250
-                    isMouseInside = false
+                    isMouseInBsToolPanel = false
                     -- print (rolTogglePanel.height as string)
                     -- print (dialogBox as string + " // " + mouse.screenPos as string)
                 )
             )
-            else if (not isMouseInside) then 
+            else if (not isMouseInBsToolPanel) then 
             (
                 rolTogglePanel.height = 30
                 rolBsKeyTools.height = 0
-                isMouseInside = true
+                isMouseInBsToolPanel = true
             --     -- print (rolTogglePanel.height as string)
             --     -- print (dialogBox as string + " // " + mouse.screenPos as string)
             )
