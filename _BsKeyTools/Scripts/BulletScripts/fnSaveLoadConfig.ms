@@ -94,11 +94,6 @@ struct stLoadConfigAll
 		fnLoadMsBtnConfig()
 		-- print "Loaded BsKeyTools Config"
 	),
-	fn fnLoadConfigBsAnimButton =
-	(
-		iniPosAnimButtonTools = fnGetConfig iniPosAnimButtonTools "BsAnimButtonSet" "PosAnimButton" "0"
-		iniAnimButtonSelected = fnGetConfig iniAnimButtonSelected "BsAnimButtonSet" "AnimButtonSelected" "0"
-	),
 	fn fnLoadConfigBsOpenTools =
 	(
 		iniPosOpenTools   = fnGetConfig iniPosOpenTools "BsOpenToolsSet" "PosOpenTools" "0"
@@ -145,11 +140,6 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "IsCollopse" (iniIsCollopse as string)
 		fnSetToolBtnConfig()
 		fnSetMsBtnConfig()
-	),
-	fn fnSetConfigBsAnimButton =
-	(
-		SetINISetting BulletConfig "BsAnimButtonSet" "PosAnimButton" (iniPosAnimButtonTools as string)
-		SetINISetting BulletConfig "BsAnimButtonSet" "AnimButtonSelected" (rolBsAnimButton.dotnetTabCon.SelectedIndex as string)
 	),
 	fn fnSetConfigBsOpenTools =
 	(

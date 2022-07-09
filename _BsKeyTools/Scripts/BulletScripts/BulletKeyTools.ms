@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-09 02:31:17
+ * @LastEditTime: 2022-07-09 11:04:45
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -905,13 +905,14 @@ rcmenu menuConfig
 		menuItem mItemHelpDoc ">> 帮助文档 <<"
 		menuItem mItemBugReport ">> 问题建议 <<"
 		menuItem mItemClose "关闭 [空白处中键]"
-		menuItem mItemUninstall "卸载 [期待再见]"
-		subMenu "关于我 [欢迎交流]"
-		(
+		menuItem mItemUninstall "卸载 [期待再再见]"
+		-- subMenu "关于我 [欢迎交流]"
+		-- (
+			separator menuAboutMe
 			menuItem mItemBilibili "📺 Bilibili"
 			menuItem mItemTwitter "🐦 Twitter"
 			menuItem mItemQgroup "🐧 Qgroup"
-		)
+		-- )
 	)
 	separator menuSepHelp
 	menuItem mItemCleanVirus "杀毒工具 [推荐开启]"
@@ -2769,21 +2770,21 @@ rollout rolBsKeyTools "" width:220 height:250
 			(
 				-- if (not isMouseInBsKeyTools) then 
 				-- (
-					-- if rolTogglePanel == undefined or rolTogglePanel.open == false then 
-					-- (
-					-- 	tempTogglePanelPos = (getDialogPos rolBsKeyTools)
-					-- 	SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" (tempTogglePanelPos as string)
-					-- 	rolBsKeyTools.height = 0
-					-- 	try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
-					-- 	catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
-					-- )
-					-- else 
-					-- (
+					if rolTogglePanel == undefined or rolTogglePanel.open == false then 
+					(
+						tempTogglePanelPos = (getDialogPos rolBsKeyTools)
+						SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" (tempTogglePanelPos as string)
+						rolBsKeyTools.height = 0
+						try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
+						catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+					)
+					else 
+					(
 						rolTogglePanel.timerTickTock.active = true
 						SetDialogPos rolTogglePanel (getDialogPos rolBsKeyTools)
 						rolTogglePanel.height = 60
 						rolBsKeyTools.height = 0
-					-- )
+					)
                     -- isMouseInBsKeyTools = true
 				-- )
 				rolBsKeyTools.timerTickTock.active = false
