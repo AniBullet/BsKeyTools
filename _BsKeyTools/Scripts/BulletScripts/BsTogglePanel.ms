@@ -21,7 +21,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     local posToggleToolMouseMoved = [0,0]
     local strDayLine              = ""
 
-    dotNetControl lblOneWord "Label" pos:[3,3] width:(widthToggleTools - 6) height:(heightTogglePanel - 6)
+    dotNetControl lblOneWord "Label" pos:[2,2] width:(widthToggleTools - 4) height:(heightTogglePanel - 4)
 
     timer timerTickTock interval:200 active:true
     
@@ -149,4 +149,4 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     )
 
 )
-Createdialog rolTogglePanel fgcolor:myFgColor pos:iniTogglePanelPos style:#()
+Createdialog rolTogglePanel fgcolor:myFgColor pos:iniTogglePanelPos style:#() bitmap:(bitmap widthToggleTools heightTogglePanel color:white)
