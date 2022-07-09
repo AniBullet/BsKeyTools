@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-09 01:15:27
+ * @LastEditTime: 2022-07-10 00:49:48
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -27,7 +27,7 @@ stLoadConfigAll.fnLoadConfigBsOpenTools ()
 
 struct itemsFolder (name,dir)
 global dateTime = (dotNetClass "System.DateTime").Now
-global arrDayWeek = #("一", "二", "三", "四", "五", "六", "日")
+global arrDayWeek = #("日", "一", "二", "三", "四", "五", "六")
 Global BulletConfig = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 
 -- Global iniRefPicDir			= (itemsFolder name:"RefPicDir" dir:"")
@@ -414,7 +414,7 @@ rollout rolBsOpenTools "" width:340 height:365
 		local arrTime = (getLocalTime())
 		local dayWeekID = (mod arrTime[3] 7) as integer
 		lblDateTime.text = dateTime.Year as string + "/" + dateTime.Month as string + "/" \
-		+ dateTime.Day as string + "  星期" + arrDayWeek[dayWeekID] as string
+		+ dateTime.Day as string + "  星期" + arrDayWeek[dayWeekID + 1] as string
 	)
 
 	----------------------------------------------------------------------------------------------------

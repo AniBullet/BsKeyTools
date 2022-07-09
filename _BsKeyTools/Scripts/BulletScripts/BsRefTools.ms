@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2020-12-29 01:12:45
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-09 01:15:34
+ * @LastEditTime: 2022-07-10 00:50:08
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -42,7 +42,7 @@ global numCurrentPic = 1
 global tempSavePath  = (getdir #temp) + @"\\tempReferencePic"
 
 global dateTime = (dotNetClass "System.DateTime").Now
-global arrDayWeek = #("一", "二", "三", "四", "五", "六", "日")
+global arrDayWeek = #("日", "一", "二", "三", "四", "五", "六")
 Global posMouMove       = [0,0]
 global tempAddFolderID  = "0"
 Global arrRefType       = #("静帧","动图","视频","剪切板")
@@ -766,7 +766,7 @@ rollout rolRefTools ("[参考工具]-BsRefTools_v" + currentVersion)  width:340 
 		local arrTime = (getLocalTime())
 		local dayWeekID = (mod arrTime[3] 7) as integer
 		lblDateTime.text = dateTime.Year as string + "/" + dateTime.Month as string + "/" \
-		+ dateTime.Day as string + "  星期" + arrDayWeek[dayWeekID] as string
+		+ dateTime.Day as string + "  星期" + arrDayWeek[dayWeekID + 1] as string
 	)
 
 	on rolRefTools rbuttondown pos do 
