@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-09 11:04:45
+ * @LastEditTime: 2022-07-10 01:56:18
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -66,7 +66,11 @@ Global iniArrMyScripts5   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:8 msName:"<＋＋>" dir:""),
 (myScript id:9 msName:"<＋＋>" dir:""),
 (myScript id:10 msName:"<＋＋>" dir:""))
-Global BulletConfig = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
+Global BulletConfig       = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
+Global startupBsKeyTools  = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"
+Global startupPath        = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
+Global startupMarcroPath  = (getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"
+Global startupMenuBarPath = (getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"
 Global iniPos  	--位置保存记录
 global iniTogglePanelPos
 global arrMyMsBtn           = #()
@@ -293,7 +297,7 @@ fn addToolBarButton macro cat txt remove: false =
 		cui.loadConfig f
 		
 		l = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"0\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
-		delBtnLine = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"77\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
+		delBtnLine = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"62\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
 		if(remove) then
 		(			
 			insertContent f find: delBtnLine rewrite: true
@@ -896,10 +900,6 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 
 rcmenu menuConfig
 (
-	local startupBsKeyTools = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"
-	local startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
-	local startupMarcroPath = (getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"
-	local startupMenuBarPath = (getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"
 	subMenu "帮助  /  Help"
 	(
 		menuItem mItemHelpDoc ">> 帮助文档 <<"
@@ -1022,7 +1022,7 @@ rcmenu menuConfig
 				)
 				catch
 				(
-					messagebox ("自启失败，烦请手动处理：\r\n把 BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					messagebox ("自启失败，烦请手动处理：\r\n把 StartupMS\\BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
 					(shellLaunch (getfilenamepath startupBsKeyTools) "")
 				)
 			)

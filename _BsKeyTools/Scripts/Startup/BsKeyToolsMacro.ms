@@ -182,4 +182,70 @@
 			catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 		)
 	)
+
+	macroScript BsKeyToolsStartupOn
+	category:"_[BulletTools]"
+	buttonText:"开启"
+	toolTip:"开启自动启动工具"
+	(
+		on execute do
+		(
+			if (not (SIOFile.Exists startupPath)) do
+			(
+				try 
+				(
+					SIOFile.Copy startupBsKeyTools startupPath
+					messagebox ("已打开 BsKeyTools 自启！                  ")  title:"自启设置"
+					setFileAttribute startupPath #readOnly true
+				)
+				catch
+				(
+					messagebox ("自启失败，烦请手动处理：\r\n把 StartupMS\\BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					(shellLaunch (getfilenamepath startupBsKeyTools) "")
+				)
+			)
+		)
+	)
+
+	macroScript BsKeyToolsStartupOff
+	category:"_[BulletTools]"
+	buttonText:"关闭"
+	toolTip:"关闭自动启动工具"
+	(
+		on execute do
+		(
+			-- try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
+			-- catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+			fnDelFileDir startupPath
+			-- rolBsKeyTools.mItemIsStartup.checked = false
+			messagebox ("已解除 BsKeyTools 自启！                  ")  title:"自启设置"
+		)
+	)
+
+	macroScript BsKeyToolsBarAdd
+	category:"_[BulletTools]"
+	buttonText:"添加"
+	toolTip:"添加工具栏按钮"
+	(
+		on execute do
+		(
+			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
+			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools"
+			iniAddToolbars = 1
+			SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
+		)
+	)
+
+	macroScript BsKeyToolsBarRemove
+	category:"_[BulletTools]"
+	buttonText:"移除"
+	toolTip:"移除工具栏按钮"
+	(
+		on execute do
+		(
+			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
+			iniAddToolbars = 0
+			SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
+		)
+	)
 )
