@@ -5,8 +5,8 @@ global iniTogglePanelPos
 global heightTogglePanel    = 60
 global widthToggleTools     = 520
 global isMouseInBsToolPanel = true
-global bsInitTime = #()
-global bsTimeCost = #()
+global bsInitTime
+global bsTimeCost
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
