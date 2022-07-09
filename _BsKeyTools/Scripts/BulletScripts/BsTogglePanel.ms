@@ -7,6 +7,7 @@ global widthToggleTools     = 520
 global isMouseInBsToolPanel = true
 global bsInitTime
 global bsTimeCost
+global arrDayWeek = #("一", "二", "三", "四", "五", "六", "日")
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
@@ -50,7 +51,6 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     fn fnGetDateTimeString =
     (
         local dateTime = (dotNetClass "System.DateTime").Now
-        local arrDayWeek = #("一", "二", "三", "四", "五", "六", "日")
         local arrTime = (getLocalTime())
         local dayWeek = arrDayWeek[(mod arrTime[3] 7) as integer]
 
