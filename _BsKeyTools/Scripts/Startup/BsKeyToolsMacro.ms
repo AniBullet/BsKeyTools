@@ -14,8 +14,8 @@
 
 	macroScript BsKeyToolsPosReset
 	category:"_[BulletTools]"
-	buttonText:"工具窗口位置重置"
-	toolTip:"工具窗口位置重置"
+	buttonText:"工具窗口  位置重置"
+	toolTip:"工具窗口  位置重置"
 	(
 		on execute do
 		(
@@ -168,6 +168,18 @@
 		(
 			if (queryBox "是否加入个人分享交流群？\r\n\r\n(游戏，动画爱好者休闲吹水正能量分享群)\r\n\r\n子弹工具人(993590655)，确认可直接跳转链接~          \r\n        " \
 			title:"加入交流群" beep:false) then (shellLaunch "https://jq.qq.com/?_wv=1027&k=hmeHhTwu" "")
+		)
+	)
+
+	macroScript BsCleanVirus
+	category:"_[BulletTools]"
+	buttonText:"杀毒工具  推荐开启"
+	toolTip:"杀毒工具  推荐开启"
+	(
+		on execute do
+		(
+            try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsCleanVirus.ms"))
+			catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 		)
 	)
 )

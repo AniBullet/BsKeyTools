@@ -29,8 +29,10 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
     local mItemUrlBilibili = menuMan.createActionItem "UrlBilibili" "_[BulletTools]"
     local mItemUrlTwitter = menuMan.createActionItem "UrlTwitter" "_[BulletTools]"
     local mItemUrlQgroup = menuMan.createActionItem "UrlQgroup" "_[BulletTools]"
+    local mItemBsCleanVirus = menuMan.createActionItem "BsCleanVirus" "_[BulletTools]"
 
     menuBsTool.addItem separatorBsKeyTools -1
+    menuBsTool.addItem mItemBsCleanVirus -1
     menuBsTool.addItem mItemPosReset -1
     menuBsTool.addItem separatorBsKeyTools -1
     menuBsTool.addItem mItemTool -1
