@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-10 19:25:38
+ * @LastEditTime: 2022-07-11 00:06:37
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1571,8 +1571,8 @@ rollout rolBsKeyTools "" width:220 height:250
 		tooltip:"动画重定向工具" pos:btnPos
 		button btnCombineDetachSkin "Skin 拆合" width:btnWidth height:btnHeight visible:false \
 		tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos
-		button btnTemp4 "待添加4" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
+		button btnClearBiped "Biped重置" width:btnWidth height:btnHeight visible:false \
+		tooltip:"清除所有帧，恢复 Biped Figure Pose" pos:btnPos
 		button btnTemp5 "待添加5" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
 		button btnTemp6 "待添加6" width:btnWidth height:btnHeight visible:false \
@@ -1736,7 +1736,7 @@ rollout rolBsKeyTools "" width:220 height:250
 						rolBsKeyTools.btnKeyStepMode,rolBsKeyTools.btnFnKeyType,
 						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnXrSkinTool,
 						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
-						rolBsKeyTools.btnTemp4,rolBsKeyTools.btnTemp5)
+						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTemp5)
 		arrSourToolC4 = #(rolBsKeyTools.btnTemp6,rolBsKeyTools.btnTemp7,
 						rolBsKeyTools.btnTemp8,rolBsKeyTools.btnTemp9,
 						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
@@ -3215,6 +3215,19 @@ rollout rolBsKeyTools "" width:220 height:250
 				maxops.deleteSelectedAnimation()
 			)
 			else (maxops.deleteSelectedAnimation())
+		)
+	)
+
+	on btnClearBiped pressed do with undo on 
+	(
+		if (queryBox "是否恢复 Biped Figure Pose？\r\n\r\n会清除所有 Biped 关键帧！！！\r\n\r\n(请注意保存 Skin Pose 和备份文件！)                                " \
+		title:"是否恢复 Biped Figure Pose" beep:false) then
+		(
+			if selection.count == 1 and classof $ == Biped_Object then
+			(
+				biped.clearAllAnimation $.controller
+			)
+			else (messagebox "请选择任意【一个】 Biped 骨骼！！！                             ")
 		)
 	)
 
