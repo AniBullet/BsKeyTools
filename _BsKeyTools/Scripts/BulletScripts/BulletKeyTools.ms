@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-10 17:37:55
+ * @LastEditTime: 2022-07-10 19:25:38
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -15,7 +15,7 @@ try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
-global curVerBsKeyTools = "0.9.9_Beta"
+global curVerBsKeyTools = "0.9.9"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
@@ -1482,7 +1482,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		button btnPoseTool "库" pos:[50,190] width:20 height:25 \
 		toolTip:"参考库工具,待完善"
 		button btnTrackBarTools "帧栏" pos:[70,190] width:40 height:25 \
-		toolTip:"帧栏工具条" enabled:false
+		toolTip:"帧栏工具条"
 		button btnSetFps "" pos:[110,190] width:50 height:25 \
 		toolTip:"设置帧率" 
 		button btnSetSpeed "" pos:[160,190] width:50 height:25 \
@@ -1517,7 +1517,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		button btnEulerFilter "欧拉过滤" width:btnWidth height:btnHeight visible:false \
 		tooltip:"Bone骨骼过滤欧拉旋转" pos:btnPos
 		button btnDelOutKeys "清所有帧" width:btnWidth height:btnHeight visible:false \
-		toolTip:"清除所有帧\r\nLink帧请手动删" pos:btnPos
+		toolTip:"清除所有关键帧" pos:btnPos
 		button btnCleanOutKeys "清无限帧" width:btnWidth height:btnHeight visible:false \
 		toolTip:"清范围外帧(无限帧)" pos:btnPos
 		button btnSelBiped "选 Biped" width:btnWidth height:btnHeight visible:false \
@@ -1570,7 +1570,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		button btnRetargetTools "重重定向" width:btnWidth height:btnHeight visible:false \
 		tooltip:"动画重定向工具" pos:btnPos
 		button btnCombineDetachSkin "Skin 拆合" width:btnWidth height:btnHeight visible:false \
-		tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos enabled:false
+		tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos
 		button btnTemp4 "待添加4" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
 		button btnTemp5 "待添加5" width:btnWidth height:btnHeight visible:false \
@@ -1867,34 +1867,34 @@ rollout rolBsKeyTools "" width:220 height:250
 		)
 	)
 
-	fn fnDelSelKeys =
-	(
-		for o in selection where (o.ishidden == false) do 
-		(
-			if (classof o == Biped_Object) then
-			(
-				if classof o.controller == Vertical_Horizontal_Turn then  --清理质心帧
-				(
-					biped.deleteKeys o.controller.vertical #selection
-					biped.deleteKeys o.controller.horizontal #selection
-					if (((sysinfo.GetMaxLanguage())[3]=="CHS") and ((maxVersion())[1] < 20000)) then 
-						(biped.deleteKeys o.controller.flip #selection)
-						else(biped.deleteKeys o.controller.turning #selection)
-				)
-				else if classof o.controller == BipSlave_Control then  --清理biped正常帧
-				(
-					biped.deleteKeys o.controller #selection
-					subanimBipedScale = GetSubAnim o.controller[1] 1
-					if ((subanimBipedScale != undefined) and \
-					(GetSubAnimName subanimBipedScale 1 == #ScaleXYZ)) then  --清理biped的缩放针
-					(
-						deleteKeys subanimBipedScale.controller #selection
-					)
-				)
-			)
-			else (deleteKeys o #selection)   ---清理非biped帧
-		)
-	)
+	-- fn fnDelSelKeys =
+	-- (
+	-- 	for o in selection where (o.ishidden == false) do 
+	-- 	(
+	-- 		if (classof o == Biped_Object) then
+	-- 		(
+	-- 			if classof o.controller == Vertical_Horizontal_Turn then  --清理质心帧
+	-- 			(
+	-- 				biped.deleteKeys o.controller.vertical #selection
+	-- 				biped.deleteKeys o.controller.horizontal #selection
+	-- 				if (((sysinfo.GetMaxLanguage())[3]=="CHS") and ((maxVersion())[1] < 20000)) then 
+	-- 					(biped.deleteKeys o.controller.flip #selection)
+	-- 					else(biped.deleteKeys o.controller.turning #selection)
+	-- 			)
+	-- 			else if classof o.controller == BipSlave_Control then  --清理biped正常帧
+	-- 			(
+	-- 				biped.deleteKeys o.controller #selection
+	-- 				subanimBipedScale = GetSubAnim o.controller[1] 1
+	-- 				if ((subanimBipedScale != undefined) and \
+	-- 				(GetSubAnimName subanimBipedScale 1 == #ScaleXYZ)) then  --清理biped的缩放针
+	-- 				(
+	-- 					deleteKeys subanimBipedScale.controller #selection
+	-- 				)
+	-- 			)
+	-- 		)
+	-- 		else (deleteKeys o #selection)   ---清理非biped帧
+	-- 	)
+	-- )
 
 	fn fnDelAllDecimalKeys arrAllKey = 
 	(
@@ -3199,16 +3199,22 @@ rollout rolBsKeyTools "" width:220 height:250
 
 	on btnDelOutKeys pressed do with undo on-----------清理选择帧
 	(
-		if (queryBox "是否清除所有帧？\r\n( Link 帧请手动删除 )    " \
-		title:"是否清除所有帧" beep:false) then
+		if (queryBox "是否清除所有关键帧？\r\n\r\n有选择物体则删选择物体的帧，\r\n\r\n否则删所有物体的关键帧。\r\n\r\n(请注意保存 Skin Pose 和备份文件！)                                " \
+		title:"是否清除所有关键帧" beep:false) then
 		(
-			actionMan.executeAction 0 "40021"  -- Selection: Select All
-			fnCollectKeys ()
-			fnSelKeys keyFirst keyEnd 2
-			fnDelSelKeys ()
-			if arrLinkKeys.count != 0 then (
-				fnSelLinkKeys arrLinkKeys[1].time arrLinkKeys[arrLinkKeys.count].time 2
+			-- max select all  -- Selection: Select All
+			-- fnCollectKeys ()
+			-- fnSelKeys keyFirst keyEnd 2
+			-- fnDelSelKeys ()
+			-- if arrLinkKeys.count != 0 then (
+			-- 	fnSelLinkKeys arrLinkKeys[1].time arrLinkKeys[arrLinkKeys.count].time 2
+			-- )
+			if selection.count == 0 then
+			(
+				max select all
+				maxops.deleteSelectedAnimation()
 			)
+			else (maxops.deleteSelectedAnimation())
 		)
 	)
 
