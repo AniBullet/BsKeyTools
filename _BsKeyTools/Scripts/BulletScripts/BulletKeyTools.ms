@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-11 13:58:25
+ * @LastEditTime: 2022-07-11 14:05:03
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1166,7 +1166,7 @@ rcmenu menuConfig
 		)
 		else
 		(
-			if mItemCollapseFull.checked = true then iniCollopseType = 2
+			if mItemCollapseFull.checked == true then iniCollopseType = 2
 			else iniCollopseType = 0
 		)
 		rolBsKeyTools.timerTickTock.active = mItemCollapse.checked
@@ -1183,7 +1183,7 @@ rcmenu menuConfig
 		)
 		else
 		(
-			if mItemCollapse.checked = true then iniCollopseType = 1
+			if mItemCollapse.checked == true then iniCollopseType = 1
 			else iniCollopseType = 0
 		)
 		rolBsKeyTools.timerTickTock.active = mItemCollapseFull.checked

@@ -20,14 +20,14 @@ global dotColor = dotnetclass "System.Drawing.Color"
 		)
 		else
 		(
-			myFgColor    = (color 0 255 92)
+			myFgColor    = (color 71 192 192)
 			myClickColor = (color 0 255 127)
 			myCheckedColor = (color 10 140 120)
 		)
 	)
 	else
 	(
-		myFgColor    = (color 0 255 92)
+		myFgColor    = (color 71 192 192)
 		myClickColor = (color 0 255 127)
 		myCheckedColor = (color 10 140 120)
 	)
