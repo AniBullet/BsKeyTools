@@ -89,7 +89,7 @@ struct stLoadConfigAll
 		idMsBtn              = fnGetConfig idMsBtn "BulletKeyToolsSet"  "idMsBtn" (idMsBtn as string)
 		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet"  "IsIcon" (iniIsIcon as string)
-		iniIsCollopse		 = fnGetConfig iniIsIcon "BulletKeyToolsSet"  "IsCollopse" (iniIsCollopse as string)
+		iniCollopseType		 = fnGetConfig iniIsIcon "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
 		fnLoadToolBtnConfig()
 		fnLoadMsBtnConfig()
 		-- print "Loaded BsKeyTools Config"
@@ -137,7 +137,7 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "idMsBtn" (idMsBtn as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "IsIcon" (iniIsIcon as string)
-		SetINISetting BulletConfig "BulletKeyToolsSet"  "IsCollopse" (iniIsCollopse as string)
+		SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
 		fnSetToolBtnConfig()
 		fnSetMsBtnConfig()
 	),

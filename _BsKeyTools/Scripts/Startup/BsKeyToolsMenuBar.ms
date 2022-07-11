@@ -12,30 +12,31 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
         )
     )
     
-    local menuBsTool            = menuMan.createMenu strMenuName
-    local separatorBsKeyTools   = menuMan.createSeparatorItem()
-    local mItemTool             = menuMan.createActionItem "BulletKeyTools" "_[BulletTools]"
-    local mItemPosReset         = menuMan.createActionItem "BsKeyToolsPosReset" "_[BulletTools]"
-    local menuTogglePanel       = menuMan.createMenu "自动收缩面板"
-    Local mItemOpenTogglePanel  = menuMan.createActionItem "OpenBsTogglePanel" "_[BulletTools]"
-    local mItemCloseTogglePanel = menuMan.createActionItem "CloseBsTogglePanel" "_[BulletTools]"
-    local menuToolsHelp         = menuMan.createMenu "帮助 / Help"
-    local mItemBsToolsDocs      = menuMan.createActionItem "UrlBsToolsDocs" "_[BulletTools]"
-    local mItemBsToolsIssues    = menuMan.createActionItem "UrlBsToolsIssues" "_[BulletTools]"
-    local menuCheckUpdate       = menuMan.createMenu "自动检测更新"
-    local mItemCheckUpdateOn    = menuMan.createActionItem "CheckUpdateOn" "_[BulletTools]"
-    local mItemCheckUpdateOff   = menuMan.createActionItem "CheckUpdateOff" "_[BulletTools]"
-    local mItemUninstall        = menuMan.createActionItem "UninstallBsKeyTools" "_[BulletTools]"
-    local mItemUrlBilibili      = menuMan.createActionItem "UrlBilibili" "_[BulletTools]"
-    local mItemUrlTwitter       = menuMan.createActionItem "UrlTwitter" "_[BulletTools]"
-    local mItemUrlQgroup        = menuMan.createActionItem "UrlQgroup" "_[BulletTools]"
-    local mItemBsCleanVirus     = menuMan.createActionItem "BsCleanVirus" "_[BulletTools]"
-    local menuAutoStartup       = menuMan.createMenu "自动启动脚本"
-    Local mItemStartupOn        = menuMan.createActionItem "BsKeyToolsStartupOn" "_[BulletTools]"
-    local mItemStartupOff       = menuMan.createActionItem "BsKeyToolsStartupOff" "_[BulletTools]"
-    local menuToolBar           = menuMan.createMenu "+菜单栏按钮-"
-    Local mItemToolBarAdd       = menuMan.createActionItem "BsKeyToolsBarAdd" "_[BulletTools]"
-    local mItemToolBarRemove    = menuMan.createActionItem "BsKeyToolsBarRemove" "_[BulletTools]"
+    local menuBsTool          = menuMan.createMenu strMenuName
+    local separatorBsKeyTools = menuMan.createSeparatorItem()
+    local mItemTool           = menuMan.createActionItem "BulletKeyTools" "_[BulletTools]"
+    local mItemPosReset       = menuMan.createActionItem "BsKeyToolsPosReset" "_[BulletTools]"
+    local menuTogglePanel     = menuMan.createMenu "自动收缩面板"
+    Local mItemOpenPanel      = menuMan.createActionItem "OpenPanel" "_[BulletTools]"
+    Local mItemOpenPanelFull  = menuMan.createActionItem "OpenPanelFull" "_[BulletTools]"
+    local mItemClosePanel     = menuMan.createActionItem "ClosePanel" "_[BulletTools]"
+    local menuToolsHelp       = menuMan.createMenu "帮助 / Help"
+    local mItemBsToolsDocs    = menuMan.createActionItem "UrlBsToolsDocs" "_[BulletTools]"
+    local mItemBsToolsIssues  = menuMan.createActionItem "UrlBsToolsIssues" "_[BulletTools]"
+    local menuCheckUpdate     = menuMan.createMenu "自动检测更新"
+    local mItemCheckUpdateOn  = menuMan.createActionItem "CheckUpdateOn" "_[BulletTools]"
+    local mItemCheckUpdateOff = menuMan.createActionItem "CheckUpdateOff" "_[BulletTools]"
+    local mItemUninstall      = menuMan.createActionItem "UninstallBsKeyTools" "_[BulletTools]"
+    local mItemUrlBilibili    = menuMan.createActionItem "UrlBilibili" "_[BulletTools]"
+    local mItemUrlTwitter     = menuMan.createActionItem "UrlTwitter" "_[BulletTools]"
+    local mItemUrlQgroup      = menuMan.createActionItem "UrlQgroup" "_[BulletTools]"
+    local mItemBsCleanVirus   = menuMan.createActionItem "BsCleanVirus" "_[BulletTools]"
+    local menuAutoStartup     = menuMan.createMenu "自动启动脚本"
+    Local mItemStartupOn      = menuMan.createActionItem "BsKeyToolsStartupOn" "_[BulletTools]"
+    local mItemStartupOff     = menuMan.createActionItem "BsKeyToolsStartupOff" "_[BulletTools]"
+    local menuToolBar         = menuMan.createMenu "+菜单栏按钮-"
+    Local mItemToolBarAdd     = menuMan.createActionItem "BsKeyToolsBarAdd" "_[BulletTools]"
+    local mItemToolBarRemove  = menuMan.createActionItem "BsKeyToolsBarRemove" "_[BulletTools]"
 
 
     menuBsTool.addItem separatorBsKeyTools -1
@@ -43,8 +44,9 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
     menuBsTool.addItem mItemPosReset -1
     menuBsTool.addItem separatorBsKeyTools -1
     menuBsTool.addItem mItemTool -1
-    menuTogglePanel.addItem mItemOpenTogglePanel -1
-    menuTogglePanel.addItem mItemCloseTogglePanel -1
+    menuTogglePanel.addItem mItemOpenPanel -1
+    menuTogglePanel.addItem mItemOpenPanelFull -1
+    menuTogglePanel.addItem mItemClosePanel -1
     menuToolsHelp.addItem mItemBsToolsDocs -1
     menuToolsHelp.addItem mItemBsToolsIssues -1
     menuToolsHelp.addItem separatorBsKeyTools -1

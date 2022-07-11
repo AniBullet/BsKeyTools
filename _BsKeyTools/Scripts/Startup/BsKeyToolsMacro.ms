@@ -24,29 +24,42 @@
 		)
 	)
 
-	macroScript OpenBsTogglePanel
+	macroScript OpenPanel
 	category:"_[BulletTools]"
-	buttonText:"开启"
-	toolTip:"开启自动收缩面板"
+	buttonText:"精简版"
+	toolTip:"开启精简版自动收缩面板"
 	(
 		on execute do
 		(
-			iniIsCollopse = true
-			SetINISetting BulletConfig "BulletKeyToolsSet"  "IsCollopse" (iniIsCollopse as string)
-			if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = iniIsCollopse
+			iniCollopseType = 1
+			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
+			if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = true
 		)
 	)
 
-	macroScript CloseBsTogglePanel
+	macroScript OpenPanelFull
+	category:"_[BulletTools]"
+	buttonText:"浮夸版"
+	toolTip:"开启浮夸版自动收缩面板"
+	(
+		on execute do
+		(
+			iniCollopseType = 2
+			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
+			if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = true
+		)
+	)
+
+	macroScript ClosePanel
 	category:"_[BulletTools]"
 	buttonText:"关闭"
 	toolTip:"关闭自动收缩面板"
 	(
 		on execute do
 		(
-			iniIsCollopse = false
-			SetINISetting BulletConfig "BulletKeyToolsSet"  "IsCollopse" (iniIsCollopse as string)
-			if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = iniIsCollopse
+			iniCollopseType = 0
+			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
+			if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = false
 		)
 	)
 
@@ -80,7 +93,7 @@
 		on execute do
 		(
 			iniBsAutoCheckUpdate = true
-			SetINISetting BulletConfig "BulletKeyToolsSet"  "IsCollopse" (iniIsCollopse as string)
+			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
 			if (rolBsKeyTools.open) then 
 			(
 				try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
@@ -97,7 +110,7 @@
 		on execute do
 		(
 			iniBsAutoCheckUpdate = false
-			SetINISetting BulletConfig "BulletKeyToolsSet"  "IsCollopse" (iniIsCollopse as string)
+			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
 		)
 	)
 

@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-11 00:06:37
+ * @LastEditTime: 2022-07-11 13:58:25
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -15,7 +15,7 @@ try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
-global curVerBsKeyTools = "0.9.9"
+global curVerBsKeyTools = "0.9.9_Beta"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
@@ -83,7 +83,7 @@ global arrAddMyMsBtn        = #()
 Global idBtn                = 1
 global idMsBtn				= 1
 global iniBsAutoCheckUpdate = true
-global iniIsCollopse		= true
+global iniCollopseType		= 1
 Global switchToolPanel      = 0
 global switchMSPanel        = 0
 Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
@@ -922,7 +922,8 @@ rcmenu menuConfig
 	(
 		menuItem mItemCustomSortBtn "自定义功能按钮位置"
 		menuItem mItemCustomScripts "自定义脚本配置管理"
-		menuItem mItemCollapse "自动收缩或展开面板"
+		menuItem mItemCollapse "自动收缩面板 [精简]"
+		menuItem mItemCollapseFull "自动收缩面板 [浮夸]"
 		menuItem mItemIsIcon "切换图标模式 [实验]"
 	)
 	separator menuSepCustom
@@ -951,7 +952,13 @@ rcmenu menuConfig
 		else (mItemAddToolBarBtn.checked = false)
 		mItemAutoCheckUpdate.checked = iniBsAutoCheckUpdate
 		mItemIsIcon.checked = iniIsIcon
-		mItemCollapse.checked = iniIsCollopse
+		case iniCollopseType of
+		(
+			0:(mItemCollapse.checked = false;mItemCollapseFull.checked = false)
+			1:(mItemCollapse.checked = true;mItemCollapseFull.checked = false)
+			2:(mItemCollapse.checked = false;mItemCollapseFull.checked = true)
+			default:mItemCollapse.checked = false
+		)
 	)
 
 	-- on menuConfig close do
@@ -1151,8 +1158,35 @@ rcmenu menuConfig
 	on mItemCollapse picked do 
 	(
 		mItemCollapse.checked = not mItemCollapse.checked
-		iniIsCollopse = mItemCollapse.checked
-		rolBsKeyTools.timerTickTock.active = iniIsCollopse
+		-- iniCollopseType = mItemCollapse.checked
+		if mItemCollapse.checked == true then 
+		(
+			mItemCollapseFull.checked = false
+			iniCollopseType = 1
+		)
+		else
+		(
+			if mItemCollapseFull.checked = true then iniCollopseType = 2
+			else iniCollopseType = 0
+		)
+		rolBsKeyTools.timerTickTock.active = mItemCollapse.checked
+	)
+
+	on mItemCollapseFull picked do 
+	(
+		mItemCollapseFull.checked = not mItemCollapseFull.checked
+		-- iniCollopseType = mItemCollapse.checked
+		if mItemCollapseFull.checked == true then 
+		(
+			mItemCollapse.checked = false
+			iniCollopseType = 2
+		)
+		else
+		(
+			if mItemCollapse.checked = true then iniCollopseType = 1
+			else iniCollopseType = 0
+		)
+		rolBsKeyTools.timerTickTock.active = mItemCollapseFull.checked
 	)
 )
 
@@ -2701,7 +2735,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		if iniIsIcon do fnSwitchIconStyle()
 		if (iniBsAutoCheckUpdate == true) then 
 		(fnAutoCheckVersion curVerBsKeyTools verUrlBsKeyTools dlUrlBsKeyTools dlFileBsKeyTools)
-		if iniIsCollopse then
+		if iniCollopseType == 1 or iniCollopseType == 2 then
 		(
 			tempTogglePanelPos = (getDialogPos rolBsKeyTools)
 			SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" (tempTogglePanelPos as string)
@@ -2759,7 +2793,7 @@ rollout rolBsKeyTools "" width:220 height:250
 
 	on timerTickTock tick do 
     (
-        if (ui_clientOffset != undefined) and (iniIsCollopse) then 
+        if (ui_clientOffset != undefined) and (iniCollopseType == 1 or iniCollopseType == 2) then 
 		(
             local mouseClientPos = mouse.screenPos - (getDialogPos rolBsKeyTools) + ui_clientOffset
             
@@ -2784,7 +2818,9 @@ rollout rolBsKeyTools "" width:220 height:250
 					(
 						rolTogglePanel.timerTickTock.active = true
 						SetDialogPos rolTogglePanel (getDialogPos rolBsKeyTools)
-						rolTogglePanel.height = 60
+						if iniCollopseType == 1 then rolTogglePanel.height = 30
+						else if iniCollopseType == 2 then rolTogglePanel.height = 60
+						rolTogglePanel.lblOneWord.height = (rolTogglePanel.height - 4)
 						rolBsKeyTools.height = 0
 					)
                     -- isMouseInBsKeyTools = true
