@@ -68,6 +68,25 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         tempLabel.Font      = dotnetobject "System.Drawing.Font" "Microsoft YaHei" 10
     )
 
+    fn fnRefreshText =
+    (
+        local dateTime = (dotNetClass "System.DateTime").Now
+        bsSecondTime = (dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second)
+        bsTimeCost = (bsSecondTime - bsInitTime)
+        if iniCollopseType == 2 then
+        (
+            return ("本次已运行： " + ((bsTimeCost/86400) as integer) as string + " 天 " + 
+            ((((mod bsTimeCost 86400) as integer)/3600) as integer) as string + " 小时 " + 
+            ((((mod ((mod bsTimeCost 86400) as integer) 3600) as integer)/60) as integer) as string + " 分钟 " + 
+            ((mod ((mod ((mod ((mod bsTimeCost 86400) as integer) 3600) as integer) 60) as integer) 60) as integer) as string + " 秒钟 " + "\r\n" + "当前时间：" +
+            fnGetDateTimeString()  + "\r\n" + strDayLine)
+        )
+        else if iniCollopseType == 1 then
+        (
+            return ("当前时间：" + fnGetDateTimeString())
+        )
+    )
+
     on rolTogglePanel open do 
     (
         local dateTime = (dotNetClass "System.DateTime").Now
@@ -77,6 +96,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         if iniCollopseType == 1 then (rolTogglePanel.height = 30) 
         else (rolTogglePanel.height = 60)
         lblOneWord.height = (rolTogglePanel.height - 4)
+        fnRefreshText()
         -- lblOneWord.Font      = BsDotFont
     )
 
@@ -88,21 +108,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
 
     on timerTickTock tick do 
     (
-        local dateTime = (dotNetClass "System.DateTime").Now
-        bsSecondTime = (dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second)
-        bsTimeCost = (bsSecondTime - bsInitTime)
-        if iniCollopseType == 2 then
-        (
-            lblOneWord.Text = "本次已运行： " + ((bsTimeCost/86400) as integer) as string + " 天 " + 
-            ((((mod bsTimeCost 86400) as integer)/3600) as integer) as string + " 小时 " + 
-            ((((mod ((mod bsTimeCost 86400) as integer) 3600) as integer)/60) as integer) as string + " 分钟 " + 
-            ((mod ((mod ((mod ((mod bsTimeCost 86400) as integer) 3600) as integer) 60) as integer) 60) as integer) as string + " 秒钟 " + "\r\n" + "当前时间：" +
-            fnGetDateTimeString()  + "\r\n" + strDayLine
-        )
-        else if iniCollopseType == 1 then
-        (
-            lblOneWord.Text = ("当前时间：" + fnGetDateTimeString())
-        )
+        lblOneWord.Text = fnRefreshText()
         if (ui_clientOffset != undefined) then (
             local mouseClientPos = mouse.screenPos - (getDialogPos rolTogglePanel) + ui_clientOffset
             

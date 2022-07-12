@@ -20,16 +20,16 @@ global dotColor = dotnetclass "System.Drawing.Color"
 		)
 		else
 		(
-			myFgColor    = (color 71 192 192)
-			myClickColor = (color 0 255 127)
-			myCheckedColor = (color 10 140 120)
+			myFgColor    = (color 165 222 228)
+			myClickColor = (color 0 92 175)
+			myCheckedColor = (color 30 136 168)
 		)
 	)
 	else
 	(
-		myFgColor    = (color 71 192 192)
-		myClickColor = (color 0 255 127)
-		myCheckedColor = (color 10 140 120)
+		myFgColor    = (color 165 222 228)
+		myClickColor = (color 0 92 175)
+		myCheckedColor = (color 30 136 168)
 	)
 	----获取当前主题是深色还是浅色,来更改文字颜色 fnGetColorTheme.ms
 
