@@ -2,6 +2,8 @@
 ![image](https://raw.githubusercontent.com/AnimatorBullet/BsKeyTools/main/BsKeyToolsPrev.gif)  
 KeyTools for 3ds Max...About animation.
 
+> 个人学习作品，一切仅代表个人，轻喷。
+
 > 部分引用其他老师脚本，均有注明，侵删
 
 > 工具全开源无任何收费，请勿商用，仅供学习参考
