@@ -608,11 +608,11 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 	radiobuttons UILookAtType "" pos:[21,134] width:107 height:32 labels:#("LookAt Constraint", "Quaternion Aim") columns:1
 	button btnHelp1 "帮助" pos:[155,140]
 	GroupBox grp2 "Chain Points Settings" pos:[9,177] width:192 height:198
-	checkbox UIRotAver "Roll ( X 轴 ) 平均" pos:[18,196] height:15 checked:true
-	radiobuttons UIRotAverToControls "平均为:" pos:[40,215] width:127 height:62 labels:#("首尾控制器", "所有控制器", "微调器(属性)") columns:1
+	checkbox UIRotAver "Roll ( X 轴 ) 旋转" pos:[18,196] height:15 checked:true
+	radiobuttons UIRotAverToControls "平均为:" pos:[40,215] width:127 height:62 labels:#("首尾控制器", "所有控制器", "微调器[ChainKnot 属性]") columns:1
 	radiobuttons UIRotAverType "平均类型:" pos:[40,282] width:124 height:46 labels:#("方向约束", "欧拉角") default:2 columns:1
 	checkbox UIManControllers "单独调整控制器" pos:[18,335] width:136 height:15 checked:true
-	checkbox UIIKSolver "IK 控制（ChainKnot 属性）" pos:[18,355] width:143 height:15 
+	checkbox UIIKSolver "IK 控制[ChainKnot 属性]" pos:[18,355] width:143 height:15 
 	GroupBox grp4 "Spline Control Settings" pos:[10,380] width:192 height:77
 	radiobuttons UISplineControlType "" pos:[19,397] width:101 height:32 labels:#("样条线 IK 控制", "Skin 控制") columns:1
 	checkbox UITangents "切线" pos:[19,436] width:136 height:15 checked:true
@@ -671,7 +671,7 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 
 	on btnHelp1 pressed do
 	(
-		MessageBox "LookAt Constraint：\r\n\r\n骨骼将分配标准的lookat约束，并将控制点助手作为目标\r\n\r\n\r\n\r\nQuaternion Aim：\r\n\r\n骨骼将有旋转脚本而不是lookat约束，\r\n\r\n优点是脚本控制器有一种通过构建四元数来查找旋转值的查看算法，\r\n\r\n这可以防止不需要的翻转，\r\n\r\n除非骨骼与其父级重叠（x 轴正在寻找相反的方向）。                                                         "
+		MessageBox "LookAt Constraint：\r\n\r\n骨骼将分配标准的 lookat 约束，并将控制点虚拟体作为目标\r\n\r\n\r\n\r\nQuaternion Aim：\r\n\r\n骨骼将有旋转脚本而不是 lookat 约束，\r\n\r\n优点是脚本控制器有一种通过构建四元数来查找旋转值的查看算法，\r\n\r\n这可以防止不需要的翻转，\r\n\r\n除非骨骼与其父级重叠（x 轴正在寻找相反的方向）。                                                         "
 	)
 )
 dialogCreateChain=createDialog rollCreateChain 
