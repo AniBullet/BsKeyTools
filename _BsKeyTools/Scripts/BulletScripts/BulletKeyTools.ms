@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-16 22:46:32
+ * @LastEditTime: 2022-07-16 23:52:09
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1563,7 +1563,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		button btnQuickPrev "快速拍屏" width:btnWidth height:btnHeight visible:false \
 		toolTip:"左：快速拍屏预览\r\n右：打开预览文件夹" pos:btnPos
 		button btnFastAlign "快速对齐" width:btnWidth height:btnHeight visible:false \
-		toolTip:"功能待添加" pos:btnPos
+		toolTip:"快速对齐工具，支持 Biped\r\nCreated by Alex Velez" pos:btnPos
 		button btnFnKeyType "改滑动帧" width:btnWidth height:btnHeight visible:false \
 		toolTip:"批量转换滑动关键帧等,\r\n后续可能按需优化更多设置" pos:btnPos
 		button btnRenameTools "改名工具" width:btnWidth height:btnHeight visible:false \
@@ -1611,8 +1611,8 @@ rollout rolBsKeyTools "" width:220 height:250
 		tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
 		button btnChainsTools "链条工具" width:btnWidth height:btnHeight visible:false \
 		tooltip:"根据样条线创建链条绑定的工具" pos:btnPos
-		button btnBatchConvert "批量转换" width:btnWidth height:btnHeight visible:false \
-		tooltip:"可批量存低版本，转高版本材质\r\n（修复2021+存低导致顶点变形问题）\r\n作者: Oleksandr Kramer (Kstudio)" pos:btnPos
+		button btnTemp7 "待添加7" width:btnWidth height:btnHeight visible:false \
+		tooltip:"待添加" pos:btnPos
 		button btnTemp8 "待添加8" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
 		button btnTemp9 "待添加9" width:btnWidth height:btnHeight visible:false \
@@ -1771,7 +1771,7 @@ rollout rolBsKeyTools "" width:220 height:250
 						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnXrSkinTool,
 						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
-		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnBatchConvert,
+		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnTemp7,
 						rolBsKeyTools.btnTemp8,rolBsKeyTools.btnTemp9,
 						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
 						rolBsKeyTools.btnTemp12,rolBsKeyTools.btnTemp13,
@@ -3850,9 +3850,15 @@ rollout rolBsKeyTools "" width:220 height:250
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnBatchConvert pressed do
+	on btnBatchExport pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Batch Import Convert.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnFastAlign pressed do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\alexanimalign_0.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
