@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-16 13:49:55
+ * @LastEditTime: 2022-07-16 17:45:15
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -15,7 +15,7 @@ try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
-global curVerBsKeyTools = "0.9.9_Beta"
+global curVerBsKeyTools = "0.9.9"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
@@ -902,7 +902,7 @@ rcmenu menuConfig
 (
 	subMenu "帮助  /  Help"
 	(
-		menuItem mItemHelpDoc ">> 帮助文档 <<"
+		menuItem mItemHelpDoc ">> 使用说明 <<"
 		menuItem mItemBugReport ">> 问题建议 <<"
 		menuItem mItemClose "关闭 [空白处中键]"
 		menuItem mItemUninstall "卸载 [期待再再见]"
@@ -969,7 +969,7 @@ rcmenu menuConfig
 	-- )
 
 	on mItemHelpDoc picked do 
-	(shellLaunch "https://www.notion.so/bullet4869/BsKeyTools-17b5ba7c37ae45f6a69ce90f45fa0657" "")
+	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
 
 	on mItemBugReport picked do
 	(shellLaunch "https://github.com/AnimatorBullet/BsKeyTools/issues" "")

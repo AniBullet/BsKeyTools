@@ -65,12 +65,12 @@
 
 	macroScript UrlBsToolsDocs
 	category:"_[BulletTools]"
-	buttonText:">> 帮助文档 <<"
+	buttonText:">> 使用说明 <<"
 	toolTip:"打开帮助文档"
 	(
 		on execute do
 		(
-			shellLaunch "https://animatorbullet.github.io/" ""
+			shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" ""
 		)
 	)
 
