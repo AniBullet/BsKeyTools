@@ -9,8 +9,9 @@ KeyTools，All for Animator...
 > 工具全开源无任何收费，请勿商用，仅供学习参考
 
 ## 帮助
-B 站视频：https://space.bilibili.com/2031113  
-帮助文档（建设中）：https://animatorbullet.github.io/
+B 站视频：https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782  
+帮助文档（建设中）：https://animatorbullet.github.io/  
+个人主页：https://www.anibullet.com/
 
 ## 下载链接
 [![BsKeyTools](https://img.shields.io/badge/BsKeyTools-LatestReleases-success?style=flat-square&logo=github)](https://github.com/AnimatorBullet/BsKeyTools/releases/latest)
