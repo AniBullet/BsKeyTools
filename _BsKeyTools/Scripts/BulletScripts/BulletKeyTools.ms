@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-16 17:50:27
+ * @LastEditTime: 2022-07-16 22:46:32
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1538,7 +1538,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		local btnPos = [999999,999999]
 		button btnColorTools "颜色渐变" width:btnWidth height:btnHeight visible:false \
 		tooltip:"做 Demo 素模或特效方便~" pos:btnPos
-		checkbutton ckbIsoMesh "模型独显" width:btnWidth height:btnHeight visible:false \
+		checkbutton ckbIsoMesh "单显模型" width:btnWidth height:btnHeight visible:false \
 		toolTip:"单独显示模型预览" pos:btnPos highlightcolor:myCheckedColor 
 		button btnBipedTraj "Biped轨迹" width:btnWidth height:btnHeight visible:false \
 		toolTip:"左：切换显示单个Biped轨迹,\r\n右：清除添加的所有Biped轨迹~" pos:btnPos
@@ -1569,7 +1569,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		button btnRenameTools "改名工具" width:btnWidth height:btnHeight visible:false \
 		toolTip:"超级重命名工具" pos:btnPos
 		button btnAnimMirror "动画镜像" width:btnWidth height:btnHeight visible:false \
-		toolTip:"目前引用4698to大佬的插件\r\n后面随缘新写或优化" pos:btnPos
+		toolTip:"目前引用4698to大佬的插件\r\n后面随缘新写" pos:btnPos
 		checkbutton ckbFnMtlDisplay "素模切换" width:btnWidth height:btnHeight visible:false \
 		toolTip:"左:切换显示隐藏贴图,方便白模预览\r\n右:Clay显示开关(红色模型显示)\r\n暂不支持子材质和Vray材质..."
 		pos:btnPos highlightcolor:myCheckedColor 
@@ -1611,8 +1611,8 @@ rollout rolBsKeyTools "" width:220 height:250
 		tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
 		button btnChainsTools "链条工具" width:btnWidth height:btnHeight visible:false \
 		tooltip:"根据样条线创建链条绑定的工具" pos:btnPos
-		button btnTemp7 "待添加7" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
+		button btnBatchConvert "批量转换" width:btnWidth height:btnHeight visible:false \
+		tooltip:"可批量存低版本，转高版本材质\r\n（修复2021+存低导致顶点变形问题）\r\n作者: Oleksandr Kramer (Kstudio)" pos:btnPos
 		button btnTemp8 "待添加8" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
 		button btnTemp9 "待添加9" width:btnWidth height:btnHeight visible:false \
@@ -1771,7 +1771,7 @@ rollout rolBsKeyTools "" width:220 height:250
 						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnXrSkinTool,
 						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
-		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnTemp7,
+		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnBatchConvert,
 						rolBsKeyTools.btnTemp8,rolBsKeyTools.btnTemp9,
 						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
 						rolBsKeyTools.btnTemp12,rolBsKeyTools.btnTemp13,
@@ -3847,6 +3847,12 @@ rollout rolBsKeyTools "" width:220 height:250
 	on btnChainsTools pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\ChainsTools.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnBatchConvert pressed do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Batch Import Convert.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
