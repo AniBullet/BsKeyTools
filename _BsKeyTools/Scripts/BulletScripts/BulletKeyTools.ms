@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-16 23:52:09
+ * @LastEditTime: 2022-07-17 00:29:23
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2864,9 +2864,11 @@ rollout rolBsKeyTools "" width:220 height:250
 	(		
 		local rangeStart = valTime as time
 		if ((valTime != ".") and (valTime as time != undefined) and \
-		(valTime != "") and (rangeStart < animationrange.end)) then
+		(valTime != "")) then
 		(
-			animationrange = (interval rangeStart animationrange.end)
+			if (rangeStart < animationrange.end) then 
+			(animationrange = (interval rangeStart animationrange.end))
+			else (animationrange = (interval rangeStart (rangeStart + 60)))
 		)
 		else messageBox "----------------------\r\n请输入正确帧数!"
 	)
@@ -2875,9 +2877,11 @@ rollout rolBsKeyTools "" width:220 height:250
 	(		
 		local rangEnd = valTime as time
 		if ((valTime != ".") and (valTime as time != undefined) and \ 
-		(valTime != "") and (rangEnd > animationrange.start)) then
+		(valTime != "")) then
 		(
-			animationrange = (interval animationrange.start rangEnd)
+			if (rangEnd > animationrange.start) then
+			(animationrange = (interval animationrange.start rangEnd))
+			else (animationrange = (interval (rangEnd - 60) rangEnd))
 		)
 		else messageBox "----------------------\r\n请输入正确帧数!"
 	)
