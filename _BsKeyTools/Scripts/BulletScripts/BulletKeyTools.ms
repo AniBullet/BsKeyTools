@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-16 17:45:15
+ * @LastEditTime: 2022-07-16 17:50:27
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1609,8 +1609,8 @@ rollout rolBsKeyTools "" width:220 height:250
 		tooltip:"清除所有帧，恢复 Biped Figure Pose" pos:btnPos
 		button btnTwistBones "Twist 创建" width:btnWidth height:btnHeight visible:false \
 		tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
-		button btnTemp6 "待添加6" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
+		button btnChainsTools "链条工具" width:btnWidth height:btnHeight visible:false \
+		tooltip:"根据样条线创建链条绑定的工具" pos:btnPos
 		button btnTemp7 "待添加7" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
 		button btnTemp8 "待添加8" width:btnWidth height:btnHeight visible:false \
@@ -1771,7 +1771,7 @@ rollout rolBsKeyTools "" width:220 height:250
 						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnXrSkinTool,
 						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
-		arrSourToolC4 = #(rolBsKeyTools.btnTemp6,rolBsKeyTools.btnTemp7,
+		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnTemp7,
 						rolBsKeyTools.btnTemp8,rolBsKeyTools.btnTemp9,
 						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
 						rolBsKeyTools.btnTemp12,rolBsKeyTools.btnTemp13,
@@ -3841,6 +3841,12 @@ rollout rolBsKeyTools "" width:220 height:250
 	on btnTwistBones pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\twistbones.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnChainsTools pressed do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\ChainsTools.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
