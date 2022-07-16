@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-16 13:40:30
+ * @LastEditTime: 2022-07-16 13:49:55
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1586,7 +1586,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		button btnWinbox "窗口找回" width:btnWidth height:btnHeight visible:false \
 		toolTip:"方便找回曲线编辑器等窗口(多屏导致窗口丢失)" pos:btnPos
 		button btnHideBipedTwists "隐 Twist" width:btnWidth height:btnHeight visible:false \
-		toolTip:"隐藏所有Biped自带Twists，再点显示" pos:btnPos
+		toolTip:"隐藏所有 Biped 自带 Twists，再点显示" pos:btnPos
 		button btnDelDecimalKeys "删小数帧" width:btnWidth height:btnHeight visible:false \
 		toolTip:"删除所有小数帧" pos:btnPos
 		button btnRescaleWU "蒙皮缩放" width:btnWidth height:btnHeight visible:false \

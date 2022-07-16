@@ -285,17 +285,18 @@ for i in selection do
       --creo el TB principal, defino su nombre, su padre, sus caracteristicas geometricas, y le asigno su script controller
       --respectivo, con sus variables respectivas
         TwistBone=BoneSys.createBone Limb.transform.position Limb.transform.position [0,0,1] 
-        TwistBone.name="Bone"+k[5]+" Twist"
-        TwistBone.parent=Limb
-        TwistBone.Length=distanceVar/k[3]
-        TwistBone.Width=distanceVar/8
-        TwistBone.Height=TwistBone.Width
-        TwistBone.taper=0
-        TwistBone.rotation.controller=Rotation_List()
-        TwistBone.rotation.controller[1].controller=rotation_script()
+        TwistBone.name   = "Bone"+k[5]+" Twist"
+        TwistBone.parent = Limb
+        TwistBone.Length = distanceVar/k[3]
+        TwistBone.Width  = distanceVar/8
+        TwistBone.Height = TwistBone.Width
+        TwistBone.taper  = 0
+        TwistBone.rotation.controller = Rotation_List()
+        TwistBone.rotation.controller[1].controller = rotation_script()
         TwistBone.rotation.controller[1].AddNode "Limb" ControllerLimb
         TwistBone.rotation.controller[1].SetExpression TBExpression
-        TwistBone.rotation.controller.weight[1]=weightVar
+        TwistBone.rotation.controller.weight[1] = weightVar
+        TwistBone.boxmode = true
       
         --creo el script controller que van a tener las rotaciones de los TBs extras,
         --es distinto el de los brazos y muslos al de los antebrazos, pantorrillas
@@ -358,6 +359,7 @@ for i in selection do
   (
     n=#(TBUpperArms.value,TBForeArms.value,TBThighs.value,TBCalves.value) --el arreglo que dice la cantidad de TBs por cada extremidad
     undo on TBSetFunction n -- llamado a la funcion
+    messagebox "创建 Twist 成功，请勿多次点击，否则将创建多份重复 Twist Bone！                                                   "
   )
 )
 
