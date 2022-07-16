@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-17 00:29:23
+ * @LastEditTime: 2022-07-17 00:34:06
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2799,8 +2799,8 @@ rollout rolBsKeyTools "" width:220 height:250
             
             local dialogPos = getDialogPos rolBsKeyTools
             local dialogBox = 
-			(if switchToolPanel == 1 then (Box2 dialogPos.x dialogPos.y rolBsKeyTools.width rolBsKeyTools.height)
-			else (Box2 dialogPos.x dialogPos.y (rolBsKeyTools.width + 300)  rolBsKeyTools.height))
+			(if switchToolPanel == 1 then (Box2 (dialogPos.x - 20) (dialogPos.y - 20) (rolBsKeyTools.width + 40) (rolBsKeyTools.height + 40))
+			else (Box2 (dialogPos.x - 20) (dialogPos.y - 20) (rolBsKeyTools.width + 340)  (rolBsKeyTools.height + 40)))
 
 			if not (contains dialogBox mouse.screenPos) then
 			(
