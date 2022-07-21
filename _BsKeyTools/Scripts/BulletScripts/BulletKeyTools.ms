@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-17 00:34:06
+ * @LastEditTime: 2022-07-22 01:32:13
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1611,7 +1611,7 @@ rollout rolBsKeyTools "" width:220 height:250
 		tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
 		button btnChainsTools "链条工具" width:btnWidth height:btnHeight visible:false \
 		tooltip:"根据样条线创建链条绑定的工具" pos:btnPos
-		button btnTemp7 "待添加7" width:btnWidth height:btnHeight visible:false \
+		button btnCameraConverter "相机转换" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
 		button btnTemp8 "待添加8" width:btnWidth height:btnHeight visible:false \
 		tooltip:"待添加" pos:btnPos
@@ -1771,7 +1771,7 @@ rollout rolBsKeyTools "" width:220 height:250
 						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnXrSkinTool,
 						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
-		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnTemp7,
+		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnCameraConverter,
 						rolBsKeyTools.btnTemp8,rolBsKeyTools.btnTemp9,
 						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
 						rolBsKeyTools.btnTemp12,rolBsKeyTools.btnTemp13,
