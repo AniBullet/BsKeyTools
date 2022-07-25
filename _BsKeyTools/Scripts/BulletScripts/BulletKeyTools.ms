@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-22 01:32:13
+ * @LastEditTime: 2022-07-26 03:19:58
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -574,8 +574,8 @@ rollout rolCustomBtn "自定义功能按钮位置" width:490 height:210
 fn fnSwitchIconStyle = 
 (
 	rolBsKeyTools.ckbFnBoxDisplay.images = #("AtmosApp_24i.bmp","AtmosApp_24i.bmp",3,1,1,1,1,true,true)
-	rolBsKeyTools.btnHideUnSel.images = #("IsolateSelection_16i.bmp","IsolateSelection_16i.bmp",1,1,1,1,1,true,true)
-	rolBsKeyTools.btnJudgeLinkKey.images = #("Maintoolbar_24i.bmp","Maintoolbar_24i.bmp",103,6,5,6,5,true,true)
+	rolBsKeyTools.btnIsoSelection.images = #("IsolateSelection_16i.bmp","IsolateSelection_16i.bmp",1,1,1,1,1,true,true)
+	-- rolBsKeyTools.chkJudgeLinkKey.images = #("Maintoolbar_24i.bmp","Maintoolbar_24i.bmp",103,6,5,6,5,true,true)
 	rolBsKeyTools.ckbShadowCut.images = #("Radiosity_24i.bmp","Radiosity_24i.bmp",6,3,4,3,4,true,true)
 	rolBsKeyTools.ckbFreezeMesh.images = #("UVWUnwrapView_24i.bmp","UVWUnwrapView_24a.bmp",27,17,19,17,19,true,false)
 	rolBsKeyTools.btnCutFrameDisplay.images = #("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,2,2,2,2,true,true)
@@ -1445,241 +1445,242 @@ rollout rolBsKeyTools "" width:220 height:250
 	---------------------------------UI--------------------------------------
 	groupbox gbxMainUI strMainRol pos:[5,5] width:210 height:217
 	
-		-- label lblRangeStartText "起始帧" pos:[15,21] width:80 height:20
-		-- label lblRangeEndText "结束帧" pos:[65,21] width:80 height:20
-		spinner spiStartTime "" pos:[10,21] width:60 height:20 type:#integer \
-		range:[-999999999,999999999,animationrange.start] scale:1
-		spinner spiEndTime "" pos:[70,21] width:60 height:20 type:#integer \
-		range:[-999999999,999999999,animationrange.end] scale:1
+	-- label lblRangeStartText "起始帧" pos:[15,21] width:80 height:20
+	-- label lblRangeEndText "结束帧" pos:[65,21] width:80 height:20
+	spinner spiStartTime "" pos:[10,21] width:60 height:20 type:#integer \
+	range:[-999999999,999999999,animationrange.start] scale:1
+	spinner spiEndTime "" pos:[70,21] width:60 height:20 type:#integer \
+	range:[-999999999,999999999,animationrange.end] scale:1
 
-		button btnMagicBtn "" pos:[130,20] width:80 height:18  \
-		tooltip:"点我点我点我~良心小工具" border:false
-		button btnHideUnSel "独显" pos:[10,40]width:40 height:30 \
-		toolTip:"隐藏当前显示的未选中物体，右键可重新显示"  
-		checkbutton btnJudgeLinkKey "Link?" highlightcolor:myCheckedColor \
-		pos:[50,40] tooltip:"选择帧前确认是否存在 Link 帧?" width:40 height:30 checked:false
-		button btnSelBeforeKeys "" \
-		pos:[90,40] width:40 height:30 toolTip:"选择滑条前面关键帧"  
-		button btnSelAllKeys "" \
-		pos:[130,40] width:40 height:30 toolTip:"选择所有关键帧"  
-		button btnSelAfterKeys "" \
-		pos:[170,40] width:40 height:30 toolTip:"选择滑条后面关键帧"
-		edittext edtMoveKey "" width:53 usePercentageWidth:true percentageWidth:44.0 \ 
-		pos:[6,72] labelOnTop:false text:"5f" bold:true readOnly:false height:17
-		button btnSet5 "±5f" width:35 pos:[60,70] height:20 \
-		toolTip:"恢复默认移动帧数\r\n左击：5f\r\n右击：-5f"
-		button btnSetAdd "左+右-" width:65 pos:[95,70] height:20 \
-		toolTip:"移动帧数设置增减 5 帧\r\n左击增加；右击减少"
-		-- button btnSetOpposite "负" width:30 pos:[160,85] height:20
-		button btnMoveKeys "移动帧" width:50 height:20 \
-		pos:[160,70] toolTip:"移动关键帧，先左边设定帧数\r\n左击：帧栏范围保持不变~\r\n右击：帧栏范围同步增减~"  
+	button btnMagicBtn "" pos:[130,20] width:80 height:18  \
+	tooltip:"点我点我点我~良心小工具" border:false
+	checkbox chkJudgeLinkKey "Link?" \
+	pos:[12,48] tooltip:"选择帧前确认是否存在 Link 帧?" width:40 height:15 checked:false
+	button btnSelBeforeKeys "" \
+	pos:[60,40] width:40 height:30 toolTip:"选择滑条前面关键帧"  
+	button btnSelAllKeys "" \
+	pos:[100,40] width:40 height:30 toolTip:"选择所有关键帧"  
+	button btnSelAfterKeys "" \
+	pos:[140,40] width:40 height:30 toolTip:"选择滑条后面关键帧"
 
-		button btnCutFrameDisplay "选定帧" pos:[10,90] width:50 height:25 \
-		tooltip:"预览选择帧\r\n再点回到上次帧范围"
-		button btnAllFrameDisplay "首尾帧" pos:[60,90] width:50 height:25 \
-		tooltip:"预览全部帧\r\n再点回到上次帧范围"
-		-- button btnZeroFrameDisplay "零帧" pos:[100,40] width:30 height:20 \
-		-- tooltip:"首帧回到0帧"
-		checkbutton ckbShadowCut "秀剪影" highlightcolor:myCheckedColor \
-		pos:[110,90] width:50 height:25 toolTip:"切换剪影显示"
-		button btnQuicksave "快备份" pos:[160,90] width:50 height:25 \
-		tooltip:"快速备份当前文件"
-		checkbutton ckbFnBoxDisplay "BOX显"  highlightcolor:myCheckedColor \
-		width:50 height:25 toolTip:"骨骼切换Box显示" pos:[10,115]
-		checkbutton ckbFreezeMesh "冻模型" highlightcolor:myCheckedColor \
-		toolTip:"冻结解冻模型" width:50 height:25 pos:[60,115]
-		checkbutton ckbHideBones "隐Bone" highlightcolor:myCheckedColor \
-		width:50 height:25 toolTip:"显示隐藏 bone\r\n所在层若隐藏则不会显示" pos:[110,115]
-		checkbutton ckbHideBiped "隐Biped" width:50 height:25 highlightcolor:myCheckedColor \
-		toolTip:"显示隐藏 Bip\r\n所在层若隐藏则不会显示" pos:[160,115]
-		button btnImageComp "构图框" pos:[10,140] width:50 height:25 \
-		tooltip:"各种经典分割视图以辅助构图"
-		button btnTrajedit "轨迹线" pos:[60,140] width:50 height:25 \
-		tooltip:"动画轨迹工具个人优化版"
-		button btnFileOpen "时光机" pos:[110,140] width:50 height:25 \
-		tooltip:"快速打开max文件\r\n可收藏常用目录"
-		button btnLightTable "洋葱皮" pos:[160,140] width:50 height:25 \
-		toolTip:"显示运动重影 (修改自San_oOo)"
-		checkButton ckbPlayBlocking "跳帧播" pos:[10,165] width:50 height:25 
-		highlightcolor:myCheckedColor tooltip:"点击预览关键帧 Blocking 动画\r\n若有 Link 帧需要按下上面按钮" checked:false
-		timer clock "PlayClock" interval:1 active:false
-		button btnSpringMagic "飘带解" pos:[60,165] width:50 height:25 \
-		tooltip:"左点新版,右点旧版" 
-		button btnCSTools "CS选择" pos:[110,165] width:50 height:25 \
-		toolTip:"快速选择CS骨骼和调Biped等" 
-		button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
-		toolTip:"动画暴力粘贴东见云优化版\r\n(有时间我也会优化或新写)" 
-		button btnLayerManager "层" pos:[10,190] width:20 height:25 \
-		toolTip:"模拟旧版层管理器" 
-		button btnSelectionsetTools "集" pos:[30,190] width:20 height:25 \
-		toolTip:"选择集工具增强版" 
-		button btnPoseTool "库" pos:[50,190] width:20 height:25 \
-		toolTip:"参考库工具,待完善"
-		button btnTrackBarTools "帧栏" pos:[70,190] width:40 height:25 \
-		toolTip:"帧栏工具条"
-		button btnSetFps "" pos:[110,190] width:50 height:25 \
-		toolTip:"设置帧率" 
-		button btnSetSpeed "" pos:[160,190] width:50 height:25 \
-		toolTip:"设置播放速度" 
+	dotnetcontrol btnElement "button" pos:[180,40] width:30 height:30 toolTip:"点击打开自定义脚本集"
+
+	edittext edtMoveKey "" width:53 usePercentageWidth:true percentageWidth:44.0 \ 
+	pos:[6,72] labelOnTop:false text:"5f" bold:true readOnly:false height:17
+	button btnSet5 "±5f" width:35 pos:[60,70] height:20 \
+	toolTip:"恢复默认移动帧数\r\n左击：5f\r\n右击：-5f"
+	button btnSetAdd "左+右-" width:65 pos:[95,70] height:20 \
+	toolTip:"移动帧数设置增减 5 帧\r\n左击增加；右击减少"
+	-- button btnSetOpposite "负" width:30 pos:[160,85] height:20
+	button btnMoveKeys "移动帧" width:50 height:20 \
+	pos:[160,70] toolTip:"移动关键帧，先左边设定帧数\r\n左击：帧栏范围保持不变~\r\n右击：帧栏范围同步增减~"  
+
+	button btnCutFrameDisplay "选定帧" pos:[10,90] width:50 height:25 \
+	tooltip:"预览选择帧\r\n再点回到上次帧范围"
+	button btnAllFrameDisplay "首尾帧" pos:[60,90] width:50 height:25 \
+	tooltip:"预览全部帧\r\n再点回到上次帧范围"
+	-- button btnZeroFrameDisplay "零帧" pos:[100,40] width:30 height:20 \
+	-- tooltip:"首帧回到0帧"
+	checkbutton ckbShadowCut "秀剪影" highlightcolor:myCheckedColor \
+	pos:[110,90] width:50 height:25 toolTip:"切换剪影显示"
+	button btnQuicksave "快备份" pos:[160,90] width:50 height:25 \
+	tooltip:"快速备份当前文件"
+	checkbutton ckbFnBoxDisplay "BOX显"  highlightcolor:myCheckedColor \
+	width:50 height:25 toolTip:"骨骼切换Box显示" pos:[10,115]
+	checkbutton ckbFreezeMesh "冻模型" highlightcolor:myCheckedColor \
+	toolTip:"冻结解冻模型" width:50 height:25 pos:[60,115]
+	checkbutton ckbHideBones "隐Bone" highlightcolor:myCheckedColor \
+	width:50 height:25 toolTip:"显示隐藏 bone\r\n所在层若隐藏则不会显示" pos:[110,115]
+	checkbutton ckbHideBiped "隐Biped" width:50 height:25 highlightcolor:myCheckedColor \
+	toolTip:"显示隐藏 Bip\r\n所在层若隐藏则不会显示" pos:[160,115]
+	button btnImageComp "构图框" pos:[10,140] width:50 height:25 \
+	tooltip:"各种经典分割视图以辅助构图"
+	button btnTrajedit "轨迹线" pos:[60,140] width:50 height:25 \
+	tooltip:"动画轨迹工具个人优化版"
+	button btnFileOpen "时光机" pos:[110,140] width:50 height:25 \
+	tooltip:"快速打开max文件\r\n可收藏常用目录"
+	button btnLightTable "洋葱皮" pos:[160,140] width:50 height:25 \
+	toolTip:"显示运动重影 (修改自San_oOo)"
+	checkButton ckbPlayBlocking "跳帧播" pos:[10,165] width:50 height:25 
+	highlightcolor:myCheckedColor tooltip:"点击预览关键帧 Blocking 动画\r\n若有 Link 帧需要按下上面按钮" checked:false
+	timer clock "PlayClock" interval:1 active:false
+	button btnSpringMagic "飘带解" pos:[60,165] width:50 height:25 \
+	tooltip:"左点新版,右点旧版" 
+	button btnCSTools "CS选择" pos:[110,165] width:50 height:25 \
+	toolTip:"快速选择CS骨骼和调Biped等" 
+	button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
+	toolTip:"动画暴力粘贴东见云优化版\r\n(有时间我也会优化或新写)" 
+	button btnIsoSelection "独显" pos:[10,190] width:40 height:25 \
+	toolTip:"隐藏当前显示的未选中物体\r\n再次点击可重新显示\r\n利用 IsolateSelection\r\n但是不改变镜头缩进"
+	button btnLayerManager "层" pos:[50,190] width:20 height:25 \
+	toolTip:"模拟旧版层管理器" 
+	button btnSelectionsetTools "集" pos:[70,190] width:20 height:25 \
+	toolTip:"选择集工具增强版" 
+	button btnPoseTool "库" pos:[90,190] width:20 height:25 \
+	toolTip:"参考库工具,待完善"
+	button btnSetFps "" pos:[110,190] width:50 height:25 \
+	toolTip:"设置帧率" 
+	button btnSetSpeed "" pos:[160,190] width:50 height:25 \
+	toolTip:"设置播放速度" 
 	
 	groupbox gbxMinTools "" pos:[220,5] width:130 height:240
-	
-		checkbutton ckbC1 "" width:30 height:29 highlightcolor:myCheckedColor \
-		pos:[225,15] toolTip:"" border:false
-		checkbutton ckbC2 "" width:30 height:29 highlightcolor:myCheckedColor \
-		pos:[255,15] toolTip:"" border:false
-		checkbutton ckbC3 "" width:30 height:29 highlightcolor:myCheckedColor \
-		pos:[285,15] toolTip:"" border:false
-		checkbutton ckbC4 "" width:30 height:29 highlightcolor:myCheckedColor \
-		pos:[315,15] toolTip:"" border:false
 
-		local btnHeight = 32
-		local btnWidth = 60
-		local btnPos = [999999,999999]
-		button btnColorTools "颜色渐变" width:btnWidth height:btnHeight visible:false \
-		tooltip:"做 Demo 素模或特效方便~" pos:btnPos
-		checkbutton ckbIsoMesh "单显模型" width:btnWidth height:btnHeight visible:false \
-		toolTip:"单独显示模型预览" pos:btnPos highlightcolor:myCheckedColor 
-		button btnBipedTraj "Biped轨迹" width:btnWidth height:btnHeight visible:false \
-		toolTip:"左：切换显示单个Biped轨迹,\r\n右：清除添加的所有Biped轨迹~" pos:btnPos
-		button btnFnFrame "整小数帧" width:btnWidth height:btnHeight visible:false \
-		tooltip:"整数小数帧切换,\r\n平滑拖帧看卡顿" pos:btnPos
-		button btnSelByColor "同色选择" width:btnWidth height:btnHeight visible:false \
-		tooltip:"选择同颜色物体" pos:btnPos
-		button btnFnTCB "TCB/欧拉" width:btnWidth height:btnHeight visible:false \
-		tooltip:"欧拉和TCB互转" pos:btnPos
-		button btnEulerFilter "欧拉过滤" width:btnWidth height:btnHeight visible:false \
-		tooltip:"Bone骨骼过滤欧拉旋转" pos:btnPos
-		button btnDelOutKeys "清所有帧" width:btnWidth height:btnHeight visible:false \
-		toolTip:"清除所有关键帧" pos:btnPos
-		button btnCleanOutKeys "清无限帧" width:btnWidth height:btnHeight visible:false \
-		toolTip:"清范围外帧(无限帧)" pos:btnPos
-		button btnSelBiped "选 Biped" width:btnWidth height:btnHeight visible:false \
-		toolTip:"选择所有biped" pos:btnPos
-		button btnSelBone "选 Bone" width:btnWidth height:btnHeight  visible:false \
-		toolTip:"选择所有bone" pos:btnPos
-		button btnEndBone "增删末端" width:btnWidth height:btnHeight visible:false \
-		toolTip:"添加选择的Bone末端，可回退\r\n右键清除（注意 \"tempBoneEndAll\" 层）" pos:btnPos
-		button btnQuickPrev "快速拍屏" width:btnWidth height:btnHeight visible:false \
-		toolTip:"左：快速拍屏预览\r\n右：打开预览文件夹" pos:btnPos
-		button btnFastAlign "快速对齐" width:btnWidth height:btnHeight visible:false \
-		toolTip:"快速对齐工具，支持 Biped\r\nCreated by Alex Velez" pos:btnPos
-		button btnFnKeyType "改滑动帧" width:btnWidth height:btnHeight visible:false \
-		toolTip:"批量转换滑动关键帧等,\r\n后续可能按需优化更多设置" pos:btnPos
-		button btnRenameTools "改名工具" width:btnWidth height:btnHeight visible:false \
-		toolTip:"超级重命名工具" pos:btnPos
-		button btnAnimMirror "动画镜像" width:btnWidth height:btnHeight visible:false \
-		toolTip:"目前引用4698to大佬的插件\r\n后面随缘新写" pos:btnPos
-		checkbutton ckbFnMtlDisplay "素模切换" width:btnWidth height:btnHeight visible:false \
-		toolTip:"左:切换显示隐藏贴图,方便白模预览\r\n右:Clay显示开关(红色模型显示)\r\n暂不支持子材质和Vray材质..."
-		pos:btnPos highlightcolor:myCheckedColor 
-		button btnMopherSlider "表情滑条" width:btnWidth height:btnHeight visible:false \
-		toolTip:"选择带morpher的mesh，\r\n打开快速调节滑条方便K表情~" pos:btnPos
-		button btnBipedScale "CS缩放" width:btnWidth height:btnHeight visible:false \
-		toolTip:"效果展示可用，导入引擎别用\r\n再次点击可解除" pos:btnPos
-		button btnBatchExport "批量导出" width:btnWidth height:btnHeight visible:false \
-		toolTip:"批量导出" pos:btnPos
-		button btnCameraFromView "视角相机" width:btnWidth height:btnHeight visible:false \
-		toolTip:"根据自由视角创建相机" pos:btnPos
-		button btnMeshToBone "碎块加骨" width:btnWidth height:btnHeight visible:false \
-		toolTip:"破碎碎块快速加骨骼" pos:btnPos
-		button btnWinbox "窗口找回" width:btnWidth height:btnHeight visible:false \
-		toolTip:"方便找回曲线编辑器等窗口(多屏导致窗口丢失)" pos:btnPos
-		button btnHideBipedTwists "隐 Twist" width:btnWidth height:btnHeight visible:false \
-		toolTip:"隐藏所有 Biped 自带 Twists，再点显示" pos:btnPos
-		button btnDelDecimalKeys "删小数帧" width:btnWidth height:btnHeight visible:false \
-		toolTip:"删除所有小数帧" pos:btnPos
-		button btnRescaleWU "蒙皮缩放" width:btnWidth height:btnHeight visible:false \
-		toolTip:"带有Skin的缩放,带批处理\r\n(右键打开老版本)" pos:btnPos
-		button btnSkinTools "Skin工具" width:btnWidth height:btnHeight visible:false \
-		toolTip:"Skin工具集成 (修改自San_oOo)" pos:btnPos
-		button btnKeyStepMode "切帧设置" width:btnWidth height:btnHeight visible:false pos:btnPos \
-		tooltip:"前后切关键帧设置，\r\n可配合删帧或单轴修帧"
-		button btnDemoTool "Demo工具" width:btnWidth height:btnHeight visible:false pos:btnPos \
-		toolTip:"[已有想法待补充]\r\n方便渲染作品和练习的工具"
-		button btnCutSequence "动画分段" width:btnWidth height:btnHeight visible:false pos:btnPos \
-		toolTip:"为长动画分段动作区间 (修改自San_oOo)"
-		button btnXrSkinTool "蒙皮辅助" width:btnWidth height:btnHeight visible:false \
-		tooltip:"by:东见云" pos:btnPos
-		button btnRetargetTools "重重定向" width:btnWidth height:btnHeight visible:false \
-		tooltip:"动画重定向工具" pos:btnPos
-		button btnCombineDetachSkin "Skin 拆合" width:btnWidth height:btnHeight visible:false \
-		tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos
-		button btnClearBiped "Bip 重置" width:btnWidth height:btnHeight visible:false \
-		tooltip:"清除所有帧，恢复 Biped Figure Pose" pos:btnPos
-		button btnTwistBones "Twist 创建" width:btnWidth height:btnHeight visible:false \
-		tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
-		button btnChainsTools "链条工具" width:btnWidth height:btnHeight visible:false \
-		tooltip:"根据样条线创建链条绑定的工具" pos:btnPos
-		button btnCameraConverter "相机转换" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp8 "待添加8" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp9 "待添加9" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp10 "待添加10" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp11 "待添加11" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp12 "待添加12" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp13 "待添加13" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp14 "待添加14" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp15 "待添加15" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp16 "待添加16" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
-		button btnTemp17 "待添加17" width:btnWidth height:btnHeight visible:false \
-		tooltip:"待添加" pos:btnPos
+	checkbutton ckbC1 "" width:30 height:29 highlightcolor:myCheckedColor \
+	pos:[225,15] toolTip:"" border:false
+	checkbutton ckbC2 "" width:30 height:29 highlightcolor:myCheckedColor \
+	pos:[255,15] toolTip:"" border:false
+	checkbutton ckbC3 "" width:30 height:29 highlightcolor:myCheckedColor \
+	pos:[285,15] toolTip:"" border:false
+	checkbutton ckbC4 "" width:30 height:29 highlightcolor:myCheckedColor \
+	pos:[315,15] toolTip:"" border:false
+
+	local btnHeight = 32
+	local btnWidth = 60
+	local btnPos = [999999,999999]
+	button btnColorTools "颜色渐变" width:btnWidth height:btnHeight visible:false \
+	tooltip:"做 Demo 素模或特效方便~" pos:btnPos
+	checkbutton ckbIsoMesh "单显模型" width:btnWidth height:btnHeight visible:false \
+	toolTip:"单独显示模型预览" pos:btnPos highlightcolor:myCheckedColor 
+	button btnBipedTraj "Biped轨迹" width:btnWidth height:btnHeight visible:false \
+	toolTip:"左：切换显示单个Biped轨迹,\r\n右：清除添加的所有Biped轨迹~" pos:btnPos
+	button btnFnFrame "整小数帧" width:btnWidth height:btnHeight visible:false \
+	tooltip:"整数小数帧切换,\r\n平滑拖帧看卡顿" pos:btnPos
+	button btnSelByColor "同色选择" width:btnWidth height:btnHeight visible:false \
+	tooltip:"选择同颜色物体" pos:btnPos
+	button btnFnTCB "TCB/欧拉" width:btnWidth height:btnHeight visible:false \
+	tooltip:"欧拉和TCB互转" pos:btnPos
+	button btnEulerFilter "欧拉过滤" width:btnWidth height:btnHeight visible:false \
+	tooltip:"Bone骨骼过滤欧拉旋转" pos:btnPos
+	button btnDelOutKeys "清所有帧" width:btnWidth height:btnHeight visible:false \
+	toolTip:"清除所有关键帧" pos:btnPos
+	button btnCleanOutKeys "清无限帧" width:btnWidth height:btnHeight visible:false \
+	toolTip:"清范围外帧(无限帧)" pos:btnPos
+	button btnSelBiped "选 Biped" width:btnWidth height:btnHeight visible:false \
+	toolTip:"选择所有biped" pos:btnPos
+	button btnSelBone "选 Bone" width:btnWidth height:btnHeight  visible:false \
+	toolTip:"选择所有bone" pos:btnPos
+	button btnEndBone "增删末端" width:btnWidth height:btnHeight visible:false \
+	toolTip:"添加选择的Bone末端，可回退\r\n右键清除（注意 \"tempBoneEndAll\" 层）" pos:btnPos
+	button btnQuickPrev "快速拍屏" width:btnWidth height:btnHeight visible:false \
+	toolTip:"左：快速拍屏预览\r\n右：打开预览文件夹" pos:btnPos
+	button btnFastAlign "快速对齐" width:btnWidth height:btnHeight visible:false \
+	toolTip:"快速对齐工具，支持 Biped\r\nCreated by Alex Velez" pos:btnPos
+	button btnFnKeyType "改滑动帧" width:btnWidth height:btnHeight visible:false \
+	toolTip:"批量转换滑动关键帧等,\r\n后续可能按需优化更多设置" pos:btnPos
+	button btnRenameTools "改名工具" width:btnWidth height:btnHeight visible:false \
+	toolTip:"超级重命名工具" pos:btnPos
+	button btnAnimMirror "动画镜像" width:btnWidth height:btnHeight visible:false \
+	toolTip:"目前引用4698to大佬的插件\r\n后面随缘新写" pos:btnPos
+	checkbutton ckbFnMtlDisplay "素模切换" width:btnWidth height:btnHeight visible:false \
+	toolTip:"左:切换显示隐藏贴图,方便白模预览\r\n右:Clay显示开关(红色模型显示)\r\n暂不支持子材质和Vray材质..."
+	pos:btnPos highlightcolor:myCheckedColor 
+	button btnMopherSlider "表情滑条" width:btnWidth height:btnHeight visible:false \
+	toolTip:"选择带morpher的mesh，\r\n打开快速调节滑条方便K表情~" pos:btnPos
+	button btnBipedScale "CS缩放" width:btnWidth height:btnHeight visible:false \
+	toolTip:"效果展示可用，导入引擎别用\r\n再次点击可解除" pos:btnPos
+	button btnBatchExport "批量导出" width:btnWidth height:btnHeight visible:false \
+	toolTip:"批量导出" pos:btnPos
+	button btnCameraFromView "视角相机" width:btnWidth height:btnHeight visible:false \
+	toolTip:"根据自由视角创建相机" pos:btnPos
+	button btnMeshToBone "碎块加骨" width:btnWidth height:btnHeight visible:false \
+	toolTip:"破碎碎块快速加骨骼" pos:btnPos
+	button btnWinbox "窗口找回" width:btnWidth height:btnHeight visible:false \
+	toolTip:"方便找回曲线编辑器等窗口(多屏导致窗口丢失)" pos:btnPos
+	button btnHideBipedTwists "隐 Twist" width:btnWidth height:btnHeight visible:false \
+	toolTip:"隐藏所有 Biped 自带 Twists，再点显示" pos:btnPos
+	button btnDelDecimalKeys "删小数帧" width:btnWidth height:btnHeight visible:false \
+	toolTip:"删除所有小数帧" pos:btnPos
+	button btnRescaleWU "蒙皮缩放" width:btnWidth height:btnHeight visible:false \
+	toolTip:"带有Skin的缩放,带批处理\r\n(右键打开老版本)" pos:btnPos
+	button btnSkinTools "Skin工具" width:btnWidth height:btnHeight visible:false \
+	toolTip:"Skin工具集成 (修改自San_oOo)" pos:btnPos
+	button btnKeyStepMode "切帧设置" width:btnWidth height:btnHeight visible:false pos:btnPos \
+	tooltip:"前后切关键帧设置，\r\n可配合删帧或单轴修帧"
+	button btnDemoTool "Demo工具" width:btnWidth height:btnHeight visible:false pos:btnPos \
+	toolTip:"[已有想法待补充]\r\n方便渲染作品和练习的工具"
+	button btnCutSequence "动画分段" width:btnWidth height:btnHeight visible:false pos:btnPos \
+	toolTip:"为长动画分段动作区间 (修改自San_oOo)"
+	button btnXrSkinTool "蒙皮辅助" width:btnWidth height:btnHeight visible:false \
+	tooltip:"by:东见云" pos:btnPos
+	button btnRetargetTools "重重定向" width:btnWidth height:btnHeight visible:false \
+	tooltip:"动画重定向工具" pos:btnPos
+	button btnCombineDetachSkin "Skin 拆合" width:btnWidth height:btnHeight visible:false \
+	tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos
+	button btnClearBiped "Bip 重置" width:btnWidth height:btnHeight visible:false \
+	tooltip:"清除所有帧，恢复 Biped Figure Pose" pos:btnPos
+	button btnTwistBones "Twist 创建" width:btnWidth height:btnHeight visible:false \
+	tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
+	button btnChainsTools "链条工具" width:btnWidth height:btnHeight visible:false \
+	tooltip:"根据样条线创建链条绑定的工具" pos:btnPos
+	button btnCameraConverter "相机转换" width:btnWidth height:btnHeight visible:false \
+	tooltip:"待添加" pos:btnPos
+	button btnTrackBarTools "帧栏工具" width:btnWidth height:btnHeight visible:false \
+	toolTip:"帧栏工具条" pos:btnPos
+	button btnTemp9 "待添加9" width:btnWidth height:btnHeight visible:false \
+	tooltip:"待添加" pos:btnPos
+	button btnTemp10 "待添加10" width:btnWidth height:btnHeight visible:false \
+	tooltip:"待添加" pos:btnPos
+	button btnTemp11 "待添加11" width:btnWidth height:btnHeight visible:false \
+	tooltip:"待添加" pos:btnPos
+	button btnTemp12 "待添加12" width:btnWidth height:btnHeight visible:false \
+	tooltip:"待添加" pos:btnPos
+	button btnTemp13 "待添加13" width:btnWidth height:btnHeight visible:false \
+	tooltip:"待添加" pos:btnPos
+	button btnTemp14 "待添加14" width:btnWidth height:btnHeight visible:false \
+	tooltip:"待添加" pos:btnPos
+	button btnTemp15 "待添加15" width:btnWidth height:btnHeight visible:false \
+	tooltip:"待添加" pos:btnPos
+	button btnTemp16 "待添加16" width:btnWidth height:btnHeight visible:false \
+	tooltip:"待添加" pos:btnPos
+	button btnTemp17 "待添加17" width:btnWidth height:btnHeight visible:false \
+	tooltip:"待添加" pos:btnPos
 
 	groupbox gbxMyTools "" pos:[355,5] width:160 height:240
 	-- dotnetcontrol panelMyTools "UserControl" pos:[360,15] width:190 height:225
 
-		local btnMsWidth  = 150
-		local btnMsHeight = 20
-		local btnMsPos    = [360,42]
-		-- checkbutton ckbSwitchMyScripts "切换" pos:[5,250] width:35 height:btnMsHeight
-		-- tooltip:"切换自定义脚本按钮" border:true highlightcolor:myCheckedColor 
-		
-		checkbutton ckbMs1 "生" width:30 height:26 highlightcolor:myCheckedColor \
-		pos:[360,15] toolTip:"" border:false
-		checkbutton ckbMs2 "死" width:30 height:26 highlightcolor:myCheckedColor \
-		pos:[390,15] toolTip:"" border:false
-		checkbutton ckbMs3 "时" width:30 height:26 highlightcolor:myCheckedColor \
-		pos:[420,15] toolTip:"" border:false
-		checkbutton ckbMs4 "空" width:30 height:26 highlightcolor:myCheckedColor \
-		pos:[450,15] toolTip:"" border:false
-		checkbutton ckbMs5 "理" width:30 height:26 highlightcolor:myCheckedColor \
-		pos:[480,15] toolTip:"" border:false
+	local btnMsWidth  = 150
+	local btnMsHeight = 20
+	local btnMsPos    = [360,42]
+	-- checkbutton ckbSwitchMyScripts "切换" pos:[5,250] width:35 height:btnMsHeight
+	-- tooltip:"切换自定义脚本按钮" border:true highlightcolor:myCheckedColor 
+	
+	checkbutton ckbMs1 "生" width:30 height:26 highlightcolor:myCheckedColor \
+	pos:[360,15] toolTip:"" border:false
+	checkbutton ckbMs2 "死" width:30 height:26 highlightcolor:myCheckedColor \
+	pos:[390,15] toolTip:"" border:false
+	checkbutton ckbMs3 "时" width:30 height:26 highlightcolor:myCheckedColor \
+	pos:[420,15] toolTip:"" border:false
+	checkbutton ckbMs4 "空" width:30 height:26 highlightcolor:myCheckedColor \
+	pos:[450,15] toolTip:"" border:false
+	checkbutton ckbMs5 "理" width:30 height:26 highlightcolor:myCheckedColor \
+	pos:[480,15] toolTip:"" border:false
 
-		button btnMyScripts1 "<＋＋>" pos:btnMsPos width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[1].msName border:true visible:true
-		button btnMyScripts2 "<＋＋>" pos:(btnMsPos + [0,btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[2].msName border:true visible:true
-		button btnMyScripts3 "<＋＋>" pos:(btnMsPos + [0,2 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[3].msName border:true visible:true
-		button btnMyScripts4 "<＋＋>" pos:(btnMsPos + [0,3 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[4].msName border:true visible:true
-		button btnMyScripts5 "<＋＋>" pos:(btnMsPos + [0,4 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[5].msName border:true visible:true
-		button btnMyScripts6 "<＋＋>" pos:(btnMsPos + [0,5 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[6].msName border:true visible:true
-		button btnMyScripts7 "<＋＋>" pos:(btnMsPos + [0,6 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[7].msName border:true visible:true
-		button btnMyScripts8 "<＋＋>" pos:(btnMsPos + [0,7 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[8].msName border:true visible:true
-		button btnMyScripts9 "<＋＋>" pos:(btnMsPos + [0,8 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[9].msName border:true visible:true
-		button btnMyScripts10 "<＋＋>" pos:(btnMsPos + [0,9 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-		tooltip:iniArrMyScripts[10].msName border:true visible:true
+	button btnMyScripts1 "<＋＋>" pos:btnMsPos width:btnMsWidth height:btnMsHeight
+	tooltip:iniArrMyScripts[1].msName border:true visible:true
+	button btnMyScripts2 "<＋＋>" pos:(btnMsPos + [0,btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	tooltip:iniArrMyScripts[2].msName border:true visible:true
+	button btnMyScripts3 "<＋＋>" pos:(btnMsPos + [0,2 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	tooltip:iniArrMyScripts[3].msName border:true visible:true
+	button btnMyScripts4 "<＋＋>" pos:(btnMsPos + [0,3 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	tooltip:iniArrMyScripts[4].msName border:true visible:true
+	button btnMyScripts5 "<＋＋>" pos:(btnMsPos + [0,4 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	tooltip:iniArrMyScripts[5].msName border:true visible:true
+	button btnMyScripts6 "<＋＋>" pos:(btnMsPos + [0,5 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	tooltip:iniArrMyScripts[6].msName border:true visible:true
+	button btnMyScripts7 "<＋＋>" pos:(btnMsPos + [0,6 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	tooltip:iniArrMyScripts[7].msName border:true visible:true
+	button btnMyScripts8 "<＋＋>" pos:(btnMsPos + [0,7 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	tooltip:iniArrMyScripts[8].msName border:true visible:true
+	button btnMyScripts9 "<＋＋>" pos:(btnMsPos + [0,8 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	tooltip:iniArrMyScripts[9].msName border:true visible:true
+	button btnMyScripts10 "<＋＋>" pos:(btnMsPos + [0,9 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	tooltip:iniArrMyScripts[10].msName border:true visible:true
 
 	groupbox gbxTips "" pos:[5,215] width:210 height:30
 	
-		-- label lblLink "2019.9[miHoYo_Bullet.S]4869" pos:[12,226] width:145 height:15
-		dotnetcontrol lblLink "Label" text:"2019.9 [ miHoYo_Bullet.S ]✨" pos:[12,226] width:145 height:15
-		button btnConfig "⚙️设置" pos:[165,222] width:49 height:22 border:false
+	-- label lblLink "2019.9[miHoYo_Bullet.S]4869" pos:[12,226] width:145 height:15
+	dotnetcontrol lblLink "Label" text:"2019.9 [ miHoYo_Bullet.S ]✨" pos:[12,226] width:145 height:15
+	button btnConfig "⚙️设置" pos:[165,222] width:49 height:22 border:false
 
 	timer timerTickTock interval:200 active:true
 
@@ -1689,13 +1690,39 @@ rollout rolBsKeyTools "" width:220 height:250
 	local m_PBPointer
 ----------------------------------UI及作者ID------------------------------------------------
 
+	fn fnDotnetBitmap fName =
+	(
+		if doesFileExist fName then
+		(
+			local img = (dotnetclass "System.Drawing.Image").fromfile fName 
+			local retBmp = dotnetObject "System.Drawing.Bitmap" (img.Width + 2) (img.height + 2)
+			local g = (dotnetclass "system.drawing.graphics").fromImage retBmp
+			g.drawimage img 0 0 	
+			img.Dispose();
+			retBmp
+		)
+		else return undefined
+	)
+
 	fn fnSwitchToolBtnName =
 	(
-		local strBtnName = fnSwitchBtnString()
-		ckbC1.text = strBtnName[1]
-		ckbC2.text = strBtnName[2]
-		ckbC3.text = strBtnName[3]
-		ckbC4.text = strBtnName[4]
+		local strBtnName  = fnSwitchBtnString()
+		local iconPath    = pathconfig.appendpath (getDir #Scripts) @"\\BulletScripts\\Res\\Element"
+		local iconElement = (iconPath + @"\\" + strBtnName[2])
+		
+
+		ckbC1.text = strBtnName[1][1]
+		ckbC2.text = strBtnName[1][2]
+		ckbC3.text = strBtnName[1][3]
+		ckbC4.text = strBtnName[1][4]
+
+		btnElement.flatstyle                         = btnElement.flatstyle.flat
+		btnElement.FlatAppearance.BorderSize         = 0
+		btnElement.backcolor                         = BsDotBackColor
+		btnelement.FlatAppearance.MouseDownBackColor = BsDotBackColor
+		btnelement.FlatAppearance.MouseOverBackColor = BsDotBackColor
+		btnElement.TextAlign                         = (dotnetclass "System.Drawing.ContentAlignment").MiddleCenter
+		btnElement.image                             = (fnDotnetBitmap iconElement)
 	)
 
 	-- fn fnRefreshMsPanel =
@@ -1772,7 +1799,7 @@ rollout rolBsKeyTools "" width:220 height:250
 						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
 		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnCameraConverter,
-						rolBsKeyTools.btnTemp8,rolBsKeyTools.btnTemp9,
+						rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnTemp9,
 						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
 						rolBsKeyTools.btnTemp12,rolBsKeyTools.btnTemp13,
 						rolBsKeyTools.btnTemp14,rolBsKeyTools.btnTemp15,
@@ -2219,7 +2246,7 @@ rollout rolBsKeyTools "" width:220 height:250
 			(
 				for i in (objects as array) where (i.ishidden == false) do 
 				(
-					if rolBsKeyTools.btnJudgeLinkKey.checked == false then fnAddKyes i 0
+					if rolBsKeyTools.chkJudgeLinkKey.state == false then fnAddKyes i 0
 					else (fnAddKyes i 1)  -----------根据是否勾选link处理收集帧
 				)
 			)
@@ -2227,7 +2254,7 @@ rollout rolBsKeyTools "" width:220 height:250
 			(
 				for i in (selection as array) where (i.ishidden == false) do 
 				(
-					if rolBsKeyTools.btnJudgeLinkKey.checked == false then fnAddKyes i 0
+					if rolBsKeyTools.chkJudgeLinkKey.state == false then fnAddKyes i 0
 					else (fnAddKyes i 1)  -----------根据是否勾选link处理收集帧
 				)
 			)
@@ -2259,14 +2286,14 @@ rollout rolBsKeyTools "" width:220 height:250
 			if arrKeysTime.count != 0 then
 			(
 				selectkeys $ keyFirst KeyEnd  -------------选中正常帧
-				if rolBsKeyTools.btnJudgeLinkKey.checked == true then
+				if rolBsKeyTools.chkJudgeLinkKey.state == true then
 				(
 					fnSelLinkKeys keyFirst KeyEnd symbol --------------选中link帧
 				)
 			)
 			else
 			(
-				if rolBsKeyTools.btnJudgeLinkKey.checked == true then
+				if rolBsKeyTools.chkJudgeLinkKey.state == true then
 				(
 					fnSelLinkKeys keyFirst KeyEnd symbol
 				)
@@ -2290,7 +2317,7 @@ rollout rolBsKeyTools "" width:220 height:250
 	(
 		local arrTargetID  = #()
 		moveKeys obj offset #selection  ---先移动非link帧
-		if rolBsKeyTools.btnJudgeLinkKey.checked == true then 
+		if rolBsKeyTools.chkJudgeLinkKey.state == true then 
 		(
 			if classof obj.controller == Link_Constraint do
 			(
@@ -3208,9 +3235,9 @@ rollout rolBsKeyTools "" width:220 height:250
 		
 	on btnSetSpeed pressed do (popupMenu menuSetSpeed pos:[mouse.screenpos.x,mouse.screenpos.y - 160])
 
-	on btnJudgeLinkKey changed state do   --切换是否勾选link
+	on chkJudgeLinkKey changed state do   --切换是否勾选link
 	(
-		if btnJudgeLinkKey.state == false then
+		if chkJudgeLinkKey.state == false then
 		(
 			if arrLinkKeys.count != 0 then
 			(
@@ -3707,35 +3734,49 @@ rollout rolBsKeyTools "" width:220 height:250
 		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
 	)
 
-	on btnHideUnSel pressed do 
+	on btnIsoSelection pressed do 
 	(
-		local arrTempSelObj = #()
-		local arrTemp = objects as array
-		local arrTempAllObj = for o in arrTemp where o.isHidden == false collect o
-		local numTempCurrentSel = selection.count
-		if arrTempAllObj.count > numTempCurrentSel then
+		-- local arrTempSelObj = #()
+		-- local arrTemp = objects as array
+		-- local arrTempAllObj = for o in arrTemp where o.isHidden == false collect o
+		-- local numTempCurrentSel = selection.count
+		-- if arrTempAllObj.count > numTempCurrentSel then
+		-- (
+		-- 	if numTempCurrentSel != 0 then 
+		-- 	(
+		-- 		arrTempSelObj = selection as array
+		-- 	)
+		-- 	for i in arrTempSelObj where (arrTempSelObj.count != 0) do
+		-- 	(
+		-- 		num = finditem arrTempAllObj i
+		-- 		if num != 0 then deleteItem arrTempAllObj num
+		-- 	)
+		-- 	arrTempUnSelection = arrTempAllObj
+		-- 	actionMan.executeAction 0 "281"
+		-- )
+		stateIso = IsolateSelection.IsolateSelectionModeActive()
+		if stateIso == false then
 		(
-			if numTempCurrentSel != 0 then 
+			if selection.count != 0 then
 			(
-				arrTempSelObj = selection as array
+				IsolateSelection.EnterIsolateSelectionMode()
+				actionMan.executeAction 0 "40104"  -- Views: Undo Viewport Operation
 			)
-			for i in arrTempSelObj where (arrTempSelObj.count != 0) do
-			(
-				num = finditem arrTempAllObj i
-				if num != 0 then deleteItem arrTempAllObj num
-			)
-			arrTempUnSelection = arrTempAllObj
-			actionMan.executeAction 0 "281"
+		)
+		else 
+		(
+			IsolateSelection.ExitIsolateSelectionMode()
+			actionMan.executeAction 0 "40104"  -- Views: Undo Viewport Operation
 		)
 	)
 
-	on btnHideUnSel rightclick do
-	(
-		if arrTempUnSelection.count != 0 then
-		(
-			for i in arrTempUnSelection do i.isHidden = false
-		)
-	)
+	-- on btnIsoSelection rightclick do
+	-- (
+	-- 	if arrTempUnSelection.count != 0 then
+	-- 	(
+	-- 		for i in arrTempUnSelection do i.isHidden = false
+	-- 	)
+	-- )
 
 	on btnQuickPrev pressed do 
 	(
@@ -3975,6 +4016,11 @@ rollout rolBsKeyTools "" width:220 height:250
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Rigging_CombineSkin.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnElement mouseDown senderArg arg do
+	(
+		
 	)
 )
 if (iniPos != 0) then (Createdialog rolBsKeyTools fgcolor:myFgColor pos:iniPos style:#())
