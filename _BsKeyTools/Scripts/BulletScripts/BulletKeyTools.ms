@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-26 03:19:58
+ * @LastEditTime: 2022-07-26 03:21:42
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1719,8 +1719,8 @@ rollout rolBsKeyTools "" width:220 height:250
 		btnElement.flatstyle                         = btnElement.flatstyle.flat
 		btnElement.FlatAppearance.BorderSize         = 0
 		btnElement.backcolor                         = BsDotBackColor
-		btnelement.FlatAppearance.MouseDownBackColor = BsDotBackColor
-		btnelement.FlatAppearance.MouseOverBackColor = BsDotBackColor
+		-- btnelement.FlatAppearance.MouseDownBackColor = BsDotBackColor
+		-- btnelement.FlatAppearance.MouseOverBackColor = BsDotBackColor
 		btnElement.TextAlign                         = (dotnetclass "System.Drawing.ContentAlignment").MiddleCenter
 		btnElement.image                             = (fnDotnetBitmap iconElement)
 	)
