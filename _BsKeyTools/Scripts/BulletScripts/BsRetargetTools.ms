@@ -1976,6 +1976,12 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 			SetupNormalChildFN footHelpers[1] 12 false;
 			SetupNormalChildFN footHelpers[2] 17 false;
 	
+			for i in fingerNubs do 
+			(
+				for j in i where isvalidnode j do j.constantscreensize = true
+			)
+			headNub.constantscreensize = true
+
 			--创建 Biped
 			try
 			(
