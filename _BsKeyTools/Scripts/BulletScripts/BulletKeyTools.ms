@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-26 10:40:46
+ * @LastEditTime: 2022-07-26 13:55:58
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1442,6 +1442,10 @@ rollout rolBsKeyTools "" width:355 height:250
 (
 	local strMainRol      = ("BsKeyTools_v" + curVerBsKeyTools)
 	local ui_clientOffset = undefined
+	local strBtnName      = fnSwitchBtnString()
+	local iconPath        = pathconfig.appendpath (getDir #Scripts) @"\\BulletScripts\\Res\\Element"
+	local iconCurStr      = strBtnName[2]
+	local iconElement     = (iconPath + @"\\" + iconCurStr)
 	---------------------------------UI--------------------------------------
 	groupbox gbxMainUI strMainRol pos:[5,5] width:210 height:217
 	
@@ -1706,10 +1710,8 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	fn fnSwitchToolBtnName =
 	(
-		local strBtnName  = fnSwitchBtnString()
-		local iconPath    = pathconfig.appendpath (getDir #Scripts) @"\\BulletScripts\\Res\\Element"
-		local iconElement = (iconPath + @"\\" + strBtnName[2])
-		
+		ToolTipObj = dotnetobject "System.Windows.Forms.ToolTip"
+		ToolTipObj.SetToolTip btnelement "手指解压放松按钮"
 
 		ckbC1.text = strBtnName[1][1]
 		ckbC2.text = strBtnName[1][2]
@@ -1719,9 +1721,9 @@ rollout rolBsKeyTools "" width:355 height:250
 		btnElement.flatstyle                         = btnElement.flatstyle.flat
 		btnElement.FlatAppearance.BorderSize         = 0
 		btnElement.backcolor                         = BsDotBackColor
-		-- btnelement.FlatAppearance.MouseDownBackColor = BsDotBackColor
-		-- btnelement.FlatAppearance.MouseOverBackColor = BsDotBackColor
-		btnElement.TextAlign                         = (dotnetclass "System.Drawing.ContentAlignment").MiddleCenter
+		btnelement.FlatAppearance.MouseDownBackColor = BsDotBackColor
+		btnelement.FlatAppearance.MouseOverBackColor = BsDotBackColor
+		-- btnElement.TextAlign                         = (dotnetclass "System.Drawing.ContentAlignment").MiddleCenter
 		btnElement.image                             = (fnDotnetBitmap iconElement)
 	)
 
@@ -4020,7 +4022,9 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnElement mouseDown senderArg arg do
 	(
-		
+		iconCurStr = (fnChangeBtnElement iconCurStr)
+		iconElement = (iconPath + @"\\" + iconCurStr)
+		btnElement.image = (fnDotnetBitmap iconElement)
 	)
 )
 if (iniPos != 0) then (Createdialog rolBsKeyTools fgcolor:myFgColor pos:iniPos style:#())

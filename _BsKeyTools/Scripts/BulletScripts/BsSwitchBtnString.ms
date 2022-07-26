@@ -2,6 +2,7 @@ global dateTime = (dotNetClass "System.DateTime").Now
 global arrDayWeek = #("日", "一", "二", "三", "四", "五", "六")
 global arrDayElement = #("pyro.png","anemo.png","cyro.png","dendro.png","electro.png","geo.png","hydro.png")
 global fnSwitchBtnString
+global fnChangeBtnElement
 
 fn fnSwitchBtnString =
 (
@@ -18,4 +19,12 @@ fn fnSwitchBtnString =
         (7):(#("桂花载酒",arrDayElement[7]))
         default:(#("天动万象",arrDayElement[1]))
     )
+)
+
+fn fnChangeBtnElement curElement =
+(
+    idElement = (finditem arrDayElement curElement)
+    idElement += 1
+    if idElement > 7 then idElement = 1
+    return arrDayElement[idElement]
 )
