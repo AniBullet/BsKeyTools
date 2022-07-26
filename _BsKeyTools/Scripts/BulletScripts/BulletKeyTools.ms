@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-27 02:14:21
+ * @LastEditTime: 2022-07-27 02:19:09
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -14,7 +14,6 @@ try(destroydialog rolCustomFps)catch()
 try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
-unRegisterRedrawViewsCallback fnOrthoToPersp
 
 global curVerBsKeyTools = "0.9.9"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
@@ -2797,6 +2796,8 @@ rollout rolBsKeyTools "" width:355 height:250
 		try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 		try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 		try(destroydialog rolTogglePanel)catch()
+		unRegisterRedrawViewsCallback fnOrthoToPersp
+		tooglePersp = false
 	)
 	-----------------------------------------------------------------------------------------
 	on rolBsKeyTools rbuttondown pos do 
@@ -4045,7 +4046,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnPerspLock pressed do
 	(
 		tooglePersp = (not tooglePersp)
-		if tooglePersp then registerRedrawViewsCallback OrthoToPersp else unRegisterRedrawViewsCallback OrthoToPersp
+		if tooglePersp then registerRedrawViewsCallback fnOrthoToPersp else unRegisterRedrawViewsCallback fnOrthoToPersp
 		messagebox ("透视锁定开关：" + (tooglePersp as string) + "                                            ") title:"BsKeyTools"
 	)
 )
