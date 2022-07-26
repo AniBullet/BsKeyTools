@@ -167,6 +167,8 @@ global mappingCheckState = false
 
 global arrExportRetargetAnim = #()
 
+global arrAllBipedNode = #()
+
 -- wizardIndex = 1
 -- wizardArray = #()
 
@@ -595,35 +597,62 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 	-- 	true
 	-- )
 
+	mapped fn fnSelectChildrens objSel =
+	(
+		selectmore objSel.children
+		for i in objSel.children do (fnSelectChildrens i)
+	)
+
 	global GetBipedNode
 	fn GetBipedNode index =
 	(
 		if (index == 1) then
 		(
-            local targetBiped = (getNodeByName (bipedRootName))
+            local arrTargetBiped = (getNodeByName (bipedRootName) all:true)
+			if arrTargetBiped.count != 1 then 
+			(
+				for i in arrTargetBiped where classof i == Biped_Object do (targetBiped = i)
+			)
+			else (targetBiped = arrTargetBiped[1])
             if targetBiped != undefined then
             (
                 targetBiped.boxmode = true
-                return targetBiped
+                -- return targetBiped
             )
             else 
 			(
 				for i in objects where classof i == Biped_Object do
 				(
-					return i.controller.rootnode
-					exit
+					targetBiped = i.controller.rootnode
+					-- return targetBiped
+					-- exit
 				)
 			)
+			clearselection()
+			select targetBiped
+			fnSelectChildrens targetBiped
+			arrAllBipedNode = (selection as array)
+			return targetBiped
 		)
 		else if (index <= 35) then
 		(
-            local targetBiped = (getNodeByName (bipedRootName + " " + (substituteString biped_align_test.bipedBones.items[index] "[可选]" "")))
+            local arrTargetBiped = (getNodeByName (bipedRootName + " " + (substituteString biped_align_test.bipedBones.items[index] "[可选]" "")) all:true)
+			if arrTargetBiped.count != 1 then 
+			(
+				for i in arrTargetBiped where (finditem arrAllBipedNode i) != 0 do (targetBiped = i)
+			)
+			else (targetBiped = arrTargetBiped[1])
             targetBiped.boxmode = true
 			return targetBiped
 		)
 		else
 		(
-            local targetBiped = (getNodeByName (bipedRootName + " " + biped_align_test.bipedBones_B.items[index-35]))
+            local arrTargetBiped = (getNodeByName (bipedRootName + " " + biped_align_test.bipedBones_B.items[index-35]) all:true)
+			if arrTargetBiped.count != 1 then 
+			(
+				for i in arrTargetBiped where (finditem arrAllBipedNode i) != 0 do (targetBiped = i)
+			)
+			else (targetBiped = arrTargetBiped[1])
 			targetBiped.boxmode = true
 			return targetBiped
 		)
@@ -1898,7 +1927,7 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 		if mappingCheckState then
 		(
 			pgbBar.value = 0
-
+			max Create mode
 			---断开质心防止旋转出问题，后面连上
 			rootMotionBone = (GetSkeletalNode 1 false).parent
 			(GetSkeletalNode 1 false).parent = undefined
@@ -1964,9 +1993,10 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 
 				newBiped = biped.createNew headPos.z ang [0,0,headPos.z] neckLinks:numNeckLink spineLinks:numSpineLink fingers:5 fingerLinks:3 toes:1 toeLinks:1 trianglePelvis:false triangleNeck:true
 				newBiped.transform.controller.figureMode = true;
+				newBiped.controller.rootname = bipedRootName
 				(GetBipedNode 1).controller.bodytype = 3
 				bipedRootName = newBiped.name;
-				
+
 				rotate (GetBipedNode 45) (angleaxis 85 [0,1,0])
 				rotate (GetBipedNode 21) (angleaxis -85 [0,1,0])
 				
@@ -2719,13 +2749,14 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 			if isB == false then 
 			(
 				tarBone = GetSkeletalNode i false
-				if i == 1 then (tarBiped = getnodebyname "Bip001")
-				else (tarBiped = getnodebyname (bipedRootName + (substituteString bipedBones.items[i] "[可选]" "")))
+				-- if i == 1 then (tarBiped = getnodebyname "Bip001")
+				-- else (tarBiped = getnodebyname (bipedRootName + (substituteString bipedBones.items[i] "[可选]" "")))
+				tarBiped = (GetBipedNode i)
 			)
 			else 
 			(
 				tarBone = GetSkeletalNode (i + 35) false
-				tarBiped = getnodebyname (bipedRootName + bipedBones_B.items[i])
+				tarBiped = (GetBipedNode (i + 35))
 			)
 			tarBiped.name = tarBone.name
 			tarBone.name = "ReTempNode_" + tarBone.name
