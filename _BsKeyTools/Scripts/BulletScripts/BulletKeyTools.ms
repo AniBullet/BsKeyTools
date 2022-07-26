@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-26 03:21:42
+ * @LastEditTime: 2022-07-26 10:40:46
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1438,7 +1438,7 @@ rollout rolFnKeys "滑动帧切换 v1.1" width:280 height:120
 )
 -----------------------------------------------------------------
 -------------主UI-----------------------------------------------------------------
-rollout rolBsKeyTools "" width:220 height:250
+rollout rolBsKeyTools "" width:355 height:250
 (
 	local strMainRol      = ("BsKeyTools_v" + curVerBsKeyTools)
 	local ui_clientOffset = undefined
@@ -1759,7 +1759,7 @@ rollout rolBsKeyTools "" width:220 height:250
 	(
 		if toggleID == 1 then
 		(
-			rolBsKeyTools.width        = 220
+			rolBsKeyTools.width        = 355
 			-- rolBsKeyTools.height       = 250
 			btnMagicBtn.text           = "✧(≖ ◡ ≖)✧"
 			switchToolPanel            = 0
