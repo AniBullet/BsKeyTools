@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-26 13:55:58
+ * @LastEditTime: 2022-07-27 02:14:21
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -14,6 +14,7 @@ try(destroydialog rolCustomFps)catch()
 try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
+unRegisterRedrawViewsCallback fnOrthoToPersp
 
 global curVerBsKeyTools = "0.9.9"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
@@ -91,6 +92,7 @@ Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
 							301,302,303,304,305,306,307,308,309,310,311,312,
 							401,402,403,404,405,406,407,408,409,410,411,412)
 global iniIsIcon = false
+global tooglePersp = false
 -- global isMouseInBsKeyTools = true
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
@@ -1620,8 +1622,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"待添加" pos:btnPos
 	button btnTrackBarTools "帧栏工具" width:btnWidth height:btnHeight visible:false \
 	toolTip:"帧栏工具条" pos:btnPos
-	button btnTemp9 "待添加9" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加" pos:btnPos
+	button btnPerspLock "透视锁定" width:btnWidth height:btnHeight visible:false \
+	tooltip:"旋转视图后自动打开透视（类似按 P 键）\r\n再次点击可切换开关" pos:btnPos
 	button btnTemp10 "待添加10" width:btnWidth height:btnHeight visible:false \
 	tooltip:"待添加" pos:btnPos
 	button btnTemp11 "待添加11" width:btnWidth height:btnHeight visible:false \
@@ -1783,7 +1785,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	fn fnReloadToolsBtn =
 	(
 		arrSourToolC1 = #(rolBsKeyTools.btnColorTools,rolBsKeyTools.btnFastAlign,
-						rolBsKeyTools.btnDelDecimalKeys,rolBsKeyTools.btnAnimMirror,
+						rolBsKeyTools.btnPerspLock,rolBsKeyTools.btnAnimMirror,
 						rolBsKeyTools.btnDemoTool,rolBsKeyTools.btnBatchExport,
 						rolBsKeyTools.ckbIsoMesh,rolBsKeyTools.btnBipedTraj,
 						rolBsKeyTools.btnRescaleWU,rolBsKeyTools.btnSkinTools,
@@ -1801,7 +1803,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
 		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnCameraConverter,
-						rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnTemp9,
+						rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
 						rolBsKeyTools.btnTemp12,rolBsKeyTools.btnTemp13,
 						rolBsKeyTools.btnTemp14,rolBsKeyTools.btnTemp15,
@@ -2721,6 +2723,19 @@ rollout rolBsKeyTools "" width:355 height:250
 		for j in arrBipedTwistAll where j != undefined do
 		(
 			j.isHidden = not (j.isHidden)
+		)
+	)
+
+	fn fnOrthoToPersp =
+	(
+		--DON'T CONVERT VIEWPORT IF ORBITING / PANNING
+		mouseControl = (dotNetClass "Control")
+		mouseDown = dotnet.CompareEnums mouseControl.MouseButtons.value__ mouseControl.MouseButtons.Middle.value__
+		
+		if not mouseDown and viewport.getType() == #view_iso_user do
+		(
+			viewport.setType #view_persp_user
+			ForceCompleteRedraw()
 		)
 	)
 
@@ -4025,6 +4040,13 @@ rollout rolBsKeyTools "" width:355 height:250
 		iconCurStr = (fnChangeBtnElement iconCurStr)
 		iconElement = (iconPath + @"\\" + iconCurStr)
 		btnElement.image = (fnDotnetBitmap iconElement)
+	)
+
+	on btnPerspLock pressed do
+	(
+		tooglePersp = (not tooglePersp)
+		if tooglePersp then registerRedrawViewsCallback OrthoToPersp else unRegisterRedrawViewsCallback OrthoToPersp
+		messagebox ("透视锁定开关：" + (tooglePersp as string) + "                                            ") title:"BsKeyTools"
 	)
 )
 if (iniPos != 0) then (Createdialog rolBsKeyTools fgcolor:myFgColor pos:iniPos style:#())
