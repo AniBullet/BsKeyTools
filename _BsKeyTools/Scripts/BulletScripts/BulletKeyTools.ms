@@ -2872,7 +2872,7 @@ rollout rolBsKeyTools "" width:355 height:250
 				-- )
 				rolBsKeyTools.timerTickTock.active = false
 			)
-			else (rolTogglePanel.timerTickTock.active = false)
+			else (if rolTogglePanel != undefined then (rolTogglePanel.timerTickTock.active = false))
         )
     )
 	---------------------上面设置拖动脚本窗口,去掉标题栏后默认无法拖动---------------------
