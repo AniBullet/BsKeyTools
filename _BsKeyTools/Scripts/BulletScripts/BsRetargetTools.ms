@@ -168,6 +168,7 @@ global mappingCheckState = false
 global arrExportRetargetAnim = #()
 
 global arrAllBipedNode = #()
+global arrAllBipedName = #()
 
 -- wizardIndex = 1
 -- wizardArray = #()
@@ -344,8 +345,14 @@ rcmenu menuQuickCreateNode
 			local root = GetSkeletalNode 1 false
 			local hip = GetSkeletalNode 2 false
 			
-			local rootDummy = dummy name:("NewHip_" + root.name)
-			local dummyPelvis = dummy name:("NewPelvis_" + hip.name)
+			local rootDummy = point name:("NewHip_" + root.name)
+			local dummyPelvis = point name:("NewPelvis_" + hip.name)
+
+			rootDummy.constantscreensize = true
+			-- rootDummy.box = true
+
+			dummyPelvis.constantscreensize = true
+			-- dummyPelvis.box = true
 			
 			rootDummy.transform = hip.transform
 			rootDummy.pos = 0.5 * (leftLeg.pos + rightLeg.pos)
@@ -402,7 +409,7 @@ rcmenu menuQuickCreateNode
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
+rollout biped_align_test "BsRetargetTools_v1.6  (BipedRigCreator_Enhanced)"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Biped Bones 1 - 35" align:#left across:4 height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -603,56 +610,50 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 		for i in objSel.children do (fnSelectChildrens i)
 	)
 
+	fn fnFixBoneSize tempBone =
+	(
+		case units.MetricType of
+		(
+			#Millimeters:(tempBone.width = 40;tempBone.height = 40)
+			#Centimeters:(tempBone.width = 4;tempBone.height = 4)
+			#Meters:(tempBone.width = 0.04;tempBone.height = 0.04)
+		)
+	)
+
+	fn fnGetRootNode = 
+	(
+		for i in objects where classof i == Biped_Object do (return i.controller.rootnode)
+	)
+
 	global GetBipedNode
 	fn GetBipedNode index =
 	(
 		if (index == 1) then
 		(
-            local arrTargetBiped = (getNodeByName (bipedRootName) all:true)
-			if arrTargetBiped.count != 1 then 
+			targetBiped = fnGetRootNode()
+			if targetBiped != ok then 
 			(
-				for i in arrTargetBiped where classof i == Biped_Object do (targetBiped = i)
+				clearselection()
+				select targetBiped
+				fnSelectChildrens targetBiped
+				arrAllBipedNode = (selection as array)
+				arrAllBipedName = for i in arrAllBipedNode collect i.name
+				return targetBiped
 			)
-			else (targetBiped = arrTargetBiped[1])
-            if targetBiped != undefined then
-            (
-                targetBiped.boxmode = true
-                -- return targetBiped
-            )
-            else 
-			(
-				for i in objects where classof i == Biped_Object do
-				(
-					targetBiped = i.controller.rootnode
-					-- return targetBiped
-					-- exit
-				)
-			)
-			clearselection()
-			select targetBiped
-			fnSelectChildrens targetBiped
-			arrAllBipedNode = (selection as array)
-			return targetBiped
 		)
 		else if (index <= 35) then
 		(
-            local arrTargetBiped = (getNodeByName (bipedRootName + " " + (substituteString biped_align_test.bipedBones.items[index] "[可选]" "")) all:true)
-			if arrTargetBiped.count != 1 then 
-			(
-				for i in arrTargetBiped where (finditem arrAllBipedNode i) != 0 do (targetBiped = i)
-			)
-			else (targetBiped = arrTargetBiped[1])
+            local strTargetBiped = (bipedRootName + " " + (substituteString biped_align_test.bipedBones.items[index] "[可选]" ""))
+			idTargetBiped = finditem arrAllBipedName strTargetBiped
+			targetBiped = arrAllBipedNode[idTargetBiped]
             targetBiped.boxmode = true
 			return targetBiped
 		)
 		else
 		(
-            local arrTargetBiped = (getNodeByName (bipedRootName + " " + biped_align_test.bipedBones_B.items[index-35]) all:true)
-			if arrTargetBiped.count != 1 then 
-			(
-				for i in arrTargetBiped where (finditem arrAllBipedNode i) != 0 do (targetBiped = i)
-			)
-			else (targetBiped = arrTargetBiped[1])
+            local strTargetBiped = (bipedRootName + " " + biped_align_test.bipedBones_B.items[index-35])
+			idTargetBiped = finditem arrAllBipedName strTargetBiped
+			targetBiped = arrAllBipedNode[idTargetBiped]
 			targetBiped.boxmode = true
 			return targetBiped
 		)
@@ -737,6 +738,7 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 				local dummyRootMotionTemp = point name:"RootTemp"
 				in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0)
 				(GetBipedNode 1).parent = dummyRootMotionTemp
+				dummyRootMotionTemp.constantscreensize = true
 			)
 
 			importFile tarNewAnim #noPrompt using:FBXIMP
@@ -840,7 +842,8 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 			newBone.parent    = initialBone
 			newBone.name      = ("RetargetHelper_" + (GetBipedNode parentIndex).name);
 			newBone.boxmode   = true
-			newBone.wirecolor = green
+			newBone.wirecolor = black
+			fnFixBoneSize newBone
 			
 			return newBone;
 		)
@@ -860,6 +863,7 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 			newBone.name      = ("RetargetHelper_" + (GetBipedNode parentIndex).name);
 			newBone.boxmode   = true
 			newBone.wirecolor = green
+			fnFixBoneSize newBone
 			
 			return newBone;
 		)
@@ -897,12 +901,14 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 				newBone.parent    = initialBone
 				newBone.boxmode   = true
 				newBone.wirecolor = green
+				fnFixBoneSize newBone
 			)
 			else
 			(
 				newBone = BoneSys.createBone foundParent.pos mid axis
 				newBone.boxmode   = true
 				newBone.wirecolor = green
+				fnFixBoneSize newBone
 			)
 			
 			newBone.name = ("RetargetHelper_" + (GetBipedNode parentIndex).name);
@@ -925,12 +931,14 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 					newBone.parent    = initialBone
 					newBone.boxmode   = true
 					newBone.wirecolor = green
+					fnFixBoneSize newBone
 				)
 				else
 				(
 					newBone = BoneSys.createBone foundParent.pos foundChild.pos axis
 					newBone.boxmode   = true
 					newBone.wirecolor = green
+					fnFixBoneSize newBone
 				)
 				
 				newBone.name = ("RetargetHelper_" + (GetBipedNode parentIndex).name)
@@ -948,6 +956,8 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 					newBone.parent    = initialBone
 					newBone.boxmode   = true
 					newBone.wirecolor = green
+					fnFixBoneSize newBone
+					newBone.ishidden = true
 				)
 				else
 				(
@@ -1423,6 +1433,8 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
     (
         if (GetBipedNode 1) != undefined then
         (
+			max Create mode
+
             oldFigureMode = ((GetBipedNode 1).transform.controller.figureMode)
 
 			if oldFigureMode == true then
@@ -1976,7 +1988,8 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 			SetupNormalChildFN footHelpers[1] 12 false;
 			SetupNormalChildFN footHelpers[2] 17 false;
 	
-			for i in fingerNubs do 
+			tempArr = (fingerNubs + toeNubs + footHelpers)
+			for i in tempArr do 
 			(
 				for j in i where isvalidnode j do j.constantscreensize = true
 			)
@@ -2131,14 +2144,18 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 			
 			-- Creates the faux bones
 			-- Creates just a simple root bone
-			rootBone = dummy pos:(GetBipedNode 1).transform.position -- rotation:(GetBonePos 1).transform.rotation
+			rootBone = point pos:(GetBipedNode 1).transform.position -- rotation:(GetBonePos 1).transform.rotation
+			rootBone.constantscreensize = true
+			-- rootBone.box = true
 			rootBone.name = ("RetargetHelper_" + (GetBipedNode 1).name)
 			rootBone.transform = (GetBipedNode 1).transform
 			bipedRetargetRM = undefined
 			boneRetargetRM = undefined
 			if rootMotionBone != undefined then
 			(
-				boneRetargetRM = dummy name:"RetargetHelper_Root"
+				boneRetargetRM = point name:"RetargetHelper_Root"
+				boneRetargetRM.constantscreensize = true
+				-- boneRetargetRM.box = true
 				boneRetargetRM.transform = rootMotionBone.transform
 				in coordsys gimbal boneRetargetRM.rotation = (eulerAngles 90 0 0)
 				local pC = Position_Constraint()
@@ -2155,6 +2172,7 @@ rollout biped_align_test "BsRetargetTools_v1.5  (BipedRigCreator_Enhanced)"
 				bipedRetargetRM.transform = boneRetargetRM.transform
 				in coordsys gimbal bipedRetargetRM.rotation = (eulerAngles 90 0 0)
 				bipedRetargetRM.wirecolor = red
+				bipedRetargetRM.constantscreensize = true
 			)
 			
 			--newBone = CreateFauxBone rootBundefined 1 2
