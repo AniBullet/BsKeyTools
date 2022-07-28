@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-28 18:08:55
+ * @LastEditTime: 2022-07-28 18:48:24
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1501,7 +1501,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnImageComp "构图框" pos:[10,140] width:50 height:25 \
 	tooltip:"各种经典分割视图以辅助构图"
 	button btnTrajedit "轨迹线" pos:[60,140] width:50 height:25 \
-	tooltip:"动画轨迹工具个人优化版"
+	tooltip:"动画轨迹工具个人优化版（by 东见云）\r\n左键原版优化\r\n右键重构新版"
 	button btnFileOpen "时光机" pos:[110,140] width:50 height:25 \
 	tooltip:"快速打开max文件\r\n可收藏常用目录"
 	button btnLightTable "洋葱皮" pos:[160,140] width:50 height:25 \
@@ -3845,6 +3845,12 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnTrajedit pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\DTrajEdit.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnTrajedit rightclick do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\DTrajEdit_New.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
