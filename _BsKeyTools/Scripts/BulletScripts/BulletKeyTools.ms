@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-28 17:42:24
+ * @LastEditTime: 2022-07-28 17:58:28
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2420,7 +2420,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		local rangeStart = animationrange.start
 		local n = 0  --n来判定是否有选中biped
 
-		if keyMovedOffset != undefined then
+		if keyMovedOffset != undefined and keySelFirst != undefined and keySelEnd != undefined then
 		(
 			if selection.count != 0 then
 			(
