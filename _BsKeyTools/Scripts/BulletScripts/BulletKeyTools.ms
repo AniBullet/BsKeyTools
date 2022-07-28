@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-29 02:10:47
+ * @LastEditTime: 2022-07-29 02:34:02
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1512,7 +1512,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnSpringMagic "飘带解" pos:[60,165] width:50 height:25 \
 	tooltip:"左点新版,右点旧版" 
 	button btnCSTools "CS选择" pos:[110,165] width:50 height:25 \
-	toolTip:"快速选择CS骨骼和调Biped等" 
+	toolTip:"快速选择CS骨骼和调Biped等\r\n左键自用新做\r\n右键不稳定老版" 
 	button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
 	toolTip:"动画暴力粘贴东见云优化版\r\n(有时间我也会优化或新写)" 
 	button btnIsoSelection "独显" pos:[10,190] width:40 height:25 \
@@ -2995,6 +2995,12 @@ rollout rolBsKeyTools "" width:355 height:250
     )
 
 	on btnCSTools pressed do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsBipedTools.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnCSTools rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\cstools.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
