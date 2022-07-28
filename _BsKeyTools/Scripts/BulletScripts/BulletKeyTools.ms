@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-28 18:48:24
+ * @LastEditTime: 2022-07-29 01:41:56
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -158,7 +158,7 @@ fn fnLoadMsArray =
 		(3):(return iniArrMyScripts3)
 		(4):(return iniArrMyScripts4)
 		(5):(return iniArrMyScripts5)
-		default:((return undefined))
+		default:(return undefined)
 	)
 )
 global fnSaveMsArray
