@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-02-08 16:37:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-02-14 01:12:30
+ * @LastEditTime: 2022-07-29 01:18:51
  * @Email: animator.bullet@foxmail.com
  */
 -- --ALC betaclenaer
@@ -38,8 +38,8 @@ SITE = anibullet.com
 
 struct signature_log (
 	fn getLogFile = (
-		d = getFilenamePath  (getThisScriptFilename())			
-		return (d + "scanlog.ini")
+		d = execute ("@\"" + (getDir #maxData) + "\\scanlog.ini\"")
+		return d
 	), 
 	
 	fn getVerboseLevel = (

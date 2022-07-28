@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-02-13 15:37:02
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-02-14 02:58:25
+ * @LastEditTime: 2022-07-29 01:17:56
  * @Email: animator.bullet@foxmail.com
  */
 global rolBsCleanVirus
@@ -27,8 +27,8 @@ rollout rolBsVirusScanLog "病毒扫描日志  【杀毒不会破坏源文件，
 		
 	struct signature_log (
 		fn getLogFile = (
-			d = ((getDir #scripts) + "\\BulletScripts\\ScanVirus\\")			
-			return (d + "scanlog.ini")
+			d = execute ("@\"" + (getDir #maxData) + "\\scanlog.ini\"")
+			return d
 		), 
 		
 		fn getVerboseLevel = (
