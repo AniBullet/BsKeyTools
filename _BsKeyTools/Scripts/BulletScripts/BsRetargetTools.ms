@@ -424,7 +424,7 @@ rollout biped_align_test "BsRetargetTools_v1.6  (BipedRigCreator_Enhanced)"
 
     local btnWidth   = 120
 
-    groupbox grpRetargetList "1. Check  List" pos:[15,485] width:130 height:125
+    groupbox grpRetargetList "1. Check  mapping" pos:[15,485] width:130 height:125
 
     button loadDialogue "加载" pos:[20,535] width:(btnWidth/2) height:25
     button saveDialogue "保存" pos:[80,535] width:(btnWidth/2) height:25
@@ -1676,7 +1676,7 @@ rollout biped_align_test "BsRetargetTools_v1.6  (BipedRigCreator_Enhanced)"
         local tempdir = (if (maxFilePath != "") and (doesDirectoryExist maxFilePath) then \
         maxFilePath else (@"C:\Users\" + (filterString  (getdir #userscripts) @"\")[3] + @"\Desktop\"))
 
-        f = getSaveFileName caption:"Save Skeleton" initialDir:tempdir
+        f = getSaveFileName caption:"Save Skeleton" initialDir:tempdir filename:".list" types:"Mapping List (*.list)|*.list|"
         
         if f != undefined then
         (
@@ -1711,7 +1711,7 @@ rollout biped_align_test "BsRetargetTools_v1.6  (BipedRigCreator_Enhanced)"
 
         local tempdir = (if (maxFilePath != "") and (doesDirectoryExist maxFilePath) then maxFilePath else (@"C:\Users\" + (filterString  (getdir #userscripts) @"\")[3] + @"\Desktop\"))
 
-		f = getOpenFileName caption:"Open A Test File:" filename:tempdir
+		f = getOpenFileName caption:"Open A Test File:" filename:tempdir types:"Mapping List (*.list)|*.list|"
 		
 		if f != undefined then
 		(

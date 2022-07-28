@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-27 02:19:09
+ * @LastEditTime: 2022-07-28 14:03:15
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2853,8 +2853,7 @@ rollout rolBsKeyTools "" width:355 height:250
 				-- (
 					if rolTogglePanel == undefined or rolTogglePanel.open == false then 
 					(
-						tempTogglePanelPos = (getDialogPos rolBsKeyTools)
-						SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" (tempTogglePanelPos as string)
+						SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" ((getDialogPos rolBsKeyTools) as string)
 						rolBsKeyTools.height = 0
 						try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
 						catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
@@ -2864,7 +2863,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolTogglePanel.timerTickTock.active = true
 						SetDialogPos rolTogglePanel (getDialogPos rolBsKeyTools)
 						if iniCollopseType == 1 then rolTogglePanel.height = 30
-						else if iniCollopseType == 2 then rolTogglePanel.height = 60
+						else if iniCollopseType == 2 then rolTogglePanel.height = 80
 						rolTogglePanel.lblOneWord.height = (rolTogglePanel.height - 4)
 						rolBsKeyTools.height = 0
 					)

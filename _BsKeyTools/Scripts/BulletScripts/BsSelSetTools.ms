@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-07 12:33:36
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-05-22 02:16:52
+ * @LastEditTime: 2022-07-28 14:24:15
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -172,6 +172,7 @@ rollout rolLoadSelSet "加载选择集"
 			fnCreateSelSet arrSelSetNameLoaded arrSelSetObjLoaded n
 		)
 		fnUpdateSelSetList()
+		try(destroydialog rolLoadSelSet)catch()
 	)
 	
 	on btnLoadAll pressed do(
@@ -180,6 +181,7 @@ rollout rolLoadSelSet "加载选择集"
 			fnCreateSelSet arrSelSetNameLoaded arrSelSetObjLoaded n
 		)
 		fnUpdateSelSetList()
+		try(destroydialog rolLoadSelSet)catch()
 	)
 )
 

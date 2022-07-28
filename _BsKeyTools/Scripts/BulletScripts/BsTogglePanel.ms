@@ -2,11 +2,9 @@ try(destroydialog rolTogglePanel)catch()
 
 global rolTogglePanel
 global iniTogglePanelPos
-global heightTogglePanel    = 60
+global heightTogglePanel    = 80
 global widthToggleTools     = 520
 global isMouseInBsToolPanel = true
-global bsInitTime
-global bsTimeCost
 global arrDayWeek = #("日", "一", "二", "三", "四", "五", "六")
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
@@ -21,6 +19,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     local toggleToolMouseState    = off
     local posToggleToolMouseMoved = [0,0]
     local strDayLine              = ""
+    local userName                = (" to \"" + (filterString  (getdir #userscripts) @"\")[3] + "\" ")
 
     dotNetControl lblOneWord "Label" pos:[2,2] width:(rolTogglePanel.width - 4) height:(rolTogglePanel.height - 4)
 
@@ -40,7 +39,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
                 strMainLine = arrAllLine[10]
                 strFrom = arrAllLine[18]
                 -- strFromWho = if arrAllLine[21] == ":null," then "未知" else arrAllLine[22]
-                strOneLine = ("\"" + strMainLine + "\"" + " 《" + strFrom + "》")
+                strOneLine = ("\"" + strMainLine + "\"" + " 《" + strFrom + "》\r\n" + "May all the beauty be blessed." + userName)
                 -- print strAllLine
                 -- print strOneLine
                 return strOneLine
@@ -70,15 +69,9 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
 
     fn fnRefreshText =
     (
-        local dateTime = (dotNetClass "System.DateTime").Now
-        bsSecondTime = (dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second)
-        bsTimeCost = (bsSecondTime - bsInitTime)
         if iniCollopseType == 2 then
         (
-            return ("本次已运行： " + ((bsTimeCost/86400) as integer) as string + " 天 " + 
-            ((((mod bsTimeCost 86400) as integer)/3600) as integer) as string + " 小时 " + 
-            ((((mod ((mod bsTimeCost 86400) as integer) 3600) as integer)/60) as integer) as string + " 分钟 " + 
-            ((mod ((mod ((mod ((mod bsTimeCost 86400) as integer) 3600) as integer) 60) as integer) 60) as integer) as string + " 秒钟 " + "\r\n" + "当前时间：" +
+            return (dayTimeString + "\r\n" + "当前时间：" +
             fnGetDateTimeString()  + "\r\n" + strDayLine)
         )
         else if iniCollopseType == 1 then
@@ -90,11 +83,10 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     on rolTogglePanel open do 
     (
         local dateTime = (dotNetClass "System.DateTime").Now
-        bsInitTime = (dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second)
         strDayLine = fnGetHitokoto()
         fnStylizeLabel lblOneWord
         if iniCollopseType == 1 then (rolTogglePanel.height = 30) 
-        else (rolTogglePanel.height = 60)
+        else (rolTogglePanel.height = heightTogglePanel)
         lblOneWord.height = (rolTogglePanel.height - 4)
         fnRefreshText()
         -- lblOneWord.Font      = BsDotFont
