@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-28 17:17:42
+ * @LastEditTime: 2022-07-28 17:42:24
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -581,7 +581,7 @@ fn fnSwitchIconStyle =
 	rolBsKeyTools.ckbFreezeMesh.images = #("UVWUnwrapView_24i.bmp","UVWUnwrapView_24a.bmp",27,17,19,17,19,true,false)
 	rolBsKeyTools.btnCutFrameDisplay.images = #("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,2,2,2,2,true,true)
 	rolBsKeyTools.btnAllFrameDisplay.images = #("TrackViewStatus_24i.bmp","TrackViewStatus_24i.bmp",27,3,3,3,3,true,true)
-	rolBsKeyTools.btnTrackBarTools.images = #("PFSubObjectIcons_24i.bmp","PFSubObjectIcons_24i.bmp",2,2,2,2,2,true,true)
+	-- rolBsKeyTools.btnTrackBarTools.images = #("PFSubObjectIcons_24i.bmp","PFSubObjectIcons_24i.bmp",2,2,2,2,2,true,true)
 	rolBsKeyTools.ckbHideBones.images = #("Systems_24i.bmp","Systems_24i.bmp",3,1,1,1,1,true,true)
 	rolBsKeyTools.ckbHideBiped.images = #("CAT_ColourMode_i.bmp","CAT_ColourMode_a.bmp",10,2,1,2,1,true,false)
 	rolBsKeyTools.btnImageComp.images = #("TaskPanel_i.bmp","TaskPanel_i.bmp",6,2,2,2,2,true,false)
