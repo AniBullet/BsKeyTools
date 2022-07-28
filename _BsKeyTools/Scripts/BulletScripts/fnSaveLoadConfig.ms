@@ -31,13 +31,13 @@ fn fnSetToolBtnConfig =
 
 fn fnLoadMsBtnConfig =
 (
-	iniArrMyScripts      = fnGetConfig iniArrMyScripts "BulletKeyToolsSet"  "ArrMyScripts1" (iniArrMyScripts as string)
+	iniArrMyScripts1     = fnGetConfig iniArrMyScripts1 "BulletKeyToolsSet"  "ArrMyScripts1" (iniArrMyScripts1 as string)
 	iniArrMyScripts2     = fnGetConfig iniArrMyScripts2 "BulletKeyToolsSet"  "ArrMyScripts2" (iniArrMyScripts2 as string)
 	iniArrMyScripts3     = fnGetConfig iniArrMyScripts3 "BulletKeyToolsSet"  "ArrMyScripts3" (iniArrMyScripts3 as string)
 	iniArrMyScripts4     = fnGetConfig iniArrMyScripts4 "BulletKeyToolsSet"  "ArrMyScripts4" (iniArrMyScripts4 as string)
 	iniArrMyScripts5     = fnGetConfig iniArrMyScripts5 "BulletKeyToolsSet"  "ArrMyScripts5" (iniArrMyScripts5 as string)
 
-	local arrMyScriptsSet = #(iniArrMyScripts,iniArrMyScripts2,iniArrMyScripts4,iniArrMyScripts4,iniArrMyScripts5)
+	local arrMyScriptsSet = #(iniArrMyScripts1,iniArrMyScripts2,iniArrMyScripts4,iniArrMyScripts4,iniArrMyScripts5)
 	local tempMsArrayCount = 1
 	for i in arrMyScriptsSet do
 	(
@@ -54,17 +54,9 @@ fn fnLoadMsBtnConfig =
 			(myScript id:9 msName:"<＋＋>" dir:""),
 			(myScript id:10 msName:"<＋＋>" dir:""))
 			messagebox ("自定脚本列表 " + tempMsArrayCount as string + " 初始化或读取失败，已重置...                                                         ")
-			if tempMsArrayCount == 1 then 
-			(
-				SetINISetting BulletConfig "BulletKeyToolsSet" "ArrMyScripts1" (i as string)
-				iniArrMyScripts = i
-				-- print iniArrMyScripts
-			)
-			else 
-			(
-				SetINISetting BulletConfig "BulletKeyToolsSet" ("ArrMyScripts1" + tempMsArrayCount as string) (i as string)
-				arrMyScriptsSet[tempMsArrayCount] = i
-			)
+
+			SetINISetting BulletConfig "BulletKeyToolsSet" ("ArrMyScripts" + tempMsArrayCount as string) (i as string)
+			arrMyScriptsSet[tempMsArrayCount] = i
 		)
 		tempMsArrayCount += 1
 	)
@@ -72,7 +64,7 @@ fn fnLoadMsBtnConfig =
 
 fn fnSetMsBtnConfig =
 (
-	SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts1" (iniArrMyScripts as string)
+	SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts1" (iniArrMyScripts1 as string)
 	SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts2" (iniArrMyScripts2 as string)
 	SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts3" (iniArrMyScripts3 as string)
 	SetINISetting BulletConfig "BulletKeyToolsSet"  "ArrMyScripts4" (iniArrMyScripts4 as string)

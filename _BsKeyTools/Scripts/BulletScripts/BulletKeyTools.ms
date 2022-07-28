@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-29 01:41:56
+ * @LastEditTime: 2022-07-29 02:10:47
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -21,7 +21,7 @@ global dlUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKe
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
 
 struct myScript (id,msName,dir)
-Global iniArrMyScripts   = #((myScript id:1 msName:"<＋＋>" dir:""), \
+Global iniArrMyScripts1   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:2 msName:"<＋＋>" dir:""), \
 (myScript id:3 msName:"<＋＋>" dir:""), \
 (myScript id:4 msName:"<＋＋>" dir:""), \
@@ -153,7 +153,7 @@ fn fnLoadMsArray =
 (
 	case idMsBtn of
 	(
-		(1):(return iniArrMyScripts)
+		(1):(return iniArrMyScripts1)
 		(2):(return iniArrMyScripts2)
 		(3):(return iniArrMyScripts3)
 		(4):(return iniArrMyScripts4)
@@ -166,7 +166,7 @@ fn fnSaveMsArray arrMsTemp =
 (
 	case idMsBtn of
 	(
-		(1):(iniArrMyScripts = for i in arrMsTemp collect i)
+		(1):(iniArrMyScripts1 = for i in arrMsTemp collect i)
 		(2):(iniArrMyScripts2 = for i in arrMsTemp collect i)
 		(3):(iniArrMyScripts3 = for i in arrMsTemp collect i)
 		(4):(iniArrMyScripts4 = for i in arrMsTemp collect i)
@@ -688,7 +688,7 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 
 	fn fnClearOneMs id =
 	(
-		if idMsBtn == 1 then strMsBtn = "" else strMsBtn = idMsBtn as string
+		strMsBtn = idMsBtn as string
 		execute ("iniArrMyScripts" + strMsBtn + "[" + (id as string) + "].msName = \"<＋＋>\"")
 		execute ("iniArrMyScripts" + strMsBtn + "[" + (id as string) + "].dir = \"<＋＋>\"")
 		execute ("rolBsKeyTools.btnMyScripts" + (id as string) + ".tooltip = \"<＋＋>\"")
@@ -1661,25 +1661,25 @@ rollout rolBsKeyTools "" width:355 height:250
 	pos:[480,15] toolTip:"" border:false
 
 	button btnMyScripts1 "<＋＋>" pos:btnMsPos width:btnMsWidth height:btnMsHeight
-	tooltip:iniArrMyScripts[1].msName border:true visible:true
+	border:true visible:true
 	button btnMyScripts2 "<＋＋>" pos:(btnMsPos + [0,btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	tooltip:iniArrMyScripts[2].msName border:true visible:true
+	border:true visible:true
 	button btnMyScripts3 "<＋＋>" pos:(btnMsPos + [0,2 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	tooltip:iniArrMyScripts[3].msName border:true visible:true
+	border:true visible:true
 	button btnMyScripts4 "<＋＋>" pos:(btnMsPos + [0,3 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	tooltip:iniArrMyScripts[4].msName border:true visible:true
+	border:true visible:true
 	button btnMyScripts5 "<＋＋>" pos:(btnMsPos + [0,4 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	tooltip:iniArrMyScripts[5].msName border:true visible:true
+	border:true visible:true
 	button btnMyScripts6 "<＋＋>" pos:(btnMsPos + [0,5 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	tooltip:iniArrMyScripts[6].msName border:true visible:true
+	border:true visible:true
 	button btnMyScripts7 "<＋＋>" pos:(btnMsPos + [0,6 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	tooltip:iniArrMyScripts[7].msName border:true visible:true
+	border:true visible:true
 	button btnMyScripts8 "<＋＋>" pos:(btnMsPos + [0,7 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	tooltip:iniArrMyScripts[8].msName border:true visible:true
+	border:true visible:true
 	button btnMyScripts9 "<＋＋>" pos:(btnMsPos + [0,8 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	tooltip:iniArrMyScripts[9].msName border:true visible:true
+	border:true visible:true
 	button btnMyScripts10 "<＋＋>" pos:(btnMsPos + [0,9 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	tooltip:iniArrMyScripts[10].msName border:true visible:true
+	border:true visible:true
 
 	groupbox gbxTips "" pos:[5,215] width:210 height:30
 	
@@ -1847,7 +1847,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	fn fnSwitchMsBtn idMsBtn =
 	(
-		if idMsBtn == 1 then strMsBtn = "" else strMsBtn = idMsBtn as string
+		strMsBtn = idMsBtn as string
 		execute ("arrMsTemp = for i in iniArrMyScripts" + strMsBtn + " collect i")
 	)
 
@@ -2659,7 +2659,7 @@ rollout rolBsKeyTools "" width:355 height:250
 			arrMsTemp           = fnLoadMsArray()
 			nameMyScript        = getFilenameFile dirScript
 			btnMyScript.text    = nameMyScript
-			btnMyScript.tooltip = nameMyScript
+			btnMyScript.tooltip = dirScript
 			arrMsTemp[idMyScript].msName = nameMyScript
 			arrMsTemp[idMyScript].dir    = dirScript
 			fnSaveMsArray arrMsTemp
@@ -2680,7 +2680,7 @@ rollout rolBsKeyTools "" width:355 height:250
 				if (arrMsTemp[b].msName != undefined) then 
 				(
 					arrMyMsBtn[b].text    = arrMsTemp[b].msName
-					arrMyMsBtn[b].tooltip = arrMsTemp[b].msName
+					arrMyMsBtn[b].tooltip = arrMsTemp[b].dir
 				)
 				else 
 				(
