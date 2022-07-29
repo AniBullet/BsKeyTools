@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-29 02:34:02
+ * @LastEditTime: 2022-07-29 11:26:28
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1583,7 +1583,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"选择带morpher的mesh，\r\n打开快速调节滑条方便K表情~" pos:btnPos
 	button btnBipedScale "CS缩放" width:btnWidth height:btnHeight visible:false \
 	toolTip:"效果展示可用，导入引擎别用\r\n再次点击可解除" pos:btnPos
-	button btnBatchExport "降低版本" width:btnWidth height:btnHeight visible:false \
+	button btnBatchExport "批量转换" width:btnWidth height:btnHeight visible:false \
 	toolTip:"2021 以上降版本可能有损害，工具做了修复处理，注意保存蒙皮" pos:btnPos
 	button btnCameraFromView "视角相机" width:btnWidth height:btnHeight visible:false \
 	toolTip:"根据自由视角创建相机" pos:btnPos
