@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-29 11:26:28
+ * @LastEditTime: 2022-07-29 15:59:08
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -15,7 +15,7 @@ try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
-global curVerBsKeyTools = "0.9.9"
+global curVerBsKeyTools = "0.9.9_Beta3"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
@@ -1585,8 +1585,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"效果展示可用，导入引擎别用\r\n再次点击可解除" pos:btnPos
 	button btnBatchExport "批量转换" width:btnWidth height:btnHeight visible:false \
 	toolTip:"2021 以上降版本可能有损害，工具做了修复处理，注意保存蒙皮" pos:btnPos
-	button btnCameraFromView "视角相机" width:btnWidth height:btnHeight visible:false \
-	toolTip:"根据自由视角创建相机" pos:btnPos
+	button btnCameraTools "相机工具" width:btnWidth height:btnHeight visible:false \
+	toolTip:"相机相关工具，动画师专供" pos:btnPos
 	button btnMeshToBone "碎块加骨" width:btnWidth height:btnHeight visible:false \
 	toolTip:"破碎碎块快速加骨骼" pos:btnPos
 	button btnWinbox "窗口找回" width:btnWidth height:btnHeight visible:false \
@@ -1789,7 +1789,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.ckbIsoMesh,rolBsKeyTools.btnBipedTraj,
 						rolBsKeyTools.btnRescaleWU,rolBsKeyTools.btnSkinTools,
 						rolBsKeyTools.btnFnFrame,rolBsKeyTools.ckbFnMtlDisplay)
-		arrSourToolC2 = #(rolBsKeyTools.btnCameraFromView,rolBsKeyTools.btnMopherSlider,
+		arrSourToolC2 = #(rolBsKeyTools.btnCameraTools,rolBsKeyTools.btnMopherSlider,
 						rolBsKeyTools.btnSelBiped,rolBsKeyTools.btnSelBone,
 						rolBsKeyTools.btnFnTCB,rolBsKeyTools.btnEulerFilter,
 						rolBsKeyTools.btnDelOutKeys,rolBsKeyTools.btnCleanOutKeys,
@@ -3884,14 +3884,16 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnCameraFromView pressed do
+	on btnCameraTools pressed do
 	(
-		If (viewport.Gettype() == #view_persp_user) and (not theHold.Holding()) then 
-		(
-			if ((maxVersion())[1] < 18000) then (macros.run "Lights and Cameras" "Camera_CreateFromView")
-			else(macros.run "Lights and Cameras" "StandardCamera_CreateFromView")
-		)
-		else (messagebox "请按“P”在自由视角创建，之后可能优化为任意视角~                \r\n" beep:false)
+		-- If (viewport.Gettype() == #view_persp_user) and (not theHold.Holding()) then 
+		-- (
+		-- 	if ((maxVersion())[1] < 18000) then (macros.run "Lights and Cameras" "Camera_CreateFromView")
+		-- 	else(macros.run "Lights and Cameras" "StandardCamera_CreateFromView")
+		-- )
+		-- else (messagebox "请按“P”在自由视角创建，之后可能优化为任意视角~                \r\n" beep:false)
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsCameraTools.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnMeshToBone pressed do 
@@ -4057,8 +4059,18 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnPerspLock pressed do
 	(
 		tooglePersp = (not tooglePersp)
-		if tooglePersp then registerRedrawViewsCallback fnOrthoToPersp else unRegisterRedrawViewsCallback fnOrthoToPersp
-		messagebox ("透视锁定开关：" + (tooglePersp as string) + "                                            ") title:"BsKeyTools"
+		msgPersp = ""
+		if tooglePersp then 
+		(
+			registerRedrawViewsCallback fnOrthoToPersp 
+			msgPersp = "已开启"
+		)
+		else
+		(
+			unRegisterRedrawViewsCallback fnOrthoToPersp
+			msgPersp = "已关闭"
+		)
+		messagebox ("透视锁定（旋转镜头自动按 P 转透视）：" + msgPersp + "                                            ") title:"BsKeyTools"
 	)
 )
 if (iniPos != 0) then (Createdialog rolBsKeyTools fgcolor:myFgColor pos:iniPos style:#())
