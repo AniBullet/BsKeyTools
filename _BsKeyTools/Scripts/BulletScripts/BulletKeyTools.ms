@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-30 10:12:36
+ * @LastEditTime: 2022-07-30 11:03:07
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -574,24 +574,24 @@ rollout rolCustomBtn "自定义功能按钮位置" width:490 height:210
 --------------------------------------------------------------------------------------------------------
 fn fnSwitchIconStyle = 
 (
-	rolBsKeyTools.ckbFnBoxDisplay.images = #("AtmosApp_24i.bmp","AtmosApp_24i.bmp",3,1,1,1,1,true,true)
+	rolBsKeyTools.ckbFnBoxDisplay.images = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,9,10,9,10,true,false)
 	rolBsKeyTools.btnIsoSelection.images = #("IsolateSelection_16i.bmp","IsolateSelection_16i.bmp",1,1,1,1,1,true,true)
 	-- rolBsKeyTools.chkJudgeLinkKey.images = #("Maintoolbar_24i.bmp","Maintoolbar_24i.bmp",103,6,5,6,5,true,true)
-	rolBsKeyTools.ckbShadowCut.images = #("Radiosity_24i.bmp","Radiosity_24i.bmp",6,3,4,3,4,true,true)
-	rolBsKeyTools.ckbFreezeMesh.images = #("UVWUnwrapView_24i.bmp","UVWUnwrapView_24a.bmp",27,17,19,17,19,true,false)
+	rolBsKeyTools.ckbShadowCut.images = #("Radiosity_16i.bmp","Radiosity_16i.bmp",6,3,4,3,4,true,true)
+	rolBsKeyTools.ckbFreezeMesh.images = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,19,17,19,true,false)
 	rolBsKeyTools.btnCutFrameDisplay.images = #("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,2,2,2,2,true,true)
-	rolBsKeyTools.btnAllFrameDisplay.images = #("UVWUnwrapModes_24i.bmp","UVWUnwrapModes_24a.bmp",28,11,12,11,12,true,false)
+	rolBsKeyTools.btnAllFrameDisplay.images = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16a.bmp",28,11,12,11,12,true,false)
 	-- rolBsKeyTools.btnTrackBarTools.images = #("PFSubObjectIcons_24i.bmp","PFSubObjectIcons_24i.bmp",2,2,2,2,2,true,true)
-	rolBsKeyTools.ckbHideBones.images = #("Systems_24i.bmp","Systems_24i.bmp",3,1,1,1,1,true,true)
-	rolBsKeyTools.ckbHideBiped.images = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,17,17,17,17,true,false)
-	rolBsKeyTools.btnImageComp.images = #("FileLinkActionItems_24i.bmp","FileLinkActionItems_24i.bmp",9,5,6,5,6,true,true)
-	rolBsKeyTools.btnTrajedit.images = #("bip_curve_24i.bmp","bip_curve_24i.bmp",20,7,7,7,7,true,true)
-	rolBsKeyTools.btnFileOpen.images = #("UVWUnwrapOption_24i.bmp","UVWUnwrapOption_24a.bmp",30,6,6,6,6,true,false)
-	rolBsKeyTools.btnLightTable.images = #("SW_PartDyn_24i.bmp","SW_PartDyn_24i.bmp",5,1,1,1,1,true,true)
+	rolBsKeyTools.ckbHideBones.images = #("Systems_16i.bmp","Systems_16i.bmp",3,1,1,1,1,true,true)
+	rolBsKeyTools.ckbHideBiped.images = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,18,17,18,17,true,false)
+	rolBsKeyTools.btnImageComp.images = #("FileLinkActionItems_16i.bmp","FileLinkActionItems_16i.bmp",9,5,6,5,6,true,true)
+	rolBsKeyTools.btnTrajedit.images = #("bip_curve_16i.bmp","bip_curve_16i.bmp",20,7,7,7,7,true,true)
+	rolBsKeyTools.btnFileOpen.images = #("UVWUnwrapOption_16i.bmp","UVWUnwrapOption_16a.bmp",30,6,6,6,6,true,false)
+	rolBsKeyTools.btnLightTable.images = #("SW_PartDyn_16i.bmp","SW_PartDyn_16i.bmp",5,1,1,1,1,true,true)
 	rolBsKeyTools.ckbPlayBlocking.images = #("SchematicView_24i.bmp","SchematicView_24i.bmp",4,3,3,3,3,true,true)
-	rolBsKeyTools.btnSpringMagic.images = #("NURBSSurface_24i.bmp","NURBSSurface_24i.bmp",2,1,1,1,1,true,true)
+	rolBsKeyTools.btnSpringMagic.images = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,32,32,32,32,true,false)
 	rolBsKeyTools.btnCSTools.images = #("bip_layer_i.bmp","bip_layer_i.bmp",24,17,17,17,17,true,true)
-	rolBsKeyTools.btnAnimCopyPaste.images = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,4,4,4,4,true,true)
+	rolBsKeyTools.btnAnimCopyPaste.images = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,2,1,2,true,false)
 	rolBsKeyTools.btnLayerManager.images = #("AnimLayerToolbar_16i.bmp","AnimLayerToolbar_16i.bmp",12,1,1,1,1,true,true)
 	rolBsKeyTools.btnSelectionsetTools.images = #("enss_tools_16i.bmp","enss_tools_16i.bmp",13,1,1,1,1,true,true)
 	rolBsKeyTools.btnPoseTool.images = #("bip_modes_i.bmp","bip_modes_i.bmp",8,1,1,1,1,true,true)
@@ -1585,8 +1585,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"效果展示可用，导入引擎别用\r\n再次点击可解除" pos:btnPos
 	button btnBatchExport "批量转换" width:btnWidth height:btnHeight visible:false \
 	toolTip:"2021 以上降版本可能有损害，工具做了修复处理，注意保存蒙皮" pos:btnPos
-	button btnCameraTools "相机工具" width:btnWidth height:btnHeight visible:false \
-	toolTip:"相机相关工具，动画师专供" pos:btnPos
+	button btnCameraTools "镜头工具" width:btnWidth height:btnHeight visible:false \
+	toolTip:"Camera 相关工具，动画师专供" pos:btnPos
 	button btnMeshToBone "碎块加骨" width:btnWidth height:btnHeight visible:false \
 	toolTip:"破碎碎块快速加骨骼" pos:btnPos
 	button btnWinbox "窗口找回" width:btnWidth height:btnHeight visible:false \
@@ -1617,8 +1617,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
 	button btnChainsTools "链条工具" width:btnWidth height:btnHeight visible:false \
 	tooltip:"根据样条线创建链条绑定的工具" pos:btnPos
-	button btnCameraConverter "相机转换" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加" pos:btnPos
+	button btnRenderTools "多向渲染" width:btnWidth height:btnHeight visible:false \
+	tooltip:"多方向渲染工具" pos:btnPos
 	button btnTrackBarTools "帧栏工具" width:btnWidth height:btnHeight visible:false \
 	toolTip:"帧栏工具条" pos:btnPos
 	button btnPerspLock "透视锁定" width:btnWidth height:btnHeight visible:false \
@@ -1801,7 +1801,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnXrSkinTool,
 						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
-		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnCameraConverter,
+		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnRenderTools,
 						rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
 						rolBsKeyTools.btnTemp12,rolBsKeyTools.btnTemp13,
@@ -4046,6 +4046,12 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnCombineDetachSkin pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Rigging_CombineSkin.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnRenderTools pressed do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\多方向渲染工具（集成修改版）.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
