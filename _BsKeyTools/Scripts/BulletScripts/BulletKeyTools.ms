@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-30 11:05:32
+ * @LastEditTime: 2022-07-31 01:29:07
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -942,6 +942,7 @@ rcmenu menuConfig
 		menuItem mItemConfigFilePath "配置文件 [备份导入]"
 		menuItem mItemBackupConfigFile "备份配置 [电脑桌面]"
 		menuItem mItemRolloutBuilder "脚本界面 [学习工具]"
+		menuItem mItemHwndViewer "句柄研究 [查看工具]"
 	)
 
 	on menuConfig open do
@@ -961,13 +962,6 @@ rcmenu menuConfig
 			default:mItemCollapse.checked = false
 		)
 	)
-
-	-- on menuConfig close do
-	-- (
-	-- 	print "111"
-	-- 	stSetConfigAll.fnSetConfigBsKeyTools ()
-	-- 	rolBsKeyTools.timerTickTock.active = true
-	-- )
 
 	on mItemHelpDoc picked do 
 	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
@@ -1006,6 +1000,12 @@ rcmenu menuConfig
 	on mItemRolloutBuilder picked do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\RolloutBuilder.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on mItemHwndViewer picked do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\simple_hwnd_viewer.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
@@ -2849,26 +2849,23 @@ rollout rolBsKeyTools "" width:355 height:250
 
 			if not (contains dialogBox mouse.screenPos) then
 			(
-				-- if (not isMouseInBsKeyTools) then 
-				-- (
-					if rolTogglePanel == undefined or rolTogglePanel.open == false then 
-					(
-						SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" ((getDialogPos rolBsKeyTools) as string)
-						rolBsKeyTools.height = 0
-						try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
-						catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
-					)
-					else 
-					(
-						rolTogglePanel.timerTickTock.active = true
-						SetDialogPos rolTogglePanel (getDialogPos rolBsKeyTools)
-						if iniCollopseType == 1 then rolTogglePanel.height = 30
-						else if iniCollopseType == 2 then rolTogglePanel.height = 80
-						rolTogglePanel.lblOneWord.height = (rolTogglePanel.height - 4)
-						rolBsKeyTools.height = 0
-					)
-                    -- isMouseInBsKeyTools = true
-				-- )
+				if rolTogglePanel == undefined or rolTogglePanel.open == false then 
+				(
+					SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" ((getDialogPos rolBsKeyTools) as string)
+					rolBsKeyTools.height = 0
+					try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
+					catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+				)
+				else 
+				(
+					rolTogglePanel.timerTickTock.active = true
+					SetDialogPos rolTogglePanel (getDialogPos rolBsKeyTools)
+					if iniCollopseType == 1 then rolTogglePanel.height = 30
+					else if iniCollopseType == 2 then rolTogglePanel.height = 80
+					rolTogglePanel.lblOneWord.height = (rolTogglePanel.height - 4)
+					rolBsKeyTools.height = 0
+				)
+					-- isMouseInBsKeyTools = true
 				rolBsKeyTools.timerTickTock.active = false
 			)
 			else (if rolTogglePanel != undefined then (rolTogglePanel.timerTickTock.active = false))
