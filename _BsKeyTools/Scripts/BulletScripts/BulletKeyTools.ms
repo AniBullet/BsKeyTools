@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-29 15:59:08
+ * @LastEditTime: 2022-07-30 09:25:04
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -584,7 +584,7 @@ fn fnSwitchIconStyle =
 	-- rolBsKeyTools.btnTrackBarTools.images = #("PFSubObjectIcons_24i.bmp","PFSubObjectIcons_24i.bmp",2,2,2,2,2,true,true)
 	rolBsKeyTools.ckbHideBones.images = #("Systems_24i.bmp","Systems_24i.bmp",3,1,1,1,1,true,true)
 	rolBsKeyTools.ckbHideBiped.images = #("CAT_ColourMode_i.bmp","CAT_ColourMode_a.bmp",10,2,1,2,1,true,false)
-	rolBsKeyTools.btnImageComp.images = #("TaskPanel_i.bmp","TaskPanel_i.bmp",6,2,2,2,2,true,false)
+	rolBsKeyTools.btnImageComp.images = #("FileLinkActionItems_24i.bmp","FileLinkActionItems_24i.bmp",9,5,6,5,6,true,true)
 	rolBsKeyTools.btnTrajedit.images = #("bip_curve_24i.bmp","bip_curve_24i.bmp",20,7,7,7,7,true,true)
 	rolBsKeyTools.btnFileOpen.images = #("Maxscript_24i.bmp","Maxscript_24i.bmp",5,1,1,1,1,true,true)
 	rolBsKeyTools.btnLightTable.images = #("SW_PartDyn_24i.bmp","SW_PartDyn_24i.bmp",5,1,1,1,1,true,true)
