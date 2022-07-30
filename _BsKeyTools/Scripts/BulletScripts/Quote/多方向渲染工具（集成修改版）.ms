@@ -360,10 +360,10 @@ rollout otherTools "其他工具" width:220 height:357
 	GroupBox grp35 "清理BIP复制信息" pos:[8,224] width:205 height:48
 	button btn109 "确定清理" pos:[20,243] width:180 height:20
 	
-	button btn19 "路径" pos:[16,128] width:40 height:20
-	button btn20 "导出" pos:[160,128] width:40 height:21
+	button btn19 "路径" pos:[16,130] width:40 height:20
+	button btn20 "导出" pos:[160,130] width:40 height:21
 	 
-	edittext lbl6 "" pos:[64,128] width:88 height:20
+	edittext lbl6 "" pos:[64,130] width:88 height:20
 	GroupBox grp24 "贴图文件导出" pos:[8,112] width:205 height:48
 	GroupBox grp37 "材质球工具" pos:[8,168] width:205 height:48
 	button hit10 "整理/ 翻到1页" pos:[16,184] width:96 height:24 toolTip:"材质编辑器整理，翻页"
