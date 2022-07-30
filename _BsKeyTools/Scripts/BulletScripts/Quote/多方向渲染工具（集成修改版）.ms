@@ -1,82 +1,130 @@
+-- 修改:Bullet.S 2022.07
+
 if CGfine_tools != undefined then closeRolloutFloater CGfine_tools
-CGfine_tools=newrolloutfloater "多向渲染" 235 855
+CGfine_tools=newrolloutfloater "多向渲染" 235 885
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
+
+global tarRenderCamera
+global tarRotateParent
+
+rollout rolBaseConfig "基础设置" width:224 height:200
+(
+
+	pickbutton pbtCamera "点击选择相机" pos:[10,5] width:100 height:20 tooltip:"点击后选择渲染相机"
+	pickbutton pbtParent "选择旋转父级" pos:[110,5] width:100 height:20 tooltip:"用来旋转相机的父级 Point"
+
+	GroupBox grp1 "渲染范围" pos:[8,30] width:205 height:65
+	button btnEnvironment "环境设置" pos:[128,72] width:80 height:15
+	label lbl81 "范围" pos:[24,50] width:41 height:19
+	label lbl82 "至" pos:[128,50] width:17 height:16
+	spinner st "" pos:[64,50] width:56 height:16 range:[-1000,1000,0] type:#integer scale:1
+	spinner End "" pos:[152,50] width:56 height:16 range:[-1000,1000,0] type:#integer scale:1
+	label lbl31 "跳帧" pos:[24,72] width:48 height:18
+	spinner spn19 "" pos:[64,72] width:56 height:16 range:[1,1000,5] type:#integer
+	GroupBox grp63 "输出大小" pos:[8,100] width:205 height:40
+	label lbl2 "宽：" pos:[20,120] width:20 height:16
+	label lbl3 "高：" pos:[125,120] width:20 height:16
+	spinner spn2 "" pos:[45,120] width:56 height:16 range:[0,10000,1024] type:#integer scale:1
+	spinner spn3 "" pos:[145,120] width:56 height:16 range:[0,10000,1024] type:#integer scale:1
+
+	on rolBaseConfig open do
+	(
+		rolBaseConfig.st.range =[0,1000,rendstart]
+		rolBaseConfig.End.range =[0,1000,rendend]
+		rolBaseConfig.spn19.range =[0,1000,rendNThFrame]
+	)
+
+	on pbtCamera picked obj do 
+	(
+		if superclassof obj == camera and not isDeleted obj and isValidNode obj then
+		(
+			tarRenderCamera = obj
+			pbtCamera.text = obj.name
+		)
+	)
+
+	on btnEnvironment pressed do (actionMan.executeAction 0 "40029")
+
+	on pbtParent picked obj do 
+	(
+		if not isDeleted obj and isValidNode obj then
+		(
+			tarRotateParent = obj
+			pbtParent.text = obj.name
+		)
+	)
+
+	on spn19 changed val do
+	(
+		rendNThFrame=val	
+	)
+
+	on st changed val do
+	rolBaseConfig.st.value = val
+	on End changed val do
+	rolBaseConfig.End.value = val
+	
+	on spn2 changed val do
+	rolBaseConfig.spn2.value = val
+	on spn3 changed val do
+	rolBaseConfig.spn3.value = val
+)
+
 rollout AutoRender "单文件渲染" width:224 height:358
 (
-	spinner spn2 "" pos:[72,100] width:56 height:16 range:[0,10000,1024] type:#integer scale:1
-	spinner spn3 "" pos:[72,124] width:56 height:16 range:[0,10000,1024] type:#integer scale:1
-	button btn1 "8方向" pos:[160,243] width:43 height:25
-	button bc "保存" pos:[168,169] width:41 height:23
-	dropdownList geshi "" pos:[21,170] width:43 height:22 items:#("png", "tga", "jpg", "avi", "bmp", "tif")
-	label lbl2 "宽度：" pos:[24,100] width:48 height:16
-	label lbl3 "高度：" pos:[24,124] width:48 height:18
-	GroupBox grp1 "渲染范围" pos:[8,8] width:205 height:72
-	edittext bcwz "" pos:[16,200] width:191 height:16
-	spinner st "" pos:[64,32] width:56 height:16 range:[-1000,1000,0] type:#integer scale:1
-	spinner End "" pos:[152,32] width:56 height:16 range:[-1000,1000,0] type:#integer scale:1
-	label lbl81 "范围" pos:[24,32] width:41 height:19
-	label lbl82 "至" pos:[128,32] width:17 height:16
-	GroupBox grp63 "输出大小" pos:[8,84] width:205 height:64
-	GroupBox grp64 "输出格式与路径" pos:[8,153] width:205 height:72
-	button btn10 "2方向" pos:[64,243] width:43 height:25
-	button btn17 "5方向" pos:[112,243] width:43 height:25
-	label lbl31 "跳帧" pos:[24,56] width:48 height:18
-	spinner spn19 "" pos:[64,56] width:56 height:16 range:[1,1000,5] type:#integer
-	button btn15 "单方向" pos:[16,243] width:43 height:25
+	button btn1 "8方向" pos:[160,97] width:43 height:25
+	button bc "保存" pos:[168,25] width:41 height:23
+	dropdownList geshi "" pos:[21,25] width:43 height:22 items:#("png", "tga", "jpg", "avi", "bmp", "tif")
+	edittext bcwz "" pos:[16,52] width:191 height:16
+	GroupBox grp64 "输出格式与路径" pos:[8,5] width:205 height:72
+	button btn10 "2方向" pos:[64,97] width:43 height:25
+	button btn17 "5方向" pos:[112,97] width:43 height:25
+	button btn15 "单方向" pos:[16,97] width:43 height:25
 	
-	GroupBox grp45 "自定义渲染" pos:[8,282] width:205 height:69
-	label lbl76 "方向数量" pos:[22,302] width:56 height:19
-	label lbl77 "旋转角度" pos:[22,326] width:56 height:19
-	spinner spn75 "" pos:[84,302] width:56 height:16 range:[1,360,5] type:#integer
-	spinner spn76 "" pos:[84,326] width:56 height:16 range:[-360,360,45] type:#integer
-	button btn68 "渲染" pos:[149,307] width:56 height:33
-	GroupBox grp24 "快速渲染" pos:[8,228] width:205 height:48
-	edittext wjm "文件名" pos:[69,174] width:91 height:14 enabled:true
-	on AutoRender open do
-	(
-	st.range =[0,1000,rendstart]
-	End.range =[0,1000,rendend]
-	spn19.range =[0,1000,rendNThFrame]
-	)
-	on spn2 changed val do
-		spn2.value = val
-	on spn3 changed val do
-		spn3.value = val
+	GroupBox grp45 "自定义渲染" pos:[8,135] width:205 height:69
+	label lbl76 "方向数量" pos:[22,155] width:56 height:19
+	label lbl77 "旋转角度" pos:[22,180] width:56 height:19
+	spinner spn75 "" pos:[84,155] width:56 height:16 range:[1,360,5] type:#integer
+	spinner spn76 "" pos:[84,180] width:56 height:16 range:[-360,360,45] type:#integer
+	button btn68 "渲染" pos:[149,160] width:56 height:33
+	GroupBox grp24 "快速渲染" pos:[8,80] width:205 height:48
+	edittext wjm "文件名" pos:[69,27] width:91 height:14 enabled:true
+
 	on btn1 pressed do
 	(
 		
 		for i = 0 to 0 do  	
 		
 		( 
-	               b=$Point01
-	               cam=$Camera01
+	               b=tarRotateParent
+	               cam=tarRenderCamera
 				 rotate b (angleaxis 0 [0,0,1])
 		  n=bcwz.text+wjm.text+(i as string)+"." + geshi.selected 	  
 		  
-		  a=render Camera:cam fromframe:st.value toframe:end.value\
-	outputwidth:spn2.value outputheight:spn3.value outputfile:n 
+		  a=render Camera:cam fromframe:rolBaseConfig.st.value toframe:rolBaseConfig.End.value\
+	outputwidth:rolBaseConfig.spn2.value outputheight:rolBaseConfig.spn3.value outputfile:n 
 	  	 	  close a 		 	 )
 	
 			for i = 1 to 7 do 
 		
 			( 
-		               b=$Point01
-		               cam=$Camera01
+		               b=tarRotateParent
+		               cam=tarRenderCamera
 					 rotate b (angleaxis 45 [0,0,1])
 			  n=bcwz.text+wjm.text+(i as string)+"." + geshi.selected
 		
-			  a=render Camera:cam fromframe:st.value toframe:end.value\
-		outputwidth:spn2.value outputheight:spn3.value outputfile:n
+			  a=render Camera:cam fromframe:rolBaseConfig.st.value toframe:rolBaseConfig.End.value\
+		outputwidth:rolBaseConfig.spn2.value outputheight:rolBaseConfig.spn3.value outputfile:n
 		
 			  close a 		
 		
 			 )
 			for i = 0 to 0 do
 	(
-	b=$Point01
+	b=tarRotateParent
 	rotate b (angleaxis 45 [0,0,1])
 	)
 		)
@@ -86,35 +134,31 @@ rollout AutoRender "单文件渲染" width:224 height:358
 			if lj != undefined do
 			bcwz.text = lj+"\\"
 		)
-	on st changed val do
-		st.value = val
-	on End changed val do
-		end.value = val
 	on btn10 pressed do
 	(
 		
 		for i = 0 to 0 do  	
 		
 		( 
-	               b=$Point01
-	               cam=$Camera01
+	               b=tarRotateParent
+	               cam=tarRenderCamera
 				 rotate b (angleaxis 0 [0,0,1])
 		  n=bcwz.text+wjm.text+(i as string)+"." + geshi.selected 	  
 		  
-		  a=render Camera:cam fromframe:st.value toframe:end.value\
-	outputwidth:spn2.value outputheight:spn3.value outputfile:n 
+		  a=render Camera:cam fromframe:rolBaseConfig.st.value toframe:rolBaseConfig.End.value\
+	outputwidth:rolBaseConfig.spn2.value outputheight:rolBaseConfig.spn3.value outputfile:n 
 	  	 	  close a 		 	 )
 	
 			for i = 1 to 1 do 
 		
 			( 
-		               b=$Point01
-		               cam=$Camera01
+		               b=tarRotateParent
+		               cam=tarRenderCamera
 					 rotate b (angleaxis 180 [0,0,1])
 			  n=bcwz.text+wjm.text+(i as string)+"." + geshi.selected
 		
-			  a=render Camera:cam fromframe:st.value toframe:end.value\
-		outputwidth:spn2.value outputheight:spn3.value outputfile:n
+			  a=render Camera:cam fromframe:rolBaseConfig.st.value toframe:rolBaseConfig.End.value\
+		outputwidth:rolBaseConfig.spn2.value outputheight:rolBaseConfig.spn3.value outputfile:n
 		
 			  	
 		
@@ -123,7 +167,7 @@ rollout AutoRender "单文件渲染" width:224 height:358
 			 )
 				for i = 0 to 0 do
 	(
-	b=$Point01
+	b=tarRotateParent
 	rotate b (angleaxis 180 [0,0,1])
 	)
 		)
@@ -133,25 +177,25 @@ rollout AutoRender "单文件渲染" width:224 height:358
 		for i = 0 to 0 do  	
 		
 		( 
-	               b=$Point01
-	               cam=$Camera01
+	               b=tarRotateParent
+	               cam=tarRenderCamera
 				 rotate b (angleaxis 0 [0,0,1])
 		  n=bcwz.text+wjm.text+(i as string)+"." + geshi.selected 	  
 		  
-		  a=render Camera:cam fromframe:st.value toframe:end.value\
-	outputwidth:spn2.value outputheight:spn3.value outputfile:n 
+		  a=render Camera:cam fromframe:rolBaseConfig.st.value toframe:rolBaseConfig.End.value\
+	outputwidth:rolBaseConfig.spn2.value outputheight:rolBaseConfig.spn3.value outputfile:n 
 	  	 	  close a 		 	 )
 	
 			for i = 1 to 4 do 
 		
 			( 
-		               b=$Point01
-		               cam=$Camera01
+		               b=tarRotateParent
+		               cam=tarRenderCamera
 					 rotate b (angleaxis 45 [0,0,1])
 			  n=bcwz.text+wjm.text+(i as string)+"." + geshi.selected
 		
-			  a=render Camera:cam fromframe:st.value toframe:end.value\
-		outputwidth:spn2.value outputheight:spn3.value outputfile:n
+			  a=render Camera:cam fromframe:rolBaseConfig.st.value toframe:rolBaseConfig.End.value\
+		outputwidth:rolBaseConfig.spn2.value outputheight:rolBaseConfig.spn3.value outputfile:n
 		
 			  	
 		
@@ -160,26 +204,22 @@ rollout AutoRender "单文件渲染" width:224 height:358
 			 )
 			for i = 1 to 5 do
 	(
-	b=$Point01
+	b=tarRotateParent
 	rotate b (angleaxis 180 [0,0,1])
 	)
-		)
-	on spn19 changed val do
-	(
-		rendNThFrame=val	
 		)
 	on btn15 pressed do
 	(
 		for i = 0 to 0 do  	
 		
 		( 
-	               b=$Point01
-	               cam=$Camera01
+	               b=tarRotateParent
+	               cam=tarRenderCamera
 				 rotate b (angleaxis 0 [0,0,1])
 		  n=bcwz.text+wjm.text+(i as string)+"." + geshi.selected 	  
 		  
-		  a=render Camera:cam fromframe:st.value toframe:end.value\
-	outputwidth:spn2.value outputheight:spn3.value outputfile:n 
+		  a=render Camera:cam fromframe:rolBaseConfig.st.value toframe:rolBaseConfig.End.value\
+	outputwidth:rolBaseConfig.spn2.value outputheight:rolBaseConfig.spn3.value outputfile:n 
 	  	 	  close a 		 	 )
 	)
 	on spn75 changed val do
@@ -191,30 +231,30 @@ rollout AutoRender "单文件渲染" width:224 height:358
 			for i = 0 to 0 do  	
 		
 		( 
-	               b=$Point01
-	               cam=$Camera01
+	               b=tarRotateParent
+	               cam=tarRenderCamera
 				 rotate b (angleaxis 0 [0,0,1])
 		  n=bcwz.text+wjm.text+(i as string)+"." + geshi.selected 	  
 		  
-		  a=render Camera:cam fromframe:st.value toframe:end.value\
-	outputwidth:spn2.value outputheight:spn3.value outputfile:n 
+		  a=render Camera:cam fromframe:rolBaseConfig.st.value toframe:rolBaseConfig.End.value\
+	outputwidth:rolBaseConfig.spn2.value outputheight:rolBaseConfig.spn3.value outputfile:n 
 	  	 	  close a 		 	 )
 		for i = 1 to (spn75.value-1) do 
 	
 		( 
-	               b=$Point01
-	               cam=$Camera01
+	               b=tarRotateParent
+	               cam=tarRenderCamera
 				 rotate b (angleaxis (spn76.value) [0,0,1])
 		  n=bcwz.text+wjm.text+(i as string)+"." + geshi.selected
 	
-		  a=render Camera:cam fromframe:st.value toframe:end.value\
-	outputwidth:spn2.value outputheight:spn3.value outputfile:n
+		  a=render Camera:cam fromframe:rolBaseConfig.st.value toframe:rolBaseConfig.End.value\
+	outputwidth:rolBaseConfig.spn2.value outputheight:rolBaseConfig.spn3.value outputfile:n
 		  close a 		
 	
 		 )
 	for i = 0 to (spn75.value-1) do
 	(
-	b=$Point01
+	b=tarRotateParent
 	rotate b (angleaxis 180 [0,0,1])
 	)
 	)
@@ -269,11 +309,11 @@ rollout MultipleRender "多个文件渲染" width:220 height:357
 	(
 																	
 		outfilename = (path+ActionName+"\\"+prefix+dir[d]+"." + geshi01.selected)
-		render outputfile:outfilename camera:$Camera01 fromframe:rendStart toframe:rendEnd nthframe:rendNThFrame outputwidth:renderwidth outputheight:renderheight renderer:#production
+		render outputfile:outfilename camera:tarRenderCamera fromframe:rendStart toframe:rendEnd nthframe:rendNThFrame outputwidth:renderwidth outputheight:renderheight renderer:#production
 		--变换镜头
 		animate off
 		(															
-			rotate $Point01 (angleaxis (spn76.value) [0,0,1])
+			rotate tarRotateParent (angleaxis (spn76.value) [0,0,1])
 		)															
 	)	
 		setProperty autobackup "enabled" true	
@@ -307,18 +347,6 @@ rollout MultipleRender "多个文件渲染" width:220 height:357
 	)	
 																	
 	)
-	on spn1 changed val do
-	(
-		rendStart=val
-	)
-	on spn2 changed val do
-	(
-		rendEnd =val
-	)
-	on spn3 changed val do
-	(
-		rendNThFrame=val	
-	)
 	)
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
@@ -327,10 +355,10 @@ rollout MultipleRender "多个文件渲染" width:220 height:357
 rollout otherTools "其他工具" width:220 height:357
 (
 	GroupBox grp40 "整理丢失贴图" pos:[8,53] width:205 height:48
-	button btn110 "整理贴图" pos:[56,75] width:104 height:20
+	button btn110 "整理贴图" pos:[20,75] width:180 height:20
 	
 	GroupBox grp35 "清理BIP复制信息" pos:[8,224] width:205 height:48
-	button btn109 "确定清理" pos:[56,242] width:104 height:20
+	button btn109 "确定清理" pos:[20,243] width:180 height:20
 	
 	button btn19 "路径" pos:[16,128] width:40 height:20
 	button btn20 "导出" pos:[160,128] width:40 height:21
@@ -340,7 +368,7 @@ rollout otherTools "其他工具" width:220 height:357
 	GroupBox grp37 "材质球工具" pos:[8,168] width:205 height:48
 	button hit10 "整理/ 翻到1页" pos:[16,184] width:96 height:24 toolTip:"材质编辑器整理，翻页"
 	GroupBox grp85 "标准灯光摄像机系统" pos:[8,8] width:205 height:45
-	button btn217 "一键创建" pos:[56,24] width:104 height:24
+	button btn217 "一键创建" pos:[20,25] width:180 height:20
 	button btn22 "双面所有材质球" pos:[120,184] width:88 height:24 toolTip:"打开材质球里的双面显示"
 	local mapfiles=#()
 	local k
@@ -470,6 +498,7 @@ fn copybitmap old_files new_patch =
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------
+addrollout rolBaseConfig CGfine_tools
 addrollout AutoRender CGfine_tools
 addrollout MultipleRender CGfine_tools
 addrollout OtherTools CGfine_tools
