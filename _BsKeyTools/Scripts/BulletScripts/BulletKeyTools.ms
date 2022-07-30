@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-30 09:25:04
+ * @LastEditTime: 2022-07-30 10:12:36
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -580,22 +580,22 @@ fn fnSwitchIconStyle =
 	rolBsKeyTools.ckbShadowCut.images = #("Radiosity_24i.bmp","Radiosity_24i.bmp",6,3,4,3,4,true,true)
 	rolBsKeyTools.ckbFreezeMesh.images = #("UVWUnwrapView_24i.bmp","UVWUnwrapView_24a.bmp",27,17,19,17,19,true,false)
 	rolBsKeyTools.btnCutFrameDisplay.images = #("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,2,2,2,2,true,true)
-	rolBsKeyTools.btnAllFrameDisplay.images = #("TrackViewStatus_24i.bmp","TrackViewStatus_24i.bmp",27,3,3,3,3,true,true)
+	rolBsKeyTools.btnAllFrameDisplay.images = #("UVWUnwrapModes_24i.bmp","UVWUnwrapModes_24a.bmp",28,11,12,11,12,true,false)
 	-- rolBsKeyTools.btnTrackBarTools.images = #("PFSubObjectIcons_24i.bmp","PFSubObjectIcons_24i.bmp",2,2,2,2,2,true,true)
 	rolBsKeyTools.ckbHideBones.images = #("Systems_24i.bmp","Systems_24i.bmp",3,1,1,1,1,true,true)
-	rolBsKeyTools.ckbHideBiped.images = #("CAT_ColourMode_i.bmp","CAT_ColourMode_a.bmp",10,2,1,2,1,true,false)
+	rolBsKeyTools.ckbHideBiped.images = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,17,17,17,17,true,false)
 	rolBsKeyTools.btnImageComp.images = #("FileLinkActionItems_24i.bmp","FileLinkActionItems_24i.bmp",9,5,6,5,6,true,true)
 	rolBsKeyTools.btnTrajedit.images = #("bip_curve_24i.bmp","bip_curve_24i.bmp",20,7,7,7,7,true,true)
-	rolBsKeyTools.btnFileOpen.images = #("Maxscript_24i.bmp","Maxscript_24i.bmp",5,1,1,1,1,true,true)
+	rolBsKeyTools.btnFileOpen.images = #("UVWUnwrapOption_24i.bmp","UVWUnwrapOption_24a.bmp",30,6,6,6,6,true,false)
 	rolBsKeyTools.btnLightTable.images = #("SW_PartDyn_24i.bmp","SW_PartDyn_24i.bmp",5,1,1,1,1,true,true)
 	rolBsKeyTools.ckbPlayBlocking.images = #("SchematicView_24i.bmp","SchematicView_24i.bmp",4,3,3,3,3,true,true)
 	rolBsKeyTools.btnSpringMagic.images = #("NURBSSurface_24i.bmp","NURBSSurface_24i.bmp",2,1,1,1,1,true,true)
 	rolBsKeyTools.btnCSTools.images = #("bip_layer_i.bmp","bip_layer_i.bmp",24,17,17,17,17,true,true)
 	rolBsKeyTools.btnAnimCopyPaste.images = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,4,4,4,4,true,true)
 	rolBsKeyTools.btnLayerManager.images = #("AnimLayerToolbar_16i.bmp","AnimLayerToolbar_16i.bmp",12,1,1,1,1,true,true)
-	rolBsKeyTools.btnSelectionsetTools.images = #("enss_maintoolbar_16i.bmp","enss_maintoolbar_16i.bmp",1,1,1,1,1,true,true)
+	rolBsKeyTools.btnSelectionsetTools.images = #("enss_tools_16i.bmp","enss_tools_16i.bmp",13,1,1,1,1,true,true)
 	rolBsKeyTools.btnPoseTool.images = #("bip_modes_i.bmp","bip_modes_i.bmp",8,1,1,1,1,true,true)
-	rolBsKeyTools.btnQuicksave.images = #("bip_copy1paste_i.bmp","bip_copy1paste_i.bmp",10,3,3,3,3,true,true)
+	rolBsKeyTools.btnQuicksave.images = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,1,1,1,1,true,false)
 )
 
 rollout rolAddMyScripts "我的脚本" width:300 height:260
