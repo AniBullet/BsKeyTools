@@ -13,6 +13,53 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
 stLoadConfigAll.fnLoadConfigBsTogglePanel()
 
+(
+	fn getWindowClass =
+	(
+		local source  = "using System;"
+		source += "using System.Runtime.InteropServices;"
+		source += "public class Window"
+		source += "{"
+		source += "	[DllImport(\"user32.dll\")]"
+		source += "	public static extern IntPtr GetForegroundWindow();"
+		source += "}"
+
+		local csharpProvider = dotNetObject "Microsoft.CSharp.CSharpCodeProvider"
+		local compilerParams = dotNetObject "System.CodeDom.Compiler.CompilerParameters"
+		compilerParams.GenerateInMemory = true
+		compilerParams.ReferencedAssemblies.Add "System.dll"
+		local compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
+		compilerResults.CompiledAssembly.CreateInstance "Window"
+	)
+	if NOT isKindOf ::window dotNetObject do window = getWindowClass()
+)
+
+fn fnGetParentHwnd chwnd =
+(
+    parentHwnd = UIAccessor.GetParentWindow chwnd
+    if parentHwnd != 0P then
+    (
+        fnGetParentHwnd parentHwnd
+    )
+    else 
+    (
+        return chwnd
+    )
+)
+
+fn fnMaxWindowIsActive =
+(
+    local stateActive = false
+    local childrenHwndAll = (windows.getChildrenHWND #max)
+    
+    for i in childrenHwndAll do 
+    (
+        if finditem i (fnGetParentHwnd (window.getForegroundWindow())) != 0 then (stateActive = true)
+    )
+    return stateActive
+)
+-- (fnMaxWindowIsActive (window.getForegroundWindow()))
+
 rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogglePanel 
 (
     local ui_clientOffset         = undefined
@@ -101,13 +148,16 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     on timerTickTock tick do 
     (
         lblOneWord.Text = fnRefreshText()
-        if (ui_clientOffset != undefined) then (
+        isMaxActive = fnMaxWindowIsActive()
+        -- print isMaxActive
+        if (ui_clientOffset != undefined) then 
+        (
             local mouseClientPos = mouse.screenPos - (getDialogPos rolTogglePanel) + ui_clientOffset
             
             local dialogPos = getDialogPos rolTogglePanel
             local dialogBox = (Box2 dialogPos.x dialogPos.y rolTogglePanel.width rolTogglePanel.height)
             
-            if (contains dialogBox mouse.screenPos) then 
+            if (contains dialogBox mouse.screenPos) and isMaxActive then 
             (
                 if isMouseInBsToolPanel then
                 (
