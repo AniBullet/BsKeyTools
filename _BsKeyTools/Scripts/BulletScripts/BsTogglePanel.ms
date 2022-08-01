@@ -58,7 +58,6 @@ fn fnMaxWindowIsActive =
     )
     return stateActive
 )
--- (fnMaxWindowIsActive (window.getForegroundWindow()))
 
 rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogglePanel 
 (
