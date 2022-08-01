@@ -143,7 +143,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         iniTogglePanelPos   = (GetDialogPos rolTogglePanel)
         stSetConfigAll.fnSetConfigBsTogglePanel()
     )
-
+-- TODO:离开鼠标之后过一会儿自动半透明面板，通过取到句柄和窗口看是否可行
     on timerTickTock tick do 
     (
         lblOneWord.Text = fnRefreshText()
