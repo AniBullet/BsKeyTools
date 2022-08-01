@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-31 01:31:01
+ * @LastEditTime: 2022-08-02 00:40:28
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1789,7 +1789,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.ckbIsoMesh,rolBsKeyTools.btnBipedTraj,
 						rolBsKeyTools.btnRescaleWU,rolBsKeyTools.btnSkinTools,
 						rolBsKeyTools.btnFnFrame,rolBsKeyTools.ckbFnMtlDisplay)
-		arrSourToolC2 = #(rolBsKeyTools.btnCameraTools,rolBsKeyTools.btnMopherSlider,
+		arrSourToolC2 = #(rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnMopherSlider,
 						rolBsKeyTools.btnSelBiped,rolBsKeyTools.btnSelBone,
 						rolBsKeyTools.btnFnTCB,rolBsKeyTools.btnEulerFilter,
 						rolBsKeyTools.btnDelOutKeys,rolBsKeyTools.btnCleanOutKeys,
@@ -1802,7 +1802,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
 		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnRenderTools,
-						rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnDelDecimalKeys,
+						rolBsKeyTools.btnCameraTools,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
 						rolBsKeyTools.btnTemp12,rolBsKeyTools.btnTemp13,
 						rolBsKeyTools.btnTemp14,rolBsKeyTools.btnTemp15,
