@@ -46,15 +46,17 @@ fn fnGetParentHwnd chwnd =
         return chwnd
     )
 )
-
+-- 检查前台窗口是否能触发面板收缩展开
 fn fnMaxWindowIsActive =
 (
     local stateActive = false
     local childrenHwndAll = (windows.getChildrenHWND #max)
-    
+    local parentHwnd = (fnGetParentHwnd (window.getForegroundWindow()))
+
     for i in childrenHwndAll do 
     (
-        if finditem i (fnGetParentHwnd (window.getForegroundWindow())) != 0 then (stateActive = true)
+        if finditem i parentHwnd != 0 then (stateActive = true)
+        if UIAccessor.getWindowText parentHwnd == "rolBipedTools" then (stateActive = true)
     )
     return stateActive
 )
@@ -143,7 +145,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         iniTogglePanelPos   = (GetDialogPos rolTogglePanel)
         stSetConfigAll.fnSetConfigBsTogglePanel()
     )
--- TODO:离开鼠标之后过一会儿自动半透明面板，通过取到句柄和窗口看是否可行
+
     on timerTickTock tick do 
     (
         lblOneWord.Text = fnRefreshText()
