@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-05 13:42:04
+ * @LastEditTime: 2022-08-05 13:50:58
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -15,7 +15,7 @@ try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
-global curVerBsKeyTools = "0.9.9_Beta3"
+global curVerBsKeyTools = "0.9.9_Beta4"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
@@ -250,8 +250,16 @@ fn addToolBarButton macro cat txt remove: false =
 		stream = openFile f mode:"r+"
 
 		seek stream 0 
-			
-		mt = "\"Main Toolbar\""			
+		
+		if (((sysinfo.GetMaxLanguage())[3]=="CHS") and ((maxVersion())[1] < 20000)) then 
+		(
+			mt = "\"主工具栏\""
+		)
+		else
+		(
+			mt = "\"Main Toolbar\""
+		)
+				
 		skipToString stream mt
 				
 		exist = (skipToString stream find) == undefined
@@ -296,7 +304,7 @@ fn addToolBarButton macro cat txt remove: false =
 		cui.loadConfig f
 		cui.saveConfigAs f
 		cui.loadConfig f
-		
+		-- <Item typeID="2" type="CTB_MACROBUTTON" width="62" height="0" controlID="0" macroTypeID="3" macroType="MB_TYPE_ACTION" actionTableID="647394" imageID="-1" imageName="" actionID="BulletKeyTools`_[BulletTools]" tip="BsKeyTools" label="BsKeyTools" />
 		l = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"0\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
 		delBtnLine = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"62\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
 		if(remove) then
