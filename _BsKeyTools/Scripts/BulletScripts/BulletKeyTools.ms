@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-05 13:50:58
+ * @LastEditTime: 2022-08-05 14:09:14
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -939,8 +939,8 @@ rcmenu menuConfig
 	subMenu "更新设置 [需要联网]"
 	(
 		menuItem mItemCheckUpdate "检查更新 [需要联网]"
-		menuItem mItemForceUpdate "强制更新 [无视版本]"
-		menuItem mItemAutoCheckUpdate "自启检测 [需要联网]"
+		menuItem mItemForceUpdate "强制更新 [Beta尝鲜]"
+		menuItem mItemAutoCheckUpdate "自启检测 [建议更新]"
 		menuItem mItemUpdateLog "更新记录 [需求何在]"
 		menuItem mItemUndoVersion "回退版本 [上个版本]"
 	)
