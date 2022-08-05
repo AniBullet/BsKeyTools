@@ -2840,18 +2840,19 @@ rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 
 			(GetBipedNode 1).transform.controller.figureMode = false
 
-			arrTarSkinMesh = for g in objects as array where (classof g == Editable_mesh) or (classof g == PolyMeshObject) collect g
+			arrTarSkinMesh = #()
+			for g in objects as array where (classof g == Editable_mesh) or (classof g == PolyMeshObject) do
+			(
+				if (getSkin g) != undefined then append arrTarSkinMesh g
+			)
 
-			for o = 1 to arrTarSkinMesh.count do 
+			for o = 1 to arrTarSkinMesh.count do
 			(
 				local meshSkin = (getSkin arrTarSkinMesh[o])
-				if meshSkin != undefined do 
-				(
-					select arrTarSkinMesh[o]
-					max modify mode
-					modpanel.setcurrentobject meshSkin
-					skinOps.saveEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[o].name + "_TempSkin.env")
-				)
+				select arrTarSkinMesh[o]
+				max modify mode
+				modpanel.setcurrentobject meshSkin
+				skinOps.saveEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[o].name + "_TempSkin.env")
 				pgbBar.value = 30.*o/(arrTarSkinMesh.count)
 			)
 
