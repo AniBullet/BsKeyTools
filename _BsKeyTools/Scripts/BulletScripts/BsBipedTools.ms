@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-08-02 13:43:15
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-03 21:17:48
+ * @LastEditTime: 2022-08-05 14:14:03
  * @Email: animator.bullet@foxmail.com
  */
 try(rolBipedTools.close())catch()
@@ -30,7 +30,7 @@ global stateDraggingBipedTools = 0
     button1.Name = "button1"
     button1.Size = dotNetObject "System.Drawing.Size" 107 45
     button1.TabIndex = 0
-    button1.Text = "button1"
+    button1.Text = "关闭面板"
     button1.UseVisualStyleBackColor = False
     -- button2
     button2.BackColor = (dotNetClass "System.Drawing.Color").Black
