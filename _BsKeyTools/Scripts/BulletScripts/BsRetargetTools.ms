@@ -2845,10 +2845,13 @@ rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 			for o = 1 to arrTarSkinMesh.count do 
 			(
 				local meshSkin = (getSkin arrTarSkinMesh[o])
-				select arrTarSkinMesh[o]
-				max modify mode
-				modpanel.setcurrentobject meshSkin
-				skinOps.saveEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[o].name + "_TempSkin.env")
+				if meshSkin != undefined do 
+				(
+					select arrTarSkinMesh[o]
+					max modify mode
+					modpanel.setcurrentobject meshSkin
+					skinOps.saveEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[o].name + "_TempSkin.env")
+				)
 				pgbBar.value = 30.*o/(arrTarSkinMesh.count)
 			)
 
