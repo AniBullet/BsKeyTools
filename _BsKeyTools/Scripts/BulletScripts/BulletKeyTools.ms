@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-02 00:40:28
+ * @LastEditTime: 2022-08-05 13:42:04
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -135,8 +135,8 @@ Global keySelEnd
 Global fnAddKyes
 Global fnSelectKeys
 Global fnSelLinkKeys
-Global fnAddLinkTimesKeys
-Global fnAddLinkParamsKeys
+-- Global fnAddLinkTimesKeys
+-- Global fnAddLinkParamsKeys
 Global keyMovedOffset = 5
 Global symbol ----选择的范围判断, 0左边,1右边,2全部
 Global layerTraj --轨迹辅助层
@@ -2005,98 +2005,123 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
 	)
 
-	-- fn fnAddLinkKeys tempObj =
-	-- (
-		fn fnAddLinkTimesKeys tempObj i=     --添加linkTimes关键帧
-		(
-			-- for i = 1 to tempObj.controller.numsubs do 
-			-- (
-				if ((GetSubAnimName tempObj.controller i) == #Link_Times) then
-				(
-					if tempObj.controller[i].keys[1] != undefined then
-					(
-						for i in tempObj.controller[i].keys do 
-						(
-							appendIfUnique arrLinkKeys i  ---------添加link帧到数组
-							appendIfUnique arrKeysTime i.time
-							appendIfUnique arrBlockingKeys i.time
-							if i.selected == true then (appendIfUnique arrKeysSelected i.time)
-						)
-					)
-				)
-			-- )
-		)
-		fn fnAddLinkParamsKeys tempObj i=   ----添加LinkParams下面的Transform帧
-		(
-			local tempLinkController
-			local keyTimeStartTemp
-			local keyTimeEndTemp
-			
-			-- for i = 1 to tempObj.controller.numsubs do 
-			-- (
-				if ((GetSubAnimName tempObj.controller i) == #Link_Params) then
-				(
-					tempLinkController = tempObj.controller[i]
-					if tempLinkController[1] != undefined then
-					(
-						for i = 1 to tempLinkController.numsubs do -----link属性的bone下面的prs帧------
-						(
-							if (((tempLinkController[i]).name == "Position") or \
-							((tempLinkController[i]).name == "Rotation") or \
-							((tempLinkController[i]).name == "Scale")) then
-							(
-								if tempLinkController[i].keys[1] != undefined then
-								(
-									keyTimeStartTemp = tempLinkController[i].keys[1].time
-									keyTimeEndTemp = tempLinkController[i].keys[tempLinkController[i].keys.count].time
-									appendIfUnique arrKeysTime keyTimeStartTemp
-									appendIfUnique arrKeysTime keyTimeEndTemp
-									for i in tempLinkController[i].keys do 
-									(
-										appendIfUnique arrBlockingKeys i.time
-										if i.selected == true then (
-											appendIfUnique arrKeysSelected i.time
-										)
-									)
-								)
-							)
-						)
-					)
-				)
-			-- )
-		)
-		-- fnAddLinkTimesKeys tempObj
-		-- fnAddLinkParamsKeys tempObj
-	-- )
-
-	fn fnAddPrsKeys tempObj i=  ---------添加正常非biped的prs帧(没加link),i是子动画ID,后面用到,提前传入减少遍历
+	fn fnAddAllSubsKeys tempObj =
 	(
-		local keyTimeStartTemp
-		local keyTimeEndTemp
-		
-		-- for i = 1 to tempObj.controller.numsubs do 
-		-- (
-			if (((tempObj.controller[i]).name == "Position") or \
-			((tempObj.controller[i]).name == "Rotation") or \
-			((tempObj.controller[i]).name == "Scale")) then
+		for i = 1 to tempObj.numSubs do
+		(
+			tempSubAnim     = GetSubAnim tempObj i
+			tempSubAnimName = getSubAnimName tempObj i
+			tempController  = tempSubAnim.Controller
+			
+			if tempController != undefined do
 			(
-				if tempObj.controller[i].keys[1] != undefined then
+				for j in tempController.Keys do
 				(
-					keyTimeStartTemp = tempObj.controller[i].keys[1].time
-					keyTimeEndTemp = tempObj.controller[i].keys[tempObj.controller[i].keys.count].time
-					appendIfUnique arrKeysTime keyTimeStartTemp
-					appendIfUnique arrKeysTime keyTimeEndTemp
-					for i in tempObj.controller[i].keys do 
+					if (tempSubAnimName == #Link_Times or tempSubAnimName == #链接时间) then
 					(
-						appendIfUnique arrBlockingKeys i.time
-						if i.selected == true then (
-							appendIfUnique arrKeysSelected i.time
-						)
+						appendIfUnique arrLinkKeys j  ---------添加link帧到数组
 					)
+					appendIfUnique arrKeysTime j.time
+					appendIfUnique arrBlockingKeys j.time
+					if j.selected == true then (appendIfUnique arrKeysSelected j.time)
 				)
 			)
-		-- )
+			if tempSubAnim.numSubs > 0 do fnAddAllSubsKeys tempSubAnim
+		)
 	)
+
+	-- -- fn fnAddLinkKeys tempObj =
+	-- -- (
+	-- 	fn fnAddLinkTimesKeys tempObj i=     --添加linkTimes关键帧
+	-- 	(
+	-- 		-- for i = 1 to tempObj.controller.numsubs do 
+	-- 		-- (
+	-- 			if ((GetSubAnimName tempObj.controller i) == #Link_Times or (GetSubAnimName tempObj.controller i) == #链接时间) then
+	-- 			(
+	-- 				if tempObj.controller[i].keys[1] != undefined then
+	-- 				(
+	-- 					for i in tempObj.controller[i].keys do 
+	-- 					(
+	-- 						appendIfUnique arrLinkKeys i  ---------添加link帧到数组
+	-- 						appendIfUnique arrKeysTime i.time
+	-- 						appendIfUnique arrBlockingKeys i.time
+	-- 						if i.selected == true then (appendIfUnique arrKeysSelected i.time)
+	-- 					)
+	-- 				)
+	-- 			)
+	-- 		-- )
+	-- 	)
+	-- 	fn fnAddLinkParamsKeys tempObj i=   ----添加LinkParams下面的Transform帧
+	-- 	(
+	-- 		local tempLinkController
+	-- 		local keyTimeStartTemp
+	-- 		local keyTimeEndTemp
+			
+	-- 		-- for i = 1 to tempObj.controller.numsubs do 
+	-- 		-- (
+	-- 			if ((GetSubAnimName tempObj.controller i) == #Link_Params) then
+	-- 			(
+	-- 				tempLinkController = tempObj.controller[i]
+	-- 				if tempLinkController[1] != undefined then
+	-- 				(
+	-- 					for i = 1 to tempLinkController.numsubs do -----link属性的bone下面的prs帧------
+	-- 					(
+	-- 						if (((tempLinkController[i]).name == "Position") or \
+	-- 						((tempLinkController[i]).name == "Rotation") or \
+	-- 						((tempLinkController[i]).name == "Scale")) then
+	-- 						(
+	-- 							if tempLinkController[i].keys[1] != undefined then
+	-- 							(
+	-- 								keyTimeStartTemp = tempLinkController[i].keys[1].time
+	-- 								keyTimeEndTemp = tempLinkController[i].keys[tempLinkController[i].keys.count].time
+	-- 								appendIfUnique arrKeysTime keyTimeStartTemp
+	-- 								appendIfUnique arrKeysTime keyTimeEndTemp
+	-- 								for i in tempLinkController[i].keys do 
+	-- 								(
+	-- 									appendIfUnique arrBlockingKeys i.time
+	-- 									if i.selected == true then (
+	-- 										appendIfUnique arrKeysSelected i.time
+	-- 									)
+	-- 								)
+	-- 							)
+	-- 						)
+	-- 					)
+	-- 				)
+	-- 			)
+	-- 		-- )
+	-- 	)
+	-- 	-- fnAddLinkTimesKeys tempObj
+	-- 	-- fnAddLinkParamsKeys tempObj
+	-- -- )
+
+	-- fn fnAddPrsKeys tempObj i=  ---------添加正常非biped的prs帧(没加link),i是子动画ID,后面用到,提前传入减少遍历
+	-- (
+	-- 	local keyTimeStartTemp
+	-- 	local keyTimeEndTemp
+		
+	-- 	-- for i = 1 to tempObj.controller.numsubs do 
+	-- 	-- (
+	-- 		if (((tempObj.controller[i]).name == "Position") or \
+	-- 		((tempObj.controller[i]).name == "Rotation") or \
+	-- 		((tempObj.controller[i]).name == "Scale")) then
+	-- 		(
+	-- 			if tempObj.controller[i].keys[1] != undefined then
+	-- 			(
+	-- 				keyTimeStartTemp = tempObj.controller[i].keys[1].time
+	-- 				keyTimeEndTemp = tempObj.controller[i].keys[tempObj.controller[i].keys.count].time
+	-- 				appendIfUnique arrKeysTime keyTimeStartTemp
+	-- 				appendIfUnique arrKeysTime keyTimeEndTemp
+	-- 				for i in tempObj.controller[i].keys do 
+	-- 				(
+	-- 					appendIfUnique arrBlockingKeys i.time
+	-- 					if i.selected == true then (
+	-- 						appendIfUnique arrKeysSelected i.time
+	-- 					)
+	-- 				)
+	-- 			)
+	-- 		)
+	-- 	-- )
+	-- )
 
 	fn fnAddBipedKeys tempObj =------收集Biped帧
 	(
@@ -2108,42 +2133,43 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			if classof tempObj.controller != Vertical_Horizontal_Turn then --筛选出非质心的biped帧
 			(
-				if (tempObj.controller.keys[1] != undefined) then
-				(
-					for i in tempObj.controller.keys do 
-					(
-						appendIfUnique arrKeysTime i.time   ---添加到数组
-						appendIfUnique arrBlockingKeys i.time
-						if i.selected == true then (
-							appendIfUnique arrKeysSelected i.time
-						)
-					)
-				)
-				subanimBipedScale = GetSubAnim tempObj.controller[1] 1
-				if ((subanimBipedScale != undefined) and \
-				(GetSubAnimName subanimBipedScale 1 == #ScaleXYZ)) then  ----筛选出biped的缩放帧
-				(
-					if subanimBipedScale[1].keys[1] != undefined then
-					(
-						keyTimeStartTemp = subanimBipedScale[1].keys[1].time
-						keyTimeEndTemp = subanimBipedScale[1].keys[subanimBipedScale[1].keys.count].time
-						appendIfUnique arrKeysTime keyTimeStartTemp
-						appendIfUnique arrKeysTime keyTimeEndTemp
-						for i in subanimBipedScale[1].keys do 
-						(
-							appendIfUnique arrBlockingKeys i.time
-							if i.selected == true then (
-								appendIfUnique arrKeysSelected i.time
-							)
-						)
-					)
-				)
+				fnAddAllSubsKeys tempObj
+				-- if (tempObj.controller.keys[1] != undefined) then
+				-- (
+				-- 	for i in tempObj.controller.keys do 
+				-- 	(
+				-- 		appendIfUnique arrKeysTime i.time   ---添加到数组
+				-- 		appendIfUnique arrBlockingKeys i.time
+				-- 		if i.selected == true then (
+				-- 			appendIfUnique arrKeysSelected i.time
+				-- 		)
+				-- 	)
+				-- )
+				-- subanimBipedScale = GetSubAnim tempObj.controller[1] 1
+				-- if ((subanimBipedScale != undefined) and \
+				-- (GetSubAnimName subanimBipedScale 1 == #ScaleXYZ)) then  ----筛选出biped的缩放帧
+				-- (
+				-- 	if subanimBipedScale[1].keys[1] != undefined then
+				-- 	(
+				-- 		keyTimeStartTemp = subanimBipedScale[1].keys[1].time
+				-- 		keyTimeEndTemp = subanimBipedScale[1].keys[subanimBipedScale[1].keys.count].time
+				-- 		appendIfUnique arrKeysTime keyTimeStartTemp
+				-- 		appendIfUnique arrKeysTime keyTimeEndTemp
+				-- 		for i in subanimBipedScale[1].keys do 
+				-- 		(
+				-- 			appendIfUnique arrBlockingKeys i.time
+				-- 			if i.selected == true then (
+				-- 				appendIfUnique arrKeysSelected i.time
+				-- 			)
+				-- 		)
+				-- 	)
+				-- )
 			)
 			else
 			(-------------------下面是收集质心的关键帧,坑在于中英文turning名字还不一样...
 				if classof tempObj.controller == Vertical_Horizontal_Turn then
 				(
-					bipCtrl = tempObj.controller
+					bipCtrl  = tempObj.controller
 					vertCtrl = bipCtrl.vertical.controller
 					horzCtrl = bipCtrl.horizontal.controller
 					if (((sysinfo.GetMaxLanguage())[3]=="CHS") and ((maxVersion())[1] < 20000)) then 
@@ -2171,29 +2197,30 @@ rollout rolBsKeyTools "" width:355 height:250
 			)
 		)
 	)
-
-	fn fnAddKyes tempObj fnLink =   ---添加帧(主要是首尾帧),加个判断是否勾选link
+-- 去掉 link 判断 fnLink
+	fn fnAddKyes tempObj =   ---添加帧(主要是首尾帧),加个判断是否勾选link
 	(	
 		if (classof tempObj != Biped_Object) then
 		(
-			if tempObj.controller != undefined then
-			(
-				if (classof tempObj.controller) == prs then
-				(
-					for i = 1 to tempObj.controller.numsubs do 
-					(
-						fnAddPrsKeys tempObj i        ---非biped物体的位移旋转缩放帧
-					)
-				)
-				if (classof tempObj.controller) == Link_Constraint then
-				(
-					for i = 1 to tempObj.controller.numsubs do 
-					(
-						if fnLink == 1 then (fnAddLinkTimesKeys tempObj i)         ---------link属性的物体link帧和非link帧
-						fnAddLinkParamsKeys tempObj i
-					)
-				)
-			)
+			-- if tempObj.controller != undefined then
+			-- (
+			-- 	if (classof tempObj.controller) == prs then
+			-- 	(
+			-- 		for i = 1 to tempObj.controller.numsubs do 
+			-- 		(
+			-- 			fnAddPrsKeys tempObj i        ---非biped物体的位移旋转缩放帧
+			-- 		)
+			-- 	)
+			-- 	if (classof tempObj.controller) == Link_Constraint then
+			-- 	(
+			-- 		for i = 1 to tempObj.controller.numsubs do 
+			-- 		(
+			-- 			if fnLink == 1 then (fnAddLinkTimesKeys tempObj i)         ---------link属性的物体link帧和非link帧
+			-- 			fnAddLinkParamsKeys tempObj i
+			-- 		)
+			-- 	)
+			-- )
+			fnAddAllSubsKeys tempObj ---非 Biped 的物体所有子动画帧
 		)
 		else
 		(
@@ -2249,16 +2276,14 @@ rollout rolBsKeyTools "" width:355 height:250
 			(
 				for i in (objects as array) where (i.ishidden == false) do 
 				(
-					if rolBsKeyTools.chkJudgeLinkKey.state == false then fnAddKyes i 0
-					else (fnAddKyes i 1)  -----------根据是否勾选link处理收集帧
+					fnAddKyes i
 				)
 			)
 			default:
 			(
 				for i in (selection as array) where (i.ishidden == false) do 
 				(
-					if rolBsKeyTools.chkJudgeLinkKey.state == false then fnAddKyes i 0
-					else (fnAddKyes i 1)  -----------根据是否勾选link处理收集帧
+					fnAddKyes i
 				)
 			)
 		)
@@ -2325,30 +2350,33 @@ rollout rolBsKeyTools "" width:355 height:250
 			if classof obj.controller == Link_Constraint do
 			(
 				nTargets = obj.controller.getNumTargets()  ---得到link的帧数量
-	
+
 				if nTargets > 0 do
 				(
-					for i = nTargets to 1 by -1 do  ------如果大于0则从最后link帧开始移
-					(
-						fNumber = obj.controller.getFrameNo i
-						if ((fNumber >= keySelFirst) and (fNumber <= keySelEnd)) then
-						(
-							appendIfUnique arrTargetID i
-						)
-					)
+					--排序 link 帧
+					obj.controller.setFrameNo 1 (obj.controller.getFrameNo 1)
+
+					-- for i = nTargets to 1 by -1 do  ------如果大于0则从最后link帧开始移
+					-- (
+					-- 	fNumber = obj.controller.getFrameNo i
+					-- 	if ((fNumber >= keySelFirst) and (fNumber <= keySelEnd)) then
+					-- 	(
+					-- 		appendIfUnique arrTargetID i
+					-- 	)
+					-- )
 					if offset > 0 then  --------判断向前还是向后移动帧
 					(
-						for i = arrTargetID.count to 1 by -1 do  ------如果大于0则从最后link帧开始移
+						for i = nTargets to 1 by -1 do  ------如果大于0则从最后link帧开始移
 						(
-							fNumber = obj.controller.getFrameNo arrTargetID[i]
+							fNumber = obj.controller.getFrameNo i
 							obj.controller.setFrameNo i (fNumber + offset)
 						)
 					)
 					else
 					(
-						for i = 1 to arrTargetID.count do  ---如果移动帧小于0,从第一个link帧开始移
+						for i = 1 to nTargets do  ---如果移动帧小于0,从第一个link帧开始移
 						(
-							fNumber = obj.controller.getFrameNo arrTargetID[i]
+							fNumber = obj.controller.getFrameNo i
 							obj.controller.setFrameNo i (fNumber + offset)
 						)
 					)
@@ -2530,32 +2558,36 @@ rollout rolBsKeyTools "" width:355 height:250
 		messagebox ("已快速备份至：\r\n" + fileSave + "                                      ") 
 	)
 
-	fn fnCutDisplayKeyRange keyFirst keyEnd =  ---显示首尾帧范围
+	fn fnCutDisplayKeyRange keyFirst keyEnd isSelected:false =  ---显示首尾帧范围
 	(
 		if ((keyFirst != undefined) and (keyEnd != undefined)) then
 		(
 			if (arrKeysTime.count != 0) then
 			(
-				if (arrLinkKeys.count != 0) then
+				if not isSelected then
 				(
-					case of  ------万恶的link帧导致更多判定
+					if (arrLinkKeys.count != 0) then
 					(
-						((arrLinkKeys[1].time >= keyFirst) and (arrLinkKeys[arrLinkKeys.count].time <= keyEnd)):
-						(animationrange = (interval keyFirst keyEnd))
-						((arrLinkKeys[1].time < keyFirst) and (arrLinkKeys[arrLinkKeys.count].time <= keyEnd)):
-						(animationrange = (interval arrLinkKeys[1].time keyEnd))
-						((arrLinkKeys[1].time < keyFirst) and (arrLinkKeys[arrLinkKeys.count].time >= keyEnd)):
-						(animationrange = (interval arrLinkKeys[1].time arrLinkKeys[arrLinkKeys.count].time))
-						((arrLinkKeys[1].time >= keyFirst) and (arrLinkKeys[arrLinkKeys.count].time > keyEnd)):
-						(animationrange = (interval keyFirst arrLinkKeys[arrLinkKeys.count].time))
-						((arrLinkKeys[1].time < keyFirst) and (arrLinkKeys[arrLinkKeys.count].time > keyEnd)):
-						(animationrange = (interval arrLinkKeys[1].time arrLinkKeys[arrLinkKeys.count].time))
+						case of  ------万恶的link帧导致更多判定
+						(
+							((arrLinkKeys[1].time >= keyFirst) and (arrLinkKeys[arrLinkKeys.count].time <= keyEnd)):
+							(animationrange = (interval keyFirst keyEnd))
+							((arrLinkKeys[1].time < keyFirst) and (arrLinkKeys[arrLinkKeys.count].time <= keyEnd)):
+							(animationrange = (interval arrLinkKeys[1].time keyEnd))
+							((arrLinkKeys[1].time < keyFirst) and (arrLinkKeys[arrLinkKeys.count].time >= keyEnd)):
+							(animationrange = (interval arrLinkKeys[1].time arrLinkKeys[arrLinkKeys.count].time))
+							((arrLinkKeys[1].time >= keyFirst) and (arrLinkKeys[arrLinkKeys.count].time > keyEnd)):
+							(animationrange = (interval keyFirst arrLinkKeys[arrLinkKeys.count].time))
+							((arrLinkKeys[1].time < keyFirst) and (arrLinkKeys[arrLinkKeys.count].time > keyEnd)):
+							(animationrange = (interval arrLinkKeys[1].time arrLinkKeys[arrLinkKeys.count].time))
+						)
+					)
+					else
+					(
+						animationrange = interval keyFirst keyEnd
 					)
 				)
-				else
-				(
-					animationrange = interval keyFirst keyEnd
-				)
+				else animationrange = interval keyFirst keyEnd
 			)
 			else 
 			(
@@ -3153,15 +3185,15 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnMoveKeys pressed do with undo on   ------移动选定帧
 	(
 		if (selection as array).count == 0 then select objects
-		fnCollectKeys ()
 		if arrKeysSelected.count == 0 then (btnSelAllKeys.pressed())
+		fnCollectKeys ()
 		fnMoveAllKeys keyMovedOffset fnRange:off
 	)
 	on btnMoveKeys rightclick do with undo on
 	(
 		if (selection as array).count == 0 then select objects
-		fnCollectKeys ()
 		if arrKeysSelected.count == 0 then (btnSelAllKeys.pressed())
+		fnCollectKeys ()
 		fnMoveAllKeys keyMovedOffset fnRange:on
 	)
 	on btnSelBeforeKeys pressed do  ------------选择滑条之前帧
@@ -3264,7 +3296,11 @@ rollout rolBsKeyTools "" width:355 height:250
 				for i in arrLinkKeys do i.selected = false
 			)
 		)
-		else fnCollectKeys ()
+		else 
+		(
+			fnCollectKeys ()
+			(messagebox "无法移动选定 Link 帧，\r\n\r\n只能全局移动，\r\n\r\n其他功能正常生效，\r\n\r\n反正 Link 也很坑还要重新调整你说是吧~                            " title:"BsKeyTools" beep:false)
+		)
 	)
 
 	on btnCleanOutKeys pressed do with undo on-----------清理范围外帧(无限帧)
@@ -3392,7 +3428,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fnCollectKeys ()
 			arrLastSelRange = #(animationrange.start,animationrange.end)
-			fnCutDisplayKeyRange keySelFirst keySelEnd
+			fnCutDisplayKeyRange keySelFirst keySelEnd isSelected:true
 			switchSelKeyRange = 1
 		)
 		else 
@@ -3408,7 +3444,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fnCollectKeys ()
 			arrLastAllRange = #(animationrange.start,animationrange.end)
-			fnCutDisplayKeyRange keyFirst keyEnd
+			fnCutDisplayKeyRange keyFirst keyEnd isSelected:false
 			switchAllKeyRange = 1
 		)
 		else 
