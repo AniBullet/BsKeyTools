@@ -51,7 +51,7 @@ Functionend
 ; ------ MUI 现代界面定义结束 ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "K帧工具_BsKeyTools（装完重启MAX,误杀请信任）.exe"
+OutFile "K帧工具_BsKeyTools（误杀请信任）.exe"
 ; InstallDir "d:\Program Files\Autodesk\3ds Max 2014"
 ; InstallDir "$INSTDIR"
 ShowInstDetails show
@@ -188,16 +188,14 @@ SectionEnd
 Function .onInit
 
 ;检查 3dsmax.exe 是否已运行
-  Push $R0
-  Push "3dsmax.exe"
-  ProcessWork::existsprocess
+  FindProcDLL::FindProc "3dsmax.exe"
   Pop $R0
   IntCmp $R0 1 0 no_run
   MessageBox MB_ICONSTOP "卸载程序检测到 3dsmax.exe 正在运行，请关闭之后再安装！"
  	Quit
  	no_run:
 
-  !insertmacro MUI_LANGDLL_DISPLAY
+!insertmacro MUI_LANGDLL_DISPLAY
 
 ; 扫描已安装的max版本
 
