@@ -191,7 +191,7 @@ Function .onInit
   FindProcDLL::FindProc "3dsmax.exe"
   Pop $R0
   IntCmp $R0 1 0 no_run
-  MessageBox MB_ICONSTOP "卸载程序检测到 3dsmax.exe 正在运行，请关闭之后再安装！"
+  MessageBox MB_ICONSTOP "BsKeyTools 安装程序检测到 3dsmax.exe 正在运行，请关闭之后再安装！"
  	Quit
  	no_run:
 
