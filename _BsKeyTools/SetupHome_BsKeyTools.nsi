@@ -12,12 +12,15 @@ var maxVer
 SetCompressor lzma
 
 ; ------ MUI 现代界面定义 (1.67 版本以上兼容) ------
-!include "MUI.nsh"
+!include "MUI2.nsh"
 
 ; MUI 预定义常量
 !define MUI_ABORTWARNING
 !define MUI_ICON "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\max.ico"
 ;!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall-blue-full.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\sideImg.bmp"
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\logo.bmp"
 
 ; 欢迎页面
 !insertmacro MUI_PAGE_WELCOME
@@ -34,6 +37,9 @@ SetCompressor lzma
 !define MUI_FINISHPAGE_SHOWREADME
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION Info
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "查看帮助视频"
+!define MUI_FINISHPAGE_LINK "Github"
+!define MUI_FINISHPAGE_LINK_LOCATION "https://github.com/AnimatorBullet/BsKeyTools"
+!define MUI_FINISHPAGE_LINK_COLOR "872657"
 
 !insertmacro MUI_PAGE_FINISH
 Function Info
@@ -45,9 +51,10 @@ Functionend
 
 ; 安装界面包含的语言设置
 !insertmacro MUI_LANGUAGE "SimpChinese"
+!insertmacro MUI_LANGUAGE "English"
 
 ; 安装预释放文件
-!insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
+;!insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 ; ------ MUI 现代界面定义结束 ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
@@ -75,7 +82,7 @@ Section "3dsMax 2021" SEC03
   SetOutPath "$3"
   SetOverwrite on
   File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "C:\Users\BulletS\Desktop\test\UI_ln"
+  File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
 SectionEnd
 
 Section "3dsMax 2020" SEC04
@@ -187,6 +194,8 @@ SectionEnd
 
 Function .onInit
 
+!insertmacro MUI_LANGDLL_DISPLAY
+
 ;检查 3dsmax.exe 是否已运行
   FindProcDLL::FindProc "3dsmax.exe"
   Pop $R0
@@ -194,8 +203,6 @@ Function .onInit
   MessageBox MB_ICONSTOP "BsKeyTools 安装程序检测到 3dsmax.exe 正在运行，请关闭之后再安装！"
  	Quit
  	no_run:
-
-!insertmacro MUI_LANGDLL_DISPLAY
 
 ; 扫描已安装的max版本
 
