@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-05 16:29:13
+ * @LastEditTime: 2022-08-08 11:00:17
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -15,7 +15,7 @@ try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
-global curVerBsKeyTools = "0.9.9_Beta5"
+global curVerBsKeyTools = "0.9.9"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools（装完重启MAX,误杀请信任）.exe"
@@ -1520,7 +1520,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnSpringMagic "飘带解" pos:[60,165] width:50 height:25 \
 	tooltip:"左点新版,右点旧版" 
 	button btnCSTools "CS选择" pos:[110,165] width:50 height:25 \
-	toolTip:"快速选择CS骨骼和调Biped等\r\n左键自用新做\r\n右键不稳定老版" 
+	toolTip:"快速选择CS骨骼和调Biped等\r\n左键不稳定老版\r\n右键自用新做规划中" 
 	button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
 	toolTip:"动画暴力粘贴东见云优化版\r\n(有时间我也会优化或新写)" 
 	button btnIsoSelection "独显" pos:[10,190] width:40 height:25 \
@@ -3031,13 +3031,13 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
     )
 
-	on btnCSTools pressed do 
+	on btnCSTools rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsBipedTools.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnCSTools rightclick do 
+	on btnCSTools pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\cstools.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
