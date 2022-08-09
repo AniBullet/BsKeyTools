@@ -2,7 +2,7 @@
 
 ; 安装程序初始定义常量
 !define PRODUCT_NAME "BsKeyTools"
-!define PRODUCT_VERSION "0.9.9"
+!define PRODUCT_VERSION "_v0.9.9"
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
 ;!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -24,16 +24,25 @@ SetCompressor lzma
 
 ; 欢迎页面
 !insertmacro MUI_PAGE_WELCOME
+!define MUI_TEXT_WELCOME_INFO_TITLE "欢迎安装 ${PRODUCT_NAME}${PRODUCT_VERSION}"
+!define MUI_TEXT_WELCOME_INFO_TEXT "此程序将引导你完成 $(^NameDA) 的安装。$\r$\n$\r$\n在安装之前，建议先关闭所有 3dsMax 程序。$\r$\n$\r$\n这将确保安装程序能够更新所需的文件，$\r$\n$\r$\n从而避免在安装后打开工具失败报错。$\r$\n$\r$\n$_CLICK"
 ; 许可协议页面
-!define MUI_LICENSEPAGE_CHECKBOX
+!define MUI_INNERTEXT_LICENSE_TOP "要阅读协议的其余部分，请按键盘 [PgDn] 键向下翻页。"
+!define MUI_INNERTEXT_LICENSE_BOTTOM "如果你接受许可证的条款，请点击 [我接受(I)] 继续安装。$\r$\n$\r$\n你必须在同意后才能安装 $(^NameDA) 。"
 !insertmacro MUI_PAGE_LICENSE "D:\_Scripts\GitHub\BsKeyTools\LICENSE"
 ; 组件选择页面
 !insertmacro MUI_PAGE_COMPONENTS
+!define MUI_TEXT_COMPONENTS_TITLE "选择版本"
+!define MUI_TEXT_COMPONENTS_SUBTITLE "选择你想安装 $(^NameDA) 的 3dsMax 版本。"
+!define MUI_INNERTEXT_COMPONENTS_DESCRIPTION_TITLE "安装路径"
+!define MUI_INNERTEXT_COMPONENTS_DESCRIPTION_INFO "将光标悬停在版本名称之上，即可显示它的安装路径。"
+ComponentText "请勾选你想安装到的版本，并取消勾选你不想安装的版本。 $\r$\n$\r$\n$_CLICK" "" "选定安装的版本: "
 ; 安装目录选择页面
 ; !insertmacro MUI_PAGE_DIRECTORY
 ; 安装过程页面
 !insertmacro MUI_PAGE_INSTFILES
 ; 安装完成页面
+!define MUI_TEXT_FINISH_INFO_TEXT "$(^NameDA) 已经成功安装到本机。$\r$\n$\r$\n点击 [完成(F)] 关闭安装程序。"
 !define MUI_FINISHPAGE_SHOWREADME
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION Info
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "查看帮助视频"
@@ -51,13 +60,13 @@ Functionend
 
 ; 安装界面包含的语言设置
 !insertmacro MUI_LANGUAGE "SimpChinese"
-!insertmacro MUI_LANGUAGE "English"
+;!insertmacro MUI_LANGUAGE "English"
 
 ; 安装预释放文件
 ;!insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 ; ------ MUI 现代界面定义结束 ------
 
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+Name "${PRODUCT_NAME}${PRODUCT_VERSION}"
 OutFile "K帧工具_BsKeyTools（误杀请信任）.exe"
 ; InstallDir "d:\Program Files\Autodesk\3ds Max 2014"
 ; InstallDir "$INSTDIR"
@@ -77,7 +86,7 @@ Section "3dsMax 2022" SEC02
   File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
 SectionEnd
-  
+
 Section "3dsMax 2021" SEC03
   SetOutPath "$3"
   SetOverwrite on
@@ -198,11 +207,7 @@ Function .onInit
 
 ;检查 3dsmax.exe 是否已运行
   FindProcDLL::FindProc "3dsmax.exe"
-  Pop $R0
-  IntCmp $R0 1 0 no_run
-  MessageBox MB_ICONSTOP "BsKeyTools 安装程序检测到 3dsmax.exe 正在运行，请关闭之后再安装！"
- 	Quit
- 	no_run:
+  MessageBox MB_ICONINFORMATION "BsKeyTools 安装程序检测到 3dsmax.exe 正在运行，$\n$\n安装仍可继续，但建议重启 3dsMax 后再打开插件！$\n$\n否则可能遇到报错，但莫惊慌，重启大法解决一切困难~"
 
 ; 扫描已安装的max版本
 
