@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-08 14:36:44
+ * @LastEditTime: 2022-08-09 16:41:13
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2900,9 +2900,18 @@ rollout rolBsKeyTools "" width:355 height:250
 				(
 					rolTogglePanel.timerTickTock.active = true
 					SetDialogPos rolTogglePanel (getDialogPos rolBsKeyTools)
-					if iniCollopseType == 1 then rolTogglePanel.height = 30
-					else if iniCollopseType == 2 then rolTogglePanel.height = 80
+					if iniCollopseType == 1 then 
+					(
+						rolTogglePanel.height = 30
+						rolTogglePanel.width  = 355
+					) 
+					else 
+					(
+						rolTogglePanel.height = heightTogglePanel
+						rolTogglePanel.width  = 520
+					)
 					rolTogglePanel.lblOneWord.height = (rolTogglePanel.height - 4)
+					rolTogglePanel.lblOneWord.width  = (rolTogglePanel.width - 4)
 					rolBsKeyTools.height = 0
 				)
 					-- isMouseInBsKeyTools = true
