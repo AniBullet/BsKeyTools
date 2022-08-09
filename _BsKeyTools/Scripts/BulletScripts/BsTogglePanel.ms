@@ -133,9 +133,18 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         local dateTime = (dotNetClass "System.DateTime").Now
         strDayLine = fnGetHitokoto()
         fnStylizeLabel lblOneWord
-        if iniCollopseType == 1 then (rolTogglePanel.height = 30) 
-        else (rolTogglePanel.height = heightTogglePanel)
+        if iniCollopseType == 1 then 
+        (
+            rolTogglePanel.height = 30
+            rolTogglePanel.width  = 355
+        ) 
+        else 
+        (
+            rolTogglePanel.height = heightTogglePanel
+            rolTogglePanel.width  = 520
+        )
         lblOneWord.height = (rolTogglePanel.height - 4)
+        lblOneWord.width  = (rolTogglePanel.width - 4)
         fnRefreshText()
         -- lblOneWord.Font      = BsDotFont
     )
