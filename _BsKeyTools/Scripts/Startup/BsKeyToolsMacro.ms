@@ -19,7 +19,7 @@
 	(
 		on execute do
 		(
-            try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");SetDialogPos rolBsKeyTools [0,0])
+            try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");SetDialogPos rolBsKeyTools (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
             catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 		)
 	)

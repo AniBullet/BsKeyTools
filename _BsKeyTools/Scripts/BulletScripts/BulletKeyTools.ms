@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-09 16:41:13
+ * @LastEditTime: 2022-08-10 13:06:49
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2907,7 +2907,7 @@ rollout rolBsKeyTools "" width:355 height:250
 					) 
 					else 
 					(
-						rolTogglePanel.height = heightTogglePanel
+						rolTogglePanel.height = 80
 						rolTogglePanel.width  = 520
 					)
 					rolTogglePanel.lblOneWord.height = (rolTogglePanel.height - 4)
@@ -3074,21 +3074,21 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			hideByCategory.geometry = false
 			hideByCategory.shapes = true
-			hideByCategory.lights = true
-			hideByCategory.cameras = true
+			-- hideByCategory.lights = true
+			-- hideByCategory.cameras = true
 			hideByCategory.helpers = true
-			hideByCategory.spacewarps = true
-			hideByCategory.particles = true
+			-- hideByCategory.spacewarps = true
+			-- hideByCategory.particles = true
 			hideByCategory.bones = true
 		)
 		else 
 		(
 			hideByCategory.shapes = false
-			hideByCategory.lights = false
-			hideByCategory.cameras = false
+			-- hideByCategory.lights = false
+			-- hideByCategory.cameras = false
 			hideByCategory.helpers = false
-			hideByCategory.spacewarps = false
-			hideByCategory.particles = false
+			-- hideByCategory.spacewarps = false
+			-- hideByCategory.particles = false
 			hideByCategory.bones = false
 		)
 	)

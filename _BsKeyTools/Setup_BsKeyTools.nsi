@@ -206,10 +206,11 @@ Function .onInit
 !insertmacro MUI_LANGDLL_DISPLAY
 
 ;检查 3dsmax.exe 是否已运行
- 	nsProcess::_FindProcess "3dsmax.exe" $R0
-  Pop $0
-	StrCmp $0 "0" +1 +3
-	MessageBox MB_ICONEXCLAMATION|MB_OK "BsKeyTools 安装程序检测到 3dsmax.exe 正在运行，$\n$\n安装仍可继续，但建议重启 3dsMax 后再打开插件！$\n$\n否则可能遇到报错，但莫惊慌，重启大法解决一切困难~"
+ 	nsProcess::_FindProcess "3dsmax.exe"
+  Pop $R0
+  ${If} $R0 = 0
+		MessageBox MB_ICONEXCLAMATION|MB_OK "BsKeyTools 安装程序检测到 3dsmax.exe 正在运行，$\n$\n安装仍可继续，但建议重启 3dsMax 后再打开插件！$\n$\n否则可能遇到报错，但莫惊慌，重启大法解决一切困难~"
+	${EndIf}
 
 ; 扫描已安装的max版本
 

@@ -57,7 +57,8 @@ fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false =
     else
     (
         --检查网络是否能连接
-        if internet.CheckConnection url:"https://gitee.com" force:true == true then (messagebox "下载服务器当前不可用,请稍后再试";result = undefined)
+        if internet.CheckConnection url:"https://gitee.com" force:true == true then 
+        (print "下载服务器当前不可用,请稍后再试                        ";result = undefined)
         else (print "BsKeyTools ：检查更新，无网络连接或链接 Gitee 未响应...                                ";result = undefined)
     )
     result
