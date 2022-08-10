@@ -2986,8 +2986,8 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			timeDisplayMode = #frames
 		)
-		slidertime -= 1
-		slidertime += 1  ----------默认改了要划一下滑条才生效,脚本直接操作了~~没找到refresh的
+		-- slidertime -= 1
+		-- slidertime += 1  ----------默认改了要划一下滑条才生效,脚本直接操作了~~没找到refresh的
 	)
 	
 	on btnMagicBtn pressed do  -------------切换整数帧小数帧,方便拖动滑条平滑预览
