@@ -412,15 +412,15 @@ rcmenu menuQuickCreateNode
 rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 (
 	-- Contains the names of the first 35 biped bones for reference
-	listbox bipedBones "Biped Bones 1 - 35" align:#left across:4 height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
+	listbox bipedBones "Bip 节点名 1 - 35" align:#left across:4 height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
 	-- visible:false
     -- Contains the names of the first 35 bones used from the original rig
-	listbox characterBones "FBX Bones 1 - 35" align:#left height:35 width:113 items:#("~undefined~")
+	listbox characterBones "Bone 骨骼名 1 - 35" align:#left height:35 width:113 items:#("~undefined~")
 	
 	-- Contains the names of the reamining biped bones for reference
-	listbox bipedBones_B "Biped Bones 36 - 67" align:#left height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
+	listbox bipedBones_B "Bip 节点名 36 - 67" align:#left height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
 	-- Contains the names of the remaining original rig's bones.
-	listbox characterBones_B "FBX Bones 36 - 67" align:#left height:35 width:113 items:#("~undefined~")
+	listbox characterBones_B "Bone 骨骼名 36 - 67" align:#left height:35 width:113 items:#("~undefined~")
 
     local btnWidth   = 120
 
