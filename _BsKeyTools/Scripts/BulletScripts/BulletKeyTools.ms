@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-10 13:06:49
+ * @LastEditTime: 2022-08-11 14:01:25
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2903,11 +2903,11 @@ rollout rolBsKeyTools "" width:355 height:250
 					if iniCollopseType == 1 then 
 					(
 						rolTogglePanel.height = 30
-						rolTogglePanel.width  = 355
+						rolTogglePanel.width  = 520
 					) 
 					else 
 					(
-						rolTogglePanel.height = 80
+						rolTogglePanel.height = 100
 						rolTogglePanel.width  = 520
 					)
 					rolTogglePanel.lblOneWord.height = (rolTogglePanel.height - 4)

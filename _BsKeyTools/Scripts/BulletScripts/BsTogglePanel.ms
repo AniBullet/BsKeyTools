@@ -2,7 +2,7 @@ try(destroydialog rolTogglePanel)catch()
 
 global rolTogglePanel
 global iniTogglePanelPos
-global heightTogglePanel    = 80
+global heightTogglePanel    = 100
 global widthToggleTools     = 520
 global isMouseInBsToolPanel = true
 global arrDayWeek = #("日", "一", "二", "三", "四", "五", "六")
@@ -132,7 +132,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         )
         else if iniCollopseType == 1 then
         (
-            return ("当前时间：" + fnGetDateTimeString())
+            return ("当前本机时间：" + fnGetDateTimeString())
         )
     )
 
@@ -144,12 +144,12 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         if iniCollopseType == 1 then 
         (
             rolTogglePanel.height = 30
-            rolTogglePanel.width  = 355
+            rolTogglePanel.width  = 520
         ) 
         else 
         (
             rolTogglePanel.height = heightTogglePanel
-            rolTogglePanel.width  = 520
+            rolTogglePanel.width  = widthToggleTools
         )
         lblOneWord.height = (rolTogglePanel.height - 4)
         lblOneWord.width  = (rolTogglePanel.width - 4)

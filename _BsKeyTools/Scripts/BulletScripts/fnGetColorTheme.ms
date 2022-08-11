@@ -20,16 +20,52 @@ global dotColor = dotnetclass "System.Drawing.Color"
 		)
 		else
 		(
-			myFgColor    = (color 165 222 228)
-			myClickColor = (color 0 92 175)
-			myCheckedColor = (color 30 136 168)
+			case maxuiBgColor of 
+			(
+				([68,68,68]):
+				(
+					myFgColor    = (color 165 222 228)
+					myClickColor = (color 0 92 175)
+					myCheckedColor = (color 30 136 168)
+				)
+				([186,186,186]):
+				(
+					myFgColor    = (color 28 89 177)
+					myClickColor = (color 0 139 139)
+					myCheckedColor = (color 152 227 213)
+				)
+				default:
+				(
+					myFgColor    = (color 165 222 228)
+					myClickColor = (color 0 92 175)
+					myCheckedColor = (color 30 136 168)
+				)
+			)
 		)
 	)
 	else
 	(
-		myFgColor    = (color 165 222 228)
-		myClickColor = (color 0 92 175)
-		myCheckedColor = (color 30 136 168)
+		case maxuiBgColor of 
+		(
+			([68,68,68]):
+			(
+				myFgColor    = (color 165 222 228)
+				myClickColor = (color 0 92 175)
+				myCheckedColor = (color 30 136 168)
+			)
+			([186,186,186]):
+			(
+				myFgColor    = (color 28 89 177)
+				myClickColor = (color 0 139 139)
+				myCheckedColor = (color 152 227 213)
+			)
+			default:
+			(
+				myFgColor    = (color 165 222 228)
+				myClickColor = (color 0 92 175)
+				myCheckedColor = (color 30 136 168)
+			)
+		)
 	)
 	----获取当前主题是深色还是浅色,来更改文字颜色 fnGetColorTheme.ms
 
