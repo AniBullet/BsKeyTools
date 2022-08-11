@@ -1877,7 +1877,7 @@ rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 		)
 		else
 		(
-			messagebox ("存在未指定的映射骨骼！                ");
+			messagebox ("存在未指定的映射骨骼！\r\n\r\n修改请选中骨骼，点击上面列表对应节点！                ");
 		)
 	)
 	
@@ -2544,6 +2544,7 @@ rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 				)
 			)
 		)
+		messagebox "根据骨骼名自动匹配完成，建议检查一遍，\r\n\r\n修改请选中骨骼，点击上面列表对应节点！                                   " beep:false
 	)
 
 	on btnRetargetSelected pressed do
