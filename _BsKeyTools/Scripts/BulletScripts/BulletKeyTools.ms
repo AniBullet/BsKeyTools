@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-11 14:01:25
+ * @LastEditTime: 2022-08-16 12:43:42
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -3662,7 +3662,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fileIn arrMsTemp[1].dir
 		)
-		else fnAddMyScript btnMyScripts1 1
+		else 
+		(
+			if btnMyScripts1.text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
+			fnAddMyScript btnMyScripts1 1
+		)
 	)
 	on btnMyScripts2 pressed do 
 	(
@@ -3671,7 +3676,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fileIn arrMsTemp[2].dir
 		)
-		else fnAddMyScript btnMyScripts2 2
+		else 
+		(
+			if btnMyScripts2.text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
+			fnAddMyScript btnMyScripts2 2
+		)
 	)
 	on btnMyScripts3 pressed do 
 	(
@@ -3680,7 +3690,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fileIn arrMsTemp[3].dir
 		)
-		else fnAddMyScript btnMyScripts3 3
+		else 
+		(
+			if btnMyScripts3.text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
+			fnAddMyScript btnMyScripts3 3
+		)
 	)
 	on btnMyScripts4 pressed do 
 	(
@@ -3689,7 +3704,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fileIn arrMsTemp[4].dir
 		)
-		else fnAddMyScript btnMyScripts4 4
+		else 
+		(
+			if btnMyScripts4.text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
+			fnAddMyScript btnMyScripts4 4
+		)
 	)
 	on btnMyScripts5 pressed do 
 	(
@@ -3698,7 +3718,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fileIn arrMsTemp[5].dir
 		)
-		else fnAddMyScript btnMyScripts5 5
+		else 
+		(
+			if btnMyScripts5.text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
+			fnAddMyScript btnMyScripts5 5
+		)
 	)
 	on btnMyScripts6 pressed do 
 	(
@@ -3707,7 +3732,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fileIn arrMsTemp[6].dir
 		)
-		else fnAddMyScript btnMyScripts6 6
+		else 
+		(
+			if btnMyScripts6.text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
+			fnAddMyScript btnMyScripts6 6
+		)
 	)
 	on btnMyScripts7 pressed do 
 	(
@@ -3716,7 +3746,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fileIn arrMsTemp[7].dir
 		)
-		else fnAddMyScript btnMyScripts7 7
+		else 
+		(
+			if btnMyScripts7.text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
+			fnAddMyScript btnMyScripts7 7
+		)
 	)
 	on btnMyScripts8 pressed do 
 	(
@@ -3725,7 +3760,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fileIn arrMsTemp[8].dir
 		)
-		else fnAddMyScript btnMyScripts8 8
+		else 
+		(
+			if btnMyScripts8.text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
+			fnAddMyScript btnMyScripts8 8
+		)
 	)
 	on btnMyScripts9 pressed do 
 	(
@@ -3734,7 +3774,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fileIn arrMsTemp[9].dir
 		)
-		else fnAddMyScript btnMyScripts9 9
+		else 
+		(
+			if btnMyScripts9.text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
+			fnAddMyScript btnMyScripts9 0
+		)
 	)
 	on btnMyScripts10 pressed do 
 	(
@@ -3743,7 +3788,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			fileIn arrMsTemp[10].dir
 		)
-		else fnAddMyScript btnMyScripts10 10
+		else 
+		(
+			if btnMyScripts10.text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
+			fnAddMyScript btnMyScripts10 10
+		)
 	)
 
 	on btnMyScripts1 rightclick do 
