@@ -1933,6 +1933,77 @@ rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 			format "*** % ***\n" (getCurrentException())
 		)
 	)
+
+	fn fnCopyChildSubBone boneFBXRoot =
+	(
+		if boneFBXRoot.parent == undefined then 
+		(
+			helperRoot = (getnodebyname "RetargetHelper_Root")
+		)
+		else 
+		(
+			helperRootIndex = (finditem biped_align_test.characterBones.items boneFBXRoot.name)
+			if helperRootIndex != 0 then 
+			(
+				helperRoot = (GetSkeletalNode helperRootIndex true)
+			)
+			else 
+			(
+				helperRootIndex = (finditem biped_align_test.characterBones_B.items boneFBXRoot.name)
+				if helperRootIndex != 0 then 
+				(
+					helperRoot = (GetSkeletalNode (helperRootIndex + 35) true)
+				)
+				else 
+				(
+					tempCopyBone = (copy boneFBXRoot)
+					tempCopyBone.name = boneFBXRoot.name
+					strTempName = tempCopyBone.name
+					tempCopyBone.name = "RetargetHelper_" + strTempName
+					tempCopyBone.parent = (getnodebyname ("RetargetHelper_" + boneFBXRoot.parent.name))
+					lc = Link_Constraint();
+					tempCopyBone.transform.controller = lc
+					lc.key_mode = 0
+					lc.addTarget boneFBXRoot 0
+					tempCopyBone.transform = boneFBXRoot.transform
+					helperRoot = tempCopyBone
+				)
+			)
+		)
+		
+		for c in boneFBXRoot.children do
+		(
+			if (finditem biped_align_test.characterBones.items c.name == 0) and \
+			(finditem biped_align_test.characterBones_B.items c.name == 0) then 
+			(
+				tempCopyBone = (copy c)
+				tempCopyBone.name = c.name
+				strTempName = tempCopyBone.name
+				tempCopyBone.name = "RetargetHelper_" + strTempName
+				tempCopyBone.parent = helperRoot
+				lc = Link_Constraint();
+				tempCopyBone.transform.controller = lc
+				lc.key_mode = 0
+				lc.addTarget c 0
+				tempCopyBone.transform = c.transform
+				if (c.children.count != 0) then 
+				(
+					for cc in c.children do (fnCopyChildSubBone cc)
+				)
+			)
+			else (fnCopyChildSubBone c)
+		)
+	)
+
+	fn fnCopySubBones =
+	(
+		boneFBXRoot = (GetSkeletalNode 1 false)
+		if boneFBXRoot.parent != undefined then 
+		(
+			fnCopyChildSubBone boneFBXRoot.parent
+		)
+		else (fnCopyChildSubBone boneFBXRoot)
+	)
 	
     on alignBipedToHelper pressed do
 	(
@@ -2306,6 +2377,7 @@ rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 	
 			pgbBar.value = 25
 			--对齐 Biped
+			-- fnCopySubBones()
 			fnAlignBipedToHelper()
 			pgbBar.value = 55
 			(GetBipedNode 1).transform.controller.figureMode = false
