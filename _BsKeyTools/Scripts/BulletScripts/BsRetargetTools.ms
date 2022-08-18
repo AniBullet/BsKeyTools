@@ -409,7 +409,7 @@ rcmenu menuQuickCreateNode
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
+rollout biped_align_test "BsRetargetTools_v1.8 (BipedRigCreator_Enhanced)"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Bip 节点名 1 - 35" align:#left across:4 height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -674,10 +674,10 @@ rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 
 			mappingFilePath    = edtMappingFile.text
 			sourFileImportPath = arrExportRetargetAnim[index]
-			tarFileExportPath  = edtOutputPath.text + "\\" + (getfilenamefile arrExportRetargetAnim[index]) + ".FBX"
-			tempBip = edtOutputPath.text + "\\" + (getfilenamefile arrExportRetargetAnim[index]) + ".bip"
+			tarFileExportPath  = edtOutputPath.text + "\\" + (getfilenamefile sourFileImportPath) + ".FBX"
+			tempBip = edtOutputPath.text + "\\" + (getfilenamefile sourFileImportPath) + ".bip"
 			skinFile   = edtSkinFile.text
-			tarNewAnim = (edtOutputPath.text + (getfilenamefile arrExportRetargetAnim[index]) + ".FBX")
+			tarNewAnim = (edtOutputPath.text + (getfilenamefile sourFileImportPath) + ".FBX")
 			if (not (SIODir.Exists edtOutputPath.text)) do (SIODir.CreateDirectory edtOutputPath.text)
 			
 			-- print ("开始重定向动画：" +  (getfilenamefile arrExportRetargetAnim[index]) + ".FBX")
@@ -1936,62 +1936,53 @@ rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 
 	fn fnCopyChildSubBone boneFBXRoot =
 	(
-		if boneFBXRoot.parent == undefined then 
+		if boneFBXRoot == (GetSkeletalNode 1 false).parent then 
 		(
-			helperRoot = (getnodebyname "RetargetHelper_Root")
+			for c in boneFBXRoot.children do
+			(
+				fnCopyChildSubBone c
+			)
 		)
 		else 
 		(
-			helperRootIndex = (finditem biped_align_test.characterBones.items boneFBXRoot.name)
-			if helperRootIndex != 0 then 
+			if (finditem biped_align_test.characterBones.items boneFBXRoot.name == 0) and \
+			(finditem biped_align_test.characterBones_B.items boneFBXRoot.name == 0) then 
 			(
-				helperRoot = (GetSkeletalNode helperRootIndex true)
-			)
-			else 
-			(
-				helperRootIndex = (finditem biped_align_test.characterBones_B.items boneFBXRoot.name)
-				if helperRootIndex != 0 then 
+				case of
 				(
-					helperRoot = (GetSkeletalNode (helperRootIndex + 35) true)
-				)
-				else 
-				(
-					tempCopyBone = (copy boneFBXRoot)
-					tempCopyBone.name = boneFBXRoot.name
-					strTempName = tempCopyBone.name
-					tempCopyBone.name = "RetargetHelper_" + strTempName
-					tempCopyBone.parent = (getnodebyname ("RetargetHelper_" + boneFBXRoot.parent.name))
-					lc = Link_Constraint();
-					tempCopyBone.transform.controller = lc
-					lc.key_mode = 0
-					lc.addTarget boneFBXRoot 0
-					tempCopyBone.transform = boneFBXRoot.transform
-					helperRoot = tempCopyBone
-				)
-			)
-		)
-		
-		for c in boneFBXRoot.children do
-		(
-			if (finditem biped_align_test.characterBones.items c.name == 0) and \
-			(finditem biped_align_test.characterBones_B.items c.name == 0) then 
-			(
-				tempCopyBone = (copy c)
-				tempCopyBone.name = c.name
+					(boneFBXRoot.parent == (GetSkeletalNode 1 false).parent):
+					(
+						helperRoot = (getnodebyname "RetargetHelper_Root")
+					)
+					((finditem biped_align_test.characterBones.items boneFBXRoot.parent.name) != 0):
+					(
+						helperRoot = (GetSkeletalNode (finditem biped_align_test.characterBones.items boneFBXRoot.parent.name) true)
+					)
+					((finditem biped_align_test.characterBones_B.items boneFBXRoot.parent.name) != 0):
+					(
+						helperRoot = (GetSkeletalNode ((finditem biped_align_test.characterBones_B.items boneFBXRoot.parent.name) + 35) true)
+					)
+					default:
+					(helperRoot = (getnodebyname ("RetargetHelper_" + boneFBXRoot.parent.name)))
+				) 
+				tempCopyBone = (copy boneFBXRoot)
+				tempCopyBone.name = boneFBXRoot.name
 				strTempName = tempCopyBone.name
 				tempCopyBone.name = "RetargetHelper_" + strTempName
 				tempCopyBone.parent = helperRoot
 				lc = Link_Constraint();
 				tempCopyBone.transform.controller = lc
 				lc.key_mode = 0
-				lc.addTarget c 0
-				tempCopyBone.transform = c.transform
-				if (c.children.count != 0) then 
+				lc.addTarget boneFBXRoot 0
+				tempCopyBone.transform = boneFBXRoot.transform
+			)
+			if boneFBXRoot.children != 0 then 
+			(
+				for c in boneFBXRoot.children do
 				(
-					for cc in c.children do (fnCopyChildSubBone cc)
+					fnCopyChildSubBone c
 				)
 			)
-			else (fnCopyChildSubBone c)
 		)
 	)
 
@@ -2377,7 +2368,6 @@ rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 	
 			pgbBar.value = 25
 			--对齐 Biped
-			-- fnCopySubBones()
 			fnAlignBipedToHelper()
 			pgbBar.value = 55
 			(GetBipedNode 1).transform.controller.figureMode = false
@@ -2446,6 +2436,7 @@ rollout biped_align_test "BsRetargetTools_v1.7  (BipedRigCreator_Enhanced)"
 			(GetBipedNode 1).parent = bipedRetargetRM
 			rootBone.parent = boneRetargetRM
 
+			fnCopySubBones()
 			pgbBar.value = 100
 
 			messageBox "重定向 Biped 创建成功！\r\n\r\n如肩膀匹配不高，\r\n\r\n建议微调两边肩膀手臂和手，\r\n\r\n再点击重新对齐手指骨骼。                         "
