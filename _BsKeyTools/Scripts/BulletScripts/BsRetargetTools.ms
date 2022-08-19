@@ -409,7 +409,7 @@ rcmenu menuQuickCreateNode
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v1.8 (BipedRigCreator_Enhanced)"
+rollout biped_align_test "BsRetargetTools_v1.9 (BipedRigCreator_Enhanced)"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Bip 节点名 1 - 35" align:#left across:4 height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -506,13 +506,14 @@ rollout biped_align_test "BsRetargetTools_v1.8 (BipedRigCreator_Enhanced)"
     editText edtSkinFile "" text:"" labelOnTop:true \
 	height:22 fieldWidth:235 pos:[225,270] readOnly:true visible:false
 
-    button btnRetargetSelected ">>>   重定向列表选中动画   <<<" pos:[225,315] width:235 height:40 visible:false \
+    button btnRetargetSelected ">>>   重定向列表选中动画   <<<" pos:[225,310] width:235 height:35 visible:false \
 	tooltip:"重定向列表选中的动画并且打开\r\n会保存一份 .max 和 .FBX 文件"
-    button btnRetargettAll ">>>   重定向列表所有动画   <<<" pos:[225,355] width:235 height:40 visible:false \
+    button btnRetargettAll ">>>   重定向列表所有动画   <<<" pos:[225,345] width:235 height:35 visible:false \
 	tooltip:"重定向列表选中的动画\r\n会保存一份 .max 和 .FBX 文件\r\n可能比较慢..."
+	checkbox chkRecoverExport "不覆盖导出，用于崩溃后继续重导" checked:false pos:[240,385] width:200 height:20 visible:false
 
 	label lblCount "已重定向动画 FBX 数：0 个\r\n\r\n待处理原始动画 FBX 数：0 个" \
-	pos:[235,415] width:225 height:50 visible:false
+	pos:[235,425] width:225 height:40 visible:false
 
     progressbar pgbBar "" pos:[15,618] width:450 height:10 color:white
 	
@@ -681,7 +682,10 @@ rollout biped_align_test "BsRetargetTools_v1.8 (BipedRigCreator_Enhanced)"
 			if (not (SIODir.Exists edtOutputPath.text)) do (SIODir.CreateDirectory edtOutputPath.text)
 			
 			-- print ("开始重定向动画：" +  (getfilenamefile arrExportRetargetAnim[index]) + ".FBX")
-			
+			if chkRecoverExport.state then 
+			(
+				if doesFileExist (substituteString tarNewAnim ".FBX" ".max") then (return "Exist")
+			)
 			resetMaxFile #noPrompt
 			-- framerate = 60
 			loadMaxFile mappingFilePath useFileUnits:true quiet:true
@@ -2492,7 +2496,7 @@ rollout biped_align_test "BsRetargetTools_v1.8 (BipedRigCreator_Enhanced)"
         edtSkinFile.visible          = state
         btnOpenSkinFile.visible      = state
         lblCount.visible             = state
-
+		chkRecoverExport.visible     = state
         -- if state then (fnRefreshDir maxFilePath)
     )
 
