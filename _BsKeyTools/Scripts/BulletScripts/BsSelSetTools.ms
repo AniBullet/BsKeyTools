@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-07 12:33:36
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-28 14:24:15
+ * @LastEditTime: 2022-08-20 22:44:44
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -293,7 +293,7 @@ rollout rolSelSetTools ""
 	on btnCloseRol pressed do (try (destroydialog rolSelSetTools) catch ())
 
 	on btnHelp pressed do 
-	(shellLaunch "https://www.notion.so/bullet4869/5e0e30442ad348a09d7aa45ea6f8d53a" "")
+	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
 
 	on rolSelSetTools mbuttondown pos do (try (destroydialog rolSelSetTools) catch ())
 

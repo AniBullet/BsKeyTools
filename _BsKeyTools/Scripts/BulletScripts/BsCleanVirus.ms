@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-02-13 15:37:02
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-29 01:17:56
+ * @LastEditTime: 2022-08-20 22:44:33
  * @Email: animator.bullet@foxmail.com
  */
 global rolBsCleanVirus
@@ -324,7 +324,7 @@ rollout rolBsCleanVirus  "BsCleanVirus_v1.0"
         pos:[15,250] address:"http://3dground.net/manual/prune-scene#virus-active-protecton"
 
         HyperLink lnkBsNotion "解析修改：Bullet.S" color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor 
-        pos:[205,250] address:"https://www.notion.so/bullet4869/BsKeyTools-17b5ba7c37ae45f6a69ce90f45fa0657"
+        pos:[205,250] address:"https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782"
     )
 
     fn fnRefreshVirusLib =

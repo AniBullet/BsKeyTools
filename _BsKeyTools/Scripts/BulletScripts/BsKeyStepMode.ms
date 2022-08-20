@@ -42,7 +42,7 @@ rollout rolKeyStepMode "关键帧跳转设置 (by: Bullet.S)"
 	)
 
     on btnHelp pressed do 
-    (shellLaunch "https://www.notion.so/bullet4869/BsKeyTools-17b5ba7c37ae45f6a69ce90f45fa0657" "")
+    (shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
 
 	on rolKeyStepMode open do 
 	(
