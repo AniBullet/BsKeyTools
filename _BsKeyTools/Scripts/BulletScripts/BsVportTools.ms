@@ -29,14 +29,14 @@ rcmenu menuBsVportRightClick
 
 rollout BsVportTools "BsVportTools_v1.0"
 (
-	MultiListBox mlbVportSet "" width:150 height:15 pos:[5,60]
-	button btnCreateCam "" width:40 height:30 pos:[5,5] tooltip:"以 \"P\" 自由视角创建相机"
-	button btnSaveVportINI "" width:30 height:30 pos:[45,5] tooltip:"保存导出视角列表"
-	button btnLoadVportINI "" width:30 height:30 pos:[75,5] tooltip:"加载导入视角列表"
-	button btnDelVportSet "" width:30 height:30 pos:[105,5] tooltip:"移除所选视角"
-	button btnHelp "" width:20 height:30 pos:[135,5] tooltip:"点击打开视频帮助说明\r\n功能简述：保存当前视角参数\r\n(完全不影响文件本身，只存参数)"
+	MultiListBox mlbVportSet "" width:180 height:15 pos:[5,60]
+	button btnCreateCam "" width:50 height:30 pos:[5,5] tooltip:"以 \"P\" 自由视角创建相机"
+	button btnSaveVportINI "" width:40 height:30 pos:[55,5] tooltip:"保存导出视角列表"
+	button btnLoadVportINI "" width:30 height:30 pos:[95,5] tooltip:"加载导入视角列表"
+	button btnDelVportSet "" width:30 height:30 pos:[125,5] tooltip:"移除所选视角"
+	button btnHelp "" width:30 height:30 pos:[155,5] tooltip:"点击打开视频帮助说明\r\n功能简述：保存当前视角参数\r\n(完全不影响文件本身，只存参数)"
 	edittext edtAddVport "" width:155 height:17 pos:[0,40]
-	-- button btnAddVportSet "" width:40 height:17 pos:[115,40] tooltip:"保存当前视角"
+	button btnAddVportSet "" width:30 height:17 pos:[155,40] tooltip:"保存当前视角"
 	
 	local views = #(#view_persp_user, #view_iso_user, #view_top, #view_bottom, #view_left, #view_right, #view_front, #view_back, #view_spot, #view_camera)
 
@@ -139,7 +139,17 @@ rollout BsVportTools "BsVportTools_v1.0"
 			mlbItems = #()
 			for i in arrVportValue do 
 			(
-				if i.vpNode != undefined then append mlbItems ("[" + i.vpNode + "]_" + i.vpListName)
+				if (i.vpNode) != undefined then
+				(
+					if (getnodebyname i.vpNode) != undefined then 
+					(
+						append mlbItems ("[" + i.vpNode + "]_" + i.vpListName)
+					)
+					else 
+					(
+						append mlbItems ("[丢失" + i.vpNode + "]_" + i.vpListName)
+					)
+				)
 				else append mlbItems ("[Custom]_" + i.vpListName)
 			)
 			BsVportTools.mlbVportSet.items = mlbItems
@@ -277,7 +287,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		stLoadConfigAll.fnLoadConfigVportTools()  ---------------脚本位置等赋值
 		stSetConfigAll.fnSetConfigVportTools()  ----------------保存位置信息到ini文件
-		-- btnAddVportSet.images  = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false,true)
+		btnAddVportSet.images  = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false,true)
 		btnDelVportSet.images  = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		btnSaveVportINI.images = #("bip_general_i.bmp","bip_general_i.bmp",30,7,7,8,8,false,true)
 		btnLoadVportINI.images = #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
@@ -324,10 +334,12 @@ rollout BsVportTools "BsVportTools_v1.0"
 		popupmenu menuBsVportRightClick
 	)
 
-	-- on btnAddVportSet pressed do
-	-- (
-	-- 	fnAddVportSet()
-	-- )
+	on btnAddVportSet pressed do
+	(
+		fnAddVportSet()
+		deleteitem arrVportValue arrVportValue.count 
+		fnUpdateVportList()
+	)
 
 	on btnDelVportSet pressed do undo "RemoveVportSet" on
 	(
@@ -349,7 +361,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 
 )
 if (iniPosVportTools != 0) then 
-(Createdialog BsVportTools 160 270 fgcolor:myFgColor pos:iniPosVportTools style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
-else (Createdialog BsVportTools 160 270 fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+(Createdialog BsVportTools 190 270 fgcolor:myFgColor pos:iniPosVportTools style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+else (Createdialog BsVportTools 190 270 fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
 
 callbacks.addScript #filePostOpen "BsVportTools.fnRefreshVportSet()" id:#UpdateBsVport
