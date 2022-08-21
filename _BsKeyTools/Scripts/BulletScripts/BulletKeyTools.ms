@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-20 23:03:37
+ * @LastEditTime: 2022-08-21 10:44:17
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1593,8 +1593,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"效果展示可用，导入引擎别用\r\n再次点击可解除" pos:btnPos
 	button btnBatchExport "批量转换" width:btnWidth height:btnHeight visible:false \
 	toolTip:"2021 以上降版本可能有损害，工具做了修复处理，注意保存蒙皮" pos:btnPos
-	button btnVportTools "视角工具" width:btnWidth height:btnHeight visible:false \
-	toolTip:"Camera 相关工具，动画师专供" pos:btnPos
+	button btnVportTools "视角镜头" width:btnWidth height:btnHeight visible:false \
+	toolTip:"储存视角参数，便于分镜头" pos:btnPos
 	button btnMeshToBone "碎块加骨" width:btnWidth height:btnHeight visible:false \
 	toolTip:"破碎碎块快速加骨骼" pos:btnPos
 	button btnWinbox "窗口找回" width:btnWidth height:btnHeight visible:false \
@@ -3986,12 +3986,6 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnVportTools pressed do
 	(
-		-- If (viewport.Gettype() == #view_persp_user) and (not theHold.Holding()) then 
-		-- (
-		-- 	if ((maxVersion())[1] < 18000) then (macros.run "Lights and Cameras" "Camera_CreateFromView")
-		-- 	else(macros.run "Lights and Cameras" "StandardCamera_CreateFromView")
-		-- )
-		-- else (messagebox "请按“P”在自由视角创建，之后可能优化为任意视角~                \r\n" beep:false)
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsVportTools.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
