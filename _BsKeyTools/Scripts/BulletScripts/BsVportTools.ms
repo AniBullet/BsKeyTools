@@ -4,6 +4,7 @@ try (callbacks.removeScripts #filePostOpen id:#UpdateBsVport) catch ()
 global iniPosVportTools
 global BsVportTools
 global vpdStruct
+global fnRefreshVportSet
 global arrVportValue = #()
 global pathVportLog = ((getdir #temp) + "\\BsVportLog")
 if (not(doesDirectoryExist pathVportLog)) then (HiddenDosCommand ("mkdir " + "\"" +pathVportLog + "\""))
@@ -48,8 +49,8 @@ rollout BsVportTools "BsVportTools_v1.0"
 
 	fn fnPseudoNaturalSort a b =  --文件名排序新方法--https://forums.cgsociety.org/t/sorting-filenames/1219205/4
 	(
-		a = (substring (getFilenameFile a) 1 2) as string
-		b = (substring (getFilenameFile b) 1 2) as string
+		a = a as string
+		b = b as string
 		getFilesequenceFile a &aBase &aDigits
 		-- hackhackhack.  This pads a number with zeros to 6 digits without using a loop.
 		-- things will fail if there's more digits.. 6 'seems' safe.
@@ -76,13 +77,12 @@ rollout BsVportTools "BsVportTools_v1.0"
 		attr
 	)
 	
-	fn fnSaveVportINI =
+	fn fnSaveVportINI ignoreMsg:false =
 	(
-		if maxfilename != "" then
+		if maxfilename != "" and arrVportValue.count != 0 then
 		(
 			arrINIFile = getFiles (pathVportLog + "\*.ini")
 			qsort arrINIFile BsVportTools.fnPseudoNaturalSort
-			if arrINIFile.count > 50 then (deletefile arrINIFile[1])
 			arrFileCount = #()
 			arrFileName = #()
 			if arrINIFile.count != 0 then
@@ -90,23 +90,27 @@ rollout BsVportTools "BsVportTools_v1.0"
 				for f in arrINIFile do
 				(
 					nameTemp = getfilenamefile f
-					append arrFileCount (substring nameTemp 1 2)
+					append arrFileCount nameTemp
 					append arrFileName ((GetINISetting f "BsVportToolsSet" "FileName") as string)
 					qsort arrFileCount BsVportTools.fnPseudoNaturalSort
 				)
 				saveCount = (execute arrFileCount[arrFileCount.count]) + 1
 			)
-			else (saveCount = 10)
-			fileINI = pathVportLog + "\\" + saveCount as string + maxfilename + ".ini"
+			else (saveCount = 1)
+			fileINI = pathVportLog + "\\" + saveCount as string + ".ini"
 			nameFile = (maxfilepath + maxfilename)
 			if finditem arrFileName nameFile != 0 do
 			(
-				if (queryBox "当前文件已存在视角镜头配置，是否覆盖？                        " \
-				title:"BsVportTools" beep:false) then
+				if not ignoreMsg then
 				(
-					fileINI = arrINIFile[finditem arrFileName nameFile]
+					if (queryBox "当前文件已存在视角镜头配置，是否覆盖？                        " \
+					title:"BsVportTools" beep:false) then
+					(
+						fileINI = arrINIFile[finditem arrFileName nameFile]
+					)
+					else (return false)
 				)
-				else (return false)
+				else (fileINI = arrINIFile[finditem arrFileName nameFile])
 			)
 			SetINISetting fileINI "BsVportToolsSet" "ListCount" (arrVportValue.count as string)
 			SetINISetting fileINI "BsVportToolsSet" "FileName" (maxfilepath + maxfilename)
@@ -114,6 +118,9 @@ rollout BsVportTools "BsVportTools_v1.0"
 			(
 				SetINISetting fileINI "BsVportToolsList" (i as string) (arrVportValue[i] as string)
 			)
+			arrINIFile = getFiles (pathVportLog + "\*.ini")
+			qsort arrINIFile BsVportTools.fnPseudoNaturalSort
+			if arrINIFile.count > 50 then (deletefile arrINIFile[1])
 			return true
 		)
 	)
@@ -125,16 +132,16 @@ rollout BsVportTools "BsVportTools_v1.0"
 			mlbItems = #()
 			for i in arrVportValue do 
 			(
-				if i.vpNode != undefined then append mlbItems ("[Camera]_" + i.vpNode.name)
+				if i.vpNode != undefined then append mlbItems ("[" + i.vpNode + "]_" + i.vpListName)
 				else append mlbItems ("[Custom]_" + i.vpListName)
 			)
 			BsVportTools.mlbVportSet.items = mlbItems
 		)
+		else (BsVportTools.mlbVportSet.items = arrVportValue)
 	)
 
 	fn fnLoadVportINI fileINI =
 	(
-		arrVportValue = #()
 		listCount = (fnGetVportINI fileINI "BsVportToolsSet"  "ListCount" "0")
 		for i = 1 to listCount where listCount != 0 do
 		(
@@ -148,7 +155,24 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		if maxfilename != "" then
 		(
-
+			arrVportValue = #()
+			arrINIFile = getFiles (pathVportLog + "\*.ini")
+			qsort arrINIFile BsVportTools.fnPseudoNaturalSort
+			arrFileName = #()
+			if arrINIFile.count != 0 then
+			(
+				for f in arrINIFile do
+				(
+					append arrFileName ((GetINISetting f "BsVportToolsSet" "FileName") as string)
+				)
+				nameFile = (maxfilepath + maxfilename)
+				if finditem arrFileName nameFile != 0 then
+				(
+					fileINI = arrINIFile[finditem arrFileName nameFile]
+					BsVportTools.fnLoadVportINI fileINI
+				)
+				else (BsVportTools.fnUpdateVportList())
+			)
 		)
 	)
 
@@ -185,7 +209,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 		vpd.vpFOV = getViewFOV()
 		vpd.vpFD = viewport.getFocalDistance()
 		vpd.vpTM = viewport.getTM()
-		vpd.vpNode = if (node = viewport.getCamera()) != undefined do (node)
+		vpd.vpNode = if (node = viewport.getCamera()) != undefined do (node.name)
 		vpd
 	)
 	fn restoreViewport vpd =
@@ -205,7 +229,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 				viewport.ZoomToBounds off vpd.vpStartCoord vpd.vpEndCoord
 				viewport.zoom (vpd.vpFOV/(viewport.getFOV()))
 			)
-			#camlight: (if isValidNode vpd.vpNode and viewport.canSetToViewport vpd.vpNode then viewport.setCamera vpd.vpNode else deadData = on)
+			#camlight: (if isValidNode (getnodebyname vpd.vpNode) and viewport.canSetToViewport (getnodebyname vpd.vpNode) then viewport.setCamera (getnodebyname vpd.vpNode) else deadData = on)
 		) ; completeredraw() ; deadData
 	)
 	
@@ -232,7 +256,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 				)
 				fnUpdateVportList()
 				BsVportTools.mlbVportSet.selection = 0
-				BsVportTools.fnSaveVportINI()
+				BsVportTools.fnSaveVportINI ignoreMsg:true
 			)
 		)
 	)
@@ -249,7 +273,8 @@ rollout BsVportTools "BsVportTools_v1.0"
 		btnSaveVportINI.images = #("bip_general_i.bmp","bip_general_i.bmp",30,7,7,8,8,false,true)
 		btnLoadVportINI.images = #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
 		btnHelp.images         = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16i.bmp",28,15,15,16,16,false,false)
-		btnCreateCam.images		= #("Cameras_24i.bmp","Cameras_24i.bmp",3,3,3,3,3,false,true)
+		btnCreateCam.images    = #("Cameras_24i.bmp","Cameras_24i.bmp",3,3,3,3,3,false,true)
+		fnRefreshVportSet()
 		fnUpdateVportList()
 	)
 
@@ -257,7 +282,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		iniPosVportTools = (GetDialogPos BsVportTools)
         stSetConfigAll.fnSetConfigVportTools ()
-		BsVportTools.fnSaveVportINI()
+		BsVportTools.fnSaveVportINI ignoreMsg:true
 	)
 
 	on edtAddVport entered txt do
@@ -317,4 +342,4 @@ if (iniPosVportTools != 0) then
 (Createdialog BsVportTools 160 270 fgcolor:myFgColor pos:iniPosVportTools style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
 else (Createdialog BsVportTools 160 270 fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
 
-callbacks.addScript #filePostOpen "fnRefreshVportSet()" id:#UpdateBsVport
+callbacks.addScript #filePostOpen "BsVportTools.fnRefreshVportSet()" id:#UpdateBsVport
