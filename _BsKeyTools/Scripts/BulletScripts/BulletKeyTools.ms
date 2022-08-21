@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-21 10:44:17
+ * @LastEditTime: 2022-08-21 23:32:17
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1568,9 +1568,9 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"清除所有关键帧" pos:btnPos
 	button btnCleanOutKeys "清无限帧" width:btnWidth height:btnHeight visible:false \
 	toolTip:"清范围外帧(无限帧)" pos:btnPos
-	button btnSelBiped "选 Biped" width:btnWidth height:btnHeight visible:false \
+	button btnSelBiped "选择Biped" width:btnWidth height:btnHeight visible:false \
 	toolTip:"选择所有biped" pos:btnPos
-	button btnSelBone "选 Bone" width:btnWidth height:btnHeight  visible:false \
+	button btnSelBone "选择Bone" width:btnWidth height:btnHeight  visible:false \
 	toolTip:"选择所有bone" pos:btnPos
 	button btnEndBone "增删末端" width:btnWidth height:btnHeight visible:false \
 	toolTip:"添加选择的Bone末端，可回退\r\n右键清除（注意 \"tempBoneEndAll\" 层）" pos:btnPos
@@ -1599,7 +1599,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"破碎碎块快速加骨骼" pos:btnPos
 	button btnWinbox "窗口找回" width:btnWidth height:btnHeight visible:false \
 	toolTip:"方便找回曲线编辑器等窗口(多屏导致窗口丢失)" pos:btnPos
-	button btnHideBipedTwists "隐 Twist" width:btnWidth height:btnHeight visible:false \
+	button btnHideBipedTwists "隐藏Twist" width:btnWidth height:btnHeight visible:false \
 	toolTip:"隐藏所有 Biped 自带 Twists，再点显示" pos:btnPos
 	button btnDelDecimalKeys "删小数帧" width:btnWidth height:btnHeight visible:false \
 	toolTip:"删除所有小数帧" pos:btnPos
@@ -1609,7 +1609,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"Skin工具集成 (修改自San_oOo)" pos:btnPos
 	button btnKeyStepMode "切帧设置" width:btnWidth height:btnHeight visible:false pos:btnPos \
 	tooltip:"前后切关键帧设置，\r\n可配合删帧或单轴修帧"
-	button btnDemoTool "Demo工具" width:btnWidth height:btnHeight visible:false pos:btnPos \
+	button btnDemoTool "作品预设" width:btnWidth height:btnHeight visible:false pos:btnPos \
 	toolTip:"[已有想法待补充]\r\n方便渲染作品和练习的工具"
 	button btnCutSequence "动画分段" width:btnWidth height:btnHeight visible:false pos:btnPos \
 	toolTip:"为长动画分段动作区间 (修改自San_oOo)"
@@ -1632,21 +1632,21 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnPerspLock "透视锁定" width:btnWidth height:btnHeight visible:false \
 	tooltip:"旋转视图后自动打开透视（类似按 P 键）\r\n再次点击可切换开关" pos:btnPos
 	button btnTemp10 "待添加10" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加" pos:btnPos
+	tooltip:"待添加，欢迎提供建议~" pos:btnPos
 	button btnTemp11 "待添加11" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加" pos:btnPos
+	tooltip:"待添加，欢迎提供建议~" pos:btnPos
 	button btnTemp12 "待添加12" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加" pos:btnPos
+	tooltip:"待添加，欢迎提供建议~" pos:btnPos
 	button btnTemp13 "待添加13" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加" pos:btnPos
+	tooltip:"待添加，欢迎提供建议~" pos:btnPos
 	button btnTemp14 "待添加14" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加" pos:btnPos
+	tooltip:"待添加，欢迎提供建议~" pos:btnPos
 	button btnTemp15 "待添加15" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加" pos:btnPos
+	tooltip:"待添加，欢迎提供建议~" pos:btnPos
 	button btnTemp16 "待添加16" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加" pos:btnPos
+	tooltip:"待添加，欢迎提供建议~" pos:btnPos
 	button btnTemp17 "待添加17" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加" pos:btnPos
+	tooltip:"待添加，欢迎提供建议~" pos:btnPos
 
 	groupbox gbxMyTools "" pos:[355,5] width:160 height:240
 	-- dotnetcontrol panelMyTools "UserControl" pos:[360,15] width:190 height:225
@@ -1793,10 +1793,10 @@ rollout rolBsKeyTools "" width:355 height:250
 	(
 		arrSourToolC1 = #(rolBsKeyTools.btnColorTools,rolBsKeyTools.btnFastAlign,
 						rolBsKeyTools.btnPerspLock,rolBsKeyTools.btnAnimMirror,
-						rolBsKeyTools.btnDemoTool,rolBsKeyTools.btnBatchExport,
+						rolBsKeyTools.btnVportTools,rolBsKeyTools.btnBatchExport,
 						rolBsKeyTools.ckbIsoMesh,rolBsKeyTools.btnBipedTraj,
-						rolBsKeyTools.btnRescaleWU,rolBsKeyTools.btnSkinTools,
-						rolBsKeyTools.btnFnFrame,rolBsKeyTools.ckbFnMtlDisplay)
+						rolBsKeyTools.btnRescaleWU,rolBsKeyTools.btnXrSkinTool,
+						rolBsKeyTools.btnFnFrame,rolBsKeyTools.btnRetargetTools)
 		arrSourToolC2 = #(rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnMopherSlider,
 						rolBsKeyTools.btnSelBiped,rolBsKeyTools.btnSelBone,
 						rolBsKeyTools.btnFnTCB,rolBsKeyTools.btnEulerFilter,
@@ -1806,11 +1806,11 @@ rollout rolBsKeyTools "" width:355 height:250
 		arrSourToolC3 = #(rolBsKeyTools.btnMeshToBone,rolBsKeyTools.btnWinbox,
 						rolBsKeyTools.btnHideBipedTwists,rolBsKeyTools.btnQuickPrev,
 						rolBsKeyTools.btnKeyStepMode,rolBsKeyTools.btnFnKeyType,
-						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnXrSkinTool,
-						rolBsKeyTools.btnRetargetTools,rolBsKeyTools.btnCombineDetachSkin,
+						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnSkinTools,
+						rolBsKeyTools.ckbFnMtlDisplay,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
 		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnRenderTools,
-						rolBsKeyTools.btnVportTools,rolBsKeyTools.btnDelDecimalKeys,
+						rolBsKeyTools.btnDemoTool,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
 						rolBsKeyTools.btnTemp12,rolBsKeyTools.btnTemp13,
 						rolBsKeyTools.btnTemp14,rolBsKeyTools.btnTemp15,
@@ -3924,11 +3924,6 @@ rollout rolBsKeyTools "" width:355 height:250
 	)
 
 	on btnBipedScale pressed do (fnBipedScale ())
-
-	on btnBatchExport pressed do 
-	(
-		messageBox "待添加...         \r\n" beep:false
-	)
 
 	on btnColorTools pressed do 
 	(

@@ -67,6 +67,13 @@ rollout BsVportTools "BsVportTools_v1.0"
 		)
 	)
 
+	fn fnCreateFromCam =
+	(
+		if ((maxVersion())[1] < 18000) then 
+		(macros.run "Lights and Cameras" "Camera_CreateFromView")
+		else(macros.run "Lights and Cameras" "StandardCamera_CreateFromView")
+	)
+
 	fn fnGetVportINI fileINI nameAttrClass nameAttr valueAttr =  --设置初始信息方法
 	(
 		local oldPrintAllElements  = options.printAllelements
@@ -201,7 +208,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 		local vpd = vpdStruct()
 		local bounds = minmaxSwap ((MapScreenToView [0,0] 0) * Inverse(getViewTM())) ((MapScreenToView (GetViewSize()) 0) * Inverse(getViewTM()))
 		vpd.vpListName = (if ((BsVportTools.edtAddVport.text != "") or (BsVportTools.edtAddVport.text != undefined)) then (BsVportTools.edtAddVport.text))
-		vpd.vpType = viewport.getType()
+		vpd.vpType = (viewport.getType())
 		vpd.vpGroupType = checkVT supportedViews vpd.vpType
 		vpd.vpStartCoord = bounds[1] 
 		vpd.vpEndCoord = bounds[2] 
@@ -209,7 +216,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 		vpd.vpFOV = getViewFOV()
 		vpd.vpFD = viewport.getFocalDistance()
 		vpd.vpTM = viewport.getTM()
-		vpd.vpNode = if (node = viewport.getCamera()) != undefined do (node.name)
+		vpd.vpNode = if (node = viewport.getCamera()) != undefined then (node.name)
 		vpd
 	)
 	fn restoreViewport vpd =
@@ -237,8 +244,10 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		if ((BsVportTools.edtAddVport.text != "") or (BsVportTools.edtAddVport.text != undefined)) then
 		(
-			append arrVportValue (collectVPD())
-			fnUpdateVportList()
+			append arrVportValue (BsVportTools.collectVPD())
+			BsVportTools.fnSaveVportINI ignoreMsg:true
+			BsVportTools.fnUpdateVportList()
+			BsVportTools.mlbVportSet.selection = BsVportTools.mlbVportSet.items.count
 		)
 	)
 
@@ -329,9 +338,10 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		If (viewport.Gettype() == #view_persp_user) and (not theHold.Holding()) then 
 		(
-			if ((maxVersion())[1] < 18000) then 
-			(macros.run "Lights and Cameras" "Camera_CreateFromView")
-			else(macros.run "Lights and Cameras" "StandardCamera_CreateFromView")
+			BsVportTools.fnCreateFromCam()
+			if BsVportTools.edtAddVport.text == "" then BsVportTools.edtAddVport.text = "noName"
+			BsVportTools.fnAddVportSet()
+			viewport.setCamera $
 			(messagebox ("已移动或创建相机:  " + $.name + "\r\n\r\n可去自带修改面板更改相机类型。              ") beep:false title:"BsVportTools")
 		)
 		else (messagebox "请按“P”在自由视角创建，之后可能优化为任意视角~                  " beep:false title:"BsVportTools")

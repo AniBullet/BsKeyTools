@@ -1,4 +1,5 @@
 /*
+https://obaidaviz.gumroad.com/l/vzOPnx
 - You Can Add New Import Extension to Import List By Adding it to "BIC_Import_arr"
 - to Add New Export Extension You Need to Add it to "BIC_Export_arr" And Add its Class to "FindExporterClass" Function
 
@@ -19,7 +20,7 @@ global BatchImportConvert, BICDefault
 
 if BICDefault == undefined or BICDefault.count != 18 do BICDefault = #(true,false,0,false,0,false,1,1,1,1,4,false,true,unsupplied)
 	
-rollout BatchImportConvert "批量转换 2.2" width:325 height:355
+rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 height:355
 (
 	local import_path, BIC_max_path, BIC_file_tag, BIC_SepDir, BIC_new_name, import_folders = #(), arr_import_files = #(), BIC_Scripts = #(),
 	BIC_Import_arr_EXT, BIC_Subfolders_state = true, save_prv_state = false,
@@ -542,5 +543,5 @@ rollout BatchImportConvert "批量转换 2.2" width:325 height:355
 	)
 	on BatchImportConvert close do (BIC_GetSetValues get:false)
 )
-createDialog BatchImportConvert pos:BICDefault[14]
+createDialog BatchImportConvert pos:BICDefault[14] style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 clearlistener()
