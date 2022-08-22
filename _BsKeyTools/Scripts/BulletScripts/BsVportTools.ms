@@ -254,7 +254,14 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		if ((BsVportTools.edtAddVport.text != "") or (BsVportTools.edtAddVport.text != undefined)) then
 		(
-			append arrVportValue (BsVportTools.collectVPD())
+			for i = 1 to arrVportValue.count do 
+			(
+				if arrVportValue[i].vpListName == BsVportTools.edtAddVport.text then
+				(
+					arrVportValue[i] = (BsVportTools.collectVPD())
+				)
+			)
+			else (append arrVportValue (BsVportTools.collectVPD()))
 			BsVportTools.fnSaveVportINI ignoreMsg:true
 			BsVportTools.fnUpdateVportList()
 			BsVportTools.mlbVportSet.selection = BsVportTools.mlbVportSet.items.count
@@ -339,6 +346,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 		fnAddVportSet()
 		deleteitem arrVportValue arrVportValue.count 
 		fnUpdateVportList()
+		BsVportTools.mlbVportSet.selection = BsVportTools.mlbVportSet.items.count
 	)
 
 	on btnDelVportSet pressed do undo "RemoveVportSet" on
