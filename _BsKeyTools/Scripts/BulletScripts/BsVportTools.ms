@@ -121,6 +121,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 			)
 			SetINISetting fileINI "BsVportToolsSet" "ListCount" (arrVportValue.count as string)
 			SetINISetting fileINI "BsVportToolsSet" "FileName" (maxfilepath + maxfilename)
+			delIniSetting fileINI "BsVportToolsList"
 			for i = 1 to arrVportValue.count do
 			(
 				SetINISetting fileINI "BsVportToolsList" (i as string) (arrVportValue[i] as string)
@@ -150,7 +151,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 						append mlbItems ("[丢失" + i.vpNode + "]_" + i.vpListName)
 					)
 				)
-				else append mlbItems ("[Custom]_" + i.vpListName)
+				else append mlbItems ("[" + (BsVportTools.fnSwitchTypeString i.vpType) + "]_" + i.vpListName)
 			)
 			BsVportTools.mlbVportSet.items = mlbItems
 		)
@@ -192,6 +193,26 @@ rollout BsVportTools "BsVportTools_v1.0"
 			)
 		)
 	)
+
+	fn fnSwitchTypeString vpType =
+	(
+		case vpType of 
+		(
+			(#view_top):(return "Top")
+			(#view_bottom):(return "Bottom") 
+			(#view_right):(return "Right") 
+			(#view_left):(return "Left")
+			(#view_front):(return "Front")
+			(#view_back):(return "Back") 
+			(#view_persp_user):(return "Perspective")
+			(#view_iso_user):(return "User")
+			(#view_camera):(return "Camera") 
+			(#view_spot):(return "Light") 
+			(#view_shape):(return "Shape")
+			(#view_grid):(return "Grid")
+			default:(return "Undefined")
+		)
+	) 
 
 	fn checkVT views vt = 
 	( 
@@ -254,17 +275,23 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		if ((BsVportTools.edtAddVport.text != "") or (BsVportTools.edtAddVport.text != undefined)) then
 		(
+			existCount = 0
 			for i = 1 to arrVportValue.count do 
 			(
 				if arrVportValue[i].vpListName == BsVportTools.edtAddVport.text then
 				(
 					arrVportValue[i] = (BsVportTools.collectVPD())
+					BsVportTools.mlbVportSet.selection = i
+					existCount += 1
 				)
 			)
-			else (append arrVportValue (BsVportTools.collectVPD()))
+			if existCount == 0 then 
+			(
+				append arrVportValue (BsVportTools.collectVPD())
+				BsVportTools.mlbVportSet.selection = BsVportTools.mlbVportSet.items.count
+			)
 			BsVportTools.fnSaveVportINI ignoreMsg:true
 			BsVportTools.fnUpdateVportList()
-			BsVportTools.mlbVportSet.selection = BsVportTools.mlbVportSet.items.count
 		)
 	)
 
@@ -344,9 +371,6 @@ rollout BsVportTools "BsVportTools_v1.0"
 	on btnAddVportSet pressed do
 	(
 		fnAddVportSet()
-		deleteitem arrVportValue arrVportValue.count 
-		fnUpdateVportList()
-		BsVportTools.mlbVportSet.selection = BsVportTools.mlbVportSet.items.count
 	)
 
 	on btnDelVportSet pressed do undo "RemoveVportSet" on
