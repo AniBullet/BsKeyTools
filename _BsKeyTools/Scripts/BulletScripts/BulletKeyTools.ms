@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-22 17:26:36
+ * @LastEditTime: 2022-08-22 18:00:19
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -251,7 +251,7 @@ fn addToolBarButton macro cat txt remove: false =
 
 		seek stream 0 
 		
-		if (((sysinfo.GetMaxLanguage())[3]=="CHS") and ((maxVersion())[1] < 20000)) then 
+		if ((sysinfo.GetMaxLanguage())[3]=="CHS")  then 
 		(
 			mt = "\"主工具栏\""
 		)
