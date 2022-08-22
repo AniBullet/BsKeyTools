@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-21 23:32:17
+ * @LastEditTime: 2022-08-22 17:26:36
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -3053,7 +3053,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	)
 	on btnSpringMagic pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\SpringMagic_New.mse"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\SpringMagic_Enhanced.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 	on btnSpringMagic rightclick do 
