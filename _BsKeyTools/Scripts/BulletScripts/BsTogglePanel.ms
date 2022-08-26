@@ -79,7 +79,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     
         if isConnectInternet == true then
         (
-            local urlLine = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&charset=gbk&max_length=20"
+            local urlLine = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&charset=gbk"
             local strAllLine = (dotNetObject "System.Net.WebClient").downloadString urlLine
             if	strAllLine != undefined then
             (
