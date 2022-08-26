@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-22 18:02:02
+ * @LastEditTime: 2022-08-27 01:06:43
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -15,7 +15,7 @@ try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
-global curVerBsKeyTools = "0.9.9"
+global curVerBsKeyTools = "0.9.9_Beta7"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\K帧工具_BsKeyTools（误杀请信任）.exe"
@@ -1629,7 +1629,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"多方向渲染工具" pos:btnPos
 	button btnTrackBarTools "帧栏工具" width:btnWidth height:btnHeight visible:false \
 	toolTip:"帧栏工具条" pos:btnPos
-	button btnPerspLock "透视锁定" width:btnWidth height:btnHeight visible:false \
+	checkbutton ckbPerspLock "透视锁定" width:btnWidth height:btnHeight visible:false \
 	tooltip:"旋转视图后自动打开透视（类似按 P 键）\r\n再次点击可切换开关" pos:btnPos
 	button btnTemp10 "待添加10" width:btnWidth height:btnHeight visible:false \
 	tooltip:"待添加，欢迎提供建议~" pos:btnPos
@@ -1792,7 +1792,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	fn fnReloadToolsBtn =
 	(
 		arrSourToolC1 = #(rolBsKeyTools.btnColorTools,rolBsKeyTools.btnFastAlign,
-						rolBsKeyTools.btnPerspLock,rolBsKeyTools.btnAnimMirror,
+						rolBsKeyTools.ckbPerspLock,rolBsKeyTools.btnAnimMirror,
 						rolBsKeyTools.btnVportTools,rolBsKeyTools.btnBatchExport,
 						rolBsKeyTools.ckbIsoMesh,rolBsKeyTools.btnBipedTraj,
 						rolBsKeyTools.btnRescaleWU,rolBsKeyTools.btnXrSkinTool,
@@ -2815,6 +2815,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		-- )
 		ckbPlayBlocking.state = false
 		clock.active = false
+		ckbPerspLock.state = tooglePersp
 		if iniIsIcon do fnSwitchIconStyle()
 		if (iniBsAutoCheckUpdate == true) then 
 		(fnAutoCheckVersion curVerBsKeyTools verUrlBsKeyTools dlUrlBsKeyTools dlFileBsKeyTools)
@@ -4151,21 +4152,23 @@ rollout rolBsKeyTools "" width:355 height:250
 		btnElement.image = (fnDotnetBitmap iconElement)
 	)
 
-	on btnPerspLock pressed do
+	on ckbPerspLock changed state do
 	(
-		tooglePersp = (not tooglePersp)
 		msgPersp = ""
-		if tooglePersp then 
+		if state then 
 		(
 			registerRedrawViewsCallback fnOrthoToPersp 
 			msgPersp = "已开启"
+			tooglePersp = true
 		)
 		else
 		(
 			unRegisterRedrawViewsCallback fnOrthoToPersp
 			msgPersp = "已关闭"
+			tooglePersp = false
 		)
-		messagebox ("透视锁定（旋转镜头自动按 P 转透视）：" + msgPersp + "                                            ") title:"BsKeyTools"
+		tooglePersp = (not tooglePersp)
+		displayTempPrompt  ("BsKeyTools：透视锁定（旋转镜头自动按 P 转透视）-- " + msgPersp + "                                ") 10000
 	)
 )
 if (iniPos != 0) then (Createdialog rolBsKeyTools fgcolor:myFgColor pos:iniPos style:#())
