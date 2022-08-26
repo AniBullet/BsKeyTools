@@ -75,11 +75,11 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     
     fn fnGetHitokoto = 
     (
-        local isConnectInternet = (internet.CheckConnection url:"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&charset=gbk" force:true)
+        local isConnectInternet = (internet.CheckConnection url:"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&c=j&charset=gbk" force:true)
     
         if isConnectInternet == true then
         (
-            local urlLine = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&charset=gbk"
+            local urlLine = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&c=j&charset=gbk"
             local strAllLine = (dotNetObject "System.Net.WebClient").downloadString urlLine
             if	strAllLine != undefined then
             (
@@ -96,7 +96,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         else
         (
             --检查网络是否能连接
-            if internet.CheckConnection url:"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&charset=gbk" force:true == true then 
+            if internet.CheckConnection url:"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&c=j&charset=gbk" force:true == true then 
             (print "网络服务器当前不可用,请稍后再试                        ")
             else (print "BsKeyTools ：无网络连接或链接未响应...                                ")
             return "请检查网络..."
