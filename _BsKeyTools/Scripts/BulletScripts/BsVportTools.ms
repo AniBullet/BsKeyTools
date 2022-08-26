@@ -131,7 +131,6 @@ rollout BsVportTools "BsVportTools_v1.0"
 			if arrINIFile.count > 50 then (deletefile arrINIFile[1])
 			return true
 		)
-		else (messagebox "请先保存文件和视角镜头参数再储存配置！                    " title:"BsKeyTools" beep:false)
 	)
 
 	fn fnUpdateVportList = 
@@ -346,7 +345,11 @@ rollout BsVportTools "BsVportTools_v1.0"
 
 	on btnSaveVportINI pressed do
 	(
-		fnSaveVportINI()
+		if maxfilename != "" and arrVportValue.count != 0 then
+		(
+			fnSaveVportINI()
+		)
+		else (messagebox "请先保存文件和视角镜头参数再储存配置！                    " title:"BsKeyTools" beep:false)
 	)	
 
 	on btnLoadVportINI pressed do
