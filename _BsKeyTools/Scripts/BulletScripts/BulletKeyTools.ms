@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-27 18:52:27
+ * @LastEditTime: 2022-08-28 02:26:26
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -925,6 +925,7 @@ rcmenu menuConfig
 	)
 	separator menuSepHelp
 	menuItem mItemCleanVirus "杀毒工具 [推荐开启]"
+	menuItem mItemWinBack "窗口找回 [会有用的]"
 	menuItem mItemIsStartup "是否随3dsMax自启"
 	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
 	subMenu "自定义功能配置"
@@ -1196,6 +1197,12 @@ rcmenu menuConfig
 			else iniCollopseType = 0
 		)
 		rolBsKeyTools.timerTickTock.active = mItemCollapseFull.checked
+	)
+
+	on mItemWinBack picked do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\WinBox.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 )
 
@@ -1497,7 +1504,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	checkbutton ckbShadowCut "秀剪影" highlightcolor:myCheckedColor \
 	pos:[110,90] width:50 height:25 toolTip:"切换剪影显示"
 	button btnQuicksave "快备份" pos:[160,90] width:50 height:25 \
-	tooltip:"快速备份当前文件"
+	tooltip:"快速备份当前文件\r\n在同目录的 文件名.Backup 文件夹下"
 	checkbutton ckbFnBoxDisplay "BOX显"  highlightcolor:myCheckedColor \
 	width:50 height:25 toolTip:"骨骼切换Box显示" pos:[10,115]
 	checkbutton ckbFreezeMesh "冻模型" highlightcolor:myCheckedColor \
@@ -1526,7 +1533,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnIsoSelection "独显" pos:[10,190] width:40 height:25 \
 	toolTip:"隐藏当前显示的未选中物体\r\n再次点击可重新显示\r\n利用 IsolateSelection\r\n但是不改变镜头缩进"
 	button btnLayerManager "层" pos:[50,190] width:20 height:25 \
-	toolTip:"模拟旧版层管理器" 
+	toolTip:"模拟旧版层管理器\r\n左键可嵌套层管理器\r\n右键旧版层管理器" 
 	button btnSelectionsetTools "集" pos:[70,190] width:20 height:25 \
 	toolTip:"选择集工具增强版" 
 	button btnPoseTool "库" pos:[90,190] width:20 height:25 \
@@ -1595,19 +1602,19 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"2021 以上降版本可能有损害，工具做了修复处理，注意保存蒙皮" pos:btnPos
 	button btnVportTools "视角镜头" width:btnWidth height:btnHeight visible:false \
 	toolTip:"储存视角参数，便于分镜头" pos:btnPos
-	button btnMeshToBone "碎块加骨" width:btnWidth height:btnHeight visible:false \
+	button btnMeshToBone "破碎工具" width:btnWidth height:btnHeight visible:false \
 	toolTip:"破碎碎块快速加骨骼" pos:btnPos
-	button btnWinbox "窗口找回" width:btnWidth height:btnHeight visible:false \
-	toolTip:"方便找回曲线编辑器等窗口(多屏导致窗口丢失)" pos:btnPos
+	button btnMirrorMoph "Morph镜像" width:btnWidth height:btnHeight visible:false \
+	toolTip:"镜像 Morpher 拾取对象，方便表情绑定" pos:btnPos
 	button btnHideBipedTwists "隐藏Twist" width:btnWidth height:btnHeight visible:false \
 	toolTip:"隐藏所有 Biped 自带 Twists，再点显示" pos:btnPos
 	button btnDelDecimalKeys "删小数帧" width:btnWidth height:btnHeight visible:false \
 	toolTip:"删除所有小数帧" pos:btnPos
 	button btnRescaleWU "蒙皮缩放" width:btnWidth height:btnHeight visible:false \
 	toolTip:"带有Skin的缩放,带批处理\r\n(右键打开老版本)" pos:btnPos
-	button btnSkinTools "Skin工具" width:btnWidth height:btnHeight visible:false \
+	button btnSkinTools "Skin 工具" width:btnWidth height:btnHeight visible:false \
 	toolTip:"Skin工具集成 (修改自San_oOo)" pos:btnPos
-	button btnKeyStepMode "切帧设置" width:btnWidth height:btnHeight visible:false pos:btnPos \
+	button btnKeyStepMode "切帧过滤" width:btnWidth height:btnHeight visible:false pos:btnPos \
 	tooltip:"前后切关键帧设置，\r\n可配合删帧或单轴修帧"
 	button btnDemoTool "作品预设" width:btnWidth height:btnHeight visible:false pos:btnPos \
 	toolTip:"[已有想法待补充]\r\n方便渲染作品和练习的工具"
@@ -1641,10 +1648,10 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"未详细测试功能，\r\n谨慎用于项目，\r\n可自行研究！" pos:btnPos
 	button btnXpsConvert "XPS 转换" width:btnWidth height:btnHeight visible:false \
 	tooltip:"Xnalara 导入 3dsMax" pos:btnPos
-	button btnTemp15 "待添加15" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加，欢迎提供建议~" pos:btnPos
-	button btnTemp16 "待添加16" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加，欢迎提供建议~" pos:btnPos
+	button btnCleanCustomAtts "清理冗余" width:btnWidth height:btnHeight visible:false \
+	tooltip:"清理冗余自定义属性，\r\n如 day1reCA 和 SimpleFaceData ？\r\n请注意备份和保存文件" pos:btnPos
+	button btnLODCreate "LOD 创建" width:btnWidth height:btnHeight visible:false \
+	tooltip:"创建 LOD，保留 Skin，方便面数多的模型做动画" pos:btnPos
 	button btnTemp17 "待添加17" width:btnWidth height:btnHeight visible:false \
 	tooltip:"待添加，欢迎提供建议~" pos:btnPos
 
@@ -1797,24 +1804,24 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.ckbIsoMesh,rolBsKeyTools.btnBipedTraj,
 						rolBsKeyTools.btnRescaleWU,rolBsKeyTools.btnXrSkinTool,
 						rolBsKeyTools.btnFnFrame,rolBsKeyTools.btnRetargetTools)
-		arrSourToolC2 = #(rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnMopherSlider,
+		arrSourToolC2 = #(rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnDemoTool,
 						rolBsKeyTools.btnSelBiped,rolBsKeyTools.btnSelBone,
 						rolBsKeyTools.btnFnTCB,rolBsKeyTools.btnEulerFilter,
 						rolBsKeyTools.btnDelOutKeys,rolBsKeyTools.btnCleanOutKeys,
 						rolBsKeyTools.btnEndBone,rolBsKeyTools.btnRenameTools,
 						rolBsKeyTools.btnBipedScale,rolBsKeyTools.btnSelByColor)
-		arrSourToolC3 = #(rolBsKeyTools.btnMeshToBone,rolBsKeyTools.btnWinbox,
+		arrSourToolC3 = #(rolBsKeyTools.btnMeshToBone,rolBsKeyTools.btnMassFX,
+						rolBsKeyTools.btnCollider,rolBsKeyTools.btnSpringSim,
 						rolBsKeyTools.btnHideBipedTwists,rolBsKeyTools.btnQuickPrev,
-						rolBsKeyTools.btnKeyStepMode,rolBsKeyTools.btnFnKeyType,
-						rolBsKeyTools.btnCutSequence,rolBsKeyTools.btnSkinTools,
-						rolBsKeyTools.ckbFnMtlDisplay,rolBsKeyTools.btnCombineDetachSkin,
+						rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnCutSequence,
+						rolBsKeyTools.btnSkinTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
-		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnRenderTools,
-						rolBsKeyTools.btnDemoTool,rolBsKeyTools.btnDelDecimalKeys,
-						rolBsKeyTools.btnCollider,rolBsKeyTools.btnMassFX,
-						rolBsKeyTools.btnColorTools,rolBsKeyTools.btnSpringSim,
-						rolBsKeyTools.btnXpsConvert,rolBsKeyTools.btnTemp15,
-						rolBsKeyTools.btnTemp16,rolBsKeyTools.btnTemp17)
+		arrSourToolC4 = #(rolBsKeyTools.btnFnKeyType,rolBsKeyTools.btnRenderTools,
+						rolBsKeyTools.btnMopherSlider,rolBsKeyTools.btnMirrorMoph,
+						rolBsKeyTools.btnKeyStepMode,rolBsKeyTools.btnDelDecimalKeys,
+						rolBsKeyTools.btnColorTools,rolBsKeyTools.ckbFnMtlDisplay,
+						rolBsKeyTools.btnXpsConvert,rolBsKeyTools.btnCleanCustomAtts,
+						rolBsKeyTools.btnLODCreate,rolBsKeyTools.btnTemp17)
 		
 		fnLoadToolBtnConfig()
 		arrToolsAllTemp = arrSourToolC1 + arrSourToolC2 + arrSourToolC3 + arrSourToolC4
@@ -2548,22 +2555,38 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	fn fnQuickSave =
 	(
+		local strOriginalFile = (maxFilePath + maxFileName)
 		local nameCurrentFile = getFilenameFile maxFileName
 		local arrTime = for i in (getLocalTime()) collect i as string
 		local strNameSplit = "@Backup_"
 		local fileSave = ""
 
-		if (matchpattern nameCurrentFile pattern:("*" + strNameSplit + "*")) then
+		if (matchpattern strOriginalFile pattern:("*.Backup*" + strNameSplit + "*")) then
 		(
 			numSplitString = (findString (getFilenameFile maxFileName) "@Backup_")
 			nameCurrentFile = replace nameCurrentFile numSplitString (nameCurrentFile.count - numSplitString + 1) ""
+			strNameSplit = strNameSplit + arrTime[2] + "_" + arrTime[4] + "_" + arrTime[5] + "h" + arrTime[6] + "m" + arrTime[7] + "s"
+			fileSave = maxFilePath + nameCurrentFile + strNameSplit + ".max"
+			saveMaxFile fileSave
+			messagebox ("已快速备份至：\r\n\r\n" + fileSave + "\r\n\r\n（当前备份的是已备份文件，请注意跟源文件对比新旧！）                                      ") 
 		)
-
-		strNameSplit = strNameSplit + arrTime[2] + "_" + arrTime[4] + "_" + arrTime[5] + "h" + arrTime[6] + "m" + arrTime[7] + "s" + arrTime[8] + "ms"
-
-		fileSave = maxFilePath + nameCurrentFile + strNameSplit + ".max"
-		saveMaxFile fileSave
-		messagebox ("已快速备份至：\r\n" + fileSave + "                                      ") 
+		else
+		(
+			if (not (SIODir.Exists (maxFilePath + nameCurrentFile + ".Backup\\")))
+			do (SIODir.CreateDirectory (maxFilePath + nameCurrentFile + ".Backup\\"))
+			strNameSplit = strNameSplit + arrTime[2] + "_" + arrTime[4] + "_" + arrTime[5] + "h" + arrTime[6] + "m" + arrTime[7] + "s"
+			fileSave = maxFilePath +  nameCurrentFile + ".Backup\\" + nameCurrentFile + strNameSplit + ".max"
+			saveMaxFile strOriginalFile
+			if (not (SIOFile.Exists fileSave)) do
+			(
+				try 
+				(
+					SIOFile.Copy strOriginalFile fileSave
+					messagebox ("已快速备份至：\r\n\r\n" + fileSave + "                                      ") 
+				)
+				catch()
+			)
+		)
 	)
 
 	fn fnCutDisplayKeyRange keyFirst keyEnd isSelected:false =  ---显示首尾帧范围
@@ -3644,10 +3667,27 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnLayerManager pressed do 
+	on btnLayerManager rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\LayerManagerAlternative.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnLayerManager pressed do 
+	(
+		if keyboard.controlpressed == true then
+		(
+			try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\nestedLayerManager.mzp"))
+			catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		)
+		else
+		(
+			try(macros.run "Layers" "nestedLayerManagerMacro")
+			catch
+			(
+				FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\nestedLayerManager.mzp")
+			)
+		)
 	)
 
 	on btnAnimMirror pressed do 
@@ -3974,9 +4014,9 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnWinbox pressed do
+	on btnMirrorMoph pressed do
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\WinBox.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\mirrormorph.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
@@ -3988,7 +4028,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnMeshToBone pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\AnimMeshToBonesAnim.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\FractureVoronoi.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
@@ -4061,6 +4101,22 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnXpsConvert pressed do
 	(
 		try(messagebox "若导入报错，可尝试用高版本 3dsMax 重新导入，基本可解决！                                       " beep:false title:"BsKeyTools";FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\XnaLara Converter.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnCleanCustomAtts pressed do
+	(
+		if (queryBox "是否清理冗余自定义属性，\r\n\r\n如 day1reCA 和 SimpleFaceData ？\r\n\r\n请注意备份和保存文件！                                               " \
+		title:"BsKeyTools" beep:false) then
+		(
+			cusAtt = rootscene.custAttributes
+			for i =1 to cusAtt.count do deleteItem cusAtt 1
+		)
+	)
+
+	on btnLODCreate pressed do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\lod_creator.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
