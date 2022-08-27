@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-27 01:06:43
+ * @LastEditTime: 2022-08-27 18:52:27
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -15,7 +15,7 @@ try(destroydialog rolCustomBtn)catch()
 try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
 try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
 
-global curVerBsKeyTools = "0.9.9_Beta7"
+global curVerBsKeyTools = "0.9.9"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global dlUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global dlFileBsKeyTools = (getdir #temp) + "\\K帧工具_BsKeyTools（误杀请信任）.exe"
@@ -1631,16 +1631,16 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"帧栏工具条" pos:btnPos
 	checkbutton ckbPerspLock "透视锁定" width:btnWidth height:btnHeight visible:false \
 	tooltip:"旋转视图后自动打开透视（类似按 P 键）\r\n再次点击可切换开关" pos:btnPos
-	button btnTemp10 "待添加10" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加，欢迎提供建议~" pos:btnPos
-	button btnTemp11 "待添加11" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加，欢迎提供建议~" pos:btnPos
-	button btnTemp12 "待添加12" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加，欢迎提供建议~" pos:btnPos
-	button btnTemp13 "待添加13" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加，欢迎提供建议~" pos:btnPos
-	button btnTemp14 "待添加14" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加，欢迎提供建议~" pos:btnPos
+	button btnCollider "碰撞模拟" width:btnWidth height:btnHeight visible:false \
+	tooltip:"模拟碰撞，分开物体" pos:btnPos
+	button btnMassFX "动动力学" width:btnWidth height:btnHeight visible:false \
+	tooltip:"3dsMax 自带 MassFX 模拟，引擎应该无效" pos:btnPos
+	button btnPicker "选选择器" width:btnWidth height:btnHeight visible:false \
+	tooltip:"创建带背景的选择面板\r\n\r\n左右键分别两个工具" pos:btnPos
+	button btnSpringSim "弹簧模拟" width:btnWidth height:btnHeight visible:false \
+	tooltip:"未详细测试功能，\r\n谨慎用于项目，\r\n可自行研究！" pos:btnPos
+	button btnXpsConvert "XPS 转换" width:btnWidth height:btnHeight visible:false \
+	tooltip:"Xnalara 导入 3dsMax" pos:btnPos
 	button btnTemp15 "待添加15" width:btnWidth height:btnHeight visible:false \
 	tooltip:"待添加，欢迎提供建议~" pos:btnPos
 	button btnTemp16 "待添加16" width:btnWidth height:btnHeight visible:false \
@@ -1791,7 +1791,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	fn fnReloadToolsBtn =
 	(
-		arrSourToolC1 = #(rolBsKeyTools.btnColorTools,rolBsKeyTools.btnFastAlign,
+		arrSourToolC1 = #(rolBsKeyTools.btnPicker,rolBsKeyTools.btnFastAlign,
 						rolBsKeyTools.ckbPerspLock,rolBsKeyTools.btnAnimMirror,
 						rolBsKeyTools.btnVportTools,rolBsKeyTools.btnBatchExport,
 						rolBsKeyTools.ckbIsoMesh,rolBsKeyTools.btnBipedTraj,
@@ -1811,9 +1811,9 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
 		arrSourToolC4 = #(rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnRenderTools,
 						rolBsKeyTools.btnDemoTool,rolBsKeyTools.btnDelDecimalKeys,
-						rolBsKeyTools.btnTemp10,rolBsKeyTools.btnTemp11,
-						rolBsKeyTools.btnTemp12,rolBsKeyTools.btnTemp13,
-						rolBsKeyTools.btnTemp14,rolBsKeyTools.btnTemp15,
+						rolBsKeyTools.btnCollider,rolBsKeyTools.btnMassFX,
+						rolBsKeyTools.btnColorTools,rolBsKeyTools.btnSpringSim,
+						rolBsKeyTools.btnXpsConvert,rolBsKeyTools.btnTemp15,
 						rolBsKeyTools.btnTemp16,rolBsKeyTools.btnTemp17)
 		
 		fnLoadToolBtnConfig()
@@ -4028,6 +4028,42 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
+	on btnCollider pressed do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Collider.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnMassFX pressed do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\MassFX.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnPicker pressed do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\UILayout_V1.01_HPK.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnPicker rightclick do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\objectPicker.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnSpringSim pressed do
+	(
+		try(messagebox "未详细测试功能，谨慎用于项目，可自行研究！                             " beep:false title:"BsKeyTools";FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\springcontroller.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnXpsConvert pressed do
+	(
+		try(messagebox "若导入报错，可尝试用高版本 3dsMax 重新导入，基本可解决！                                       " beep:false title:"BsKeyTools";FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\XnaLara Converter.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
 	on btnEndBone pressed do 
 	(
 		local tempLayerBoneEnd
@@ -4039,30 +4075,33 @@ rollout rolBsKeyTools "" width:355 height:250
 			arrSel = selection as array
 			for i in 1 to arrSel.count do
 			(
-				tempChild = execute ("$'" + arrSel[i].name + "'/...*")
-				if (tempChild[tempChild.count] != undefined) then 
+				arrChild = (execute ("$'" + arrSel[i].name + "'/...*")) as array
+				for c in arrChild where c.children.count == 0 do 
 				(
-					parentBone = tempChild[tempChild.count]
+					if (c != undefined) then 
+					(
+						parentBone = c
+					)
+					else (parentBone  = arrSel[i])
+					parentTrans = parentBone.transform
+					parentPos   = parentTrans.translation
+			
+					newBone = BoneSys.createBone parentPos (parentPos+6) parentBone.dir
+					newBone.transform = parentTrans
+					newBone.taper     = 90
+			
+					if iskindof arrSel[i] BoneGeometry==true do 
+					(
+						in coordSys Local move newBone [parentBone.length,0,0]
+						newBone.parent    = parentBone
+						newBone.width     = parentBone.width
+						newBone.height    = parentBone.height
+						newBone.length    = (parentBone.width+parentBone.height)/2
+						newBone.wirecolor = parentBone.wirecolor
+					)
+					append arrBoneEndAll newBone
+					tempLayerBoneEnd.addNode newBone
 				)
-				else (parentBone  = arrSel[i])
-				parentTrans = parentBone.transform
-				parentPos   = parentTrans.translation
-		
-				newBone = BoneSys.createBone parentPos (parentPos+6) parentBone.dir
-				newBone.transform = parentTrans
-				newBone.taper     = 90
-		
-				if iskindof arrSel[i] BoneGeometry==true do 
-				(
-					in coordSys Local move newBone [parentBone.length,0,0]
-					newBone.parent    = parentBone
-					newBone.width     = parentBone.width
-					newBone.height    = parentBone.height
-					newBone.length    = (parentBone.width+parentBone.height)/2
-					newBone.wirecolor = parentBone.wirecolor
-				)
-				append arrBoneEndAll newBone
-				tempLayerBoneEnd.addNode newBone
 			)
 			messageBox "注意：\r\n\r\n点确定完成添加，\r\n\r\n会创建新层存放末端，\r\n\r\n重启软件后无法回退，\r\n\r\n可点击右键或手动清除之前添加的末端，\r\n\r\n（在 tempBoneEndAll 层中）                                     "
 		)

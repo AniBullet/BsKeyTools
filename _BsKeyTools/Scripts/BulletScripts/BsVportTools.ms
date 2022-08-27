@@ -29,14 +29,14 @@ rcmenu menuBsVportRightClick
 
 rollout BsVportTools "BsVportTools_v1.0"
 (
-	MultiListBox mlbVportSet "" width:180 height:15 pos:[5,60]
-	button btnCreateCam "" width:50 height:30 pos:[5,5] tooltip:"以 \"P\" 自由视角创建相机"
-	button btnSaveVportINI "" width:40 height:30 pos:[55,5] tooltip:"保存导出视角列表"
-	button btnLoadVportINI "" width:30 height:30 pos:[95,5] tooltip:"加载导入视角列表"
-	button btnDelVportSet "" width:30 height:30 pos:[125,5] tooltip:"移除所选视角"
-	button btnHelp "" width:30 height:30 pos:[155,5] tooltip:"点击打开视频帮助说明\r\n功能简述：保存当前视角参数\r\n(完全不影响文件本身，只存参数)"
-	edittext edtAddVport "" width:155 height:17 pos:[0,40]
-	button btnAddVportSet "" width:30 height:17 pos:[155,40] tooltip:"保存当前视角"
+	MultiListBox mlbVportSet "" width:175 height:15 pos:[3,65]
+	button btnCreateCam "" width:40 height:35 pos:[5,5] tooltip:"以 \"P\" 自由视角创建相机"
+	button btnSaveVportINI "" width:40 height:20 pos:[45,5] tooltip:"保存导出视角列表"
+	button btnLoadVportINI "" width:30 height:20 pos:[85,5] tooltip:"加载导入视角列表"
+	button btnDelVportSet "" width:30 height:20 pos:[115,5] tooltip:"移除所选视角"
+	button btnHelp "" width:30 height:20 pos:[145,5] tooltip:"点击打开视频帮助说明\r\n功能简述：保存当前视角参数\r\n(完全不影响文件本身，只存参数)"
+	edittext edtAddVport "" width:177 height:17 pos:[0,45]
+	button btnAddVportSet "" width:130 height:15 pos:[45,25] tooltip:"保存当前视角"
 	
 	local views = #(#view_persp_user, #view_iso_user, #view_top, #view_bottom, #view_left, #view_right, #view_front, #view_back, #view_spot, #view_camera)
 
@@ -397,7 +397,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 
 )
 if (iniPosVportTools != 0) then 
-(Createdialog BsVportTools 190 270 fgcolor:myFgColor pos:iniPosVportTools style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
-else (Createdialog BsVportTools 190 270 fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+(Createdialog BsVportTools 183 270 fgcolor:myFgColor pos:iniPosVportTools style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+else (Createdialog BsVportTools 183 270 fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
 
 callbacks.addScript #filePostOpen "BsVportTools.fnRefreshVportSet()" id:#UpdateBsVport
