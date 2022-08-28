@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-28 02:26:26
+ * @LastEditTime: 2022-08-28 15:49:31
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1561,8 +1561,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"做 Demo 素模或特效方便~" pos:btnPos
 	checkbutton ckbIsoMesh "单显模型" width:btnWidth height:btnHeight visible:false \
 	toolTip:"单独显示模型预览" pos:btnPos highlightcolor:myCheckedColor 
-	button btnBipedTraj "Biped轨迹" width:btnWidth height:btnHeight visible:false \
-	toolTip:"左：切换显示单个Biped轨迹,\r\n右：清除添加的所有Biped轨迹~" pos:btnPos
+	button btnProTraj "轨迹编辑" width:btnWidth height:btnHeight visible:false \
+	toolTip:"左：调节轨迹改变动画的工具,\r\n暂不支持Biped，高版本也有自带功能\r\n右：为选择物体显示简单轨迹" pos:btnPos
 	button btnFnFrame "整小数帧" width:btnWidth height:btnHeight visible:false \
 	tooltip:"整数小数帧切换,\r\n平滑拖帧看卡顿" pos:btnPos
 	button btnSelByColor "同色选择" width:btnWidth height:btnHeight visible:false \
@@ -1801,7 +1801,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		arrSourToolC1 = #(rolBsKeyTools.btnPicker,rolBsKeyTools.btnFastAlign,
 						rolBsKeyTools.ckbPerspLock,rolBsKeyTools.btnAnimMirror,
 						rolBsKeyTools.btnVportTools,rolBsKeyTools.btnBatchExport,
-						rolBsKeyTools.ckbIsoMesh,rolBsKeyTools.btnBipedTraj,
+						rolBsKeyTools.ckbIsoMesh,rolBsKeyTools.btnProTraj,
 						rolBsKeyTools.btnRescaleWU,rolBsKeyTools.btnXrSkinTool,
 						rolBsKeyTools.btnFnFrame,rolBsKeyTools.btnRetargetTools)
 		arrSourToolC2 = #(rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnDemoTool,
@@ -3116,53 +3116,43 @@ rollout rolBsKeyTools "" width:355 height:250
 			hideByCategory.bones = false
 		)
 	)
-	on btnBipedTraj pressed do 
+	on btnProTraj pressed do 
 	(
-		layerTraj = (fnAddTrajLayer "Biped_Trajectories" layerTraj) ----是否创建轨迹层
-		if (selection.count > 1) then
-		(
-			for i in (selection as array) do
-			(
-				if classof i == Biped_Object then
-				(
-					if (getNodeByName ("Traj_" + i.name)) != undefined then 
-					(
-						fnDeleteTraj i
-					)
-				)
-			)
-		)
-		else if selection.count == 1 then
-		(
-			if classof $ == Biped_Object then
-				(
-					if (getNodeByName ("Traj_" + $.name)) != undefined then 
-					(
-						fnDeleteTraj $
-					)
-					else fnAddBipedTraj $
-				)
-		)
+		-- layerTraj = (fnAddTrajLayer "Biped_Trajectories" layerTraj) ----是否创建轨迹层
+		-- if (selection.count > 1) then
+		-- (
+		-- 	for i in (selection as array) do
+		-- 	(
+		-- 		if classof i == Biped_Object then
+		-- 		(
+		-- 			if (getNodeByName ("Traj_" + i.name)) != undefined then 
+		-- 			(
+		-- 				fnDeleteTraj i
+		-- 			)
+		-- 		)
+		-- 	)
+		-- )
+		-- else if selection.count == 1 then
+		-- (
+		-- 	if classof $ == Biped_Object then
+		-- 		(
+		-- 			if (getNodeByName ("Traj_" + $.name)) != undefined then 
+		-- 			(
+		-- 				fnDeleteTraj $
+		-- 			)
+		-- 			else fnAddBipedTraj $
+		-- 		)
+		-- )
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\ProTrajectoryHandles.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnBipedTraj rightclick do
+	on btnProTraj rightclick do
 	(
-		delLayerObj = #()
-
-		delLayer    = LayerManager.getLayerFromName "Biped_Trajectories"
-		
-		if delLayer != undefined then
-		(
-			layerRT = delLayer.layerAsRefTarg
-			delLayerObj = refs.dependents layerRT
-			delLayer.lock = off
-			for i in delLayerObj where ((delLayerObj.count != 0) and (classof i == point)) do delete i
-			LayerManager.deleteLayerByName "Biped_Trajectories"
-			delLayerObj = #()
-		)
+		actionMan.executeAction 0 "276"  -- Tools: Show Trajectories Toggle
 	)
 
-	-- on btnBipedTraj rightclick do
+	-- on btnProTraj rightclick do
 	-- (
 	-- 	-- bipedRoot = #()   -------判断选择了几个biped骨架
 	-- 	if (selection.count > 0) then
