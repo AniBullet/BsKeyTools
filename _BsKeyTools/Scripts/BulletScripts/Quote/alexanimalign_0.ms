@@ -39,7 +39,7 @@ av_kf = av_kfAlign()
 try(destroydialog alignRoll)catch()
 
 --define my rollout
-rollout alignRoll "帧对齐"
+rollout alignRoll "帧对齐/精简"
 (
 	--define ui --
 	local startDef = animationrange.start 
@@ -48,19 +48,52 @@ rollout alignRoll "帧对齐"
 	GroupBox grp2 "目标物体" pos:[5,60] width:145 height:56
 	pickbutton objOne "点击指定" pos:[20,20] width:115 height:31
 	pickbutton Obj2 "点击指定" pos:[20,81] width:115 height:31
-	button bakeBtn "烘焙" pos:[20,311] width:115 height:30
 	checkbox chkPos "Pos" pos:[10,135] width:40 height:20 checked:false
 	checkbox chkRot "Rot" pos:[55,135] width:40 height:20 checked:false
 	checkbox chkSca "Scale" pos:[100,135] width:50 height:20 checked:false
-	GroupBox grp3 "Transforms" pos:[5,120] width:145 height:41
+	GroupBox grp3 "变换" pos:[5,120] width:145 height:41
 	button doBtn "执行！" pos:[5,165] width:145 height:25
 	GroupBox grp4 "增量对齐" pos:[5,201] width:145 height:147
 	spinner startSpn "起始帧" pos:[20,219] width:110 height:16 range:[-999999,999999,0] type:#integer
 	spinner endSpn "结束帧" pos:[20,245] width:110 height:16 range:[-999999,999999,30] type:#integer
 	spinner stepSpn "间隔帧" pos:[20,270] width:110 height:16 range:[1,60,1] type:#integer
-	progressBar pb1 "ProgressBar" pos:[7,356] width:140 height:8 color:(color 63 181 47)
 	checkbox timeCk "时间轴帧数" pos:[35,291] width:107 height:16
-	
+	button bakeBtn "烘焙" pos:[20,311] width:115 height:30
+	progressBar pb1 "ProgressBar" pos:[7,356] width:140 height:8 color:(color 63 181 47)
+	group "精简关键帧"
+	(
+		pickbutton pb_obj "选择物体" width:140 autoDisplay:true align:#center
+		spinner sp_intFrame "起始帧: " range:[-10000,10000,animationRange.start] type:#integer fieldWidth:50
+		spinner sp_outFrame "结束帧: " range:[-10000,10000,animationRange.end] type:#integer fieldWidth:50
+		spinner sp_sStep "采样间隔: " range:[0.01,1000,1] fieldWidth:50 -- float
+		spinner sp_thres "阈值: " range:[0.01,1000,0.5] fieldWidth:50 -- float
+		button bt_redKeys "执行！" width:140 enabled:false align:#center
+	)
+	on pb_obj picked obj do
+	(
+		if isValidNode obj do
+		(
+			rObj = obj
+			bt_redKeys.enabled = true
+		)
+	)
+	on pb_obj rightclick do
+	(
+		rObj = pb_obj.object = undefined
+		bt_redKeys.enabled = false
+	)
+	on sp_intFrame changed val do
+		if val >= sp_outFrame.value do sp_intFrame.value = sp_outFrame.value - 1
+	on sp_outFrame changed val do
+		if val <= sp_intFrame.value do sp_outFrame.value = sp_intFrame.value + 1
+	on bt_redKeys pressed do
+	(
+		max create mode -- needed to fix max2009 bug!
+		--setWaitCursor()
+		reduceKeys rObj.transform.controller sp_thres.value sp_sStep.value (interval sp_intFrame.value sp_outFrame.value)
+		--setArrowCursor()
+		DestroyDialog ro_bakeTM -- needed to fix max2009 bug!
+	)
 	--Define Functions--
 	
 	fn rotControl rotObj kfArray =
@@ -318,5 +351,5 @@ rollout alignRoll "帧对齐"
 	)
 	
 )
-CreateDialog alignRoll 155 372
+CreateDialog alignRoll 155 530 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 -- )

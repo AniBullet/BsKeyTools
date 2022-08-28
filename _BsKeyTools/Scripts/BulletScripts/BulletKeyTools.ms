@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-28 15:49:31
+ * @LastEditTime: 2022-08-29 01:02:22
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1583,7 +1583,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"添加选择的Bone末端，可回退\r\n右键清除（注意 \"tempBoneEndAll\" 层）" pos:btnPos
 	button btnQuickPrev "快速拍屏" width:btnWidth height:btnHeight visible:false \
 	toolTip:"左：快速拍屏预览\r\n右：打开预览文件夹" pos:btnPos
-	button btnFastAlign "快速对齐" width:btnWidth height:btnHeight visible:false \
+	button btnFastAlign "对齐减帧" width:btnWidth height:btnHeight visible:false \
 	toolTip:"快速对齐工具，支持 Biped\r\nCreated by Alex Velez" pos:btnPos
 	button btnFnKeyType "改滑动帧" width:btnWidth height:btnHeight visible:false \
 	toolTip:"批量转换滑动关键帧等,\r\n后续可能按需优化更多设置" pos:btnPos
@@ -1652,8 +1652,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"清理冗余自定义属性，\r\n如 day1reCA 和 SimpleFaceData ？\r\n请注意备份和保存文件" pos:btnPos
 	button btnLODCreate "LOD 创建" width:btnWidth height:btnHeight visible:false \
 	tooltip:"创建 LOD，保留 Skin，方便面数多的模型做动画" pos:btnPos
-	button btnTemp17 "待添加17" width:btnWidth height:btnHeight visible:false \
-	tooltip:"待添加，欢迎提供建议~" pos:btnPos
+	button btnMorpherCtrl "表情控件" width:btnWidth height:btnHeight visible:false \
+	tooltip:"快速创建表情控制器" pos:btnPos
 
 	groupbox gbxMyTools "" pos:[355,5] width:160 height:240
 	-- dotnetcontrol panelMyTools "UserControl" pos:[360,15] width:190 height:225
@@ -1817,11 +1817,11 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnSkinTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
 		arrSourToolC4 = #(rolBsKeyTools.btnFnKeyType,rolBsKeyTools.btnRenderTools,
-						rolBsKeyTools.btnMopherSlider,rolBsKeyTools.btnMirrorMoph,
-						rolBsKeyTools.btnKeyStepMode,rolBsKeyTools.btnDelDecimalKeys,
+						rolBsKeyTools.btnMopherSlider,rolBsKeyTools.btnMorpherCtrl,
+						rolBsKeyTools.btnMirrorMoph,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnColorTools,rolBsKeyTools.ckbFnMtlDisplay,
 						rolBsKeyTools.btnXpsConvert,rolBsKeyTools.btnCleanCustomAtts,
-						rolBsKeyTools.btnLODCreate,rolBsKeyTools.btnTemp17)
+						rolBsKeyTools.btnLODCreate,rolBsKeyTools.btnKeyStepMode)
 		
 		fnLoadToolBtnConfig()
 		arrToolsAllTemp = arrSourToolC1 + arrSourToolC2 + arrSourToolC3 + arrSourToolC4
@@ -3652,8 +3652,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnMopherSlider pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\MorphSliders_11.ms")
-		macros.run "Tools" "MorphSliders")
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\MorphSliders_11.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
@@ -4107,6 +4106,12 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnLODCreate pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\lod_creator.ms"))
+		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnMorpherCtrl pressed do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\pxMorphSliders.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 

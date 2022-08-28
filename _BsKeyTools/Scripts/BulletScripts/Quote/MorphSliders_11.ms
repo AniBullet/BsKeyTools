@@ -1,4 +1,4 @@
-macroScript MorphSliders category:"Tools" tooltip:"Morph Sliders" Icon:#("bobomacro",5)
+-- macroScript MorphSliders category:"Tools" tooltip:"Morph Sliders" Icon:#("bobomacro",5)
 
 (
 
@@ -52,11 +52,11 @@ local go_on = true
 
 
 
-sel_array = selection
 
 
 
-if sel_array.count > 1 then 
+
+if selection.count > 1 then 
 
 	(
 
@@ -68,7 +68,7 @@ if sel_array.count > 1 then
 
 	
 
-if sel_array.count == 0 then
+if selection.count == 0 then
 
 	(
 
@@ -78,7 +78,7 @@ if sel_array.count == 0 then
 
 	)	
 
-if sel_array.count == 1 then
+if selection.count == 1 then
 
 	(
 
@@ -86,7 +86,7 @@ if sel_array.count == 1 then
 
 	(
 
-	a = sel_array[1].morpher
+	a = selection[1].morpher
 
 	)
 
@@ -111,7 +111,7 @@ if go_on then
 (
 used_channels = #()
 
-ms_work_node = sel_array[1]
+ms_work_node = selection[1]
 if ms_work_node.morpher.Use_Limits == 1 then
 (
 spin_min = ms_work_node.morpher.spinner_Minimum
@@ -124,7 +124,10 @@ spin_max = 999
 )
 
 
-for i = 1 to 100 do if findstring (ms_work_node.morpher[i] as string) "empty" == undefined then append used_channels i 
+for i = 1 to 100 do 
+if findstring (ms_work_node.morpher[i] as string) "empty" == undefined and \
+findstring (ms_work_node.morpher[i] as string) "空" == undefined \
+then append used_channels i 
 
 
 
@@ -134,7 +137,7 @@ if nf_height> max_height then nf_height = max_height
 
 
 
-if nf!= undefined then closerolloutfloater nf
+-- if nf!= undefined then closerolloutfloater nf
 
 nf = newrolloutfloater "Bobo's MorphSliders    修改：Bullet.S" (440+add_text_width) nf_height 20 50
 
@@ -199,9 +202,9 @@ for i in used_channels do
 
 (
 
-txt +="ms_main.mspinner_"+i as string+ ".value = ms_work_node.morpher["+i as string+"].value \n"
+txt +=("ms_main.mspinner_"+i as string+ ".value = ms_work_node.morpher["+i as string+"].value \n")
 
-txt +="ms_main.mslider_"+i as string+ ".value = ms_work_node.morpher["+i as string+"].value \n"
+txt +=("ms_main.mslider_"+i as string+ ".value = ms_work_node.morpher["+i as string+"].value \n")
 
 )
 
