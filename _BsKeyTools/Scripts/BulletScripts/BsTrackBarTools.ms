@@ -3,9 +3,13 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2021-08-04 18:11:03
+ * @LastEditTime: 2022-08-30 01:17:31
  * @Email: animator.bullet@foxmail.com
  */
+
+try(FileIn ((getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"))
+catch(messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+
 try
 (
 	if form != undefined then ( form.close(); form = undefined  )
@@ -127,17 +131,7 @@ rollout rolAutoBackup "自动备份"
 		)
 		else
 		(
-			local nameCurrentFile = (filterString (getFilenameFile maxFileName) "@Backup_")[1]
-			local arrTime = for i in (getLocalTime()) collect i as string
-			local strNameSplit = "@Backup_"
-			local fileSave = ""
-	
-			strNameSplit = strNameSplit + arrTime[2] + "_" + arrTime[4] + "_" + arrTime[5] + "h" + arrTime[6] + "m" + arrTime[7] + "s" + arrTime[8] + "ms"
-	
-			fileSave = maxFilePath + nameCurrentFile + strNameSplit + ".max"
-			saveMaxFile fileSave
-			clearlistener()
-			print ("已快速备份至：\r\n" + fileSave) 
+			rolbskeytools.fnQuickSave()
 		)
 	)
 	

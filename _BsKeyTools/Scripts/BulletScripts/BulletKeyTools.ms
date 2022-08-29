@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-29 12:15:28
+ * @LastEditTime: 2022-08-30 01:14:52
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -92,6 +92,7 @@ Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
 							401,402,403,404,405,406,407,408,409,410,411,412)
 global iniIsIcon = false
 global tooglePersp = false
+global iniBackupPath = ((getdir #autoback) + "\\BsBackup")
 -- global isMouseInBsKeyTools = true
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
@@ -230,6 +231,33 @@ fn fnDelDir dirDel =
 			messagebox ("删除失败: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹. 请尝试手动删除.")
 			(shellLaunch dirDel "")
 		)
+	)
+)
+
+fn getFilesequenceFile f &base &digits = 
+(
+	f = getFilenameFile f
+	base = trimRight f "0123456789"
+	digits = subString f (base.count + 1) -1
+)
+
+fn fnPseudoNaturalSort a b =  --文件名排序新方法--https://forums.cgsociety.org/t/sorting-filenames/1219205/4
+(
+	a = a as string
+	b = b as string
+	getFilesequenceFile a &aBase &aDigits
+	-- hackhackhack.  This pads a number with zeros to 6 digits without using a loop.
+	-- things will fail if there's more digits.. 6 'seems' safe.
+	aDigits = subString ((1000000 + (aDigits as integer)) as string) 2 -1
+	getFilesequenceFile b &bBase &bDigits
+	bDigits = subString ((1000000 + (bDigits as integer)) as string) 2 -1
+	a = aBase + aDigits
+	b = bBase + bDigits
+
+	case of (
+	(a == b): 0
+	(a < b): -1
+	(a > b): 1
 	)
 )
 
@@ -2555,34 +2583,50 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	fn fnQuickSave =
 	(
-		local strOriginalFile = (maxFilePath + maxFileName)
-		local nameCurrentFile = getFilenameFile maxFileName
-		local arrTime = for i in (getLocalTime()) collect i as string
-		local strNameSplit = "@Backup_"
-		local fileSave = ""
+		local strCurFilePath    = (maxFilePath + maxFileName)
+		local strCurFileName    = getFilenameFile maxFileName
+		local strBackupPathRoot = iniBackupPath + "\\" + strCurFileName
+		local arrBackupFiles = getfiles (strBackupPathRoot + "\\*.max")
+		qsort arrBackupFiles fnPseudoNaturalSort
+		-- print arrBackupFiles
 
-		if (matchpattern strOriginalFile pattern:("*.Backup*" + strNameSplit + "*")) then
+		if matchpattern strCurFilePath pattern:(iniBackupPath + "*") then 
 		(
-			numSplitString = (findString (getFilenameFile maxFileName) "@Backup_")
-			nameCurrentFile = replace nameCurrentFile numSplitString (nameCurrentFile.count - numSplitString + 1) ""
-			strNameSplit = strNameSplit + arrTime[2] + "_" + arrTime[4] + "_" + arrTime[5] + "h" + arrTime[6] + "m" + arrTime[7] + "s"
-			fileSave = maxFilePath + nameCurrentFile + strNameSplit + ".max"
-			saveMaxFile fileSave
-			messagebox ("已快速备份至：\r\n\r\n" + fileSave + "\r\n\r\n（当前备份的是已备份文件，请注意跟源文件对比新旧！）                                      ") 
-		)
+			strBackupPathRoot = maxFilePath
+			arrBackupFiles    = getfiles (strBackupPathRoot + "\\*.max")
+			qsort arrBackupFiles fnPseudoNaturalSort
+			strSaveFileName   = getFilenameFile arrBackupFiles[arrBackupFiles.count]
+			arrEndCountFilter = (filterString strSaveFileName "_")
+			strSaveCount      = ((execute arrEndCountFilter[arrEndCountFilter.count])) as string
+			strSaveName       = substring strSaveFileName 1 (strSaveFileName.count - strSaveCount.count - 1)
+			strSaveCount      = ((execute strSaveCount) + 1) as string
+			strBackupFilePath = iniBackupPath + "\\" + strSaveName + "\\" + strSaveName + "_" + strSaveCount + ".max"
+			saveMaxFile strBackupFilePath
+			displayTempPrompt ("已备份至：" + strBackupFilePath) 10000
+			messagebox ("当前备份的是已备份文件，请注意跟源文件对比新旧！\r\n\r\n可能的源文件：" + strSaveName + ".max\r\n\r\n刚才备份的文件：" + strCurFileName + ".max                                                                           ") title:"BsKeyTools"
+		) 
 		else
 		(
-			if (not (SIODir.Exists (maxFilePath + nameCurrentFile + ".Backup\\")))
-			do (SIODir.CreateDirectory (maxFilePath + nameCurrentFile + ".Backup\\"))
-			strNameSplit = strNameSplit + arrTime[2] + "_" + arrTime[4] + "_" + arrTime[5] + "h" + arrTime[6] + "m" + arrTime[7] + "s"
-			fileSave = maxFilePath +  nameCurrentFile + ".Backup\\" + nameCurrentFile + strNameSplit + ".max"
-			saveMaxFile strOriginalFile
-			if (not (SIOFile.Exists fileSave)) do
+			if (not (SIODir.Exists strBackupPathRoot))
+			do (SIODir.CreateDirectory strBackupPathRoot)
+			if arrBackupFiles.count == 0 then 
+			(
+				strSaveCount = "1"
+			) 
+			else if arrBackupFiles.count > 0 then
+			(
+				strSaveFileName   = getFilenameFile arrBackupFiles[arrBackupFiles.count]
+				arrEndCountFilter = (filterString strSaveFileName "_")
+				strSaveCount      = ((execute arrEndCountFilter[arrEndCountFilter.count]) + 1) as string
+			)
+			strBackupFilePath = strBackupPathRoot + "\\" + strCurFileName + "_" + strSaveCount + ".max"
+			saveMaxFile strCurFilePath
+			if (not (SIOFile.Exists strBackupFilePath)) do
 			(
 				try 
 				(
-					SIOFile.Copy strOriginalFile fileSave
-					messagebox ("已快速备份至：\r\n\r\n" + fileSave + "                                      ") 
+					SIOFile.Copy strCurFilePath strBackupFilePath
+					displayTempPrompt ("已备份至：" + strBackupFilePath) 10000 
 				)
 				catch()
 			)
@@ -3445,7 +3489,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	(
 		if maxFilePath == "" then 
 		(
-			messagebox "------------------------------------\r\n当前场景未保存过,\r\n请先保存初始版本~"
+			messagebox "------------------------------------\r\n\r\n当前场景未保存过,\r\n\r\n请先保存初始版本~\r\n\r\n------------------------------------"
 			max file saveas
 		)
 		else fnQuickSave ()
