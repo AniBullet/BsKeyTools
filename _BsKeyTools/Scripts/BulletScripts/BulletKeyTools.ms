@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-29 01:02:22
+ * @LastEditTime: 2022-08-29 12:15:28
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1644,8 +1644,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"3dsMax 自带 MassFX 模拟，引擎应该无效" pos:btnPos
 	button btnPicker "选选择器" width:btnWidth height:btnHeight visible:false \
 	tooltip:"创建带背景的选择面板\r\n\r\n左右键分别两个工具" pos:btnPos
-	button btnSpringSim "弹簧模拟" width:btnWidth height:btnHeight visible:false \
-	tooltip:"未详细测试功能，\r\n谨慎用于项目，\r\n可自行研究！" pos:btnPos
+	button btnBakeAnim "动画烘焙" width:btnWidth height:btnHeight visible:false \
+	tooltip:"可保持偏移" pos:btnPos
 	button btnXpsConvert "XPS 转换" width:btnWidth height:btnHeight visible:false \
 	tooltip:"Xnalara 导入 3dsMax" pos:btnPos
 	button btnCleanCustomAtts "清理冗余" width:btnWidth height:btnHeight visible:false \
@@ -1811,7 +1811,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnEndBone,rolBsKeyTools.btnRenameTools,
 						rolBsKeyTools.btnBipedScale,rolBsKeyTools.btnSelByColor)
 		arrSourToolC3 = #(rolBsKeyTools.btnMeshToBone,rolBsKeyTools.btnMassFX,
-						rolBsKeyTools.btnCollider,rolBsKeyTools.btnSpringSim,
+						rolBsKeyTools.btnCollider,rolBsKeyTools.btnBakeAnim,
 						rolBsKeyTools.btnHideBipedTwists,rolBsKeyTools.btnQuickPrev,
 						rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnCutSequence,
 						rolBsKeyTools.btnSkinTools,rolBsKeyTools.btnCombineDetachSkin,
@@ -4081,9 +4081,9 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnSpringSim pressed do
+	on btnBakeAnim pressed do
 	(
-		try(messagebox "未详细测试功能，谨慎用于项目，可自行研究！                             " beep:false title:"BsKeyTools";FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\springcontroller.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\BakeAnim.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 

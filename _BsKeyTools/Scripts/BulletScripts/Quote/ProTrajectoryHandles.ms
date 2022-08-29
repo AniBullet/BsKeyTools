@@ -523,7 +523,7 @@
 		button 'btn_smt_out' ">" pos:[104,320] width:16 height:16 align:#left
 		button 'btn_auto_out' ">" pos:[104,336] width:16 height:16 align:#left
 		colorPicker 'cp_slow' "" pos:[14,688] width:25 height:16 color:(color 0 0 255) align:#left
-		button 'btn_approx' "Get Approx" pos:[16,520] width:104 height:24 align:#left
+		button 'btn_approx' "获取约值" pos:[16,520] width:104 height:24 align:#left
 		colorPicker 'cp_fast' "" pos:[14,711] width:25 height:16 color:(color 255 0 0) align:#left
 		spinner 'spn_mult' "@" pos:[40,688] width:82 height:16 range:[0,100000,0] align:#left
 		spinner 'spn_fast' "@" pos:[40,712] width:82 height:16 range:[0,100000,10] align:#left
