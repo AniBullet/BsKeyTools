@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-30 01:30:14
+ * @LastEditTime: 2022-08-30 02:01:21
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -3495,7 +3495,17 @@ rollout rolBsKeyTools "" width:355 height:250
 		else fnQuickSave ()
 	)
 
-	on btnQuicksave rightclick do (shellLaunch iniBackupPath "")
+	on btnQuicksave rightclick do 
+	(
+		if matchpattern (maxfilepath + maxFileName) pattern:(iniBackupPath + "*") then 
+		(
+			try(shellLaunch maxfilepath "")catch()
+		)
+		else
+		(
+			try(shellLaunch (iniBackupPath + "\\" + (getFilenameFile maxFileName)) "")catch()
+		)
+	)
 
 	on btnCutFrameDisplay pressed do with undo on  ---------------帧栏显示选定帧范围
 	(
