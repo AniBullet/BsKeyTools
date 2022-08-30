@@ -132,7 +132,7 @@ struct stLoadConfigAll
 	),
 	fn fnLoadConfigTrackBarTools =
 	(
-		iniPosAutoBackup  = fnGetConfig iniPosAutoBackup "BsTrackBarTools" "Pos" "0"
+		iniPosAutoBackup  = fnGetConfig iniPosAutoBackup "BsTrackBarTools" "PosTrackBarTools" "0"
 		iniBackupPath     = fnGetConfig iniBackupPath "BsTrackBarTools" "BackupPath" ((getdir #autoback) + "\\BsBackup")
 		iniMaxBackupCount = fnGetConfig iniMaxBackupCount "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
 	)
@@ -189,7 +189,7 @@ struct stSetConfigAll
 	),
 	fn fnSetConfigTrackBarTools =
 	(
-		SetINISetting BulletConfig "BsTrackBarTools" "Pos" (iniPosAutoBackup as string)
+		SetINISetting BulletConfig "BsTrackBarTools" "PosTrackBarTools" (iniPosAutoBackup as string)
 		SetINISetting BulletConfig "BsTrackBarTools" "BackupPath" (execute ("@\"" + (getdir #autoback) + "\\BsBackup\""))
 		SetINISetting BulletConfig "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
 	)
@@ -281,7 +281,7 @@ fn fnLoadDockPos rolTarget wSize hSize =
 				)
 				"float":
 				(
-					setDialogPos rolTarget (readvalue ((getINISetting BulletConfig nameAttrClass "Pos") as stringStream))
+					setDialogPos rolTarget (readvalue ((getINISetting BulletConfig nameAttrClass "PosTrackBarTools") as stringStream))
 				)
 			)
 		)

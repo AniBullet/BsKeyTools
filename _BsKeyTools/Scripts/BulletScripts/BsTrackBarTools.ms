@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-30 14:15:39
+ * @LastEditTime: 2022-08-30 19:26:53
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -15,7 +15,7 @@ try
 	destroyDialog rolBsTrackBarTools
 )
 catch()
-
+stLoadConfigAll.fnLoadConfigTrackBarTools()
 global iniBackupPath = ((getdir #autoback) + "\\BsBackup")
 Global BulletConfig = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 global iniMaxBackupCount = 50
@@ -240,7 +240,8 @@ rollout rolBsTrackBarTools "自动备份"
 	on rolBsTrackBarTools close do
 	(
 		iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools)
-		try(setINISetting BulletConfig "BsTrackBarTools" "DockPos" ((cui.getDockState rolBsTrackBarTools) as string))catch()
+		-- try(setINISetting BulletConfig "BsTrackBarTools" "DockPos" ((cui.getDockState rolBsTrackBarTools) as string))catch()
+		-- print ((cui.getDockState rolBsTrackBarTools) as string)
 		stSetConfigAll.fnSetConfigTrackBarTools()
 		callbacks.removeScripts id:#SaveButtonCallback
 		callbacks.removeScripts id:#SaveButtonResetCallback
@@ -411,6 +412,6 @@ rollout rolBsTrackBarTools "自动备份"
 )
 createDialog rolBsTrackBarTools 200 25 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 
-cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[200,25]
-cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top
+-- cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[200,25]
+-- cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top
 if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
