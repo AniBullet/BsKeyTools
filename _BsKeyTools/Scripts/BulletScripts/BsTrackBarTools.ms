@@ -3,24 +3,25 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-30 01:17:31
+ * @LastEditTime: 2022-08-30 14:15:39
  * @Email: animator.bullet@foxmail.com
  */
 
-try(FileIn ((getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"))
-catch(messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
-
+try(destroyDialog rolBsTrackBarTools)catch()
 try
 (
 	if form != undefined then ( form.close(); form = undefined  )
-	
-	cui.UnRegisterDialogBar rolAutoBackup 
-	destroyDialog rolAutoBackup
+	cui.UnRegisterDialogBar rolBsTrackBarTools 
+	destroyDialog rolBsTrackBarTools
 )
 catch()
 
+global iniBackupPath = ((getdir #autoback) + "\\BsBackup")
+Global BulletConfig = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
+global iniMaxBackupCount = 50
+global iniPosAutoBackup
 
-rollout rolAutoBackup "自动备份" 
+rollout rolBsTrackBarTools "自动备份" 
 (
 	local form, mcolor, rcLIST,  SaveInterval, saveInterval_FN , autobackup
 	local INIfile = ( getDir #maxData ) + "\\BulletConfig.ini"
@@ -131,17 +132,67 @@ rollout rolAutoBackup "自动备份"
 		)
 		else
 		(
-			rolbskeytools.fnQuickSave()
+			local strCurFilePath    = (maxFilePath + maxFileName)
+			local strCurFileName    = getFilenameFile maxFileName
+			local strBackupPathRoot = iniBackupPath + "\\" + strCurFileName + ".backup"
+			local arrBackupFiles = getfiles (strBackupPathRoot + "\\*.max")
+			qsort arrBackupFiles fnPseudoNaturalSort
+			-- print arrBackupFiles
+
+			if matchpattern strCurFilePath pattern:("*.backup\\*.max") then 
+			(
+				strBackupPathRoot = maxFilePath
+				arrBackupFiles    = getfiles (strBackupPathRoot + "\\*.max")
+				qsort arrBackupFiles fnPseudoNaturalSort
+				strSaveFileName   = getFilenameFile arrBackupFiles[arrBackupFiles.count]
+				arrEndCountFilter = (filterString strSaveFileName "_")
+				strSaveCount      = ((execute arrEndCountFilter[arrEndCountFilter.count])) as string
+				strSaveName       = substring strSaveFileName 1 (strSaveFileName.count - strSaveCount.count - 1)
+				strSaveCount      = ((execute strSaveCount) + 1) as string
+				strBackupFilePath = strBackupPathRoot + "\\" + strSaveName + "_" + strSaveCount + ".max"
+				saveMaxFile strBackupFilePath
+				displayTempPrompt ("已备份并打开：" + strBackupFilePath) 10000
+				messagebox ("当前备份的是已备份文件，请注意跟源文件对比新旧！\r\n\r\n可能的源文件：" + strSaveName + ".max\r\n\r\n刚才备份的文件：" + strCurFileName + ".max                                                                           ") title:"BsKeyTools"
+			) 
+			else
+			(
+				if (not (SIODir.Exists strBackupPathRoot))
+				do (SIODir.CreateDirectory strBackupPathRoot)
+				if arrBackupFiles.count == 0 then 
+				(
+					strSaveCount = "1"
+				) 
+				else if arrBackupFiles.count > 0 then
+				(
+					strSaveFileName   = getFilenameFile arrBackupFiles[arrBackupFiles.count]
+					arrEndCountFilter = (filterString strSaveFileName "_")
+					strSaveCount      = ((execute arrEndCountFilter[arrEndCountFilter.count]) + 1) as string
+				)
+				strBackupFilePath = strBackupPathRoot + "\\" + strCurFileName + "_" + strSaveCount + ".max"
+				saveMaxFile strCurFilePath
+				if (not (SIOFile.Exists strBackupFilePath)) do
+				(
+					try 
+					(
+						SIOFile.Copy strCurFilePath strBackupFilePath
+						displayTempPrompt ("已备份至：" + strBackupFilePath) 10000 
+					)
+					catch()
+				)
+			)
 		)
 	)
 	
-	on rolAutoBackup open do
+	on rolBsTrackBarTools open do
 	(
+		fnLoadDockPos rolBsTrackBarTools rolBsTrackBarTools.width rolBsTrackBarTools.height
+		stLoadConfigAll.fnLoadConfigTrackBarTools()
+
 		callbacks.removeScripts id:#SaveButtonCallback
-		callbacks.addScript #filePostOpenProcess "rolAutoBackup.clock.ticks = 0" id:#SaveButtonCallback
+		callbacks.addScript #filePostOpenProcess "rolBsTrackBarTools.clock.ticks = 0" id:#SaveButtonCallback
 		
 		callbacks.removeScripts id:#SaveButtonResetCallback
-		callbacks.addScript #systemPostReset "rolAutoBackup.clock.ticks = 0" id:#SaveButtonResetCallback
+		callbacks.addScript #systemPostReset "rolBsTrackBarTools.clock.ticks = 0" id:#SaveButtonResetCallback
 		SaveMenu() 
 		Inter = ( getINISetting INIfile "SaveButton" "SaveInterval" ) 
 		autobackup = ( getINISetting INIfile "SaveButton" "Autobackup" ) 
@@ -186,8 +237,11 @@ rollout rolAutoBackup "自动备份"
 		btnSaveAs.backcolor = mcolor.white
 	)
 	
-	on rolAutoBackup close do
+	on rolBsTrackBarTools close do
 	(
+		iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools)
+		try(setINISetting BulletConfig "BsTrackBarTools" "DockPos" ((cui.getDockState rolBsTrackBarTools) as string))catch()
+		stSetConfigAll.fnSetConfigTrackBarTools()
 		callbacks.removeScripts id:#SaveButtonCallback
 		callbacks.removeScripts id:#SaveButtonResetCallback
 		clock.active = false
@@ -197,8 +251,8 @@ rollout rolAutoBackup "自动备份"
 	
 	on undock_BTN pressed do
 	(
-		cui.UnRegisterDialogBar rolAutoBackup 
-		cui.RegisterDialogBar rolAutoBackup style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow)
+		cui.UnRegisterDialogBar rolBsTrackBarTools 
+		cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow)
 		if (SaveInterval > 0) then clock.active = true
 	)
 	
@@ -208,8 +262,8 @@ rollout rolAutoBackup "自动备份"
 		(
 			if form != undefined then ( form.close(); form = undefined  )
 			
-			cui.UnRegisterDialogBar rolAutoBackup 
-			destroyDialog rolAutoBackup
+			cui.UnRegisterDialogBar rolBsTrackBarTools 
+			destroyDialog rolBsTrackBarTools
 		)
 		catch()
 	)
@@ -230,7 +284,7 @@ rollout rolAutoBackup "自动备份"
 			-- btnTimer.backcolor = mcolor.white
 			-- btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
 
-			popUpMenu rcLIST pos:( [arg.x  , arg.y - 10 ] ) rollout:rolAutoBackup align:#align_topleft
+			popUpMenu rcLIST pos:( [arg.x  , arg.y - 10 ] ) rollout:rolBsTrackBarTools align:#align_topleft
 		)
 		-- if arg.button == arg.button.right do
 		-- (
@@ -355,8 +409,8 @@ rollout rolAutoBackup "自动备份"
 		)
 	)
 )
-createDialog rolAutoBackup 200 25 style:#(#style_titlebar, #style_border, #style_sysmenu, #style_minimizebox)
+createDialog rolBsTrackBarTools 200 25 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 
-cui.RegisterDialogBar rolAutoBackup style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow)
-cui.DockDialogBar rolAutoBackup  #cui_dock_bottom
-if (rolAutoBackup.SaveInterval > 0) then rolAutoBackup.clock.active = true
+cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[200,25]
+cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top
+if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true

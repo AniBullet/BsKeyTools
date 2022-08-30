@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-30 02:01:21
+ * @LastEditTime: 2022-08-30 12:26:35
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -92,7 +92,6 @@ Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
 							401,402,403,404,405,406,407,408,409,410,411,412)
 global iniIsIcon = false
 global tooglePersp = false
-global iniBackupPath = ((getdir #autoback) + "\\BsBackup")
 -- global isMouseInBsKeyTools = true
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
@@ -2585,12 +2584,12 @@ rollout rolBsKeyTools "" width:355 height:250
 	(
 		local strCurFilePath    = (maxFilePath + maxFileName)
 		local strCurFileName    = getFilenameFile maxFileName
-		local strBackupPathRoot = iniBackupPath + "\\" + strCurFileName
+		local strBackupPathRoot = maxFilePath + strCurFileName + ".backup"
 		local arrBackupFiles = getfiles (strBackupPathRoot + "\\*.max")
 		qsort arrBackupFiles fnPseudoNaturalSort
 		-- print arrBackupFiles
 
-		if matchpattern strCurFilePath pattern:(iniBackupPath + "*") then 
+		if matchpattern strCurFilePath pattern:("*.backup\\*.max") then 
 		(
 			strBackupPathRoot = maxFilePath
 			arrBackupFiles    = getfiles (strBackupPathRoot + "\\*.max")
@@ -2600,9 +2599,9 @@ rollout rolBsKeyTools "" width:355 height:250
 			strSaveCount      = ((execute arrEndCountFilter[arrEndCountFilter.count])) as string
 			strSaveName       = substring strSaveFileName 1 (strSaveFileName.count - strSaveCount.count - 1)
 			strSaveCount      = ((execute strSaveCount) + 1) as string
-			strBackupFilePath = iniBackupPath + "\\" + strSaveName + "\\" + strSaveName + "_" + strSaveCount + ".max"
+			strBackupFilePath = strBackupPathRoot + "\\" + strSaveName + "_" + strSaveCount + ".max"
 			saveMaxFile strBackupFilePath
-			displayTempPrompt ("已备份至：" + strBackupFilePath) 10000
+			displayTempPrompt ("已备份并打开：" + strBackupFilePath) 10000
 			messagebox ("当前备份的是已备份文件，请注意跟源文件对比新旧！\r\n\r\n可能的源文件：" + strSaveName + ".max\r\n\r\n刚才备份的文件：" + strCurFileName + ".max                                                                           ") title:"BsKeyTools"
 		) 
 		else
@@ -3497,13 +3496,13 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnQuicksave rightclick do 
 	(
-		if matchpattern (maxfilepath + maxFileName) pattern:(iniBackupPath + "*") then 
+		if matchpattern (maxFilePath + maxFileName) pattern:("*.backup\\*.max") then 
 		(
 			try(shellLaunch maxfilepath "")catch()
 		)
 		else
 		(
-			try(shellLaunch (iniBackupPath + "\\" + (getFilenameFile maxFileName)) "")catch()
+			try(shellLaunch (maxfilepath + (getFilenameFile maxFileName) + ".backup") "")catch()
 		)
 	)
 

@@ -6,6 +6,7 @@ global fnSetMsBtnConfig
 global stSetConfigAll
 global stLoadConfigAll
 global fnGetConfig
+global fnLoadDockPos
 struct myScript (id,msName,dir)
 
 fn fnGetConfig attr nameAttrClass nameAttr valueAttr =  --设置初始信息方法
@@ -38,11 +39,11 @@ fn fnSetToolBtnConfig =
 
 fn fnLoadMsBtnConfig =
 (
-	iniArrMyScripts1     = fnGetConfig iniArrMyScripts1 "BulletKeyToolsSet" "ArrMyScripts1" (iniArrMyScripts1 as string)
-	iniArrMyScripts2     = fnGetConfig iniArrMyScripts2 "BulletKeyToolsSet" "ArrMyScripts2" (iniArrMyScripts2 as string)
-	iniArrMyScripts3     = fnGetConfig iniArrMyScripts3 "BulletKeyToolsSet" "ArrMyScripts3" (iniArrMyScripts3 as string)
-	iniArrMyScripts4     = fnGetConfig iniArrMyScripts4 "BulletKeyToolsSet" "ArrMyScripts4" (iniArrMyScripts4 as string)
-	iniArrMyScripts5     = fnGetConfig iniArrMyScripts5 "BulletKeyToolsSet" "ArrMyScripts5" (iniArrMyScripts5 as string)
+	iniArrMyScripts1 = fnGetConfig iniArrMyScripts1 "BulletKeyToolsSet" "ArrMyScripts1" (iniArrMyScripts1 as string)
+	iniArrMyScripts2 = fnGetConfig iniArrMyScripts2 "BulletKeyToolsSet" "ArrMyScripts2" (iniArrMyScripts2 as string)
+	iniArrMyScripts3 = fnGetConfig iniArrMyScripts3 "BulletKeyToolsSet" "ArrMyScripts3" (iniArrMyScripts3 as string)
+	iniArrMyScripts4 = fnGetConfig iniArrMyScripts4 "BulletKeyToolsSet" "ArrMyScripts4" (iniArrMyScripts4 as string)
+	iniArrMyScripts5 = fnGetConfig iniArrMyScripts5 "BulletKeyToolsSet" "ArrMyScripts5" (iniArrMyScripts5 as string)
 
 	local arrMyScriptsSet = #(iniArrMyScripts1,iniArrMyScripts2,iniArrMyScripts4,iniArrMyScripts4,iniArrMyScripts5)
 	local tempMsArrayCount = 1
@@ -90,7 +91,6 @@ struct stLoadConfigAll
 		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet" "IsIcon" (iniIsIcon as string)
 		iniCollopseType      = fnGetConfig iniCollopseType "BulletKeyToolsSet" "CollopseType" (iniCollopseType as string)
-		iniBackupPath        = fnGetConfig iniBackupPath "BulletKeyToolsSet" "BackupPath" ((getdir #autoback) + "\\BsBackup")
 		fnLoadToolBtnConfig()
 		fnLoadMsBtnConfig()
 		-- print "Loaded BsKeyTools Config"
@@ -129,6 +129,12 @@ struct stLoadConfigAll
 	fn fnLoadConfigBsTogglePanel =
 	(
 		iniTogglePanelPos = fnGetConfig iniTogglePanelPos "BsTogglePanelSet" "TogglePanelPos" "0"
+	),
+	fn fnLoadConfigTrackBarTools =
+	(
+		iniPosAutoBackup  = fnGetConfig iniPosAutoBackup "BsTrackBarTools" "Pos" "0"
+		iniBackupPath     = fnGetConfig iniBackupPath "BsTrackBarTools" "BackupPath" ((getdir #autoback) + "\\BsBackup")
+		iniMaxBackupCount = fnGetConfig iniMaxBackupCount "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
 	)
 )
 struct stSetConfigAll
@@ -143,7 +149,6 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BulletKeyToolsSet" "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "IsIcon" (iniIsIcon as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "CollopseType" (iniCollopseType as string)
-		SetINISetting BulletConfig "BulletKeyToolsSet" "BackupPath" (execute ("@\"" + (getdir #autoback) + "\\BsBackup\""))
 		fnSetToolBtnConfig()
 		fnSetMsBtnConfig()
 	),
@@ -181,5 +186,105 @@ struct stSetConfigAll
 	fn fnSetConfigBsTogglePanel =
 	(
 		SetINISetting BulletConfig "BsTogglePanelSet" "TogglePanelPos" (iniTogglePanelPos as string)
+	),
+	fn fnSetConfigTrackBarTools =
+	(
+		SetINISetting BulletConfig "BsTrackBarTools" "Pos" (iniPosAutoBackup as string)
+		SetINISetting BulletConfig "BsTrackBarTools" "BackupPath" (execute ("@\"" + (getdir #autoback) + "\\BsBackup\""))
+		SetINISetting BulletConfig "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
+	)
+)
+
+fn fnLoadDockPos rolTarget wSize hSize =
+(
+	if doesFileExist BulletConfig do
+	(
+		try
+		(
+			nameAttrClass = substring rolTarget.name 4 rolTarget.name.count
+			btnsArr = rolTarget.controls
+			dockPos = fnGetConfig dockPos nameAttrClass "DockPos" "cui_dock_bottom"
+			case dockPos of
+			(
+				"cui_dock_top":
+				(
+					try(cui.UnRegisterDialogBar rolTarget)catch()
+					--	rearrange buttons to be horizontal
+					for b = 1 to btnsArr.count do
+					(
+						if b == 1 then btnsArr[b].pos = [10,0]
+						else 
+						(
+							btnsArr[b].pos = [5 + btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
+						)
+					)
+					rolTarget.height = hSize
+					rolTarget.width = wSize
+					cui.RegisterDialogBar rolTarget minSize:[wSize,hSize] maxSize:[wSize,hSize] style:#(#cui_dock_horz)
+					cui.DockDialogBar rolTarget #cui_dock_top
+					try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_top as string))catch()
+				)
+				"cui_dock_bottom":
+				(
+					try(cui.UnRegisterDialogBar rolTarget)catch()
+					--	rearrange buttons to be horizontal
+					for b = 1 to btnsArr.count do
+					(
+						if b == 1 then btnsArr[b].pos = [10,0]
+						else 
+						(
+							btnsArr[b].pos = [5 + btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
+						)
+					)
+					rolTarget.height = hSize
+					rolTarget.width = wSize
+					cui.RegisterDialogBar rolTarget minSize:[wSize,hSize] maxSize:[wSize,hSize] style:#(#cui_dock_horz)
+					cui.DockDialogBar rolTarget #cui_dock_bottom
+					try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_bottom as string))catch()
+				)
+				"cui_dock_left":
+				(
+					try(cui.UnRegisterDialogBar rolTarget)catch()
+					--	rearrange buttons to be vertical 
+					for b = 1 to btnsArr.count do
+					(
+						if b == 1 then btnsArr[b].pos = [0,10]
+						else 
+						(
+							btnsArr[b].pos = [0, 5 + btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+						)
+					)
+					rolTarget.height = wSize
+					rolTarget.width = hSize
+					--
+					cui.RegisterDialogBar rolTarget minSize:[hSize,wSize] maxSize:[hSize,wSize] style:#(#cui_dock_vert)
+					cui.DockDialogBar rolTarget #cui_dock_left
+					try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_left as string))catch()
+				)
+				"cui_dock_right":
+				(
+					try(cui.UnRegisterDialogBar rolTarget)catch()
+					--	rearrange buttons to be vertical 
+					for b = 1 to btnsArr.count do
+					(
+						if b == 1 then btnsArr[b].pos = [0,10]
+						else 
+						(
+							btnsArr[b].pos = [0, 5 + btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+						)
+					)
+					rolTarget.height = wSize
+					rolTarget.width = hSize
+					cui.RegisterDialogBar rolTarget minSize:[hSize,wSize] maxSize:[hSize,wSize] style:#(#cui_dock_vert)
+					cui.DockDialogBar rolTarget #cui_dock_right
+					try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_right as string))catch()
+				)
+				"float":
+				(
+					setDialogPos rolTarget (readvalue ((getINISetting BulletConfig nameAttrClass "Pos") as stringStream))
+				)
+			)
+		)
+		catch()
 	)
 )
