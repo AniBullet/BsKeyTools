@@ -38,7 +38,7 @@ rollout LODRollout "LOD Creator_v1.1"
 	-- (
 		button genLOD_btn "创建生成 | Generate" width:240 height:30;
 	-- )
-	label lab5 "Created by Abhishek Subba";
+	label lab5 "Created by Abhishek Subba; Mod by Bullet.S";
 	label lab6 "Email: born2animate@gmail.com";
 	
 	-- generate LOD function

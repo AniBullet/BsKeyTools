@@ -19,11 +19,11 @@ fn fnGetConfig attr nameAttrClass nameAttr valueAttr =  --设置初始信息方�
 	or (nameAttr == "LastRefFolder")) then (attr = substituteString attr "dir:" "dir:@")
 	if (attr == "") or (attr == "undefined") then 
 	(
-		if (nameAttr == "BackupPath") then (attr = (execute ("@\"" + valueAttr + "\""))) else (attr = execute valueAttr)
+		if (nameAttr == "BackupPath") or (nameAttr == "DockPos") then (attr = (execute ("@\"" + valueAttr + "\""))) else (attr = execute valueAttr)
 	) 
 	else 
 	(
-		if (nameAttr == "BackupPath") then (attr = (execute ("@\"" + attr + "\""))) else (attr = execute attr)
+		if (nameAttr == "BackupPath") or (nameAttr == "DockPos")  then (attr = (execute ("@\"" + attr + "\""))) else (attr = execute attr)
 	) --判断记录为空与否得到需要的记录参数
 	options.printAllelements = oldPrintAllElements
 	attr
@@ -132,6 +132,7 @@ struct stLoadConfigAll
 	),
 	fn fnLoadConfigTrackBarTools =
 	(
+		iniDockPos        = fnGetConfig iniDockPos "BsTrackBarTools" "DockPos" "cui_dock_bottom"
 		iniPosAutoBackup  = fnGetConfig iniPosAutoBackup "BsTrackBarTools" "PosTrackBarTools" "0"
 		iniBackupPath     = fnGetConfig iniBackupPath "BsTrackBarTools" "BackupPath" ((getdir #autoback) + "\\BsBackup")
 		iniMaxBackupCount = fnGetConfig iniMaxBackupCount "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
@@ -189,6 +190,7 @@ struct stSetConfigAll
 	),
 	fn fnSetConfigTrackBarTools =
 	(
+		SetINISetting BulletConfig "BsTrackBarTools" "DockPos" (iniDockPos as string)
 		SetINISetting BulletConfig "BsTrackBarTools" "PosTrackBarTools" (iniPosAutoBackup as string)
 		SetINISetting BulletConfig "BsTrackBarTools" "BackupPath" (execute ("@\"" + (getdir #autoback) + "\\BsBackup\""))
 		SetINISetting BulletConfig "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
@@ -203,8 +205,8 @@ fn fnLoadDockPos rolTarget wSize hSize =
 		(
 			nameAttrClass = substring rolTarget.name 4 rolTarget.name.count
 			btnsArr = rolTarget.controls
-			dockPos = fnGetConfig dockPos nameAttrClass "DockPos" "cui_dock_bottom"
-			case dockPos of
+			iniDockPos = fnGetConfig iniDockPos nameAttrClass "DockPos" "cui_dock_bottom"
+			case iniDockPos of
 			(
 				"cui_dock_top":
 				(
@@ -212,7 +214,7 @@ fn fnLoadDockPos rolTarget wSize hSize =
 					--	rearrange buttons to be horizontal
 					for b = 1 to btnsArr.count do
 					(
-						if b == 1 then btnsArr[b].pos = [10,0]
+						if b == 1 then btnsArr[b].pos = [0,0]
 						else 
 						(
 							btnsArr[b].pos = [5 + btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
@@ -230,7 +232,7 @@ fn fnLoadDockPos rolTarget wSize hSize =
 					--	rearrange buttons to be horizontal
 					for b = 1 to btnsArr.count do
 					(
-						if b == 1 then btnsArr[b].pos = [10,0]
+						if b == 1 then btnsArr[b].pos = [0,0]
 						else 
 						(
 							btnsArr[b].pos = [5 + btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
@@ -248,7 +250,7 @@ fn fnLoadDockPos rolTarget wSize hSize =
 					--	rearrange buttons to be vertical 
 					for b = 1 to btnsArr.count do
 					(
-						if b == 1 then btnsArr[b].pos = [0,10]
+						if b == 1 then btnsArr[b].pos = [0,0]
 						else 
 						(
 							btnsArr[b].pos = [0, 5 + btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
@@ -267,7 +269,7 @@ fn fnLoadDockPos rolTarget wSize hSize =
 					--	rearrange buttons to be vertical 
 					for b = 1 to btnsArr.count do
 					(
-						if b == 1 then btnsArr[b].pos = [0,10]
+						if b == 1 then btnsArr[b].pos = [0,0]
 						else 
 						(
 							btnsArr[b].pos = [0, 5 + btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
