@@ -292,7 +292,7 @@ fn fnLoadDockPos rolTarget wSize hSize =
 				"float":
 				(
 					try(cui.UnRegisterDialogBar rolTarget)catch()
-					cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[195,40]
+					cui.RegisterDialogBar rolTarget style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[195,40]
 					setDialogPos rolTarget (readvalue ((getINISetting BulletConfig nameAttrClass "PosTrackBarTools") as stringStream))
 				)
 			)
