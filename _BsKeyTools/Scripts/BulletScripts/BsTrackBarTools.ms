@@ -3,28 +3,29 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-31 16:01:55
+ * @LastEditTime: 2022-09-01 01:40:37
  * @Email: animator.bullet@foxmail.com
  */
 
 
-try(destroyDialog rolBsTrackBarTools)catch()
-try
-(
-	if form != undefined then ( form.close(); form = undefined  )
-	cui.UnRegisterDialogBar rolBsTrackBarTools 
-	destroyDialog rolBsTrackBarTools
-)
-catch()
-stLoadConfigAll.fnLoadConfigTrackBarTools()
-global iniBackupPath = ((getdir #autoback) + "\\BsBackup")
+if form != undefined then ( form.close(); form = undefined  )
+try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
+try (destroyDialog rolBsTrackBarTools) catch()
+
+global rolBsTrackBarTools
 Global BulletConfig = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
+global iniBackupPath = ((getdir #autoback) + "\\BsBackup")
 global iniMaxBackupCount = 50
 global iniPosAutoBackup
 global iniDockPos
-global rolBsTrackBarTools
 
-rollout rolBsTrackBarTools "自动备份" 
+try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
+catch(messagebox "脚本安装可能不完全,建议重新安装...        " beep:false)
+try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
+catch(messagebox "脚本安装可能不完全,建议重新安装...        " beep:false)
+stLoadConfigAll.fnLoadConfigTrackBarTools()
+
+rollout rolBsTrackBarTools "BsTrackBarTools_v1.0" 
 (
 	local form, mcolor, rcLIST,  SaveInterval, saveInterval_FN , autobackup
 	local INIfile = ( getDir #maxData ) + "\\BulletConfig.ini"
@@ -34,14 +35,25 @@ rollout rolBsTrackBarTools "自动备份"
 	local dnFontStyle = dotNetClass "System.Drawing.FontStyle"
 	local myFontStyle = dotnet.combineenums dnFontStyle.bold --dnFontStyle.italic
 
-	button undock_BTN "" height:25 width:10 pos:[0,0] toolTip:"undock"
-	dotnetcontrol btnTimer "System.Windows.Forms.Button" height:25 width:80 pos:[10,0] --replace
-	dotnetcontrol btnBackup "System.Windows.Forms.Button" height:25 width:40 pos:[92,0] --increment
-	dotnetcontrol btnSaveAs "System.Windows.Forms.Button" height:25 width:40 pos:[135,0]  --save as
-	button btnClose "X" height:25 width:20 pos:[180,0] border:false
-	
+	-- dotnetcontrol btnUndock "Button" height:40 width:15 pos:[0,0]
+	dotnetcontrol btnDockTop "Button" height:20 width:15 pos:[0,0]
+	dotnetcontrol btnDockBottom "Button" height:20 width:15 pos:[0,20]
+	dotnetcontrol btnTimer "Button" height:40 width:80 pos:[15,0] --replace
+	dotnetcontrol btnBackup "Button" height:40 width:40 pos:[95,0] --increment
+	dotnetcontrol btnSaveAs "Button" height:40 width:40 pos:[135,0]  --save as
+	dotnetcontrol btnClose "Button" height:40 width:20 pos:[175,0]
 	
 	timer clock "testClock" interval:1000 active:false  --tick once a second
+
+	fn fnButtonStyle tarButton textButton =
+	(
+		tarButton.text = textButton
+		tarButton.flatstyle = dotnetobject "System.Windows.Forms.FlatStyle" Flat
+		tarButton.FlatAppearance.BorderColor = mcolor.gray 
+		tarButton.FlatAppearance.MouseOverBackColor = mcolor.white 
+		tarButton.backcolor = BsDotBackColor
+		-- tarButton.ForeColor = BsDotForeColor
+	)
 
 	fn saveInterval_FN TimeInterval = 
 	(
@@ -188,9 +200,9 @@ rollout rolBsTrackBarTools "自动备份"
 	
 	on rolBsTrackBarTools open do
 	(
-		fnLoadDockPos rolBsTrackBarTools rolBsTrackBarTools.width rolBsTrackBarTools.height
 		stLoadConfigAll.fnLoadConfigTrackBarTools()
 		stSetConfigAll.fnSetConfigTrackBarTools()
+		fnLoadDockPos rolBsTrackBarTools rolBsTrackBarTools.width rolBsTrackBarTools.height
 		callbacks.removeScripts id:#SaveButtonCallback
 		callbacks.addScript #filePostOpenProcess "rolBsTrackBarTools.clock.ticks = 0" id:#SaveButtonCallback
 		
@@ -218,32 +230,22 @@ rollout rolBsTrackBarTools "自动备份"
 				btnTimer.text = "关闭计时"
 			)
 		)
-		btnTimer.text = "等待激活"
-		btnTimer.flatstyle = dotnetobject "System.Windows.Forms.FlatStyle" Flat
-		btnTimer.FlatAppearance.BorderColor = mcolor.white
-		btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro 
-		btnTimer.backcolor = mcolor.white
+		-- fnButtonStyle btnUndock "O"
+		fnButtonStyle btnDockTop "↑"
+		fnButtonStyle btnDockBottom "↓"
+		fnButtonStyle btnTimer "等待激活"
 		btnTimer.font = dotNetObject "System.Drawing.Font" "Arial" 9 myFontStyle
-
-		btnBackup.text = "迭代"
-		btnBackup.flatstyle = dotnetobject "System.Windows.Forms.FlatStyle" Flat
-		btnBackup.FlatAppearance.BorderColor = mcolor.white
-		btnBackup.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro 
-		btnBackup.backcolor = mcolor.white
--- 		btnBackup.TextAlign = malign.BottomCenter
--- 		btnBackup.font = dotNetObject "System.Drawing.Font" "Arial" 9 myFontStyle
-
-		btnSaveAs.text = "另存"
-		btnSaveAs.flatstyle = dotnetobject "System.Windows.Forms.FlatStyle" Flat
-		btnSaveAs.FlatAppearance.BorderColor = mcolor.white
-		btnSaveAs.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro 
-		btnSaveAs.backcolor = mcolor.white
+		fnButtonStyle btnBackup "迭代"
+		fnButtonStyle btnSaveAs "另存"
+		fnButtonStyle btnClose "X"
+		
 	)
 	
 	on rolBsTrackBarTools close do
 	(
 		iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools)
-		iniDockPos = ((cui.getDockState rolBsTrackBarTools) as string)
+		-- iniDockPos = ((cui.getDockState rolBsTrackBarTools) as string)
+		-- print iniDockPos
 		stSetConfigAll.fnSetConfigTrackBarTools()
 		callbacks.removeScripts id:#SaveButtonCallback
 		callbacks.removeScripts id:#SaveButtonResetCallback
@@ -252,23 +254,48 @@ rollout rolBsTrackBarTools "自动备份"
 		if form != undefined then ( form.close(); form = undefined  )
 	)
 	
-	on undock_BTN pressed do
+	-- on btnUndock mouseDown senderArg arg do
+	-- (
+	-- 	iniDockPos = "float"
+	-- 	stSetConfigAll.fnSetConfigTrackBarTools()
+	-- 	fnLoadDockPos rolBsTrackBarTools rolBsTrackBarTools.width rolBsTrackBarTools.height
+	-- 	iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools)
+	-- 	if (SaveInterval > 0) then clock.active = true
+	-- )
+
+	on btnDockTop mouseDown senderArg arg do
 	(
-		cui.UnRegisterDialogBar rolBsTrackBarTools 
-		cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow)
+		-- iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools)
+		case iniDockPos of
+		(
+			("float"):(iniDockPos = "cui_dock_top")
+			("cui_dock_top"):(iniDockPos = "float")
+			("cui_dock_bottom"):(iniDockPos = "cui_dock_top")
+		)
+		stSetConfigAll.fnSetConfigTrackBarTools()
+		fnLoadDockPos rolBsTrackBarTools rolBsTrackBarTools.width rolBsTrackBarTools.height
+		if (SaveInterval > 0) then clock.active = true
+	)
+
+	on btnDockBottom mouseDown senderArg arg do
+	(
+		-- iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools)
+		case iniDockPos of
+		(
+			("float"):(iniDockPos = "cui_dock_bottom")
+			("cui_dock_bottom"):(iniDockPos = "float")
+			("cui_dock_top"):(iniDockPos = "cui_dock_bottom")
+		)
+		stSetConfigAll.fnSetConfigTrackBarTools()
+		fnLoadDockPos rolBsTrackBarTools rolBsTrackBarTools.width rolBsTrackBarTools.height
 		if (SaveInterval > 0) then clock.active = true
 	)
 	
-	on btnClose pressed do
+	on btnClose mouseDown senderArg arg do
 	(
-		try
-		(
-			if form != undefined then ( form.close(); form = undefined  )
-			
-			cui.UnRegisterDialogBar rolBsTrackBarTools 
-			destroyDialog rolBsTrackBarTools
-		)
-		catch()
+		if form != undefined then ( form.close(); form = undefined  )
+		try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
+		try (destroyDialog rolBsTrackBarTools) catch()
 	)
 	
 	on btnTimer mouseDown senderArg arg do -- replace
@@ -412,8 +439,8 @@ rollout rolBsTrackBarTools "自动备份"
 		)
 	)
 )
-createDialog rolBsTrackBarTools 200 25 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
+createDialog rolBsTrackBarTools 195 40 pos:iniPosAutoBackup style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 
-cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[200,25]
-cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top
+cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[195,40]
+-- cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top
 if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true

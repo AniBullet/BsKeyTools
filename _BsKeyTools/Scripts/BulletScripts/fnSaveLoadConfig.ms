@@ -212,12 +212,16 @@ fn fnLoadDockPos rolTarget wSize hSize =
 				(
 					try(cui.UnRegisterDialogBar rolTarget)catch()
 					--	rearrange buttons to be horizontal
-					for b = 1 to btnsArr.count do
+					for b = 1 to btnsArr.count where (classof btnsArr[b]) == dotNetControl do
 					(
-						if b == 1 then btnsArr[b].pos = [0,0]
-						else 
+						case b of
 						(
-							btnsArr[b].pos = [5 + btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
+							(1):(btnsArr[b].pos = [0,0])
+							(2):(btnsArr[b].pos = [0,20])
+						)
+						if b > 2 then
+						(
+							btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
 						)
 					)
 					rolTarget.height = hSize
@@ -230,12 +234,16 @@ fn fnLoadDockPos rolTarget wSize hSize =
 				(
 					try(cui.UnRegisterDialogBar rolTarget)catch()
 					--	rearrange buttons to be horizontal
-					for b = 1 to btnsArr.count do
+					for b = 1 to btnsArr.count where (classof btnsArr[b]) == dotNetControl do
 					(
-						if b == 1 then btnsArr[b].pos = [0,0]
-						else 
+						case b of
 						(
-							btnsArr[b].pos = [5 + btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
+							(1):(btnsArr[b].pos = [0,0])
+							(2):(btnsArr[b].pos = [0,20])
+						)
+						if b > 2 then 
+						(
+							btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
 						)
 					)
 					rolTarget.height = hSize
@@ -248,12 +256,12 @@ fn fnLoadDockPos rolTarget wSize hSize =
 				(
 					try(cui.UnRegisterDialogBar rolTarget)catch()
 					--	rearrange buttons to be vertical 
-					for b = 1 to btnsArr.count do
+					for b = 1 to btnsArr.count where (classof btnsArr[b]) == dotNetControl do
 					(
 						if b == 1 then btnsArr[b].pos = [0,0]
 						else 
 						(
-							btnsArr[b].pos = [0, 5 + btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+							btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
 						)
 					)
 					rolTarget.height = wSize
@@ -267,12 +275,12 @@ fn fnLoadDockPos rolTarget wSize hSize =
 				(
 					try(cui.UnRegisterDialogBar rolTarget)catch()
 					--	rearrange buttons to be vertical 
-					for b = 1 to btnsArr.count do
+					for b = 1 to btnsArr.count where (classof btnsArr[b]) == dotNetControl do
 					(
 						if b == 1 then btnsArr[b].pos = [0,0]
 						else 
 						(
-							btnsArr[b].pos = [0, 5 + btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+							btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
 						)
 					)
 					rolTarget.height = wSize
@@ -283,6 +291,8 @@ fn fnLoadDockPos rolTarget wSize hSize =
 				)
 				"float":
 				(
+					try(cui.UnRegisterDialogBar rolTarget)catch()
+					cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[195,40]
 					setDialogPos rolTarget (readvalue ((getINISetting BulletConfig nameAttrClass "PosTrackBarTools") as stringStream))
 				)
 			)
