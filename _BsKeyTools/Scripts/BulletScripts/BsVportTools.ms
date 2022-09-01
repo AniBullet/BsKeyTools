@@ -1,3 +1,96 @@
+Fn LR_CaptureRenderAspectViewport  = 
+(
+	local ViewCap=undefined			
+	local cv = getViewSize()
+	local ratio = undefined
+		
+	case of 
+	( 
+	(cv.x > cv.y):(ratio = cv.y/cv.x)
+	(cv.x = cv.y):(ratio = 1)			
+	(cv.x < cv.y):(ratio = cv.x/cv.y)
+	)
+	
+	   
+		VptDib =gw.getViewportDib();
+		ViewCap = bitmap renderwidth renderheight color:white
+		ViewportRatio = VptDib.width/VptDib.height as float
+		RenderRatio = renderwidth/renderheight as float
+		   
+			case of
+			(
+			(ViewportRatio <= RenderRatio):(
+			CapturetoRenderHeightRatio =VptDib.width/RenderRatio as float
+			TopEdge = ((VptDib.Height-CapturetoRenderHeightRatio)/ 2.0) as integer
+			FullViewcap = bitmap vptdib.width CapturetoRenderHeightRatio color:white
+			pasteBitmap VptDib FullViewcap (box2 0 TopEdge VptDib.width VptDib.height) [0,0]
+			Copy FullViewcap ViewCap)
+			(ViewportRatio > RenderRatio):(
+			CapturetoRenderHeightRatio =VptDib.height*RenderRatio as float
+			LeftEdge = ((VptDib.width-CapturetoRenderHeightRatio)/ 2.0) as integer
+			FullViewcap = bitmap CapturetoRenderHeightRatio VptDib.height color:white
+			pasteBitmap VptDib FullViewcap (box2 LeftEdge 0 VptDib.width VptDib.height) [0,0]
+			Copy FullViewcap ViewCap)
+			default:()
+			)
+		close VptDib
+		gc()
+		
+		if viewcap != undefined then (setclipboardbitmap viewcap;close ViewCap;return true)else(return false)
+)
+tempbmp = LR_CaptureRenderAspectViewport()
+display (getclipboardbitmap())
+
+(
+	try destroydialog ::RO_VIEWPORT_SNAPSHOT catch()
+	rollout RO_VIEWPORT_SNAPSHOT "Snapshot" width:496 height:416
+	(
+		dotnetcontrol dn_pictureBox "PictureBox" pos:[8,8] width:480 height:360
+		button bt_open "Open" pos:[8,378] width:112 height:32
+		button bt_snapshot "Snapshot" pos:[258,378] width:112 height:32
+		button bt_save "Save" pos:[378,378] width:112 height:32
+		
+		local snap
+		
+		fn GetBitmapFromClipboard =
+		(
+			if snap != undefined do snap.Dispose()
+			snap = (dotnetclass "System.Windows.Forms.Clipboard").GetImage()
+		)
+		
+		fn GetBitmapFromFile filename =
+		(
+			if snap != undefined do snap.Dispose()
+			snap = dotnetObject "System.Drawing.Bitmap" filename
+		)
+		
+		on bt_open pressed do
+		(
+			filename = getOpenFileName types:"PNG (*.png)|*.png"
+			if filename != undefined do dn_pictureBox.image = GetBitmapFromFile filename
+		)
+		
+		on bt_snapshot pressed do
+		(
+			setclipboardBitmap (gw.getViewportDib())
+			dn_pictureBox.image = GetBitmapFromClipboard()
+		)
+		
+		on bt_save pressed do
+		(
+			if snap != undefined do
+			(
+				filename = getSaveFileName types:"PNG (*.png)|*.png"
+				if filename != undefined do snap.Save filename
+			)
+		)
+		
+	)
+	
+	createdialog RO_VIEWPORT_SNAPSHOT
+	
+)
+
 try(destroydialog BsVportTools)catch()
 try (callbacks.removeScripts #filePostOpen id:#UpdateBsVport) catch ()
 
