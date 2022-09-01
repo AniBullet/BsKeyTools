@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-30 12:26:35
+ * @LastEditTime: 2022-09-01 13:33:57
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1066,7 +1066,7 @@ rcmenu menuConfig
 				)
 				catch
 				(
-					messagebox ("自启失败，烦请手动处理：\r\n把 StartupMS\\BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n把 StartupMS\\BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
 					(shellLaunch (getfilenamepath startupBsKeyTools) "")
 				)
 			)

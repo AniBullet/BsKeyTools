@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-01 01:40:37
+ * @LastEditTime: 2022-09-01 13:36:13
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -25,6 +25,57 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
 catch(messagebox "脚本安装可能不完全,建议重新安装...        " beep:false)
 stLoadConfigAll.fnLoadConfigTrackBarTools()
 
+rcmenu menuBsTrackBarTools
+(
+	menuItem mItemIsStartup "自启"
+	separator menuSepClose
+	menuItem mItemClose "关闭"
+
+	local startupPath            = (getDir #StartupScripts)+ "\\BsTrackBarToolsStartup.ms"
+	local startupBsTrackBarTools = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BsTrackBarToolsStartup.ms"
+
+	on menuBsTrackBarTools open do
+	(
+		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
+		else (mItemIsStartup.checked = false)
+	)
+
+	on mItemIsStartup picked do
+	(
+		if (mItemIsStartup.checked == true) then 
+		(
+			fnDelFileDir startupPath
+			mItemIsStartup.checked = false
+			messagebox ("已解除 BsTrackBarTools 自启！                  ")  title:"自启设置"
+		)
+		else 
+		(
+			if (not (SIOFile.Exists startupPath)) do
+			(
+				try 
+				(
+					SIOFile.Copy startupBsTrackBarTools startupPath
+					messagebox ("已打开 BsTrackBarTools 自启！                  ")  title:"自启设置"
+					mItemIsStartup.checked = true
+					setFileAttribute startupPath #readOnly true
+				)
+				catch
+				(
+					messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n把 StartupMS\\BsTrackBarToolsStartup.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					(shellLaunch (getfilenamepath startupBsTrackBarTools) "")
+				)
+			)
+		)
+	)
+
+	on mItemClose picked do
+	(
+		if form != undefined then ( form.close(); form = undefined  )
+		try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
+		try (destroyDialog rolBsTrackBarTools) catch()
+	)
+)
+
 rollout rolBsTrackBarTools "BsTrackBarTools_v1.0" 
 (
 	local form, mcolor, rcLIST,  SaveInterval, saveInterval_FN , autobackup
@@ -35,13 +86,14 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	local dnFontStyle = dotNetClass "System.Drawing.FontStyle"
 	local myFontStyle = dotnet.combineenums dnFontStyle.bold --dnFontStyle.italic
 
+	dotnetcontrol btnConfig "Button" height:30 width:15 pos:[0,0]
 	-- dotnetcontrol btnUndock "Button" height:40 width:15 pos:[0,0]
-	dotnetcontrol btnDockTop "Button" height:20 width:15 pos:[0,0]
-	dotnetcontrol btnDockBottom "Button" height:20 width:15 pos:[0,20]
-	dotnetcontrol btnTimer "Button" height:40 width:80 pos:[15,0] --replace
-	dotnetcontrol btnBackup "Button" height:40 width:40 pos:[95,0] --increment
-	dotnetcontrol btnSaveAs "Button" height:40 width:40 pos:[135,0]  --save as
-	dotnetcontrol btnClose "Button" height:40 width:20 pos:[175,0]
+	dotnetcontrol btnDockTop "Button" height:15 width:15 pos:[15,0]
+	dotnetcontrol btnDockBottom "Button" height:15 width:15 pos:[15,15]
+	dotnetcontrol btnTimer "Button" height:30 width:80 pos:[30,0] --replace
+	dotnetcontrol btnBackup "Button" height:30 width:40 pos:[110,0] --increment
+	dotnetcontrol btnSaveAs "Button" height:30 width:40 pos:[150,0]  --save as
+	
 	
 	timer clock "testClock" interval:1000 active:false  --tick once a second
 
@@ -134,7 +186,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	(
 		if maxFilePath == "" then 
 		(
-			messagebox "------------------------------------\r\n当前场景未保存过,\r\n请先保存初始版本~"
+			messagebox "------------------------------------\r\n\r\n当前场景未保存过,\r\n\r\n请先保存初始版本~\r\n\r\n------------------------------------"
 			-- max file saveas
 			btnTimer.text = "请先保存" 
 			saveInterval_FN "0" 
@@ -231,13 +283,14 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			)
 		)
 		-- fnButtonStyle btnUndock "O"
-		fnButtonStyle btnDockTop "↑"
-		fnButtonStyle btnDockBottom "↓"
-		fnButtonStyle btnTimer "等待激活"
+		fnButtonStyle btnDockTop "▲"
+		fnButtonStyle btnDockBottom "▼"
+		fnButtonStyle btnTimer "激活备份"
 		btnTimer.font = dotNetObject "System.Drawing.Font" "Arial" 9 myFontStyle
 		fnButtonStyle btnBackup "迭代"
 		fnButtonStyle btnSaveAs "另存"
-		fnButtonStyle btnClose "X"
+		fnButtonStyle btnConfig "┇"
+		btnConfig.BackColor = dotColor.FromArgb white.r white.g white.b
 		
 	)
 	
@@ -291,11 +344,9 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		if (SaveInterval > 0) then clock.active = true
 	)
 	
-	on btnClose mouseDown senderArg arg do
+	on btnConfig mouseDown senderArg arg do
 	(
-		if form != undefined then ( form.close(); form = undefined  )
-		try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
-		try (destroyDialog rolBsTrackBarTools) catch()
+		popupMenu menuBsTrackBarTools pos:[mouse.screenpos.x,mouse.screenpos.y + 20]
 	)
 	
 	on btnTimer mouseDown senderArg arg do -- replace
@@ -439,8 +490,10 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		)
 	)
 )
-createDialog rolBsTrackBarTools 195 40 pos:iniPosAutoBackup style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 
-cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[195,40]
+if (iniPosAutoBackup != 0) then (createDialog rolBsTrackBarTools 190 30 pos:iniPosAutoBackup style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+else (createDialog rolBsTrackBarTools 190 30 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+
+cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[190,30]
 -- cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top
 if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true

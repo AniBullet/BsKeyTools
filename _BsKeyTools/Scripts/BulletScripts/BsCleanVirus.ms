@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-02-13 15:37:02
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-20 22:44:33
+ * @LastEditTime: 2022-09-01 13:33:46
  * @Email: animator.bullet@foxmail.com
  */
 global rolBsCleanVirus
@@ -391,7 +391,7 @@ rollout rolBsCleanVirus  "BsCleanVirus_v1.0"
 				)
 				catch
 				(
-					messagebox ("自启失败，烦请手动处理：\r\n把 BsCleanVirusStartup.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n把 BsCleanVirusStartup.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
 					(shellLaunch (getfilenamepath startupBsCleanVirusTools) "")
 				)
 			)

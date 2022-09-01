@@ -213,7 +213,7 @@
 				)
 				catch
 				(
-					messagebox ("自启失败，烦请手动处理：\r\n把 StartupMS\\BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n StartupMS\\BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
 					(shellLaunch (getfilenamepath startupBsKeyTools) "")
 				)
 			)

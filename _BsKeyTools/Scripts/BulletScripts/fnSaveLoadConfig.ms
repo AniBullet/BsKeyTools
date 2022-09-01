@@ -217,9 +217,10 @@ fn fnLoadDockPos rolTarget wSize hSize =
 						case b of
 						(
 							(1):(btnsArr[b].pos = [0,0])
-							(2):(btnsArr[b].pos = [0,20])
+							(2):(btnsArr[b].pos = [15,0])
+							(3):(btnsArr[b].pos = [15,15])
 						)
-						if b > 2 then
+						if b > 3 then
 						(
 							btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
 						)
@@ -239,9 +240,10 @@ fn fnLoadDockPos rolTarget wSize hSize =
 						case b of
 						(
 							(1):(btnsArr[b].pos = [0,0])
-							(2):(btnsArr[b].pos = [0,20])
+							(2):(btnsArr[b].pos = [15,0])
+							(3):(btnsArr[b].pos = [15,15])
 						)
-						if b > 2 then 
+						if b > 3 then 
 						(
 							btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
 						)
@@ -289,7 +291,7 @@ fn fnLoadDockPos rolTarget wSize hSize =
 					cui.DockDialogBar rolTarget #cui_dock_right
 					try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_right as string))catch()
 				)
-				"float":
+				default:
 				(
 					try(cui.UnRegisterDialogBar rolTarget)catch()
 					cui.RegisterDialogBar rolTarget style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[195,40]
