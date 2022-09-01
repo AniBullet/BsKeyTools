@@ -21,8 +21,8 @@ to create a chain and press "Create by objects" (the selection order is used to 
 	
 -- (
 try(destroyDialog rollCreateChain)catch()
---Here is the rollout with all the functions and UI controls
-rollout rollCreateChain "Create Chain_v1.32" width:210 height:495
+--Here is the rollout with all the functions and UI controls  495
+rollout rollCreateChain "Create Chain_v1.32" width:210 height:515
 (
   /*Function fnCreateChain:
   Creates the bones of the chain, its helpers, controllers and constraints.
@@ -482,20 +482,31 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
   )
   /*Function fnSplineControl:
   Creates the spline's attachment to Control objects. It can create three types of attachment: 
+  创建这条线的控制器，它有三和类型
   Spline IK Control: Aply the modifier to the spline and adds the Control Objects
+  ik控制点：给线添加修改器（splineIKControl）和控制物体
   Skin, Verts Only: Aply a skin modifier to the spline, adds the Control Objects as bones and set the vertices weight to their
+  蒙皮，仅点：给线添加skin修改器，把控制器添加到骷髅列表并设置点的权重到对应的控制器上。
   respective Control Object. The InVec and OutVec tangents are weighted to their vertex's Control Object.
+  左右权柄被点的控制物影响。
   Skin, Verts and tangents: Aply a skin modifier to the spline, adds the Control Objects as bones and set the vertices weight to their
+  蒙皮，点加权柄：给线加skin修改器，把控制器添加到骷髅列表并设置点的权重对应的虚拟体上。
   respective helper. Creates Extra Control objects for tangent manipulation (InVec and OutVec), adds them to the skin
+  为权重权柄（左右权柄）创建额外的控制物体，并添加到skin上
   The InVec and OutVec tangents are  weighted to these Extra Control Objects.  
+  左右权柄受附加的控制物影响。
   The Function Receives 5 Arguments, "obj" is the spline, "ControlsArray" are the nodes to attach the spline to, if they're undefined
+  此函数需要5个输入：obj是线；controlsArry上吸附到线上的节点，如果没有定义（线方式）则创建新的控㓡物；
   (by spline method) then it creates new Control Objects.  "Type" is the type of spline's attachment, "WidthVar" to set the 
+  type线的吸附模式；widthVar设置控制
   Control objects' size and the "HelperStartEnd" brings the HelperStart and HelperEnd objects to link them to first 
+  物的大小；helperStartEnd  创建首尾虚拟体并将它们分别链接给首尾控制器
   and the last Control Object respectively.  */
   function fnSplineControl splineNode type tangentsBool widthVar=
   (	 
 	local n=(numknots splineNode 1)	  
 	--Here is the creation of the Control Objects (the ones that will deform the spline)
+	----ik控制器在这里创建
 	local controlsArray=#()
 	for i=1 to n do
 	(
@@ -603,7 +614,9 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 	spinner UIBones "骨骼 / Bones: " pos:[67,29] width:125 height:16 range:[1,1e+008,6] type:#integer
 	spinner UIWidth "宽度 / Width: " pos:[69,50] width:123 height:16 range:[0,1e+008,5] type:#float
 	spinner UITaper "锥度 / Taper: " pos:[69,71] width:123 height:16 range:[0,1e+008,0] type:#float
-	checkbox UISquash "挤压 / Squash【引擎不认】" pos:[18,92] height:15 checked:false
+	checkbox UISquash "挤压[引擎不认]" pos:[15,92] height:15 checked:false
+	-->>>新增引擎支持挤压拉伸
+	checkbox UISquash_new "->[引擎认]" pos:[120,92] height:15 checked:false tooltip: "打开挤压才能打开此项，开启后会生成一套新的引擎支持的骨骼在名为“yun_scale_bones”的层里"
 	GroupBox grp3 "LookAt" pos:[9,117] width:192 height:57
 	radiobuttons UILookAtType "" pos:[21,134] width:107 height:32 labels:#("LookAt Constraint", "Quaternion Aim") columns:1
 	button btnHelp1 "帮助" pos:[155,140]
@@ -613,11 +626,17 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 	radiobuttons UIRotAverType "平均类型:" pos:[40,282] width:124 height:46 labels:#("方向约束", "欧拉角") default:2 columns:1
 	checkbox UIManControllers "单独调整控制器" pos:[18,335] width:136 height:15 checked:true
 	checkbox UIIKSolver "IK 控制[ChainKnot 属性]" pos:[18,355] width:143 height:15 
-	GroupBox grp4 "Spline Control Settings" pos:[10,380] width:192 height:77
+	GroupBox grp4 "Spline Control Settings" pos:[10,380] width:192 height:100
 	radiobuttons UISplineControlType "" pos:[19,397] width:101 height:32 labels:#("样条线 IK 控制", "Skin 控制") columns:1
 	checkbox UITangents "切线" pos:[19,436] width:136 height:15 checked:true
-	button UIOK "Ok" pos:[47,466] width:74 height:21
-	button UICancel "Cancel" pos:[127,466] width:74 height:21
+	-->>>新增严路径伸缩
+	checkbox UISplineLenth "路径伸缩" pos:[19,456] width:80 height:15 checked:false tooltip: "可以使骨骼沿着路径伸缩"
+	
+	-->>>新增fkik切换系统
+	checkbox UISperIkFk "FKIK切换(实验)" pos:[97,456] width:100 height:15 checked:false tooltip: "可创建一套fkik的切换系统（实验中，待优化）"
+  
+	button UIOK "Ok" pos:[47,486] width:74 height:21
+	button UICancel "Cancel" pos:[127,486] width:74 height:21
 	
 	--Finally the execution of the functions when the magic buttons are pressed
 
@@ -642,6 +661,15 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 		else
 			UIRotAverType.enabled=true
 	)
+	on UISquash_new changed theState do
+	(
+		if theState do (UISquash.checked = true)		
+	)
+	on UISquash changed theState do
+	(
+		if not theState do (UISquash_new.checked = false)		
+	)
+	
 	on UIOK pressed do
 	(
 	 undo on
@@ -660,9 +688,125 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 		   )
 	   )
 	   select SelArray
+	   
+	   -->>>添加的新功能
+	   -->>>链条工具引擎缩放支持
+	   if UISquash_new.checked  then
+	   (
+		   
+			select $Bone_Chain_*
+			$.isHidden = false
+			--clone the selected objects
+			maxOps.cloneNodes (selection as array) cloneType:#copy newNodes:&nnl #nodialog
+
+			try (delete $Bone_Chain_scale_*) catch ()
+			--Loop through the array of object it returns
+			for i = 1 to nnl.count do
+			(
+				--rename the objects to a unique name
+				nnl[i].name = uniqueName "Bone_Chain_scale_" numDigits:1
+			)
+
+			$.isHidden = true
+
+
+			select  $Bone_Chain_scale_* 
+			$.boneScaleType=#scale
+			for i=1  to  selection.count do
+			(
+				p = getNodeByName ("Bone_Chain_scale_" + (i as string))
+				scaleExp =  scale_script ()
+				p.scale.controller = scaleExp
+
+				p_s = 	getNodeByName ("Bone_Chain_" + (i as string))
+				scaleExp.Addnode  "scalePP"  p_s
+					
+				scaleExp.script = 	"[scalePP.stretchTM[1][1],scalePP.stretchTM[2][2],scalePP.stretchTM[3][3]]"			
+			)
+
+			---创建骨骼的层
+			yun_bone_Layer = LayerManager.getLayerFromName "yun_scale_bones"
+			if yun_bone_Layer == undefined then 
+			(
+				yun_bone_Layer = layerManager.newLayerFromName "yun_scale_bones"
+				yun_bone_Layer.on = true
+			)
+
+			$.parent = world
+			for i in selection do ( yun_bone_Layer.addnode i)
+		
+		)
+	   -->>>聊条工具曲线长度控制
+		if UISplineLenth.checked  then
+	   (
+			--添加自定义属性
+			obj = $Helper_Chain_Root
+			addmodifier obj (EmptyModifier())
+			--Bone Attributes
+			line_lenth = attributes line_lenth
+			attribid:#(0x7c853e24, 0x7b78b8d4)
+
+			version:1
+			(
+				parameters line_lenth rollout: Params
+				(
+					lenth type:#float UI:Param1 defult:100.0
+			-- 		Param2 type:#float UI:Param2 defult:0.0
+			-- 		Param3 type:#float UI:Param3 defult:0.0
+					
+				)
+				
+				Rollout Params "custom Attributes"
+				(
+					spinner Param1 "长度:" width:160 Height:16 Align:#Center Offset:[0,0] Type:#float Range:[0,100,100]
+			-- 		spinner Param2 "Param2:" width:160 Height:16 Align:#Center Offset:[0,0] Type:#float
+			-- 		spinner Param3 "Param2:" width:160 Height:16 Align:#Center Offset:[0,0] Type:#float
+					
+				)
+			)
+
+			-- Apply attribute class to an object
+			add_attribute = custattributes.add obj.modifiers[1] line_lenth
+			$Helper_Chain_Root.modifiers[#Attribute_Holder].line_lenth[1].value = 100
+
+			-- $.position.controller.Path_Constraint.controller.Percent
+
+			----获取所有的ikherlper点
+			h_chain =   $Helper_ChainPoint* as array
+			h_chain_percent = #()
+			--原本的百分比数据
+			if h_chain.count>2 then
+			(
+			-- 	i = $Helper_ChainPoint_6
+				for i in h_chain do 
+				(
+					try (
+						
+						p = i.position.controller.Path_Constraint.controller.Percent/100	
+						append h_chain_percent p
+						---添加表达式
+			-- 			print i.name
+						i.position.controller.Path_Constraint.controller.Percent.controller	 = float_script ()
+						CT = i.position.controller.Path_Constraint.controller.Percent.controller		
+						CT.AddTarget  "mainP"  $Helper_Chain_Root.modifiers[#Attribute_Holder].line_lenth[1]
+						----要注意百分比转换
+						CT.script =  ( p as string) +"* (mainP/100) "		
+					
+					) catch()
+				)
+			)  
+		   
+	   )
+	   
+	   
 	   if not shapeBool then MessageBox "Select a Spline object"
 	 )
 	 --destroyDialog rollCreateChain
+	 
+	 
+	 
+	 
+	 
 	)
 	on UICancel pressed do
 	(
