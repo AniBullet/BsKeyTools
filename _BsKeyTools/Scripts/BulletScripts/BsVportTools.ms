@@ -1,94 +1,52 @@
-Fn LR_CaptureRenderAspectViewport  = 
+global rolBsPreview
+try destroydialog ::rolBsPreview catch()
+rollout rolBsPreview "Snapshot" width:BsVportTools.width height:BsVportTools.width
 (
-	local ViewCap=undefined			
-	local cv = getViewSize()
-	local ratio = undefined
-		
-	case of 
-	( 
-	(cv.x > cv.y):(ratio = cv.y/cv.x)
-	(cv.x = cv.y):(ratio = 1)			
-	(cv.x < cv.y):(ratio = cv.x/cv.y)
-	)
+	dotnetcontrol dn_pictureBox "PictureBox" pos:[0,0] width:BsVportTools.width height:BsVportTools.width
 	
-	   
-		VptDib =gw.getViewportDib();
-		ViewCap = bitmap renderwidth renderheight color:white
-		ViewportRatio = VptDib.width/VptDib.height as float
-		RenderRatio = renderwidth/renderheight as float
-		   
-			case of
-			(
-			(ViewportRatio <= RenderRatio):(
-			CapturetoRenderHeightRatio =VptDib.width/RenderRatio as float
-			TopEdge = ((VptDib.Height-CapturetoRenderHeightRatio)/ 2.0) as integer
-			FullViewcap = bitmap vptdib.width CapturetoRenderHeightRatio color:white
-			pasteBitmap VptDib FullViewcap (box2 0 TopEdge VptDib.width VptDib.height) [0,0]
-			Copy FullViewcap ViewCap)
-			(ViewportRatio > RenderRatio):(
-			CapturetoRenderHeightRatio =VptDib.height*RenderRatio as float
-			LeftEdge = ((VptDib.width-CapturetoRenderHeightRatio)/ 2.0) as integer
-			FullViewcap = bitmap CapturetoRenderHeightRatio VptDib.height color:white
-			pasteBitmap VptDib FullViewcap (box2 LeftEdge 0 VptDib.width VptDib.height) [0,0]
-			Copy FullViewcap ViewCap)
-			default:()
-			)
-		close VptDib
-		gc()
-		
-		if viewcap != undefined then (setclipboardbitmap viewcap;close ViewCap;return true)else(return false)
-)
-tempbmp = LR_CaptureRenderAspectViewport()
-display (getclipboardbitmap())
-
-(
-	try destroydialog ::RO_VIEWPORT_SNAPSHOT catch()
-	rollout RO_VIEWPORT_SNAPSHOT "Snapshot" width:496 height:416
+	Fn LR_CaptureRenderAspectViewport  = 
 	(
-		dotnetcontrol dn_pictureBox "PictureBox" pos:[8,8] width:480 height:360
-		button bt_open "Open" pos:[8,378] width:112 height:32
-		button bt_snapshot "Snapshot" pos:[258,378] width:112 height:32
-		button bt_save "Save" pos:[378,378] width:112 height:32
+		local ViewCap=undefined			
+		VptDib = gw.getViewportDib()
+		ViewCap = bitmap VptDib.height VptDib.height 
+		pasteBitmap VptDib ViewCap [((VptDib.width - VptDib.height)/2)+1,1] [0,0]
+		outputMap  = bitmap rolBsPreview.width rolBsPreview.height
+		copy ViewCap outputMap
+		close VptDib
+		close ViewCap
 		
-		local snap
+		gc light:true
 		
-		fn GetBitmapFromClipboard =
-		(
-			if snap != undefined do snap.Dispose()
-			snap = (dotnetclass "System.Windows.Forms.Clipboard").GetImage()
-		)
-		
-		fn GetBitmapFromFile filename =
-		(
-			if snap != undefined do snap.Dispose()
-			snap = dotnetObject "System.Drawing.Bitmap" filename
-		)
-		
-		on bt_open pressed do
-		(
-			filename = getOpenFileName types:"PNG (*.png)|*.png"
-			if filename != undefined do dn_pictureBox.image = GetBitmapFromFile filename
-		)
-		
-		on bt_snapshot pressed do
-		(
-			setclipboardBitmap (gw.getViewportDib())
-			dn_pictureBox.image = GetBitmapFromClipboard()
-		)
-		
-		on bt_save pressed do
-		(
-			if snap != undefined do
-			(
-				filename = getSaveFileName types:"PNG (*.png)|*.png"
-				if filename != undefined do snap.Save filename
-			)
-		)
-		
+		if viewcap != undefined then (setclipboardbitmap viewcap;close ViewCap)
+		outputMap
 	)
 	
-	createdialog RO_VIEWPORT_SNAPSHOT
+	local snap
 	
+	fn GetBitmapFromClipboard =
+	(
+		if snap != undefined do snap.Dispose()
+		snap = (dotnetclass "System.Windows.Forms.Clipboard").GetImage()
+		snap
+	)
+	
+	fn GetBitmapFromFile filename =
+	(
+		if snap != undefined do snap.Dispose()
+		snap = dotnetObject "System.Drawing.Bitmap" filename
+		snap
+	)
+
+	fn fnGetPreviewImage =
+	(
+
+	)
+	
+	on rolBsPreview open do
+	(
+		valueVpd = arrVportValue[(BsVportTools.mlbVportSet.selection as array)[1]]
+		dn_pictureBox.image = valueVpd.vpImage
+	)
 )
 
 try(destroydialog BsVportTools)catch()
@@ -108,7 +66,7 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false title:"BsVportTools")
 stLoadConfigAll.fnLoadConfigVportTools ()
 
-struct vpdStruct (vpListName = "undefined",vpType = #view_none, vpGroupType = #user, vpStartCoord = [0,0,0], vpEndCoord = [0,0,0], vpVS = [0,0], vpFOV = 0, vpFD = 0, vpTM = undefined, vpNode = undefined)
+struct vpdStruct (vpListName = "undefined",vpType = #view_none, vpGroupType = #user, vpStartCoord = [0,0,0], vpEndCoord = [0,0,0], vpVS = [0,0], vpFOV = 0, vpFD = 0, vpTM = undefined, vpNode = undefined, vpImage = undefined)
 
 rcmenu menuBsVportRightClick
 (
@@ -125,9 +83,9 @@ rollout BsVportTools "BsVportTools_v1.0"
 	MultiListBox mlbVportSet "" width:175 height:15 pos:[3,65]
 	button btnCreateCam "" width:40 height:35 pos:[5,5] tooltip:"以 \"P\" 自由视角创建相机"
 	button btnSaveVportINI "" width:40 height:20 pos:[45,5] tooltip:"保存导出视角列表"
-	button btnLoadVportINI "" width:30 height:20 pos:[85,5] tooltip:"加载导入视角列表"
-	button btnDelVportSet "" width:30 height:20 pos:[115,5] tooltip:"移除所选视角"
-	button btnHelp "" width:30 height:20 pos:[145,5] tooltip:"点击打开视频帮助说明\r\n功能简述：保存当前视角参数\r\n(完全不影响文件本身，只存参数)"
+	button btnLoadVportINI "" width:40 height:20 pos:[85,5] tooltip:"加载导入视角列表"
+	button btnDelVportSet "" width:30 height:20 pos:[125,5] tooltip:"移除所选视角"
+	button btnHelp "" width:20 height:20 pos:[155,5] tooltip:"点击打开视频帮助说明\r\n功能简述：保存当前视角参数\r\n(完全不影响文件本身，只存参数)"
 	edittext edtAddVport "" width:177 height:17 pos:[0,45]
 	button btnAddVportSet "" width:130 height:15 pos:[45,25] tooltip:"保存当前视角"
 	
@@ -297,7 +255,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 			(#view_left):(return "Left")
 			(#view_front):(return "Front")
 			(#view_back):(return "Back") 
-			(#view_persp_user):(return "Perspective")
+			(#view_persp_user):(return "Pers")
 			(#view_iso_user):(return "User")
 			(#view_camera):(return "Camera") 
 			(#view_spot):(return "Light") 
@@ -331,6 +289,8 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		local vpd = vpdStruct()
 		local bounds = minmaxSwap ((MapScreenToView [0,0] 0) * Inverse(getViewTM())) ((MapScreenToView (GetViewSize()) 0) * Inverse(getViewTM()))
+		setclipboardBitmap (rolBsPreview.LR_CaptureRenderAspectViewport())
+
 		vpd.vpListName = (if ((BsVportTools.edtAddVport.text != "") or (BsVportTools.edtAddVport.text != undefined)) then (BsVportTools.edtAddVport.text))
 		vpd.vpType = (viewport.getType())
 		vpd.vpGroupType = checkVT supportedViews vpd.vpType
@@ -341,6 +301,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 		vpd.vpFD = viewport.getFocalDistance()
 		vpd.vpTM = viewport.getTM()
 		vpd.vpNode = if (node = viewport.getCamera()) != undefined then (node.name)
+		vpd.vpImage = (rolBsPreview.GetBitmapFromClipboard())
 		vpd
 	)
 	fn restoreViewport vpd =
@@ -390,7 +351,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 
 	fn fnDelVportSet = 
 	(
-		if BsVportTools.mlbVportSet.selection.count != 0 then
+		if (BsVportTools.mlbVportSet.selection as array).count != 0 then
 		(
 			if (queryBox "是否确认删除选中视角镜头参数？                   " \
 			title:"BsVportTools" beep:false) then
@@ -458,6 +419,15 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		valueVpd = arrVportValue[(mlbVportSet.selection as array)[1]]
 		restoreViewport valueVpd
+	)
+
+	on mlbVportSet selected arg do
+	(
+		if (BsVportTools.mlbVportSet.selection as array).count != 0 then
+		(
+			try destroydialog ::rolBsPreview catch()
+			createdialog rolBsPreview style:#() pos:(iniPosVportTools + [3,BsVportTools.height + 25])
+		)
 	)
 	
 	on mlbVportSet rightclick do 
