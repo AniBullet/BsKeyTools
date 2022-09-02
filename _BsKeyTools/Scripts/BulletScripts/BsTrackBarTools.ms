@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-01 13:36:13
+ * @LastEditTime: 2022-09-03 00:44:04
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -18,6 +18,8 @@ global iniBackupPath = ((getdir #autoback) + "\\BsBackup")
 global iniMaxBackupCount = 50
 global iniPosAutoBackup
 global iniDockPos
+global heightBsSize = 30
+global widthBsSize = 190
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "脚本安装可能不完全,建议重新安装...        " beep:false)
@@ -25,8 +27,179 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
 catch(messagebox "脚本安装可能不完全,建议重新安装...        " beep:false)
 stLoadConfigAll.fnLoadConfigTrackBarTools()
 
+fn fnLoadDockPos rolTarget wSize hSize =
+(
+	if doesFileExist BulletConfig do
+	(
+		try
+		(
+			nameAttrClass = substring rolTarget.name 4 rolTarget.name.count
+			btnsArr = rolTarget.controls
+			iniDockPos = fnGetConfig iniDockPos nameAttrClass "DockPos" "cui_dock_bottom"
+			case iniDockPos of
+			(
+				"cui_dock_top":
+				(
+					try(cui.UnRegisterDialogBar rolTarget)catch()
+					--	rearrange buttons to be horizontal
+					for b = 1 to btnsArr.count where (classof btnsArr[b]) == dotNetControl do
+					(
+						case b of
+						(
+							(1):
+							(
+								btnsArr[b].pos = [0,0]
+								btnsArr[b].height = 30
+								btnsArr[b].width = 15
+							)
+							default:
+							(
+								btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
+							)
+						)
+					)
+					rolTarget.height = hSize
+					rolTarget.width = wSize
+					cui.RegisterDialogBar rolTarget minSize:[wSize,hSize] maxSize:[wSize,hSize] style:#(#cui_dock_horz)
+					cui.DockDialogBar rolTarget #cui_dock_top
+					try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_top as string))catch()
+				)
+				"cui_dock_bottom":
+				(
+					try(cui.UnRegisterDialogBar rolTarget)catch()
+					--	rearrange buttons to be horizontal
+					for b = 1 to btnsArr.count where (classof btnsArr[b]) == dotNetControl do
+					(
+						case b of
+						(
+							(1):
+							(
+								btnsArr[b].pos = [0,0]
+								btnsArr[b].height = 30
+								btnsArr[b].width = 15
+							)
+							default:
+							(
+								btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
+							)
+						)
+					)
+					rolTarget.height = hSize
+					rolTarget.width = wSize
+					cui.RegisterDialogBar rolTarget minSize:[wSize,hSize] maxSize:[wSize,hSize] style:#(#cui_dock_horz)
+					cui.DockDialogBar rolTarget #cui_dock_bottom
+					try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_bottom as string))catch()
+				)
+				"cui_dock_left":
+				(
+					try(cui.UnRegisterDialogBar rolTarget)catch()
+					--	rearrange buttons to be vertical 
+					for b = 1 to btnsArr.count where (classof btnsArr[b]) == dotNetControl do
+					(
+						case b of
+						(
+							(1):
+							(
+								btnsArr[b].pos = [0,0]
+								btnsArr[b].height = 15
+								btnsArr[b].width = hSize + 50
+							)
+							(3):
+							(
+								btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+							)
+							(4):
+							(
+								btnsArr[b].pos = [btnsArr[b - 1].width,btnsArr[b - 2].pos.y + btnsArr[b - 2].height]
+							)
+							default:
+							(
+								btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+							)
+						)
+					)
+					rolTarget.height = wSize + 50
+					rolTarget.width = hSize + 50
+					--
+					cui.RegisterDialogBar rolTarget minSize:[hSize + 50,wSize] maxSize:[hSize + 50,wSize] style:#(#cui_dock_vert)
+					cui.DockDialogBar rolTarget #cui_dock_left
+					try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_left as string))catch()
+				)
+				"cui_dock_right":
+				(
+					try(cui.UnRegisterDialogBar rolTarget)catch()
+					--	rearrange buttons to be vertical 
+					for b = 1 to btnsArr.count where (classof btnsArr[b]) == dotNetControl do
+					(
+						case b of
+						(
+							(1):
+							(
+								btnsArr[b].pos = [0,0]
+								btnsArr[b].height = 15
+								btnsArr[b].width = hSize + 50
+							)
+							(3):
+							(
+								btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+							)
+							(4):
+							(
+								btnsArr[b].pos = [btnsArr[b - 1].width,btnsArr[b - 2].pos.y + btnsArr[b - 2].height]
+							)
+							default:
+							(
+								btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+							)
+						)
+					)
+					rolTarget.height = wSize + 50
+					rolTarget.width = hSize + 50
+					cui.RegisterDialogBar rolTarget minSize:[hSize + 50,wSize] maxSize:[hSize + 50,wSize] style:#(#cui_dock_vert)
+					cui.DockDialogBar rolTarget #cui_dock_right
+					try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_right as string))catch()
+				)
+				default:
+				(
+					try(cui.UnRegisterDialogBar rolTarget)catch()
+					for b = 1 to btnsArr.count where (classof btnsArr[b]) == dotNetControl do
+					(
+						case b of
+						(
+							(1):
+							(
+								btnsArr[b].pos = [0,0]
+								btnsArr[b].height = 30
+								btnsArr[b].width = 15
+							)
+							default:
+							(
+								btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,0]
+							)
+						)
+					)
+					rolTarget.height = hSize
+					rolTarget.width = wSize
+					-- cui.RegisterDialogBar rolTarget style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[190,30]
+					setDialogPos rolTarget (readvalue ((getINISetting BulletConfig nameAttrClass "PosTrackBarTools") as stringStream))
+				)
+			)
+		)
+		catch()
+	)
+)
+
 rcmenu menuBsTrackBarTools
 (
+	submenu "停靠"
+	(
+		menuItem mItemTop "上"
+		menuItem mItemBottom "下"
+		menuItem mItemLeft "左"
+		menuItem mItemRight "右"
+		separator menuSepDock
+		menuItem mItemFloat "浮"
+	)
 	menuItem mItemIsStartup "自启"
 	separator menuSepClose
 	menuItem mItemClose "关闭"
@@ -38,6 +211,42 @@ rcmenu menuBsTrackBarTools
 	(
 		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
 		else (mItemIsStartup.checked = false)
+		if not rolBsTrackBarTools.dialogBar then 
+		(
+			mItemFloat.checked = true
+			mItemBottom.checked = mItemLeft.checked = mItemTop.checked = mItemRight.checked = false
+		)
+		else 
+		(
+			case (cui.getDockState rolBsTrackBarTools) as string  of
+			(
+				("cui_dock_top"):
+				(
+					mItemTop.checked = true
+					mItemBottom.checked = mItemLeft.checked = mItemRight.checked = mItemFloat.checked = false
+				)
+				("cui_dock_bottom"):
+				(
+					mItemBottom.checked = true
+					mItemTop.checked = mItemLeft.checked = mItemRight.checked = mItemFloat.checked = false
+				)
+				("cui_dock_left"):
+				(
+					mItemLeft.checked = true
+					mItemBottom.checked = mItemTop.checked = mItemRight.checked = mItemFloat.checked = false
+				)
+				("cui_dock_right"):
+				(
+					mItemRight.checked = true
+					mItemBottom.checked = mItemLeft.checked = mItemTop.checked = mItemFloat.checked = false
+				)
+				default:
+				(
+					mItemFloat.checked = true
+					mItemBottom.checked = mItemLeft.checked = mItemTop.checked = mItemRight.checked = false
+				)
+			)
+		)
 	)
 
 	on mItemIsStartup picked do
@@ -68,6 +277,61 @@ rcmenu menuBsTrackBarTools
 		)
 	)
 
+	on mItemTop picked do
+	(
+		if not mItemTop.checked then 
+		(
+			iniDockPos = "cui_dock_top"
+			stSetConfigAll.fnSetConfigTrackBarTools()
+			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
+			if (rolBsTrackBarTools.SaveInterval > 0) then clock.active = true
+		)
+	)
+
+	on mItemBottom picked do
+	(
+		if not mItemBottom.checked then 
+		(
+			iniDockPos = "cui_dock_bottom"
+			stSetConfigAll.fnSetConfigTrackBarTools()
+			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
+			if (rolBsTrackBarTools.SaveInterval > 0) then clock.active = true
+		)
+	)
+
+	on mItemLeft picked do
+	(
+		if not mItemLeft.checked then 
+		(
+			iniDockPos = "cui_dock_left"
+			stSetConfigAll.fnSetConfigTrackBarTools()
+			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
+			if (rolBsTrackBarTools.SaveInterval > 0) then clock.active = true
+		)
+	)
+
+	on mItemRight picked do
+	(
+		if not mItemRight.checked then 
+		(
+			iniDockPos = "cui_dock_right"
+			stSetConfigAll.fnSetConfigTrackBarTools()
+			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
+			if (rolBsTrackBarTools.SaveInterval > 0) then clock.active = true
+		)
+	)
+
+	on mItemFloat picked do
+	(
+		if not mItemFloat.checked then 
+		(
+			iniDockPos = "float"
+			stSetConfigAll.fnSetConfigTrackBarTools()
+			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
+			if (rolBsTrackBarTools.SaveInterval > 0) then clock.active = true
+		)
+	)
+
 	on mItemClose picked do
 	(
 		if form != undefined then ( form.close(); form = undefined  )
@@ -88,12 +352,11 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 
 	dotnetcontrol btnConfig "Button" height:30 width:15 pos:[0,0]
 	-- dotnetcontrol btnUndock "Button" height:40 width:15 pos:[0,0]
-	dotnetcontrol btnDockTop "Button" height:15 width:15 pos:[15,0]
-	dotnetcontrol btnDockBottom "Button" height:15 width:15 pos:[15,15]
-	dotnetcontrol btnTimer "Button" height:30 width:80 pos:[30,0] --replace
-	dotnetcontrol btnBackup "Button" height:30 width:40 pos:[110,0] --increment
-	dotnetcontrol btnSaveAs "Button" height:30 width:40 pos:[150,0]  --save as
-	
+	-- dotnetcontrol btnDockTop "Button" height:15 width:15 pos:[15,0]
+	-- dotnetcontrol btnDockBottom "Button" height:15 width:15 pos:[15,15]
+	dotnetcontrol btnTimer "Button" height:30 width:80 pos:[15,0] --replace
+	dotnetcontrol btnBackup "Button" height:30 width:40 pos:[95,0] --increment
+	dotnetcontrol btnSaveAs "Button" height:30 width:40 pos:[135,0]  --save as
 	
 	timer clock "testClock" interval:1000 active:false  --tick once a second
 
@@ -254,7 +517,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	(
 		stLoadConfigAll.fnLoadConfigTrackBarTools()
 		stSetConfigAll.fnSetConfigTrackBarTools()
-		fnLoadDockPos rolBsTrackBarTools rolBsTrackBarTools.width rolBsTrackBarTools.height
+		fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
 		callbacks.removeScripts id:#SaveButtonCallback
 		callbacks.addScript #filePostOpenProcess "rolBsTrackBarTools.clock.ticks = 0" id:#SaveButtonCallback
 		
@@ -282,14 +545,13 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				btnTimer.text = "关闭计时"
 			)
 		)
-		-- fnButtonStyle btnUndock "O"
-		fnButtonStyle btnDockTop "▲"
-		fnButtonStyle btnDockBottom "▼"
+		-- fnButtonStyle btnDockTop "▲"
+		-- fnButtonStyle btnDockBottom "▼"
 		fnButtonStyle btnTimer "激活备份"
 		btnTimer.font = dotNetObject "System.Drawing.Font" "Arial" 9 myFontStyle
 		fnButtonStyle btnBackup "迭代"
 		fnButtonStyle btnSaveAs "另存"
-		fnButtonStyle btnConfig "┇"
+		fnButtonStyle btnConfig ""
 		btnConfig.BackColor = dotColor.FromArgb white.r white.g white.b
 		
 	)
@@ -305,43 +567,6 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		clock.active = false
 		
 		if form != undefined then ( form.close(); form = undefined  )
-	)
-	
-	-- on btnUndock mouseDown senderArg arg do
-	-- (
-	-- 	iniDockPos = "float"
-	-- 	stSetConfigAll.fnSetConfigTrackBarTools()
-	-- 	fnLoadDockPos rolBsTrackBarTools rolBsTrackBarTools.width rolBsTrackBarTools.height
-	-- 	iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools)
-	-- 	if (SaveInterval > 0) then clock.active = true
-	-- )
-
-	on btnDockTop mouseDown senderArg arg do
-	(
-		-- iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools)
-		case iniDockPos of
-		(
-			("float"):(iniDockPos = "cui_dock_top")
-			("cui_dock_top"):(iniDockPos = "float")
-			("cui_dock_bottom"):(iniDockPos = "cui_dock_top")
-		)
-		stSetConfigAll.fnSetConfigTrackBarTools()
-		fnLoadDockPos rolBsTrackBarTools rolBsTrackBarTools.width rolBsTrackBarTools.height
-		if (SaveInterval > 0) then clock.active = true
-	)
-
-	on btnDockBottom mouseDown senderArg arg do
-	(
-		-- iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools)
-		case iniDockPos of
-		(
-			("float"):(iniDockPos = "cui_dock_bottom")
-			("cui_dock_bottom"):(iniDockPos = "float")
-			("cui_dock_top"):(iniDockPos = "cui_dock_bottom")
-		)
-		stSetConfigAll.fnSetConfigTrackBarTools()
-		fnLoadDockPos rolBsTrackBarTools rolBsTrackBarTools.width rolBsTrackBarTools.height
-		if (SaveInterval > 0) then clock.active = true
 	)
 	
 	on btnConfig mouseDown senderArg arg do
@@ -469,20 +694,18 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				
 				if (mod T 2)==0 then
 				(
-					COL 			= mcolor.Red
+					COL = mcolor.Red
 					
 					btnTimer.text = "请保存 !!"
 				)
 				else
 				(
-					COL = mcolor.white  
+					COL = mcolor.white
 					
 					btnTimer.text = TimeTXT
 				)
-				OverCOL 	= mcolor.darkred
-				
-				
-				
+				OverCOL = mcolor.darkred
+
 				btnTimer.backcolor = COL
 				btnTimer.FlatAppearance.MouseOverBackColor = OverCOL
 				
@@ -491,9 +714,9 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	)
 )
 
-if (iniPosAutoBackup != 0) then (createDialog rolBsTrackBarTools 190 30 pos:iniPosAutoBackup style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
-else (createDialog rolBsTrackBarTools 190 30 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+if (iniPosAutoBackup != 0) then (createDialog rolBsTrackBarTools widthBsSize heightBsSize pos:iniPosAutoBackup style:#(#style_sysmenu,#style_toolwindow))
+else (createDialog rolBsTrackBarTools widthBsSize heightBsSize style:#(#style_sysmenu,#style_toolwindow))
 
-cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[190,30]
+-- cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[190,30]
 -- cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top
 if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
