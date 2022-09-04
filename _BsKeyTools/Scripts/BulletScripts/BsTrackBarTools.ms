@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-04 20:11:54
+ * @LastEditTime: 2022-09-04 21:41:38
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -19,7 +19,7 @@ global iniMaxBackupCount = 50
 global iniPosAutoBackup
 global iniDockPos
 global heightBsSize = 30
-global widthBsSize  = 190
+global widthBsSize  = 265
 Global SIOFile      = dotNetClass "System.IO.File"
 Global SIODir       = dotNetClass "System.IO.Directory"
 
@@ -359,7 +359,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	dotnetcontrol btnTimer "Button" height:30 width:80 pos:[15,0] --replace
 	dotnetcontrol btnBackup "Button" height:30 width:40 pos:[95,0] --increment
 	dotnetcontrol btnSaveAs "Button" height:30 width:40 pos:[135,0]  --save as
-	
+	dotnetcontrol btnOpenPath "Button" height:30 width:80 pos:[165,0]  --打开备份文件夹
 	timer clock "testClock" interval:1000 active:false  --tick once a second
 
 	fn fnButtonStyle tarButton textButton =
@@ -553,6 +553,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		btnTimer.font = dotNetObject "System.Drawing.Font" "Arial" 9 myFontStyle
 		fnButtonStyle btnBackup "迭代"
 		fnButtonStyle btnSaveAs "另存"
+		fnButtonStyle btnOpenPath "打开文件夹"
 		fnButtonStyle btnConfig ""
 		btnConfig.BackColor = dotColor.FromArgb white.r white.g white.b
 		
@@ -639,6 +640,22 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				print "保存失败"
 			)
 		)
+	)
+
+	on btnOpenPath mouseDown senderArg arg do
+	(
+		if maxFileName != "" then
+		(
+			if matchpattern (maxFilePath + maxFileName) pattern:("*.backup\\*.max") then 
+			(
+				try(shellLaunch maxfilepath "")catch()
+			)
+			else
+			(
+				try(shellLaunch (iniBackupPath + "\\" + (getFilenameFile maxFileName) + ".backup") "")catch()
+			)
+		)
+		else (try(shellLaunch iniBackupPath "")catch())
 	)
 
 	
