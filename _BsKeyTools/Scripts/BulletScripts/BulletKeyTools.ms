@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-01 13:33:57
+ * @LastEditTime: 2022-09-04 20:16:01
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1531,7 +1531,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	checkbutton ckbShadowCut "秀剪影" highlightcolor:myCheckedColor \
 	pos:[110,90] width:50 height:25 toolTip:"切换剪影显示"
 	button btnQuicksave "快备份" pos:[160,90] width:50 height:25 \
-	tooltip:"备份当前文件\r\nAutoback - BsBackup\r\n右键可快速打开备份文件夹\r\n“时光机” 工具中也能快速查看自动保存目录"
+	tooltip:"备份当前文件\r\n当前文件目录.backup 文件夹\r\n右键可快速打开备份文件夹\r\n“时光机” 工具中也能快速查看自动保存目录"
 	checkbutton ckbFnBoxDisplay "BOX显"  highlightcolor:myCheckedColor \
 	width:50 height:25 toolTip:"骨骼切换Box显示" pos:[10,115]
 	checkbutton ckbFreezeMesh "冻模型" highlightcolor:myCheckedColor \
@@ -4311,7 +4311,7 @@ rollout rolBsKeyTools "" width:355 height:250
 			tooglePersp = false
 		)
 		tooglePersp = (not tooglePersp)
-		displayTempPrompt  ("BsKeyTools：透视锁定（旋转镜头自动按 P 转透视）-- " + msgPersp + "                                ") 10000
+		messagebox ("BsKeyTools：透视锁定（旋转镜头自动按 P 转透视）-- " + msgPersp + "                                ") beep:false title:"BsKeyTools" 
 	)
 )
 if (iniPos != 0) then (Createdialog rolBsKeyTools fgcolor:myFgColor pos:iniPos style:#())
