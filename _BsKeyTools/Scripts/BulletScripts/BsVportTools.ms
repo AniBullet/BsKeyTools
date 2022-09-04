@@ -1,54 +1,3 @@
-global rolBsPreview
-try destroydialog ::rolBsPreview catch()
-rollout rolBsPreview "Snapshot" width:BsVportTools.width height:BsVportTools.width
-(
-	dotnetcontrol dn_pictureBox "PictureBox" pos:[0,0] width:BsVportTools.width height:BsVportTools.width
-	
-	Fn LR_CaptureRenderAspectViewport  = 
-	(
-		local ViewCap=undefined			
-		VptDib = gw.getViewportDib()
-		ViewCap = bitmap VptDib.height VptDib.height 
-		pasteBitmap VptDib ViewCap [((VptDib.width - VptDib.height)/2)+1,1] [0,0]
-		outputMap  = bitmap rolBsPreview.width rolBsPreview.height
-		copy ViewCap outputMap
-		close VptDib
-		close ViewCap
-		
-		gc light:true
-		
-		if viewcap != undefined then (setclipboardbitmap viewcap;close ViewCap)
-		outputMap
-	)
-	
-	local snap
-	
-	fn GetBitmapFromClipboard =
-	(
-		if snap != undefined do snap.Dispose()
-		snap = (dotnetclass "System.Windows.Forms.Clipboard").GetImage()
-		snap
-	)
-	
-	fn GetBitmapFromFile filename =
-	(
-		if snap != undefined do snap.Dispose()
-		snap = dotnetObject "System.Drawing.Bitmap" filename
-		snap
-	)
-
-	fn fnGetPreviewImage =
-	(
-
-	)
-	
-	on rolBsPreview open do
-	(
-		valueVpd = arrVportValue[(BsVportTools.mlbVportSet.selection as array)[1]]
-		dn_pictureBox.image = valueVpd.vpImage
-	)
-)
-
 try(destroydialog BsVportTools)catch()
 try (callbacks.removeScripts #filePostOpen id:#UpdateBsVport) catch ()
 
@@ -57,6 +6,8 @@ global BsVportTools
 global vpdStruct
 global fnRefreshVportSet
 global arrVportValue = #()
+global fileINISave = ""
+global iniVportToolsWidth = 415
 global pathVportLog = ((getdir #temp) + "\\BsVportLog")
 if (not(doesDirectoryExist pathVportLog)) then (HiddenDosCommand ("mkdir " + "\"" +pathVportLog + "\""))
 
@@ -66,7 +17,7 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false title:"BsVportTools")
 stLoadConfigAll.fnLoadConfigVportTools ()
 
-struct vpdStruct (vpListName = "undefined",vpType = #view_none, vpGroupType = #user, vpStartCoord = [0,0,0], vpEndCoord = [0,0,0], vpVS = [0,0], vpFOV = 0, vpFD = 0, vpTM = undefined, vpNode = undefined, vpImage = undefined)
+struct vpdStruct (vpListName = "undefined",vpType = #view_none, vpGroupType = #user, vpStartCoord = [0,0,0], vpEndCoord = [0,0,0], vpVS = [0,0], vpFOV = 0, vpFD = 0, vpTM = undefined, vpNode = undefined)
 
 rcmenu menuBsVportRightClick
 (
@@ -80,14 +31,41 @@ rcmenu menuBsVportRightClick
 
 rollout BsVportTools "BsVportTools_v1.0"
 (
-	MultiListBox mlbVportSet "" width:175 height:15 pos:[3,65]
+	MultiListBox mlbVportSet "" width:140 height:15 pos:[3,65]
 	button btnCreateCam "" width:40 height:35 pos:[5,5] tooltip:"以 \"P\" 自由视角创建相机"
-	button btnSaveVportINI "" width:40 height:20 pos:[45,5] tooltip:"保存导出视角列表"
-	button btnLoadVportINI "" width:40 height:20 pos:[85,5] tooltip:"加载导入视角列表"
-	button btnDelVportSet "" width:30 height:20 pos:[125,5] tooltip:"移除所选视角"
-	button btnHelp "" width:20 height:20 pos:[155,5] tooltip:"点击打开视频帮助说明\r\n功能简述：保存当前视角参数\r\n(完全不影响文件本身，只存参数)"
-	edittext edtAddVport "" width:177 height:17 pos:[0,45]
-	button btnAddVportSet "" width:130 height:15 pos:[45,25] tooltip:"保存当前视角"
+	button btnSaveVportINI "" width:30 height:20 pos:[45,5] tooltip:"保存导出视角列表"
+	button btnLoadVportINI "" width:30 height:20 pos:[75,5] tooltip:"加载导入视角列表"
+	button btnDelVportSet "" width:20 height:20 pos:[105,5] tooltip:"移除所选视角"
+	button btnImage "" width:20 height:20 pos:[125,5] tooltip:"切换是否显示视窗截图\r\n功能简述：保存当前视角参数\r\n完全不影响文件本身，只存参数\r\n随文件名保存的历史记录上限 50 条"
+	edittext edtAddVport "" width:143 height:17 pos:[0,45]
+	button btnAddVportSet "" width:80 height:15 pos:[45,25] tooltip:"保存当前视角"
+	button btnRefreshPreview "R" width:20 height:15 pos:[125,25] tooltip:"刷新"
+
+	dotnetcontrol btnPreview "button" pos:[150,5] width:260 height:260
+
+	fn fnDotnetBitmap fName =
+	(
+		if doesFileExist fName then
+		(
+			local img = (dotnetclass "System.Drawing.Image").fromfile fName 
+			local retBmp = dotnetObject "System.Drawing.Bitmap" img.Width img.height img.PixelFormat
+			local g = (dotnetclass "system.drawing.graphics").fromImage retBmp
+			g.SmoothingMode      = g.SmoothingMode.HighQuality
+			g.CompositingQuality = g.CompositingQuality.HighQuality
+			g.InterpolationMode  = g.InterpolationMode.HighQualityBicubic
+			g.PixelOffsetMode    = g.PixelOffsetMode.highQuality
+			g.drawimage img 0 0 img.Width img.height
+			img.Dispose();
+			retBmp
+		)
+		else return undefined
+	)
+
+	fn fnReloadPreview =
+	(
+		filename = (substituteString fileINISave ".ini" ("_" + ((BsVportTools.mlbVportSet.selection as array)[1]) as string + ".bmp"))
+		btnPreview.image = (fnDotnetBitmap filename)
+	)
 	
 	local views = #(#view_persp_user, #view_iso_user, #view_top, #view_bottom, #view_left, #view_right, #view_front, #view_back, #view_spot, #view_camera)
 
@@ -137,8 +115,8 @@ rollout BsVportTools "BsVportTools_v1.0"
 	
 	fn fnSaveVportINI ignoreMsg:false =
 	(
-		if maxfilename != "" and arrVportValue.count != 0 then
-		(
+		-- if maxfilename != ""then
+		-- (
 			arrINIFile = getFiles (pathVportLog + "\*.ini")
 			qsort arrINIFile BsVportTools.fnPseudoNaturalSort
 			arrFileCount = #()
@@ -149,7 +127,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 				(
 					nameTemp = getfilenamefile f
 					append arrFileCount nameTemp
-					append arrFileName ((GetINISetting f "BsVportToolsSet" "FileName") as string)
+					append arrFileName ((GetINISetting f "BsVportToolsSet" "MaxFile") as string)
 					qsort arrFileCount BsVportTools.fnPseudoNaturalSort
 				)
 				saveCount = (execute arrFileCount[arrFileCount.count]) + 1
@@ -171,17 +149,25 @@ rollout BsVportTools "BsVportTools_v1.0"
 				else (fileINI = arrINIFile[finditem arrFileName nameFile])
 			)
 			SetINISetting fileINI "BsVportToolsSet" "ListCount" (arrVportValue.count as string)
-			SetINISetting fileINI "BsVportToolsSet" "FileName" (maxfilepath + maxfilename)
+			SetINISetting fileINI "BsVportToolsSet" "MaxFile" (maxfilepath + maxfilename)
 			delIniSetting fileINI "BsVportToolsList"
 			for i = 1 to arrVportValue.count do
 			(
 				SetINISetting fileINI "BsVportToolsList" (i as string) (arrVportValue[i] as string)
 			)
+			fileINISave = fileINI
 			arrINIFile = getFiles (pathVportLog + "\*.ini")
 			qsort arrINIFile BsVportTools.fnPseudoNaturalSort
-			if arrINIFile.count > 50 then (deletefile arrINIFile[1])
+			if arrINIFile.count > 50 then 
+			(
+				deletefile arrINIFile[1]
+				for i in (getfiles (substituteString arrINIFile[1] ".ini" ("_*.bmp"))) do 
+				(
+					deletefile i
+				)
+			)
 			return true
-		)
+		-- )
 	)
 
 	fn fnUpdateVportList = 
@@ -206,7 +192,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 			)
 			BsVportTools.mlbVportSet.items = mlbItems
 		)
-		else (BsVportTools.mlbVportSet.items = arrVportValue)
+		else (BsVportTools.mlbVportSet.items = arrVportValue;edtAddVport.text = "")
 	)
 
 	fn fnLoadVportINI fileINI =
@@ -222,8 +208,8 @@ rollout BsVportTools "BsVportTools_v1.0"
 
 	fn fnRefreshVportSet =
 	(
-		if maxfilename != "" then
-		(
+		-- if maxfilename != "" then
+		-- (
 			arrVportValue = #()
 			arrINIFile = getFiles (pathVportLog + "\*.ini")
 			qsort arrINIFile BsVportTools.fnPseudoNaturalSort
@@ -232,17 +218,19 @@ rollout BsVportTools "BsVportTools_v1.0"
 			(
 				for f in arrINIFile do
 				(
-					append arrFileName ((GetINISetting f "BsVportToolsSet" "FileName") as string)
+					append arrFileName ((GetINISetting f "BsVportToolsSet" "MaxFile") as string)
 				)
 				nameFile = (maxfilepath + maxfilename)
 				if finditem arrFileName nameFile != 0 then
 				(
-					fileINI = arrINIFile[finditem arrFileName nameFile]
-					BsVportTools.fnLoadVportINI fileINI
+					fileINISave = arrINIFile[finditem arrFileName nameFile]
+					BsVportTools.fnLoadVportINI fileINISave
+
 				)
 				else (BsVportTools.fnUpdateVportList())
 			)
-		)
+			-- else (BsVportTools.fnUpdateVportList())
+		-- )
 	)
 
 	fn fnSwitchTypeString vpType =
@@ -289,7 +277,6 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		local vpd = vpdStruct()
 		local bounds = minmaxSwap ((MapScreenToView [0,0] 0) * Inverse(getViewTM())) ((MapScreenToView (GetViewSize()) 0) * Inverse(getViewTM()))
-		setclipboardBitmap (rolBsPreview.LR_CaptureRenderAspectViewport())
 
 		vpd.vpListName = (if ((BsVportTools.edtAddVport.text != "") or (BsVportTools.edtAddVport.text != undefined)) then (BsVportTools.edtAddVport.text))
 		vpd.vpType = (viewport.getType())
@@ -301,7 +288,6 @@ rollout BsVportTools "BsVportTools_v1.0"
 		vpd.vpFD = viewport.getFocalDistance()
 		vpd.vpTM = viewport.getTM()
 		vpd.vpNode = if (node = viewport.getCamera()) != undefined then (node.name)
-		vpd.vpImage = (rolBsPreview.GetBitmapFromClipboard())
 		vpd
 	)
 	fn restoreViewport vpd =
@@ -325,28 +311,51 @@ rollout BsVportTools "BsVportTools_v1.0"
 		) ; completeredraw() ; deadData
 	)
 	
+	fn fnMakeThumbnail filename =(
+		grab_bmp = gw.getViewportDib()
+		croppedScreenGrab = bitmap grab_bmp.height grab_bmp.height 
+		pasteBitmap grab_bmp croppedScreenGrab [((grab_bmp.width - grab_bmp.height)/2)+1,1] [0,0]  -- paste the orginal image to the tempImage, this results in a cropped image widh same height as width
+		outputMap  = bitmap (btnPreview.width - 2) (btnPreview.width - 2)
+		copy croppedScreenGrab outputMap 
+		close grab_bmp
+		close croppedScreenGrab
+		
+		gc light:true
+		outputMap.filename = filename
+		save outputMap quiet:true
+		return true
+	)
+
 	fn fnAddVportSet = 
 	(
-		if ((BsVportTools.edtAddVport.text != "") or (BsVportTools.edtAddVport.text != undefined)) then
-		(
-			existCount = 0
-			for i = 1 to arrVportValue.count do 
+		-- if maxfilename != "" then
+		-- (
+			if ((BsVportTools.edtAddVport.text != "") and (BsVportTools.edtAddVport.text != undefined)) then
 			(
-				if arrVportValue[i].vpListName == BsVportTools.edtAddVport.text then
+				saveVpd = (BsVportTools.collectVPD())
+				existCount = 0
+				for i = 1 to arrVportValue.count do 
 				(
-					arrVportValue[i] = (BsVportTools.collectVPD())
-					BsVportTools.mlbVportSet.selection = i
-					existCount += 1
+					if arrVportValue[i].vpListName == BsVportTools.edtAddVport.text then
+					(
+						arrVportValue[i] = saveVpd
+						existCount = i
+					)
 				)
+				if existCount == 0 then 
+				(
+					append arrVportValue saveVpd
+					BsVportTools.fnSaveVportINI ignoreMsg:true
+					BsVportTools.fnUpdateVportList()
+					BsVportTools.mlbVportSet.selection = arrVportValue.count
+				)
+				else (BsVportTools.mlbVportSet.selection = existCount)
+				filename = (substituteString fileINISave ".ini" ("_" + ((BsVportTools.mlbVportSet.selection as array)[1]) as string + ".bmp"))
+				forceCompleteRedraw()
+				fnMakeThumbnail filename
+				fnReloadPreview()
 			)
-			if existCount == 0 then 
-			(
-				append arrVportValue (BsVportTools.collectVPD())
-				BsVportTools.mlbVportSet.selection = BsVportTools.mlbVportSet.items.count
-			)
-			BsVportTools.fnSaveVportINI ignoreMsg:true
-			BsVportTools.fnUpdateVportList()
-		)
+		-- )
 	)
 
 	fn fnDelVportSet = 
@@ -357,9 +366,12 @@ rollout BsVportTools "BsVportTools_v1.0"
 			title:"BsVportTools" beep:false) then
 			(
 				arrDelID = (BsVportTools.mlbVportSet.selection as array)
+				-- print arrDelID
 				for i = arrDelID.count to 1 by -1 where arrDelID.count != 0 do 
 				(
 					deleteitem arrVportValue arrDelID[i]
+					deleteFile (substituteString fileINISave ".ini" ("_" + arrDelID[i] as string + ".bmp"))
+					print (substituteString fileINISave ".ini" ("_" + arrDelID[i] as string + ".bmp"))
 				)
 				fnUpdateVportList()
 				BsVportTools.mlbVportSet.selection = 0
@@ -368,8 +380,25 @@ rollout BsVportTools "BsVportTools_v1.0"
 		)
 	)
 
-	on btnHelp pressed do 
-	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
+	on btnRefreshPreview pressed do 
+	(
+		BsVportTools.mlbVportSet.selection = 0
+		btnPreview.image = undefined
+		edtAddVport.text = ""
+	)
+
+	on btnImage pressed do 
+	(
+		if BsVportTools.width == 415 then
+		(
+			BsVportTools.width = 145
+		)
+		else 
+		(
+			BsVportTools.width = 415
+		) 
+		iniVportToolsWidth = BsVportTools.width
+	)
 
 	on BsVportTools open do
 	(
@@ -379,10 +408,20 @@ rollout BsVportTools "BsVportTools_v1.0"
 		btnDelVportSet.images  = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		btnSaveVportINI.images = #("bip_general_i.bmp","bip_general_i.bmp",30,7,7,8,8,false,true)
 		btnLoadVportINI.images = #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
-		btnHelp.images         = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16i.bmp",28,15,15,16,16,false,false)
+		btnImage.images         = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16i.bmp",28,15,15,16,16,false,false)
 		btnCreateCam.images    = #("Cameras_24i.bmp","Cameras_24i.bmp",3,3,3,3,3,false,true)
 		fnRefreshVportSet()
 		fnUpdateVportList()
+
+		btnPreview.flatstyle                         = btnPreview.flatstyle.flat
+		btnPreview.FlatAppearance.BorderSize         = 1
+		btnPreview.backcolor                         = BsDotBackColor
+		btnPreview.forecolor                         = dotColor.FromArgb white.r white.g white.b
+		btnPreview.FlatAppearance.MouseDownBackColor = BsDotBackColor
+		btnPreview.FlatAppearance.MouseOverBackColor = BsDotBackColor
+		-- btnPreview.text = "视窗镜头预览图"
+		btnPreview.TextAlign = (dotnetclass "system.drawing.contentalignment").TopLeft
+		btnPreview.image = undefined
 	)
 
 	on BsVportTools close do -- 关闭记忆浮动窗口位置
@@ -392,18 +431,18 @@ rollout BsVportTools "BsVportTools_v1.0"
 		BsVportTools.fnSaveVportINI ignoreMsg:true
 	)
 
-	on edtAddVport entered txt do
-	(
-		fnAddVportSet()
-	)
+	-- on edtAddVport entered txt do
+	-- (
+	-- 	fnAddVportSet()
+	-- )
 
 	on btnSaveVportINI pressed do
 	(
-		if maxfilename != "" and arrVportValue.count != 0 then
+		if arrVportValue.count != 0 then
 		(
 			fnSaveVportINI()
 		)
-		else (messagebox "请先保存文件和视角镜头参数再储存配置！                    " title:"BsKeyTools" beep:false)
+		else (messagebox "请先保存视角镜头参数再储存配置！                    " title:"BsKeyTools" beep:false)
 	)	
 
 	on btnLoadVportINI pressed do
@@ -423,11 +462,12 @@ rollout BsVportTools "BsVportTools_v1.0"
 
 	on mlbVportSet selected arg do
 	(
-		if (BsVportTools.mlbVportSet.selection as array).count != 0 then
+		if (BsVportTools.mlbVportSet.selection as array).count == 1 then
 		(
-			try destroydialog ::rolBsPreview catch()
-			createdialog rolBsPreview style:#() pos:(iniPosVportTools + [3,BsVportTools.height + 25])
+			fnReloadPreview()
+			btnPreview.text = BsVportTools.mlbVportSet.items[(BsVportTools.mlbVportSet.selection as array)[1]]
 		)
+		else (btnPreview.image = undefined;btnPreview.text = "(暂时仅能预览选中一个)")
 	)
 	
 	on mlbVportSet rightclick do 
@@ -460,7 +500,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 
 )
 if (iniPosVportTools != 0) then 
-(Createdialog BsVportTools 183 270 fgcolor:myFgColor pos:iniPosVportTools style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
-else (Createdialog BsVportTools 183 270 fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+(Createdialog BsVportTools iniVportToolsWidth 270 fgcolor:myFgColor pos:iniPosVportTools style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+else (Createdialog BsVportTools iniVportToolsWidth 270 fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
 
 callbacks.addScript #filePostOpen "BsVportTools.fnRefreshVportSet()" id:#UpdateBsVport

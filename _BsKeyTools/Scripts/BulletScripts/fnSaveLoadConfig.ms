@@ -120,7 +120,8 @@ struct stLoadConfigAll
 	),
 	fn fnLoadConfigVportTools =
 	(
-		iniPosVportTools = fnGetConfig iniPosVportTools "BsVportTools" "PosVportTools" "0"
+		iniPosVportTools   = fnGetConfig iniPosVportTools "BsVportTools" "PosVportTools" "0"
+		iniVportToolsWidth = fnGetConfig iniPosVportTools "BsVportTools" "VportToolsWidth" "180"
 	),
 	fn fnLoadConfigBsCleanVirus =
 	(
@@ -179,6 +180,7 @@ struct stSetConfigAll
 	fn fnSetConfigVportTools =
 	(
 		SetINISetting BulletConfig "BsVportTools" "PosVportTools" (iniPosVportTools as string)
+		SetINISetting BulletConfig "BsVportTools" "VportToolsWidth" (iniVportToolsWidth as string)
 	),
 	fn fnSetConfigBsCleanVirus =
 	(
