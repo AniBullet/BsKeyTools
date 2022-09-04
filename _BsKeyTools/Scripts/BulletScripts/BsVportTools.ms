@@ -31,13 +31,13 @@ rcmenu menuBsVportRightClick
 
 rollout BsVportTools "BsVportTools_v1.0"
 (
-	MultiListBox mlbVportSet "" width:140 height:15 pos:[3,65]
+	MultiListBox mlbVportSet "" width:143 height:15 pos:[3,65]
 	button btnCreateCam "" width:40 height:35 pos:[5,5] tooltip:"以 \"P\" 自由视角创建相机"
 	button btnSaveVportINI "" width:30 height:20 pos:[45,5] tooltip:"保存导出视角列表"
 	button btnLoadVportINI "" width:30 height:20 pos:[75,5] tooltip:"加载导入视角列表"
 	button btnDelVportSet "" width:20 height:20 pos:[105,5] tooltip:"移除所选视角"
 	button btnImage "" width:20 height:20 pos:[125,5] tooltip:"切换是否显示视窗截图\r\n功能简述：保存当前视角参数\r\n完全不影响文件本身，只存参数\r\n随文件名保存的历史记录上限 50 条"
-	edittext edtAddVport "" width:143 height:17 pos:[0,45]
+	edittext edtAddVport "" width:145 height:17 pos:[0,45]
 	button btnAddVportSet "" width:80 height:15 pos:[45,25] tooltip:"保存当前视角"
 	button btnRefreshPreview "R" width:20 height:15 pos:[125,25] tooltip:"刷新"
 
@@ -391,7 +391,7 @@ rollout BsVportTools "BsVportTools_v1.0"
 	(
 		if BsVportTools.width == 415 then
 		(
-			BsVportTools.width = 145
+			BsVportTools.width = 150
 		)
 		else 
 		(
