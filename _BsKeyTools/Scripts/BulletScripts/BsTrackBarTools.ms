@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-03 00:44:04
+ * @LastEditTime: 2022-09-04 20:11:54
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -13,13 +13,15 @@ try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
 try (destroyDialog rolBsTrackBarTools) catch()
 
 global rolBsTrackBarTools
-Global BulletConfig = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
-global iniBackupPath = ((getdir #autoback) + "\\BsBackup")
+Global BulletConfig      = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
+global iniBackupPath     = ((getdir #autoback) + "\\BsBackup")
 global iniMaxBackupCount = 50
 global iniPosAutoBackup
 global iniDockPos
 global heightBsSize = 30
-global widthBsSize = 190
+global widthBsSize  = 190
+Global SIOFile      = dotNetClass "System.IO.File"
+Global SIODir       = dotNetClass "System.IO.Directory"
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "脚本安装可能不完全,建议重新安装...        " beep:false)
