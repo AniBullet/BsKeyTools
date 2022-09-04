@@ -758,7 +758,7 @@ rollout SubRollout1 "构图样式" width:140 height:384
 		checkbutton ckb_unlock "解锁螺旋" pos:[3,313] width:106 height:22 toolTip:"解锁螺旋比" checked:false	
 		
 		GroupBox grp_misc "杂项:" pos:[1,338] width:112 height:40
-		checkbutton ckb_safe "安全框" pos:[3,353] width:106 height:22 toolTip:"安全框" checked:true
+		checkbutton ckb_safe "安全框" pos:[3,353] width:106 height:22 toolTip:"安全框" checked:false
 
 
 	
@@ -1339,6 +1339,7 @@ rollout_from_INI()
 Test_OuterRollout.test_frame.SubRollout1.updateHighlightColors()
 --Test_OuterRollout.test_frame.SubRollout3.lb_cam.text = "info"
 displaysafeframes = true
+SubRollout1.ckb_safe.checked = displaysafeframes
 )
 
 show()

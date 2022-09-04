@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-04 21:41:38
+ * @LastEditTime: 2022-09-04 23:11:45
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -11,6 +11,8 @@
 if form != undefined then ( form.close(); form = undefined  )
 try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
 try (destroyDialog rolBsTrackBarTools) catch()
+try (callbacks.removeScripts #filePostOpen id:#UpdateBsBackup) catch ()
+try (callbacks.removeScripts #filePostSave id:#UpdateBsBackup) catch ()
 
 global rolBsTrackBarTools
 Global BulletConfig      = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
@@ -19,7 +21,7 @@ global iniMaxBackupCount = 50
 global iniPosAutoBackup
 global iniDockPos
 global heightBsSize = 30
-global widthBsSize  = 265
+global widthBsSize  = 255
 Global SIOFile      = dotNetClass "System.IO.File"
 Global SIODir       = dotNetClass "System.IO.Directory"
 
@@ -106,11 +108,11 @@ fn fnLoadDockPos rolTarget wSize hSize =
 								btnsArr[b].height = 15
 								btnsArr[b].width = hSize + 50
 							)
-							(3):
+							(4):
 							(
 								btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
 							)
-							(4):
+							(5):
 							(
 								btnsArr[b].pos = [btnsArr[b - 1].width,btnsArr[b - 2].pos.y + btnsArr[b - 2].height]
 							)
@@ -141,11 +143,11 @@ fn fnLoadDockPos rolTarget wSize hSize =
 								btnsArr[b].height = 15
 								btnsArr[b].width = hSize + 50
 							)
-							(3):
+							(4):
 							(
 								btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
 							)
-							(4):
+							(5):
 							(
 								btnsArr[b].pos = [btnsArr[b - 1].width,btnsArr[b - 2].pos.y + btnsArr[b - 2].height]
 							)
@@ -353,13 +355,15 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	local myFontStyle = dotnet.combineenums dnFontStyle.bold --dnFontStyle.italic
 
 	dotnetcontrol btnConfig "Button" height:30 width:15 pos:[0,0]
+	dotnetcontrol btnFilesCount "Button" height:30 width:80 pos:[15,0]
 	-- dotnetcontrol btnUndock "Button" height:40 width:15 pos:[0,0]
 	-- dotnetcontrol btnDockTop "Button" height:15 width:15 pos:[15,0]
 	-- dotnetcontrol btnDockBottom "Button" height:15 width:15 pos:[15,15]
-	dotnetcontrol btnTimer "Button" height:30 width:80 pos:[15,0] --replace
-	dotnetcontrol btnBackup "Button" height:30 width:40 pos:[95,0] --increment
-	dotnetcontrol btnSaveAs "Button" height:30 width:40 pos:[135,0]  --save as
-	dotnetcontrol btnOpenPath "Button" height:30 width:80 pos:[165,0]  --打开备份文件夹
+	dotnetcontrol btnTimer "Button" height:30 width:80 pos:[95,0] --replace
+	dotnetcontrol btnBackup "Button" height:30 width:40 pos:[175,0] --increment
+	dotnetcontrol btnSaveAs "Button" height:30 width:40 pos:[215,0]  --save as
+	-- dotnetcontrol btnOpenPath "Button" height:30 width:80 pos:[255,0]  --打开备份文件夹
+	
 	timer clock "testClock" interval:1000 active:false  --tick once a second
 
 	fn fnButtonStyle tarButton textButton =
@@ -446,6 +450,30 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		)
 	)
 
+	fn fnFilesCount = 
+	(
+		tarPath = maxFilePath
+		numFiles = 0
+		if maxFileName != "" then
+		(
+			if matchpattern (maxFilePath + maxFileName) pattern:("*.backup\\*.max") then 
+			(
+				tarPath = maxFilePath
+			)
+			else
+			(
+				tarPath = (iniBackupPath + "\\" + (getFilenameFile maxFileName) + ".backup")
+			)
+			numFiles = (getfiles (tarPath + "\\*.max")).count
+		)
+		else 
+		(
+			tarPath =  iniBackupPath
+			numFiles = (getDirectories iniBackupPath).count
+		)
+		fnButtonStyle btnFilesCount (numFiles as string +" 文件/夹")
+		btnFilesCount.FlatAppearance.BorderColor = mcolor.white 
+	)
 	
 	fn fnQuickSave =
 	(
@@ -512,6 +540,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 					catch()
 				)
 			)
+			rolBsTrackBarTools.fnFilesCount()
 		)
 	)
 	
@@ -553,7 +582,8 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		btnTimer.font = dotNetObject "System.Drawing.Font" "Arial" 9 myFontStyle
 		fnButtonStyle btnBackup "迭代"
 		fnButtonStyle btnSaveAs "另存"
-		fnButtonStyle btnOpenPath "打开文件夹"
+		-- fnButtonStyle btnOpenPath "打开已备份"
+		fnFilesCount()
 		fnButtonStyle btnConfig ""
 		btnConfig.BackColor = dotColor.FromArgb white.r white.g white.b
 		
@@ -642,7 +672,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		)
 	)
 
-	on btnOpenPath mouseDown senderArg arg do
+	on btnFilesCount mouseDown senderArg arg do
 	(
 		if maxFileName != "" then
 		(
@@ -739,3 +769,5 @@ else (createDialog rolBsTrackBarTools widthBsSize heightBsSize style:#(#style_sy
 -- cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[190,30]
 -- cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top
 if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
+callbacks.addScript #filePostOpen "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
+callbacks.addScript #filePostSave "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
