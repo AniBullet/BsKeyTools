@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-05 13:22:52
+ * @LastEditTime: 2022-09-05 14:03:25
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -792,33 +792,34 @@ if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = 
 callbacks.addScript #filePostOpen "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 callbacks.addScript #filePostSave "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 
-rollout rolBsBackupManager "" width:340 height:365
+rollout rolBsBackupManager "" width:340 height:280
 (
 	local posMouMove     = [0,0]
 	local switchMouState = false
 
 	groupbox grpMain "BsBackupManager_v1.0-----------(按住这里可拖动)" \
-	width:330 height:360 pos:[5,0]
-	button btnClose "X" pos:[rolBsBackupManager.width - 20,0] height:20 width:20
+	width:(rolBsBackupManager.width - 10) height:(rolBsBackupManager.height - 5) pos:[5,0]
+	button btnClose "X" pos:[rolBsBackupManager.width - 15,0] height:15 width:15
 	button btnRefreshFolder "R" align:#left border:false \
 	height:20 width:25 pos:[10,20] tooltip:"左：刷新当前文件目录\r\n右：重置场景"
 	button btnOpenCurrentDir "打开" tooltip:"打开当前文件夹" \
-	height:20 width:25 pos:[40,20] border:false
+	height:20 width:25 pos:[35,20] border:false
 	editText edtBrowseFolder "" text:"" labelOnTop:true align:#right \
-	height:20 fieldWidth:210 pos:[70,20] readOnly:true 
+	height:20 fieldWidth:230 pos:[65,20] readOnly:true 
 	button btnPrevFolder "↑" tooltip:"返回上层目录，也可右击面板空白处" \
-	height:20 width:20 pos:[285,20] border:false
+	height:20 width:25 pos:[300,20] border:false
 
-	listBox ltbFilesList "" align:#right selection:0 \
-	height:18 width:245 pos:[85,70]
 	listBox ltbFilterPrefix "" align:#left selection:0 \
-	height:8 width:70 pos:[10,120]
+	height:12 width:115 pos:[10,85]
+	listBox ltbFilesList "" align:#right selection:0 \
+	height:15 width:200 pos:[130,46]
 
 	on rolBsBackupManager open do 
 	(
 		btnRefreshFolder.images  = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,3,3,3,3,true,false)
 		btnOpenCurrentDir.images = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,5,5,5,5,true,false)
 		btnPrevFolder.images     = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,1,1,1,1,false,true)
+		edtBrowseFolder.text = iniBackupPath
 	)
 
 	on rolBsBackupManager close do 
