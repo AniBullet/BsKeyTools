@@ -133,10 +133,11 @@ struct stLoadConfigAll
 	),
 	fn fnLoadConfigTrackBarTools =
 	(
-		iniDockPos        = fnGetConfig iniDockPos "BsTrackBarTools" "DockPos" "cui_dock_bottom"
-		iniPosAutoBackup  = fnGetConfig iniPosAutoBackup "BsTrackBarTools" "PosTrackBarTools" "0"
-		iniBackupPath     = fnGetConfig iniBackupPath "BsTrackBarTools" "BackupPath" ((getdir #autoback) + "\\BsBackup")
-		iniMaxBackupCount = fnGetConfig iniMaxBackupCount "BsTrackBarTools" "MaxBackupCount" "50"
+		iniDockPos          = fnGetConfig iniDockPos "BsTrackBarTools" "DockPos" "cui_dock_bottom"
+		iniPosAutoBackup    = fnGetConfig iniPosAutoBackup "BsTrackBarTools" "PosTrackBarTools" "0"
+		iniPosBackupManager = fnGetConfig iniPosBackupManager "BsTrackBarTools" "PosBackupManager" "0"
+		iniBackupPath       = fnGetConfig iniBackupPath "BsTrackBarTools" "BackupPath" ((getdir #autoback) + "\\BsBackup")
+		iniMaxBackupCount   = fnGetConfig iniMaxBackupCount "BsTrackBarTools" "MaxBackupCount" "50"
 	)
 )
 struct stSetConfigAll
@@ -194,6 +195,7 @@ struct stSetConfigAll
 	(
 		SetINISetting BulletConfig "BsTrackBarTools" "DockPos" (iniDockPos as string)
 		SetINISetting BulletConfig "BsTrackBarTools" "PosTrackBarTools" (iniPosAutoBackup as string)
+		SetINISetting BulletConfig "BsTrackBarTools" "PosBackupManager" (iniPosBackupManager as string)
 		SetINISetting BulletConfig "BsTrackBarTools" "BackupPath" (execute ("@\"" + (getdir #autoback) + "\\BsBackup\""))
 		SetINISetting BulletConfig "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
 	)

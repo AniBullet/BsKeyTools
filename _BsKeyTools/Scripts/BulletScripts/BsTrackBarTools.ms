@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-04 23:11:45
+ * @LastEditTime: 2022-09-05 13:22:52
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -11,14 +11,17 @@
 if form != undefined then ( form.close(); form = undefined  )
 try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
 try (destroyDialog rolBsTrackBarTools) catch()
+try (destroydialog rolBsBackupManager) catch()
 try (callbacks.removeScripts #filePostOpen id:#UpdateBsBackup) catch ()
 try (callbacks.removeScripts #filePostSave id:#UpdateBsBackup) catch ()
 
 global rolBsTrackBarTools
+global rolBsBackupManager
 Global BulletConfig      = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 global iniBackupPath     = ((getdir #autoback) + "\\BsBackup")
 global iniMaxBackupCount = 50
 global iniPosAutoBackup
+Global iniPosBackupManager
 global iniDockPos
 global heightBsSize = 30
 global widthBsSize  = 255
@@ -585,6 +588,14 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		-- fnButtonStyle btnOpenPath "打开已备份"
 		fnFilesCount()
 		fnButtonStyle btnConfig ""
+		local objToolTip = dotnetobject "System.Windows.Forms.ToolTip"  
+		objToolTip.SetToolTip btnFilesCount "左键打开面板，右键打开文件夹"
+		objToolTip.Active = True
+		objToolTip.tooltipicon = (dotnetclass "System.Windows.Forms.ToolTipIcon").none
+		-- other types of tooltip icon are 
+		--.Error
+		-- .info
+		-- .none
 		btnConfig.BackColor = dotColor.FromArgb white.r white.g white.b
 		
 	)
@@ -672,20 +683,29 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		)
 	)
 
-	on btnFilesCount mouseDown senderArg arg do
+	on btnFilesCount MouseDown senderArg arg do
 	(
-		if maxFileName != "" then
+		if arg.button == btnFilesCount.mousebuttons.right then
 		(
-			if matchpattern (maxFilePath + maxFileName) pattern:("*.backup\\*.max") then 
+			if maxFileName != "" then
 			(
-				try(shellLaunch maxfilepath "")catch()
+				if matchpattern (maxFilePath + maxFileName) pattern:("*.backup\\*.max") then 
+				(
+					try(shellLaunch maxfilepath "")catch()
+				)
+				else
+				(
+					try(shellLaunch (iniBackupPath + "\\" + (getFilenameFile maxFileName) + ".backup") "")catch()
+				)
 			)
-			else
-			(
-				try(shellLaunch (iniBackupPath + "\\" + (getFilenameFile maxFileName) + ".backup") "")catch()
-			)
+			else (try(shellLaunch iniBackupPath "")catch())
 		)
-		else (try(shellLaunch iniBackupPath "")catch())
+		else if arg.button == btnFilesCount.mousebuttons.left then
+		(
+			try (destroydialog rolBsBackupManager) catch ()
+			if (iniPosBackupManager != 0) then (Createdialog rolBsBackupManager fgcolor:myFgColor pos:iniPosBackupManager style:#())
+			else (Createdialog rolBsBackupManager fgcolor:myFgColor style:#())
+		)
 	)
 
 	
@@ -771,3 +791,67 @@ else (createDialog rolBsTrackBarTools widthBsSize heightBsSize style:#(#style_sy
 if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
 callbacks.addScript #filePostOpen "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 callbacks.addScript #filePostSave "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
+
+rollout rolBsBackupManager "" width:340 height:365
+(
+	local posMouMove     = [0,0]
+	local switchMouState = false
+
+	groupbox grpMain "BsBackupManager_v1.0-----------(按住这里可拖动)" \
+	width:330 height:360 pos:[5,0]
+	button btnClose "X" pos:[rolBsBackupManager.width - 20,0] height:20 width:20
+	button btnRefreshFolder "R" align:#left border:false \
+	height:20 width:25 pos:[10,20] tooltip:"左：刷新当前文件目录\r\n右：重置场景"
+	button btnOpenCurrentDir "打开" tooltip:"打开当前文件夹" \
+	height:20 width:25 pos:[40,20] border:false
+	editText edtBrowseFolder "" text:"" labelOnTop:true align:#right \
+	height:20 fieldWidth:210 pos:[70,20] readOnly:true 
+	button btnPrevFolder "↑" tooltip:"返回上层目录，也可右击面板空白处" \
+	height:20 width:20 pos:[285,20] border:false
+
+	listBox ltbFilesList "" align:#right selection:0 \
+	height:18 width:245 pos:[85,70]
+	listBox ltbFilterPrefix "" align:#left selection:0 \
+	height:8 width:70 pos:[10,120]
+
+	on rolBsBackupManager open do 
+	(
+		btnRefreshFolder.images  = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,3,3,3,3,true,false)
+		btnOpenCurrentDir.images = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,5,5,5,5,true,false)
+		btnPrevFolder.images     = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,1,1,1,1,false,true)
+	)
+
+	on rolBsBackupManager close do 
+	(
+		iniPosBackupManager = (GetDialogPos rolBsBackupManager)
+	)
+
+	on btnClose pressed do 
+	(
+		try (destroydialog rolBsBackupManager) catch()
+	)
+
+	on rolBsBackupManager lbuttondown posMou do
+	(
+		posMouMove = posMou
+		switchMouState = on
+	)
+
+	on rolBsBackupManager lbuttonup posMou do
+	(
+		switchMouState = off
+	)
+
+	on rolBsBackupManager rbuttondown pos do 
+	(
+		
+	)
+
+	on rolBsBackupManager mouseMove pos do
+	(
+		if switchMouState == on then
+		(
+			SetDialogPos rolBsBackupManager (mouse.screenpos - posMouMove)			
+		)
+	)
+)

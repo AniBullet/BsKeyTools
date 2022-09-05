@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-04 20:16:01
+ * @LastEditTime: 2022-09-05 12:04:58
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -12,8 +12,11 @@ try(destroydialog rolFnKeys)catch()
 try(destroydialog rolAddMyScripts)catch()
 try(destroydialog rolCustomFps)catch()
 try(destroydialog rolCustomBtn)catch()
-try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
-try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
+try (callbacks.removeScripts #animationRangeChange id:#BsUpdateTimeRange) catch ()
+try (callbacks.removeScripts #filePostOpen id:#BsUpdateFps) catch ()
+try (callbacks.removeScripts #timeunitsChange id:#BsUpdateFps) catch ()
+try (callbacks.removeScripts #filePostOpen id:#BsUpdatePlaySpeed) catch ()
+try (callbacks.removeScripts #timeunitsChange id:#BsUpdatePlaySpeed) catch ()
 
 global curVerBsKeyTools = "0.9.9"
 global verUrlBsKeyTools = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
@@ -2900,8 +2903,11 @@ rollout rolBsKeyTools "" width:355 height:250
 	(
 		iniPos = (GetDialogPos rolBsKeyTools)
 		stSetConfigAll.fnSetConfigBsKeyTools ()
-		try (callbacks.removeScripts #animationRangeChange id:#UpdateTimeRange) catch ()
-		try (callbacks.removeScripts #filePostOpen id:#UpdateFps) catch ()
+		try (callbacks.removeScripts #animationRangeChange id:#BsUpdateTimeRange) catch ()
+		try (callbacks.removeScripts #filePostOpen id:#BsUpdateFps) catch ()
+		try (callbacks.removeScripts #timeunitsChange id:#BsUpdateFps) catch ()
+		try (callbacks.removeScripts #filePostOpen id:#BsUpdatePlaySpeed) catch ()
+		try (callbacks.removeScripts #timeunitsChange id:#BsUpdatePlaySpeed) catch ()
 		try(destroydialog rolTogglePanel)catch()
 		unRegisterRedrawViewsCallback fnOrthoToPersp
 		tooglePersp = false
@@ -4322,7 +4328,10 @@ fn fnBsUpdateTimeRange =
 	rolBsKeyTools.spiStartTime.value = (animationRange.start.frame as integer)   
 	rolBsKeyTools.spiEndTime.value = (animationRange.end.frame as integer)
 )
-callbacks.addScript #animationRangeChange "fnBsUpdateTimeRange()" id:#UpdateTimeRange
-callbacks.addScript #filePostOpen "fnBsRefFps()" id:#UpdateFps
+callbacks.addScript #animationRangeChange "fnBsUpdateTimeRange()" id:#BsUpdateTimeRange
+callbacks.addScript #filePostOpen "fnBsRefFps()" id:#BsUpdateFps
+callbacks.addScript #timeunitsChange "fnBsRefFps()" id:#BsUpdateFps
+callbacks.addScript #filePostOpen "fnRefPlaySpeedValue()" id:#BsUpdatePlaySpeed
+callbacks.addScript #timeunitsChange "fnRefPlaySpeedValue()" id:#BsUpdatePlaySpeed
 gc()
 clearListener()  ---------清除侦听器
