@@ -705,12 +705,14 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 			(
 				--rename the objects to a unique name
 				nnl[i].name = uniqueName "Bone_Chain_scale_" numDigits:1
+				
 			)
 
 			$.isHidden = true
 
 
-			select  $Bone_Chain_scale_* 
+			select  $Bone_Chain_scale_* 			
+			
 			$.boneScaleType=#scale
 			for i=1  to  selection.count do
 			(
@@ -721,7 +723,8 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 				p_s = 	getNodeByName ("Bone_Chain_" + (i as string))
 				scaleExp.Addnode  "scalePP"  p_s
 					
-				scaleExp.script = 	"[scalePP.stretchTM[1][1],scalePP.stretchTM[2][2],scalePP.stretchTM[3][3]]"			
+				scaleExp.script = 	"[scalePP.stretchTM[1][1],scalePP.stretchTM[2][2],scalePP.stretchTM[3][3]]"	
+					
 			)
 
 			---创建骨骼的层
@@ -732,7 +735,7 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 				yun_bone_Layer.on = true
 			)
 
-			$.parent = world
+-- 			$.parent = world
 			for i in selection do ( yun_bone_Layer.addnode i)
 		
 		)
@@ -1376,7 +1379,7 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 			)  ---end undo
 
 
-		)----end of 创建fkik
+		)----end of 创建fkik 
 
 	   
 	   if not shapeBool then MessageBox "Select a Spline object"
@@ -1397,6 +1400,6 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 	(
 		MessageBox "LookAt Constraint：\r\n\r\n骨骼将分配标准的 lookat 约束，并将控制点虚拟体作为目标\r\n\r\n\r\n\r\nQuaternion Aim：\r\n\r\n骨骼将有旋转脚本而不是 lookat 约束，\r\n\r\n优点是脚本控制器有一种通过构建四元数来查找旋转值的查看算法，\r\n\r\n这可以防止不需要的翻转，\r\n\r\n除非骨骼与其父级重叠（x 轴正在寻找相反的方向）。                                                         "
 	)
-)
+) 
 dialogCreateChain=createDialog rollCreateChain 
 -- )
