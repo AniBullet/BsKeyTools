@@ -647,7 +647,7 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 			UIRotAverToControls.enabled=true
 			if UIRotAverToControls.state!=3 then
 				UIRotAverType.enabled=true
-		)
+		) 
 		else
 		(
 			UIRotAverType.enabled=false
@@ -741,7 +741,7 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 	   (
 			--添加自定义属性
 			obj = $Helper_Chain_Root
-			addmodifier obj (EmptyModifier())
+-- 			addmodifier obj (EmptyModifier())
 			--Bone Attributes
 			line_lenth = attributes line_lenth
 			attribid:#(0x7c853e24, 0x7b78b8d4)
@@ -766,8 +766,8 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 			)
 
 			-- Apply attribute class to an object
-			add_attribute = custattributes.add obj.modifiers[1] line_lenth
-			$Helper_Chain_Root.modifiers[#Attribute_Holder].line_lenth[1].value = 100
+			add_attribute = custattributes.add obj line_lenth
+			$Helper_Chain_Root.baseObject.line_lenth[1].value = 100
 
 			-- $.position.controller.Path_Constraint.controller.Percent
 
@@ -788,7 +788,7 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 			-- 			print i.name
 						i.position.controller.Path_Constraint.controller.Percent.controller	 = float_script ()
 						CT = i.position.controller.Path_Constraint.controller.Percent.controller		
-						CT.AddTarget  "mainP"  $Helper_Chain_Root.modifiers[#Attribute_Holder].line_lenth[1]
+						CT.AddTarget  "mainP"  $Helper_Chain_Root.baseObject.line_lenth[1]
 						----要注意百分比转换
 						CT.script =  ( p as string) +"* (mainP/100) "		
 					
@@ -797,7 +797,587 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 			)  
 		   
 	   )
-	   
+	   -->>>创建fkik切换
+-- 	   rollCreateChain.UISuperIkFk.checked
+	   if UISuperIkFk.checked  then
+		( 
+			----创建骨骼链	
+			function reconstructBones ori prefix  collor =
+			(
+			--排序	
+
+			sort_bones_n = sort(for i in ori collect i.name)	
+			sort_bones = #()
+			sort_bones = for o in sort_bones_n  collect (getNodeByName o)	
+			n = sort_bones.count	
+				
+			for i=1 to n do 
+			(	
+				if i != n then 
+				( 
+					makeBone = boneSys.createBone sort_bones[i].pos sort_bones[i+1].pos [1,0,0]		
+				)	
+				---创建末端
+				else
+				( 
+					arrSel = sort_bones[n]
+					parentBone  = arrSel
+					parentTrans = parentBone.transform
+					parentPos   = parentTrans.translation
+
+					
+					dir = sort_bones[n].pos - sort_bones[n-1].pos 
+					dir = normalize dir		
+					makeBone = BoneSys.createBone sort_bones[n].pos  (sort_bones[n].pos+10*dir) parentBone.dir
+					
+			-- 		makeBone = BoneSys.createBone parentPos [parentPos.x+6,parentPos.y,parentPos.z ] parentBone.dir
+			-- 		makeBone.transform = parentTrans
+					makeBone.taper     = 90	
+
+
+					if iskindof arrSel BoneGeometry==true do 
+					(
+						in coordSys Local move makeBone [parentBone.length,0,0]			
+						makeBone.parent    = parentBone
+						
+						makeBone.width     = parentBone.width
+						makeBone.height    = parentBone.height
+						makeBone.length    = (parentBone.width+parentBone.height)/2
+						makeBone.wirecolor = parentBone.wirecolor
+					)
+					---轴向调整
+					in coordSys Local rotate makeBone	(angleaxis 90 [1,0,0])			
+					append arrBoneEndAll makeBone		
+					
+				)
+				
+				---命名和层级整理
+				makeBone.name =prefix + "_"+(i as string)
+				makeBone.wirecolor = collor
+				if i > 1 then
+				(
+					try (p = getNodeByName (prefix + "_"+(i-1) as string) ) catch()
+					if p!=undefined then ( makeBone.parent =  p  )
+				)
+				--box显示
+				makeBone.boxmode = on
+
+				
+			)
+
+			) 
+			with undo on 
+			(
+			-- ikfk切换器
+				IKFK_switch = $Helper_Chain_Root
+
+			------------------------------------------------------------------------
+			----创建FK
+			clearSelection()	
+			select $Control_ChainKnot_*		
+			IK_ready =  selection as array
+
+			---锁定ik旋转
+			-- for i in IK_ready do ( i.rotation.controller = rotation_script () )
+
+
+			fk_radius = 15	
+			---显示层整理
+			yun_line_Layer = LayerManager.getLayerFromName "FK控制器"
+			if yun_line_Layer == undefined then 
+			(
+				yun_line_Layer = layerManager.newLayerFromName "FK控制器"
+				yun_line_Layer.on = true
+			)
+
+
+			try (delete $FK_ctl*) catch()
+			select $Control_ChainKnot_*		
+			IK_ready =  selection as array
+
+			ori =IK_ready	
+			prefix ="FK_ctl"
+			collor = yellow
+
+			---创建骨骼
+			reconstructBones ori prefix collor
+			$FK_ctl_1.parent =   IKFK_switch
+
+			---objA被objB位置约束
+			fn yunPosconstraint objA objB = 
+			(
+				objA.pos.controller = position_list ()	
+				posPP =Position_Constraint() 
+				objA.pos.controller.Available.controller=posPP
+				posPP.appendTarget objB 100
+				posPP.relative=true	
+			)
+			fn yunRotconstraint objA objB = 
+			(
+				objA.rotation.controller = rotation_list  ()	
+				rotPP =Orientation_Constraint() 
+				objA.rotation.controller.Available.controller=rotPP
+				rotPP.appendTarget objB 100
+				rotPP.relative=true	
+			)
+				
+
+			---添加ik的约束唯一控制层
+			for i=1 to IK_ready.count do
+			(
+				objA = IK_ready[i]	
+				fk_ctrl_P =  "FK_ctl_"+(i as string)
+				objB = getNodeByName fk_ctrl_P
+				yunPosconstraint objA objB
+				yunRotconstraint objA objB
+			)
+			---添加ik的约束控制层
+			for i=1 to IK_ready.count do
+			(
+				objA = IK_ready[i]	
+				fk_ctrl_P =  "FK_ctl_"+(i as string)
+				objB = getNodeByName fk_ctrl_P
+				yunPosconstraint objA objB
+			)
+
+
+			-- ikfk 切换器自定义属性添加
+			 
+			CWCode_A = attributes Custom_Attributes 
+			version:0
+			( 
+				Parameters main rollout:params
+				(
+					'FK / IK' Type:#integer UI:'FK / IK' Default:0 
+				)  
+				   
+				Rollout Params "Custom Attributes"   
+				( 
+					slider 'FK / IK' "FK / IK:" Width:50 Height:25 Align:#Center Offset:[0,0] Type:#integer Range:[0,1,0] Orient:#Horizontal Ticks:0
+					
+					on 'FK / IK' changed var do 
+					(
+						ctrlList = execute InfoStr
+						---显隐控制
+						for i = 1 to ctrlList.count do
+						(	
+							if	 var != 1 then
+							(		
+							ctrlList[i][1].isHidden = false
+							ctrlList[i][2].isHidden = true
+							)
+							else			
+							(		
+							ctrlList[i][1].isHidden = true
+							ctrlList[i][2].isHidden = false
+							)
+						)
+					)
+				)
+				
+				
+			)
+			custAttributes.add IKFK_switch CWCode_A   
+
+			-- <AttributeDef:FK / IK Tools> 
+			CWCode_B =  attributes "FK / IK Tools" attribID:#(0xe493761, 0x7662f616)
+			(
+			-- 	这一行的InfoStr很关键
+				parameters main rollout:FKIKTool
+				(
+					InfoStr type:#string default:""
+				)
+				rollout FKIKTool "FK / IK Tools"
+				(
+					
+
+					timer fkik_goodSee "fkik_goodSee" interval:500 --tick once a second
+
+					group "Pose" (
+						button btnPoseIK2FK "IK >> FK" width:120
+						button btnPoseFK2IK "FK >> IK" width:120
+					)
+					group "Animation" (
+						button btnAnimIK2FK ">> FK" width:120
+						button btnAnimFK2IK ">> IK" width:120
+						radioButtons rdoRangeType "" labels:#("Time Line","Range") default:1 columns:2
+						label lbStart "Start :"　across:2 enabled:false
+						spinner spnStart "" align:#left width:60 range:[-9999,9999,0] type:#integer enabled:false
+						label lbEnd "End :"　across:2 enabled:false
+						spinner spnEnd "" align:#left width:60 range:[-9999,9999,0] type:#integer enabled:false
+						button btnFitTimeLine "Fit Time Line" align:#right enabled:false
+					)
+					
+			-- 		timer 控制ikfk的显示状态
+					on fkik_goodSee tick do
+					  (
+						ctrlList = execute InfoStr
+						
+						if $.baseObject.Custom_Attributes.FK___IK==1 then
+						(
+						   
+							FKIKTool.btnPoseIK2FK.text = "o(^▽^)o >> FK"
+							FKIKTool.btnPoseFK2IK.text = "(T⌓T) >> IK"
+							
+							FKIKTool.btnPoseIK2FK.enabled = true
+							FKIKTool.btnPoseFK2IK.enabled = false
+							---显隐控制_IK
+							for i = 1 to ctrlList.count do
+							(					
+								ctrlList[i][1].isHidden = true
+								ctrlList[i][2].isHidden = false			
+							)
+						)
+						else
+						(
+						   
+							FKIKTool.btnPoseIK2FK.text = "(T⌓T)>> FK"
+							FKIKTool.btnPoseFK2IK.text = "o(^▽^)o >> IK"
+							FKIKTool.btnPoseIK2FK.enabled = false
+							FKIKTool.btnPoseFK2IK.enabled = true
+							---显隐控制_FK
+							for i = 1 to ctrlList.count do
+							(					
+								ctrlList[i][1].isHidden = false
+								ctrlList[i][2].isHidden = 	true		
+							)
+						)
+					  ) 
+					----ik吸附到fk
+					on btnPoseFK2IK pressed do (
+						------严查
+						ctrlList = execute InfoStr
+						undo "" on
+						(
+							$.FK___IK = 1
+							redrawViews()
+							for ctrls in ctrlList do (
+								ctrls[2].transform = ctrls[1].transform
+							)
+
+							---显隐控制
+							for i = 1 to ctrlList.count do(ctrlList[i][1].isHidden = true ;ctrlList[i][2].isHidden = false)
+						)
+					)
+					--- fk吸附到ik
+					on btnPoseIK2FK pressed do (
+						ctrlList = execute InfoStr
+						undo "" on
+						(
+							for i = 1 to ctrlList.count - 1 do(
+								vPos = ctrlList[i][2].transform.position
+								xAxis = normalize (ctrlList[i+1][2].transform.position - vPos)
+								yAxis = normalize (cross [0,0,1] xAxis)
+								zAxis = normalize (cross xAxis yAxis)
+
+								ctrlList[i][1].transform = (matrix3 xAxis yAxis zAxis vPos)
+							)
+
+							---显隐控制
+							for i = 1 to ctrlList.count do(ctrlList[i][1].isHidden = false;ctrlList[i][2].isHidden = true)
+							ctrlList[ctrlList.count][1].transform = ctrlList[ctrlList.count][2].transform
+
+							$.FK___IK = 0
+							redrawViews()
+						)
+					)
+					---动画的ikfk切换
+					on btnAnimFK2IK pressed do (
+						ctrlList = execute InfoStr
+
+						tNow = (currentTime as string) as integer
+						tStart = (animationRange.start as string) as integer
+						tEnd = (animationRange.end as string) as integer
+						
+						if rdoRangeType.state == 2 then (
+							tStart = spnStart.value
+							tEnd = spnEnd.value
+						)
+
+						oriAnmState = animButtonState
+
+						undo "" on
+						(
+							TMInfoList = #()
+							for t = tStart to tEnd do (
+								sliderTime = t
+								TMInfo = #()
+								for ctrls in ctrlList do (
+									append TMInfo ctrls[2].transform 
+								)
+								append TMInfoList TMInfo
+							)
+
+							animate on
+							(
+								at Time (tStart - 1)
+								(
+									$.FK___IK = $.FK___IK
+								)
+								at Time (tEnd + 1)
+								(
+									$.FK___IK = $.FK___IK
+								)
+							)
+
+							selectKeys $.FK___IK.controller tStart tEnd
+							deleteKeys $.FK___IK.controller #selection
+
+							animate on
+							(
+								at Time tStart
+								(
+									$.FK___IK = 1
+								)
+								at Time tEnd
+								(
+									$.FK___IK = 1
+								)
+							)
+
+							redrawViews()
+							animate on
+							(
+								for t = tStart to tEnd do (
+									idxT = (t - tStart) + 1
+									at Time t 
+									(
+										for i = 1 to ctrlList.count do
+										(
+											ctrlList[i][2].transform = TMInfoList[idxT][i]
+										)
+									)
+								)
+							)--end animate
+							sliderTime = tNow
+						)-- end undo
+					)
+					---动画的ikfk切换
+					on btnAnimIK2FK pressed do (
+						ctrlList = execute InfoStr
+
+						tNow = (currentTime as string) as integer
+						tStart = (animationRange.start as string) as integer
+						tEnd = (animationRange.end as string) as integer
+						
+						if rdoRangeType.state == 2 then (
+							tStart = spnStart.value
+							tEnd = spnEnd.value
+						)
+
+						oriAnmState = animButtonState
+
+						undo "" on
+						(
+							TMInfoList = #()
+							for t = tStart to tEnd do (
+								sliderTime = t
+								TMInfo = #()
+								for i = 1 to (ctrlList.count - 1) do (
+									vPos = ctrlList[i][2].transform.position
+									xAxis = normalize (ctrlList[i+1][2].transform.position - vPos)
+									yAxis = normalize (cross [0,0,1] xAxis)
+									zAxis = normalize (cross xAxis yAxis)
+
+									mtx = (matrix3 xAxis yAxis zAxis vPos)
+									append TMInfo mtx
+								)
+
+								append TMInfo ctrlList[ctrlList.count][2].transform
+								append TMInfoList TMInfo
+							)
+
+							animate on
+							(
+								at Time (tStart - 1)
+								(
+									$.FK___IK = $.FK___IK
+								)
+								at Time (tEnd + 1)
+								(
+									$.FK___IK = $.FK___IK
+								)
+							)
+
+							selectKeys $.FK___IK.controller tStart tEnd
+							deleteKeys $.FK___IK.controller #selection
+
+							animate on
+							(
+								at Time tStart
+								(
+									$.FK___IK = 0
+								)
+								at Time tEnd
+								(
+									$.FK___IK = 0
+								)
+							)
+
+							redrawViews()
+
+							animate on
+							(
+								for t = tStart to tEnd do (
+									idxT = (t - tStart) + 1
+									at Time t 
+									(
+										for i = 1 to ctrlList.count do
+										(
+											ctrlList[i][1].transform = TMInfoList[idxT][i]
+										)
+									)
+								)
+							)--end animate
+							sliderTime = tNow
+						)-- end undo
+					)
+					---动画的ikfk切换的配置块儿
+					on rdoRangeType changed val do (
+						case val of (
+							1:(
+								lbStart.enabled = false
+								lbEnd.enabled = false
+								spnStart.enabled = false
+								spnEnd.enabled = false
+								btnFitTimeLine.enabled = false
+							)
+							2:(
+								lbStart.enabled = true
+								lbEnd.enabled = true
+								spnStart.enabled = true
+								spnEnd.enabled = true
+								btnFitTimeLine.enabled = true
+							)
+						)
+						if FKIKTimeRangeType == undefined then (
+							global FKIKTimeRangeType
+						)
+						FKIKTimeRangeType = val
+					)
+					---动画的ikfk切换的配置块儿的 小弟
+					on spnStart changed val do (
+						if spnEnd.value < val then (
+							spnEnd.value = val
+						)
+
+						if startTime == undefined then (
+							global startTime
+						)
+						startTime = val
+					)
+					---动画的ikfk切换的配置块儿的 小弟
+					on spnEnd changed val do (
+						if spnStart.value > val then (
+							spnStart.value = val
+						)
+
+						if endTime == undefined then (
+							global endTime
+						)
+						endTime = val
+					)
+					---动画的ikfk切换的配置块儿的 小弟
+					on btnFitTimeLine pressed do (
+						spnStart.value = (animationRange.start as string) as integer
+						spnEnd.value = (animationRange.end as string) as integer
+					)
+					-- 打开时固定执行
+					on FKIKTool open do(
+						if startTime == undefined then (
+							global startTime
+							startTime = (animationRange.start as string) as integer
+						)
+						if endTime == undefined then (
+							global endTime
+							endTime = (animationRange.end as string) as integer
+						)
+						
+						spnStart.value = startTime
+						spnEnd.value = endTime
+
+						if FKIKTimeRangeType != undefined then (
+							rdoRangeType.state = FKIKTimeRangeType
+							case FKIKTimeRangeType of (
+								1:(
+									lbStart.enabled = false
+									lbEnd.enabled = false
+									spnStart.enabled = false
+									spnEnd.enabled = false
+									btnFitTimeLine.enabled = false
+								)
+								2:(
+									lbStart.enabled = true
+									lbEnd.enabled = true
+									spnStart.enabled = true
+									spnEnd.enabled = true
+									btnFitTimeLine.enabled = true
+								)
+							)
+						)
+					)
+				)
+			)
+
+			custAttributes.add IKFK_switch CWCode_B
+
+			---获取命令的字符串
+			finalCtr_str = ""
+			for i=1 to IK_ready.count do
+			(
+				fk_ctrl_P =  "FK_ctl_"+(i as string)
+				objB = getNodeByName fk_ctrl_P
+				IK_ready[i].name
+				objB.name
+				if i==1 then 	( str = "#($"+objB.name+",$"+IK_ready[i].name+")"  )
+				else (str = ",#($"+objB.name+",$"+IK_ready[i].name+")")
+				append finalCtr_str str	
+			)
+			finalCtr_str = "#("+finalCtr_str+")"
+			---将字符串赋值给属性
+			IKFK_switch.baseObject.FK___IK_Tools.InfoStr = finalCtr_str
+
+
+			-- ik约束权重的连线参数
+			-- 0是fk，1是ik
+			IKFK_switch.baseObject.Custom_Attributes.FK___IK = 1
+			for i=1 to IK_ready.count do
+			(
+			paramWire.connect IKFK_switch.baseObject.Custom_Attributes[#FK___IK] IK_ready[i].pos.controller[4][#Weight__Position_Constraint] "1-FK___IK"											
+			)
+
+			/* 
+			---添加ikfk显示隐藏表达式
+			exp_IK = "if SW > 0.5 and SelfObj.isHidden == true then unhide SelfObj
+			else if SW <= 0.5 and SelfObj.isHidden == false then hide SelfObj
+			[1, 1, 1]"
+			exp_FK = "if SW > 0.5 and SelfObj.isHidden == false then hide SelfObj
+			else if SW <= 0.5 and SelfObj.isHidden == true then unhide SelfObj
+			[1, 1, 1]"
+
+
+			for i=1 to IK_ready.count do
+			(
+				IK_ready[i].scale.controller = scale_script ()
+				IK_ready[i].scale.controller.AddTarget  "SW"  IKFK_switch.baseObject.Custom_Attributes[1]
+				IK_ready[i].scale.controller.AddNode    "SelfObj"  IK_ready[i]
+				IK_ready[i].scale.controller.script =exp_IK	
+				fk_ctrl_P =  "FK_ctl_"+(i as string)
+				objB = getNodeByName fk_ctrl_P	
+				objB.scale.controller = scale_script ()
+				objB.scale.controller.AddTarget  "SW"  IKFK_switch.baseObject.Custom_Attributes[1]
+				objB.scale.controller.AddNode    "SelfObj"  objB
+				objB.scale.controller.script =exp_FK
+			)
+			IKFK_switch.baseObject.Custom_Attributes.FK___IK = 0 */
+
+
+
+			)  ---end undo
+
+
+		)----end of 创建fkik
+
 	   
 	   if not shapeBool then MessageBox "Select a Spline object"
 	 )

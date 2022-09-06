@@ -137,6 +137,11 @@
 					menuMan.unRegisterMenu (menuMan.findMenu "🎮 BsKeyTools")
 					menuMan.updateMenuBar()
 				)
+				if ((menuMan.findMenu "BsKeyTools") != undefined) then 
+				(
+					menuMan.unRegisterMenu (menuMan.findMenu "BsKeyTools")
+					menuMan.updateMenuBar()
+				)
 				if (SIOFile.Exists startupPath) do (fnDelFileDir startupPath)
 				if (SIOFile.Exists startupMarcroPath) do (fnDelFileDir startupMarcroPath)
 				if (SIOFile.Exists startupMenuBarPath) do (fnDelFileDir startupMenuBarPath)

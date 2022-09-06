@@ -1,6 +1,6 @@
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
 (
-    local strMenuName = "🎮 BsKeyTools"
+    local strMenuName = "BsKeyTools"
     local arrToolName = #("BsKeyTools","🎮 BsKeyTools","自动收缩面板","帮助 / Help","自动检测更新","自动启动脚本","+菜单栏按钮-")
     
     for i in arrToolName do

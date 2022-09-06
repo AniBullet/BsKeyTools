@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-05 12:04:58
+ * @LastEditTime: 2022-09-06 16:57:56
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1151,6 +1151,11 @@ rcmenu menuConfig
                 menuMan.unRegisterMenu (menuMan.findMenu "🎮 BsKeyTools")
                 menuMan.updateMenuBar()
             )
+			if ((menuMan.findMenu "BsKeyTools") != undefined) then 
+			(
+				menuMan.unRegisterMenu (menuMan.findMenu "BsKeyTools")
+				menuMan.updateMenuBar()
+			)
 			if (SIOFile.Exists startupPath) do (fnDelFileDir startupPath)
 			if (SIOFile.Exists startupMarcroPath) do (fnDelFileDir startupMarcroPath)
 			if (SIOFile.Exists startupMenuBarPath) do (fnDelFileDir startupMenuBarPath)
