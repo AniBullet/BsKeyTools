@@ -934,14 +934,7 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 				yunPosconstraint objA objB
 				yunRotconstraint objA objB
 			)
-			---添加ik的约束控制层
-			for i=1 to IK_ready.count do
-			(
-				objA = IK_ready[i]	
-				fk_ctrl_P =  "FK_ctl_"+(i as string)
-				objB = getNodeByName fk_ctrl_P
-				yunPosconstraint objA objB
-			)
+	
 
 
 			-- ikfk 切换器自定义属性添加
@@ -1346,7 +1339,11 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 			IKFK_switch.baseObject.Custom_Attributes.FK___IK = 1
 			for i=1 to IK_ready.count do
 			(
-			paramWire.connect IKFK_switch.baseObject.Custom_Attributes[#FK___IK] IK_ready[i].pos.controller[4][#Weight__Position_Constraint] "1-FK___IK"											
+			paramWire.connect IKFK_switch.baseObject.Custom_Attributes[#FK___IK] IK_ready[i].pos.controller[4][#Weight__Position_Constraint] "1-FK___IK"
+
+			paramWire.connect IKFK_switch.baseObject.Custom_Attributes[#FK___IK] IK_ready[i].rotation.controller[4][#Weight__Orientation_Constraint] "1-FK___IK"
+-- 			paramWire.connect $.baseObject.Custom_Attributes[#FK___IK] $Control_ChainKnot_2.rotation.controller.Orientation_Constraint.controller[#Orientation_Weight_0] "1-FK___IK"
+				
 			)
 
 			/* 
