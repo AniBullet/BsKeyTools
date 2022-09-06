@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-06 16:57:56
+ * @LastEditTime: 2022-09-06 18:24:56
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1663,7 +1663,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos
 	button btnClearBiped "Bip 重置" width:btnWidth height:btnHeight visible:false \
 	tooltip:"清除所有帧，恢复 Biped Figure Pose" pos:btnPos
-	button btnTwistBones "Twist 创建" width:btnWidth height:btnHeight visible:false \
+	button btnTwistBones "Twist创建" width:btnWidth height:btnHeight visible:false \
 	tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
 	button btnChainsTools "链条工具" width:btnWidth height:btnHeight visible:false \
 	tooltip:"根据样条线创建链条绑定的工具" pos:btnPos
