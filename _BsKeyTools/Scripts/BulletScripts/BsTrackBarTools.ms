@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-05 14:03:25
+ * @LastEditTime: 2022-09-07 13:48:34
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -792,7 +792,7 @@ if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = 
 callbacks.addScript #filePostOpen "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 callbacks.addScript #filePostSave "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 
-rollout rolBsBackupManager "" width:340 height:280
+rollout rolBsBackupManager "" width:340 height:260
 (
 	local posMouMove     = [0,0]
 	local switchMouState = false
@@ -804,22 +804,111 @@ rollout rolBsBackupManager "" width:340 height:280
 	height:20 width:25 pos:[10,20] tooltip:"左：刷新当前文件目录\r\n右：重置场景"
 	button btnOpenCurrentDir "打开" tooltip:"打开当前文件夹" \
 	height:20 width:25 pos:[35,20] border:false
-	editText edtBrowseFolder "" text:"" labelOnTop:true align:#right \
+	editText edtBackupPath "" text:"" labelOnTop:true align:#right \
 	height:20 fieldWidth:230 pos:[65,20] readOnly:true 
 	button btnPrevFolder "↑" tooltip:"返回上层目录，也可右击面板空白处" \
 	height:20 width:25 pos:[300,20] border:false
+	editText edtImputFilter "" text:"" labelOnTop:true align:#right \
+	height:17 fieldWidth:115 pos:[10,48]
+	MultiListBox mlbBackupFolders "" align:#left selection:0 \
+	height:12 width:115 pos:[10,70]
+	MultiListBox mlbBackupFiles "" align:#right selection:0 \
+	height:14 width:200 pos:[130,45]
+	label lblCountFolder "" height:15 width:100 pos:[15,235]
+	label lblCountFiles "" height:15 width:100 pos:[210,235]
 
-	listBox ltbFilterPrefix "" align:#left selection:0 \
-	height:12 width:115 pos:[10,85]
-	listBox ltbFilesList "" align:#right selection:0 \
-	height:15 width:200 pos:[130,46]
+	fn fnRefreshFolderList strFilesDir =
+	(
+		arrFolders = #()
+		arrFoldersName = #()
+		if strFilesDir != undefined then 
+		(
+			if ((strFilesDir != "") and (doesDirectoryExist strFilesDir)) then
+			(
+				local tempDir = GetDirectories (strFilesDir + "/*")
+				for i in tempDir do 
+				(
+					append arrFolders (substring i 1 (i.count-1))
+				)
+				qsort arrFolders fnPseudoNaturalSort
+				
+				if arrFolders[1] != undefined then
+				(
+					for c in arrFolders do  --获取文件夹名字,后面切换脚本类别和列表会用到
+					(
+						append arrFoldersName ("📂 " + (getFilenameFile c))
+					)
+				)
+				rolBsBackupManager.mlbBackupFolders.items = arrFoldersName
+				rolBsBackupManager.edtBackupPath.text = strFilesDir
+			)
+		)
+		else messagebox "-------------------------------------\r\n\r\n文件夹可能已不存在\r\n\r\n请尝试刷新\r\n\r\n-------------------------------------"
+		lblCountFolder.text = "已备份动画：" + arrFolders.count as string + " 个"
+	)
+
+	fn fnRefreshFilesList type:".max" =
+	(
+		idFolderSelected = 0
+		nameFolderSelected = ""
+		arrFiles = #()
+		arrFilesName = #()
+		tarFolder = undefined
+		if (mlbBackupFolders.selection as array).count == 1 then
+		(
+			idFolderSelected = (mlbBackupFolders.selection as array)[1]
+			nameFolderSelected = (mlbBackupFolders.items)[idFolderSelected]
+			nameFolderSelected = (substituteString nameFolderSelected "📂 " "")
+			tarFolder = (edtBackupPath.text + "\\" + nameFolderSelected + ".backup\\")
+		)
+		else 
+		(
+			tarFolder = (edtBackupPath.text + "\\")
+		)
+		if tarFolder != undefined then 
+		(
+			if (doesDirectoryExist tarFolder) then
+			(
+				(arrFiles = getFiles (tarFolder + "\\*" + type))
+				qsort arrFiles fnPseudoNaturalSort
+				if arrFiles[1] != undefined then
+				(
+					for c in arrFiles do  --获取文件名字,后面切换脚本类别和列表会用到
+					(
+						(append arrFilesName ("📄 " + (getFilenameFile c) + type))
+					)
+				)
+				rolBsBackupManager.mlbBackupFiles.items = arrFilesName
+			)
+		)
+		else messagebox "-------------------------------------\r\n\r\n文件版本可能已不存在\r\n\r\n请尝试刷新\r\n\r\n-------------------------------------"
+		lblCountFiles.text = "已备份版本：" + arrFiles.count as string + " 个"
+	)
+
+	fn fnJudgeFolderSelected =
+	(
+		if maxfilename != "" then
+		(
+			idSelected = 0
+			arrFolder = (rolBsBackupManager.mlbBackupFolders.items as array)
+			for i = 1 to arrFolder.count do
+			(
+				if (matchpattern arrFolder[i] pattern:("*" + (getfilenamefile maxfilename) + "*")) then idSelected = i
+			)
+			rolBsBackupManager.mlbBackupFolders.selection = idSelected
+		)
+	)
 
 	on rolBsBackupManager open do 
 	(
-		btnRefreshFolder.images  = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,3,3,3,3,true,false)
-		btnOpenCurrentDir.images = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,5,5,5,5,true,false)
+		btnRefreshFolder.images  = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,3,3,4,4,false,false)
+		btnOpenCurrentDir.images = #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
 		btnPrevFolder.images     = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,1,1,1,1,false,true)
-		edtBrowseFolder.text = iniBackupPath
+		edtBackupPath.text = iniBackupPath
+		mlbBackupFolders.selection = 0
+		fnRefreshFolderList iniBackupPath
+		fnJudgeFolderSelected()
+		fnRefreshFilesList()
 	)
 
 	on rolBsBackupManager close do 
