@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-08 13:42:30
+ * @LastEditTime: 2022-09-08 13:51:19
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -465,7 +465,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		)
 		if numFiles == 0 then 
 		(
-			fnButtonStyle btnFilesCount ("文件暂无备份")
+			fnButtonStyle btnFilesCount ("暂无备份")
 		)
 		else 
 		(
