@@ -3,12 +3,12 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-07 13:48:34
+ * @LastEditTime: 2022-09-08 13:42:30
  * @Email: animator.bullet@foxmail.com
  */
 
 
-if form != undefined then ( form.close(); form = undefined  )
+if form != undefined then (form.close();form = undefined)
 try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
 try (destroyDialog rolBsTrackBarTools) catch()
 try (destroydialog rolBsBackupManager) catch()
@@ -24,9 +24,10 @@ global iniPosAutoBackup
 Global iniPosBackupManager
 global iniDockPos
 global heightBsSize = 30
-global widthBsSize  = 255
+global widthBsSize  = 335
 Global SIOFile      = dotNetClass "System.IO.File"
 Global SIODir       = dotNetClass "System.IO.Directory"
+global arrBsBackupFiles = #()
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "脚本安装可能不完全,建议重新安装...        " beep:false)
@@ -365,7 +366,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	dotnetcontrol btnTimer "Button" height:30 width:80 pos:[95,0] --replace
 	dotnetcontrol btnBackup "Button" height:30 width:40 pos:[175,0] --increment
 	dotnetcontrol btnSaveAs "Button" height:30 width:40 pos:[215,0]  --save as
-	-- dotnetcontrol btnOpenPath "Button" height:30 width:80 pos:[255,0]  --打开备份文件夹
+	dotnetcontrol btnBackupManager "Button" height:30 width:80 pos:[255,0]  --打开备份文件夹
 	
 	timer clock "testClock" interval:1000 active:false  --tick once a second
 
@@ -459,22 +460,17 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		numFiles = 0
 		if maxFileName != "" then
 		(
-			if matchpattern (maxFilePath + maxFileName) pattern:("*.backup\\*.max") then 
-			(
-				tarPath = maxFilePath
-			)
-			else
-			(
-				tarPath = (iniBackupPath + "\\" + (getFilenameFile maxFileName) + ".backup")
-			)
-			numFiles = (getfiles (tarPath + "\\*.max")).count
+			tarPath = (iniBackupPath + "\\" + (getFilenameFile maxFileName) + ".backup")
+			numFiles = (getfiles (tarPath + "\\*.max")).count + 1
+		)
+		if numFiles == 0 then 
+		(
+			fnButtonStyle btnFilesCount ("文件暂无备份")
 		)
 		else 
 		(
-			tarPath =  iniBackupPath
-			numFiles = (getDirectories iniBackupPath).count
+			fnButtonStyle btnFilesCount ("当前版本" + numFiles as string)
 		)
-		fnButtonStyle btnFilesCount (numFiles as string +" 文件/夹")
 		btnFilesCount.FlatAppearance.BorderColor = mcolor.white 
 	)
 	
@@ -545,6 +541,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			)
 			rolBsTrackBarTools.fnFilesCount()
 		)
+		rolBsBackupManager.fnRefreshBackupAll()
 	)
 	
 	on rolBsTrackBarTools open do
@@ -585,7 +582,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		btnTimer.font = dotNetObject "System.Drawing.Font" "Arial" 9 myFontStyle
 		fnButtonStyle btnBackup "迭代"
 		fnButtonStyle btnSaveAs "另存"
-		-- fnButtonStyle btnOpenPath "打开已备份"
+		fnButtonStyle btnBackupManager "备份管理"
 		fnFilesCount()
 		fnButtonStyle btnConfig ""
 		local objToolTip = dotnetobject "System.Windows.Forms.ToolTip"  
@@ -685,7 +682,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 
 	on btnFilesCount MouseDown senderArg arg do
 	(
-		if arg.button == btnFilesCount.mousebuttons.right then
+		if arg.button == btnFilesCount.mousebuttons.left then
 		(
 			if maxFileName != "" then
 			(
@@ -700,7 +697,11 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			)
 			else (try(shellLaunch iniBackupPath "")catch())
 		)
-		else if arg.button == btnFilesCount.mousebuttons.left then
+	)
+
+	on btnBackupManager MouseDown senderArg arg do
+	(
+		if arg.button == btnFilesCount.mousebuttons.left then
 		(
 			try (destroydialog rolBsBackupManager) catch ()
 			if (iniPosBackupManager != 0) then (Createdialog rolBsBackupManager fgcolor:myFgColor pos:iniPosBackupManager style:#())
@@ -789,33 +790,32 @@ else (createDialog rolBsTrackBarTools widthBsSize heightBsSize style:#(#style_sy
 -- cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[190,30]
 -- cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top
 if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
-callbacks.addScript #filePostOpen "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
-callbacks.addScript #filePostSave "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 
-rollout rolBsBackupManager "" width:340 height:260
+rollout rolBsBackupManager "" width:380 height:260
 (
 	local posMouMove     = [0,0]
 	local switchMouState = false
 
-	groupbox grpMain "BsBackupManager_v1.0-----------(按住这里可拖动)" \
+	groupbox grpMain "------------------------------------( 按住这里可拖动 )" \
 	width:(rolBsBackupManager.width - 10) height:(rolBsBackupManager.height - 5) pos:[5,0]
 	button btnClose "X" pos:[rolBsBackupManager.width - 15,0] height:15 width:15
 	button btnRefreshFolder "R" align:#left border:false \
 	height:20 width:25 pos:[10,20] tooltip:"左：刷新当前文件目录\r\n右：重置场景"
-	button btnOpenCurrentDir "打开" tooltip:"打开当前文件夹" \
+	button btnOpenCurrentDir "打开" tooltip:"打开备份文件夹" \
 	height:20 width:25 pos:[35,20] border:false
 	editText edtBackupPath "" text:"" labelOnTop:true align:#right \
-	height:20 fieldWidth:230 pos:[65,20] readOnly:true 
+	height:20 fieldWidth:270 pos:[65,20] readOnly:true 
 	button btnPrevFolder "↑" tooltip:"返回上层目录，也可右击面板空白处" \
-	height:20 width:25 pos:[300,20] border:false
+	height:20 width:25 pos:[340,20] border:false
 	editText edtImputFilter "" text:"" labelOnTop:true align:#right \
-	height:17 fieldWidth:115 pos:[10,48]
+	height:17 fieldWidth:145 pos:[10,48]
 	MultiListBox mlbBackupFolders "" align:#left selection:0 \
-	height:12 width:115 pos:[10,70]
+	height:12 width:145 pos:[10,70]
 	MultiListBox mlbBackupFiles "" align:#right selection:0 \
-	height:14 width:200 pos:[130,45]
+	height:14 width:210 pos:[160,45]
 	label lblCountFolder "" height:15 width:100 pos:[15,235]
-	label lblCountFiles "" height:15 width:100 pos:[210,235]
+	label lblCountFiles "" height:15 width:100 pos:[265,235]
+	label lblTitle "BsBackupManager" height:15 width:120 pos:[130,235]
 
 	fn fnRefreshFolderList strFilesDir =
 	(
@@ -844,14 +844,15 @@ rollout rolBsBackupManager "" width:340 height:260
 			)
 		)
 		else messagebox "-------------------------------------\r\n\r\n文件夹可能已不存在\r\n\r\n请尝试刷新\r\n\r\n-------------------------------------"
-		lblCountFolder.text = "已备份动画：" + arrFolders.count as string + " 个"
+		lblCountFolder.text = "备份库：" + arrFolders.count as string + " 个"
 	)
 
 	fn fnRefreshFilesList type:".max" =
 	(
+		-- mlbBackupFiles.selection = 0
 		idFolderSelected = 0
 		nameFolderSelected = ""
-		arrFiles = #()
+		arrBsBackupFiles = #()
 		arrFilesName = #()
 		tarFolder = undefined
 		if (mlbBackupFolders.selection as array).count == 1 then
@@ -863,17 +864,17 @@ rollout rolBsBackupManager "" width:340 height:260
 		)
 		else 
 		(
-			tarFolder = (edtBackupPath.text + "\\")
+			tarFolder = ((getdir #autoback) + "\\")
 		)
 		if tarFolder != undefined then 
 		(
 			if (doesDirectoryExist tarFolder) then
 			(
-				(arrFiles = getFiles (tarFolder + "\\*" + type))
-				qsort arrFiles fnPseudoNaturalSort
-				if arrFiles[1] != undefined then
+				(arrBsBackupFiles = getFiles (tarFolder + "\\*" + type))
+				qsort arrBsBackupFiles fnPseudoNaturalSort
+				if arrBsBackupFiles[1] != undefined then
 				(
-					for c in arrFiles do  --获取文件名字,后面切换脚本类别和列表会用到
+					for c in arrBsBackupFiles do  --获取文件名字,后面切换脚本类别和列表会用到
 					(
 						(append arrFilesName ("📄 " + (getFilenameFile c) + type))
 					)
@@ -882,21 +883,48 @@ rollout rolBsBackupManager "" width:340 height:260
 			)
 		)
 		else messagebox "-------------------------------------\r\n\r\n文件版本可能已不存在\r\n\r\n请尝试刷新\r\n\r\n-------------------------------------"
-		lblCountFiles.text = "已备份版本：" + arrFiles.count as string + " 个"
+		lblCountFiles.text = "已备份版本：" + arrBsBackupFiles.count as string + " 个"
 	)
 
 	fn fnJudgeFolderSelected =
 	(
+		idSelected = 0
 		if maxfilename != "" then
 		(
-			idSelected = 0
-			arrFolder = (rolBsBackupManager.mlbBackupFolders.items as array)
-			for i = 1 to arrFolder.count do
+			if not (matchpattern (maxFilePath + maxFileName) pattern:("*.backup\\*.max")) then 
 			(
-				if (matchpattern arrFolder[i] pattern:("*" + (getfilenamefile maxfilename) + "*")) then idSelected = i
+				arrFolder = (rolBsBackupManager.mlbBackupFolders.items as array)
+				for i = 1 to arrFolder.count do
+				(
+					if (matchpattern arrFolder[i] pattern:("📂 " + (getfilenamefile maxfilename))) then idSelected = i
+				)
+				rolBsBackupManager.edtImputFilter.text = (getfilenamefile maxfilename)
+				rolBsBackupManager.mlbBackupFiles.selection = 0
+			)
+			else 
+			(
+				fileName = (getfilenamefile maxfilename)
+				arrNameFilter = (filterString fileName "_")
+				strCountNum = arrNameFilter[arrNameFilter.count]
+				tarName = substring fileName 1 (fileName.count - strCountNum.count - 1)
+				arrFolder = (rolBsBackupManager.mlbBackupFolders.items as array)
+				for i = 1 to arrFolder.count do
+				(
+					if (matchpattern arrFolder[i] pattern:("📂 " + tarName)) then idSelected = i
+				)
+				rolBsBackupManager.edtImputFilter.text = tarName
+				rolBsBackupManager.mlbBackupFiles.selection = (finditem (rolBsBackupManager.mlbBackupFiles.items as array) ("📄 " + maxfilename))
 			)
 			rolBsBackupManager.mlbBackupFolders.selection = idSelected
 		)
+	)
+
+	fn fnRefreshBackupAll =
+	(
+		fnRefreshFolderList iniBackupPath
+		fnJudgeFolderSelected()
+		fnRefreshFilesList()
+		fnJudgeFolderSelected()
 	)
 
 	on rolBsBackupManager open do 
@@ -905,10 +933,7 @@ rollout rolBsBackupManager "" width:340 height:260
 		btnOpenCurrentDir.images = #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
 		btnPrevFolder.images     = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,1,1,1,1,false,true)
 		edtBackupPath.text = iniBackupPath
-		mlbBackupFolders.selection = 0
-		fnRefreshFolderList iniBackupPath
-		fnJudgeFolderSelected()
-		fnRefreshFilesList()
+		fnRefreshBackupAll()
 	)
 
 	on rolBsBackupManager close do 
@@ -944,4 +969,45 @@ rollout rolBsBackupManager "" width:340 height:260
 			SetDialogPos rolBsBackupManager (mouse.screenpos - posMouMove)			
 		)
 	)
+
+	on btnRefreshFolder pressed do 
+	(
+		fnRefreshBackupAll()
+	)
+
+	on btnRefreshFolder rightclick do 
+	(
+		CheckForSave ()
+		resetMaxFile #noPrompt
+		max tool maximize
+	)
+
+	on btnOpenCurrentDir pressed do 
+	(
+		try(shellLaunch iniBackupPath "")catch()
+	)
+
+	on mlbBackupFolders selected arg do
+	(
+		if (rolBsBackupManager.mlbBackupFolders.selection as array).count == 1 then
+		(
+			fnRefreshFilesList()
+			rolBsBackupManager.edtImputFilter.text = mlbBackupFolders.items[(mlbBackupFolders.selection as array)[1]]
+		)
+	)
+
+	on mlbBackupFiles doubleClicked id do
+	(
+		tarFile = arrBsBackupFiles[id]
+		if (doesfileexist tarFile) then
+		(
+			CheckForSave ()
+			loadMaxFile tarFile useFileUnits:true
+		)
+	)
 )
+
+callbacks.addScript #filePostOpen "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
+callbacks.addScript #filePostSave "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
+callbacks.addScript #filePostOpen "rolBsBackupManager.fnRefreshBackupAll()" id:#UpdateBsBackup
+callbacks.addScript #filePostSave "rolBsBackupManager.fnRefreshBackupAll()" id:#UpdateBsBackup
