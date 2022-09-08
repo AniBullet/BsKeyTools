@@ -12,16 +12,15 @@ rollout ProColorDialog "ProColor v0.8.1"
 (
 	group "随机颜色"
 	(
-		radiobuttons RadRan labels:#("Geometry", "Selection", "All Objects") across:2
-		Button DoRan "应用" tooltip:"应用到物体" width:70 height:40 align:#right
+		radiobuttons RadRan labels:#("Selection", "All Objects") across:2
+		Button DoRan "应用" tooltip:"应用到物体" width:70 height:30 align:#right
 	)
 
 	function fn_Random objs = for i in objs do i.wirecolor = random black white
 
 	on DoRan pressed do with undo on
 	(
-		if RadRan.state == 1 then fn_Random geometry
-		else if RadRan.state == 2 then
+		if RadRan.state == 1 then
 		(
 			if selection.count > 0 then fn_Random selection
 			else messagebox "请至少选择一个物体！    " beep:false
@@ -31,16 +30,15 @@ rollout ProColorDialog "ProColor v0.8.1"
 
 	group "随机灰色"
 	(
-		radiobuttons RanGray labels:#("Geometry", "Selection", "All Objects") across:2
-		button DoGray "应用" tooltip:"应用到物体" width:70 height:40 align:#right
+		radiobuttons RanGray labels:#("Selection", "All Objects") across:2
+		button DoGray "应用" tooltip:"应用到物体" width:70 height:30 align:#right
 	)
 
 	function fn_Gray objs =	for i in objs do i.wirecolor = white * random 0.2 0.8
 
 	on DoGray pressed do with undo on
 	(
-		if RanGray.state == 1 then fn_Gray geometry
-		else if RanGray.state == 2 then
+		if RanGray.state == 1 then
 		(
 			if selection.count > 0 then	fn_Gray selection
 			else messagebox "请至少选择一个物体！    " beep:false
@@ -126,12 +124,12 @@ rollout ProColorDialog "ProColor v0.8.1"
 
 	group "调节自发光"
 	(
-		edittext edtValue "自发光"  pos:[15,332] width:80 usePercentageWidth:true \
+		edittext edtValue "自发光"  pos:[15,305] width:80 usePercentageWidth:true \
 		percentageWidth:44.0 labelOnTop:false text:"100" bold:false readOnly:false --自发光数值
-		button btnSet "应用"  pos:[100,331] width:60 height:18 tooltip:"调节选中，否则全部。"
-		button btnSet0 "0"  pos:[15,355] width:70 height:15 tooltip:"调节选中，否则全部。"
-		button btnSet100 "100"  pos:[90,355] width:70 height:15 tooltip:"调节选中，否则全部。"
-		slider sldValue ""  pos:[15,375] align:#center range:[0,100,0] \
+		button btnSet "应用"  pos:[100,304] width:60 height:18 tooltip:"调节选中，否则全部。"
+		button btnSet0 "0"  pos:[15,330] width:70 height:15 tooltip:"调节选中，否则全部。"
+		button btnSet100 "100"  pos:[90,330] width:70 height:15 tooltip:"调节选中，否则全部。"
+		slider sldValue ""  pos:[15,345] align:#center range:[0,100,0] \
 		type:#integer tooltip:"调节选中，否则全部。" width:160
 	)
 
@@ -194,11 +192,10 @@ rollout ProColorDialog "ProColor v0.8.1"
 	on btnSet100 pressed do (jugdeSel ();fnSetSelfIllumAmount arrSelObj 100;sldValue.value = 100;edtValue.text = "100")
 
 
-	hyperLink author "markaelie" address:"https://markaelie.github.io" pos:[10,420] \
+	hyperLink author "markaelie" address:"https://markaelie.github.io" pos:[10,390] \
 	color:(color 255 255 255) hovercolor:(color 255 0 0) visitedcolor:(color 255 255 255) \			
-	HyperLink lnkLink "Adapter: Bullet.S"
-		color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor \
-		address:"https://www.anibullet.com/post/6271.html" pos:[85,420]
+	HyperLink lnkLink "Adapter: Bullet.S" color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor \
+	address:"https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" pos:[85,390]
 )--rollout
 
-createDialog ProColorDialog 180 440
+createDialog ProColorDialog 180 410
