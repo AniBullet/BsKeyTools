@@ -633,7 +633,7 @@ function fnCreateChain splineNode ControlsArray nBones widthVar taperVar SquashB
 	checkbox UISplineLenth "路径伸缩" pos:[19,456] width:80 height:15 checked:false tooltip: "可以使骨骼沿着路径伸缩"
 	
 	-->>>新增fkik切换系统
-	checkbox UISperIkFk "FKIK切换(实验)" pos:[90,456] width:110 height:15 checked:false tooltip: "可创建一套fkik的切换系统（实验中，待优化）"
+	checkbox UISuperIkFk "FKIK切换(实验)" pos:[90,456] width:110 height:15 checked:false tooltip: "可创建一套fkik的切换系统（实验中，待优化）"
   
 	button UIOK "Ok" pos:[47,486] width:74 height:21
 	button UICancel "Cancel" pos:[127,486] width:74 height:21
