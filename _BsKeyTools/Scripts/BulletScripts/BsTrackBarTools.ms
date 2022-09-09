@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-09 15:12:10
+ * @LastEditTime: 2022-09-09 15:21:48
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -947,7 +947,7 @@ rollout rolBsBackupManager "" width:380 height:260
 	local posMouMove     = [0,0]
 	local switchMouState = false
 
-	groupbox grpMain "------------------------------------( 按住这里可拖动 )" \
+	groupbox grpMain "---------------------------------( 按住这里可拖动 )" \
 	width:(rolBsBackupManager.width - 10) height:(rolBsBackupManager.height - 5) pos:[5,0]
 	button btnClose "X" pos:[rolBsBackupManager.width - 15,0] height:15 width:15
 	button btnRefreshFolder "R" align:#left border:false \
@@ -1123,6 +1123,7 @@ rollout rolBsBackupManager "" width:380 height:260
 
 	on btnRefreshFolder pressed do 
 	(
+		rolBsBackupManager.fnRefreshBackupAll()
 		fnRefreshBackupAll()
 	)
 
