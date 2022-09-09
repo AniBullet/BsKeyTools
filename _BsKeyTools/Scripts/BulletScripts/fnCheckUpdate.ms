@@ -42,7 +42,7 @@ fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false =
             )
 
             try((dotNetObject "System.Net.WebClient").downloadFile dlURL dlFile)
-            catch( print ( (getCurrentException()) + "  " + dlFile )  )
+            catch( print ((getCurrentException()) + "  " + dlFile);messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
             ShellLaunch dlFile ""
             result = OK
         )

@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-09 16:13:15
+ * @LastEditTime: 2022-09-09 18:08:56
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -1094,6 +1094,8 @@ rollout rolBsBackupManager "" width:355 height:260
 
 	on rolBsBackupManager open do 
 	(
+		callbacks.addScript #filePostOpen "rolBsBackupManager.fnRefreshBackupAll()" id:#BsBackupManager
+		callbacks.addScript #filePostSave "rolBsBackupManager.fnRefreshBackupAll()" id:#BsBackupManager
 		btnRefreshFolder.images  = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,3,3,4,4,false,false)
 		btnOpenCurrentDir.images = #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
 		-- btnPrevFolder.images     = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,1,1,1,1,false,true)
@@ -1104,6 +1106,8 @@ rollout rolBsBackupManager "" width:355 height:260
 	on rolBsBackupManager close do 
 	(
 		iniPosBackupManager = (GetDialogPos rolBsBackupManager)
+		try (callbacks.removeScripts #filePostOpen id:#BsBackupManager) catch ()
+		try (callbacks.removeScripts #filePostSave id:#BsBackupManager) catch ()
 	)
 
 	on btnClose pressed do 
@@ -1213,5 +1217,3 @@ rollout rolBsBackupManager "" width:355 height:260
 
 callbacks.addScript #filePostOpen "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 callbacks.addScript #filePostSave "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
-callbacks.addScript #filePostOpen "rolBsBackupManager.fnRefreshBackupAll()" id:#UpdateBsBackup
-callbacks.addScript #filePostSave "rolBsBackupManager.fnRefreshBackupAll()" id:#UpdateBsBackup

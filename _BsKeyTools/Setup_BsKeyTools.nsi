@@ -67,7 +67,7 @@ Functionend
 ; ------ MUI 现代界面定义结束 ------
 
 Name "${PRODUCT_NAME}${PRODUCT_VERSION}"
-OutFile "_BsKeyTools（装完重启MAX,误杀请信任）.exe"
+OutFile "_BsKeyTools.exe"
 ; InstallDir "d:\Program Files\Autodesk\3ds Max 2014"
 ; InstallDir "$INSTDIR"
 ShowInstDetails show
