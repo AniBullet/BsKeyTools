@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-09 15:21:48
+ * @LastEditTime: 2022-09-09 15:41:29
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -434,7 +434,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		tarButton.FlatAppearance.BorderColor = mcolor.gray 
 		tarButton.FlatAppearance.MouseOverBackColor = mcolor.white 
 		tarButton.backcolor = BsDotBackColor
-		-- tarButton.ForeColor = BsDotForeColor
+		tarButton.ForeColor = BsDotForeColor
 	)
 
 	fn saveInterval_FN TimeInterval = 
