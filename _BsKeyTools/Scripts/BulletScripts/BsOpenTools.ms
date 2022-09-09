@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-10 00:49:48
+ * @LastEditTime: 2022-09-09 13:44:25
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -521,9 +521,11 @@ rollout rolBsOpenTools "" width:340 height:365
 
 	on btnRefreshFolder rightclick do 
 	(
-		CheckForSave ()
-		resetMaxFile #noPrompt
-		max tool maximize
+		if CheckForSave() then 
+		(
+			resetMaxFile #noPrompt
+			max tool maximize
+		)
 	)
 
 	on btnOpenCurrentDir pressed do 
@@ -641,8 +643,10 @@ rollout rolBsOpenTools "" width:340 height:365
 						(
 							(rdoFileType.state == 1):
 							(
-								CheckForSave ()
-								loadMaxFile (arrFiles[idFile] as string) useFileUnits:true
+								if CheckForSave() then 
+								(
+									loadMaxFile (arrFiles[idFile] as string) useFileUnits:true
+								)
 							)
 							(rdoFileType.state == 2):(importFile arrFiles[idFile] #noPrompt using:FBXIMP)
 							(rdoFileType.state == 3):(fnLoadBip arrFiles[idFile])

@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-06 18:24:56
+ * @LastEditTime: 2022-09-09 15:16:24
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -207,14 +207,26 @@ fn fnDelFileDir targetDel =  --删除文件
 (
 	if (SIOFile.Exists targetDel == true) then ---判断是否存在文件
 	(
+		dotnet.loadAssembly "Microsoft.VisualBasic.dll"
+	
+		FileIO = dotnetclass "Microsoft.VisualBasic.FileIO.FileSystem"
+		UIOption = (dotnetclass "Microsoft.VisualBasic.FileIO.UIOption").OnlyErrorDialogs
+		RecycleOption = (dotnetclass "Microsoft.VisualBasic.FileIO.RecycleOption").SendToRecycleBin
+
 		if getFileAttribute targetDel #readOnly == true or \
 		getFileAttribute targetDel #hidden == true do --修改只读或者隐藏属性
 		(
 			setFileAttribute targetDel #readOnly false ; \
 			setFileAttribute targetDel #hidden false
 		)
-		try (SIOFile.Delete(targetDel);(print ("已删除: "+ filenameFromPath targetDel)))
-		catch (
+		try 
+		(
+			FileIO.DeleteFile targetDel UIOption RecycleOption
+			-- SIOFile.Delete(targetDel)
+			(print ("已删除: "+ filenameFromPath targetDel  + " 至回收站"))
+		)
+		catch 
+		(
 			messagebox ("删除失败: "+ filenameFromPath targetDel + ". 请尝试手动删除。          ")
 			(shellLaunch (getfilenamepath targetDel) "")
 		)
@@ -224,12 +236,24 @@ fn fnDelDir dirDel =
 (
 	if (SIODir.Exists dirDel) == true do
 	(
+		dotnet.loadAssembly "Microsoft.VisualBasic.dll"
+	
+		FileIO = dotnetclass "Microsoft.VisualBasic.FileIO.FileSystem"
+		UIOption = (dotnetclass "Microsoft.VisualBasic.FileIO.UIOption").OnlyErrorDialogs
+		RecycleOption = (dotnetclass "Microsoft.VisualBasic.FileIO.RecycleOption").SendToRecycleBin
+
 		if getFileAttribute dirDel #readOnly == true or getFileAttribute dirDel #hidden == true do
 		(
 			setFileAttribute dirDel #readOnly false ; setFileAttribute dirDel #hidden false
 		)
-		try (SIODir.Delete(dirDel) true;(print ("已删除: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹")))
-		catch (
+		try 
+		(
+			FileIO.DeleteDirectory dirDel UIOption RecycleOption
+			-- SIODir.Delete(dirDel) true
+			(print ("已删除: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹至回收站"))
+		)
+		catch 
+		(
 			messagebox ("删除失败: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹. 请尝试手动删除.")
 			(shellLaunch dirDel "")
 		)

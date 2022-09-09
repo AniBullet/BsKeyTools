@@ -2522,8 +2522,7 @@ rollout biped_align_test "BsRetargetTools_v1.9 (BipedRigCreator_Enhanced)"
     (
 		if (doesFileExist edtMappingFile.text) then
 		(
-			CheckForSave ()
-			loadMaxFile edtMappingFile.text useFileUnits:true
+			if CheckForSave() then (loadMaxFile edtMappingFile.text useFileUnits:true)
 		)
 		else (messageBox "没有找到映射文件！                            ")
     )
@@ -2532,8 +2531,7 @@ rollout biped_align_test "BsRetargetTools_v1.9 (BipedRigCreator_Enhanced)"
     (
 		if (doesFileExist edtSkinFile.text) then
 		(
-			CheckForSave ()
-			loadMaxFile edtSkinFile.text useFileUnits:true
+			if CheckForSave() then (loadMaxFile edtSkinFile.text useFileUnits:true)
 		)
 		else (messageBox "没有找到 Skin 文件！                          ")
     )
@@ -2620,10 +2618,12 @@ rollout biped_align_test "BsRetargetTools_v1.9 (BipedRigCreator_Enhanced)"
 		(
 			if (doesFileExist edtSkinFile.text) then
 			(
-				CheckForSave ()
-				fnExportReTargrtedAnim arrExportRetargetAnim ltbFilesList.selection
-				lblCount.text = ("已重定向动画 FBX 数：1 个")
-				lblCount.text += ("\r\n\r\n待批处理原始动画 FBX 数：0 个")
+				if CheckForSave() then 
+				(
+					fnExportReTargrtedAnim arrExportRetargetAnim ltbFilesList.selection
+					lblCount.text = ("已重定向动画 FBX 数：1 个")
+					lblCount.text += ("\r\n\r\n待批处理原始动画 FBX 数：0 个")
+				)
 			)
 			else (print "Skin 文件不存在!                             ")
 		)
@@ -2638,18 +2638,20 @@ rollout biped_align_test "BsRetargetTools_v1.9 (BipedRigCreator_Enhanced)"
 		(
 			if (doesFileExist edtSkinFile.text) then
 			(
-				CheckForSave ()
-				pgbBar.color = blue
-				pgbBar.value = 0
-				for i = 1 to arrExportRetargetAnim.count where (doesFileExist arrExportRetargetAnim[i]) do 
+				if CheckForSave() then 
 				(
-					fnExportReTargrtedAnim arrExportRetargetAnim i
-					lblCount.text = ("已重定向动画 FBX 数：" + (i as string) + " 个")
-					lblCount.text += ("\r\n\r\n待批处理原始动画 FBX 数：" + (arrExportRetargetAnim.count - i) as string + " 个")
-					pgbBar.value = 100.*i/arrExportRetargetAnim.count
+					pgbBar.color = blue
+					pgbBar.value = 0
+					for i = 1 to arrExportRetargetAnim.count where (doesFileExist arrExportRetargetAnim[i]) do 
+					(
+						fnExportReTargrtedAnim arrExportRetargetAnim i
+						lblCount.text = ("已重定向动画 FBX 数：" + (i as string) + " 个")
+						lblCount.text += ("\r\n\r\n待批处理原始动画 FBX 数：" + (arrExportRetargetAnim.count - i) as string + " 个")
+						pgbBar.value = 100.*i/arrExportRetargetAnim.count
+					)
+					resetMaxFile #noPrompt
+					messageBox ("已重定向所有动画，一共 " + (arrExportRetargetAnim.count as string) + " 个,\r\n\r\n在导出目录有相应 .max 和 .FBX 文件                                                ")
 				)
-				resetMaxFile #noPrompt
-				messageBox ("已重定向所有动画，一共 " + (arrExportRetargetAnim.count as string) + " 个,\r\n\r\n在导出目录有相应 .max 和 .FBX 文件                                                ")
 			)
 		)
 	)
@@ -2882,14 +2884,26 @@ rollout biped_align_test "BsRetargetTools_v1.9 (BipedRigCreator_Enhanced)"
 	(
 		if (SIOFile.Exists targetDel == true) then ---判断是否存在文件
 		(
+			dotnet.loadAssembly "Microsoft.VisualBasic.dll"
+		
+			FileIO = dotnetclass "Microsoft.VisualBasic.FileIO.FileSystem"
+			UIOption = (dotnetclass "Microsoft.VisualBasic.FileIO.UIOption").OnlyErrorDialogs
+			RecycleOption = (dotnetclass "Microsoft.VisualBasic.FileIO.RecycleOption").SendToRecycleBin
+	
 			if getFileAttribute targetDel #readOnly == true or \
 			getFileAttribute targetDel #hidden == true do --修改只读或者隐藏属性
 			(
 				setFileAttribute targetDel #readOnly false ; \
 				setFileAttribute targetDel #hidden false
 			)
-			try (SIOFile.Delete(targetDel);(print ("已删除: "+ filenameFromPath targetDel)))
-			catch (
+			try 
+			(
+				FileIO.DeleteFile targetDel UIOption RecycleOption
+				-- SIOFile.Delete(targetDel)
+				(print ("已删除: "+ filenameFromPath targetDel  + " 至回收站"))
+			)
+			catch 
+			(
 				messagebox ("删除失败: "+ filenameFromPath targetDel + ". 请尝试手动删除。          ")
 				(shellLaunch (getfilenamepath targetDel) "")
 			)

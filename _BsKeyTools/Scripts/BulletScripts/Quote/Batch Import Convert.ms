@@ -532,7 +532,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 		(
 			if (queryBox "勾选了转换多边形，\r\n\r\n（2021+不勾会导致顶点变形）\r\n\r\n此勾选会破坏 Skin 建议备份，\r\n\r\n确定继续？                                                              "title:"确定转换？" beep:false) then (checkForSave() ; BIC_Convert())
 		)
-		else ((checkForSave() ; BIC_Convert()))
+		else (if CheckForSave() then (BIC_Convert()))
 	)
 --)
 	on BatchImportConvert open do (

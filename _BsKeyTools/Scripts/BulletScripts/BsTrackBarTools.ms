@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-08 13:51:19
+ * @LastEditTime: 2022-09-09 15:12:10
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -34,6 +34,63 @@ catch(messagebox "脚本安装可能不完全,建议重新安装...        " bee
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
 catch(messagebox "脚本安装可能不完全,建议重新安装...        " beep:false)
 stLoadConfigAll.fnLoadConfigTrackBarTools()
+
+fn fnDelFileDir targetDel =  --删除文件
+(
+	if (SIOFile.Exists targetDel == true) then ---判断是否存在文件
+	(
+		dotnet.loadAssembly "Microsoft.VisualBasic.dll"
+	
+		FileIO = dotnetclass "Microsoft.VisualBasic.FileIO.FileSystem"
+		UIOption = (dotnetclass "Microsoft.VisualBasic.FileIO.UIOption").OnlyErrorDialogs
+		RecycleOption = (dotnetclass "Microsoft.VisualBasic.FileIO.RecycleOption").SendToRecycleBin
+
+		if getFileAttribute targetDel #readOnly == true or \
+		getFileAttribute targetDel #hidden == true do --修改只读或者隐藏属性
+		(
+			setFileAttribute targetDel #readOnly false ; \
+			setFileAttribute targetDel #hidden false
+		)
+		try 
+		(
+			FileIO.DeleteFile targetDel UIOption RecycleOption
+			-- SIOFile.Delete(targetDel)
+			(print ("已删除: "+ filenameFromPath targetDel  + " 至回收站"))
+		)
+		catch 
+		(
+			messagebox ("删除失败: "+ filenameFromPath targetDel + ". 请尝试手动删除。          ") title:"BsTrackBarTools"
+			(shellLaunch (getfilenamepath targetDel) "")
+		)
+	)
+)
+fn fnDelDir dirDel =
+(
+	if (SIODir.Exists dirDel) == true do
+	(
+		dotnet.loadAssembly "Microsoft.VisualBasic.dll"
+	
+		FileIO = dotnetclass "Microsoft.VisualBasic.FileIO.FileSystem"
+		UIOption = (dotnetclass "Microsoft.VisualBasic.FileIO.UIOption").OnlyErrorDialogs
+		RecycleOption = (dotnetclass "Microsoft.VisualBasic.FileIO.RecycleOption").SendToRecycleBin
+
+		if getFileAttribute dirDel #readOnly == true or getFileAttribute dirDel #hidden == true do
+		(
+			setFileAttribute dirDel #readOnly false ; setFileAttribute dirDel #hidden false
+		)
+		try 
+		(
+			FileIO.DeleteDirectory dirDel UIOption RecycleOption
+			-- SIODir.Delete(dirDel) true
+			(print ("已删除: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹至回收站"))
+		)
+		catch 
+		(
+			messagebox ("删除失败: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹. 请尝试手动删除.") title:"BsTrackBarTools"
+			(shellLaunch dirDel "")
+		)
+	)
+)
 
 fn fnLoadDockPos rolTarget wSize hSize =
 (
@@ -461,7 +518,8 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		if maxFileName != "" then
 		(
 			tarPath = (iniBackupPath + "\\" + (getFilenameFile maxFileName) + ".backup")
-			numFiles = (getfiles (tarPath + "\\*.max")).count + 1
+			numFiles = (getfiles (tarPath + "\\*.max")).count
+			if numFiles != 0 then (numFiles = numFiles + 1) else (numFiles = 0)
 		)
 		if numFiles == 0 then 
 		(
@@ -511,7 +569,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				strBackupFilePath = strBackupPathRoot + "\\" + strSaveName + "_" + strSaveCount + ".max"
 				saveMaxFile strBackupFilePath
 				displayTempPrompt ("已备份并打开：" + strBackupFilePath) 10000
-				messagebox ("当前备份的是已备份文件，请注意跟源文件对比新旧！\r\n\r\n可能的源文件：" + strSaveName + ".max\r\n\r\n刚才备份的文件：" + strCurFileName + ".max                                                                           ") title:"BsKeyTools"
+				messagebox ("当前备份的是已备份文件，请注意跟源文件对比新旧！\r\n\r\n可能的源文件：" + strSaveName + ".max\r\n\r\n刚才备份的文件：" + strCurFileName + ".max                                                                           ") title:"BsTrackBarTools"
 			) 
 			else
 			(
@@ -791,6 +849,99 @@ else (createDialog rolBsTrackBarTools widthBsSize heightBsSize style:#(#style_sy
 -- cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top
 if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
 
+
+rcmenu menuBsFiles
+(
+	menuItem mItemOpenFile "打开文件"
+	menuItem mItemDelete "删除文件"
+	menuItem mItemOpenMenu "打开目录"
+
+	on mItemOpenFile picked do 
+	(
+		if (rolBsBackupManager.mlbBackupFiles.selection as array).count == 1 then 
+		(
+			tarFile = arrBsBackupFiles[(rolBsBackupManager.mlbBackupFiles.selection as array)[1]]
+			if (doesfileexist tarFile) then
+			(
+				if CheckForSave() then (loadMaxFile tarFile useFileUnits:true)
+			)
+		)
+	)
+
+	on mItemDelete picked do 
+	(
+		if (queryBox "确定删除选中的已备份文件？                        " title:"BsTrackBarTools" beep:false) then
+		(
+			arrFileDelete = (rolBsBackupManager.mlbBackupFiles.selection as array)
+			for i = 1 to arrFileDelete.count do 
+			(
+				fnDelFileDir arrBsBackupFiles[i]
+			)
+			rolBsBackupManager.fnRefreshFilesList()
+		)
+	)
+
+	on mItemOpenMenu picked do 
+	(
+		if (rolBsBackupManager.mlbBackupFiles.selection as array).count == 1 then 
+		(
+			tarFile = arrBsBackupFiles[(rolBsBackupManager.mlbBackupFiles.selection as array)[1]]
+			pathFile = (getfilenamepath tarFile)
+			if (doesdirectoryexist pathFile) then
+			(
+				try(shellLaunch pathFile "")catch()
+			)
+		)
+	)
+)
+
+rcmenu menuBsFolder
+(
+	menuItem mItemOpenFile "打开备份库"
+	menuItem mItemDelete "删除备份库"
+
+	on mItemOpenFile picked do 
+	(
+		if (rolBsBackupManager.mlbBackupFolders.selection as array).count == 1 then 
+		(
+			idFolderSelected = (rolBsBackupManager.mlbBackupFolders.selection as array)[1]
+			nameFolderSelected = (rolBsBackupManager.mlbBackupFolders.items)[idFolderSelected]
+			nameFolderSelected = (substituteString nameFolderSelected "📂 " "")
+			tarFolder = (rolBsBackupManager.edtBackupPath.text + "\\" + nameFolderSelected + ".backup")
+			if (doesdirectoryexist tarFolder) then
+			(
+				try(shellLaunch tarFolder "")catch()
+			)
+		)
+	)
+
+	on mItemDelete picked do 
+	(
+		if (rolBsBackupManager.mlbBackupFolders.selection as array).count != 0 then 
+		(
+			if (queryBox "确定删除选中备份库和当中的【所有】文件？                        " title:"BsTrackBarTools" beep:false) then
+			(
+				with undo on 
+				(
+					arrDirDelete = #()
+					for i in (rolBsBackupManager.mlbBackupFolders.items as array) do 
+					(
+						nameFolder = (substituteString i "📂 " "")
+						append arrDirDelete (rolBsBackupManager.edtBackupPath.text + "\\" + nameFolder + ".backup")
+					)
+					arrDirID = (rolBsBackupManager.mlbBackupFolders.selection as array)
+					for i in arrDirID do 
+					(
+						fnDelDir arrDirDelete[i]
+					)
+					rolBsBackupManager.fnRefreshBackupAll()
+					rolBsTrackBarTools.fnFilesCount()
+				)
+			)
+		)
+	)
+)
+
 rollout rolBsBackupManager "" width:380 height:260
 (
 	local posMouMove     = [0,0]
@@ -803,11 +954,11 @@ rollout rolBsBackupManager "" width:380 height:260
 	height:20 width:25 pos:[10,20] tooltip:"左：刷新当前文件目录\r\n右：重置场景"
 	button btnOpenCurrentDir "打开" tooltip:"打开备份文件夹" \
 	height:20 width:25 pos:[35,20] border:false
-	editText edtBackupPath "" text:"" labelOnTop:true align:#right \
+	editText edtBackupPath "" text:"" labelOnTop:true align:#left \
 	height:20 fieldWidth:270 pos:[65,20] readOnly:true 
 	button btnPrevFolder "↑" tooltip:"返回上层目录，也可右击面板空白处" \
 	height:20 width:25 pos:[340,20] border:false
-	editText edtImputFilter "" text:"" labelOnTop:true align:#right \
+	editText edtInputFilter "" text:"" labelOnTop:true align:#left \
 	height:17 fieldWidth:145 pos:[10,48]
 	MultiListBox mlbBackupFolders "" align:#left selection:0 \
 	height:12 width:145 pos:[10,70]
@@ -898,7 +1049,7 @@ rollout rolBsBackupManager "" width:380 height:260
 				(
 					if (matchpattern arrFolder[i] pattern:("📂 " + (getfilenamefile maxfilename))) then idSelected = i
 				)
-				rolBsBackupManager.edtImputFilter.text = (getfilenamefile maxfilename)
+				rolBsBackupManager.edtInputFilter.text = (getfilenamefile maxfilename)
 				rolBsBackupManager.mlbBackupFiles.selection = 0
 			)
 			else 
@@ -912,7 +1063,7 @@ rollout rolBsBackupManager "" width:380 height:260
 				(
 					if (matchpattern arrFolder[i] pattern:("📂 " + tarName)) then idSelected = i
 				)
-				rolBsBackupManager.edtImputFilter.text = tarName
+				rolBsBackupManager.edtInputFilter.text = tarName
 				rolBsBackupManager.mlbBackupFiles.selection = (finditem (rolBsBackupManager.mlbBackupFiles.items as array) ("📄 " + maxfilename))
 			)
 			rolBsBackupManager.mlbBackupFolders.selection = idSelected
@@ -957,9 +1108,9 @@ rollout rolBsBackupManager "" width:380 height:260
 		switchMouState = off
 	)
 
-	on rolBsBackupManager rbuttondown pos do 
+	on rolBsBackupManager mbuttondown pos do 
 	(
-		
+		try (destroydialog rolBsBackupManager) catch()
 	)
 
 	on rolBsBackupManager mouseMove pos do
@@ -977,9 +1128,11 @@ rollout rolBsBackupManager "" width:380 height:260
 
 	on btnRefreshFolder rightclick do 
 	(
-		CheckForSave ()
-		resetMaxFile #noPrompt
-		max tool maximize
+		if CheckForSave() then 
+		(
+			resetMaxFile #noPrompt
+			max tool maximize
+		)
 	)
 
 	on btnOpenCurrentDir pressed do 
@@ -992,7 +1145,8 @@ rollout rolBsBackupManager "" width:380 height:260
 		if (rolBsBackupManager.mlbBackupFolders.selection as array).count == 1 then
 		(
 			fnRefreshFilesList()
-			rolBsBackupManager.edtImputFilter.text = mlbBackupFolders.items[(mlbBackupFolders.selection as array)[1]]
+			selItems = mlbBackupFolders.items[(mlbBackupFolders.selection as array)[1]]
+			edtInputFilter.text = (substring selItems 3 selItems.count)
 		)
 	)
 
@@ -1001,9 +1155,38 @@ rollout rolBsBackupManager "" width:380 height:260
 		tarFile = arrBsBackupFiles[id]
 		if (doesfileexist tarFile) then
 		(
-			CheckForSave ()
-			loadMaxFile tarFile useFileUnits:true
+			if CheckForSave() then (loadMaxFile tarFile useFileUnits:true)
 		)
+	)
+
+	on edtInputFilter changed textFolder do
+	(
+		if textFolder != "" then 
+		(
+			for i in (rolBsBackupManager.mlbBackupFolders.items as array) do 
+			(
+				if (matchpattern i pattern:("*" + textFolder + "*")) then
+				(
+					mlbBackupFolders.selection = (finditem (rolBsBackupManager.mlbBackupFolders.items as array) i)
+					exit
+				)
+			)
+		)
+		else 
+		(
+			mlbBackupFolders.selection = 0
+		)
+		fnRefreshFilesList()
+	)
+
+	on mlbBackupFiles rightclick do
+	(
+		popupMenu menuBsFiles pos:mouse.screenpos
+	)
+
+	on mlbBackupFolders rightclick do
+	(
+		popupMenu menuBsFolder pos:mouse.screenpos
 	)
 )
 
