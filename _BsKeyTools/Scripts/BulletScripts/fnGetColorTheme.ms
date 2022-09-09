@@ -3,6 +3,7 @@ global myClickColor
 global myCheckedColor
 global BsDotBackColor
 global BsDotForeColor
+global BsDotCheckColor
 global BsDotFont
 global dotColor = dotnetclass "System.Drawing.Color"
 
@@ -69,7 +70,8 @@ global dotColor = dotnetclass "System.Drawing.Color"
 	)
 	----获取当前主题是深色还是浅色,来更改文字颜色 fnGetColorTheme.ms
 
-	BsDotFont      = dotnetobject "System.Drawing.Font" "Roboto" 8
-	BsDotBackColor = dotColor.FromArgb maxuiBgColor[1] maxuiBgColor[2] maxuiBgColor[3]
-	BsDotForeColor = dotColor.FromArgb myFgColor.r myFgColor.g myFgColor.b
+	BsDotFont       = dotnetobject "System.Drawing.Font" "Roboto" 8
+	BsDotBackColor  = dotColor.FromArgb maxuiBgColor[1] maxuiBgColor[2] maxuiBgColor[3]
+	BsDotForeColor  = dotColor.FromArgb myFgColor.r myFgColor.g myFgColor.b
+	BsDotCheckColor = dotColor.FromArgb myCheckedColor.r myCheckedColor.g myCheckedColor.b
 )

@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-09 15:41:29
+ * @LastEditTime: 2022-09-09 16:13:15
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -432,7 +432,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		tarButton.text = textButton
 		tarButton.flatstyle = dotnetobject "System.Windows.Forms.FlatStyle" Flat
 		tarButton.FlatAppearance.BorderColor = mcolor.gray 
-		tarButton.FlatAppearance.MouseOverBackColor = mcolor.white 
+		tarButton.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 		tarButton.backcolor = BsDotBackColor
 		tarButton.ForeColor = BsDotForeColor
 	)
@@ -448,7 +448,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		if clock.ticks < SaveInterval*60 then
 		(
 			btnTimer.backcolor = mcolor.white
-			btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
+			btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 		)
 	)
 	
@@ -478,7 +478,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				saveInterval_FN "0" 
 				
 				btnTimer.backcolor = mcolor.white
-				btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
+				btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 				
 				clock.active = false
 				clock.ticks = 0
@@ -506,7 +506,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				clock.ticks = 0
 				
 				btnTimer.backcolor = mcolor.white
-				btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
+				btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 			)
 		)
 	)
@@ -542,7 +542,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			saveInterval_FN "0" 
 			
 			btnTimer.backcolor = mcolor.white
-			btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
+			btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 			
 			clock.active = false
 			clock.ticks = 0
@@ -687,7 +687,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			-- clock.ticks = 0
 			
 			-- btnTimer.backcolor = mcolor.white
-			-- btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
+			-- btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 
 			popUpMenu rcLIST pos:( [arg.x  , arg.y - 10 ] ) rollout:rolBsTrackBarTools align:#align_topleft
 		)
@@ -707,7 +707,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			clock.ticks = 0
 			
 			btnTimer.backcolor = mcolor.white
-			btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
+			btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 		)
 -- 		
 	)
@@ -725,7 +725,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				clock.ticks = 0
 				
 				btnTimer.backcolor = mcolor.white
-				btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
+				btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 				
 				clearlistener()
 				print "保存成功"
@@ -813,7 +813,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 					clock.ticks = 0
 			
 					btnTimer.backcolor = mcolor.white
-					btnTimer.FlatAppearance.MouseOverBackColor = mcolor.Gainsboro
+					btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 				)
 			)
 
@@ -942,12 +942,12 @@ rcmenu menuBsFolder
 	)
 )
 
-rollout rolBsBackupManager "" width:380 height:260
+rollout rolBsBackupManager "" width:355 height:260
 (
 	local posMouMove     = [0,0]
 	local switchMouState = false
 
-	groupbox grpMain "---------------------------------( 按住这里可拖动 )" \
+	groupbox grpMain "------------------------------( 按住这里可拖动 )" \
 	width:(rolBsBackupManager.width - 10) height:(rolBsBackupManager.height - 5) pos:[5,0]
 	button btnClose "X" pos:[rolBsBackupManager.width - 15,0] height:15 width:15
 	button btnRefreshFolder "R" align:#left border:false \
@@ -955,18 +955,32 @@ rollout rolBsBackupManager "" width:380 height:260
 	button btnOpenCurrentDir "打开" tooltip:"打开备份文件夹" \
 	height:20 width:25 pos:[35,20] border:false
 	editText edtBackupPath "" text:"" labelOnTop:true align:#left \
-	height:20 fieldWidth:270 pos:[65,20] readOnly:true 
-	button btnPrevFolder "↑" tooltip:"返回上层目录，也可右击面板空白处" \
-	height:20 width:25 pos:[340,20] border:false
+	height:20 fieldWidth:280 pos:[65,20] readOnly:true 
+	-- button btnPrevFolder "↑" tooltip:"返回上层目录" \
+	-- height:20 width:25 pos:[340,20] border:false
 	editText edtInputFilter "" text:"" labelOnTop:true align:#left \
-	height:17 fieldWidth:145 pos:[10,48]
+	height:17 fieldWidth:120 pos:[10,48]
 	MultiListBox mlbBackupFolders "" align:#left selection:0 \
-	height:12 width:145 pos:[10,70]
+	height:12 width:120 pos:[10,70]
 	MultiListBox mlbBackupFiles "" align:#right selection:0 \
-	height:14 width:210 pos:[160,45]
+	height:14 width:210 pos:[135,45]
 	label lblCountFolder "" height:15 width:100 pos:[15,235]
-	label lblCountFiles "" height:15 width:100 pos:[265,235]
-	label lblTitle "BsBackupManager" height:15 width:120 pos:[130,235]
+	label lblCountFiles "" height:15 width:100 pos:[235,235]
+	label lblTitle "BsBackupManager" height:15 width:100 pos:[115,235]
+
+	fn fnGetLastFolder strFolder =
+	(
+		if ((strFolder != iniPosAutoBackup) and (doesDirectoryExist strFolder)) then
+		(
+			local arrFilterStr = filterstring strFolder @"\"
+			local strLastFolder = ""
+			for i = 1 to (arrFilterStr.count - 1) do 
+			(
+				strLastFolder = strLastFolder  + arrFilterStr[i] + @"\\"
+			)
+		)
+		return strLastFolder
+	)
 
 	fn fnRefreshFolderList strFilesDir =
 	(
@@ -1082,7 +1096,7 @@ rollout rolBsBackupManager "" width:380 height:260
 	(
 		btnRefreshFolder.images  = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,3,3,4,4,false,false)
 		btnOpenCurrentDir.images = #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
-		btnPrevFolder.images     = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,1,1,1,1,false,true)
+		-- btnPrevFolder.images     = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,1,1,1,1,false,true)
 		edtBackupPath.text = iniBackupPath
 		fnRefreshBackupAll()
 	)
@@ -1120,6 +1134,12 @@ rollout rolBsBackupManager "" width:380 height:260
 			SetDialogPos rolBsBackupManager (mouse.screenpos - posMouMove)			
 		)
 	)
+
+	-- on btnPrevFolder pressed do 
+	-- (
+	-- 	edtBackupPath.text = (fnGetLastFolder edtBackupPath.text)
+	-- 	fnRefreshBackupAll()
+	-- )
 
 	on btnRefreshFolder pressed do 
 	(
