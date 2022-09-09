@@ -41,8 +41,10 @@ fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false =
                 )
             )
 
-            try((dotNetObject "System.Net.WebClient").downloadFile dlURL dlFile)
-            catch( print ((getCurrentException()) + "  " + dlFile);messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
+            -- try((dotNetObject "System.Net.WebClient").downloadFile dlURL dlFile)
+            -- catch( print ((getCurrentException()) + "  " + dlFile);messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
+            try(ShellLaunch dlURL "";messagebox "请手动下载弹出网页的 BsKeyTools 安装包自行安装！                                                      " title:"BsKeyTools")
+            catch(messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
             ShellLaunch dlFile ""
             result = OK
         )
