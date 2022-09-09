@@ -379,7 +379,8 @@ rollout rolBsCleanVirus  "BsCleanVirus_v1.0"
 			(
 				try 
 				(
-					SIOFile.Copy startupBsCleanVirusTools startupLocalPath
+					-- SIOFile.Copy startupBsCleanVirusTools startupLocalPath
+					FileIO.Copyfile startupBsCleanVirusTools startupLocalPath UIOption
 					messagebox ("已经打开主动防御，如安装杀毒卫士，\r\n\r\n请把插件进程管理中的\"signature\"相关回调启用！                                                                ")
 					setFileAttribute startupLocalPath #readOnly true
                     iniStartupBsCleanVirus = 1
@@ -391,8 +392,8 @@ rollout rolBsCleanVirus  "BsCleanVirus_v1.0"
 				)
 				catch
 				(
-					messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n把 BsCleanVirusStartup.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
-					(shellLaunch (getfilenamepath startupBsCleanVirusTools) "")
+					-- messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n把 BsCleanVirusStartup.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					-- (shellLaunch (getfilenamepath startupBsCleanVirusTools) "")
 				)
 			)
             else (messagebox "已经开启自启，请勿重复操作！                                          ")

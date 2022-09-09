@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-09 18:08:56
+ * @LastEditTime: 2022-09-09 18:26:51
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -328,15 +328,16 @@ rcmenu menuBsTrackBarTools
 			(
 				try 
 				(
-					SIOFile.Copy startupBsTrackBarTools startupPath
+					-- SIOFile.Copy startupBsTrackBarTools startupPath
+					FileIO.Copyfile startupBsTrackBarTools startupPath UIOption
 					messagebox ("已打开 BsTrackBarTools 自启！                  ")  title:"自启设置"
 					mItemIsStartup.checked = true
 					setFileAttribute startupPath #readOnly true
 				)
 				catch
 				(
-					messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n把 StartupMS\\BsTrackBarToolsStartup.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
-					(shellLaunch (getfilenamepath startupBsTrackBarTools) "")
+					-- messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n把 StartupMS\\BsTrackBarToolsStartup.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					-- (shellLaunch (getfilenamepath startupBsTrackBarTools) "")
 				)
 			)
 		)

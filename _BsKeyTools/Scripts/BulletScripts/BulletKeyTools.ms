@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-09 18:02:37
+ * @LastEditTime: 2022-09-09 18:22:32
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -149,6 +149,9 @@ Global menuSetFps
 Global menuSetSpeed
 Global SIOFile = dotNetClass "System.IO.File"
 Global SIODir = dotNetClass "System.IO.Directory"
+dotnet.loadAssembly "Microsoft.VisualBasic.dll"
+Global FileIO = dotnetclass "Microsoft.VisualBasic.FileIO.FileSystem"
+Global UIOption = (dotnetclass "Microsoft.VisualBasic.FileIO.UIOption").OnlyErrorDialogs
 -- Global myTimer = dotnetobject "System.Timers.Timer" 500 autoreset:true
 ------------------全局变量-------------------------------------------------------------------
 global fnLoadMsArray
@@ -1086,15 +1089,16 @@ rcmenu menuConfig
 			(
 				try 
 				(
-					SIOFile.Copy startupBsKeyTools startupPath
+					FileIO.Copyfile startupBsKeyTools startupPath UIOption
+					-- SIOFile.Copy startupBsKeyTools startupPath
 					messagebox ("已打开 BsKeyTools 自启！                  ")  title:"自启设置"
 					mItemIsStartup.checked = true
 					setFileAttribute startupPath #readOnly true
 				)
 				catch
 				(
-					messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n把 StartupMS\\BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
-					(shellLaunch (getfilenamepath startupBsKeyTools) "")
+					-- messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n把 StartupMS\\BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					-- (shellLaunch (getfilenamepath startupBsKeyTools) "")
 				)
 			)
 		)
@@ -1107,9 +1111,14 @@ rcmenu menuConfig
 		if (SIOFile.Exists fileConfigBcakup) then 
 		(
 			fnDelFileDir fileConfigBcakup
-			SIOFile.Copy BulletConfig fileConfigBcakup
+			-- SIOFile.Copy BulletConfig fileConfigBcakup
+			FileIO.Copyfile BulletConfig fileConfigBcakup UIOption
 		)
-		else (SIOFile.Copy BulletConfig fileConfigBcakup)
+		else 
+		(
+			-- SIOFile.Copy BulletConfig fileConfigBcakup
+			FileIO.Copyfile BulletConfig fileConfigBcakup UIOption
+		)
 		if (queryBox "是否打开配置文件备份目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
 		title:"备份配置文件" beep:false) then (shellLaunch pathDesktop "")
 	)
@@ -2656,7 +2665,8 @@ rollout rolBsKeyTools "" width:355 height:250
 			(
 				try 
 				(
-					SIOFile.Copy strCurFilePath strBackupFilePath
+					-- SIOFile.Copy strCurFilePath strBackupFilePath
+					FileIO.Copyfile strCurFilePath strBackupFilePath UIOption
 					displayTempPrompt ("已备份至：" + strBackupFilePath) 10000 
 				)
 				catch()

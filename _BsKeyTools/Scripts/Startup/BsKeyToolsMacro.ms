@@ -212,14 +212,15 @@
 			(
 				try 
 				(
-					SIOFile.Copy startupBsKeyTools startupPath
+					-- SIOFile.Copy startupBsKeyTools startupPath
+					FileIO.Copyfile startupBsKeyTools startupPath UIOption
 					messagebox ("已打开 BsKeyTools 自启！                  ")  title:"自启设置"
 					setFileAttribute startupPath #readOnly true
 				)
 				catch
 				(
-					messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n StartupMS\\BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
-					(shellLaunch (getfilenamepath startupBsKeyTools) "")
+					-- messagebox ("自启失败，烦请管理员运行 max 或手动处理：\r\n\r\n StartupMS\\BulletKeyTools.ms 复制到\r\n\r\n" + (getDir #StartupScripts) + "                    ")
+					-- (shellLaunch (getfilenamepath startupBsKeyTools) "")
 				)
 			)
 		)
