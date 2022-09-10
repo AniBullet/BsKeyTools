@@ -5,7 +5,7 @@
 global spm = (dotNetclass "System.Net.ServicePointManager")
 spm.SecurityProtocol = spm.SecurityProtocol.Tls12
 
-fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false = 
+fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false classic:false = 
 (
     local dotWebClient = (dotNetObject "System.Net.WebClient") 
     local dlSaveURL = (dotNetObject "system.uri" dlURL)
@@ -42,12 +42,17 @@ fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false =
                     )
                 )
             )
-
-            -- try(dotWebClient.downloadFile dlSaveURL dlFile;dotWebClient.dispose())
-            -- catch( print ((getCurrentException()) + "  " + dlFile);messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
-            -- ShellLaunch dlFile ""
-            try(ShellLaunch dlURL "";messagebox "请手动下载弹出网页的 BsKeyTools 安装包自行安装！                                                      " title:"BsKeyTools")
-            catch(messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
+            if classic then 
+            (
+                try(dotWebClient.downloadFile dlSaveURL dlFile;dotWebClient.dispose())
+                catch( print ((getCurrentException()) + "  " + dlFile);messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
+                ShellLaunch dlFile ""
+            )
+            else
+            (
+                try(ShellLaunch dlURL "";messagebox "请手动下载弹出网页的 BsKeyTools 安装包自行安装！                                                      " title:"BsKeyTools")
+                catch(messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
+            )
             result = OK
         )
     )
