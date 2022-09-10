@@ -7,12 +7,14 @@ spm.SecurityProtocol = spm.SecurityProtocol.Tls12
 
 fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false = 
 (
+    local dotWebClient = (dotNetObject "System.Net.WebClient") 
+    local dlSaveURL = (dotNetObject "system.uri" dlURL)
     local result = undefined
 
     if internet.CheckConnection url:"https://gitee.com" force:true == true then -- 检查网络是否能连接
     (
         local LaterVersion_installed = true
-        local onlineVersion = (dotNetObject "System.Net.WebClient").downloadString verURL
+        local onlineVersion = dotWebClient.downloadString verURL
 
         if (isForceUpdate == false) then
         (
@@ -27,7 +29,7 @@ fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false =
         if not LaterVersion_installed AND (queryBox ("远程最新版本为: " + onlineVersion + "\r\n本地当前版本为: " + currentVer + \
             "\r\n\r\n是否立即下载更新并安装脚本?\r\n注意:可在设置中开关自动检测更新!\r\n\r\n(建议只更新正式版,beta仅供测试不保证稳定)\r\n(回退默认安装最新版前一版本)                                      ") title:"是否更新脚本") do 
         (
-            local Root = symbolicPaths.getPathValue "$Max"  --max根目录
+            -- local Root = symbolicPaths.getPathValue "$Max"  --max根目录
 
             if (doesFileExist dlFile) then 
             (
@@ -41,11 +43,11 @@ fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false =
                 )
             )
 
-            -- try((dotNetObject "System.Net.WebClient").downloadFile dlURL dlFile)
+            -- try(dotWebClient.downloadFile dlSaveURL dlFile;dotWebClient.dispose())
             -- catch( print ((getCurrentException()) + "  " + dlFile);messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
+            -- ShellLaunch dlFile ""
             try(ShellLaunch dlURL "";messagebox "请手动下载弹出网页的 BsKeyTools 安装包自行安装！                                                      " title:"BsKeyTools")
             catch(messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
-            ShellLaunch dlFile ""
             result = OK
         )
     )

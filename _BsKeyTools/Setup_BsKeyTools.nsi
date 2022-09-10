@@ -16,7 +16,7 @@ SetCompressor lzma
 
 ; MUI 预定义常量
 !define MUI_ABORTWARNING
-!define MUI_ICON "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\max.ico"
+;!define MUI_ICON "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\max.ico"
 ;!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall-blue-full.ico"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\sideImg.bmp"
 !define MUI_HEADERIMAGE
