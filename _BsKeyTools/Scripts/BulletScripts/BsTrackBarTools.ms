@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-09 18:26:51
+ * @LastEditTime: 2022-09-10 18:01:30
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -12,8 +12,6 @@ if form != undefined then (form.close();form = undefined)
 try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
 try (destroyDialog rolBsTrackBarTools) catch()
 try (destroydialog rolBsBackupManager) catch()
-try (callbacks.removeScripts #filePostOpen id:#UpdateBsBackup) catch ()
-try (callbacks.removeScripts #filePostSave id:#UpdateBsBackup) catch ()
 
 global rolBsTrackBarTools
 global rolBsBackupManager
@@ -524,13 +522,13 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		)
 		if numFiles == 0 then 
 		(
-			fnButtonStyle btnFilesCount ("暂无备份")
+			fnButtonStyle rolBsTrackBarTools.btnFilesCount ("暂无备份")
 		)
 		else 
 		(
-			fnButtonStyle btnFilesCount ("当前版本" + numFiles as string)
+			fnButtonStyle rolBsTrackBarTools.btnFilesCount ("当前版本" + numFiles as string)
 		)
-		btnFilesCount.FlatAppearance.BorderColor = mcolor.white 
+		rolBsTrackBarTools.btnFilesCount.FlatAppearance.BorderColor = mcolor.white 
 	)
 	
 	fn fnQuickSave =
@@ -608,6 +606,10 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		stLoadConfigAll.fnLoadConfigTrackBarTools()
 		stSetConfigAll.fnSetConfigTrackBarTools()
 		fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
+		callbacks.removeScripts #filePostOpen id:#UpdateBsBackup
+		callbacks.removeScripts #filePostSave id:#UpdateBsBackup
+		callbacks.addScript #filePostOpen "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
+		callbacks.addScript #filePostSave "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 		callbacks.removeScripts id:#SaveButtonCallback
 		callbacks.addScript #filePostOpenProcess "rolBsTrackBarTools.clock.ticks = 0" id:#SaveButtonCallback
 		
@@ -661,6 +663,8 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools)
 		-- iniDockPos = ((cui.getDockState rolBsTrackBarTools) as string)
 		-- print iniDockPos
+		callbacks.removeScripts #filePostOpen id:#UpdateBsBackup
+		callbacks.removeScripts #filePostSave id:#UpdateBsBackup
 		stSetConfigAll.fnSetConfigTrackBarTools()
 		callbacks.removeScripts id:#SaveButtonCallback
 		callbacks.removeScripts id:#SaveButtonResetCallback
@@ -1095,6 +1099,8 @@ rollout rolBsBackupManager "" width:355 height:260
 
 	on rolBsBackupManager open do 
 	(
+		callbacks.removeScripts #filePostOpen id:#BsBackupManager
+		callbacks.removeScripts #filePostSave id:#BsBackupManager
 		callbacks.addScript #filePostOpen "rolBsBackupManager.fnRefreshBackupAll()" id:#BsBackupManager
 		callbacks.addScript #filePostSave "rolBsBackupManager.fnRefreshBackupAll()" id:#BsBackupManager
 		btnRefreshFolder.images  = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,3,3,4,4,false,false)
@@ -1107,8 +1113,8 @@ rollout rolBsBackupManager "" width:355 height:260
 	on rolBsBackupManager close do 
 	(
 		iniPosBackupManager = (GetDialogPos rolBsBackupManager)
-		try (callbacks.removeScripts #filePostOpen id:#BsBackupManager) catch ()
-		try (callbacks.removeScripts #filePostSave id:#BsBackupManager) catch ()
+		callbacks.removeScripts #filePostOpen id:#BsBackupManager
+		callbacks.removeScripts #filePostSave id:#BsBackupManager
 	)
 
 	on btnClose pressed do 
@@ -1215,6 +1221,3 @@ rollout rolBsBackupManager "" width:355 height:260
 		popupMenu menuBsFolder pos:mouse.screenpos
 	)
 )
-
-callbacks.addScript #filePostOpen "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
-callbacks.addScript #filePostSave "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
