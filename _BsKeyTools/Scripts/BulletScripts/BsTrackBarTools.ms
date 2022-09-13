@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-10 18:01:30
+ * @LastEditTime: 2022-09-13 12:56:16
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -446,7 +446,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		
 		if clock.ticks < SaveInterval*60 then
 		(
-			btnTimer.backcolor = mcolor.white
+			btnTimer.backcolor = BsDotCheckColor
 			btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 		)
 	)
@@ -476,7 +476,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				btnTimer.text = "关闭计时" 
 				saveInterval_FN "0" 
 				
-				btnTimer.backcolor = mcolor.white
+				btnTimer.backcolor = BsDotCheckColor
 				btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 				
 				clock.active = false
@@ -504,7 +504,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			(
 				clock.ticks = 0
 				
-				btnTimer.backcolor = mcolor.white
+				btnTimer.backcolor = BsDotCheckColor
 				btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 			)
 		)
@@ -528,7 +528,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		(
 			fnButtonStyle rolBsTrackBarTools.btnFilesCount ("当前版本" + numFiles as string)
 		)
-		rolBsTrackBarTools.btnFilesCount.FlatAppearance.BorderColor = mcolor.white 
+		rolBsTrackBarTools.btnFilesCount.FlatAppearance.BorderColor = mcolor.gray 
 	)
 	
 	fn fnQuickSave =
@@ -540,7 +540,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			btnTimer.text = "请先保存" 
 			saveInterval_FN "0" 
 			
-			btnTimer.backcolor = mcolor.white
+			btnTimer.backcolor = BsDotCheckColor
 			btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 			
 			clock.active = false
@@ -654,7 +654,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		--.Error
 		-- .info
 		-- .none
-		btnConfig.BackColor = dotColor.FromArgb white.r white.g white.b
+		btnConfig.BackColor = BsDotCheckColor
 		
 	)
 	
@@ -691,7 +691,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			
 			-- clock.ticks = 0
 			
-			-- btnTimer.backcolor = mcolor.white
+			-- btnTimer.backcolor = BsDotCheckColor
 			-- btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 
 			popUpMenu rcLIST pos:( [arg.x  , arg.y - 10 ] ) rollout:rolBsTrackBarTools align:#align_topleft
@@ -711,7 +711,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 
 			clock.ticks = 0
 			
-			btnTimer.backcolor = mcolor.white
+			btnTimer.backcolor = BsDotCheckColor
 			btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 		)
 -- 		
@@ -729,7 +729,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				
 				clock.ticks = 0
 				
-				btnTimer.backcolor = mcolor.white
+				btnTimer.backcolor = BsDotCheckColor
 				btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 				
 				clearlistener()
@@ -817,7 +817,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 					fnQuickSave()
 					clock.ticks = 0
 			
-					btnTimer.backcolor = mcolor.white
+					btnTimer.backcolor = BsDotCheckColor
 					btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 				)
 			)
@@ -833,7 +833,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				)
 				else
 				(
-					COL = mcolor.white
+					COL = BsDotBackColor
 					
 					btnTimer.text = TimeTXT
 				)
