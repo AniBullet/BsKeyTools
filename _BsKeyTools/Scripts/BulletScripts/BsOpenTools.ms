@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-09 13:44:25
+ * @LastEditTime: 2022-09-13 13:36:42
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -645,7 +645,7 @@ rollout rolBsOpenTools "" width:340 height:365
 							(
 								if CheckForSave() then 
 								(
-									loadMaxFile (arrFiles[idFile] as string) useFileUnits:true
+									loadMaxFile (arrFiles[idFile] as string) useFileUnits:true quiet:true
 								)
 							)
 							(rdoFileType.state == 2):(importFile arrFiles[idFile] #noPrompt using:FBXIMP)
@@ -664,7 +664,7 @@ rollout rolBsOpenTools "" width:340 height:365
 			(
 				if doesFileExist arrRecentFiles[id] then 
 				(
-					loadMaxFile (arrRecentFiles[id]) useFileUnits:true
+					loadMaxFile (arrRecentFiles[id]) useFileUnits:true quiet:true
 					local tempDir = getfilenamepath arrRecentFiles[id]
 					fnRefreshList tempDir type:arrFileType[rdoFileType.state]
 				)
