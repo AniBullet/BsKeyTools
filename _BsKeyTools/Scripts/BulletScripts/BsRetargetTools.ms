@@ -409,7 +409,7 @@ rcmenu menuQuickCreateNode
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v1.9 (BipedRigCreator_Enhanced)"
+rollout biped_align_test "BsRetargetTools_v2.0 (BipedRigCreator_Enhanced)"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Bip 节点名 1 - 35" align:#left across:4 height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -676,7 +676,7 @@ rollout biped_align_test "BsRetargetTools_v1.9 (BipedRigCreator_Enhanced)"
 			mappingFilePath    = edtMappingFile.text
 			sourFileImportPath = arrExportRetargetAnim[index]
 			tarFileExportPath  = edtOutputPath.text + "\\" + (getfilenamefile sourFileImportPath) + ".FBX"
-			tempBip = edtOutputPath.text + "\\" + (getfilenamefile sourFileImportPath) + ".bip"
+			-- tempBip = edtOutputPath.text + "\\" + (getfilenamefile sourFileImportPath) + ".bip"
 			skinFile   = edtSkinFile.text
 			tarNewAnim = (edtOutputPath.text + (getfilenamefile sourFileImportPath) + ".FBX")
 			if (not (SIODir.Exists edtOutputPath.text)) do (SIODir.CreateDirectory edtOutputPath.text)
@@ -746,6 +746,7 @@ rollout biped_align_test "BsRetargetTools_v1.9 (BipedRigCreator_Enhanced)"
 			)
 
 			importFile tarNewAnim #noPrompt using:FBXIMP
+			DeleteFile tarNewAnim
 
 			if (getnodebyname "Root") != undefined then 
 			(
@@ -799,7 +800,10 @@ rollout biped_align_test "BsRetargetTools_v1.9 (BipedRigCreator_Enhanced)"
 				biped.collapseAtLayer rootBone.controller 0
 			)
 			saveMaxFile (substituteString tarNewAnim ".FBX" ".max") quiet:true
-			biped.saveBipFile (getnodebyname "Bip001").controller tempBip
+			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
+			select arrExport
+			exportFile tarFileExportPath #noPrompt selectedOnly:true using:FBXEXP
+			-- biped.saveBipFile (getnodebyname "Bip001").controller tempBip
 			-- print ("已保存新 Skin 动画：" + (substituteString tarNewAnim ".FBX" ".max"))
 		)
 	)
