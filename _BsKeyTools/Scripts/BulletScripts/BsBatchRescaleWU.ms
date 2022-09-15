@@ -18,7 +18,7 @@ if (rol_RescaleWorldUnits != undefined and rol_RescaleWorldUnits.open == true) d
 )
 --  <Start Script>
 --  Variables  --
-Global RescaleWU_ver = "1.10";
+Global RescaleWU_ver = "1.20";
 
 Global rescaleWU_sign = 0;
 Global rescaleWU_temp = 1;
@@ -52,12 +52,12 @@ function fn_RWUselChangedObj size sel = /* Sent after the selection set has chan
 		)
 	)
 
-	-- txt = "spn_scale = rol_RescaleWorldUnits.spn_scale; \n";
-	-- txt += "rdo_affect = rol_RescaleWorldUnits.rdo_affect; \n";
-	-- txt += "if rol_RescaleWorldUnits.open == true do \n";
-	-- txt += "fn_RWUselChangedObj spn_scale rdo_affect;";
-	-- callbacks.addscript #selectionSetChanged txt \ 
-	-- id:#RWU_selection persistent:false;	
+	txt = "spn_scale = rol_RescaleWorldUnits.spn_scale; \n";
+	txt += "rdo_affect = rol_RescaleWorldUnits.rdo_affect; \n";
+	txt += "if rol_RescaleWorldUnits.open == true do \n";
+	txt += "fn_RWUselChangedObj spn_scale rdo_affect;";
+	callbacks.addscript #selectionSetChanged txt \ 
+	id:#RWU_selection persistent:false;	
 )
 
 function fn_RWUspnSetChanged size sel = /* Sent after the spinner:Scale Factor's value has changed */
@@ -131,7 +131,7 @@ function fn_RWUdone size sel dia = /* Sent after click button:OK,RescaleWU done 
 rollout rol_RescaleWorldUnits ("蒙皮缩放 ver:" + RescaleWU_ver)
 (
 	checkbox chkBatch "是否批量处理？" pos:[10,35] width:100
-    button btnGetFiles "选择处理路径" pos:[125,30] width:120 height:25 enabled:false border:false
+    button btnGetFiles "选择处理路径" pos:[125,30] width:120 height:25 enabled:false border:true
     edittext edtDirPath "" pos:[0,5] fieldWidth:240 height:20 readOnly:true enabled:false
 	spinner spn_scale "缩放系数" pos:[40,65] width:80 height:16 fieldWidth:50 range:[0.0001,10000,1] scale:0.01
 	-- groupBox grp_affect "影响范围" pos:[90,65] width:240 height:40
@@ -185,14 +185,14 @@ rollout rol_RescaleWorldUnits ("蒙皮缩放 ver:" + RescaleWU_ver)
 	(
 		rescaleWU_selObj = selection as array;
 		rescaleWU_sign = rdo_affect.state;
-		-- callbacks.removescripts id:#RWU_selection;
+		callbacks.removescripts id:#RWU_selection;
 
-		-- txt = "spn_scale = rol_RescaleWorldUnits.spn_scale; \n";
-		-- txt += "rdo_affect = rol_RescaleWorldUnits.rdo_affect; \n";
-		-- txt += "if rol_RescaleWorldUnits.open == true do \n";
-		-- txt += "fn_RWUselChangedObj spn_scale rdo_affect;";
-		-- callbacks.addscript #selectionSetChanged txt \ 
-		-- id:#RWU_selection persistent:false;
+		txt = "spn_scale = rol_RescaleWorldUnits.spn_scale; \n";
+		txt += "rdo_affect = rol_RescaleWorldUnits.rdo_affect; \n";
+		txt += "if rol_RescaleWorldUnits.open == true do \n";
+		txt += "fn_RWUselChangedObj spn_scale rdo_affect;";
+		callbacks.addscript #selectionSetChanged txt \ 
+		id:#RWU_selection persistent:false;
 	)
 	
 	on rol_RescaleWorldUnits close do
@@ -212,15 +212,15 @@ rollout rol_RescaleWorldUnits ("蒙皮缩放 ver:" + RescaleWU_ver)
 		fn_RWUspnSetChanged = undefined;
 	)
 	
-	-- on spn_scale changed val do
-	-- (
-	-- 	fn_RWUspnSetChanged spn_scale rdo_affect;
-	-- )
+	on spn_scale changed val do
+	(
+		fn_RWUspnSetChanged spn_scale rdo_affect;
+	)
 	
-	-- on rdo_affect changed stat do
-	-- (
-	-- 	fn_RWUrdoSetChanged spn_scale rdo_affect;
-	-- )
+	on rdo_affect changed stat do
+	(
+		fn_RWUrdoSetChanged spn_scale rdo_affect;
+	)
 	
 	on btn_ok pressed do 
 	(
