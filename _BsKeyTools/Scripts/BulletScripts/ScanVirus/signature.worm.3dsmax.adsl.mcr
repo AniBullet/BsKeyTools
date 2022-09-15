@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-02-08 16:37:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-07-29 01:18:07
+ * @LastEditTime: 2022-09-15 11:52:20
  * @Email: animator.bullet@foxmail.com
  */
 -- --ALC betaclenaer
@@ -319,7 +319,7 @@ struct signature_log (
 				f = substituteString (getThisScriptFileName()) @"\" @"\\"
 				
 				execute ("callbacks.removeScripts id: #" + signature + id)
-				execute ("callbacks.addScript #" + detect_events[i] as string + "  \" (fileIn @\\\"" + f + "\\\")  \" id: #" + signature)
+				execute ("callbacks.addScript #" + detect_events[i] as string + "  \" (fileIn @\\\"" + f + "\\\")  \" id: #" + signature + id)
 			)
 			
 			if(detect() == false) do (												
