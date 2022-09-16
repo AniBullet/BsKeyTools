@@ -749,10 +749,13 @@ on addToList pressed do
 	testListAni.selection = testListAni.items.count
 	---------------------------------------------------------------------------------------
 	tabtxt   = testListAni.selection	
-	if cptools.localModeCheckBox.checked==false then(
+	if cptools.localModeCheckBox.checked==false then
+	(
 		out_name = ((GetDir #export)+"\\cptools_data\\animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
-	) else (		
-			out_name = ((GetDir #export)+"\\cptools_data\\localMode\\animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
+	) 
+	else 
+	(		
+		out_name = ((GetDir #export)+"\\cptools_data\\localMode\\animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
 	)
 
 	out_file = createfile out_name
@@ -783,7 +786,8 @@ on addToList pressed do
 
 	----------------------------------------
 
-	if ABbutton.text =="S" then (
+	if ABbutton.text =="S" then 
+	(
 	for i=animationrange.start to animationrange.end do
 	(
 			if keyboard.escPressed do 
@@ -794,28 +798,28 @@ on addToList pressed do
 		doit_prog.value = 100.*i/animationrange.end
 		slidertime = i
 
-	for o in selection do
-	(
-	if selection.count !=0 then 	(		
-		if cptools.localModeCheckBox.checked then(
-			if 	o.parent==undefined then (messageBox "请不要选择根骨节")
-			else (
-				theCoords=o.transform * (inverse o.parent.transform)
-				format  "<%>|%| = %\n" i o.name theCoords to:out_file
+		for o in selection do
+		(
+		if selection.count !=0 then 	(		
+			if cptools.localModeCheckBox.checked then(
+				if 	o.parent==undefined then (messageBox "请不要选择根骨节")
+				else (
+					theCoords=o.transform * (inverse o.parent.transform)
+					format  "<%>|%| = %\n" i o.name theCoords to:out_file
+				)
+			) else (
+				format  "<%>|%| = %\n" i o.name o.transform to:out_file
 			)
-		) else (
-			format  "<%>|%| = %\n" i o.name o.transform to:out_file
 		)
-	)
 
-	)
-	format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
-	if doit_prog.value == 100 do (format format_b_lag)
+		)
+		format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
+		if doit_prog.value == 100 do (format format_b_lag)
 	)
 	doit_prog.value = 0
 
-	)else(
-
+	)else
+	(
 
 	slidertime = animationrange.start
 
@@ -844,33 +848,37 @@ on addToList pressed do
 		a_lost = a
 		
 		for o in selection do
-	(
-		if selection.count !=0 then    (
+		(
+			if selection.count !=0 then    
+			(
 		   
-			if cptools.localModeCheckBox.checked then(
-				if 	o.parent==undefined then (messageBox "请不要选择根骨节")
-				else (
-					theCoords=o.transform * (inverse o.parent.transform)
-					format  "<%>|%| = %\n" a o.name theCoords to:out_file
+				if cptools.localModeCheckBox.checked then(
+					if 	o.parent==undefined then (messageBox "请不要选择根骨节")
+					else (
+						theCoords=o.transform * (inverse o.parent.transform)
+						format  "<%>|%| = %\n" a o.name theCoords to:out_file
+					)
+				) else 
+				(
+				
+-- 				format  "<%>|%| = %\n" i o.name o.transform to:out_file
+				format  "<%>|%| = %\n" a o.name o.transform to:out_file
 				)
-			) else (
-				format  "<%>|%| = %\n" i o.name o.transform to:out_file
 			)
-	   )
-	)
+		)
 		a = trackbar.getnextkeytime()
 
 		doit_prog.value = 100.*a_lost/(animationrange.end-animationrange.start)
 
-	if a!=undefined and a > animationrange.start and  a <= animationrange.end  then (
-		
-		slidertime = a
-		
-		)else (  Exit  )
-		
-	format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
-		
-	if doit_prog.value == 100 do (format format_b_lag)	
+		if a!=undefined and a > animationrange.start and  a <= animationrange.end  then (
+			
+			slidertime = a
+			
+			)else (  Exit  )
+			
+		format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
+			
+		if doit_prog.value == 100 do (format format_b_lag)	
 	)
 
 	while a > animationrange.start	and a > a_lost 
