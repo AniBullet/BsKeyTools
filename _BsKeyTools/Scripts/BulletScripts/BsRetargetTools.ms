@@ -781,7 +781,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 
 			if (getnodebyname "Root") != undefined then
 			(
-				local dummyRootMotionTemp = point name:"RootTemp"
+				local dummyRootMotionTemp = point name:"RootTemp" wirecolor:red
 				in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0)
 				(GetBipedNode 1).parent = dummyRootMotionTemp
 				dummyRootMotionTemp.constantscreensize = false
@@ -840,7 +840,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 				delete dummyRootMotion
 				dummyRootMotionTemp.name = "Root"
 				biped.collapseAtLayer rootBone.controller 0
-				fnFixSize dummyRootMotionTemp
+				-- fnFixSize dummyRootMotionTemp
 			)
 
 			(GetBipedNode 1).transform.controller.figureMode = true
@@ -2073,8 +2073,10 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			pgbBar.value = 0
 			max Create mode
 			---断开质心防止旋转出问题，后面连上
-			rootMotionBone = (GetSkeletalNode 1 false).parent
-			(GetSkeletalNode 1 false).parent = undefined
+			hips = (GetSkeletalNode 1 false)
+			rootMotionBone = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
+			tempHips = hips.parent
+			hips.parent = undefined
 
 			-- 创建 Helper
 			if isValidNode headNub == false then headNub = point name:"_Helper_Head Nub" wirecolor:(color 0 255 0)
@@ -2287,7 +2289,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			if rootMotionBone != undefined then
 			(
 				boneRetargetRM                    = point name:"RetargetHelper_Root"
-				boneRetargetRM.size               = 0.01
+				-- boneRetargetRM.size               = 0.01
 				boneRetargetRM.constantscreensize = false
 				-- boneRetargetRM.box = true
 				boneRetargetRM.transform = rootMotionBone.transform
@@ -2308,7 +2310,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 				in coordsys gimbal bipedRetargetRM.rotation = (eulerAngles 90 0 0)
 				bipedRetargetRM.wirecolor = red
 				bipedRetargetRM.constantscreensize = false
-				fnFixSize bipedRetargetRM
+				-- fnFixSize bipedRetargetRM
 			)
 			
 			--newBone = CreateFauxBone rootBundefined 1 2
@@ -2506,7 +2508,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 				footHelpers[2] = undefined;
 			)
 
-			(GetSkeletalNode 1 false).parent = rootMotionBone
+			hips.parent = tempHips
 			(GetBipedNode 1).parent = bipedRetargetRM
 			rootBone.parent = boneRetargetRM
 
