@@ -127,6 +127,8 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     (
         if iniCollopseType == 2 then
         (
+            local dateTime = (dotNetClass "System.DateTime").Now
+            strDayLine = fnGetHitokoto()
             return (dayTimeString + "\r\n" + "当前时间：" +
             fnGetDateTimeString()  + "\r\n" + strDayLine)
         )
@@ -138,8 +140,6 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
 
     on rolTogglePanel open do 
     (
-        local dateTime = (dotNetClass "System.DateTime").Now
-        strDayLine = fnGetHitokoto()
         fnStylizeLabel lblOneWord
         if iniCollopseType == 1 then 
         (
