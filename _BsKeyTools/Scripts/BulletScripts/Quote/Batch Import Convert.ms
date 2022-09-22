@@ -194,7 +194,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 		actionMan.executeAction 0 "63566"  -- Views: Default Shading
 		if (viewport.getShowEdgeFaces()) do actionMan.executeAction 0 "369"
 		---Turn Statistics off  ---- Thanks to Swordslayer (http://www.scriptspot.com/forums/3ds-max/general-scripting/hiding-statistics-panel)
-		local table = for i = 1 to actionMan.numActionTables where (actionMan.getActionTable i).name == "Main UI" do exit with actionMan.getActionTable i
+		local table = for i = 1 to actionMan.numActionTables where (actionMan.getActionTable i).name == "Main UI" or (actionMan.getActionTable i).name == "主 UI" do exit with actionMan.getActionTable i
 		local checked = for i = 1 to table.numActionItems where (item = table.getActionItem i; item.getMenuText &aiMenuText; aiMenuText == "Show Statistics Toggle") do exit with item.isChecked
 		if checked do actionMan.executeAction 0 "40829"
 		----------
