@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-15 11:27:53
+ * @LastEditTime: 2022-09-21 12:59:31
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -970,10 +970,9 @@ rcmenu menuConfig
 (
 	subMenu "帮助  /  Help"
 	(
-		menuItem mItemHelpDoc ">> 使用说明 <<"
+		menuItem mItemHelpVideo ">> 视频教程 <<"
+		menuItem mItemHelpDoc ">> 帮助文档 <<"
 		menuItem mItemBugReport ">> 问题建议 <<"
-		menuItem mItemClose "关闭 [空白处中键]"
-		menuItem mItemUninstall "卸载 [期待再再见]"
 		-- subMenu "关于我 [欢迎交流]"
 		-- (
 			separator menuAboutMe
@@ -981,6 +980,9 @@ rcmenu menuConfig
 			menuItem mItemTwitter "🐦 Twitter"
 			menuItem mItemQgroup "🐧 Qgroup"
 		-- )
+		separator menuSepClose
+		menuItem mItemClose "关闭 [空白处中键]"
+		menuItem mItemUninstall "卸载 [期待再再见]"
 	)
 	separator menuSepHelp
 	menuItem mItemCleanVirus "杀毒工具 [推荐开启]"
@@ -1031,8 +1033,11 @@ rcmenu menuConfig
 		)
 	)
 
-	on mItemHelpDoc picked do 
+	on mItemHelpVideo picked do 
 	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
+
+	on mItemHelpDoc picked do 
+	(shellLaunch "https://animatorbullet.github.io/" "")
 
 	on mItemBugReport picked do
 	(shellLaunch "https://github.com/AnimatorBullet/BsKeyTools/issues" "")

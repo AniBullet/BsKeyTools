@@ -63,14 +63,25 @@
 		)
 	)
 
-	macroScript UrlBsToolsDocs
+	macroScript UrlBsToolsVideo
 	category:"_[BulletTools]"
-	buttonText:">> 使用说明 <<"
-	toolTip:"打开帮助文档"
+	buttonText:">> 视频教程 <<"
+	toolTip:"打开视频教程"
 	(
 		on execute do
 		(
 			shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" ""
+		)
+	)
+
+	macroScript UrlBsToolsDocs
+	category:"_[BulletTools]"
+	buttonText:">> 帮助文档 <<"
+	toolTip:"打开帮助文档"
+	(
+		on execute do
+		(
+			shellLaunch "https://animatorbullet.github.io/" ""
 		)
 	)
 

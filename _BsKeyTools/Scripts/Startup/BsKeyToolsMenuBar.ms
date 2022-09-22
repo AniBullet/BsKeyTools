@@ -21,6 +21,7 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
     Local mItemOpenPanelFull  = menuMan.createActionItem "OpenPanelFull" "_[BulletTools]"
     local mItemClosePanel     = menuMan.createActionItem "ClosePanel" "_[BulletTools]"
     local menuToolsHelp       = menuMan.createMenu "帮助 / Help"
+    local mItemBsToolsVideo   = menuMan.createActionItem "UrlBsToolsVideo" "_[BulletTools]"
     local mItemBsToolsDocs    = menuMan.createActionItem "UrlBsToolsDocs" "_[BulletTools]"
     local mItemBsToolsIssues  = menuMan.createActionItem "UrlBsToolsIssues" "_[BulletTools]"
     local menuCheckUpdate     = menuMan.createMenu "自动检测更新"
@@ -47,6 +48,7 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
     menuTogglePanel.addItem mItemOpenPanel -1
     menuTogglePanel.addItem mItemOpenPanelFull -1
     menuTogglePanel.addItem mItemClosePanel -1
+    menuToolsHelp.addItem mItemBsToolsVideo -1
     menuToolsHelp.addItem mItemBsToolsDocs -1
     menuToolsHelp.addItem mItemBsToolsIssues -1
     menuToolsHelp.addItem separatorBsKeyTools -1
