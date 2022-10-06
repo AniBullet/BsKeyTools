@@ -172,6 +172,7 @@ global arrAllBipedName = #()
 
 global hasExtraHips = false
 global fixNierFramerate = false
+global pickedRootMotion = undefined
 
 -- wizardIndex = 1
 -- wizardArray = #()
@@ -429,114 +430,94 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v2.1"
+rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向 ）"
 (
 	-- Contains the names of the first 35 biped bones for reference
-	listbox bipedBones "Bip 节点名 1 - 35" align:#left across:4 height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
+	listbox bipedBones "Bip 节点 1 - 35" align:#left across:4 height:35 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
 	-- visible:false
     -- Contains the names of the first 35 bones used from the original rig
-	listbox characterBones "Bone 骨骼名 1 - 35" align:#left height:35 width:113 items:#("~undefined~")
+	listbox characterBones "Bone 骨骼 1 - 35" align:#left height:35 width:114 items:#("~undefined~")
 	
 	-- Contains the names of the reamining biped bones for reference
-	listbox bipedBones_B "Bip 节点名 36 - 67" align:#left height:35 width:113 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
+	listbox bipedBones_B "Bip 节点 36 - 67" align:#left height:35 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
 	-- Contains the names of the remaining original rig's bones.
-	listbox characterBones_B "Bone 骨骼名 36 - 67" align:#left height:35 width:113 items:#("~undefined~")
-
+	listbox characterBones_B "Bone 骨骼 36 - 67" align:#left height:35 width:114 items:#("~undefined~")
+	
+	local switchFBXTools = false
     local btnWidth   = 120
 
-    groupbox grpRetargetList "1. Check  mapping" pos:[15,485] width:130 height:125
+    groupbox grpRetargetList "1. Check  mapping" pos:[15,485] width:130 height:170
 
-    button loadDialogue "加载" pos:[20,535] width:(btnWidth/2) height:25
-    button saveDialogue "保存" pos:[80,535] width:(btnWidth/2) height:25
-    button btnAutoMapping "自动检索匹配" pos:[20,505] width:btnWidth height:30 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
-    -- button testWizard "快速映射助手" pos:[20,555] width:btnWidth tooltip:"根据层级关系帮助选择对应骨骼。"
-	button validateButton "验证映射列表" pos:[20,560] width:btnWidth height:40 tooltip:"验证匹配是否完整。"
+	pickbutton pkbRootMption "指定 RootMotion" pos:[20,505] height:35 width:(btnWidth) message:"指定 RootMotion" autoDisplay:true tooltip:"右键清除选择"
+    button loadDialogue "加载" pos:[20,570] width:(btnWidth/2) height:30
+    button saveDialogue "保存" pos:[80,570] width:(btnWidth/2) height:30
+    button btnAutoMapping "〇 自动检索匹配" pos:[20,540] width:btnWidth height:30 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
+	button validateButton "〇 验证映射列表" pos:[20,600] width:btnWidth height:50 tooltip:"验证匹配是否完整。"
     
-    --button setupRotation "Setup Rotations"
-    -- groupbox grpHelper "Helpers" pos:[255,485] width:100 height:125
-    -- button createHelpersBtn "创建 Helpers" pos:[260,505] width:btnWidth
-    -- button destroyHelpersBtn "清除 Helpers" pos:[260,555] width:btnWidth
-    -- button setupHelpersBtn "设置 Helpers" pos:[260,530] width:btnWidth
-    -- checkBox hideHelpers "隐藏 Helpers" checked:true tooltip:"隐藏 Helpers" pos:[260,585] width:btnWidth
+    groupbox grpBiped "2. Rig Retarget Tools" pos:[155,485] width:315 height:170
+	spinner spnObjSize "选中 Size: " pos:[163,508] range:[0.1,1000,5] align:#left offset:[2,0] fieldwidth:35
+	button btnResetSize "重置" pos:[265,508] width:35 height:16
+	button btnQuickTools "[可选]快速创建节点" pos:[160,530] width:(btnWidth + 20) height:25
+	button reAlignFingers "🤞🏼 重新对齐手指骨骼" pos:[160,555] width:(btnWidth + 20) height:25
+	checkbox chkCopySubs "是否映射飘带骨骼" pos:[170,587] height:20 width:(btnWidth) checked:false
+    button alignBipedToHelper "🍖 创建和对齐 Biped" pos:[160,610] width:(btnWidth + 20) height:40
     
-    groupbox grpBiped "2. Rig Retarget Tools" pos:[155,485] width:310 height:125
-    -- button buildHelperBiped "创建 Biped" pos:[370,505] width:btnWidth
-    -- button buildHelperRig "创建辅助骨骼" pos:[370,530] width:btnWidth
-	button btnQuickTools "[可选]快速创建节点" pos:[160,505] width:(btnWidth + 20) height:25
-    button alignBipedToHelper "🍖 创建和对齐 Biped" pos:[160,530] width:(btnWidth + 20) height:40
-    button reAlignFingers "🤞🏼 重新对齐手指骨骼" pos:[160,570] width:(btnWidth + 20) height:30
     -- button btnExportTPose "[可选]导出 Biped Figure Pose" pos:[305,505] width:(btnWidth + 35) height:25
-	checkbox chkRenameBiped "👇 Biped 保持 Bone 原名" checked:false pos:[306,505] width:(btnWidth + 35) height:20
-	button btnReplaceToBiped "[可选] Skin 替换为 Biped" pos:[305,530] width:(btnWidth + 35) height:25
-    checkbutton ckbExportFBXTools "🎮 动画批量重定向工具" pos:[305,555] width:(btnWidth + 35) height:45
-    
-    -- checkBox toggleBipedMode "形体模式开关" checked:true tooltip:"打开和关闭 Biped 体形模式" pos:[370,580] width:btnWidth
-    
-    -- checkBox togglePositionConstraints "使用位置约束" checked:false tooltip:"如果打开，位置约束将应用于 Rig 的 Hips。" \
-    -- pos:[370,583] width:btnWidth
-        
-    -- button constrainButton "对齐后创建约束" pos:[370,605] width:btnWidth
-    
-    -- groupbox grpQuickNub "Quick Nub / Hips" pos:[155,485] width:150 height:125
-    -- button quickMakeParent "快速创建父级骨骼" pos:[160,505] width:(btnWidth + 20)
-    -- button quickDuplicate "快速创建子级 Nub" pos:[160,530] width:(btnWidth + 20)
-    -- button quickDuplicateFoot "快速创建 Foot Nub" pos:[160,555] width:(btnWidth + 20)
-    -- button quickCenterRoot "快速创建新的 Hips" tooltip:"根据 Bone 骨骼大腿的位置创建符合 Biped 骨骼位置的质心。" \
-    -- pos:[160,580] width:(btnWidth + 20)
-    
-    -- button recordFrame "记录 Biped 单帧" pos:[15,615] width:btnWidth border:false
-    -- spinner animationRate "帧数间隔" range:[1,100,2] type:#integer pos:[170,618] width:(btnWidth - 40)
-    -- button recordAnimation "记录整个 Biped 动画" pos:[240,615] width:(btnWidth + 25) border:false
-
-    groupbox grpExportTools "Anim Retarget Tools" pos:[15,5] width:450 height:475 visible:false
+	checkbox chkRenameBiped "👇 Biped 保持 Bone 原名" checked:false pos:[315,505] width:(btnWidth + 20) height:20
+	button btnReplaceToBiped "[可选] Skin 替换为 Biped" pos:[310,530] width:(btnWidth + 35) height:25
+    -- checkbutton ckbExportFBXTools "🎮 动画批量重定向工具" pos:[305,555] width:(btnWidth + 35) height:45
+	checkbox chkRealign "重置轴向 ( 可解算飘带 )" pos:[315,560] height:20 width:(btnWidth + 30) checked:true
+	button btnConvertToBone "[可选] 选中 Helper 转 Bone" pos:[310,582] height:23 width:(btnWidth + 35)
+    dotnetcontrol dotbtnFBXTools "button" pos:[310,610] width:(btnWidth + 35) height:40
 	
 	button btnRefreshFolder ">>  按默认规则刷新路径和文件  <<" \
-	height:30 width:235 pos:[225,25] tooltip:"刷新当前文件目录\r\n并按默认规则寻找文件\r\n映射文件为当前打开文件\r\n新 Skin 文件为同目录 Skin.max" visible:false
+	height:40 width:225 pos:[240,15] tooltip:"刷新当前文件目录\r\n并按默认规则寻找文件\r\n映射文件为当前打开文件\r\n新 Skin 文件为同目录 Skin.max" visible:false
 
 	listBox ltbFilesList "" selection:0 \
-	height:34 width:200 pos:[20,25] visible:false
+	height:34 width:215 pos:[15,12] visible:false
 
 	button btnLoadAnimPath "选择动画目录" tooltip:"选择原始动画目录" \
-	height:22 width:115 pos:[225,65] visible:false
+	height:22 width:105 pos:[240,65] visible:false
 	button btnRefreshAnimFiles "刷新" \
-	height:22 width:60 pos:[340,65] visible:false
+	height:22 width:60 pos:[345,65] visible:false
 	button btnOpenCurrentPath "打开" tooltip:"打开当前文件夹" \
-	height:22 width:60 pos:[400,65] border:true visible:false
+	height:22 width:60 pos:[405,65] border:true visible:false
 	editText edtAnimFbxPath "" text:"" labelOnTop:true \
-	height:22 fieldWidth:235 pos:[225,90] readOnly:true visible:false
+	height:22 fieldWidth:225 pos:[240,90] readOnly:true visible:false
 	
-	button btnOutputPath "选择导出目录" pos:[225,125] width:160 visible:false \
+	button btnOutputPath "选择导出目录" pos:[240,125] width:165 visible:false \
 	tooltip:"导出的重定向动画 FBX 保存目录，\r\n新 Skin 动画目录在：\r\n此目录的 *\NewFbx 目录下。"
-	button btnOpedOutputPath "打开" pos:[385,125] width:75 visible:false \
+	button btnOpedOutputPath "打开" pos:[405,125] width:60 visible:false \
 	tooltip:"打开重定向文件导出目录"
 	editText edtOutputPath "" text:"" labelOnTop:true \
-	height:22 fieldWidth:235 pos:[225,150] readOnly:true visible:false
+	height:22 fieldWidth:225 pos:[240,150] readOnly:true visible:false
     
-	button btnSelectMappingFile "选择映射文件" pos:[225,185] width:160 visible:false \
+	button btnSelectMappingFile "选择映射文件" pos:[240,185] width:165 visible:false \
 	tooltip:"选择以 Bone 骨架生成的 Biped 映射文件"
-	button btnOpenMappingFile "打开" pos:[385,185] width:75 visible:false \
+	button btnOpenMappingFile "打开" pos:[405,185] width:60 visible:false \
 	tooltip:"打开映射文件"
     editText edtMappingFile "" text:"" labelOnTop:true \
-	height:22 fieldWidth:235 pos:[225,210] readOnly:true visible:false
+	height:22 fieldWidth:225 pos:[240,210] readOnly:true visible:false
 	
-	button btnSelectSkinFile "选择新 Skin 文件" pos:[225,245] width:160 visible:false \
+	button btnSelectSkinFile "选择新 Skin 文件" pos:[240,245] width:165 visible:false \
 	tooltip:"选择新的 Skin 文件"
-	button btnOpenSkinFile "打开" pos:[385,245] width:75 visible:false \
+	button btnOpenSkinFile "打开" pos:[405,245] width:60 visible:false \
 	tooltip:"打开新 Skin 文件"
     editText edtSkinFile "" text:"" labelOnTop:true \
-	height:22 fieldWidth:235 pos:[225,270] readOnly:true visible:false
+	height:22 fieldWidth:225 pos:[240,270] readOnly:true visible:false
 
-	checkbox chkRecoverExport "不覆盖导出，用于崩溃后继续重导" checked:false pos:[240,305] width:200 height:20 visible:false
-    button btnRetargetSelected ">>>   重定向列表选中动画   <<<" pos:[225,365] width:235 height:35 visible:false \
+	checkbox chkRecoverExport "不覆盖导出，用于崩溃后继续重导" checked:false pos:[250,305] width:225 height:20 visible:false
+    button btnRetargetSelected ">>>   重定向列表选中动画   <<<" pos:[240,370] width:225 height:50 visible:false \
 	tooltip:"重定向列表选中的动画并且打开\r\n会保存一份 .max 和 .FBX 文件"
-    button btnRetargettAll ">>>   重定向列表所有动画   <<<" pos:[225,400] width:235 height:35 visible:false \
+    button btnRetargettAll ">>>   重定向列表所有动画   <<<" pos:[240,420] width:225 height:60 visible:false \
 	tooltip:"重定向列表选中的动画\r\n会保存一份 .max 和 .FBX 文件\r\n可能比较慢..."
-	button btnSpecial "[慎用] 特殊后处理集合" pos:[225,335] width:140 height:25 visible:false
-	button btnTemp "[占坑]" pos:[365,335] width:95 height:25 visible:false
-	label lblCount "待处理原始动画 FBX 数：0 个" pos:[235,455] width:225 height:20 visible:false
+	button btnSpecial "[慎用] 特殊后处理集合" pos:[240,335] width:135 height:25 visible:false
+	button btnTemp "[占坑]" pos:[375,335] width:90 height:25 visible:false
+	button btnCount "待处理原始动画 FBX 数：0 个" pos:[15,461] width:215 height:20 visible:false border:true tooltip:"打开原始动画 FBX 文件夹"
 
-    progressbar pgbBar "" pos:[15,618] width:450 height:10 color:white
-	
+    progressbar pgbBar "" pos:[15,665] width:420 height:8 color:white
+	label lblBarValue "" pos:[445,660] width:60
+
     fn getFilesequenceFile f &base &digits = 
 	(
 		f = getFilenameFile f
@@ -590,8 +571,8 @@ rollout biped_align_test "BsRetargetTools_v2.1"
             arrFBX = (getFilesRecursive dir "\\*.FBX")
 			qsort arrFBX fnPseudoNaturalSort
 			ltbFilesList.items = for i in arrFBX collect ((getfilenamefile i) + ".FBX")
-			-- lblCount.text = ("已重定向动画 FBX 数：0 个")
-			lblCount.text = ("待处理原始动画 FBX 数：" + ltbFilesList.items.count as string + " 个")
+			-- btnCount.text = ("已重定向动画 FBX 数：0 个")
+			btnCount.text = ("待处理原始动画 FBX 数：" + ltbFilesList.items.count as string + " 个")
 			arrExportRetargetAnim = arrFBX
         )
     )
@@ -636,8 +617,8 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 		case classof tempObj of
 		(
 			(BoneGeometry):(tempObj.width = size;tempObj.height = size)
-			(Dummy):(tempObj.boxsize = [size,size,size]/100)
-			(point):(tempObj.size = size/100)
+			(Dummy):(tempObj.boxsize = [size,size,size])
+			(point):(tempObj.size = size)
 		)
 	)
 
@@ -748,7 +729,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			FBXExporterSetParam "BakeResampleAnimation" false
 			FBXExporterSetParam "SplitAnimationIntoTakes" "-c"
 			FBXExporterSetParam "BakeFrameStart" animationRange.start
-			if fixNierFramerate then (FBXExporterSetParam "BakeFrameStart" 1)
+			-- if fixNierFramerate then (FBXExporterSetParam "BakeFrameStart" 1)
 			FBXExporterSetParam "BakeFrameEnd" animationRange.end
 			FBXExporterSetParam "Cameras" false
 			FBXExporterSetParam "Lights" false
@@ -840,13 +821,14 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 				delete dummyRootMotion
 				dummyRootMotionTemp.name = "Root"
 				biped.collapseAtLayer rootBone.controller 0
-				-- fnFixSize dummyRootMotionTemp
+				dummyRootMotionTemp.size = 0.4
 			)
 
 			(GetBipedNode 1).transform.controller.figureMode = true
 			(GetBipedNode 1).controller.trianglePelvis = false
 			(GetBipedNode 1).controller.triangleNeck = true
 			(GetBipedNode 1).transform.controller.figureMode = false
+
 			saveMaxFile (substituteString tarNewAnim ".FBX" ".max") quiet:true
 			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
 			select arrExport
@@ -1774,7 +1756,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 	on loadDialogue pressed do
 	(
         pgbBar.value = 0
-
+		lblBarValue.text = (pgbBar.value as string) + " %"
         local tempdir = (if (maxFilePath != "") and (doesDirectoryExist maxFilePath) then maxFilePath else (@"C:\Users\" + (filterString  (getdir #userscripts) @"\")[3] + @"\Desktop\"))
 
 		f = getOpenFileName caption:"Open A Test File:" filename:tempdir types:"Mapping List (*.list)|*.list|"
@@ -2065,16 +2047,34 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 		)
 		else (fnCopyChildSubBone boneFBXRoot)
 	)
+
+	on spnObjSize changed val do
+	(
+		for b in selection where classof b == BoneGeometry or classof b == dummy or classof b == point do
+		(
+			fnJudgeSizeType b val
+		)
+	)
+
+	on btnResetSize pressed do 
+	(
+		spnObjSize.value = 5
+		for b in selection where classof b == BoneGeometry or classof b == dummy or classof b == point do
+		(
+			fnJudgeSizeType b 5
+		)
+	)
 	
     on alignBipedToHelper pressed do
 	(
 		if mappingCheckState then
 		(
 			pgbBar.value = 0
+			lblBarValue.text = (pgbBar.value as string) + " %"
 			max Create mode
 			---断开质心防止旋转出问题，后面连上
 			hips = (GetSkeletalNode 1 false)
-			rootMotionBone = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
+			-- rootMotionBone = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
 			tempHips = hips.parent
 			hips.parent = undefined
 
@@ -2267,7 +2267,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			)
 	
 			pgbBar.value = 5
-	
+			lblBarValue.text = (pgbBar.value as string) + " %"
 			--创建对齐辅助骨骼
 			local bipOne = (GetBipedNode 1)
 			if bipOne == undefined then
@@ -2286,21 +2286,21 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			rootBone.transform = (GetBipedNode 1).transform
 			bipedRetargetRM    = undefined
 			boneRetargetRM     = undefined
-			if rootMotionBone != undefined then
+			if pickedRootMotion != undefined then
 			(
 				boneRetargetRM                    = point name:"RetargetHelper_Root"
 				-- boneRetargetRM.size               = 0.01
 				boneRetargetRM.constantscreensize = false
 				-- boneRetargetRM.box = true
-				boneRetargetRM.transform = rootMotionBone.transform
+				boneRetargetRM.transform = pickedRootMotion.transform
 				in coordsys gimbal boneRetargetRM.rotation = (eulerAngles 90 0 0)
 				local pC = Position_Constraint()
-				pC.appendTarget rootMotionBone 100
+				pC.appendTarget pickedRootMotion 100
 				boneRetargetRM.Position.controller = pC
 				pC.relative = true
 				
 				local oC = Orientation_Constraint()
-				oC.appendTarget rootMotionBone 100
+				oC.appendTarget pickedRootMotion 100
 				boneRetargetRM.Rotation.controller = oC
 				oC.relative = true
 
@@ -2359,6 +2359,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			rHandBone = CreateFauxBone newBone 47 56 [0,0,-1]-- isHand:true
 			
 			pgbBar.value = 10
+			lblBarValue.text = (pgbBar.value as string) + " %"
 			-- Create the fingers
 			fn QuickFingers sI startingBone isThumbs =
 			(
@@ -2443,12 +2444,15 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			CreatePositionConstraint 2 false
 	
 			pgbBar.value = 25
+			lblBarValue.text = (pgbBar.value as string) + " %"
 			--对齐 Biped
 			fnAlignBipedToHelper()
 			pgbBar.value = 55
+			lblBarValue.text = (pgbBar.value as string) + " %"
 			(GetBipedNode 1).transform.controller.figureMode = false
 			fnAlignBipedToHelper()
 			pgbBar.value = 90
+			lblBarValue.text = (pgbBar.value as string) + " %"
 			biped.createCopyCollection (GetBipedNode 1).controller "tempRetargetBipedPose"
 			copycol= biped.getcopycollection (GetBipedNode 1).controller 1
 			icpmxbipcopy = biped.copybippose (GetBipedNode 1).controller copycol #snapview
@@ -2462,6 +2466,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			biped.deleteCopyCollection (GetBipedNode 1).controller (biped.numCopyCollections (GetBipedNode 1).controller)
 	
 			pgbBar.value = 95
+			lblBarValue.text = (pgbBar.value as string) + " %"
 			-- 清除 Helper
 			if isValidNode headNub then
 			(
@@ -2509,15 +2514,15 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			)
 
 			hips.parent = tempHips
-			(GetBipedNode 1).parent = bipedRetargetRM
-			rootBone.parent = boneRetargetRM
+			-- (GetBipedNode 1).parent = bipedRetargetRM
+			-- rootBone.parent = boneRetargetRM
 
-			fnCopySubBones()
+			if chkCopySubs.state then fnCopySubBones()
 			pgbBar.value = 100
-
+			lblBarValue.text = (pgbBar.value as string) + " %"
 			messageBox "重定向 Biped 创建成功！\r\n\r\n如肩膀匹配不高，\r\n\r\n建议微调两边肩膀手臂和手，\r\n\r\n再点击重新对齐手指骨骼。                         "
 		)
-		else (messageBox "请先验证并检查映射列表是否完整！                                       ")
+		else (messageBox "请先验证并检查映射列表是否完整！                                       " title:"BsRetargetTools")
 	)
 
     on reAlignFingers pressed do
@@ -2527,7 +2532,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			try(fnAlignBipedFingersToHelper ())
 			catch(messageBox "重新对齐手指成功！                            ")
 		)
-		else (messageBox "请先验证并检查映射列表是否完整！                                       ")
+		else (messageBox "请先验证并检查映射列表是否完整！                                       " title:"BsRetargetTools")
     )
 
     -- on btnExportTPose pressed do
@@ -2542,37 +2547,80 @@ rollout biped_align_test "BsRetargetTools_v2.1"
     --     else (messageBox "没有找到 Biped 骨骼！                                ")
 	-- )
 
-    on ckbExportFBXTools changed state do
-    (
-        bipedBones.visible       = (not state)
-        characterBones.visible   = (not state)
-        bipedBones_B.visible     = (not state)
-        characterBones_B.visible = (not state)
+    -- on ckbExportFBXTools changed state do
+    -- (
+    --     bipedBones.visible       = (not state)
+    --     characterBones.visible   = (not state)
+    --     bipedBones_B.visible     = (not state)
+    --     characterBones_B.visible = (not state)
 
-        edtAnimFbxPath.visible       = state
-        btnLoadAnimPath.visible      = state
-        btnRefreshAnimFiles.visible  = state
-        btnOpenCurrentPath.visible   = state
-        btnRefreshFolder.visible     = state
-        ltbFilesList.visible         = state
-        grpExportTools.visible       = state
-        btnOutputPath.visible        = state
-        edtOutputPath.visible        = state
-        edtMappingFile.visible       = state
-        btnOpedOutputPath.visible    = state
-        btnSelectMappingFile.visible = state
-        btnOpenMappingFile.visible   = state
-        btnRetargetSelected.visible  = state
-        btnRetargettAll.visible      = state
-        btnSelectSkinFile.visible    = state
-        edtSkinFile.visible          = state
-        btnOpenSkinFile.visible      = state
-        lblCount.visible             = state
-        chkRecoverExport.visible     = state
-        btnSpecial.visible           = state
-        btnTemp.visible              = state
-        -- if state then (fnRefreshDir maxFilePath)
-    )
+    --     edtAnimFbxPath.visible       = state
+    --     btnLoadAnimPath.visible      = state
+    --     btnRefreshAnimFiles.visible  = state
+    --     btnOpenCurrentPath.visible   = state
+    --     btnRefreshFolder.visible     = state
+    --     ltbFilesList.visible         = state
+    --     btnOutputPath.visible        = state
+    --     edtOutputPath.visible        = state
+    --     edtMappingFile.visible       = state
+    --     btnOpedOutputPath.visible    = state
+    --     btnSelectMappingFile.visible = state
+    --     btnOpenMappingFile.visible   = state
+    --     btnRetargetSelected.visible  = state
+    --     btnRetargettAll.visible      = state
+    --     btnSelectSkinFile.visible    = state
+    --     edtSkinFile.visible          = state
+    --     btnOpenSkinFile.visible      = state
+    --     btnCount.visible             = state
+    --     chkRecoverExport.visible     = state
+    --     btnSpecial.visible           = state
+    --     btnTemp.visible              = state
+    --     -- if state then (fnRefreshDir maxFilePath)
+    -- )
+
+	on btnCount pressed do 
+	(
+		if (doesDirectoryExist edtAnimFbxPath.text) then
+		(
+			shellLaunch edtAnimFbxPath.text ""
+		)
+		else (messageBox "刷新动画列表，目录不存在！                             " title:"BsRetargetTools")
+	)
+
+	on dotbtnFBXTools mouseDown senderArg arg do 
+	(
+		switchFBXTools = not switchFBXTools
+
+		bipedBones.visible       = (not switchFBXTools)
+        characterBones.visible   = (not switchFBXTools)
+        bipedBones_B.visible     = (not switchFBXTools)
+        characterBones_B.visible = (not switchFBXTools)
+
+        edtAnimFbxPath.visible       = switchFBXTools
+        btnLoadAnimPath.visible      = switchFBXTools
+        btnRefreshAnimFiles.visible  = switchFBXTools
+        btnOpenCurrentPath.visible   = switchFBXTools
+        btnRefreshFolder.visible     = switchFBXTools
+        ltbFilesList.visible         = switchFBXTools
+        btnOutputPath.visible        = switchFBXTools
+        edtOutputPath.visible        = switchFBXTools
+        edtMappingFile.visible       = switchFBXTools
+        btnOpedOutputPath.visible    = switchFBXTools
+        btnSelectMappingFile.visible = switchFBXTools
+        btnOpenMappingFile.visible   = switchFBXTools
+        btnRetargetSelected.visible  = switchFBXTools
+        btnRetargettAll.visible      = switchFBXTools
+        btnSelectSkinFile.visible    = switchFBXTools
+        edtSkinFile.visible          = switchFBXTools
+        btnOpenSkinFile.visible      = switchFBXTools
+        btnCount.visible             = switchFBXTools
+        chkRecoverExport.visible     = switchFBXTools
+        btnSpecial.visible           = switchFBXTools
+        btnTemp.visible              = switchFBXTools
+
+		if not switchFBXTools then dotbtnFBXTools.backcolor = BsDotBackColor 
+		else dotbtnFBXTools.backcolor = dotColor.FromArgb white.r white.g white.b
+	)
 
 	on btnSpecial pressed do 
 	(
@@ -2700,8 +2748,8 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 				if CheckForSave() then 
 				(
 					fnExportReTargrtedAnim arrExportRetargetAnim ltbFilesList.selection
-					-- lblCount.text = ("已重定向动画 FBX 数：1 个")
-					lblCount.text = ("待批处理原始动画 FBX 数：0 个")
+					-- btnCount.text = ("已重定向动画 FBX 数：1 个")
+					btnCount.text = ("待批处理原始动画 FBX 数：0 个")
 				)
 			)
 			else (print "Skin 文件不存在!                             ")
@@ -2721,12 +2769,14 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 				(
 					pgbBar.color = blue
 					pgbBar.value = 0
+					lblBarValue.text = (pgbBar.value as string) + " %"
 					for i = 1 to arrExportRetargetAnim.count where (doesFileExist arrExportRetargetAnim[i]) do 
 					(
 						fnExportReTargrtedAnim arrExportRetargetAnim i
-						-- lblCount.text = ("已重定向动画 FBX 数：" + (i as string) + " 个")
-						lblCount.text = ("待批处理原始动画 FBX 数：" + (arrExportRetargetAnim.count - i) as string + " 个")
+						-- btnCount.text = ("已重定向动画 FBX 数：" + (i as string) + " 个")
+						btnCount.text = ("待批处理原始动画 FBX 数：" + (arrExportRetargetAnim.count - i) as string + " 个")
 						pgbBar.value = 100.*i/arrExportRetargetAnim.count
+						lblBarValue.text = (pgbBar.value as string) + " %"
 					)
 					resetMaxFile #noPrompt
 					messageBox ("已重定向所有动画，一共 " + (arrExportRetargetAnim.count as string) + " 个,\r\n\r\n在导出目录有相应 .max .bip 和 .FBX 文件                                                ")
@@ -2735,14 +2785,36 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 		)
 	)
 
-	on biped_align_test open do (mappingCheckState = false;pgbBar.value = 0;pgbBar.color = white)
+	on biped_align_test open do 
+	(
+		local dotColor        = dotnetclass "System.Drawing.Color"
+		local maxuiBgColor    = (colorman.getcolor #background) * 255
+		local BsDotFont       = dotnetobject "System.Drawing.Font" "Roboto" 8
+		local BsDotBackColor  = dotColor.FromArgb maxuiBgColor[1] maxuiBgColor[2] maxuiBgColor[3]
+
+		mappingCheckState = false
+		pgbBar.value = 0
+		pgbBar.color = white
+		lblBarValue.text = (pgbBar.value as string) + " %"
+		ToolTipObj = dotnetobject "System.Windows.Forms.ToolTip"
+		ToolTipObj.SetToolTip dotbtnFBXTools "动画重定向工具"
+
+		dotbtnFBXTools.font                              = dotnetobject "System.Drawing.Font" "Microsoft YaHei" 9
+		dotbtnFBXTools.text                              = "【动画批量重定向工具】"
+		dotbtnFBXTools.flatstyle                         = dotbtnFBXTools.flatstyle.flat
+		-- dotbtnFBXTools.forecolor                         = dotColor.FromArgb blue.r blue.g blue.b
+		-- dotbtnFBXTools.FlatAppearance.BorderSize         = 0
+		dotbtnFBXTools.backcolor                         = BsDotBackColor
+		dotbtnFBXTools.FlatAppearance.MouseDownBackColor = dotColor.FromArgb yellow.r yellow.g yellow.b
+		dotbtnFBXTools.FlatAppearance.MouseOverBackColor = dotColor.FromArgb white.r white.g white.b
+	)
 
 	on btnQuickTools pressed do ( popupmenu menuQuickCreateNode )
 
-	fn getSkin node = if isvalidnode node do
+	fn getSkin tempNode = if isvalidnode tempNode do
 	(
 		local sk
-		for m in node.modifiers while sk == undefined where iskindof m Skin do sk = m
+		for m in tempNode.modifiers while sk == undefined where iskindof m Skin do sk = m
 		sk
 	)
 
@@ -2754,12 +2826,12 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 	fn xchangeSkinBone sk source target = 
 	(
 		local result = off
-		
+
 		if sk == modpanel.getcurrentobject() and iskindof sk Skin do
-		(
+					(
 			bones = collectSkinBones sk
 			if (sid = finditem bones source) > 0 do
-			(
+					(
 				-- if finditem bones target == 0 do
 				-- (
 				-- 	skinops.addbone sk target 1
@@ -2771,7 +2843,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 					-- verts = #{1..skinops.getnumbervertices sk}
 					-- skinops.selectvertices sk verts
 					-- skinops.bakeselectedverts sk
-					
+
 					-- for v in verts do
 					-- (
 					-- 	bb = #()
@@ -2786,15 +2858,15 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 					-- 		bb[k] = tid
 					-- 		skinops.replacevertexweights sk v tid 1.0
 					-- 		skinops.setvertexweights sk v bb ww
-							
+
 					-- 		result = on
 					-- 	)
 					-- )
 					skinops.removebone sk sid 
 				-- )
 				skinops.addbone sk target 0
+				)
 			)
-		)
 		result
 	)
 	fn getTargetPair node = 
@@ -2915,6 +2987,48 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 		ok
 	)
 
+	fn fnRefreshSkinDeform = 
+	(
+		-- tm = timeStamp()
+		local arrTarSkinMesh = #()
+		for g in objects as array where (classof g == Editable_mesh) or (classof g == PolyMeshObject) do
+		(
+			if (getSkin g) != undefined then append arrTarSkinMesh g
+		)
+
+		for m in arrTarSkinMesh do
+		(
+			m.skin.always_deform = off
+			m.skin.always_deform = on
+		)
+		-- format "RefreshSkinDeform Cost % ms\n" (timeStamp()-tm)
+	)
+
+	fn fnConvertToBone sourceObjs realign:false =
+	(
+		local tempBone = BoneSys.createBone [0,0,0] [0,biped_align_test.spnObjSize.value,0] [0,0,1]
+		tempBone.width = tempBone.height =  biped_align_test.spnObjSize.value
+		disableSceneRedraw()
+		(
+			local newBone = copy tempBone
+			newBone.width         = tempBone.width
+			newBone.height        = tempBone.height
+			newBone.transform     = sourceObjs.transform
+			newBone.name          = sourceObjs.name
+			if sourceObjs.children.count > 0 then
+				newBone.length = distance sourceObjs sourceObjs.children[1]
+			else
+				newBone.length =  biped_align_test.spnObjSize.value
+			sourceObjs.baseobject    = newBone
+			sourceObjs.showLinks     = true
+			sourceObjs.showLinksOnly = true
+			if realign then sourceObjs.realignBoneToChild()
+			delete newBone
+		)
+		delete tempBone
+		enableSceneRedraw()
+	)
+
 	fn fnRenameBiped arrItems isB:false =
 	(
 		for i = 1 to arrItems.count where arrItems[i] != "~undefined~" do
@@ -2935,21 +3049,22 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			if matchpattern tarBone.name pattern:"NewHip_*" then 
 			(
 				tarHipBone = getnodebyname (substituteString tarBone.name "NewHip_" "")
-				tarBone.parent = undefined
-				-- tarHipBone.children.parent = tarBone
-				tarBone.parent = tarHipBone.parent
-				tarHipBone.parent = tarBone.parent
-				tarBone.name = "NewHip_" + tarHipBone.name
+				-- tarBone.parent = undefined
+				-- -- tarHipBone.children.parent = tarBone
+				-- tarBone.parent = tarHipBone
+				-- tarBone.name = "NewHip_" + tarHipBone.name
+				tarBone = tarHipBone
 			)
 
 			if matchpattern tarBone.name pattern:"NewPelvis_*" then 
 			(
 				tarPelvisBone = getnodebyname (substituteString tarBone.name "NewPelvis_" "")
-				tarPelvisBone.parent = undefined
-				-- tarPelvisBone.children.parent = tarBone
-				-- tarBone.parent = tarPelvisBone.parent
-				tarPelvisBone.parent = tarBone.parent
-				tarBone.name = "NewPelvis_" + tarPelvisBone.name
+				-- tarPelvisBone.parent = undefined
+				-- -- tarPelvisBone.children.parent = tarBone
+				-- -- tarBone.parent = tarPelvisBone.parent
+				-- tarBone.parent = tarPelvisBone
+				-- tarBone.name = "NewPelvis_" + tarPelvisBone.name
+				tarBone = tarPelvisBone
 			)
 
 			tarBiped.name = tarBone.name
@@ -2960,8 +3075,8 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 			-- (
 				tarBiped.parent = tempParent
 			-- )
-			bipRoot = getnodebyname (biped_align_test.characterBones.items[1])
-			bipPelvis = getnodebyname (biped_align_test.characterBones.items[2])
+			bipRoot = getnodebyname (substituteString biped_align_test.characterBones.items[1] "NewHip_" "")
+			bipPelvis = getnodebyname (substituteString biped_align_test.characterBones.items[2]"NewPelvis_" "")
 			bipSpine = getnodebyname biped_align_test.characterBones.items[3]
 			biproot.transform.controller.figureMode = true
 			biproot.controller.trianglePelvis = false
@@ -3012,7 +3127,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 		(
 			pgbBar.color = green
 			pgbBar.value = 0
-
+			lblBarValue.text = (pgbBar.value as string) + " %"
 			hips = (GetSkeletalNode 1 false)
 			boneRootMotion = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
 
@@ -3032,6 +3147,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 				modpanel.setcurrentobject meshSkin
 				skinOps.saveEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[o].name + "_TempSkin.env")
 				pgbBar.value = 30.*o/(arrTarSkinMesh.count)
+				lblBarValue.text = (pgbBar.value as string) + " %"
 			)
 
 			fnRenameBiped characterBones.items isB:false
@@ -3049,6 +3165,7 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 				fnDelFileDir ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
 				meshSkin.always_deform = on
 				pgbBar.value = 30 + (70.*g/(arrTarSkinMesh.count))
+				lblBarValue.text = (pgbBar.value as string) + " %"
 			)
 
 			select $'ReTempNode_*'
@@ -3076,11 +3193,41 @@ rollout biped_align_test "BsRetargetTools_v2.1"
 
 			messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。                                              "
 		)
-		else (messageBox "请先验证并检查映射列表是否完整！                                       ")
+		else (messageBox "请先验证并检查映射列表是否完整！                                       " title:"BsRetargetTools")
+	)
+
+	on pkbRootMption picked obj do 
+	(
+		pickedRootMotion = obj 
+		messagebox ("RootMotion 已指定为: " + obj.name + "                     ") title:"BsRetargetTools" beep:false
+	)
+
+	on pkbRootMption rightclick do 
+	(
+		pkbRootMption.object = undefined
+	)
+
+	on btnConvertToBone pressed do with undo on
+	(
+		if (queryBox "因轴向原因转换可能会导致骨骼错乱，\r\n\r\n建议只选需要解算的飘带转换，\r\n\r\n注意备份文件！                                                     " \
+		title:"BsRetargetTools Tips" beep:false) then
+		(
+			arrConvertBones = (selection as array)
+			if arrConvertBones.count != 0 then 
+			(
+				-- tm = timeStamp()
+				for i in arrConvertBones where superclassof i == helper do 
+				(
+					fnConvertToBone i realign:(chkRealign.state)
+				)
+				-- format "ConvertToBone Cost % s\n" ((timeStamp()-tm)*0.001)
+				if chkRealign.state then fnRefreshSkinDeform()
+			)
+		)
 	)
 )
 
-createDialog biped_align_test 480 635 style:#(#style_titlebar, #style_minimizebox, #style_sysmenu, #style_resizing) lockHeight:true lockWidth:true
+createDialog biped_align_test 485 680 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) lockHeight:true lockWidth:true
 
 
 
