@@ -80,8 +80,8 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         if isConnectInternet == true then
         (
             local urlLine = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&c=j&charset=gbk"
-            local strAllLine = (dotNetObject "System.Net.WebClient").downloadString urlLine
-            if	strAllLine != undefined then
+            local strAllLine = (try ((dotNetObject "System.Net.WebClient").downloadString urlLine) catch())
+            if strAllLine != undefined then
             (
                 arrAllLine = filterString strAllLine "\""
                 strMainLine = arrAllLine[10]
@@ -128,7 +128,6 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         if iniCollopseType == 2 then
         (
             local dateTime = (dotNetClass "System.DateTime").Now
-            strDayLine = fnGetHitokoto()
             return (dayTimeString + "\r\n" + "当前时间：" +
             fnGetDateTimeString()  + "\r\n" + strDayLine)
         )
@@ -148,6 +147,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
         ) 
         else 
         (
+            strDayLine = fnGetHitokoto()
             rolTogglePanel.height = heightTogglePanel
             rolTogglePanel.width  = widthToggleTools
         )
