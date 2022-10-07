@@ -86,30 +86,30 @@ global boneNames = #(
 global pattBipedNames = #(
 	#("Bip00?","*Hip","*Hips"),				--1
 	#("*Pelvis"),				--2
-	#("*Spine","*Waist"),				--3
-	#("*Spine1","*Stomach"),			--4
-	#("*Spine2","*Chest"),			--5
-	#("*Neck"),				--6
+	#("*Spine","*Waist","*Spine*Lower"),				--3
+	#("*Spine1","*Stomach","*Spine*Middle"),			--4
+	#("*Spine2","*Chest","*Spine*Upper"),			--5
+	#("*Neck","*Neck*Lower"),				--6
 	#("*Neck1","*Neck?Middle"),			--7
-	#("*Head"),				--8
+	#("*Head","*Neck*Upper"),				--8
 	#("*HeadNub","*Head?nub"),			--9
 	
-	#("*L?Thigh","*Thigh?L"),			--10
-	#("*L?Calf","*L?Shin","*Calf?L"),				--11
-	#("*L?Foot","*Foot?L"),				--12
-	#("*L?Toe0","*L?Toe","*Toe?L"),			--13
+	#("*L?Thigh","*Thigh?L","*Left*Thigh"),			--10
+	#("*L?Calf","*L?Shin","*Calf?L","*Left*Knee"),				--11
+	#("*L?Foot","*Foot?L","*Left*Ankle"),				--12
+	#("*L?Toe0","*L?Toe","*Toe?L","*Left*Toes"),			--13
 	#("*L?Toe0Nub","*L?Toe?nub","*L?Toe0?Nub"),		--14
 	
-	#("*R?Thigh","*Thigh?R"),			--15
-	#("*R?Calf","*R?Shin","*Calf?R"),				--16
-	#("*R?Foot","*Foot?R"),			--17
-	#("*R?Toe0","*R?Toe","*Toe?R"),			--18
+	#("*R?Thigh","*Thigh?R","*Right*Thigh"),			--15
+	#("*R?Calf","*R?Shin","*Calf?R","*Right*Knee"),				--16
+	#("*R?Foot","*Foot?R","*Right*Ankle"),			--17
+	#("*R?Toe0","*R?Toe","*Toe?R","*Right*Toes"),			--18
 	#("*R?Toe0Nub","*R?Toe?nub","*R?Toe0?Nub"),		--19
 	
-	#("*L?Clavicle","*L?Shoulder","*Clavicle?L"),		--20
-	#("*L?UpperArm","*UpperArm?L"),		--21
-	#("*L?Forearm","*Forearm?L"),		--22
-	#("*L?Hand","*Hand?L"),			--23
+	#("*L?Clavicle","*L?Shoulder","*Clavicle?L","*Left*Shoulder 1"),		--20
+	#("*L?UpperArm","*UpperArm?L","*Left*Shoulder 2"),		--21
+	#("*L?Forearm","*Forearm?L","*Left*Elbow"),		--22
+	#("*L?Hand","*Hand?L","*Left*Wrist"),			--23
 	#("*L?Finger0","*L?Thumb1"),			--24
 	#("*L?Finger01","*L?Thumb2"),		--25
 	#("*L?Finger02","*L?Thumb3"),		--26
@@ -132,10 +132,10 @@ global pattBipedNames = #(
 	#("*L?Finger42","*L?PinkyF3"),		--42
 	#("*L?Finger4Nub","*L?PinkyF3?nub","*L?Finger42?Nub","*L?PinkyF3?ss"),	--43
 	
-	#("*R?Clavicle","*R?Shoulder","*Clavicle?R"),		--44
-	#("*R?UpperArm","*UpperArm?R"),		--45
-	#("*R?Forearm","*Forearm?R"),		--46
-	#("*R?Hand","*Hand?R"),			--47
+	#("*R?Clavicle","*R?Shoulder","*Clavicle?R","*Right*Shoulder 1"),		--44
+	#("*R?UpperArm","*UpperArm?R","*Right*Shoulder 2"),		--45
+	#("*R?Forearm","*Forearm?R","*Right*Elbow"),		--46
+	#("*R?Hand","*Hand?R","*Right*Wrist"),			--47
 	#("*R?Finger0","*R?Thumb1"),		--48
 	#("*R?Finger01","*R?Thumb2"),		--49
 	#("*R?Finger02","*R?Thumb3"),		--50
@@ -158,6 +158,79 @@ global pattBipedNames = #(
 	#("*R?Finger4Nub","*R?PinkyF3?nub","*R?Finger42?Nub","*R?PinkyF3?ss")		--67	
 )
 
+global myFgColor
+global myClickColor
+global myCheckedColor
+global dotColor = dotnetclass "System.Drawing.Color"
+
+(
+	local curColorThemeFile = colorMan.getFileName()
+	local maxuiBgColor      = (colorman.getcolor #background) * 255
+	
+	if (curColorThemeFile != undefined) then
+	(
+		if (matchpattern curColorThemeFile pattern:"*light*") then
+		(
+			myFgColor    = (color 28 89 177)
+			myClickColor = (color 0 139 139)
+			myCheckedColor = (color 152 227 213)
+		)
+		else
+		(
+			case maxuiBgColor of 
+			(
+				([68,68,68]):
+				(
+					myFgColor    = (color 165 222 228)
+					myClickColor = (color 0 92 175)
+					myCheckedColor = (color 30 136 168)
+				)
+				([186,186,186]):
+				(
+					myFgColor    = (color 28 89 177)
+					myClickColor = (color 0 139 139)
+					myCheckedColor = (color 152 227 213)
+				)
+				default:
+				(
+					myFgColor    = (color 165 222 228)
+					myClickColor = (color 0 92 175)
+					myCheckedColor = (color 30 136 168)
+				)
+			)
+		)
+	)
+	else
+	(
+		case maxuiBgColor of 
+		(
+			([68,68,68]):
+			(
+				myFgColor    = (color 165 222 228)
+				myClickColor = (color 0 92 175)
+				myCheckedColor = (color 30 136 168)
+			)
+			([186,186,186]):
+			(
+				myFgColor    = (color 28 89 177)
+				myClickColor = (color 0 139 139)
+				myCheckedColor = (color 152 227 213)
+			)
+			default:
+			(
+				myFgColor    = (color 165 222 228)
+				myClickColor = (color 0 92 175)
+				myCheckedColor = (color 30 136 168)
+			)
+		)
+	)
+	----获取当前主题是深色还是浅色,来更改文字颜色 fnGetColorTheme.ms
+
+	BsDotFont       = dotnetobject "System.Drawing.Font" "Roboto" 8
+	BsDotBackColor  = dotColor.FromArgb maxuiBgColor[1] maxuiBgColor[2] maxuiBgColor[3]
+	BsDotForeColor  = dotColor.FromArgb myFgColor.r myFgColor.g myFgColor.b
+	BsDotCheckColor = dotColor.FromArgb myCheckedColor.r myCheckedColor.g myCheckedColor.b
+)
 
 global bipedRootName = "Bip001";
 
@@ -172,7 +245,7 @@ global arrAllBipedName = #()
 
 global hasExtraHips = false
 global fixNierFramerate = false
-global pickedRootMotion = undefined
+-- global pickedRootMotion = undefined
 
 -- wizardIndex = 1
 -- wizardArray = #()
@@ -358,7 +431,7 @@ rcmenu menuQuickCreateNode
 			dummyPelvis.constantscreensize = false
 			dummyPelvis.size = 0.01
 			
-			dummyRoot.transform = hip.transform
+			dummyRoot.transform = root.transform
 			dummyRoot.pos = 0.5 * (leftLeg.pos + rightLeg.pos)
 			dummyPelvis.transform = dummyRoot.transform
 
@@ -373,7 +446,7 @@ rcmenu menuQuickCreateNode
 			-- oC.relative = true
 
 			dummyRoot.parent = root
-			dummyPelvis.parent = dummyRoot
+			dummyPelvis.parent = hip
 			
 			tempItems = biped_align_test.characterBones.items
 			tempItems[1] = dummyRoot.name
@@ -448,7 +521,8 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 
     groupbox grpRetargetList "1. Check  mapping" pos:[15,485] width:130 height:170
 
-	pickbutton pkbRootMption "指定 RootMotion" pos:[20,505] height:35 width:(btnWidth) message:"指定 RootMotion" autoDisplay:true tooltip:"右键清除选择"
+	label lblTips "选中骨骼，点击列表\r\n双击重置，注意可选" pos:[25,505] width:(btnWidth - 10) height:30
+	-- pickbutton pkbRootMption "指定 RootMotion" pos:[20,505] height:35 width:(btnWidth) message:"指定 RootMotion" autoDisplay:true tooltip:"右键清除选择"
     button loadDialogue "加载" pos:[20,570] width:(btnWidth/2) height:30
     button saveDialogue "保存" pos:[80,570] width:(btnWidth/2) height:30
     button btnAutoMapping "〇 自动检索匹配" pos:[20,540] width:btnWidth height:30 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
@@ -463,7 +537,7 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
     button alignBipedToHelper "🍖 创建和对齐 Biped" pos:[160,610] width:(btnWidth + 20) height:40
     
     -- button btnExportTPose "[可选]导出 Biped Figure Pose" pos:[305,505] width:(btnWidth + 35) height:25
-	checkbox chkRenameBiped "👇 Biped 保持 Bone 原名" checked:false pos:[315,505] width:(btnWidth + 20) height:20
+	checkbox chkRenameBiped "Biped 保持 Bone 原名" checked:false pos:[315,505] width:(btnWidth + 20) height:20
 	button btnReplaceToBiped "[可选] Skin 替换为 Biped" pos:[310,530] width:(btnWidth + 35) height:25
     -- checkbutton ckbExportFBXTools "🎮 动画批量重定向工具" pos:[305,555] width:(btnWidth + 35) height:45
 	checkbox chkRealign "重置轴向 ( 可解算飘带 )" pos:[315,560] height:20 width:(btnWidth + 30) checked:true
@@ -2074,7 +2148,7 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 			max Create mode
 			---断开质心防止旋转出问题，后面连上
 			hips = (GetSkeletalNode 1 false)
-			-- rootMotionBone = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
+			rootMotionBone = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
 			tempHips = hips.parent
 			hips.parent = undefined
 
@@ -2286,21 +2360,21 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 			rootBone.transform = (GetBipedNode 1).transform
 			bipedRetargetRM    = undefined
 			boneRetargetRM     = undefined
-			if pickedRootMotion != undefined then
+			if rootMotionBone != undefined then
 			(
 				boneRetargetRM                    = point name:"RetargetHelper_Root"
 				-- boneRetargetRM.size               = 0.01
 				boneRetargetRM.constantscreensize = false
 				-- boneRetargetRM.box = true
-				boneRetargetRM.transform = pickedRootMotion.transform
+				boneRetargetRM.transform = rootMotionBone.transform
 				in coordsys gimbal boneRetargetRM.rotation = (eulerAngles 90 0 0)
 				local pC = Position_Constraint()
-				pC.appendTarget pickedRootMotion 100
+				pC.appendTarget rootMotionBone 100
 				boneRetargetRM.Position.controller = pC
 				pC.relative = true
 				
 				local oC = Orientation_Constraint()
-				oC.appendTarget pickedRootMotion 100
+				oC.appendTarget rootMotionBone 100
 				boneRetargetRM.Rotation.controller = oC
 				oC.relative = true
 
@@ -2514,8 +2588,8 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 			)
 
 			hips.parent = tempHips
-			-- (GetBipedNode 1).parent = bipedRetargetRM
-			-- rootBone.parent = boneRetargetRM
+			(GetBipedNode 1).parent = bipedRetargetRM
+			rootBone.parent = boneRetargetRM
 
 			if chkCopySubs.state then fnCopySubBones()
 			pgbBar.value = 100
@@ -2619,7 +2693,7 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
         btnTemp.visible              = switchFBXTools
 
 		if not switchFBXTools then dotbtnFBXTools.backcolor = BsDotBackColor 
-		else dotbtnFBXTools.backcolor = dotColor.FromArgb white.r white.g white.b
+		else dotbtnFBXTools.backcolor = BsDotCheckColor
 	)
 
 	on btnSpecial pressed do 
@@ -2790,7 +2864,6 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 		local dotColor        = dotnetclass "System.Drawing.Color"
 		local maxuiBgColor    = (colorman.getcolor #background) * 255
 		local BsDotFont       = dotnetobject "System.Drawing.Font" "Roboto" 8
-		local BsDotBackColor  = dotColor.FromArgb maxuiBgColor[1] maxuiBgColor[2] maxuiBgColor[3]
 
 		mappingCheckState = false
 		pgbBar.value = 0
@@ -2802,11 +2875,11 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 		dotbtnFBXTools.font                              = dotnetobject "System.Drawing.Font" "Microsoft YaHei" 9
 		dotbtnFBXTools.text                              = "【动画批量重定向工具】"
 		dotbtnFBXTools.flatstyle                         = dotbtnFBXTools.flatstyle.flat
-		-- dotbtnFBXTools.forecolor                         = dotColor.FromArgb blue.r blue.g blue.b
+		dotbtnFBXTools.forecolor                         = BsDotForeColor
 		-- dotbtnFBXTools.FlatAppearance.BorderSize         = 0
 		dotbtnFBXTools.backcolor                         = BsDotBackColor
-		dotbtnFBXTools.FlatAppearance.MouseDownBackColor = dotColor.FromArgb yellow.r yellow.g yellow.b
-		dotbtnFBXTools.FlatAppearance.MouseOverBackColor = dotColor.FromArgb white.r white.g white.b
+		dotbtnFBXTools.FlatAppearance.MouseDownBackColor = dotColor.FromArgb gray.r gray.g gray.b
+		dotbtnFBXTools.FlatAppearance.MouseOverBackColor = BsDotCheckColor
 	)
 
 	on btnQuickTools pressed do ( popupmenu menuQuickCreateNode )
@@ -3130,7 +3203,7 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 			lblBarValue.text = (pgbBar.value as string) + " %"
 			hips = (GetSkeletalNode 1 false)
 			boneRootMotion = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
-
+			bipRootMotion = (GetBipedNode 1).parent
 			(GetBipedNode 1).transform.controller.figureMode = false
 
 			arrTarSkinMesh = #()
@@ -3170,6 +3243,8 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 
 			select $'ReTempNode_*'
 			selectmore $'RetargetHelper_*'
+			selectmore $'NewHip_*'
+			selectmore $'NewPelvis_*'
 			delete $
 
 			for g = 1 to arrTarSkinMesh.count do 
@@ -3182,30 +3257,29 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 			if (chkRenameBiped.state == false) then 
 			(
 				(GetBipedNode 1).controller.rootname = bipedRootName
-				-- if boneRootMotion != undefined and (getnodebyname "Root") != undefined then 
-				-- (
-				-- 	boneRootMotion.children.parent = (getnodebyname "Root")
-				-- 	delete boneRootMotion
-				-- )
 			)
 
-
+			if boneRootMotion != undefined and bipRootMotion != undefined then 
+			(
+				boneRootMotion.children.parent = bipRootMotion
+				delete boneRootMotion
+			)
 
 			messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。                                              "
 		)
 		else (messageBox "请先验证并检查映射列表是否完整！                                       " title:"BsRetargetTools")
 	)
 
-	on pkbRootMption picked obj do 
-	(
-		pickedRootMotion = obj 
-		messagebox ("RootMotion 已指定为: " + obj.name + "                     ") title:"BsRetargetTools" beep:false
-	)
+	-- on pkbRootMption picked obj do 
+	-- (
+	-- 	pickedRootMotion = obj 
+	-- 	messagebox ("RootMotion 已指定为: " + obj.name + "                     ") title:"BsRetargetTools" beep:false
+	-- )
 
-	on pkbRootMption rightclick do 
-	(
-		pkbRootMption.object = undefined
-	)
+	-- on pkbRootMption rightclick do 
+	-- (
+	-- 	pkbRootMption.object = undefined
+	-- )
 
 	on btnConvertToBone pressed do with undo on
 	(
@@ -3227,7 +3301,7 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 	)
 )
 
-createDialog biped_align_test 485 680 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) lockHeight:true lockWidth:true
+createDialog biped_align_test 485 680 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) lockHeight:true lockWidth:true fgcolor:myFgColor
 
 
 

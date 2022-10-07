@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-21 12:59:31
+ * @LastEditTime: 2022-10-07 11:34:21
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -642,7 +642,7 @@ rollout rolCustomBtn "自定义功能按钮位置" width:490 height:210
 fn fnSwitchIconStyle = 
 (
 	rolBsKeyTools.ckbFnBoxDisplay.images = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,9,10,9,10,true,false)
-	rolBsKeyTools.btnIsoSelection.images = #("IsolateSelection_16i.bmp","IsolateSelection_16i.bmp",1,1,1,1,1,true,true)
+	rolBsKeyTools.ckbIsoSelection.images = #("IsolateSelection_16i.bmp","IsolateSelection_16i.bmp",1,1,1,1,1,true,true)
 	-- rolBsKeyTools.chkJudgeLinkKey.images = #("Maintoolbar_24i.bmp","Maintoolbar_24i.bmp",103,6,5,6,5,true,true)
 	rolBsKeyTools.ckbShadowCut.images = #("Radiosity_16i.bmp","Radiosity_16i.bmp",6,3,4,3,4,true,true)
 	rolBsKeyTools.ckbFreezeMesh.images = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,19,17,19,true,false)
@@ -1605,7 +1605,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"快速选择CS骨骼和调Biped等\r\n左键不稳定老版\r\n右键自用新做规划中" 
 	button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
 	toolTip:"动画暴力粘贴东见云优化版\r\n(有时间我也会优化或新写)" 
-	button btnIsoSelection "独显" pos:[10,190] width:40 height:25 \
+	checkButton ckbIsoSelection "独显" pos:[10,190] width:40 height:25 \
 	toolTip:"隐藏当前显示的未选中物体\r\n再次点击可重新显示\r\n利用 IsolateSelection\r\n但是不改变镜头缩进"
 	button btnLayerManager "层" pos:[50,190] width:20 height:25 \
 	toolTip:"模拟旧版层管理器\r\n左键可嵌套层管理器\r\n右键旧版层管理器" 
@@ -2928,6 +2928,7 @@ rollout rolBsKeyTools "" width:355 height:250
 			fnSwitchToolBtnChecked idMsBtn isMsBtn:true
 			fnRefreshMyScripts()
 		-- )
+		ckbIsoSelection.state = IsolateSelection.IsolateSelectionModeActive()
 		ckbPlayBlocking.state = false
 		clock.active = false
 		ckbPerspLock.state = tooglePersp
@@ -3992,7 +3993,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
 	)
 
-	on btnIsoSelection pressed do 
+	on ckbIsoSelection changed stateIso do 
 	(
 		-- local arrTempSelObj = #()
 		-- local arrTemp = objects as array
@@ -4012,23 +4013,35 @@ rollout rolBsKeyTools "" width:355 height:250
 		-- 	arrTempUnSelection = arrTempAllObj
 		-- 	actionMan.executeAction 0 "281"
 		-- )
-		stateIso = IsolateSelection.IsolateSelectionModeActive()
-		if stateIso == false then
+		if stateIso == true then
 		(
 			if selection.count != 0 then
 			(
-				IsolateSelection.EnterIsolateSelectionMode()
+				if (not IsolateSelection.IsolateSelectionModeActive()) then
+				(
+					IsolateSelection.EnterIsolateSelectionMode()
+					actionMan.executeAction 0 "40104"  -- Views: Undo Viewport Operation
+				)
+				else 
+				(
+					ckbIsoSelection.state = false
+					IsolateSelection.ExitIsolateSelectionMode()
+					actionMan.executeAction 0 "40104"  -- Views: Undo Viewport Operation
+				)
+			)
+			else ckbIsoSelection.state = false
+		)
+		else
+		(
+			if (IsolateSelection.IsolateSelectionModeActive()) then 
+			(
+				IsolateSelection.ExitIsolateSelectionMode()
 				actionMan.executeAction 0 "40104"  -- Views: Undo Viewport Operation
 			)
 		)
-		else 
-		(
-			IsolateSelection.ExitIsolateSelectionMode()
-			actionMan.executeAction 0 "40104"  -- Views: Undo Viewport Operation
-		)
 	)
 
-	-- on btnIsoSelection rightclick do
+	-- on ckbIsoSelection rightclick do
 	-- (
 	-- 	if arrTempUnSelection.count != 0 then
 	-- 	(
