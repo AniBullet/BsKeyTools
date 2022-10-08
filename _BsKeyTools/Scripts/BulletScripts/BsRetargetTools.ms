@@ -789,6 +789,7 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 				frameEnd = animationrange.end
 				scaleTime objects frameStart frameEnd 0.5
 				animationrange = interval frameStart (frameEnd/2)
+				rescaleWorldUnits 100
 			)
 
 			select $'RetargetHelper_*'
