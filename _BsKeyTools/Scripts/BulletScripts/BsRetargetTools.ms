@@ -503,7 +503,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向 ）"
+rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向 ）"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Bip 节点 1 - 35" align:#left across:4 height:35 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -1843,7 +1843,7 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 			while (eof fS) == false do
 			(
 				newValue = readLine fS;
-				print newValue
+				-- print newValue
 				
 				if (i <= 35) then
 				(
@@ -3122,40 +3122,26 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 			if matchpattern tarBone.name pattern:"NewHip_*" then 
 			(
 				tarHipBone = getnodebyname (substituteString tarBone.name "NewHip_" "")
-				-- tarBone.parent = undefined
-				-- -- tarHipBone.children.parent = tarBone
-				-- tarBone.parent = tarHipBone
-				-- tarBone.name = "NewHip_" + tarHipBone.name
 				tarBone = tarHipBone
 			)
 
 			if matchpattern tarBone.name pattern:"NewPelvis_*" then 
 			(
 				tarPelvisBone = getnodebyname (substituteString tarBone.name "NewPelvis_" "")
-				-- tarPelvisBone.parent = undefined
-				-- -- tarPelvisBone.children.parent = tarBone
-				-- -- tarBone.parent = tarPelvisBone.parent
-				-- tarBone.parent = tarPelvisBone
-				-- tarBone.name = "NewPelvis_" + tarPelvisBone.name
 				tarBone = tarPelvisBone
 			)
 
-			tarBiped.name = tarBone.name
-			tarBone.name = "ReTempNode_" + tarBone.name
-			for i in tarBone.children where i != undefined do (i.parent = tarBiped)
-			tempParent = tarBone.parent
-			-- if (tarBiped.name != biped_align_test.characterBones.items[3]) then 
-			-- (
-				tarBiped.parent = tempParent
-			-- )
-			bipRoot = getnodebyname (substituteString biped_align_test.characterBones.items[1] "NewHip_" "")
-			bipPelvis = getnodebyname (substituteString biped_align_test.characterBones.items[2]"NewPelvis_" "")
-			bipSpine = getnodebyname biped_align_test.characterBones.items[3]
-			biproot.transform.controller.figureMode = true
-			biproot.controller.trianglePelvis = false
-			biproot.controller.triangleNeck = true
-			biproot.transform.controller.figureMode = false
-			bipSpine.parent = bipPelvis
+			if tarBone.name != tarBiped.parent.name then 
+			(
+				tarBiped.name = tarBone.name
+				tarBone.name = "ReTempNode_" + tarBone.name
+				-- print ("a: " + tarBone.name)
+				-- print ("b: " + tarBiped.name)
+				-- tempParent = tarBone.parent
+				-- tarBiped.parent = tempParent
+				for i in tarBone.children where i != undefined and (finditem biped_align_test.characterBones.items i.name == 0) and \
+				(finditem biped_align_test.characterBones_B.items i.name == 0) do (i.parent = tarBiped)
+			)
 		)
 	)
 
@@ -3225,7 +3211,19 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 
 			fnRenameBiped characterBones.items isB:false
 			fnRenameBiped characterBones_B.items isB:true
-			
+
+			bipRoot = getnodebyname (substituteString biped_align_test.characterBones.items[1] "NewHip_" "")
+			bipPelvis = getnodebyname (substituteString biped_align_test.characterBones.items[2]"NewPelvis_" "")
+			bipSpine = getnodebyname (substituteString biped_align_test.characterBones.items[3]"NewSpine_" "")
+			biproot.transform.controller.figureMode = true
+			biproot.controller.trianglePelvis = true
+			biproot.controller.trianglePelvis = false
+			biproot.controller.triangleNeck = false
+			biproot.controller.triangleNeck = true
+			biproot.transform.controller.figureMode = false
+			if bipSpine != bipPelvis then bipSpine.parent = bipPelvis
+			else (GetBipedNode 4).parent = (GetBipedNode 3)
+
 			for g = 1 to arrTarSkinMesh.count do 
 			(
 				-- print g.name
@@ -3241,12 +3239,6 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 				lblBarValue.text = (pgbBar.value as string) + " %"
 			)
 
-			select $'ReTempNode_*'
-			selectmore $'RetargetHelper_*'
-			selectmore $'NewHip_*'
-			selectmore $'NewPelvis_*'
-			delete $
-
 			for g = 1 to arrTarSkinMesh.count do 
 			(
 				local meshSkin = (getSkin arrTarSkinMesh[g])
@@ -3257,13 +3249,21 @@ rollout biped_align_test "BsRetargetTools_v2.1 （ FBX 转 BIP + 动画重定向
 			if (chkRenameBiped.state == false) then 
 			(
 				(GetBipedNode 1).controller.rootname = bipedRootName
+				if boneRootMotion != undefined and bipRootMotion != undefined then 
+				(
+					boneRootMotion.children.parent = bipRootMotion
+					delete boneRootMotion
+				)
 			)
-
-			if boneRootMotion != undefined and bipRootMotion != undefined then 
-			(
-				boneRootMotion.children.parent = bipRootMotion
-				delete boneRootMotion
-			)
+			else(if bipRootMotion != undefined then (delete bipRootMotion))
+			
+			clearselection()
+			select $'ReTempNode_*'
+			selectmore $'RetargetHelper_*'
+			selectmore $'NewHip_*'
+			selectmore $'NewPelvis_*'
+			selectmore $'NewSpine_*'
+			delete $
 
 			messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。                                              "
 		)
