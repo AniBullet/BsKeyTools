@@ -585,7 +585,7 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 	tooltip:"重定向列表选中的动画并且打开\r\n会保存一份 .max 和 .FBX 文件"
     button btnRetargettAll ">>>   重定向列表所有动画   <<<" pos:[240,420] width:225 height:60 visible:false \
 	tooltip:"重定向列表选中的动画\r\n会保存一份 .max 和 .FBX 文件\r\n可能比较慢..."
-	button btnSpecial "[慎用] 特殊后处理集合" pos:[240,335] width:135 height:25 visible:false
+	button btnSpecial "[自用] 特殊后处理集合" pos:[240,335] width:135 height:25 visible:false
 	button btnTemp "[占坑]" pos:[375,335] width:90 height:25 visible:false
 	button btnCount "待处理原始动画 FBX 数：0 个" pos:[15,461] width:215 height:20 visible:false border:true tooltip:"打开原始动画 FBX 文件夹"
 
@@ -790,6 +790,18 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 				scaleTime objects frameStart frameEnd 0.5
 				animationrange = interval frameStart (frameEnd/2)
 				rescaleWorldUnits 100
+				--修复Nier动画帧数,缩放等等
+				startFrame = animationrange.start
+				endFrame = animationrange.end
+				for i in objects where isValidNode i do
+				(
+					deselectKeys i
+					selectkeys i startFrame startFrame
+					deleteKeys i #selection
+					selectkeys i (startFrame + 1) endFrame
+					moveKeys i -1 #selection
+				)
+				animationrange = interval startFrame (endFrame - 1)
 			)
 
 			select $'RetargetHelper_*'
