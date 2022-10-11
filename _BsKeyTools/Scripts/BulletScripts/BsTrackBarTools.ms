@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-13 12:56:16
+ * @LastEditTime: 2022-10-11 19:07:53
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -1069,7 +1069,7 @@ rollout rolBsBackupManager "" width:355 height:260
 					if (matchpattern arrFolder[i] pattern:("📂 " + (getfilenamefile maxfilename))) then idSelected = i
 				)
 				rolBsBackupManager.edtInputFilter.text = (getfilenamefile maxfilename)
-				rolBsBackupManager.mlbBackupFiles.selection = 0
+				try(rolBsBackupManager.mlbBackupFiles.selection = 0)catch()
 			)
 			else 
 			(
@@ -1083,9 +1083,9 @@ rollout rolBsBackupManager "" width:355 height:260
 					if (matchpattern arrFolder[i] pattern:("📂 " + tarName)) then idSelected = i
 				)
 				rolBsBackupManager.edtInputFilter.text = tarName
-				rolBsBackupManager.mlbBackupFiles.selection = (finditem (rolBsBackupManager.mlbBackupFiles.items as array) ("📄 " + maxfilename))
+				try(rolBsBackupManager.mlbBackupFiles.selection = (finditem (rolBsBackupManager.mlbBackupFiles.items as array) ("📄 " + maxfilename)))catch()
 			)
-			rolBsBackupManager.mlbBackupFolders.selection = idSelected
+			try(rolBsBackupManager.mlbBackupFolders.selection = idSelected)catch()
 		)
 	)
 
