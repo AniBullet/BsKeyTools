@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-10-11 19:07:53
+ * @LastEditTime: 2022-10-12 13:44:37
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -17,7 +17,7 @@ global rolBsTrackBarTools
 global rolBsBackupManager
 Global BulletConfig      = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 global iniBackupPath     = ((getdir #autoback) + "\\BsBackup")
-global iniMaxBackupCount = 50
+global iniMaxBackupCount = 66
 global iniPosAutoBackup
 Global iniPosBackupManager
 global iniDockPos
@@ -256,12 +256,22 @@ rcmenu menuBsTrackBarTools
 (
 	submenu "停靠"
 	(
-		menuItem mItemTop "上"
-		menuItem mItemBottom "下"
-		menuItem mItemLeft "左"
-		menuItem mItemRight "右"
+		menuItem mItemTop "上" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) == "cui_dock_top" then true else false)
+		menuItem mItemBottom "下" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) == "cui_dock_bottom" then true else false)
+		menuItem mItemLeft "左" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) == "cui_dock_left" then true else false)
+		menuItem mItemRight "右" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) == "cui_dock_right" then true else false)
 		separator menuSepDock
-		menuItem mItemFloat "浮"
+		menuItem mItemFloat "浮" checked:(if not rolBsTrackBarTools.dialogBar then true else false)
+	)
+	submenu "备份数量"
+	(
+		menuItem mItemBackup7 "7" checked:(if iniMaxBackupCount == 7 then true else false)
+		menuItem mItemBackup24 "24" checked:(if iniMaxBackupCount == 24 then true else false)
+		menuItem mItemBackup40 "40" checked:(if iniMaxBackupCount == 40 then true else false)
+		menuItem mItemBackup60 "60" checked:(if iniMaxBackupCount == 60 then true else false)
+		menuItem mItemBackup80 "80" checked:(if iniMaxBackupCount == 80 then true else false)
+		menuItem mItemBackup100 "100" checked:(if iniMaxBackupCount == 100 then true else false)
+		menuItem mItemBackupInfinite "无限制" checked:(if iniMaxBackupCount == 0 then true else false)
 	)
 	menuItem mItemIsStartup "自启"
 	separator menuSepClose
@@ -274,42 +284,6 @@ rcmenu menuBsTrackBarTools
 	(
 		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
 		else (mItemIsStartup.checked = false)
-		if not rolBsTrackBarTools.dialogBar then 
-		(
-			mItemFloat.checked = true
-			mItemBottom.checked = mItemLeft.checked = mItemTop.checked = mItemRight.checked = false
-		)
-		else 
-		(
-			case (cui.getDockState rolBsTrackBarTools) as string  of
-			(
-				("cui_dock_top"):
-				(
-					mItemTop.checked = true
-					mItemBottom.checked = mItemLeft.checked = mItemRight.checked = mItemFloat.checked = false
-				)
-				("cui_dock_bottom"):
-				(
-					mItemBottom.checked = true
-					mItemTop.checked = mItemLeft.checked = mItemRight.checked = mItemFloat.checked = false
-				)
-				("cui_dock_left"):
-				(
-					mItemLeft.checked = true
-					mItemBottom.checked = mItemTop.checked = mItemRight.checked = mItemFloat.checked = false
-				)
-				("cui_dock_right"):
-				(
-					mItemRight.checked = true
-					mItemBottom.checked = mItemLeft.checked = mItemTop.checked = mItemFloat.checked = false
-				)
-				default:
-				(
-					mItemFloat.checked = true
-					mItemBottom.checked = mItemLeft.checked = mItemTop.checked = mItemRight.checked = false
-				)
-			)
-		)
 	)
 
 	on mItemIsStartup picked do
@@ -348,7 +322,7 @@ rcmenu menuBsTrackBarTools
 			iniDockPos = "cui_dock_top"
 			stSetConfigAll.fnSetConfigTrackBarTools()
 			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
-			if (rolBsTrackBarTools.SaveInterval > 0) then clock.active = true
+			if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
 		)
 	)
 
@@ -359,7 +333,7 @@ rcmenu menuBsTrackBarTools
 			iniDockPos = "cui_dock_bottom"
 			stSetConfigAll.fnSetConfigTrackBarTools()
 			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
-			if (rolBsTrackBarTools.SaveInterval > 0) then clock.active = true
+			if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
 		)
 	)
 
@@ -370,7 +344,7 @@ rcmenu menuBsTrackBarTools
 			iniDockPos = "cui_dock_left"
 			stSetConfigAll.fnSetConfigTrackBarTools()
 			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
-			if (rolBsTrackBarTools.SaveInterval > 0) then clock.active = true
+			if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
 		)
 	)
 
@@ -381,7 +355,7 @@ rcmenu menuBsTrackBarTools
 			iniDockPos = "cui_dock_right"
 			stSetConfigAll.fnSetConfigTrackBarTools()
 			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
-			if (rolBsTrackBarTools.SaveInterval > 0) then clock.active = true
+			if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
 		)
 	)
 
@@ -392,7 +366,7 @@ rcmenu menuBsTrackBarTools
 			iniDockPos = "float"
 			stSetConfigAll.fnSetConfigTrackBarTools()
 			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
-			if (rolBsTrackBarTools.SaveInterval > 0) then clock.active = true
+			if (rolBsTrackBarTools.SaveInterval > 0) then rolBsTrackBarTools.clock.active = true
 		)
 	)
 
@@ -402,6 +376,49 @@ rcmenu menuBsTrackBarTools
 		try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
 		try (destroyDialog rolBsTrackBarTools) catch()
 	)
+
+	on mItemBackup7 picked do 
+	(
+		iniMaxBackupCount = 7
+		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+
+	on mItemBackup24 picked do 
+	(
+		iniMaxBackupCount = 24
+		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+
+	on mItemBackup40 picked do 
+	(
+		iniMaxBackupCount = 40
+		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+
+	on mItemBackup60 picked do 
+	(
+		iniMaxBackupCount = 60
+		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+
+	on mItemBackup80 picked do 
+	(
+		iniMaxBackupCount = 80
+		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+
+	on mItemBackup100 picked do 
+	(
+		iniMaxBackupCount = 100
+		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+
+	on mItemBackupInfinite picked do 
+	(
+		iniMaxBackupCount = 0
+		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+
 )
 
 rollout rolBsTrackBarTools "BsTrackBarTools_v1.0" 
@@ -554,12 +571,22 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			local arrBackupFiles = getfiles (strBackupPathRoot + "\\*.max")
 			qsort arrBackupFiles fnPseudoNaturalSort
 			-- print arrBackupFiles
+			if iniMaxBackupCount != 0 then
+			(
+				if arrBackupFiles.count >= iniMaxBackupCount then 
+				(
+					for i = 1 to (arrBackupFiles.count - iniMaxBackupCount + 1) do 
+					(
+						fnDelFileDir arrBackupFiles[i]
+					)
+				)
+				-- print iniMaxBackupCount
+				-- print arrBackupFiles.count
+			)
 
 			if matchpattern strCurFilePath pattern:("*.backup\\*.max") then 
 			(
 				strBackupPathRoot = maxFilePath
-				arrBackupFiles    = getfiles (strBackupPathRoot + "\\*.max")
-				qsort arrBackupFiles fnPseudoNaturalSort
 				strSaveFileName   = getFilenameFile arrBackupFiles[arrBackupFiles.count]
 				arrEndCountFilter = (filterString strSaveFileName "_")
 				strSaveCount      = ((execute arrEndCountFilter[arrEndCountFilter.count])) as string
