@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-10-12 13:47:31
+ * @LastEditTime: 2022-10-12 14:13:25
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -587,6 +587,8 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			if matchpattern strCurFilePath pattern:("*.backup\\*.max") then 
 			(
 				strBackupPathRoot = maxFilePath
+				arrBackupFiles = getfiles (strBackupPathRoot + "\\*.max")
+				qsort arrBackupFiles fnPseudoNaturalSort
 				strSaveFileName   = getFilenameFile arrBackupFiles[arrBackupFiles.count]
 				arrEndCountFilter = (filterString strSaveFileName "_")
 				strSaveCount      = ((execute arrEndCountFilter[arrEndCountFilter.count])) as string
@@ -612,12 +614,12 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 					strSaveCount      = ((execute arrEndCountFilter[arrEndCountFilter.count]) + 1) as string
 				)
 				strBackupFilePath = strBackupPathRoot + "\\" + strCurFileName + "_" + strSaveCount + ".max"
-				saveMaxFile strCurFilePath
+				-- saveMaxFile strCurFilePath
 				if (not (SIOFile.Exists strBackupFilePath)) do
 				(
 					try 
 					(
-						SIOFile.Copy strCurFilePath strBackupFilePath
+						saveMaxFile strBackupFilePath
 						displayTempPrompt ("已备份至：" + strBackupFilePath) 10000 
 					)
 					catch()
