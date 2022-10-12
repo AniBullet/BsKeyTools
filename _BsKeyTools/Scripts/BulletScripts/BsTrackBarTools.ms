@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-10-12 13:44:37
+ * @LastEditTime: 2022-10-12 13:47:31
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -17,7 +17,7 @@ global rolBsTrackBarTools
 global rolBsBackupManager
 Global BulletConfig      = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 global iniBackupPath     = ((getdir #autoback) + "\\BsBackup")
-global iniMaxBackupCount = 66
+global iniMaxBackupCount = 60
 global iniPosAutoBackup
 Global iniPosBackupManager
 global iniDockPos
