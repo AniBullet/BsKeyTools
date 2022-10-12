@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-10-12 14:13:25
+ * @LastEditTime: 2022-10-12 14:51:14
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -265,6 +265,7 @@ rcmenu menuBsTrackBarTools
 	)
 	submenu "备份数量"
 	(
+		menuItem mItemBackup3 "3" checked:(if iniMaxBackupCount == 3 then true else false)
 		menuItem mItemBackup7 "7" checked:(if iniMaxBackupCount == 7 then true else false)
 		menuItem mItemBackup24 "24" checked:(if iniMaxBackupCount == 24 then true else false)
 		menuItem mItemBackup40 "40" checked:(if iniMaxBackupCount == 40 then true else false)
@@ -375,6 +376,12 @@ rcmenu menuBsTrackBarTools
 		if form != undefined then ( form.close(); form = undefined  )
 		try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
 		try (destroyDialog rolBsTrackBarTools) catch()
+	)
+
+	on mItemBackup4 picked do 
+	(
+		iniMaxBackupCount = 4
+		stSetConfigAll.fnSetConfigTrackBarTools()
 	)
 
 	on mItemBackup7 picked do 
@@ -619,7 +626,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				(
 					try 
 					(
-						saveMaxFile strBackupFilePath
+						saveMaxFile strBackupFilePath clearNeedSaveFlag:false useNewFile:false
 						displayTempPrompt ("已备份至：" + strBackupFilePath) 10000 
 					)
 					catch()

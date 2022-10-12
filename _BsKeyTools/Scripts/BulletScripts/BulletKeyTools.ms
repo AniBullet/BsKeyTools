@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-10-07 11:34:21
+ * @LastEditTime: 2022-10-12 14:50:07
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2667,13 +2667,14 @@ rollout rolBsKeyTools "" width:355 height:250
 				strSaveCount      = ((execute arrEndCountFilter[arrEndCountFilter.count]) + 1) as string
 			)
 			strBackupFilePath = strBackupPathRoot + "\\" + strCurFileName + "_" + strSaveCount + ".max"
-			saveMaxFile strCurFilePath
+			-- saveMaxFile strCurFilePath
 			if (not (SIOFile.Exists strBackupFilePath)) do
 			(
 				try 
 				(
 					-- SIOFile.Copy strCurFilePath strBackupFilePath
-					FileIO.Copyfile strCurFilePath strBackupFilePath UIOption
+					-- FileIO.Copyfile strCurFilePath strBackupFilePath UIOption
+					saveMaxFile strBackupFilePath clearNeedSaveFlag:false useNewFile:false
 					displayTempPrompt ("已备份至：" + strBackupFilePath) 10000 
 				)
 				catch()
