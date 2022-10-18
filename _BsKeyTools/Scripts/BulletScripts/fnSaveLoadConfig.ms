@@ -137,7 +137,7 @@ struct stLoadConfigAll
 		iniPosAutoBackup    = fnGetConfig iniPosAutoBackup "BsTrackBarTools" "PosTrackBarTools" "0"
 		iniPosBackupManager = fnGetConfig iniPosBackupManager "BsTrackBarTools" "PosBackupManager" "0"
 		iniBackupPath       = fnGetConfig iniBackupPath "BsTrackBarTools" "BackupPath" ((getdir #autoback) + "\\BsBackup")
-		iniMaxBackupCount   = fnGetConfig iniMaxBackupCount "BsTrackBarTools" "MaxBackupCount" "50"
+		iniMaxBackupCount   = fnGetConfig iniMaxBackupCount "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
 	)
 )
 struct stSetConfigAll
