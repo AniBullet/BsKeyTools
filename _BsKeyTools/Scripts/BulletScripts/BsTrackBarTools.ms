@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-10-12 14:51:14
+ * @LastEditTime: 2022-10-20 00:31:20
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -254,7 +254,7 @@ fn fnLoadDockPos rolTarget wSize hSize =
 
 rcmenu menuBsTrackBarTools
 (
-	submenu "停靠"
+	submenu "停靠位置"
 	(
 		menuItem mItemTop "上" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) == "cui_dock_top" then true else false)
 		menuItem mItemBottom "下" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) == "cui_dock_bottom" then true else false)
@@ -263,6 +263,7 @@ rcmenu menuBsTrackBarTools
 		separator menuSepDock
 		menuItem mItemFloat "浮" checked:(if not rolBsTrackBarTools.dialogBar then true else false)
 	)
+
 	submenu "备份数量"
 	(
 		menuItem mItemBackup3 "3" checked:(if iniMaxBackupCount == 3 then true else false)
@@ -274,7 +275,14 @@ rcmenu menuBsTrackBarTools
 		menuItem mItemBackup100 "100" checked:(if iniMaxBackupCount == 100 then true else false)
 		menuItem mItemBackupInfinite "无限制" checked:(if iniMaxBackupCount == 0 then true else false)
 	)
-	menuItem mItemIsStartup "自启"
+
+	submenu "路径配置"
+	(
+		menuItem mItemBackupPath "设定"
+		menuItem mItemResetPath "重置"
+	)
+	
+	menuItem mItemIsStartup "自启开关"
 	separator menuSepClose
 	menuItem mItemClose "关闭"
 
@@ -285,6 +293,27 @@ rcmenu menuBsTrackBarTools
 	(
 		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
 		else (mItemIsStartup.checked = false)
+	)
+
+	on mItemBackupPath picked do 
+	(
+		local dirOpened = getSavePath caption:"请选择备份路径: " initialDir:iniBackupPath
+
+        if (dirOpened != undefined) then 
+		(
+			iniBackupPath = dirOpened
+			rolBsBackupManager.edtBackupPath.text = iniBackupPath
+			rolBsBackupManager.fnRefreshBackupAll()
+			stSetConfigAll.fnSetConfigTrackBarTools()
+		)
+	)
+
+	on mItemResetPath picked do 
+	(
+		iniBackupPath = ((getdir #autoback) + "\\BsBackup")
+		rolBsBackupManager.edtBackupPath.text = iniBackupPath
+		rolBsBackupManager.fnRefreshBackupAll()
+		stSetConfigAll.fnSetConfigTrackBarTools()
 	)
 
 	on mItemIsStartup picked do
@@ -557,23 +586,29 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	
 	fn fnQuickSave =
 	(
-		if maxFilePath == "" then 
+		if objects.count != 0 then 
 		(
-			messagebox "------------------------------------\r\n\r\n当前场景未保存过,\r\n\r\n请先保存初始版本~\r\n\r\n------------------------------------"
-			-- max file saveas
-			btnTimer.text = "请先保存" 
-			saveInterval_FN "0" 
-			
-			btnTimer.backcolor = BsDotCheckColor
-			btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
-			
-			clock.active = false
-			clock.ticks = 0
-		)
-		else
-		(
-			local strCurFilePath    = (maxFilePath + maxFileName)
-			local strCurFileName    = getFilenameFile maxFileName
+			if maxFilePath == "" then 
+			(
+				-- messagebox "------------------------------------\r\n\r\n当前场景未保存过,\r\n\r\n请先保存初始版本~\r\n\r\n------------------------------------"
+				-- -- max file saveas
+				-- btnTimer.text = "请先保存" 
+				-- saveInterval_FN "0" 
+				
+				-- btnTimer.backcolor = BsDotCheckColor
+				-- btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
+				
+				-- clock.active = false
+				-- clock.ticks = 0
+
+				local strCurFilePath    = (iniBackupPath + "\\@BsAutoBackup.max")
+				local strCurFileName    = "@BsAutoBackup"
+			)
+			else
+			(
+				local strCurFilePath    = (maxFilePath + maxFileName)
+				local strCurFileName    = getFilenameFile maxFileName
+			)
 			local strBackupPathRoot = iniBackupPath + "\\" + strCurFileName + ".backup"
 			local arrBackupFiles = getfiles (strBackupPathRoot + "\\*.max")
 			qsort arrBackupFiles fnPseudoNaturalSort
@@ -633,8 +668,8 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				)
 			)
 			rolBsTrackBarTools.fnFilesCount()
+			rolBsBackupManager.fnRefreshBackupAll()
 		)
-		rolBsBackupManager.fnRefreshBackupAll()
 	)
 	
 	on rolBsTrackBarTools open do
@@ -1191,7 +1226,7 @@ rollout rolBsBackupManager "" width:355 height:260
 	on btnRefreshFolder pressed do 
 	(
 		rolBsBackupManager.fnRefreshBackupAll()
-		fnRefreshBackupAll()
+		-- fnRefreshBackupAll()
 	)
 
 	on btnRefreshFolder rightclick do 

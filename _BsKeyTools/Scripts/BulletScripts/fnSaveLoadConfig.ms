@@ -196,7 +196,7 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BsTrackBarTools" "DockPos" (iniDockPos as string)
 		SetINISetting BulletConfig "BsTrackBarTools" "PosTrackBarTools" (iniPosAutoBackup as string)
 		SetINISetting BulletConfig "BsTrackBarTools" "PosBackupManager" (iniPosBackupManager as string)
-		SetINISetting BulletConfig "BsTrackBarTools" "BackupPath" (execute ("@\"" + (getdir #autoback) + "\\BsBackup\""))
+		SetINISetting BulletConfig "BsTrackBarTools" "BackupPath" (iniBackupPath as string)
 		SetINISetting BulletConfig "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
 	)
 )
