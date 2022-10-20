@@ -371,11 +371,44 @@ fn GetSkeletalNode index isFaux findCorrect:true =
 rcmenu menuQuickCreateNode
 (
 	menuItem quickMakeParent "快速创建父级骨骼"
-    menuItem quickDuplicate "快速创建子级 Nub"
+    menuItem quickDuplicate "快速创建子级骨骼"
+	menuItem quickDuplicateFingers "快速创建 Hand Nub"
     menuItem quickDuplicateFoot "快速创建 Foot Nub"
+	menuItem quickDuplicateHead "快速创建 Head Nub"
     menuItem quickCenterRoot "快速创建新的 Hips"
 	menuItem tips "根据 Bone 骨骼大腿的位置，" enabled:false
     menuItem tips2 "创建符合 Biped 骨骼位置的质心。" enabled:false
+
+	fn fnDuplicateNub arrID isFoot:false isHead:false =
+	(
+		for i in arrID do 
+		(
+			parentNub = (GetSkeletalNode i false)
+			nubNode = (GetSkeletalNode (i + 1) false)
+			if isvalidnode parentNub and parentNub != undefined and nubNode == undefined then
+			(
+				local vec = parentNub.pos - parentNub.parent.pos
+				if isHead then vec = vec * 3
+				local pos = parentNub.pos + (normalize vec) * (length vec)
+				if isFoot then pos.z = parentNub.pos.z
+				in parentNub nB = bone pos:pos
+				nB.name = parentNub.name + " nub"
+				if i > 35 then 
+				(
+					tempItems = biped_align_test.characterBones_B.items
+					tempItems[i - 35 + 1] = nB.name
+					biped_align_test.characterBones_B.items = tempItems
+				)
+				else 
+				(
+					tempItems = biped_align_test.characterBones.items
+					tempItems[i+ 1] = nB.name
+					biped_align_test.characterBones.items = tempItems
+				)
+			)
+			else (messageBox "请先验证并检查映射列表是否完整！                                       " title:"BsRetargetTools")
+		)
+	)
 
 	on quickMakeParent picked do
 	(
@@ -399,18 +432,23 @@ rcmenu menuQuickCreateNode
 			-- select nB
 		)
 	)
+
+	on quickDuplicateHead picked do 
+	(
+		arrHeadID = #(8)
+		fnDuplicateNub arrHeadID isHead:true
+	)
+
+	on quickDuplicateFingers picked do 
+	(
+		arrFingersID = #(26,30,34,38,42,50,54,58,62,66)
+		fnDuplicateNub arrFingersID
+	)
+
 	on quickDuplicateFoot picked do
 	(
-		for i in selection as array where $ != undefined do
-		(
-			local vec = i.pos - i.parent.pos;
-			local pos = i.pos + (normalize vec) * (length vec);
-			pos.z = i.pos.z;
-			
-			in i nB = bone pos:pos;
-			nB.name = i.name + " nub";
-			-- select nB
-		)
+		arrFootID = #(13,18)
+		fnDuplicateNub arrFootID isFoot:true
 	)
 	on quickCenterRoot picked do
 	(
@@ -503,7 +541,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向 ）"
+rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向 ）"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Bip 节点 1 - 35" align:#left across:4 height:35 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -521,7 +559,7 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 
     groupbox grpRetargetList "1. Check  mapping" pos:[15,485] width:130 height:170
 
-	label lblTips "选中骨骼，点击列表\r\n双击重置，注意可选" pos:[25,505] width:(btnWidth - 10) height:30
+	label lblTips "选中骨骼，点击列表\r\n右键重置，注意可选" pos:[25,505] width:(btnWidth - 10) height:30
 	-- pickbutton pkbRootMption "指定 RootMotion" pos:[20,505] height:35 width:(btnWidth) message:"指定 RootMotion" autoDisplay:true tooltip:"右键清除选择"
     button loadDialogue "加载" pos:[20,570] width:(btnWidth/2) height:30
     button saveDialogue "保存" pos:[80,570] width:(btnWidth/2) height:30
@@ -1912,14 +1950,14 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 		else (messagebox "只能填入一个有效骨骼节点!                                              ")
 	)
 	
-	on bipedBones doubleClicked nameIndex do
+	on bipedBones rightclick nameIndex do
 	(
 		local temp_array = characterBones.items;
 		temp_array[nameIndex] = "~undefined~";
 		characterBones.items = temp_array;
 	)
 	
-	on characterBones doubleClicked nameIndex do
+	on characterBones rightclick nameIndex do
 	(
 		local temp_array = characterBones.items;
 		temp_array[nameIndex] = "~undefined~";
@@ -1937,6 +1975,7 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 			temp_array[nameIndex] = $.name
 			characterBones_B.items = temp_array;
 		)
+		else (messagebox "只能填入一个有效骨骼节点!                                              ")
 	)
 	
 	on characterBones_B selected nameIndex do
@@ -1948,16 +1987,17 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 			temp_array[nameIndex] = $.name
 			characterBones_B.items = temp_array;
 		)
+		else (messagebox "只能填入一个有效骨骼节点!                                              ")
 	)
 	
-	on bipedBones_B doubleClicked nameIndex do
+	on bipedBones_B rightclick nameIndex do
 	(
 		local temp_array = characterBones_B.items;
 		temp_array[nameIndex] = "~undefined~";
 		characterBones_B.items = temp_array;
 	)
 	
-	on characterBones_B doubleClicked nameIndex do
+	on characterBones_B rightclick nameIndex do
 	(
 		local temp_array = characterBones_B.items;
 		temp_array[nameIndex] = "~undefined~";
@@ -2113,7 +2153,6 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 				lc.addTarget boneFBXRoot 0
 				tempCopyBone.transform = boneFBXRoot.transform
 				fnFixSize tempCopyBone
-
 			)
 			if boneFBXRoot.children != 0 then 
 			(
@@ -2128,9 +2167,10 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 	fn fnCopySubBones =
 	(
 		boneFBXRoot = (GetSkeletalNode 1 false)
-		if boneFBXRoot.parent != undefined then 
+		boneAllRoot = (if matchpattern boneFBXRoot.name pattern:"NewHip_*" then boneFBXRoot.parent.parent else boneFBXRoot.parent)
+		if boneAllRoot != undefined then 
 		(
-			fnCopyChildSubBone boneFBXRoot.parent
+			fnCopyChildSubBone boneAllRoot
 		)
 		else (fnCopyChildSubBone boneFBXRoot)
 	)
@@ -2547,11 +2587,20 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 			(GetBipedNode 1).transform.controller.figureMode = true
 			biped.pastebippose (GetBipedNode 1).controller icpmxbipcopy false #pstdefault true true true false
 			-- biped.pastePosture (GetBipedNode 1).controller #pose false strBipedPoseCollection
+			-- AlignBipToFaux 21
+			-- AlignBipToFaux 23
+			-- AlignBipToFaux 45
+			-- AlignBipToFaux 47
 			fnAlignBipedFingersToHelper ()
 			-- (GetBipedNode 1).transform.controller.figureMode = false
 			-- toggleBipedMode.state = false
 			biped.deleteCopyCollection (GetBipedNode 1).controller (biped.numCopyCollections (GetBipedNode 1).controller)
-	
+			AlignBipToFaux 10
+			AlignBipToFaux 15
+			-- (GetBipedNode 21).transform.rotation = (GetSkeletalNode 21 true).rotation
+			-- (GetBipedNode 23).transform.rotation = (GetSkeletalNode 23 true).rotation
+			-- (GetBipedNode 45).transform.rotation = (GetSkeletalNode 45 true).rotation
+			-- (GetBipedNode 47).transform.rotation = (GetSkeletalNode 47 true).rotation
 			pgbBar.value = 95
 			lblBarValue.text = (pgbBar.value as string) + " %"
 			-- 清除 Helper
@@ -2605,6 +2654,35 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 			rootBone.parent = boneRetargetRM
 
 			if chkCopySubs.state then fnCopySubBones()
+			else 
+			(
+				if matchpattern (GetSkeletalNode 1 false).name pattern:"NewHip_*" and matchpattern (GetSkeletalNode 2 false).name pattern:"NewPelvis_*" then 
+				(
+					tarHipBone = getnodebyname (substituteString (GetSkeletalNode 1 false).name "NewHip_" "")
+					tempHipBone = (copy tarHipBone)
+					tempHipBone.name = tarHipBone.name
+					strTempName = tempHipBone.name
+					tempHipBone.name = "RetargetHelper_" + strTempName
+					tempHipBone.parent = (GetSkeletalNode 1 true)
+					lc = Link_Constraint();
+					tempHipBone.transform.controller = lc
+					lc.key_mode = 0
+					lc.addTarget tarHipBone 0
+					tempHipBone.transform = tarHipBone.transform
+
+					tarPelvisBone = getnodebyname (substituteString (GetSkeletalNode 2 false).name "NewPelvis_" "")
+					tempPelvisBone = (copy tarPelvisBone)
+					tempPelvisBone.name = tarPelvisBone.name
+					strTempName = tempPelvisBone.name
+					tempPelvisBone.name = "RetargetHelper_" + strTempName
+					tempPelvisBone.parent = tempHipBone
+					lc = Link_Constraint();
+					tempPelvisBone.transform.controller = lc
+					lc.key_mode = 0
+					lc.addTarget tarPelvisBone 0
+					tempPelvisBone.transform = tarPelvisBone.transform
+				)
+			)
 			pgbBar.value = 100
 			lblBarValue.text = (pgbBar.value as string) + " %"
 			messageBox "重定向 Biped 创建成功！\r\n\r\n如肩膀匹配不高，\r\n\r\n建议微调两边肩膀手臂和手，\r\n\r\n再点击重新对齐手指骨骼。                         "
@@ -3248,15 +3326,10 @@ rollout biped_align_test "BsRetargetTools_v2.2 （ FBX 转 BIP + 动画重定向
 				fnLoadEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
 				fnDelFileDir ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
 				meshSkin.always_deform = on
-				pgbBar.value = 30 + (70.*g/(arrTarSkinMesh.count))
-				lblBarValue.text = (pgbBar.value as string) + " %"
-			)
-
-			for g = 1 to arrTarSkinMesh.count do 
-			(
-				local meshSkin = (getSkin arrTarSkinMesh[g])
 				meshSkin.always_deform = off
 				meshSkin.always_deform = on
+				pgbBar.value = 30 + (70.*g/(arrTarSkinMesh.count))
+				lblBarValue.text = (pgbBar.value as string) + " %"
 			)
 
 			if (chkRenameBiped.state == false) then 
