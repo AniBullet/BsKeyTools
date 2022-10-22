@@ -26,7 +26,9 @@ if yunTrajEdit_DTrajs_vis == undefined do yunTrajEdit_DTrajs_vis = #()
 global yunTrajEdit_DTrajs_timeLong
 if yunTrajEdit_DTrajs_timeLong == undefined do yunTrajEdit_DTrajs_timeLong = #()
 
-
+-----播放开关用
+global yunTrajEdit_DTrajs_play
+if yunTrajEdit_DTrajs_play == undefined do yunTrajEdit_DTrajs_play = #()
 
 
 
@@ -36,14 +38,14 @@ function yunTrajEdit_CheckExsitError  =
 	for i in  yunTrajEdit_DTrajs do 
 	(	
 		if (isvalidnode i)==false do 
-		(yunTrajEdit_DTrajs = #();yunTrajEdit_DTrajs_dot = #();yunTrajEdit_DTrajs_vis = #();yunTrajEdit_DTrajs_timeLong = #() )
+		(yunTrajEdit_DTrajs = #();yunTrajEdit_DTrajs_dot = #();yunTrajEdit_DTrajs_vis = #();yunTrajEdit_DTrajs_timeLong = #();yunTrajEdit_DTrajs_play = #())
 	)
 )
 yunTrajEdit_CheckExsitError()
 if yunTrajEdit_DTrajs.count!=yunTrajEdit_DTrajs_dot.count or
 yunTrajEdit_DTrajs_dot.count!=yunTrajEdit_DTrajs_vis.count or 
 yunTrajEdit_DTrajs_vis.count!=yunTrajEdit_DTrajs_timeLong.count do
-(yunTrajEdit_DTrajs = #();yunTrajEdit_DTrajs_dot = #();yunTrajEdit_DTrajs_vis = #();yunTrajEdit_DTrajs_timeLong = #() )
+(yunTrajEdit_DTrajs = #();yunTrajEdit_DTrajs_dot = #();yunTrajEdit_DTrajs_vis = #();yunTrajEdit_DTrajs_timeLong = #();yunTrajEdit_DTrajs_play = #() )
 
 ------实时改变函数
 Fn yun_refreshDT_byTime_new_fn  = 
@@ -173,6 +175,7 @@ struct yunTrajEdit_Globals_Struct
 			append yunTrajEdit_DTrajs_dot true
 			append yunTrajEdit_DTrajs_vis true
 			append yunTrajEdit_DTrajs_timeLong false
+			append yunTrajEdit_DTrajs_play false
 			)
 			
 		)
@@ -192,6 +195,7 @@ struct yunTrajEdit_Globals_Struct
 			deleteItem yunTrajEdit_DTrajs_dot  _i
 			deleteItem yunTrajEdit_DTrajs_vis  _i
 			deleteItem yunTrajEdit_DTrajs_timeLong  _i 
+			deleteItem yunTrajEdit_DTrajs_play  _i 
 		)		
 		yunTrajEdit_UpdateRollout()
 	),
@@ -235,9 +239,16 @@ struct yunTrajEdit_Globals_Struct
 
 
 ------生成轨迹函数
-fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShape =
+fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShape isPlay =
 (
-	if vis and  not isAnimPlaying()  do
+	--是否播放
+	playCheck = true  --默认画曲线
+	if isPlay and isAnimPlaying() then (playCheck = false )  ---隐藏被勾选切在播放就不画了
+	
+	--if vis and  not isAnimPlaying()  do
+	---画轨迹
+	if vis and   playCheck  do
+	if vis   do
 	(	
 	
 		---获取数据 
@@ -351,7 +362,7 @@ function yunMotionPathCallBackFn_exc =
 		yunTrajEdit_CheckExsitError()
 		
 
-		-----检查结束开启轨迹
+		-----检查结束开启轨迹   i = 1
 		for i = yunTrajEdit_DTrajs.count to 1 by -1 do
 		(			
 			col_start = Execute ("yunTrajedit_rollout.col_Dot" + (i as string) + ".color")
@@ -360,18 +371,21 @@ function yunMotionPathCallBackFn_exc =
 			tEnd = Execute ("yunTrajedit_rollout.spn_End" + (i as string) + ".value")
 			if yunTrajEdit_DTrajs_dot.count > 0 do ( isdot = yunTrajEdit_DTrajs_dot[i] )
 			if yunTrajEdit_DTrajs_vis.count > 0 do ( vis = yunTrajEdit_DTrajs_vis[i] )
+			if yunTrajEdit_DTrajs_Play.count > 0 do ( isPlay = yunTrajEdit_DTrajs_Play[i] )
 			
+
 			if yunTrajEdit_DTrajs[i] != undefined and
 			col_start != undefined	and
 			col_end != undefined and 
 			tStart != undefined and 
-			tStart != undefined and
+			tEnd != undefined and
 			vis != undefined and
 			dotShape != undefined and
-			dotShape != undefined and	
+			isPlay != undefined and				
 			isdot != undefined do			
 			(	
-				(yunMotionPathCallBackFn   yunTrajEdit_DTrajs[i] vis  isdot col_start col_end tStart tEnd dotShape)
+				----核心画轨迹代码
+				(yunMotionPathCallBackFn   yunTrajEdit_DTrajs[i] vis  isdot col_start col_end tStart tEnd dotShape isPlay)
 			)
 		)
 	)
@@ -470,11 +484,15 @@ function yunTrajEdit_UpdateRollout =
 	(
 		try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()
 		try unregisterRedrawViewsCallback yunMotionPathCallBackFn_exc catch()
+		yunTrajEdit_Globals.UpdateBitmaps()
 		yunTrajEdit_Globals = undefined
+
 		DestroyDialog yunTrajedit_rollout
 
+
+
 		gc()  ---内存管理
-		yunTrajEdit_Globals.UpdateBitmaps()
+		
 		
 	)
 	---关于按钮功能
@@ -514,6 +532,8 @@ function yunTrajEdit_UpdateRollout =
 				--修改！！！！！！
 				local vtimeFB = ([39,61+(vSpacing*(i-1))] as string) 	
 				local vtimeFBOnOff = ([3,61+(vSpacing*(i-1))] as string)
+				---播放复选框位置
+				local vplayFBOnOff = ([23,61+(vSpacing*(i-1))] as string)
 
 				
 				-----------------
@@ -586,12 +606,19 @@ function yunTrajEdit_UpdateRollout =
 				) \n")					
 					
 				szExecute += ("checkbox time_FBONOff" + (i as string) + " \"\" pos:" + vtimeFBOnOff + " width:16 height:16 checked:" + (yunTrajEdit_DTrajs_timeLong[i] as string)+ "  tooltip:\"开关是否实时刷新轨迹长度\" \n")
-				szExecute += ("on time_FBONOff" + (i as string) + " changed theState do (
-				
+				szExecute += ("on time_FBONOff" + (i as string) + " changed theState do (				
 				yunTrajEdit_DTrajs_timeLong["+ (i as string)+"] = theState
 				if theState do 
 				(	try (yun_refreshDT_byTime_new_fn())	 catch ())
 				)\n")
+				
+				----是否在播放是隐藏  i =1 
+				szExecute += ("checkbox play_FBONOff" + (i as string) + " \"\" pos:" + vplayFBOnOff + " width:16 height:16 checked:" + (yunTrajEdit_DTrajs_play[i] as string)+ "  tooltip:\"开关是否在播放时隐藏已保证帧率\" \n")
+				szExecute += ("on play_FBONOff" + (i as string) + " changed theState do (				
+				yunTrajEdit_DTrajs_play["+ (i as string)+"] = theState			
+				)\n")
+
+
 				szExecute += "\n"
 				----------
 				
