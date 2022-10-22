@@ -3349,7 +3349,8 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			selectmore $'NewHip_*'
 			selectmore $'NewPelvis_*'
 			selectmore $'NewSpine_*'
-			delete $
+			-- delete $
+			for i in selection as array where isvalidnode i do delete i
 
 			messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。                                              "
 		)
