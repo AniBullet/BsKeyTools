@@ -359,11 +359,11 @@ fn GetSkeletalNode index isFaux findCorrect:true =
 	(
 		if (index == 1) then
 		(
-			return getNodeByName ("RetargetHelper_" + bipedRootName)
+			return getNodeByName ("ReHelper_" + bipedRootName)
 		)
 		else 
 		(
-			return getNodeByName ("RetargetHelper_" + bipedRootName + (substituteString boneNames[index] "[可选]" ""))
+			return getNodeByName ("ReHelper_" + bipedRootName + (substituteString boneNames[index] "[可选]" ""))
 		)
 	)
 )	
@@ -841,12 +841,13 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 				)
 				animationrange = interval startFrame (endFrame - 1)
 			)
-
-			select $'RetargetHelper_*'
+			select $'ReHelper_*'
+			if (selection as array).count == 0 then (select $'RetargetHelper_*';preStr = "Old")
 			arrExport = (selection as array)
 			for i in arrExport where isValidNode i do
 			(
-				(i.name = substituteString i.name "RetargetHelper_" "")
+				if preStr == "Old" then (i.name = substituteString i.name "RetargetHelper_" "")
+				else (i.name = substituteString i.name "ReHelper_" "")
 			)
 			
 			FBXExporterSetParam "Animation" true
@@ -1003,7 +1004,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			
 			newBone           = BoneSys.createBone parentPos midPos axisA
 			newBone.parent    = initialBone
-			newBone.name      = ("RetargetHelper_" + (GetBipedNode parentIndex).name);
+			newBone.name      = ("ReHelper_" + (GetBipedNode parentIndex).name);
 			newBone.boxmode   = true
 			newBone.wirecolor = black
 			fnFixSize newBone
@@ -1025,7 +1026,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			
 			newBone           = BoneSys.createBone parentPos midPos axisA
 			newBone.parent    = initialBone
-			newBone.name      = ("RetargetHelper_" + (GetBipedNode parentIndex).name);
+			newBone.name      = ("ReHelper_" + (GetBipedNode parentIndex).name);
 			newBone.boxmode   = true
 			newBone.wirecolor = green
 			fnFixSize newBone
@@ -1078,7 +1079,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 				fnFixSize newBone
 			)
 			
-			newBone.name   = ("RetargetHelper_" + (GetBipedNode parentIndex).name);
+			newBone.name   = ("ReHelper_" + (GetBipedNode parentIndex).name);
 			newBone.width  = 0.01
 			newBone.height = 0.01
 			
@@ -1110,7 +1111,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 					fnFixSize newBone
 				)
 				
-				newBone.name   = ("RetargetHelper_" + (GetBipedNode parentIndex).name)
+				newBone.name   = ("ReHelper_" + (GetBipedNode parentIndex).name)
 				newBone.width  = 0.01
 				newBone.height = 0.01
 			)
@@ -1135,7 +1136,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 					return undefined;
 				)
 				
-				newBone.name   = ("RetargetHelper_" + (GetBipedNode parentIndex).name)
+				newBone.name   = ("ReHelper_" + (GetBipedNode parentIndex).name)
 				newBone.width  = 0.01
 				newBone.height = 0.01
 			)
@@ -1201,7 +1202,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			local oC = Orientation_Constraint();
 			oC.appendTarget (GetSkeletalNode itemIndex false) 100;
 			
-			(getNodeByName ("RetargetHelper_" + (GetBipedNode itemIndex).name)).Rotation.controller = oC;
+			(getNodeByName ("ReHelper_" + (GetBipedNode itemIndex).name)).Rotation.controller = oC;
 			oC.relative = true;
 		)
 		else
@@ -1209,7 +1210,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			local oC = Orientation_Constraint();
 			oC.appendTarget (GetBipedNode itemIndex) 100;
 			
-			(getNodeByName ("RetargetHelper_" + (GetBipedNode itemIndex).name)).Rotation.controller = oC;
+			(getNodeByName ("ReHelper_" + (GetBipedNode itemIndex).name)).Rotation.controller = oC;
 			oC.relative = true;
 		)
 	)
@@ -1228,7 +1229,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			local oC = Position_Constraint();
 			oC.appendTarget (GetSkeletalNode itemIndex false) 100;
 			
-			(getNodeByName ("RetargetHelper_" + (GetBipedNode itemIndex).name)).Position.controller = oC;
+			(getNodeByName ("ReHelper_" + (GetBipedNode itemIndex).name)).Position.controller = oC;
 			oC.relative = true;
 		)
 		else
@@ -1236,7 +1237,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			local oC = Position_Constraint();
 			oC.appendTarget (GetBipedNode itemIndex) 100;
 			
-			(getNodeByName ("RetargetHelper_" + (GetBipedNode itemIndex).name)).Position.controller = oC;
+			(getNodeByName ("ReHelper_" + (GetBipedNode itemIndex).name)).Position.controller = oC;
 			oC.relative = true;
 		)
 	)
@@ -2127,9 +2128,18 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			(
 				case of
 				(
+					((finditem biped_align_test.characterBones.items ("NewHip_" + boneFBXRoot.name)) != 0):
+					(
+						print ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + boneFBXRoot.name)
+						helperRoot = GetSkeletalNode 1 true
+					)
+					((finditem biped_align_test.characterBones.items ("NewPelvis_" + boneFBXRoot.name)) != 0):
+					(
+						helperRoot = GetSkeletalNode 2 true
+					)
 					(boneFBXRoot.parent == tempRM):
 					(
-						helperRoot = (getnodebyname "RetargetHelper_Root")
+						helperRoot = (getnodebyname "ReHelper_Root")
 					)
 					((finditem biped_align_test.characterBones.items boneFBXRoot.parent.name) != 0):
 					(
@@ -2140,12 +2150,12 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 						helperRoot = (GetSkeletalNode ((finditem biped_align_test.characterBones_B.items boneFBXRoot.parent.name) + 35) true)
 					)
 					default:
-					(helperRoot = (getnodebyname ("RetargetHelper_" + boneFBXRoot.parent.name)))
+					(helperRoot = (getnodebyname ("ReHelper_" + boneFBXRoot.parent.name)))
 				) 
 				tempCopyBone = (copy boneFBXRoot)
 				tempCopyBone.name = boneFBXRoot.name
 				strTempName = tempCopyBone.name
-				tempCopyBone.name = "RetargetHelper_" + strTempName
+				tempCopyBone.name = "ReHelper_" + strTempName
 				tempCopyBone.parent = helperRoot
 				lc = Link_Constraint();
 				tempCopyBone.transform.controller = lc
@@ -2171,6 +2181,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 		if boneAllRoot != undefined then 
 		(
 			fnCopyChildSubBone boneAllRoot
+			print ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + boneAllRoot.name)
 		)
 		else (fnCopyChildSubBone boneFBXRoot)
 	)
@@ -2387,12 +2398,17 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 				AdjustBipedScale 64
 				AdjustBipedScale 65
 				AdjustBipedScale 66
+
+				newBiped.controller.trianglePelvis = true
+				newBiped.controller.trianglePelvis = false
+				newBiped.controller.triangleNeck = false
+				newBiped.controller.triangleNeck = true
 			)
 			catch
 			(
 				messagebox "创建 Biped 时出错，可能有骨骼映射缺失。                               "
 			)
-	
+
 			pgbBar.value = 5
 			lblBarValue.text = (pgbBar.value as string) + " %"
 			--创建对齐辅助骨骼
@@ -2408,14 +2424,14 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			rootBone = point pos:(GetBipedNode 1).transform.position -- rotation:(GetBonePos 1).transform.rotation
 			rootBone.constantscreensize = false
 			-- rootBone.box = true
-			rootBone.name      = ("RetargetHelper_" + (GetBipedNode 1).name)
+			rootBone.name      = ("ReHelper_" + (GetBipedNode 1).name)
 			rootBone.size      = 0.01
 			rootBone.transform = (GetBipedNode 1).transform
 			bipedRetargetRM    = undefined
 			boneRetargetRM     = undefined
 			if rootMotionBone != undefined then
 			(
-				boneRetargetRM                    = point name:"RetargetHelper_Root"
+				boneRetargetRM                    = point name:"ReHelper_Root"
 				-- boneRetargetRM.size               = 0.01
 				boneRetargetRM.constantscreensize = false
 				-- boneRetargetRM.box = true
@@ -2578,7 +2594,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			lblBarValue.text = (pgbBar.value as string) + " %"
 			(GetBipedNode 1).transform.controller.figureMode = false
 			fnAlignBipedToHelper()
-			pgbBar.value = 90
+			pgbBar.value = 70
 			lblBarValue.text = (pgbBar.value as string) + " %"
 			biped.createCopyCollection (GetBipedNode 1).controller "tempRetargetBipedPose"
 			copycol= biped.getcopycollection (GetBipedNode 1).controller 1
@@ -2601,7 +2617,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			-- (GetBipedNode 23).transform.rotation = (GetSkeletalNode 23 true).rotation
 			-- (GetBipedNode 45).transform.rotation = (GetSkeletalNode 45 true).rotation
 			-- (GetBipedNode 47).transform.rotation = (GetSkeletalNode 47 true).rotation
-			pgbBar.value = 95
+			pgbBar.value = 90
 			lblBarValue.text = (pgbBar.value as string) + " %"
 			-- 清除 Helper
 			if isValidNode headNub then
@@ -2662,7 +2678,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 					tempHipBone = (copy tarHipBone)
 					tempHipBone.name = tarHipBone.name
 					strTempName = tempHipBone.name
-					tempHipBone.name = "RetargetHelper_" + strTempName
+					tempHipBone.name = "ReHelper_" + strTempName
 					tempHipBone.parent = (GetSkeletalNode 1 true)
 					lc = Link_Constraint();
 					tempHipBone.transform.controller = lc
@@ -2674,8 +2690,8 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 					tempPelvisBone = (copy tarPelvisBone)
 					tempPelvisBone.name = tarPelvisBone.name
 					strTempName = tempPelvisBone.name
-					tempPelvisBone.name = "RetargetHelper_" + strTempName
-					tempPelvisBone.parent = tempHipBone
+					tempPelvisBone.name = "ReHelper_" + strTempName
+					tempPelvisBone.parent = (GetSkeletalNode 2 true)
 					lc = Link_Constraint();
 					tempPelvisBone.transform.controller = lc
 					lc.key_mode = 0
@@ -3214,24 +3230,29 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			(
 				tarHipBone = getnodebyname (substituteString tarBone.name "NewHip_" "")
 				tarBone = tarHipBone
+				tarBone.parent = tarBiped
+				for i in tarBone.children where i != undefined and (finditem biped_align_test.characterBones.items i.name == 0) and \
+					(finditem biped_align_test.characterBones_B.items i.name == 0) do (i.parent = tarBone)
 			)
 
-			if matchpattern tarBone.name pattern:"NewPelvis_*" then 
+			else if matchpattern tarBone.name pattern:"NewPelvis_*" then 
 			(
 				tarPelvisBone = getnodebyname (substituteString tarBone.name "NewPelvis_" "")
 				tarBone = tarPelvisBone
-			)
-
-			if tarBone.name != tarBiped.parent.name then 
-			(
-				tarBiped.name = tarBone.name
-				tarBone.name = "ReTempNode_" + tarBone.name
-				-- print ("a: " + tarBone.name)
-				-- print ("b: " + tarBiped.name)
-				-- tempParent = tarBone.parent
-				-- tarBiped.parent = tempParent
+				tarBone.parent = tarBiped
 				for i in tarBone.children where i != undefined and (finditem biped_align_test.characterBones.items i.name == 0) and \
-				(finditem biped_align_test.characterBones_B.items i.name == 0) do (i.parent = tarBiped)
+					(finditem biped_align_test.characterBones_B.items i.name == 0) do (i.parent = tarBone)
+			)
+			else
+			(
+				if tarBone.name != tarBiped.parent.name then 
+				(
+					tarBiped.name = tarBone.name
+					tarBone.name = "ReTempNode_" + tarBone.name
+					
+					for i in tarBone.children where i != undefined and (finditem biped_align_test.characterBones.items i.name == 0) and \
+					(finditem biped_align_test.characterBones_B.items i.name == 0) do (i.parent = tarBiped)
+				)
 			)
 		)
 	)
@@ -3303,17 +3324,20 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			fnRenameBiped characterBones.items isB:false
 			fnRenameBiped characterBones_B.items isB:true
 
-			bipRoot = getnodebyname (substituteString biped_align_test.characterBones.items[1] "NewHip_" "")
-			bipPelvis = getnodebyname (substituteString biped_align_test.characterBones.items[2]"NewPelvis_" "")
-			bipSpine = getnodebyname (substituteString biped_align_test.characterBones.items[3]"NewSpine_" "")
-			biproot.transform.controller.figureMode = true
-			biproot.controller.trianglePelvis = true
-			biproot.controller.trianglePelvis = false
-			biproot.controller.triangleNeck = false
-			biproot.controller.triangleNeck = true
-			biproot.transform.controller.figureMode = false
-			if bipSpine != bipPelvis then bipSpine.parent = bipPelvis
-			else (GetBipedNode 4).parent = (GetBipedNode 3)
+			-- bipRoot = getnodebyname (substituteString biped_align_test.characterBones.items[1] "NewHip_" "")
+			-- bipPelvis = getnodebyname (substituteString biped_align_test.characterBones.items[2]"NewPelvis_" "")
+			-- bipSpine = getnodebyname (substituteString biped_align_test.characterBones.items[3]"NewSpine_" "")
+			-- bipRoot = (GetBipedNode 1)
+			-- bipPelvis = (GetBipedNode 2)
+			-- bipSpine = (GetBipedNode 3)
+			-- biproot.transform.controller.figureMode = true
+			-- biproot.controller.trianglePelvis = true
+			-- biproot.controller.trianglePelvis = false
+			-- biproot.controller.triangleNeck = false
+			-- biproot.controller.triangleNeck = true
+			-- biproot.transform.controller.figureMode = false
+			-- if bipSpine != bipPelvis then bipSpine.parent = bipPelvis
+			-- else (GetBipedNode 4).parent = (GetBipedNode 3)
 
 			for g = 1 to arrTarSkinMesh.count do 
 			(
@@ -3345,7 +3369,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			
 			clearselection()
 			select $'ReTempNode_*'
-			selectmore $'RetargetHelper_*'
+			selectmore $'ReHelper_*'
 			selectmore $'NewHip_*'
 			selectmore $'NewPelvis_*'
 			selectmore $'NewSpine_*'

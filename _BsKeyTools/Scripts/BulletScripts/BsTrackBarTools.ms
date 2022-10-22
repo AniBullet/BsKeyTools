@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-10-20 00:31:20
+ * @LastEditTime: 2022-10-22 22:23:05
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -305,6 +305,7 @@ rcmenu menuBsTrackBarTools
 			rolBsBackupManager.edtBackupPath.text = iniBackupPath
 			rolBsBackupManager.fnRefreshBackupAll()
 			stSetConfigAll.fnSetConfigTrackBarTools()
+			messagebox ("备份路径已设置为: \r\n\r\n" + iniBackupPath + "                                     ")
 		)
 	)
 
@@ -314,6 +315,7 @@ rcmenu menuBsTrackBarTools
 		rolBsBackupManager.edtBackupPath.text = iniBackupPath
 		rolBsBackupManager.fnRefreshBackupAll()
 		stSetConfigAll.fnSetConfigTrackBarTools()
+		messagebox ("备份路径已设置为: \r\n\r\n" + iniBackupPath + "                                     ")
 	)
 
 	on mItemIsStartup picked do
