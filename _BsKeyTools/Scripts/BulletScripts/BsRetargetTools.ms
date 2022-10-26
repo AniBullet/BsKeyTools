@@ -541,7 +541,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向 ）"
+rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向 ）"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Bip 节点 1 - 35" align:#left across:4 height:35 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -798,12 +798,15 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 
 			mappingFilePath    = edtMappingFile.text
 			sourFileImportPath = arrExportRetargetAnim[index]
-			tarFileExportPath  = edtOutputPath.text + "\\" + (getfilenamefile sourFileImportPath) + ".FBX"
-			tempBip = edtOutputPath.text + "\\" + (getfilenamefile sourFileImportPath) + ".bip"
+			tarFileExportPath  = edtOutputPath.text + "\FBX\\" + (getfilenamefile sourFileImportPath) + ".FBX"
+			tempBip = edtOutputPath.text + "\BIP\\" + (getfilenamefile sourFileImportPath) + ".bip"
+			tarMaxFile = edtOutputPath.text + "\MAX\\" + (getfilenamefile sourFileImportPath) + ".max"
 			skinFile   = edtSkinFile.text
-			tarNewAnim = (edtOutputPath.text + (getfilenamefile sourFileImportPath) + ".FBX")
+			tarNewAnim = (edtOutputPath.text + "\FBX\\" + (getfilenamefile sourFileImportPath) + ".FBX")
 			if (not (SIODir.Exists edtOutputPath.text)) do (SIODir.CreateDirectory edtOutputPath.text)
-			
+			if (not (SIODir.Exists (edtOutputPath.text + "\FBX\\"))) do (SIODir.CreateDirectory (edtOutputPath.text + "\FBX\\"))
+			if (not (SIODir.Exists (edtOutputPath.text + "\BIP\\"))) do (SIODir.CreateDirectory (edtOutputPath.text + "\BIP\\"))
+			if (not (SIODir.Exists (edtOutputPath.text + "\MAX\\"))) do (SIODir.CreateDirectory (edtOutputPath.text + "\MAX\\"))
 			-- print ("开始重定向动画：" +  (getfilenamefile arrExportRetargetAnim[index]) + ".FBX")
 			if chkRecoverExport.state then 
 			(
@@ -954,7 +957,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			(GetBipedNode 1).controller.triangleNeck = true
 			(GetBipedNode 1).transform.controller.figureMode = false
 
-			saveMaxFile (substituteString tarNewAnim ".FBX" ".max") quiet:true
+			saveMaxFile tarMaxFile quiet:true
 			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
 			select arrExport
 			exportFile tarFileExportPath #noPrompt selectedOnly:true using:FBXEXP
@@ -1969,7 +1972,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 	on bipedBones_B selected nameIndex do
 	(
 		print (nameIndex)
-		if $ != undefined then
+		if $ != undefined and (selection as array).count == 1 then
 		(
 			local temp_array = characterBones_B.items;
 			temp_array[nameIndex] = $.name
@@ -1981,7 +1984,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 	on characterBones_B selected nameIndex do
 	(
 		print (nameIndex)
-		if $ != undefined then
+		if $ != undefined and (selection as array).count == 1 then
 		(
 			local temp_array = characterBones_B.items;
 			temp_array[nameIndex] = $.name
@@ -2578,7 +2581,7 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			lblBarValue.text = (pgbBar.value as string) + " %"
 			(GetBipedNode 1).transform.controller.figureMode = false
 			fnAlignBipedToHelper()
-			pgbBar.value = 90
+			pgbBar.value = 85
 			lblBarValue.text = (pgbBar.value as string) + " %"
 			biped.createCopyCollection (GetBipedNode 1).controller "tempRetargetBipedPose"
 			copycol= biped.getcopycollection (GetBipedNode 1).controller 1
@@ -3319,15 +3322,15 @@ rollout biped_align_test "BsRetargetTools_v2.3 （ FBX 转 BIP + 动画重定向
 			(
 				-- print g.name
 				local meshSkin = (getSkin arrTarSkinMesh[g])
-				meshSkin.always_deform = off
+				-- meshSkin.always_deform = off
 				select arrTarSkinMesh[g]
 				modpanel.setcurrentobject meshSkin
 				xchangeSkin arrTarSkinMesh[g]
 				fnLoadEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
 				fnDelFileDir ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
-				meshSkin.always_deform = on
-				meshSkin.always_deform = off
-				meshSkin.always_deform = on
+				-- meshSkin.always_deform = on
+				-- meshSkin.always_deform = off
+				-- meshSkin.always_deform = on
 				pgbBar.value = 30 + (70.*g/(arrTarSkinMesh.count))
 				lblBarValue.text = (pgbBar.value as string) + " %"
 			)
