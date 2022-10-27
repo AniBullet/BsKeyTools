@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-10-12 14:50:07
+ * @LastEditTime: 2022-10-27 17:30:24
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2505,7 +2505,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 			vertCtrl = ctrlBiped.vertical.controller  -----质心ctrl关键帧
 			horzCtrl = ctrlBiped.horizontal.controller
-			if (sysinfo.GetMaxLanguage())[3]=="CHS" then 
+			if (((sysinfo.GetMaxLanguage())[3]=="CHS") and ((maxVersion())[1] < 20000)) then 
 			(turnCtrl = ctrlBiped.flip.controller)
 			else(turnCtrl = ctrlBiped.turning.controller)
 			bipCtrlTemp = #(vertCtrl,horzCtrl,turnCtrl)
