@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-10-27 17:31:57
+ * @LastEditTime: 2022-11-05 18:24:02
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -79,8 +79,6 @@ Global iniArrMyScripts5   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 Global BulletConfig       = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 Global startupBsKeyTools  = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"
 Global startupPath        = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
-Global startupMarcroPath  = (getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"
-Global startupMenuBarPath = (getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"
 Global iniPos  	--位置保存记录
 global iniTogglePanelPos
 global arrMyMsBtn           = #()
@@ -1196,11 +1194,15 @@ rcmenu menuConfig
 				menuMan.unRegisterMenu (menuMan.findMenu "BsKeyTools")
 				menuMan.updateMenuBar()
 			)
-			if (SIOFile.Exists startupPath) do (fnDelFileDir startupPath)
-			if (SIOFile.Exists startupMarcroPath) do (fnDelFileDir startupMarcroPath)
-			if (SIOFile.Exists startupMenuBarPath) do (fnDelFileDir startupMenuBarPath)
 			arrDelPath = #(((getDir #Scripts)+ "\\BulletScripts"),((getDir #maxroot) + "\\UI_ln\\Icons\\cstoolIcons"))
+			arrDelMs = #(((getDir #StartupScripts)+ "\\BulletKeyTools.ms"),\
+			((getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"),\
+			((getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"),\
+			((getDir #StartupScripts)+ "\\BsGetTimeCost.ms"),\
+			((getDir #StartupScripts)+ "\\BsTrackBarToolsStartup.ms"),\
+			((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"))
 			for d in arrDelPath do (fnDelDir d)
+			for f in arrDelMs do (fnDelFileDir f)
 			try(destroydialog rolBsKeyTools)catch()
 			try(destroydialog rolFnKeys)catch()
 			try(destroydialog rolAddMyScripts)catch()

@@ -153,11 +153,15 @@
 					menuMan.unRegisterMenu (menuMan.findMenu "BsKeyTools")
 					menuMan.updateMenuBar()
 				)
-				if (SIOFile.Exists startupPath) do (fnDelFileDir startupPath)
-				if (SIOFile.Exists startupMarcroPath) do (fnDelFileDir startupMarcroPath)
-				if (SIOFile.Exists startupMenuBarPath) do (fnDelFileDir startupMenuBarPath)
 				arrDelPath = #(((getDir #Scripts)+ "\\BulletScripts"),((getDir #maxroot) + "\\UI_ln\\Icons\\cstoolIcons"))
+				arrDelMs = #(((getDir #StartupScripts)+ "\\BulletKeyTools.ms"),\
+				((getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"),\
+				((getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"),\
+				((getDir #StartupScripts)+ "\\BsGetTimeCost.ms"),\
+				((getDir #StartupScripts)+ "\\BsTrackBarToolsStartup.ms"),\
+				((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"))
 				for d in arrDelPath do (fnDelDir d)
+				for f in arrDelMs do (fnDelFileDir f)
 				try(destroydialog rolBsKeyTools)catch()
 				try(destroydialog rolFnKeys)catch()
 				try(destroydialog rolAddMyScripts)catch()
