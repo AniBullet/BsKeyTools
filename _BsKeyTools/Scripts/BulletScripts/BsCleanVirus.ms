@@ -3,12 +3,13 @@
  * @Author: Bullet.S
  * @Date: 2022-02-13 15:37:02
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-01 13:33:46
+ * @LastEditTime: 2022-11-05 19:32:47
  * @Email: animator.bullet@foxmail.com
  */
 global rolBsCleanVirus
 global rolBsVirusScanLog
 global iniStartupBsCleanVirus = 0
+global iniVerboseLevel = 1
 try(destroyDialog rolBsCleanVirus)catch()
 try(destroyDialog rolBsVirusScanLog) catch()
 
@@ -301,15 +302,16 @@ rollout rolBsVirusScanLog "病毒扫描日志  【杀毒不会破坏源文件，
 	on btnClearAllLog pressed do clearAllLog()
 )
 
-rollout rolBsCleanVirus  "BsCleanVirus_v1.0"
+rollout rolBsCleanVirus  "BsCleanVirus_v1.1"
 (
     local startupBsCleanVirusTools = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BsCleanVirusStartup.ms"
 	local startupLocalPath = (getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"
 
     group "【解析自 PruneScene 免费功能，仅供学习】"
     (
-        checkbutton ckbStartup "开启 主动防御 [杀毒自启] " width:150 height:30 pos:[10,30]
-        button btnCleanNow "立即查杀病毒" width:90 height:30 pos:[165,30]
+        checkbutton ckbStartup "主动防御 [杀毒自启] " width:130 height:30 pos:[10,30]
+        checkbutton ckbSilent "静默" width:35 height:30 pos:[145,30]
+		button btnCleanNow "立即查杀" width:70 height:30 pos:[185,30]
         button btnCleanLog "日志" width:45 height:30 pos:[260,30]
     )
 
@@ -337,9 +339,11 @@ rollout rolBsCleanVirus  "BsCleanVirus_v1.0"
 
     on rolBsCleanVirus open do
     (
-        stLoadConfigAll.fnLoadConfigBsCleanVirus ()  ---------------脚本配置等赋值
-		stSetConfigAll.fnSetConfigBsCleanVirus  ()  ----------------保存配置到ini文件
+        stLoadConfigAll.fnLoadConfigBsCleanVirus()  ---------------脚本配置等赋值
+		stSetConfigAll.fnSetConfigBsCleanVirus()  ----------------保存配置到ini文件
+		iniVerboseLevel = stLoadConfigAll.fnGetVerboseLevel()
         ckbStartup.state = (SIOFile.Exists rolBsCleanVirus.startupLocalPath)
+		ckbSilent.state = if iniVerboseLevel == 1 then false else true
         fnRefreshVirusLib()
     )
 
@@ -400,7 +404,12 @@ rollout rolBsCleanVirus  "BsCleanVirus_v1.0"
 		)
         stSetConfigAll.fnSetConfigBsCleanVirus ()
     )
-    ------------------------------------------------------------------------------------------------------
 
+	on ckbSilent changed state do 
+	(
+		if state then iniVerboseLevel = 3 else iniVerboseLevel = 1
+		stSetConfigAll.fnSetVerboseLevel iniVerboseLevel
+	)
+------------------------------------------------------------------------------------------------------
 )
 Createdialog rolBsCleanVirus 315 280 fgcolor:myFgColor

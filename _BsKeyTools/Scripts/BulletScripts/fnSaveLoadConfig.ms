@@ -127,6 +127,12 @@ struct stLoadConfigAll
 	(
 		iniStartupBsCleanVirus = fnGetConfig iniStartupBsCleanVirus "BsCleanVirus" "StartupBsCleanVirus" "0"
 	),
+	fn fnGetVerboseLevel = (
+        ini = (execute ("@\"" + (getDir #maxData) + "\\scanlog.ini\""))
+        v = getIniSetting ini "SETTINGS" "VERBOSELEVEL"
+        if(v == "") do return 1
+        return try(v as integer) catch(1)
+    ),
 	fn fnLoadConfigBsTogglePanel =
 	(
 		iniTogglePanelPos = fnGetConfig iniTogglePanelPos "BsTogglePanelSet" "TogglePanelPos" "0"
@@ -187,6 +193,10 @@ struct stSetConfigAll
 	(
 		SetINISetting BulletConfig "BsCleanVirus" "StartupBsCleanVirus" (iniStartupBsCleanVirus as string)
 	),
+	fn fnSetVerboseLevel lvl = (
+        ini = (execute ("@\"" + (getDir #maxData) + "\\scanlog.ini\""))
+        setIniSetting ini "SETTINGS" "VERBOSELEVEL" (lvl as string)
+    ),
 	fn fnSetConfigBsTogglePanel =
 	(
 		SetINISetting BulletConfig "BsTogglePanelSet" "TogglePanelPos" (iniTogglePanelPos as string)
