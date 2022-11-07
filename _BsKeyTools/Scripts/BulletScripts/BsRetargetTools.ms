@@ -911,24 +911,19 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 				local bipRotList = #()
 
 				-- 第一次遍历，记录原始的bip在世界空间的位置与旋转信息
-				-- for t = (animationRange.start) to (animationRange.end) do
-				-- (
-				-- 	at time t
-				-- 	(
-				-- 		append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
-				-- 		append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
-				-- 	)
-				-- )
+				for t = (animationRange.start) to (animationRange.end) do
+				(
+					at time t
+					(
+						append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
+						append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
+					)
+				)
 
 				-- 第二次遍历，动画 Root 匹配 RootLeader
 				for t = (animationRange.start) to (animationRange.end) do
 				(
-					at time t with animate on 
-					(
-						append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
-						append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
-						dummyRootMotionTemp.transform = dummyRootMotion.transform
-					)  
+					at time t with animate on (dummyRootMotionTemp.transform = dummyRootMotion.transform)  
 				)
 
 				-- 第三次遍历，创建新的Bip层，还原bip的位置以及旋转信息
