@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-13 18:23:59
+ * @LastEditTime: 2022-11-13 23:10:41
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2986,6 +2986,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	on rolBsKeyTools lbuttonup posMou do
 	(
 		switchMouseState = off
+		iniPos = (GetDialogPos rolBsKeyTools)
+		stSetConfigAll.fnSetConfigBsKeyTools()
 	)
 	
 	on rolBsKeyTools mouseMove pos do
@@ -2995,7 +2997,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		(ui_clientOffset = pos - (mouse.screenPos - (getDialogPos rolBsKeyTools)))
 		if switchMouseState == on then
 		(
-			SetDialogPos rolBsKeyTools (mouse.screenpos - posMouMoved)			
+			SetDialogPos rolBsKeyTools (mouse.screenpos - posMouMoved)
 		)
 	)
 

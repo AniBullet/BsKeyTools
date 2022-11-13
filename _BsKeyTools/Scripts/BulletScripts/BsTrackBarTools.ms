@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-10-20 00:31:20
+ * @LastEditTime: 2022-11-14 01:42:14
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -12,6 +12,7 @@ if form != undefined then (form.close();form = undefined)
 try (cui.UnRegisterDialogBar rolBsTrackBarTools) catch()
 try (destroyDialog rolBsTrackBarTools) catch()
 try (destroydialog rolBsBackupManager) catch()
+try (destroydialog rolBsStopTime) catch()
 
 global rolBsTrackBarTools
 global rolBsBackupManager
@@ -20,6 +21,8 @@ global iniBackupPath     = ((getdir #autoback) + "\\BsBackup")
 global iniMaxBackupCount = 60
 global iniPosAutoBackup
 Global iniPosBackupManager
+global iniStopTime = #(21,9)
+global iniStopState = false
 global iniDockPos
 global heightBsSize = 30
 global widthBsSize  = 335
@@ -252,6 +255,64 @@ fn fnLoadDockPos rolTarget wSize hSize =
 	)
 )
 
+rollout rolBsStopTime "BsBackup_暂停时段设置" width:180 height:110
+(
+	group ""
+	(
+		radiobuttons rdoTimeRange "" pos:[30,20] labels:#("禁用","暂停时段") default:1
+		
+		spinner spiStartTimeH "【起始】  时" pos:[70,45] width:70 height:20 type:#integer range:[1,24,21] scale:1 enabled:false
+		spinner spiEndTimeH "【结束】  时" pos:[70,70] width:70 height:20 type:#integer range:[1,24,9] scale:1 enabled:false
+	)
+	
+	fn fnChangeVisibleState =
+	(
+		if rdoTimeRange.state == 2 then 
+		(
+			iniStopState = true
+		)
+		else
+		(
+			iniStopState = false
+		)
+		stSetConfigAll.fnSetConfigTrackBarTools()
+		spiStartTimeH.enabled = spiEndTimeH.enabled = iniStopState
+		return iniStopState
+	)
+	
+	on rolBsStopTime open do
+	(
+		stLoadConfigAll.fnLoadConfigTrackBarTools()
+		stSetConfigAll.fnSetConfigTrackBarTools()
+		if iniStopState then rdoTimeRange.state = 2 else rdoTimeRange.state = 1
+		fnChangeVisibleState()
+		spiStartTimeH.value = iniStopTime[1]
+		spiEndTimeH.value   = iniStopTime[2]
+	)
+
+	on rolBsStopTime close do
+	(
+		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+	
+	on rdoTimeRange changed state do 
+	(
+		fnChangeVisibleState()
+	)
+
+	on spiStartTimeH changed val do
+	(
+		iniStopTime[1] = val
+		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+
+	on spiEndTimeH changed val do
+	(
+		iniStopTime[2] = val
+		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+)
+
 rcmenu menuBsTrackBarTools
 (
 	submenu "停靠位置"
@@ -266,6 +327,8 @@ rcmenu menuBsTrackBarTools
 
 	submenu "备份数量"
 	(
+		menuItem mItemBackupInfinite "无限制" checked:(if iniMaxBackupCount == 0 then true else false)
+		separator mItemBackupCount
 		menuItem mItemBackup3 "3" checked:(if iniMaxBackupCount == 3 then true else false)
 		menuItem mItemBackup7 "7" checked:(if iniMaxBackupCount == 7 then true else false)
 		menuItem mItemBackup24 "24" checked:(if iniMaxBackupCount == 24 then true else false)
@@ -273,7 +336,6 @@ rcmenu menuBsTrackBarTools
 		menuItem mItemBackup60 "60" checked:(if iniMaxBackupCount == 60 then true else false)
 		menuItem mItemBackup80 "80" checked:(if iniMaxBackupCount == 80 then true else false)
 		menuItem mItemBackup100 "100" checked:(if iniMaxBackupCount == 100 then true else false)
-		menuItem mItemBackupInfinite "无限制" checked:(if iniMaxBackupCount == 0 then true else false)
 	)
 
 	submenu "路径配置"
@@ -281,6 +343,8 @@ rcmenu menuBsTrackBarTools
 		menuItem mItemBackupPath "设定"
 		menuItem mItemResetPath "重置"
 	)
+
+	menuItem mItemStopTime "暂停时段"
 	
 	menuItem mItemIsStartup "自启开关"
 	separator menuSepClose
@@ -293,6 +357,14 @@ rcmenu menuBsTrackBarTools
 	(
 		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
 		else (mItemIsStartup.checked = false)
+	)
+
+	on mItemStopTime picked do
+	(
+		try (destroydialog rolBsStopTime) catch ()
+		if (iniPosBackupManager != 0) then 
+		(Createdialog rolBsStopTime fgcolor:myFgColor pos:iniPosBackupManager style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+		else (Createdialog rolBsStopTime fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
 	)
 
 	on mItemBackupPath picked do 
@@ -586,7 +658,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	
 	fn fnQuickSave =
 	(
-		if objects.count != 0 then 
+		if objects.count != 0 and getSaveRequired() then 
 		(
 			if maxFilePath == "" then 
 			(
@@ -639,7 +711,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 				strBackupFilePath = strBackupPathRoot + "\\" + strSaveName + "_" + strSaveCount + ".max"
 				saveMaxFile strBackupFilePath
 				displayTempPrompt ("已备份并打开：" + strBackupFilePath) 10000
-				messagebox ("当前备份的是已备份文件，请注意跟源文件对比新旧！\r\n\r\n可能的源文件：" + strSaveName + ".max\r\n\r\n刚才备份的文件：" + strCurFileName + ".max                                                                           ") title:"BsTrackBarTools"
+				messagebox ("当前备份的是已备份文件，请注意跟源文件对比新旧！\r\n\r\n可能的源文件：" + strSaveName + ".max\r\n\r\n刚才备份的文件：" + strCurFilePath + ".max                                                                           ") title:"BsTrackBarTools"
 			) 
 			else
 			(
@@ -670,6 +742,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 			rolBsTrackBarTools.fnFilesCount()
 			rolBsBackupManager.fnRefreshBackupAll()
 		)
+		else (displayTempPrompt ("当前文件无内容或无改动，不需要自动备份，也可点击迭代强制备份！") 10000)
 	)
 	
 	on rolBsTrackBarTools open do
@@ -778,6 +851,8 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	(
 		if arg.button == arg.button.left do
 		(
+			setSaveRequired true
+
 			fnQuickSave()
 
 			clock.ticks = 0
@@ -1023,7 +1098,7 @@ rollout rolBsBackupManager "" width:355 height:260
 	local posMouMove     = [0,0]
 	local switchMouState = false
 
-	groupbox grpMain "------------------------------( 按住这里可拖动 )" \
+	groupbox grpMain " BsBackupManager_v1.1" \
 	width:(rolBsBackupManager.width - 10) height:(rolBsBackupManager.height - 5) pos:[5,0]
 	button btnClose "X" pos:[rolBsBackupManager.width - 15,0] height:15 width:15
 	button btnRefreshFolder "R" align:#left border:false \
@@ -1042,7 +1117,6 @@ rollout rolBsBackupManager "" width:355 height:260
 	height:14 width:210 pos:[135,45]
 	label lblCountFolder "" height:15 width:100 pos:[15,235]
 	label lblCountFiles "" height:15 width:100 pos:[235,235]
-	label lblTitle "BsBackupManager" height:15 width:100 pos:[115,235]
 
 	fn fnGetLastFolder strFolder =
 	(
@@ -1184,6 +1258,7 @@ rollout rolBsBackupManager "" width:355 height:260
 	on rolBsBackupManager close do 
 	(
 		iniPosBackupManager = (GetDialogPos rolBsBackupManager)
+		stSetConfigAll.fnSetConfigTrackBarTools()
 		callbacks.removeScripts #filePostOpen id:#BsBackupManager
 		callbacks.removeScripts #filePostSave id:#BsBackupManager
 	)
@@ -1202,6 +1277,8 @@ rollout rolBsBackupManager "" width:355 height:260
 	on rolBsBackupManager lbuttonup posMou do
 	(
 		switchMouState = off
+		iniPosBackupManager = (GetDialogPos rolBsBackupManager)
+		stSetConfigAll.fnSetConfigTrackBarTools()
 	)
 
 	on rolBsBackupManager mbuttondown pos do 
@@ -1213,7 +1290,7 @@ rollout rolBsBackupManager "" width:355 height:260
 	(
 		if switchMouState == on then
 		(
-			SetDialogPos rolBsBackupManager (mouse.screenpos - posMouMove)			
+			SetDialogPos rolBsBackupManager (mouse.screenpos - posMouMove)
 		)
 	)
 

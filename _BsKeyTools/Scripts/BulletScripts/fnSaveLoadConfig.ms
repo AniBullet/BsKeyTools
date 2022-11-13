@@ -144,6 +144,8 @@ struct stLoadConfigAll
 		iniPosBackupManager = fnGetConfig iniPosBackupManager "BsTrackBarTools" "PosBackupManager" "0"
 		iniBackupPath       = fnGetConfig iniBackupPath "BsTrackBarTools" "BackupPath" ((getdir #autoback) + "\\BsBackup")
 		iniMaxBackupCount   = fnGetConfig iniMaxBackupCount "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
+		iniStopTime         = fnGetConfig iniStopTime "BsTrackBarTools" "StopTime" (iniStopTime as string)
+		iniStopState        = fnGetConfig iniStopState "BsTrackBarTools" "StopState" (iniStopState as string)
 	)
 )
 struct stSetConfigAll
@@ -208,5 +210,7 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BsTrackBarTools" "PosBackupManager" (iniPosBackupManager as string)
 		SetINISetting BulletConfig "BsTrackBarTools" "BackupPath" (iniBackupPath as string)
 		SetINISetting BulletConfig "BsTrackBarTools" "MaxBackupCount" (iniMaxBackupCount as string)
+		SetINISetting BulletConfig "BsTrackBarTools" "StopTime" (iniStopTime as string)
+		SetINISetting BulletConfig "BsTrackBarTools" "StopState" (iniStopState as string)
 	)
 )
