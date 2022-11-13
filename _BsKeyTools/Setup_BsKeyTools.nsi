@@ -47,7 +47,7 @@ ComponentText "请勾选你想安装到的版本，并取消勾选你不想安装的版本。 $\r$\n$\r$\n
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION Info
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "查看帮助视频"
 !define MUI_FINISHPAGE_LINK "Github"
-!define MUI_FINISHPAGE_LINK_LOCATION "https://github.com/AnimatorBullet/BsKeyTools"
+!define MUI_FINISHPAGE_LINK_LOCATION "https://github.com/AniBullet/BsKeyTools"
 !define MUI_FINISHPAGE_LINK_COLOR "872657"
 
 !insertmacro MUI_PAGE_FINISH

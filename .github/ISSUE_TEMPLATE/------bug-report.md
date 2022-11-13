@@ -3,7 +3,7 @@ name: 问题反馈  Bug report
 about: 请描述问题以帮助改进插件  Create a report to help us improve
 title: "[ 问题 BUG ]"
 labels: bug
-assignees: AnimatorBullet
+assignees: AniBullet
 
 ---
 

@@ -3,7 +3,7 @@ name: 特性建议  Feature request
 about: 感谢提出插件建议  Suggest an idea for this project
 title: "[ 特性 Feature ]"
 labels: enhancement
-assignees: AnimatorBullet
+assignees: AniBullet
 
 ---
 
