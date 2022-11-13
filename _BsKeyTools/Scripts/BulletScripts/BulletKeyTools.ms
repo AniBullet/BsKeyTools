@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-05 18:24:02
+ * @LastEditTime: 2022-11-13 18:23:59
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1035,10 +1035,10 @@ rcmenu menuConfig
 	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
 
 	on mItemHelpDoc picked do 
-	(shellLaunch "https://animatorbullet.github.io/" "")
+	(shellLaunch "https://anibullet.github.io/" "")
 
 	on mItemBugReport picked do
-	(shellLaunch "https://github.com/AnimatorBullet/BsKeyTools/issues" "")
+	(shellLaunch "https://github.com/AniBullet/BsKeyTools/issues" "")
 
 	on mItemBilibili picked do 
 	(shellLaunch "https://space.bilibili.com/2031113" "")

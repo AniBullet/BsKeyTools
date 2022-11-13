@@ -81,7 +81,7 @@
 	(
 		on execute do
 		(
-			shellLaunch "https://animatorbullet.github.io/" ""
+			shellLaunch "https://anibullet.github.io/" ""
 		)
 	)
 
@@ -92,7 +92,7 @@
 	(
 		on execute do
 		(
-			shellLaunch "https://github.com/AnimatorBullet/BsKeyTools/issues" ""
+			shellLaunch "https://github.com/AniBullet/BsKeyTools/issues" ""
 		)
 	)
 

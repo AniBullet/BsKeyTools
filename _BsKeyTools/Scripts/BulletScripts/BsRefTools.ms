@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2020-12-29 01:12:45
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-09 13:45:00
+ * @LastEditTime: 2022-11-13 18:23:43
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -375,7 +375,7 @@ rcmenu RCmenuRefConfig
 	)
 
 	on menuBilibili picked do 
-	(shellLaunch "https://github.com/AnimatorBullet/BsReferenceTools" "")
+	(shellLaunch "https://github.com/AniBullet/BsReferenceTools" "")
 )
 
 rollout rolPreviewRef ""
