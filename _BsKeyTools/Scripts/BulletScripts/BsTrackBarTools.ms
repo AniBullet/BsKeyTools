@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-14 01:42:14
+ * @LastEditTime: 2022-11-14 14:40:23
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -255,14 +255,16 @@ fn fnLoadDockPos rolTarget wSize hSize =
 	)
 )
 
-rollout rolBsStopTime "BsBackup_暂停时段设置" width:180 height:110
+rollout rolBsStopTime "BsBackup_暂停时段设置" width:180 height:135
 (
 	group ""
 	(
 		radiobuttons rdoTimeRange "" pos:[30,20] labels:#("禁用","暂停时段") default:1
 		
-		spinner spiStartTimeH "【起始】  时" pos:[70,45] width:70 height:20 type:#integer range:[1,24,21] scale:1 enabled:false
-		spinner spiEndTimeH "【结束】  时" pos:[70,70] width:70 height:20 type:#integer range:[1,24,9] scale:1 enabled:false
+		spinner spiStartTimeH "【起始】  时" pos:[70,45] width:70 height:20 type:#integer range:[0,23,21] scale:1 enabled:false
+		spinner spiEndTimeH "【结束】  时" pos:[70,70] width:70 height:20 type:#integer range:[0,23,9] scale:1 enabled:false
+
+		button btnApply "确定" pos:[20,95] width:140 height:25
 	)
 	
 	fn fnChangeVisibleState =
@@ -310,6 +312,11 @@ rollout rolBsStopTime "BsBackup_暂停时段设置" width:180 height:110
 	(
 		iniStopTime[2] = val
 		stSetConfigAll.fnSetConfigTrackBarTools()
+	)
+
+	on btnApply pressed do 
+	(
+		try (destroydialog rolBsStopTime) catch ()
 	)
 )
 
@@ -529,7 +536,7 @@ rcmenu menuBsTrackBarTools
 
 )
 
-rollout rolBsTrackBarTools "BsTrackBarTools_v1.0" 
+rollout rolBsTrackBarTools "BsTrackBarTools_v1.1" 
 (
 	local form, mcolor, rcLIST,  SaveInterval, saveInterval_FN , autobackup
 	local INIfile = ( getDir #maxData ) + "\\BulletConfig.ini"
@@ -656,6 +663,46 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 		rolBsTrackBarTools.btnFilesCount.FlatAppearance.BorderColor = mcolor.gray 
 	)
 	
+	fn fnIsStopTime =
+	(
+		local isStopTime = false
+
+		if iniStopState then 
+		(
+			local dateTime = (dotNetClass "System.DateTime").Now
+			local curHour = dateTime.Hour
+	
+			timeStart = iniStopTime[1]
+			timeEnd = iniStopTime[2]
+	
+			case of 
+			(
+				(iniStopTime[2] == iniStopTime[1]):
+				(
+					isStopTime = (if curHour == iniStopTime[2] then true else false)
+				)
+				(iniStopTime[2] < iniStopTime[1]):
+				(
+					if (curHour >= iniStopTime[1] and curHour <= 23) or \
+					(curHour >= 0 and curHour <= iniStopTime[2]) then 
+					(
+						isStopTime = true
+					)
+					else (isStopTime = false)
+				)
+				(default):
+				(
+					if (curHour >= iniStopTime[1] and curHour <= iniStopTime[2]) then
+					(
+						isStopTime = true
+					)
+					else (isStopTime = false)
+				)
+			)
+		)
+		return isStopTime
+	)
+
 	fn fnQuickSave =
 	(
 		if objects.count != 0 and getSaveRequired() then 
@@ -921,75 +968,79 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.0"
 	
 	on clock tick do
 	(
-		if SaveInterval > 0 do
+		if not fnIsStopTime() then
 		(
-			Inter = SaveInterval * 60
-			
-			T = clock.ticks
-			
+			if SaveInterval > 0 do
 			(
-				if T<60 then ( TimeTXT = "00 : 00 : " + T as string  )
-				else
+				Inter = SaveInterval * 60
+				
+				T = clock.ticks
+				
 				(
-					if T > 3600 then --display Hours, min, secs
+					if T<60 then ( TimeTXT = "00 : 00 : " + T as string  )
+					else
 					(
-						hours = T/3600 as integer
+						if T > 3600 then --display Hours, min, secs
+						(
+							hours = T/3600 as integer
+							
+							minREST = ( T - hours*3600 )
+							mins = minREST / 60 as integer
+							
+							secs = minREST - mins*60
+							
+							TimeTXT = hours as string + " : " + mins as string + " : " + secs as string
+						)
+						else --display mins secs
+						(
 						
-						minREST = ( T - hours*3600 )
-						mins = minREST / 60 as integer
-						
-						secs = minREST - mins*60
-						
-						TimeTXT = hours as string + " : " + mins as string + " : " + secs as string
+							mins = T/60 as integer
+							secs = T - mins*60
+							
+							TimeTXT = "0 : " + mins as string + " : " + secs as string
+						)
 					)
-					else --display mins secs
-					(
-					
-						mins = T/60 as integer
-						secs = T - mins*60
-						
-						TimeTXT = "0 : " + mins as string + " : " + secs as string
-					)
-				)
-				
-				btnTimer.text = TimeTXT
-				
-			)
-			
-			if T == Inter do
-			(
-				if autobackup == "true" then
-				(
-					fnQuickSave()
-					clock.ticks = 0
-			
-					btnTimer.backcolor = BsDotCheckColor
-					btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
-				)
-			)
-
-			if T > Inter do
-			(
-				
-				if (mod T 2)==0 then
-				(
-					COL = mcolor.Red
-					
-					btnTimer.text = "请保存 !!"
-				)
-				else
-				(
-					COL = BsDotBackColor
 					
 					btnTimer.text = TimeTXT
+					
 				)
-				OverCOL = mcolor.darkred
-
-				btnTimer.backcolor = COL
-				btnTimer.FlatAppearance.MouseOverBackColor = OverCOL
 				
+				if T == Inter do
+				(
+					if autobackup == "true" then
+					(
+						fnQuickSave()
+						clock.ticks = 0
+				
+						btnTimer.backcolor = BsDotCheckColor
+						btnTimer.FlatAppearance.MouseOverBackColor = BsDotCheckColor
+					)
+				)
+
+				if T > Inter do
+				(
+					
+					if (mod T 2)==0 then
+					(
+						COL = mcolor.Red
+						
+						btnTimer.text = "请保存 !!"
+					)
+					else
+					(
+						COL = BsDotBackColor
+						
+						btnTimer.text = TimeTXT
+					)
+					OverCOL = mcolor.darkred
+
+					btnTimer.backcolor = COL
+					btnTimer.FlatAppearance.MouseOverBackColor = OverCOL
+					
+				)
 			)
 		)
+		else btnTimer.text = "暂停时段"
 	)
 )
 
@@ -1093,7 +1144,7 @@ rcmenu menuBsFolder
 	)
 )
 
-rollout rolBsBackupManager "" width:355 height:260
+rollout rolBsBackupManager "" width:400 height:320
 (
 	local posMouMove     = [0,0]
 	local switchMouState = false
@@ -1102,21 +1153,22 @@ rollout rolBsBackupManager "" width:355 height:260
 	width:(rolBsBackupManager.width - 10) height:(rolBsBackupManager.height - 5) pos:[5,0]
 	button btnClose "X" pos:[rolBsBackupManager.width - 15,0] height:15 width:15
 	button btnRefreshFolder "R" align:#left border:false \
-	height:20 width:25 pos:[10,20] tooltip:"左：刷新当前文件目录\r\n右：重置场景"
+	height:20 width:25 pos:[10,20] tooltip:"左：刷新当前文件和备份目录\r\n右：刷新 3dsMax 自动保存目录"
 	button btnOpenCurrentDir "打开" tooltip:"打开备份文件夹" \
 	height:20 width:25 pos:[35,20] border:false
 	editText edtBackupPath "" text:"" labelOnTop:true align:#left \
-	height:20 fieldWidth:280 pos:[65,20] readOnly:true 
+	height:20 fieldWidth:325 pos:[65,20] readOnly:true 
 	-- button btnPrevFolder "↑" tooltip:"返回上层目录" \
 	-- height:20 width:25 pos:[340,20] border:false
 	editText edtInputFilter "" text:"" labelOnTop:true align:#left \
-	height:17 fieldWidth:120 pos:[10,48]
+	height:17 fieldWidth:345 pos:[10,47]
+	checkbutton ckbReverse "↑ ↓" pos:[360,47] height:18 width:30
 	MultiListBox mlbBackupFolders "" align:#left selection:0 \
-	height:12 width:120 pos:[10,70]
+	height:14 width:150 pos:[10,70]
 	MultiListBox mlbBackupFiles "" align:#right selection:0 \
-	height:14 width:210 pos:[135,45]
-	label lblCountFolder "" height:15 width:100 pos:[15,235]
-	label lblCountFiles "" height:15 width:100 pos:[235,235]
+	height:18 width:230 pos:[160,70]
+	label lblCountFolder "" height:15 width:120 pos:[15,270]
+	label lblCountFiles "" height:15 width:120 pos:[15,290]
 
 	fn fnGetLastFolder strFolder =
 	(
@@ -1187,6 +1239,11 @@ rollout rolBsBackupManager "" width:355 height:260
 			(
 				(arrBsBackupFiles = getFiles (tarFolder + "\\*" + type))
 				qsort arrBsBackupFiles fnPseudoNaturalSort
+				if ckbReverse.state == true then 
+				(
+					tempArray = for i = arrBsBackupFiles.count to 1 by -1 collect arrBsBackupFiles[i]
+					arrBsBackupFiles = for i in tempArray collect i
+				)
 				if arrBsBackupFiles[1] != undefined then
 				(
 					for c in arrBsBackupFiles do  --获取文件名字,后面切换脚本类别和列表会用到
@@ -1303,16 +1360,12 @@ rollout rolBsBackupManager "" width:355 height:260
 	on btnRefreshFolder pressed do 
 	(
 		rolBsBackupManager.fnRefreshBackupAll()
-		-- fnRefreshBackupAll()
 	)
 
 	on btnRefreshFolder rightclick do 
 	(
-		if CheckForSave() then 
-		(
-			resetMaxFile #noPrompt
-			max tool maximize
-		)
+		mlbBackupFolders.selection = 0
+		rolBsBackupManager.fnRefreshFilesList()
 	)
 
 	on btnOpenCurrentDir pressed do 
@@ -1324,7 +1377,7 @@ rollout rolBsBackupManager "" width:355 height:260
 	(
 		if (rolBsBackupManager.mlbBackupFolders.selection as array).count == 1 then
 		(
-			fnRefreshFilesList()
+			rolBsBackupManager.fnRefreshFilesList()
 			selItems = mlbBackupFolders.items[(mlbBackupFolders.selection as array)[1]]
 			edtInputFilter.text = (substring selItems 3 selItems.count)
 		)
@@ -1356,7 +1409,7 @@ rollout rolBsBackupManager "" width:355 height:260
 		(
 			mlbBackupFolders.selection = 0
 		)
-		fnRefreshFilesList()
+		rolBsBackupManager.fnRefreshFilesList()
 	)
 
 	on mlbBackupFiles rightclick do
@@ -1367,5 +1420,10 @@ rollout rolBsBackupManager "" width:355 height:260
 	on mlbBackupFolders rightclick do
 	(
 		popupMenu menuBsFolder pos:mouse.screenpos
+	)
+
+	on ckbReverse changed state do 
+	(
+		rolBsBackupManager.fnRefreshFilesList()
 	)
 )
