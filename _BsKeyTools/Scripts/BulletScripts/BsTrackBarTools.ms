@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-14 14:40:23
+ * @LastEditTime: 2022-11-14 16:55:58
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -428,6 +428,7 @@ rcmenu menuBsTrackBarTools
 	(
 		if not mItemTop.checked then 
 		(
+			if iniDockPos == "float" then (iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools))
 			iniDockPos = "cui_dock_top"
 			stSetConfigAll.fnSetConfigTrackBarTools()
 			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
@@ -439,6 +440,7 @@ rcmenu menuBsTrackBarTools
 	(
 		if not mItemBottom.checked then 
 		(
+			if iniDockPos == "float" then (iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools))
 			iniDockPos = "cui_dock_bottom"
 			stSetConfigAll.fnSetConfigTrackBarTools()
 			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
@@ -450,6 +452,7 @@ rcmenu menuBsTrackBarTools
 	(
 		if not mItemLeft.checked then 
 		(
+			if iniDockPos == "float" then (iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools))
 			iniDockPos = "cui_dock_left"
 			stSetConfigAll.fnSetConfigTrackBarTools()
 			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
@@ -461,6 +464,7 @@ rcmenu menuBsTrackBarTools
 	(
 		if not mItemRight.checked then 
 		(
+			if iniDockPos == "float" then (iniPosAutoBackup = (GetDialogPos rolBsTrackBarTools))
 			iniDockPos = "cui_dock_right"
 			stSetConfigAll.fnSetConfigTrackBarTools()
 			fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
