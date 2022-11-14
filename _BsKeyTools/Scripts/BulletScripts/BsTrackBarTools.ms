@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-14 16:55:58
+ * @LastEditTime: 2022-11-14 19:08:44
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -1168,11 +1168,11 @@ rollout rolBsBackupManager "" width:400 height:320
 	height:17 fieldWidth:345 pos:[10,47]
 	checkbutton ckbReverse "↑ ↓" pos:[360,47] height:18 width:30
 	MultiListBox mlbBackupFolders "" align:#left selection:0 \
-	height:14 width:150 pos:[10,70]
+	height:15 width:150 pos:[10,70]
 	MultiListBox mlbBackupFiles "" align:#right selection:0 \
 	height:18 width:230 pos:[160,70]
-	label lblCountFolder "" height:15 width:120 pos:[15,270]
-	label lblCountFiles "" height:15 width:120 pos:[15,290]
+	label lblCountFolder "" height:15 width:120 pos:[15,275]
+	label lblCountFiles "" height:15 width:120 pos:[15,295]
 
 	fn fnGetLastFolder strFolder =
 	(
