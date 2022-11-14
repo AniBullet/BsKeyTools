@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-13 23:10:41
+ * @LastEditTime: 2022-11-14 17:45:03
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -3481,6 +3481,8 @@ rollout rolBsKeyTools "" width:355 height:250
 			if selection.count == 1 and classof $ == Biped_Object then
 			(
 				biped.clearAllAnimation $.controller
+				$.controller.rootnode.transform.controller.figureMode = true
+				$.controller.rootnode.transform.controller.figureMode = false
 			)
 			else (messagebox "请选择任意【一个】 Biped 骨骼！！！                             ")
 		)
