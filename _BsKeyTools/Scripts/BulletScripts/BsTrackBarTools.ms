@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-14 19:08:44
+ * @LastEditTime: 2022-11-15 14:50:01
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -656,6 +656,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.1"
 			numFiles = (getfiles (tarPath + "\\*.max")).count
 			if numFiles != 0 then (numFiles = numFiles + 1) else (numFiles = 0)
 		)
+		else (fnButtonStyle rolBsTrackBarTools.btnFilesCount ("暂无备份"))
 		if numFiles == 0 then 
 		(
 			fnButtonStyle rolBsTrackBarTools.btnFilesCount ("暂无备份")
@@ -803,6 +804,8 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.1"
 		fnLoadDockPos rolBsTrackBarTools widthBsSize heightBsSize
 		callbacks.removeScripts #filePostOpen id:#UpdateBsBackup
 		callbacks.removeScripts #filePostSave id:#UpdateBsBackup
+		callbacks.removeScripts #systemPostReset id:#UpdateBsBackup
+		callbacks.addScript #systemPostReset "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 		callbacks.addScript #filePostOpen "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 		callbacks.addScript #filePostSave "rolBsTrackBarTools.fnFilesCount()" id:#UpdateBsBackup
 		callbacks.removeScripts id:#SaveButtonCallback
