@@ -3204,7 +3204,7 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 		-- format "RefreshSkinDeform Cost % ms\n" (timeStamp()-tm)
 	)
 
-	fn fnConvertToBone sourceObjs realign:false =
+	fn fnConvertToBone sourceObjs =
 	(
 		local tempBone = BoneSys.createBone [0,0,0] [0,biped_align_test.spnObjSize.value,0] [0,0,1]
 		tempBone.width = tempBone.height =  biped_align_test.spnObjSize.value
@@ -3220,9 +3220,9 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 			else
 				newBone.length =  biped_align_test.spnObjSize.value
 			sourceObjs.baseobject    = newBone
-			sourceObjs.showLinks     = true
-			sourceObjs.showLinksOnly = true
-			if realign then sourceObjs.realignBoneToChild()
+			sourceObjs.showLinks     = false
+			sourceObjs.showLinksOnly = false
+			sourceObjs.boneEnable	= true
 			delete newBone
 		)
 		delete tempBone
@@ -3423,7 +3423,14 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 				-- tm = timeStamp()
 				for i in arrConvertBones where superclassof i == helper do 
 				(
-					fnConvertToBone i realign:(chkRealign.state)
+					fnConvertToBone i
+				)
+				for i in arrConvertBones where (classof i.controller != Vertical_Horizontal_Turn) and (i.parent != undefined) do 
+				(
+					if (chkRealign.state) and i.children.count == 1 then
+					(
+						i.realignBoneToChild()
+					)
 				)
 				-- format "ConvertToBone Cost % s\n" ((timeStamp()-tm)*0.001)
 				if chkRealign.state then fnRefreshSkinDeform()
