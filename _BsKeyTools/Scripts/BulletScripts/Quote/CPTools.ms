@@ -1,6 +1,8 @@
-fn cptoolsSetAnimRange = (
+fn cptoolsSetAnimRange = 	----适配值帧范围
+(
 	str = cptools.testListAni.selected
-	if str != undefined then (
+	if str != undefined then 
+	(
 		buffer = filterString str "("
 		rangeA =  filterString  buffer[2] ")"
 		rangeB =   filterString   rangeA[1] "-"
@@ -28,7 +30,7 @@ fn getSHLWAPI =
 	compilerResults.CompiledAssembly.CreateInstance "SHLWAPI"
 )
 struct myCoolDialogs
- (
+(
  	labelStr,
  
  	stringQuery = rollout stringQuery "输入命名"
@@ -71,7 +73,7 @@ struct myCoolDialogs
 		
  		)	
  	)
- )
+)
 	
 	fn MakeThumbnail_copy =(
 	grab_bmp = gw.getViewportDib()
@@ -328,9 +330,8 @@ on localModeCheckBox  changed theState do (
 	cptools.rloading.pressed ()	
 )
 
-on timeRangeCheckBox  changed theState do (
-if theState do (cptoolsSetAnimRange ())
-)
+on timeRangeCheckBox  changed theState do 
+(	if theState do (try(cptoolsSetAnimRange ()) catch()	)	)
 
 
 
@@ -597,325 +598,303 @@ on ABbutton pressed do
 	if ABbutton.text =="S"  then (ABbutton.text = "K" ;ABbutton.tooltip = ABbutton_tooltip_a_lag )else(ABbutton.text = "S" ;ABbutton.tooltip =ABbutton_tooltip_b_lag)	
 )
 
-	
+-----###记录
 on addToList pressed do
 (
-	with undo "addList" on (
-	if(rb_sel.state==1)then(
-		
-	if(selection.count == 0 )then(messagebox messagebox_a_lag   title:messagebox_a_title_lag beep:false )
-	else(	
-		-----------------------------------------手动输入----------------------------------------------
-		struct myCoolDialogs (
-			labelStr,
-		 
-			stringQuery = rollout stringQuery "输入命名"
-			(
-				local returnStr
-			
-				label lblHeader
-				editText etInput text:"_pose"
-		 
-				fn launch label: =
-				(
-					destroyDialog myCoolDialogs.stringQuery
-					if label != unsupplied then
-						myCoolDialogs.labelStr = label
-					else myCoolDialogs.labelStr = "Enter some text:"
-					createDialog myCoolDialogs.stringQuery modal:true
-					returnStr -- only put it here if the dialog is modal
-				)
-		 
-				on stringQuery open do
-				(
-					lblHeader.text = myCoolDialogs.labelStr
-					setFocus etInput
-				)
-		 
-				on etInput entered str do
-				(
-					destroyDialog myCoolDialogs.stringQuery
-					returnStr = str
-		-- 			cptools.rloading.pressed()
-					
-					)
+	with undo "addList" on 
+	(
+		if(rb_sel.state==1)then			----##pose记录
+		(
+			if(selection.count == 0 )then(messagebox messagebox_a_lag   title:messagebox_a_title_lag beep:false )
+			else(	
+				-----------------------------------------手动输入----------------------------------------------
+				struct myCoolDialogs (
+					labelStr,
 				 
-				on stringQuery close do 
-				(
-					destroyDialog myCoolDialogs.stringQuery
+					stringQuery = rollout stringQuery "输入命名"
+					(
+						local returnStr
 					
-					returnStr = "未命名_pose"
-		-- 			cptools.rloading.pressed()
-				
-				)
-				
-			)
-		 )
-		 
-		if keyboard.controlPressed then (
-			myCoolDialogs = myCoolDialogs() -- as there are variables, an instance is needed
-			result = myCoolDialogs.stringQuery.launch label:"回车确认命名"
-
-			-----------------------------------------手动输入----------------------------------------------
-				
-			testList.items = append testList.items (result+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
-
-			-- rloading.pressed()
-			-- cptools.rloading.pressed()
-
-			testList.selection = testList.items.count
-
-			---------------------------------------------------------------------------------------
-			tabtxt   = testList.selection
-			if cptools.localModeCheckBox.checked==false then(	
-				out_name = ((GetDir #export)+"\\cptools_data\\"+ result +tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")
-			) else (
-			out_name = ((GetDir #export)+"\\cptools_data\\localMode\\"+ result +tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")	
-			)
-			
-			out_file = createfile out_name
-		)
-		else (
-			
-			testList.items = append testList.items ("Pose "+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
-			testList.selection = testList.items.count
-			tabtxt   = testList.selection	
-			
-			if cptools.localModeCheckBox.checked==false then(	
-				out_name = ((GetDir #export)+"\\cptools_data\\pose "+ tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")
-			)  else (
-				out_name = ((GetDir #export)+"\\cptools_data\\localMode\\pose "+ tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")	
-			)
-				out_file = createfile out_name
-		)
-		-------------------------------------将选择重新排序
-		sort_array =#()
-		temp_sort_file = selection as array
-		sort_file = sort(for i in temp_sort_file collect i.name)
-
-		for i=1 to sort_file.count do 
-		(
-		format "%|" sort_file[i] to: out_file -- 添加一个选择集
-		)
-		format "\n"  to:out_file
-
-		for i =1 to sort_file.count do 
-		(
-		obj =getnodebyname sort_file[i] 
-		append sort_array obj
-		)
-		select sort_array
-		-----------------------------------------
-		k=1
-		for o in selection do
-		(
-			if keyboard.escPressed do 
-			(
-				format format_a_lag
-				exit
-			)
-		doit_prog.value = 100.*k/selection.count
-		if selection.count !=0 then 	(
-			if cptools.localModeCheckBox.checked then(	
-				if 	o.parent==undefined then (messageBox "请不要选择根骨节")
-				else (
-					theCoords=o.transform * (inverse o.parent.transform)
-					format "$'%'.transform = %\n" o.name theCoords to:out_file
-				)
-			) else (
-				format "$'%'.transform = %\n"  o.name o.transform to:out_file
-			)
-		)
-		k=k+1
-		format (format_c_lag + ":(%/100)  \n")  doit_prog.value
-		if doit_prog.value == 100 do (format format_b_lag )
-		)
-		doit_prog.value = 0
-
-		close out_file
-
-		--format "You selected '%'!\n" testList.selection
-	)	
-			
-	)else(
-
-	if(selection.count == 0 )then(messagebox messagebox_a_lag title:messagebox_a_title_lag beep:false )else(
-
-	if (end_frame<=start_frame)then(messagebox messagebox_b_lag title:messagebox_a_title_lag beep:false )else(
-
-	if ac.text =="C" then ( start_frame = spn_start.value;end_frame = spn_end.value)else (start_frame = animationrange.start;end_frame = animationrange.end)	
-		
-	testListAni.items = append testListAni.items ("Animation "+ (testListAni.items.count+1) as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")" )
-	testListAni.selection = testListAni.items.count
-	---------------------------------------------------------------------------------------
-	tabtxt   = testListAni.selection	
-	if cptools.localModeCheckBox.checked==false then
-	(
-		out_name = ((GetDir #export)+"\\cptools_data\\animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
-	) 
-	else 
-	(		
-		out_name = ((GetDir #export)+"\\cptools_data\\localMode\\animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
-	)
-
-	out_file = createfile out_name
-
-	tempstime = animationrange.start
-	tempetime = animationrange.end
-
-	animationRange = interval start_frame end_frame--time
-
-
-	-------------------------------------将选择重新排序
-	sort_array =#()
-	temp_sort_file = selection as array
-	sort_file = sort(for i in temp_sort_file collect i.name)
-
-	for i=1 to sort_file.count do 
-	(
-	format "%|" sort_file[i] to: out_file -- 添加一个选择集
-	)
-	format "\n"  to:out_file
-
-	for i =1 to sort_file.count do 
-	(
-	obj =getnodebyname sort_file[i] 
-	append sort_array obj
-	)
-	select sort_array
-
-	----------------------------------------
-
-	if ABbutton.text =="S" then 
-	(
-	for i=animationrange.start to animationrange.end do
-	(
-			if keyboard.escPressed do 
-		(
-			format format_a_lag
-			exit
-		)
-		doit_prog.value = 100.*i/animationrange.end
-		slidertime = i
-
-		for o in selection do
-		(
-		if selection.count !=0 then 	(		
-			if cptools.localModeCheckBox.checked then(
-				if 	o.parent==undefined then (messageBox "请不要选择根骨节")
-				else (
-					theCoords=o.transform * (inverse o.parent.transform)
-					format  "<%>|%| = %\n" i o.name theCoords to:out_file
-				)
-			) else (
-				format  "<%>|%| = %\n" i o.name o.transform to:out_file
-			)
-		)
-
-		)
-		format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
-		if doit_prog.value == 100 do (format format_b_lag)
-	)
-	doit_prog.value = 0
-
-	)else
-	(
-
-	slidertime = animationrange.start
-
-	a = slidertime
-
-	frame_data = #()
-
-
-
-	seek out_file #eof
-
-	orgFilePos = filePos out_file
-
-	format "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"  to:out_file
-
-	---------------------------------------------------------------关键帧对象位置信息写入
-	do
-
-	(
-		if keyboard.escPressed do 
-		(
-			format format_a_lag
-			exit
-		)
-		append frame_data a		
-		a_lost = a
-		
-		for o in selection do
-		(
-			if selection.count !=0 then    
-			(
-		   
-				if cptools.localModeCheckBox.checked then(
-					if 	o.parent==undefined then (messageBox "请不要选择根骨节")
-					else (
-						theCoords=o.transform * (inverse o.parent.transform)
-						format  "<%>|%| = %\n" a o.name theCoords to:out_file
+						label lblHeader
+						editText etInput text:"_pose"
+				 
+						fn launch label: =
+						(
+							destroyDialog myCoolDialogs.stringQuery
+							if label != unsupplied then
+								myCoolDialogs.labelStr = label
+							else myCoolDialogs.labelStr = "Enter some text:"
+							createDialog myCoolDialogs.stringQuery modal:true
+							returnStr -- only put it here if the dialog is modal
+						)
+				 
+						on stringQuery open do
+						(
+							lblHeader.text = myCoolDialogs.labelStr
+							setFocus etInput
+						)
+				 
+						on etInput entered str do
+						(
+							destroyDialog myCoolDialogs.stringQuery
+							returnStr = str
+				-- 			cptools.rloading.pressed()
+							
+							)
+						 
+						on stringQuery close do 
+						(
+							destroyDialog myCoolDialogs.stringQuery
+							
+							returnStr = "未命名_pose"
+				-- 			cptools.rloading.pressed()
+						
+						)
+						
 					)
-				) else 
-				(
-				
--- 				format  "<%>|%| = %\n" i o.name o.transform to:out_file
-				format  "<%>|%| = %\n" a o.name o.transform to:out_file
+				 )
+				 
+				if keyboard.controlPressed then (
+					myCoolDialogs = myCoolDialogs() -- as there are variables, an instance is needed
+					result = myCoolDialogs.stringQuery.launch label:"回车确认命名"
+
+					-----------------------------------------手动输入----------------------------------------------
+						
+					testList.items = append testList.items (result+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
+
+					-- rloading.pressed()
+					-- cptools.rloading.pressed()
+
+					testList.selection = testList.items.count
+
+					---------------------------------------------------------------------------------------
+					tabtxt   = testList.selection
+					if cptools.localModeCheckBox.checked==false then(	
+						out_name = ((GetDir #export)+"\\cptools_data\\"+ result +tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")
+					) else (
+					out_name = ((GetDir #export)+"\\cptools_data\\localMode\\"+ result +tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")	
+					)
+					
+					out_file = createfile out_name
 				)
+				else (
+					
+					testList.items = append testList.items ("Pose "+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
+					testList.selection = testList.items.count
+					tabtxt   = testList.selection	
+					
+					if cptools.localModeCheckBox.checked==false then(	
+						out_name = ((GetDir #export)+"\\cptools_data\\pose "+ tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")
+					)  else (
+						out_name = ((GetDir #export)+"\\cptools_data\\localMode\\pose "+ tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")	
+					)
+						out_file = createfile out_name
+				)
+				-------------------------------------将选择重新排序
+				sort_array =#()
+				temp_sort_file = selection as array
+				sort_file = sort(for i in temp_sort_file collect i.name)
+
+				for i=1 to sort_file.count do 
+				(
+				format "%|" sort_file[i] to: out_file -- 添加一个选择集
+				)
+				format "\n"  to:out_file
+
+				for i =1 to sort_file.count do 
+				(
+				obj =getnodebyname sort_file[i] 
+				append sort_array obj
+				)
+				select sort_array
+				-----------------------------------------
+				k=1
+				for o in selection do
+				(
+					if keyboard.escPressed do 
+					(
+						format format_a_lag
+						exit
+					)
+				doit_prog.value = 100.*k/selection.count
+				if selection.count !=0 then 	(
+					if cptools.localModeCheckBox.checked then(	
+						if 	o.parent==undefined then (messageBox "local坐标模式请不要选择根骨节      .")
+						else (
+							theCoords=o.transform * (inverse o.parent.transform)
+							format "$'%'.transform = %\n" o.name theCoords to:out_file
+						)
+					) else (
+						format "$'%'.transform = %\n"  o.name o.transform to:out_file
+					)
+				)
+				k=k+1
+				format (format_c_lag + ":(%/100)  \n")  doit_prog.value
+				if doit_prog.value == 100 do (format format_b_lag )
+				)
+				doit_prog.value = 0
+
+				close out_file
+
+				--format "You selected '%'!\n" testList.selection
+			)	
+		)
+		----####动画记录
+		else
+		(
+			if(selection.count == 0 )then(messagebox messagebox_a_lag title:messagebox_a_title_lag beep:false )
+			else
+			(
+				if (end_frame<=start_frame)then(messagebox messagebox_b_lag title:messagebox_a_title_lag beep:false )
+				else
+				(	
+					if ac.text =="C" then ( start_frame = spn_start.value;end_frame = spn_end.value)
+					else (start_frame = animationrange.start;end_frame = animationrange.end)	
+						
+					testListAni.items = append testListAni.items ("Animation "+ (testListAni.items.count+1) as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")" )
+					testListAni.selection = testListAni.items.count
+					tabtxt   = testListAni.selection
+					----确定保存文件本地ini
+					if cptools.localModeCheckBox.checked==false then
+					(
+						out_name = ((GetDir #export)+"\\cptools_data\\animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
+					) 
+					else 
+					(		
+						out_name = ((GetDir #export)+"\\cptools_data\\localMode\\animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
+					)
+					out_file = createfile out_name
+					tempstime = animationrange.start
+					tempetime = animationrange.end
+					animationRange = interval start_frame end_frame--time
+					-------------------------------------将选择重新排序
+					sort_array =#()
+					temp_sort_file = selection as array
+					sort_file = sort(for i in temp_sort_file collect i.name)
+					for i=1 to sort_file.count do 
+					(	format "%|" sort_file[i] to: out_file	)  -- 添加一个选择集			
+					format "\n"  to:out_file
+					for i =1 to sort_file.count do 
+					(
+						obj =getnodebyname sort_file[i] 
+						append sort_array obj
+					)
+					select sort_array
+					oriTime = sliderTime
+					----------------------------------------
+					if ABbutton.text =="S" then   -----###逐帧模式
+					(
+						for i=animationrange.start to animationrange.end do
+						(
+							if keyboard.escPressed do 
+							(
+								format format_a_lag
+								exit
+							)
+							doit_prog.value = 100.*i/animationrange.end
+							--slidertime = i
+							at time i
+							(
+								for o in selection do
+								(
+									if selection.count !=0 then 	(
+										-----本地模式
+										if cptools.localModeCheckBox.checked then
+										(
+											if 	o.parent==undefined then (messageBox "local坐标模式请不要选择根骨节      .")
+											else 
+											(
+												theCoords=o.transform * (inverse o.parent.transform)
+												format  "<%>|%| = %\n" i o.name theCoords to:out_file
+											)
+										) 
+										else 
+										(	format  "<%>|%| = %\n" i o.name o.transform to:out_file	)
+									)
+								)
+								--format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
+								if doit_prog.value == 100 do (format format_b_lag)
+							)
+						)
+						doit_prog.value = 0
+						--恢复time函数防止biped骨骼异样bug
+						sliderTime =  animationrange.start
+						at time animationrange.start()
+					)
+					else			---###关键帧模式
+					(
+						slidertime = animationrange.start
+						a = slidertime
+						frame_data = #()
+						seek out_file #eof
+						orgFilePos = filePos out_file
+						format "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"  to:out_file
+						---------------------------------------------------------------关键帧对象位置信息写入
+						disableSceneRedraw()		----关闭视图刷新加速
+						suspendEditing()
+						do
+						(							
+							if keyboard.escPressed do 
+							(
+								format format_a_lag
+								exit
+							)
+							append frame_data a		
+							a_lost = a	
+							---选择的物体里执行		
+							for o in selection do
+							(
+								if selection.count !=0 then    
+								(
+									---本地模式
+									if cptools.localModeCheckBox.checked then
+									(
+										if 	o.parent==undefined then (messageBox "local坐标模式请不要选择根骨节      .")
+										else 
+										(											
+											theCoords=o.transform * (inverse o.parent.transform)
+											format  "<%>|%| = %\n" a o.name theCoords to:out_file			---a 是关键帧数，在dowhere循环里得
+										)
+									) 
+									else 
+									( format  "<%>|%| = %\n" a o.name o.transform to:out_file	)	---a 是关键帧数，在dowhere循环里得
+									
+							   )
+							)
+							a = trackbar.getnextkeytime()
+							doit_prog.value = 100.*a_lost/(animationrange.end-animationrange.start)
+							if a!=undefined and a > animationrange.start and  a <= animationrange.end  then 
+							(slidertime = a	)
+							else (  Exit  )							
+-- 							format  (format_c_lag + ":(%/100)  \n")   doit_prog.value							
+							if doit_prog.value == 100 do (format format_b_lag)	
+						
+						)
+						while a > animationrange.start	and a > a_lost 
+						resumeEditing()	
+						enableSceneRedraw()	
+						----------------------------------------------------------------关键帧对象位置信息写入  End
+						doit_prog.value = 100
+						format format_b_lag
+						doit_prog.value = 0
+						seek out_file orgFilePos 
+						--------------------------------------------------------------关键帧写入文件
+						format "frame:" to: out_file
+						for i=1 to frame_data.count do 
+						(  format "%|" frame_data[i] to: out_file	) -- 添加一个帧的选择集
+						format "\n"  to:out_file
+						--------------------------------------------------------------关键帧写入文件 End
+					)
+					close out_file
+					sliderTime = oriTime 
+					animationRange = interval tempstime tempetime
+				)
+
 			)
 		)
-		a = trackbar.getnextkeytime()
-
-		doit_prog.value = 100.*a_lost/(animationrange.end-animationrange.start)
-
-		if a!=undefined and a > animationrange.start and  a <= animationrange.end  then (
-			
-			slidertime = a
-			
-			)else (  Exit  )
-			
-		format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
-			
-		if doit_prog.value == 100 do (format format_b_lag)	
-	)
-
-	while a > animationrange.start	and a > a_lost 
-	----------------------------------------------------------------关键帧对象位置信息写入  End
-	doit_prog.value = 100
-
-	format format_b_lag
-
-	doit_prog.value = 0
-
-	seek out_file orgFilePos 
-
-	--------------------------------------------------------------关键帧写入文件
-	format "frame:" to: out_file
-
-	for i=1 to frame_data .count do 
-	(
-	format "%|" frame_data [i] to: out_file -- 添加一个帧的选择集
-
-	)
-	format "\n"  to:out_file
-
-	--------------------------------------------------------------关键帧写入文件 End
-
-	)
-
-	close out_file
-
-	animationRange = interval tempstime tempetime
-
-	)
-
-	)
-	)
 
 
-	cptools_P1.saveTM() ; cptools_P1.setScreenGrab() ;cpToolsPicWin.yunCopyImgBtn.images = #(cptools_P1.screengrab, undefined, 1,1,1,1,1) 
+		cptools_P1.saveTM() ; cptools_P1.setScreenGrab() ;cpToolsPicWin.yunCopyImgBtn.images = #(cptools_P1.screengrab, undefined, 1,1,1,1,1) 
 	)
 
 )
@@ -1045,7 +1024,8 @@ on testListAni selected i do  (
 				else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
 			)
 		)
-		else(         --动画模式
+		else
+		(         --动画模式
 			if cptools.testListAni.selected!=undefined then
 			(
 				picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp")
@@ -1056,12 +1036,13 @@ on testListAni selected i do  (
 				else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
 			)
 		)
-	if cptools.timeRangeCheckBox.state do (cptoolsSetAnimRange ())
+	if cptools.timeRangeCheckBox.state do (try(cptoolsSetAnimRange ())	catch())
 
 )
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-on pastepose pressed do (		
+-----------------------暴力粘贴-------------------------------------------------------------------------------------------------------------------------------------------------------
+on pastepose pressed do 
+(		
 	-------------------------------------将选择重新排序
 	sort_array =#()
 	temp_sort_file = selection as array
@@ -1073,286 +1054,331 @@ on pastepose pressed do (
 	)
 	select sort_array
 	selectundefined = 0
-with undo "pasteList" on (		
-	for sec = 1 to Accuracy_offset.value do (		
-		if(rb_sel.state==1)then(			
-			if testList.items.count > 0 and testList.selection > 0 then(				
-			tabtxt  = testList.selected			
-				if cptools.localModeCheckBox.checked==false then( 		
-					in_name =  ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-				) 
-				else (
-					in_name =  ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")	
-				) 
-			in_file = openFile in_name
-			if in_file == undefined  do  ( messagebox messagebox_c_lag  beep:false Title:messagebox_a_title_lag  Return 0 )
-			--with animate on
-			--( 	
-			seek in_file 0
-			skipToNextLine in_file
-			orgFilePos = filePos in_file
-				for i=1 to selection.count do  (--takes every selected object and...			
+	with undo "pasteList" on 
+	(	
+		--精度，循环次数。3次
+		for sec = 1 to Accuracy_offset.value do 
+		(	
+			---######pose粘贴	
+			if(rb_sel.state==1)then
+			(
+				---有保存的姿势且选择了
+				if testList.items.count > 0 and testList.selection > 0 then
+				(	
+					tabtxt  = testList.selected	  	--选择的物体		
+					if cptools.localModeCheckBox.checked==false then	---非本地模式	
+					(	in_name =  ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")	) 
+					---本地模式
+					else   (in_name =  ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")	) 
+					
+					in_file = openFile in_name
+					---如果没有怎提示选择pose
+					if in_file == undefined  do  ( messagebox messagebox_c_lag  beep:false Title:messagebox_a_title_lag  Return 0 )
+					--with animate on
+					--( 	
+					seek in_file 0
+					skipToNextLine in_file
+					orgFilePos = filePos in_file
+					---当前选择循环
+					for i=1 to selection.count do  
+					(--takes every selected object and...			
 						--print i
-						if keyboard.escPressed do	(format format_a_lag;exit)
-					doit_prog.value = 100.*i/selection.count	
-					o=selection[i]
-					seek in_file orgFilePos 
-					a= skiptostring in_file ((o.name)+"'.transform")						
-					if a==undefined then ( selectundefined =selectundefined+1 )else(
-						skiptostring in_file "="
-						ss = readLine in_file ---as stringStream
-						ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss						
-						-----写入本地姿势pose			
-						if cptools.localModeCheckBox.checked then (
-							--字符转成矩阵
-							fn deserializeMatrix3 str =
+						if keyboard.escPressed do	(format format_a_lag;exit)		---esc退出
+						doit_prog.value = 100.*i/selection.count	
+						o=selection[i]
+						seek in_file orgFilePos 
+						a= skiptostring in_file ((o.name)+"'.transform")			---定位到物体名字的地方						
+						if a==undefined then ( selectundefined =selectundefined+1 ) 		---是否定位成功（是否记录过数据），然后加1，selectundefined是存放有多少个未记录物体
+						else(
+							skiptostring in_file "="   ----再次定位到=号之后
+							ss = readLine in_file ---as stringStream 	记录下矩阵数据
+							ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss			---处理成脚本				
+							-----写入本地姿势pose			
+							if cptools.localModeCheckBox.checked then 		---本地模式粘贴
 							(
-								local p = filterString str ","
-								local row1 = [p[1] as float, p[2] as float, p[3] as float]
-								local row2 = [p[4] as float, p[5] as float, p[6] as float]
-								local row3 = [p[7] as float, p[8] as float, p[9] as float]
-								local row4 = [p[10] as float, p[11] as float, p[12] as float]
-								return matrix3 row1 row2 row3 row4
-							)
-							str =ss
-							str=substituteString   str "(matrix3" ""
-							str=substituteString   str ")" ""
-							str=substituteString   str "] [" ","
-							str=substituteString   str "]" ""
-							str=substituteString   str "[" ""
-							theCoords_str2Mat = deserializeMatrix3 str
-							----写入旋转和位移
-							rotLocal = theCoords_str2Mat.rotationPart
-							rotLocal.w=0-rotLocal.w
-							in coordsys  parent  o.scale = theCoords_str2Mat.scalePart 
-							in coordsys  parent  o.rotation = rotLocal 
-							in coordsys  parent  o.pos = theCoords_str2Mat[4]
-
-						)
-						--------------------------------------------------------写入结束
-						else (
-							execute ex_tran	
-						)
+								--字符转成矩阵
+								fn deserializeMatrix3 str =
+								(
+									local p = filterString str ","
+									local row1 = [p[1] as float, p[2] as float, p[3] as float]
+									local row2 = [p[4] as float, p[5] as float, p[6] as float]
+									local row3 = [p[7] as float, p[8] as float, p[9] as float]
+									local row4 = [p[10] as float, p[11] as float, p[12] as float]
+									return matrix3 row1 row2 row3 row4
+								)
+								str =ss
+								str=substituteString   str "(matrix3" ""
+								str=substituteString   str ")" ""
+								str=substituteString   str "] [" ","
+								str=substituteString   str "]" ""
+								str=substituteString   str "[" ""
+								theCoords_str2Mat = deserializeMatrix3 str
+								----写入旋转和位移
+								if classof o != Biped_Object then		---非bip本地
+								(
+									rotLocal = theCoords_str2Mat.rotationPart
+									rotLocal.w=0-rotLocal.w
+									in coordsys  parent  o.scale = theCoords_str2Mat.scalePart 	----局部缩放支持
+									in coordsys  parent  o.rotation = rotLocal 
+									in coordsys  parent  o.pos = theCoords_str2Mat[4]
+								)
+								else	---bip本地								
+								(									
+									back2WorldTM = theCoords_str2Mat*( o.parent.transform)									
+									Biped.setTransform o #rotation  back2WorldTM.rotationPart	 true
+-- 									Biped.setTransform o #pos back2WorldTM[4] true	
+								)
+							)						
+							else (	execute ex_tran	 )		---非本地模式粘贴
+							--------------------------------------------------------写入结束	
 							
-						format (format_c_lag + ":(%/100)  \n")   doit_prog.value
-						if doit_prog.value == 100 do (format format_b_lag)	
+							format (format_c_lag + ":(%/100)  \n")   doit_prog.value
+							if doit_prog.value == 100 do (format format_b_lag)	
+						)
 					)
+					doit_prog.value = 0
+					--)
+					close in_file
 				)
-			doit_prog.value = 0
-			--)
-			close in_file
+				if selectundefined != 0 then
+				(
+					--strmessage = "选择中有"+ selectundefined as string +"个对象未记录Pose" 
+					strmessage = messagebox_f_lag
+					messagebox strmessage   title:messagebox_a_title_lag beep:false
+				)
 			)
-		if selectundefined != 0 then(
+			---动画粘贴
+			else
+			(
+				if testListAni.items.count > 0 and testListAni.selection > 0 then			---是否显示了物体
+				(	
+					if(selection.count == 0 )then(messagebox messagebox_a_lag  title:messagebox_a_title_lag beep:false )			---是否有选择
+					else
+					(	
+						---帧数范围是当前还是自定义的	  C自定，A自动	
+						if ac.text =="C" then ( start_frame = spn_start.value+ paste_offset.value;end_frame = spn_end.value+ paste_offset.value)
+						else (start_frame = animationrange.start+ paste_offset.value;end_frame = animationrange.end+ paste_offset.value)
+						
+						if (start_frame>=end_frame)then(messagebox messagebox_b_lag title:messagebox_a_title_lag beep:false )
+						else		---时间范围没错
+						(    
+							tabtxt  = testListAni.selected
+							---获取文本，本地非本地
+							if cptools.localModeCheckBox.checked==false then
+							(	in_name =  ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")	) 
+							else (	in_name =  ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps") )				
+					
+							in_file = openFile in_name			---是否选择
+							if in_file == undefined do (messagebox messagebox_d_lag beep:false Title:messagebox_a_title_lag Return 0 )
+
+							tempstime = animationrange.start
+							tempetime = animationrange.end
+							animationRange = interval (start_frame) (end_frame)--time 记录下时间范围以后方便恢复
+							------------判断S还是K，要开始粘贴了
+							s_or_k =  filterstring tabtxt "S"
+							oriTime = sliderTime
+							with animate on
+							( 
+								if s_or_k.count != 1 then 	----###逐帧模式
+								(	
+									for m=animationrange.start to animationrange.end do   ---帧
+									(
+										if keyboard.escPressed do 		---esc退出
+										(
+											format format_a_lag
+											exit
+										)
+										
+										doit_prog.value = 100.*m/animationrange.end	---进度条
+										
+										--sliderTime = m
+										at time m
+										(
+											seek in_file 0 
+											
+											skipToNextLine in_file	
+											
+											skiptostring in_file ("<"+((m-paste_offset.value) as String)+">")   ----定位到帧数标签 ，这里有计算帧数偏移
+											
+											orgFilePos = filePos in_file
+											for i=1 to selection.count do --takes every selected object and...m每个选择的物体
+											(
+												if keyboard.escPressed do 
+												(
+													format format_a_lag
+													exit
+												)
+												o=selection[i]
+												seek in_file orgFilePos 			
+												a = skiptostring in_file ("|"+(o.name)+"|") ---定位到字符流	
+												if a==undefined then ( selectundefined =selectundefined+1 )		---记录未记录物体
+												else
+												(	
+													skiptostring in_file "="			---定位到=号后
+													ss = readLine in_file ---as stringStream	读取到矩阵
+													ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss			--转成脚本				
+													if cptools.localModeCheckBox.checked then 
+													(
+														-----写入本地姿势pose
+														--字符转成矩阵
+														fn deserializeMatrix3 str =
+														(
+															local p = filterString str ","
+															local row1 = [p[1] as float, p[2] as float, p[3] as float]
+															local row2 = [p[4] as float, p[5] as float, p[6] as float]
+															local row3 = [p[7] as float, p[8] as float, p[9] as float]
+															local row4 = [p[10] as float, p[11] as float, p[12] as float]
+															return matrix3 row1 row2 row3 row4
+														)
+														str =ss
+														str=substituteString   str "(matrix3" ""
+														str=substituteString   str ")" ""
+														str=substituteString   str "] [" ","
+														str=substituteString   str "]" ""
+														str=substituteString   str "[" ""
+														theCoords_str2Mat = deserializeMatrix3 str
+														----写入旋转和位移
+														if classof o != Biped_Object then		---非bip本地
+														(
+															rotLocal = theCoords_str2Mat.rotationPart
+															rotLocal.w=0-rotLocal.w
+															in coordsys  parent  o.scale = theCoords_str2Mat.scalePart 	----局部缩放支持
+															in coordsys  parent  o.rotation = rotLocal 
+															in coordsys  parent  o.pos = theCoords_str2Mat[4]
+														)
+														else	---bip本地								
+														(									
+															back2WorldTM = theCoords_str2Mat*( o.parent.transform)									
+															Biped.setTransform o #rotation  back2WorldTM.rotationPart	 true
+														-- 	Biped.setTransform o #pos back2WorldTM[4] true	
+														)
+													)											
+													else (	execute ex_tran	)
+													--readDelimitedString in_file "end"
+													--------------------------------------------------------写入结束	
+												)	
+											)
+	-- 										format (format_c_lag + ":(%/100)  \n")  doit_prog.value
+											if doit_prog.value == 100 do (format format_b_lag )
+										)	---end at time
+									)
+									doit_prog.value = 0
+								)
+								---###关键帧模式
+								else
+								(
+									seek in_file 0
+									skipToNextLine in_file
+									skiptostring in_file "frame:"
+									ss  = readLine in_file
+									frame_array_filter = filterString ss "|"
+									frame_arrayl =#()
+									-----加上偏移的时间数组后边要加所以这里要减
+									for k =1 to frame_array_filter.count do 
+									(
+										if frame_array_filter[k] as time >= animationrange.start-paste_offset.value and  frame_array_filter[k] as time <= animationrange.end-paste_offset.value do
+										(
+											append frame_arrayl frame_array_filter[k] 
+											--sort frame_arrayl
+										)
+									)
+
+									for m=1 to frame_arrayl.count do
+									(
+										if keyboard.escPressed do 	(format format_a_lag;exit)
+										doit_prog.value = 100.*m/frame_arrayl.count
+										--sliderTime = frame_arrayl[m] as time + paste_offset.value
+										at time (frame_arrayl[m] as time + paste_offset.value)		
+										(
+											seek in_file 0															
+											skipToNextLine in_file						
+											skiptostring in_file ("<"+( frame_arrayl[m] as String)+">")		
+											orgFilePos = filePos in_file
+											for i=1 to selection.count do 
+											(--takes every selected object and...				
+												if keyboard.escPressed do 	(format format_a_lag;exit)
+												o=selection[i]
+												seek in_file orgFilePos 					
+												a = skiptostring in_file ("|"+(o.name)+"|")
+												if a==undefined then ( selectundefined =selectundefined+1 )else
+												(	
+													skiptostring in_file "="
+													ss = readLine in_file ---as stringStream
+													ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss					
+													if cptools.localModeCheckBox.checked then 
+													(				
+														-----写入本地姿势pose
+														--字符转成矩阵
+														fn deserializeMatrix3 str =	
+														(
+															local p = filterString str ","
+															local row1 = [p[1] as float, p[2] as float, p[3] as float]
+															local row2 = [p[4] as float, p[5] as float, p[6] as float]
+															local row3 = [p[7] as float, p[8] as float, p[9] as float]
+															local row4 = [p[10] as float, p[11] as float, p[12] as float]
+															return matrix3 row1 row2 row3 row4
+														)
+														str =ss
+														str=substituteString   str "(matrix3" ""
+														str=substituteString   str ")" ""
+														str=substituteString   str "] [" ","
+														str=substituteString   str "]" ""
+														str=substituteString   str "[" ""
+														theCoords_str2Mat = deserializeMatrix3 str
+														----写入旋转和位移
+														if classof o != Biped_Object then		---非bip本地
+														(
+															rotLocal = theCoords_str2Mat.rotationPart
+															rotLocal.w=0-rotLocal.w
+															in coordsys  parent  o.scale = theCoords_str2Mat.scalePart 	----局部缩放支持
+															in coordsys  parent  o.rotation = rotLocal 
+															in coordsys  parent  o.pos = theCoords_str2Mat[4]
+														)
+														else	---bip本地								
+														(									
+															back2WorldTM = theCoords_str2Mat*( o.parent.transform)									
+															Biped.setTransform o #rotation  back2WorldTM.rotationPart	 true
+-- 															Biped.setTransform o #pos back2WorldTM[4] true	
+														)
+													)													
+													else(execute ex_tran)
+													--------------------------------------------------------写入结束
+													--readDelimitedString in_file "end"
+												)
+											)
+-- 											format (format_c_lag + ":(%/100)  \n")   doit_prog.value
+											if doit_prog.value == 100 do (format format_b_lag)
+										)
+									)
+									doit_prog.value = 0
+								)
+								
+								sliderTime =  animationrange.start
+								at time animationrange.start()
+							)
+							
+							close in_file
+							sliderTime = oriTime 
+							
+							animationRange = interval tempstime tempetime
+						)	
+					)
+				)	
+			)
+			sec = sec + 1
+			sec = sec + 1
+		)---end of 次数3次
+		----报错
+		if selectundefined != 0 then
+		(
+		selectundefined = selectundefined/(spn_end.value-spn_start.value)
 		--strmessage = "选择中有"+ selectundefined as string +"个对象未记录Pose" 
 		strmessage = messagebox_f_lag
 		messagebox strmessage   title:messagebox_a_title_lag beep:false
+		selectundefined = 0
 		)
-		)else(
-			if testListAni.items.count > 0 and testListAni.selection > 0 then(
-					
-				if(selection.count == 0 )then(messagebox messagebox_a_lag  title:messagebox_a_title_lag beep:false )else(
-					
-				if ac.text =="C" then ( start_frame = spn_start.value+ paste_offset.value;end_frame = spn_end.value+ paste_offset.value)else (start_frame = animationrange.start+ paste_offset.value;end_frame = animationrange.end+ paste_offset.value)
 
-				if (start_frame>=end_frame)then(messagebox messagebox_b_lag title:messagebox_a_title_lag beep:false )else(    --time
-					
-				tabtxt  = testListAni.selected
-				
-				if cptools.localModeCheckBox.checked==false then(
-					in_name =  ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-				) else (
-					in_name =  ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")
-				)
-				
-				
-				in_file = openFile in_name
-				if in_file == undefined do (messagebox messagebox_d_lag beep:false Title:messagebox_a_title_lag Return 0 )
-
-				tempstime = animationrange.start
-				tempetime = animationrange.end
-
-				animationRange = interval (start_frame) (end_frame)--time
-
-				------------判断S还是K
-
-				s_or_k =  filterstring tabtxt "S"
-				with animate on
-				( 
-				if s_or_k.count != 1 then (	
-				for m=animationrange.start to animationrange.end do
-				(
-					if keyboard.escPressed do 
-					(
-						format format_a_lag
-						exit
-					)
-					doit_prog.value = 100.*m/animationrange.end
-					sliderTime = m
-					
-					seek in_file 0 
-					
-					skipToNextLine in_file	
-					
-					skiptostring in_file ("<"+((m-paste_offset.value) as String)+">")
-					
-					orgFilePos = filePos in_file
-
-				for i=1 to selection.count do --takes every selected object and...
-				(
-					if keyboard.escPressed do 
-					(
-						format format_a_lag
-						exit
-					)
-			
-				o=selection[i]
-				seek in_file orgFilePos 					
-				a = skiptostring in_file ("|"+(o.name)+"|")
-
-				if a==undefined then ( selectundefined =selectundefined+1 )else(	
-
-				skiptostring in_file "="
-				ss = readLine in_file ---as stringStream
-				ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss					
-				if cptools.localModeCheckBox.checked then (
-					-----写入本地姿势pose
-					--字符转成矩阵
-					fn deserializeMatrix3 str =
-					(
-						local p = filterString str ","
-						local row1 = [p[1] as float, p[2] as float, p[3] as float]
-						local row2 = [p[4] as float, p[5] as float, p[6] as float]
-						local row3 = [p[7] as float, p[8] as float, p[9] as float]
-						local row4 = [p[10] as float, p[11] as float, p[12] as float]
-						return matrix3 row1 row2 row3 row4
-					)
-					str =ss
-					str=substituteString   str "(matrix3" ""
-					str=substituteString   str ")" ""
-					str=substituteString   str "] [" ","
-					str=substituteString   str "]" ""
-					str=substituteString   str "[" ""
-					theCoords_str2Mat = deserializeMatrix3 str
-					----写入旋转和位移
-					rotLocal = theCoords_str2Mat.rotationPart
-					rotLocal.w=0-rotLocal.w
-					in coordsys  parent  o.rotation = rotLocal 
-					in coordsys  parent  o.pos = theCoords_str2Mat[4]
-				)
-				--------------------------------------------------------写入结束	
-				else (
-							execute ex_tran	
-				)
-				--readDelimitedString in_file "end"
-				)
-				)
-				format (format_c_lag + ":(%/100)  \n")  doit_prog.value
-				if doit_prog.value == 100 do (format format_b_lag )
-				)
-				doit_prog.value = 0
-				)else(
-				----------------------------------------------------------------------------------------------------------------------------粘贴关键帧代码
-				seek in_file 0
-
-				skipToNextLine in_file
-
-				skiptostring in_file "frame:"
-
-				ss  = readLine in_file
-
-				frame_array_filter = filterString ss "|"
-
-				frame_arrayl =#()
-				-----筛选
-
-				for k =1 to frame_array_filter.count do 
-				(
-					if frame_array_filter[k] as time >= animationrange.start-paste_offset.value and  frame_array_filter[k] as time <= animationrange.end-paste_offset.value do
-					(
-						append frame_arrayl frame_array_filter[k] 
-						--sort frame_arrayl
-					)
-				)
-
-				for m=1 to frame_arrayl.count do
-				(
-					if keyboard.escPressed do 	(format format_a_lag;exit)
-					doit_prog.value = 100.*m/frame_arrayl.count
-					sliderTime = frame_arrayl[m] as time + paste_offset.value					
-					seek in_file 0
-					skipToNextLine in_file						
-					skipToNextLine in_file						
-					skiptostring in_file ("<"+( frame_arrayl[m] as String)+">")					
-					orgFilePos = filePos in_file
-
-				for i=1 to selection.count do (--takes every selected object and...				
-					if keyboard.escPressed do 	(format format_a_lag;exit)
-					o=selection[i]
-					seek in_file orgFilePos 					
-					a = skiptostring in_file ("|"+(o.name)+"|")
-					if a==undefined then ( selectundefined =selectundefined+1 )else(	
-						skiptostring in_file "="
-						ss = readLine in_file ---as stringStream
-						ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss					
-					if cptools.localModeCheckBox.checked then (				
-						-----写入本地姿势pose
-						--字符转成矩阵
-						fn deserializeMatrix3 str =	(
-							local p = filterString str ","
-							local row1 = [p[1] as float, p[2] as float, p[3] as float]
-							local row2 = [p[4] as float, p[5] as float, p[6] as float]
-							local row3 = [p[7] as float, p[8] as float, p[9] as float]
-							local row4 = [p[10] as float, p[11] as float, p[12] as float]
-							return matrix3 row1 row2 row3 row4
-						)
-						str =ss
-						str=substituteString   str "(matrix3" ""
-						str=substituteString   str ")" ""
-						str=substituteString   str "] [" ","
-						str=substituteString   str "]" ""
-						str=substituteString   str "[" ""
-						theCoords_str2Mat = deserializeMatrix3 str
-
-						----写入旋转和位移
-						rotLocal = theCoords_str2Mat.rotationPart
-						rotLocal.w=0-rotLocal.w
-						in coordsys  parent  o.rotation = rotLocal 
-						in coordsys  parent  o.pos = theCoords_str2Mat[4]
-						)
-						--------------------------------------------------------写入结束
-						else (
-							execute ex_tran	
-						)
-						
-						--readDelimitedString in_file "end"
-					)
-				)
-				format (format_c_lag + ":(%/100)  \n")   doit_prog.value
-				if doit_prog.value == 100 do (format format_b_lag)
-				)
-				doit_prog.value = 0
-
-				)
-				)
-				close in_file
-
-				animationRange = interval tempstime tempetime
-
-				if selectundefined != 0 then(
-				selectundefined = selectundefined/(spn_end.value-spn_start.value)
-				--strmessage = "选择中有"+ selectundefined as string +"个对象未记录Pose" 
-				strmessage = messagebox_f_lag
-				messagebox strmessage   title:messagebox_a_title_lag beep:false
-				selectundefined = 0
-				)
-				)
-				)
-				)	
-		)
-		sec = sec + 1
-		sec = sec + 1
 	)
-)
 )
 ---------------------------------------------------------------------------------------
 
