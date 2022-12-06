@@ -1142,7 +1142,9 @@ rollout biped_align_test "BsRetargetTools_v2.5 （ FBX 转 BIP + 动画重定向
 				default:(axisThumb = -foundParent.transform.row3)
 			)
 
-			if parentIndex == 24 or parentIndex == 48 then (axis = axisThumb)
+			arrThumbIndex = #(24,25,26,27,48,49,50,51)
+
+			if finditem arrThumbIndex parentIndex != 0 then (axis = axisThumb)
 
 			if initialBone != undefined then
 			(
