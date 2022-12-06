@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-14 17:45:03
+ * @LastEditTime: 2022-12-05 11:47:04
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1607,7 +1607,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"快速选择CS骨骼和调Biped等\r\n左键不稳定老版\r\n右键自用新做规划中" 
 	button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
 	toolTip:"动画暴力粘贴东见云优化版\r\n(有时间我也会优化或新写)" 
-	checkButton ckbIsoSelection "独显" pos:[10,190] width:40 height:25 \
+	checkButton ckbIsoSelection "独显" pos:[10,190] width:40 height:25 highlightcolor:myCheckedColor \
 	toolTip:"隐藏当前显示的未选中物体\r\n再次点击可重新显示\r\n利用 IsolateSelection\r\n但是不改变镜头缩进"
 	button btnLayerManager "层" pos:[50,190] width:20 height:25 \
 	toolTip:"模拟旧版层管理器\r\n左键可嵌套层管理器\r\n右键旧版层管理器" 

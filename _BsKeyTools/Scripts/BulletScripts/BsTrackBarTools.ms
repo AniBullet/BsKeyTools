@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-15 14:50:01
+ * @LastEditTime: 2022-11-18 12:07:38
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -1151,7 +1151,7 @@ rcmenu menuBsFolder
 	)
 )
 
-rollout rolBsBackupManager "" width:400 height:320
+rollout rolBsBackupManager "" width:430 height:320
 (
 	local posMouMove     = [0,0]
 	local switchMouState = false
@@ -1164,16 +1164,16 @@ rollout rolBsBackupManager "" width:400 height:320
 	button btnOpenCurrentDir "打开" tooltip:"打开备份文件夹" \
 	height:20 width:25 pos:[35,20] border:false
 	editText edtBackupPath "" text:"" labelOnTop:true align:#left \
-	height:20 fieldWidth:325 pos:[65,20] readOnly:true 
+	height:20 fieldWidth:355 pos:[65,20] readOnly:true 
 	-- button btnPrevFolder "↑" tooltip:"返回上层目录" \
 	-- height:20 width:25 pos:[340,20] border:false
 	editText edtInputFilter "" text:"" labelOnTop:true align:#left \
-	height:17 fieldWidth:345 pos:[10,47]
-	checkbutton ckbReverse "↑ ↓" pos:[360,47] height:18 width:30
+	height:17 fieldWidth:375 pos:[10,47]
+	checkbutton ckbReverse "↑ ↓" pos:[390,47] height:18 width:30
 	MultiListBox mlbBackupFolders "" align:#left selection:0 \
-	height:15 width:150 pos:[10,70]
+	height:15 width:170 pos:[10,70]
 	MultiListBox mlbBackupFiles "" align:#right selection:0 \
-	height:18 width:230 pos:[160,70]
+	height:18 width:240 pos:[180,70]
 	label lblCountFolder "" height:15 width:120 pos:[15,275]
 	label lblCountFiles "" height:15 width:120 pos:[15,295]
 

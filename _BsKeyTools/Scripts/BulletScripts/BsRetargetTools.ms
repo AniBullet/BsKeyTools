@@ -246,6 +246,7 @@ global arrAllBipedName = #()
 global hasExtraHips = false
 global fixNierFramerate = false
 -- global pickedRootMotion = undefined
+global isScale100 = false
 
 -- wizardIndex = 1
 -- wizardArray = #()
@@ -527,10 +528,12 @@ rcmenu menuQuickCreateNode
 rcmenu menuBsRetarget
 (
 	menuItem mItemNier "修复 Nier 60帧率"
+	menuItem mItemScale100 "Scale 100"
 
 	on menuBsRetarget open do
 	(
 		mItemNier.checked = fixNierFramerate
+		mItemScale100.checked = isScale100
 	)
 	
 	on mItemNier picked do
@@ -538,10 +541,16 @@ rcmenu menuBsRetarget
 		mItemNier.checked = not mItemNier.checked
 		fixNierFramerate = mItemNier.checked
 	)
+
+	on mItemScale100 picked do
+	(
+		mItemScale100.checked = not mItemScale100.checked
+		isScale100 = mItemScale100.checked
+	)
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向 ）"
+rollout biped_align_test "BsRetargetTools_v2.5 （ FBX 转 BIP + 动画重定向 ）"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Bip 节点 1 - 35" align:#left across:4 height:35 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -556,33 +565,40 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 	
 	local switchFBXTools = false
     local btnWidth   = 120
+	local arrSaveVer = (for i = 0 to 3 collect ("20" + (((maxversion())[1]/1000)-2-i) as string))
 
-    groupbox grpRetargetList "Check  Mapping" pos:[15,485] width:130 height:170
+    groupbox grpRetargetList "Check  Mapping" pos:[15,485] width:130 height:190
 
 	label lblTips "选择骨骼，左击列表填入，右击重置\r\n除可选以外，目前需要映射列表完整" pos:[260,450] width:200 height:30
 	-- pickbutton pkbRootMption "0. 指定原 RootMotion" pos:[20,505] height:30 width:(btnWidth) message:"指定原始 FBX 的 RootMotion" autoDisplay:true tooltip:"右键清除选择"
-    button loadDialogue "加载列表" pos:[20,565] width:(btnWidth/2) height:25
-    button saveDialogue "保存列表" pos:[80,565] width:(btnWidth/2) height:25
-    button btnAutoMapping "1. 自动按命名匹配" pos:[20,535] width:btnWidth height:30 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
-	button btnQuickTools "快速创建所需节点" pos:[20,590] width:btnWidth height:25 tooltip:"快速创建 nub 骨骼或符合 Biped 的质心。"
-	button validateButton "2. 验证映射列表" pos:[20,615] width:btnWidth height:35 tooltip:"必须验证匹配是否完整。"
+    button loadDialogue "加载列表" pos:[20,560] width:(btnWidth/2) height:25
+    button saveDialogue "保存列表" pos:[80,560] width:(btnWidth/2) height:25
+    button btnAutoMapping "1. 自动按命名匹配" pos:[20,525] width:btnWidth height:35 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
+	button btnQuickTools "快速创建所需节点" pos:[20,585] width:btnWidth height:35 tooltip:"快速创建 nub 骨骼或符合 Biped 的质心。"
+	button validateButton "2. 验证映射列表" pos:[20,620] width:btnWidth height:50 tooltip:"必须验证匹配是否完整。"
     
-    groupbox grpBiped "" pos:[149,485] width:320 height:170
-	spinner spnObjSize "Node Size: " pos:[158,633] range:[0.1,1000,5] align:#left offset:[2,0] fieldwidth:40
-	button btnResetSize "重置" pos:[265,632] width:35 height:18 tooltip:"调节选中骨骼大小"
-	button reAlignFingers "🤞🏼 重新对齐手指骨骼 →" pos:[155,540] width:(btnWidth + 25) height:25
+    groupbox grpBiped "" pos:[149,485] width:320 height:190
+	spinner spnObjSize "Helper Size" pos:[20,506] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:35 scale:0.01
+	button btnResetSize "R" pos:[120,505] width:20 height:18 tooltip:"重置选中辅助骨骼大小"
+	label lblThumbAxis "拇指 zAxis (父级)" pos:[158,533] width:(btnWidth + 25) height:25
+	dropdownList ddlThumbAxis "" pos:[255,530] width:40 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:2
+	label lblHandAxis "四指 zAxis (父级)" pos:[158,558] width:(btnWidth + 25) height:25
+	dropdownList ddlHandAxis "" pos:[255,555] width:40 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:6
+	button reAlignFingers "🤞🏼 重新对齐手指骨骼 🤞🏼" pos:[155,580] width:(btnWidth + 25) height:30
 	-- checkbox chkRenameBiped "Biped 保持 Bone 原名" checked:false pos:[164,535] width:(btnWidth + 20) height:20
-	radiobuttons rdoUpAxis " 映射 RootMotion 轴向" pos:[155,500] width:154 height:46 labels:#("Y-Up (U3D)", "Z-Up (UE)") columns:2 default:2
-	checkbox chkCopySubs "是否映射飘带骨骼动画 ↓" pos:[313,505] height:20 width:(btnWidth + 25) checked:false
-    button alignBipedToHelper "3. 创建重定向映射文件" pos:[310,530] width:(btnWidth + 35) height:35
+	-- radiobuttons rdoUpAxis " 映射 RootMotion 轴向" pos:[155,500] width:154 height:46 labels:#("Y-Up (U3D)", "Z-Up (UE)") columns:2 default:2
+	label lblUpAxis "RootMotion" pos:[158,505] width:(btnWidth + 25) height:25
+	dropdownList ddlUpAxis "" pos:[215,503] width:80 height:25 items:#("Y-Up (U3D)","Z-Up (UE)") selection:2
+	checkbox chkCopySubs "↓ 映射飘带骨骼动画 ↓" pos:[315,505] height:20 width:(btnWidth + 25) checked:false
+    button alignBipedToHelper "3. 创建重定向映射文件" pos:[310,530] width:(btnWidth + 35) height:40
     
     -- button btnExportTPose "[可选]导出 Biped Figure Pose" pos:[305,505] width:(btnWidth + 35) height:25
 	
-	button btnReplaceToBiped "4. FBX 转 Biped ( Skin )" pos:[310,565] width:(btnWidth + 35) height:35
+	button btnReplaceToBiped "4. FBX 转 Biped ( Skin )" pos:[310,570] width:(btnWidth + 35) height:40
     -- checkbutton ckbExportFBXTools "🎮 动画批量重定向工具" pos:[305,555] width:(btnWidth + 35) height:45
-	checkbox chkRealign "(可解算飘带) 重置轴向 ↓" pos:[155,575] height:20 width:(btnWidth + 25) checked:true
-	button btnConvertToBone "[可选] 选中 Helper 转 Bone" pos:[155,600] height:25 width:(btnWidth + 25)
-    dotnetcontrol dotbtnFBXTools "button" pos:[310,600] width:(btnWidth + 35) height:50
+	checkbox chkRealign "重置轴向 (解算飘带) ↓" pos:[158,620] height:20 width:(btnWidth + 25) checked:true
+	button btnConvertToBone "[可选] Helper 转 Bone" pos:[155,645] height:25 width:(btnWidth + 25) tooltip:"需要选中"
+    dotnetcontrol dotbtnFBXTools "button" pos:[310,615] width:(btnWidth + 35) height:55
 	
 	button btnRefreshFolder ">>  按默认规则刷新路径和文件  <<" \
 	height:40 width:225 pos:[240,15] tooltip:"刷新当前文件目录\r\n并按默认规则寻找文件\r\n映射文件为当前打开文件\r\n新 Skin 文件为同目录 Skin.max" visible:false
@@ -625,12 +641,13 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 	tooltip:"重定向列表选中的动画并且打开\r\n会保存一份 .max 和 .FBX 文件"
     button btnRetargettAll ">>>   重定向列表所有动画   <<<" pos:[240,420] width:225 height:60 visible:false \
 	tooltip:"重定向列表选中的动画\r\n会保存一份 .max 和 .FBX 文件\r\n可能比较慢..."
-	button btnSpecial "[自用] 特殊后处理集合" pos:[240,335] width:135 height:25 visible:false
-	button btnTemp "[占坑]" pos:[375,335] width:90 height:25 visible:false
+	button btnSpecial "[自用] 后处理集合" pos:[240,335] width:110 height:25 visible:false
+	label lblVerTips "保存版本:" pos:[355,340] width:60 height:25 visible:false
+	dropdownList ddlSaveVersion "" pos:[410,337] width:55 items:arrSaveVer visible:false
 	button btnCount "待处理原始动画 FBX 数：0 个" pos:[15,461] width:215 height:20 visible:false border:true tooltip:"打开原始动画 FBX 文件夹"
 
-    progressbar pgbBar "" pos:[15,665] width:420 height:8 color:white
-	label lblBarValue "" pos:[445,660] width:60
+    progressbar pgbBar "" pos:[15,685] width:420 height:8 color:white
+	label lblBarValue "" pos:[445,680] width:60
 
     fn getFilesequenceFile f &base &digits = 
 	(
@@ -852,6 +869,9 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 				)
 				animationrange = interval startFrame (endFrame - 1)
 			)
+
+			if isScale100 then (rescaleWorldUnits 100)
+
 			select $'RTHelper_*'
 			if (selection as array).count == 0 then (select $'RetargetHelper_*';preStr = "Old")
 			arrExport = (selection as array)
@@ -901,7 +921,7 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 			-- (
 			-- 	local dummyRootMotionTemp = point name:"RootTemp" wirecolor:red
 			-- 	-- in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0)
-			-- 	if biped_align_test.rdoUpAxis.state == 1 then (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0))
+			-- 	if biped_align_test.ddlUpAxis.selection == 1 then (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0))
 			-- 	else (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 0 0 0))
 			-- 	(GetBipedNode 1).parent = dummyRootMotionTemp
 			-- 	dummyRootMotionTemp.constantscreensize = false
@@ -973,7 +993,7 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 			(GetBipedNode 1).controller.triangleNeck = true
 			(GetBipedNode 1).transform.controller.figureMode = false
 
-			saveMaxFile tarMaxFile quiet:true
+			saveMaxFile tarMaxFile saveAsVersion:((biped_align_test.ddlSaveVersion.selected) as integer) clearNeedSaveFlag:true quiet:true
 			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
 			select arrExport
 			exportFile tarFileExportPath #noPrompt selectedOnly:true using:FBXEXP
@@ -1026,8 +1046,8 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 			newBone.boxmode   = true
 			newBone.wirecolor = black
 			fnFixSize newBone
-			newBone.width     = 0.01
-			newBone.height    = 0.01
+			-- newBone.width     = 0.01
+			-- newBone.height    = 0.01
 			
 			return newBone;
 		)
@@ -1048,8 +1068,8 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 			newBone.boxmode   = true
 			newBone.wirecolor = green
 			fnFixSize newBone
-			newBone.width     = 0.01
-			newBone.height    = 0.01
+			-- newBone.width     = 0.01
+			-- newBone.height    = 0.01
 			
 			return newBone;
 		)
@@ -1059,28 +1079,71 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 			local mid = [0,0,0]
 			if (parentIndex == 23) then
 			(
-				local fIndex = GetSkeletalNode 28 false
+				-- local fIndex = GetSkeletalNode 28 false
 				local fMiddle = GetSkeletalNode 32 false
 				local fRing = GetSkeletalNode 36 false
-				local fPinky = GetSkeletalNode 40 false;
+				-- local fPinky = GetSkeletalNode 40 false;
 				
-				mid = (fIndex.pos + fMiddle.pos + fRing.pos + fPinky.pos) * 0.25;
+				mid = (fMiddle.pos + fRing.pos) * 0.5;
 			)
-			else
+			else if (parentIndex == 47) then
 			(
-				local fIndex = GetSkeletalNode 52 false
+				-- local fIndex = GetSkeletalNode 52 false
 				local fMiddle = GetSkeletalNode 56 false
 				local fRing = GetSkeletalNode 60 false
-				local fPinky = GetSkeletalNode 64 false;
+				-- local fPinky = GetSkeletalNode 64 false;
 				
-				mid = (fIndex.pos + fMiddle.pos + fRing.pos + fPinky.pos) * 0.25;
+				mid = (fMiddle.pos + fRing.pos) * 0.5;
+			)
+			else 
+			(
+				if (foundChild != undefined) then
+				(
+					mid = foundChild.pos
+				)
+				else 
+				(
+					local diff = foundParent.pos - initialBone.pos
+					
+					if initialBone != undefined then
+					(
+						mid = (foundParent.pos + (normalize diff) * 4)
+					)
+					else
+					(
+						return undefined;
+					)
+				)
 			)
 			
-			local diff = mid - foundParent.pos
-			local cro = cross (normalize diff) axis
-			axis = normalize cro
-			print axis
-				
+			-- local diff = mid - foundParent.pos
+			-- local cro = cross (normalize diff) axis
+			-- axis = normalize cro
+			-- print axis
+			case biped_align_test.ddlHandAxis.selected of 
+			(
+				("X"):(axis = foundParent.transform.row1)
+				("Y"):(axis = foundParent.transform.row2)
+				("Z"):(axis = foundParent.transform.row3)
+				("-X"):(axis = -foundParent.transform.row1)
+				("-Y"):(axis = -foundParent.transform.row2)
+				("-Z"):(axis = -foundParent.transform.row3;axisThumb = foundParent.transform.row2)
+				default:(axis = -foundParent.transform.row3;axisThumb = foundParent.transform.row2)
+			)
+
+			case biped_align_test.ddlThumbAxis.selected of 
+			(
+				("X"):(axisThumb = foundParent.transform.row1)
+				("Y"):(axisThumb = foundParent.transform.row2)
+				("Z"):(axisThumb = foundParent.transform.row3)
+				("-X"):(axisThumb = -foundParent.transform.row1)
+				("-Y"):(axisThumb = -foundParent.transform.row2)
+				("-Z"):(axisThumb = -foundParent.transform.row3)
+				default:(axisThumb = -foundParent.transform.row3)
+			)
+
+			if parentIndex == 24 or parentIndex == 48 then (axis = axisThumb)
+
 			if initialBone != undefined then
 			(
 				newBone = BoneSys.createBone foundParent.pos mid axis
@@ -1098,8 +1161,8 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 			)
 			
 			newBone.name   = ("RTHelper_" + (GetBipedNode parentIndex).name);
-			newBone.width  = 0.01
-			newBone.height = 0.01
+			-- newBone.width  = 0.01
+			-- newBone.height = 0.01
 			
 			return newBone;
 		)
@@ -1130,8 +1193,8 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 				)
 				
 				newBone.name   = ("RTHelper_" + (GetBipedNode parentIndex).name)
-				newBone.width  = 0.01
-				newBone.height = 0.01
+				-- newBone.width  = 0.01
+				-- newBone.height = 0.01
 			)
 			else
 			(
@@ -1155,8 +1218,8 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 				)
 				
 				newBone.name   = ("RTHelper_" + (GetBipedNode parentIndex).name)
-				newBone.width  = 0.01
-				newBone.height = 0.01
+				-- newBone.width  = 0.01
+				-- newBone.height = 0.01
 			)
 		)		
 		
@@ -2452,7 +2515,7 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 				boneRetargetRM.constantscreensize = false
 				-- boneRetargetRM.box = true
 				boneRetargetRM.transform = rootMotionBone.transform
-				if rdoUpAxis.state == 1 then (in coordsys gimbal boneRetargetRM.rotation = (eulerAngles 90 0 0))
+				if biped_align_test.ddlUpAxis.selection == 1 then (in coordsys gimbal boneRetargetRM.rotation = (eulerAngles 90 0 0))
 				else (in coordsys gimbal boneRetargetRM.rotation = (eulerAngles 0 0 0))
 				local pC = Position_Constraint()
 				pC.appendTarget rootMotionBone 100
@@ -2467,7 +2530,7 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 				bipedRetargetRM = point name:"Root"
 				-- bipedRetargetRM.size = 0.01
 				bipedRetargetRM.transform = boneRetargetRM.transform
-				if rdoUpAxis.state == 1 then (in coordsys gimbal bipedRetargetRM.rotation = (eulerAngles 90 0 0))
+				if biped_align_test.ddlUpAxis.selection == 1 then (in coordsys gimbal bipedRetargetRM.rotation = (eulerAngles 90 0 0))
 				else (in coordsys gimbal bipedRetargetRM.rotation = (eulerAngles 0 0 0))
 				bipedRetargetRM.wirecolor = red
 				bipedRetargetRM.constantscreensize = false
@@ -2513,12 +2576,12 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 			newBone = CreateFauxBone topSpine 20 21 [0,1,0]
 			newBone = CreateFauxBone newBone 21 22 [0,1,0]
 			newBone = CreateFauxBone newBone 22 23 [0,1,0]
-			lHandBone = CreateFauxBone newBone 23 32 [0,0,-1]-- isHand:true
+			lHandBone = CreateFauxBone newBone 23 32 [0,0,-1] isHand:true
 			
 			newBone = CreateFauxBone topSpine 44 45 [0,1,0]
 			newBone = CreateFauxBone newBone 45 46 [0,1,0]
 			newBone = CreateFauxBone newBone 46 47 [0,1,0]
-			rHandBone = CreateFauxBone newBone 47 56 [0,0,-1]-- isHand:true
+			rHandBone = CreateFauxBone newBone 47 56 [0,0,-1] isHand:true
 			
 			pgbBar.value = 10
 			lblBarValue.text = (pgbBar.value as string) + " %"
@@ -2530,10 +2593,10 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 				--(
 				--	axis = [0,1,0]
 				--)
-				local tBone = CreateFauxBone startingBone sI (sI+1) axis
-				tBone = CreateFauxBone tBone (sI+1) (sI+2) 	axis
-				tBone = CreateFauxBone tBone (sI+2) (sI+3) axis
-				tBone = CreateFauxBone tBone (sI+3) 0 axis
+				local tBone = CreateFauxBone startingBone sI (sI+1) axis isHand:true
+				tBone = CreateFauxBone tBone (sI+1) (sI+2) 	axis isHand:true
+				tBone = CreateFauxBone tBone (sI+2) (sI+3) axis isHand:true
+				tBone = CreateFauxBone tBone (sI+3) 0 axis isHand:true
 			)
 			
 			QuickFingers 24 lHandBone true
@@ -2817,7 +2880,8 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
         btnCount.visible             = switchFBXTools
         chkRecoverExport.visible     = switchFBXTools
         btnSpecial.visible           = switchFBXTools
-        btnTemp.visible              = switchFBXTools
+        lblVerTips.visible           = switchFBXTools
+        ddlSaveVersion.visible       = switchFBXTools
 
 		if not switchFBXTools then dotbtnFBXTools.backcolor = BsDotBackColor 
 		else dotbtnFBXTools.backcolor = BsDotCheckColor
@@ -3439,7 +3503,7 @@ rollout biped_align_test "BsRetargetTools_v2.4 （ FBX 转 BIP + 动画重定向
 	)
 )
 
-createDialog biped_align_test 485 680 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) lockHeight:true lockWidth:true fgcolor:myFgColor
+createDialog biped_align_test 485 700 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) lockHeight:true lockWidth:true fgcolor:myFgColor
 
 
 
