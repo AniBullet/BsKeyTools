@@ -550,7 +550,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v2.5 （ FBX 转 BIP + 动画重定向 ）"
+rollout biped_align_test "BsRetargetTools_v2.6 （ FBX 转 BIP + 动画重定向 ）"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Bip 节点 1 - 35" align:#left across:4 height:35 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -835,7 +835,7 @@ rollout biped_align_test "BsRetargetTools_v2.5 （ FBX 转 BIP + 动画重定向
 			-- print ("开始重定向动画：" +  (getfilenamefile arrExportRetargetAnim[index]) + ".FBX")
 			if chkRecoverExport.state then 
 			(
-				if doesFileExist (substituteString tarNewAnim ".FBX" ".max") then (return "Exist")
+				if doesFileExist tarMaxFile then (return "Exist")
 			)
 			resetMaxFile #noPrompt
 
