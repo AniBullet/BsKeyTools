@@ -1,3 +1,11 @@
+/*
+ * @Description: 
+ * @Author: Bullet.S
+ * @Date: 2022-11-17 13:05:32
+ * @LastEditors: Bullet.S
+ * @LastEditTime: 2022-12-08 10:13:10
+ * @Email: animator.bullet@foxmail.com
+ */
 -- BipedRigCreator_v3.3.2_Enhanced
 -- by: Bullet.S
 -- 2022.05
@@ -835,7 +843,7 @@ rollout biped_align_test "BsRetargetTools_v2.6 （ FBX 转 BIP + 动画重定向
 			-- print ("开始重定向动画：" +  (getfilenamefile arrExportRetargetAnim[index]) + ".FBX")
 			if chkRecoverExport.state then 
 			(
-				if doesFileExist tarMaxFile then (return "Exist")
+				if (doesFileExist tarMaxFile) and (doesFileExist tarNewAnim) then (return "Exist")
 			)
 			resetMaxFile #noPrompt
 
