@@ -157,7 +157,6 @@
 				arrDelMs = #(((getDir #StartupScripts)+ "\\BulletKeyTools.ms"),\
 				((getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"),\
 				((getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"),\
-				((getDir #StartupScripts)+ "\\BsGetTimeCost.ms"),\
 				((getDir #StartupScripts)+ "\\BsTrackBarToolsStartup.ms"),\
 				((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"))
 				for d in arrDelPath do (fnDelDir d)

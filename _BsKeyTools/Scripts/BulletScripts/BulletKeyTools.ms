@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-12-05 11:47:04
+ * @LastEditTime: 2022-12-17 18:49:35
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -33,9 +33,7 @@ Global iniArrMyScripts1   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:5 msName:"<＋＋>" dir:""), \
 (myScript id:6 msName:"<＋＋>" dir:""), \
 (myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
+(myScript id:8 msName:"<＋＋>" dir:""))
 Global iniArrMyScripts2   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:2 msName:"<＋＋>" dir:""), \
 (myScript id:3 msName:"<＋＋>" dir:""), \
@@ -43,9 +41,7 @@ Global iniArrMyScripts2   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:5 msName:"<＋＋>" dir:""), \
 (myScript id:6 msName:"<＋＋>" dir:""), \
 (myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
+(myScript id:8 msName:"<＋＋>" dir:""))
 Global iniArrMyScripts3   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:2 msName:"<＋＋>" dir:""), \
 (myScript id:3 msName:"<＋＋>" dir:""), \
@@ -53,9 +49,7 @@ Global iniArrMyScripts3   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:5 msName:"<＋＋>" dir:""), \
 (myScript id:6 msName:"<＋＋>" dir:""), \
 (myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
+(myScript id:8 msName:"<＋＋>" dir:""))
 Global iniArrMyScripts4   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:2 msName:"<＋＋>" dir:""), \
 (myScript id:3 msName:"<＋＋>" dir:""), \
@@ -63,9 +57,7 @@ Global iniArrMyScripts4   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:5 msName:"<＋＋>" dir:""), \
 (myScript id:6 msName:"<＋＋>" dir:""), \
 (myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
+(myScript id:8 msName:"<＋＋>" dir:""))
 Global iniArrMyScripts5   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:2 msName:"<＋＋>" dir:""), \
 (myScript id:3 msName:"<＋＋>" dir:""), \
@@ -73,9 +65,7 @@ Global iniArrMyScripts5   = #((myScript id:1 msName:"<＋＋>" dir:""), \
 (myScript id:5 msName:"<＋＋>" dir:""), \
 (myScript id:6 msName:"<＋＋>" dir:""), \
 (myScript id:7 msName:"<＋＋>" dir:""), \
-(myScript id:8 msName:"<＋＋>" dir:""),
-(myScript id:9 msName:"<＋＋>" dir:""),
-(myScript id:10 msName:"<＋＋>" dir:""))
+(myScript id:8 msName:"<＋＋>" dir:""))
 Global BulletConfig       = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
 Global startupBsKeyTools  = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"
 Global startupPath        = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
@@ -93,9 +83,11 @@ Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
 							201,202,203,204,205,206,207,208,209,210,211,212,
 							301,302,303,304,305,306,307,308,309,310,311,312,
 							401,402,403,404,405,406,407,408,409,410,411,412)
-global iniIsIcon = false
+global iniIsIcon   = false
 global tooglePersp = false
 -- global isMouseInBsKeyTools = true
+global dateTime     = (dotNetClass "System.DateTime").Now
+global iniStartTime = ((dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second))
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
@@ -190,9 +182,7 @@ fn fnRefreshMyMsBtn =
 		rolBsKeyTools.btnMyScripts5, \
 		rolBsKeyTools.btnMyScripts6, \
 		rolBsKeyTools.btnMyScripts7, \
-		rolBsKeyTools.btnMyScripts8, \
-		rolBsKeyTools.btnMyScripts9, \
-		rolBsKeyTools.btnMyScripts10)
+		rolBsKeyTools.btnMyScripts8)
 	arrAddMyMsBtn = #(rolAddMyScripts.edtRenameMs1, \
 		rolAddMyScripts.edtRenameMs2, \
 		rolAddMyScripts.edtRenameMs3, \
@@ -200,9 +190,7 @@ fn fnRefreshMyMsBtn =
 		rolAddMyScripts.edtRenameMs5, \
 		rolAddMyScripts.edtRenameMs6, \
 		rolAddMyScripts.edtRenameMs7, \
-		rolAddMyScripts.edtRenameMs8, \
-		rolAddMyScripts.edtRenameMs9, \
-		rolAddMyScripts.edtRenameMs10)
+		rolAddMyScripts.edtRenameMs8)
 )
 
 -------------------右键面板空白处设置---------------------------------------------------------
@@ -663,7 +651,7 @@ fn fnSwitchIconStyle =
 	rolBsKeyTools.btnQuicksave.images = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,1,1,1,1,true,false)
 )
 
-rollout rolAddMyScripts "我的脚本" width:300 height:260
+rollout rolAddMyScripts "我的脚本" width:300 height:220
 (
 	local btnMSWidth = 200
 
@@ -678,8 +666,8 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 	edittext edtRenameMs6 "06"  pos:[5,125] width:btnMSWidth height:20 text:""
 	edittext edtRenameMs7 "07"  pos:[5,145] width:btnMSWidth height:20 text:""
 	edittext edtRenameMs8 "08"  pos:[5,165] width:btnMSWidth height:20 text:""
-	edittext edtRenameMs9 "09"  pos:[5,185] width:btnMSWidth height:20 text:""
-	edittext edtRenameMs10 "10"  pos:[5,205] width:btnMSWidth height:20 text:""
+	-- edittext edtRenameMs9 "09"  pos:[5,185] width:btnMSWidth height:20 text:""
+	-- edittext edtRenameMs10 "10"  pos:[5,205] width:btnMSWidth height:20 text:""
 	button btnReAddMs1 "..."  pos:[btnMSWidth + 10,25] width:50 height:20 border:true
 	button btnReAddMs2 "..."  pos:[btnMSWidth + 10,45] width:50 height:20 border:true
 	button btnReAddMs3 "..."  pos:[btnMSWidth + 10,65] width:50 height:20 border:true
@@ -688,8 +676,8 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 	button btnReAddMs6 "..."  pos:[btnMSWidth + 10,125] width:50 height:20 border:true
 	button btnReAddMs7 "..."  pos:[btnMSWidth + 10,145] width:50 height:20 border:true
 	button btnReAddMs8 "..."  pos:[btnMSWidth + 10,165] width:50 height:20 border:true
-	button btnReAddMs9 "..."  pos:[btnMSWidth + 10,185] width:50 height:20 border:true
-	button btnReAddMs10 "..."  pos:[btnMSWidth + 10,205] width:50 height:20 border:true
+	-- button btnReAddMs9 "..."  pos:[btnMSWidth + 10,185] width:50 height:20 border:true
+	-- button btnReAddMs10 "..."  pos:[btnMSWidth + 10,205] width:50 height:20 border:true
 	button btnClearMs1 "X" pos:[btnMSWidth + 65,25]  width:30 height:20 border:true
 	button btnClearMs2 "X" pos:[btnMSWidth + 65,45]  width:30 height:20 border:true
 	button btnClearMs3 "X" pos:[btnMSWidth + 65,65]  width:30 height:20 border:true
@@ -698,10 +686,10 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 	button btnClearMs6 "X" pos:[btnMSWidth + 65,125]  width:30 height:20 border:true
 	button btnClearMs7 "X" pos:[btnMSWidth + 65,145]  width:30 height:20 border:true
 	button btnClearMs8 "X" pos:[btnMSWidth + 65,165]  width:30 height:20 border:true
-	button btnClearMs9 "X" pos:[btnMSWidth + 65,185]  width:30 height:20 border:true
-	button btnClearMs10 "X" pos:[btnMSWidth + 65,205]  width:30 height:20 border:true
-	button btnClearMyScripts "! 清除当前切页脚本引用 !" pos:[15,230] width:160 height:25 border:true
-	button btnDoit "! 注意确认 !" pos:[175,230] width:120 height:25 border:true
+	-- button btnClearMs9 "X" pos:[btnMSWidth + 65,185]  width:30 height:20 border:true
+	-- button btnClearMs10 "X" pos:[btnMSWidth + 65,205]  width:30 height:20 border:true
+	button btnClearMyScripts "! 清除当前切页脚本引用 !" pos:[15,190] width:160 height:25 border:true
+	button btnDoit "! 注意确认 !" pos:[175,190] width:120 height:25 border:true
 
 	fn fnRefreshBtnReAddMs btnMsName btnMsDir edtRenameMs id =
 	(
@@ -785,9 +773,7 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 			(myScript id:5 msName:"<＋＋>" dir:""), \
 			(myScript id:6 msName:"<＋＋>" dir:""), \
 			(myScript id:7 msName:"<＋＋>" dir:""), \
-			(myScript id:8 msName:"<＋＋>" dir:""),
-			(myScript id:9 msName:"<＋＋>" dir:""),
-			(myScript id:10 msName:"<＋＋>" dir:""))
+			(myScript id:8 msName:"<＋＋>" dir:""))
 
 			fnSaveMsArray arrMsTemp
 			-- fnSetMsBtnConfig()
@@ -824,8 +810,6 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 		fnAddMsName 6 edtRenameMs6
 		fnAddMsName 7 edtRenameMs7
 		fnAddMsName 8 edtRenameMs8
-		fnAddMsName 9 edtRenameMs9
-		fnAddMsName 10 edtRenameMs10
 
 		arrMsTemp = fnLoadMsArray()
 
@@ -884,14 +868,6 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 	(
 		fnRefreshBtnReAddMs edtRenameMs8 btnReAddMs8 edtRenameMs8 8
 	)
-	on btnReAddMs9 pressed do 
-	(
-		fnRefreshBtnReAddMs edtRenameMs9 btnReAddMs9 edtRenameMs9 9
-	)
-	on btnReAddMs10 pressed do 
-	(
-		fnRefreshBtnReAddMs edtRenameMs10 btnReAddMs10 edtRenameMs10 10
-	)
 
 	on edtRenameMs1 changed txt do 
 	(
@@ -935,16 +911,6 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 		tempText = substituteString txt "\n" ""
 		edtRenameMs8.text = tempText
 	)
-	on edtRenameMs9 changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtRenameMs9.text = tempText
-	)
-	on edtRenameMs10 changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtRenameMs10.text = tempText
-	)
 
 	on btnClearMs1 pressed do (fnClearOneMs 1)
 	on btnClearMs2 pressed do (fnClearOneMs 2)
@@ -954,8 +920,6 @@ rollout rolAddMyScripts "我的脚本" width:300 height:260
 	on btnClearMs6 pressed do (fnClearOneMs 6)
 	on btnClearMs7 pressed do (fnClearOneMs 7)
 	on btnClearMs8 pressed do (fnClearOneMs 8)
-	on btnClearMs9 pressed do (fnClearOneMs 9)
-	on btnClearMs10 pressed do (fnClearOneMs 10)
 
 	on btnDoit pressed do(fnApplyMyMs())
 
@@ -1198,7 +1162,6 @@ rcmenu menuConfig
 			arrDelMs = #(((getDir #StartupScripts)+ "\\BulletKeyTools.ms"),\
 			((getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"),\
 			((getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"),\
-			((getDir #StartupScripts)+ "\\BsGetTimeCost.ms"),\
 			((getDir #StartupScripts)+ "\\BsTrackBarToolsStartup.ms"),\
 			((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"))
 			for d in arrDelPath do (fnDelDir d)
@@ -1736,7 +1699,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	-- dotnetcontrol panelMyTools "UserControl" pos:[360,15] width:190 height:225
 
 	local btnMsWidth  = 150
-	local btnMsHeight = 20
+	local btnMsHeight = 25
 	local btnMsPos    = [360,42]
 	-- checkbutton ckbSwitchMyScripts "切换" pos:[5,250] width:35 height:btnMsHeight
 	-- tooltip:"切换自定义脚本按钮" border:true highlightcolor:myCheckedColor 
@@ -1768,10 +1731,10 @@ rollout rolBsKeyTools "" width:355 height:250
 	border:true visible:true
 	button btnMyScripts8 "<＋＋>" pos:(btnMsPos + [0,7 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
 	border:true visible:true
-	button btnMyScripts9 "<＋＋>" pos:(btnMsPos + [0,8 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	border:true visible:true
-	button btnMyScripts10 "<＋＋>" pos:(btnMsPos + [0,9 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
-	border:true visible:true
+	-- button btnMyScripts9 "<＋＋>" pos:(btnMsPos + [0,8 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	-- border:true visible:true
+	-- button btnMyScripts10 "<＋＋>" pos:(btnMsPos + [0,9 * btnMsHeight]) width:btnMsWidth height:btnMsHeight
+	-- border:true visible:true
 
 	groupbox gbxTips "" pos:[5,215] width:210 height:30
 	
@@ -4394,6 +4357,9 @@ fn fnBsUpdateTimeRange =
 	rolBsKeyTools.spiStartTime.value = (animationRange.start.frame as integer)   
 	rolBsKeyTools.spiEndTime.value = (animationRange.end.frame as integer)
 )
+
+fnDelFileDir ((getDir #StartupScripts)+ "\\BsGetTimeCost.ms")
+
 callbacks.addScript #animationRangeChange "fnBsUpdateTimeRange()" id:#BsUpdateTimeRange
 callbacks.addScript #filePostOpen "fnBsRefFps()" id:#BsUpdateFps
 callbacks.addScript #timeunitsChange "fnBsRefFps()" id:#BsUpdateFps

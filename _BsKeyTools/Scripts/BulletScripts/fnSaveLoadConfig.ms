@@ -49,7 +49,7 @@ fn fnLoadMsBtnConfig =
 	local tempMsArrayCount = 1
 	for i in arrMyScriptsSet do
 	(
-		if (i != undefined and i.count != 10) or i == undefined then
+		if (i != undefined and i.count != 8) or i == undefined then
 		(
 			i = #((myScript id:1 msName:"<＋＋>" dir:""), \
 			(myScript id:2 msName:"<＋＋>" dir:""), \
@@ -58,10 +58,8 @@ fn fnLoadMsBtnConfig =
 			(myScript id:5 msName:"<＋＋>" dir:""), \
 			(myScript id:6 msName:"<＋＋>" dir:""), \
 			(myScript id:7 msName:"<＋＋>" dir:""), \
-			(myScript id:8 msName:"<＋＋>" dir:""),
-			(myScript id:9 msName:"<＋＋>" dir:""),
-			(myScript id:10 msName:"<＋＋>" dir:""))
-			messagebox ("自定脚本列表 " + tempMsArrayCount as string + " 初始化或读取失败，已重置...                                                         ")
+			(myScript id:8 msName:"<＋＋>" dir:""))
+			messagebox ("很抱歉，自定脚本列表 " + tempMsArrayCount as string + " 初始化或读取失败，已重置...                                                         ")
 
 			SetINISetting BulletConfig "BulletKeyToolsSet" ("ArrMyScripts" + tempMsArrayCount as string) (i as string)
 			arrMyScriptsSet[tempMsArrayCount] = i
@@ -91,6 +89,7 @@ struct stLoadConfigAll
 		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet" "IsIcon" (iniIsIcon as string)
 		iniCollopseType      = fnGetConfig iniCollopseType "BulletKeyToolsSet" "CollopseType" (iniCollopseType as string)
+		iniStartTime         = fnGetConfig iniStartTime "BulletKeyToolsSet" "StartTime" (iniStartTime as string)
 		fnLoadToolBtnConfig()
 		fnLoadMsBtnConfig()
 		-- print "Loaded BsKeyTools Config"
@@ -160,6 +159,7 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BulletKeyToolsSet" "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "IsIcon" (iniIsIcon as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "CollopseType" (iniCollopseType as string)
+		SetINISetting BulletConfig "BulletKeyToolsSet" "StartTime" (iniStartTime as string)
 		fnSetToolBtnConfig()
 		fnSetMsBtnConfig()
 	),

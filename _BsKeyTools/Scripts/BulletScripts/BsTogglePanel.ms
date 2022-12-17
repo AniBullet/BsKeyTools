@@ -73,6 +73,22 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
 
     timer timerTickTock interval:200 active:true
     
+    fn fnGetTimeCost =
+    (
+        if iniStartTime != undefined then
+        (
+            local timeNow = (dotNetClass "System.DateTime").Now
+            local bsSecondTime = (timeNow.day * 86400) + (timeNow.Hour * 3600) + (timeNow.Minute * 60) + (timeNow.Second)
+            local bsTimeCost = (bsSecondTime - iniStartTime)
+    
+            return ("本次已运行： " + ((bsTimeCost/86400) as integer) as string + " 天 " + 
+            ((((mod bsTimeCost 86400) as integer)/3600) as integer) as string + " 小时 " + 
+            ((((mod ((mod bsTimeCost 86400) as integer) 3600) as integer)/60) as integer) as string + " 分钟 " + 
+            ((mod ((mod ((mod ((mod bsTimeCost 86400) as integer) 3600) as integer) 60) as integer) 60) as integer) as string + " 秒钟")
+        )
+        else (return "抱歉，无法获取当前时间，请重试！")
+    )
+
     fn fnGetHitokoto = 
     (
         local isConnectInternet = (internet.CheckConnection url:"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&c=j&charset=gbk" force:true)
@@ -127,6 +143,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     (
         if iniCollopseType == 2 then
         (
+            local dayTimeString = fnGetTimeCost()
             local dateTime = (dotNetClass "System.DateTime").Now
             return (dayTimeString + "\r\n" + "当前时间：" +
             fnGetDateTimeString()  + "\r\n" + strDayLine)
