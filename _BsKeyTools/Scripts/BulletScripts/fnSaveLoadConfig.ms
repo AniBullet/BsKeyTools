@@ -83,16 +83,20 @@ struct stLoadConfigAll
 	(
 		iniPos               = fnGetConfig iniPos "BulletKeyToolsSet" "Pos" "0"
 		switchToolPanel      = fnGetConfig switchToolPanel "BulletKeyToolsSet" "ToolPanel" (switchToolPanel as string)
-		switchMSPanel        = fnGetConfig switchMSPanel "BulletKeyToolsSet" "MSPanel" (switchMSPanel as string)
+		-- switchMSPanel        = fnGetConfig switchMSPanel "BulletKeyToolsSet" "MSPanel" (switchMSPanel as string)
 		idBtn                = fnGetConfig idBtn "BulletKeyToolsSet" "idBtn" (idBtn as string)
-		idMsBtn              = fnGetConfig idMsBtn "BulletKeyToolsSet" "idMsBtn" (idMsBtn as string)
 		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet" "IsIcon" (iniIsIcon as string)
 		iniCollopseType      = fnGetConfig iniCollopseType "BulletKeyToolsSet" "CollopseType" (iniCollopseType as string)
 		iniStartTime         = fnGetConfig iniStartTime "BulletKeyToolsSet" "StartTime" (iniStartTime as string)
 		fnLoadToolBtnConfig()
-		fnLoadMsBtnConfig()
 		-- print "Loaded BsKeyTools Config"
+	),
+	fn fnLoadConfigBsScriptsSet =
+	(
+		idMsBtn            = fnGetConfig idMsBtn "BulletKeyToolsSet" "idMsBtn" (idMsBtn as string)
+		iniBsScriptsSetPos = fnGetConfig iniBsScriptsSetPos "BsScriptsSet" "Pos" "0"
+		fnLoadMsBtnConfig()
 	),
 	fn fnLoadConfigBsOpenTools =
 	(
@@ -153,14 +157,18 @@ struct stSetConfigAll
 	(
 		SetINISetting BulletConfig "BulletKeyToolsSet" "Pos" (iniPos as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "ToolPanel" (switchToolPanel as string)
-		SetINISetting BulletConfig "BulletKeyToolsSet" "MSPanel" (switchMSPanel as string)
+		-- SetINISetting BulletConfig "BulletKeyToolsSet" "MSPanel" (switchMSPanel as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "idBtn" (idBtn as string)
-		SetINISetting BulletConfig "BulletKeyToolsSet" "idMsBtn" (idMsBtn as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "IsIcon" (iniIsIcon as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "CollopseType" (iniCollopseType as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "StartTime" (iniStartTime as string)
 		fnSetToolBtnConfig()
+	),
+	fn fnSetConfigBsScriptsSet =
+	(
+		SetINISetting BulletConfig "BsScriptsSet" "Pos" (iniBsScriptsSetPos as string)
+		SetINISetting BulletConfig "BulletKeyToolsSet" "idMsBtn" (idMsBtn as string)
 		fnSetMsBtnConfig()
 	),
 	fn fnSetConfigBsOpenTools =
