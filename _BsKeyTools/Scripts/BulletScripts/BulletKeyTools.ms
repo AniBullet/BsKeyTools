@@ -591,6 +591,7 @@ rcmenu menuConfig
 		-- menuItem mItemCustomScripts "自定义脚本配置管理"
 		menuItem mItemCollapse "自动收缩面板 [精简]"
 		menuItem mItemCollapseFull "自动收缩面板 [浮夸]"
+		menuItem mItemResetCount "面板计时重置 [浮夸]"
 		menuItem mItemIsIcon "切换图标模式 [实验]"
 	)
 	separator menuSepCustom
@@ -626,6 +627,18 @@ rcmenu menuConfig
 			1:(mItemCollapse.checked = true;mItemCollapseFull.checked = false)
 			2:(mItemCollapse.checked = false;mItemCollapseFull.checked = true)
 			default:mItemCollapse.checked = false
+		)
+	)
+
+	on mItemResetCount picked do
+	(
+		if (queryBox "是否重置收缩面板计时统计？                " \
+		title:"计时重置" beep:false) then
+		(
+			dateTime     = (dotNetClass "System.DateTime").Now
+			iniStartTime = ((dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second))
+			SetINISetting BulletConfig "BulletKeyToolsSet" "StartTime" (iniStartTime as string)
+			messagebox " (工具第一次打开开始计时) 重置完成!                                          " beep:false title:"BsKeyTools"
 		)
 	)
 

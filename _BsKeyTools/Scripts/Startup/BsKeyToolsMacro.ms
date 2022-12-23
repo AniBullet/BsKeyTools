@@ -14,13 +14,25 @@
 
 	macroScript BsKeyToolsPosReset
 	category:"_[BulletTools]"
-	buttonText:"工具窗口  位置重置"
-	toolTip:"工具窗口  位置重置"
+	buttonText:"重置 主窗口 位置"
+	toolTip:"重置主窗口位置"
 	(
 		on execute do
 		(
             try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");SetDialogPos rolBsKeyTools (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
             catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+		)
+	)
+
+	macroScript BsScriptsSetPosReset
+	category:"_[BulletTools]"
+	buttonText:"重置 自定义脚本 位置"
+	toolTip:"重置自定义脚本位置"
+	(
+		on execute do
+		(
+            try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsScriptsSet.ms");SetDialogPos rolBsScriptsSet (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
+            catch(messagebox "打开BsScriptsSet失败,\r\n建议重启Max或重新安装...          ")
 		)
 	)
 

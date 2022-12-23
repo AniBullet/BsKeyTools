@@ -81,7 +81,7 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
             local bsSecondTime = (timeNow.day * 86400) + (timeNow.Hour * 3600) + (timeNow.Minute * 60) + (timeNow.Second)
             local bsTimeCost = (bsSecondTime - iniStartTime)
     
-            return ("本次已运行： " + ((bsTimeCost/86400) as integer) as string + " 天 " + 
+            return ("Link Start : " + ((bsTimeCost/86400) as integer) as string + " 天 " + 
             ((((mod bsTimeCost 86400) as integer)/3600) as integer) as string + " 小时 " + 
             ((((mod ((mod bsTimeCost 86400) as integer) 3600) as integer)/60) as integer) as string + " 分钟 " + 
             ((mod ((mod ((mod ((mod bsTimeCost 86400) as integer) 3600) as integer) 60) as integer) 60) as integer) as string + " 秒钟")
