@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-12-23 17:04:08
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-01-10 00:43:20
+ * @LastEditTime: 2023-01-10 02:45:13
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -403,8 +403,8 @@ rollout rolBsScriptsSet "" width:170 height:265
 	local btnMsPos    = [10,55]
 	
 	button btnConfig "配置" pos:[0,0] height:20 width:30 tootip:"也可按钮上右键打开配置" border:false
-	label lblTitle "[ BsScriptsSet ]" pos:[rolBsScriptsSet.width/2 - 45,3] height:15 width:80
-	button btnMin "-" pos:[rolBsScriptsSet.width - 40,0] height:20 width:20 border:false
+	label lblTitle "[ BsScriptsSet ]" pos:[rolBsScriptsSet.width/2 - 40,3] height:15 width:80
+	button btnMin "—" pos:[rolBsScriptsSet.width - 40,0] height:20 width:20 border:false
 	button btnClose "X" pos:[rolBsScriptsSet.width - 20,0] height:20 width:20 border:false
 
 	checkbutton ckbMs1 "生" width:30 height:26 highlightcolor:myCheckedColor \
@@ -516,9 +516,9 @@ rollout rolBsScriptsSet "" width:170 height:265
 		switchMsMouseState = on
 	)
 
-	on rolBsScriptsSet rbuttondown posMou do
+	on rolBsScriptsSet rbuttonup posMou do
 	(
-		if rolBsScriptsSet.height != undefined
+		if rolBsScriptsSet.height != undefined then
 		(
 			if rolBsScriptsSet.height != 265 then rolBsScriptsSet.height = 265 else rolBsScriptsSet.height = 20
 		)
@@ -544,7 +544,7 @@ rollout rolBsScriptsSet "" width:170 height:265
 
 	on btnMin pressed do
 	(
-		if rolBsScriptsSet.height != undefined
+		if rolBsScriptsSet.height != undefined then
 		(
 			if rolBsScriptsSet.height != 265 then rolBsScriptsSet.height = 265 else rolBsScriptsSet.height = 20
 		)
