@@ -43,8 +43,8 @@ Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
 global iniIsIcon   = false
 global tooglePersp = false
 -- global isMouseInBsKeyTools = true
-global dateTime     = (dotNetClass "System.DateTime").Now
-global iniStartTime = ((dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second))
+-- global dateTime     = (dotNetClass "System.DateTime").Now
+-- global iniStartTime = ((dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second))
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
@@ -591,7 +591,7 @@ rcmenu menuConfig
 		-- menuItem mItemCustomScripts "自定义脚本配置管理"
 		menuItem mItemCollapse "自动收缩面板 [精简]"
 		menuItem mItemCollapseFull "自动收缩面板 [浮夸]"
-		menuItem mItemResetCount "面板计时重置 [浮夸]"
+		-- menuItem mItemResetCount "面板计时重置 [浮夸]"
 		menuItem mItemIsIcon "切换图标模式 [实验]"
 	)
 	separator menuSepCustom
@@ -630,17 +630,17 @@ rcmenu menuConfig
 		)
 	)
 
-	on mItemResetCount picked do
-	(
-		if (queryBox "是否重置收缩面板计时统计？                " \
-		title:"计时重置" beep:false) then
-		(
-			dateTime     = (dotNetClass "System.DateTime").Now
-			iniStartTime = ((dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second))
-			SetINISetting BulletConfig "BulletKeyToolsSet" "StartTime" (iniStartTime as string)
-			messagebox " (工具第一次打开开始计时) 重置完成!                                          " beep:false title:"BsKeyTools"
-		)
-	)
+	-- on mItemResetCount picked do
+	-- (
+	-- 	if (queryBox "是否重置收缩面板计时统计？                " \
+	-- 	title:"计时重置" beep:false) then
+	-- 	(
+	-- 		dateTime     = (dotNetClass "System.DateTime").Now
+	-- 		iniStartTime = ((dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second))
+	-- 		SetINISetting BulletConfig "BulletKeyToolsSet" "StartTime" (iniStartTime as string)
+	-- 		messagebox " (工具第一次打开开始计时) 重置完成!                                          " beep:false title:"BsKeyTools"
+	-- 	)
+	-- )
 
 	on mItemHelpVideo picked do 
 	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
@@ -1348,7 +1348,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	groupbox gbxTips "" pos:[5,215] width:210 height:30
 	
 	-- label lblLink "2019.9[miHoYo_Bullet.S]4869" pos:[12,226] width:145 height:15
-	dotnetcontrol lblLink "Label" text:"2019.9 [ miHoYo_Bullet.S ]✨" pos:[12,226] width:145 height:15
+	dotnetcontrol lblLink "Label" text:"2019.9 [ miHoYo_Bullet.S ]✨" pos:[12,226] width:140 height:15
 	button btnConfig "⚙️设置" pos:[165,222] width:49 height:22 border:false
 
 	timer timerTickTock interval:200 active:true
