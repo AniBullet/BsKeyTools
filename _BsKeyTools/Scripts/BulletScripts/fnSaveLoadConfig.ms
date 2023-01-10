@@ -88,7 +88,7 @@ struct stLoadConfigAll
 		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet" "IsIcon" (iniIsIcon as string)
 		iniCollopseType      = fnGetConfig iniCollopseType "BulletKeyToolsSet" "CollopseType" (iniCollopseType as string)
-		-- iniStartTime         = fnGetConfig iniStartTime "BulletKeyToolsSet" "StartTime" (iniStartTime as string)
+		-- iniCostTime         = fnGetConfig iniCostTime "BulletKeyToolsSet" "CostTime" (iniCostTime as string)
 		fnLoadToolBtnConfig()
 		-- print "Loaded BsKeyTools Config"
 	),
@@ -162,7 +162,7 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BulletKeyToolsSet" "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "IsIcon" (iniIsIcon as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "CollopseType" (iniCollopseType as string)
-		-- SetINISetting BulletConfig "BulletKeyToolsSet" "StartTime" (iniStartTime as string)
+		-- SetINISetting BulletConfig "BulletKeyToolsSet" "CostTime" (arrNewCostTime as string)
 		fnSetToolBtnConfig()
 	),
 	fn fnSetConfigBsScriptsSet =

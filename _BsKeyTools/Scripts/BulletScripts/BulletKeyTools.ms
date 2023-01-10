@@ -43,8 +43,9 @@ Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
 global iniIsIcon   = false
 global tooglePersp = false
 -- global isMouseInBsKeyTools = true
--- global dateTime     = (dotNetClass "System.DateTime").Now
--- global iniStartTime = ((dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second))
+global dateTime    		= (dotNetClass "System.DateTime").Now
+-- global iniCostTime 		= #(0,0,0,0)
+-- global arrNewCostTime 	= iniCostTime
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
@@ -629,18 +630,6 @@ rcmenu menuConfig
 			default:mItemCollapse.checked = false
 		)
 	)
-
-	-- on mItemResetCount picked do
-	-- (
-	-- 	if (queryBox "是否重置收缩面板计时统计？                " \
-	-- 	title:"计时重置" beep:false) then
-	-- 	(
-	-- 		dateTime     = (dotNetClass "System.DateTime").Now
-	-- 		iniStartTime = ((dateTime.day * 86400) + (dateTime.Hour * 3600) + (dateTime.Minute * 60) + (dateTime.Second))
-	-- 		SetINISetting BulletConfig "BulletKeyToolsSet" "StartTime" (iniStartTime as string)
-	-- 		messagebox " (工具第一次打开开始计时) 重置完成!                                          " beep:false title:"BsKeyTools"
-	-- 	)
-	-- )
 
 	on mItemHelpVideo picked do 
 	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
