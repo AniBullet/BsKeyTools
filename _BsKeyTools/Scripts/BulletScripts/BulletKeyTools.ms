@@ -44,8 +44,8 @@ global iniIsIcon   = false
 global tooglePersp = false
 -- global isMouseInBsKeyTools = true
 global dateTime    		= (dotNetClass "System.DateTime").Now
--- global iniCostTime 		= #(0,0,0,0)
--- global arrNewCostTime 	= iniCostTime
+global iniCostTime 		= #(0,0,0,0)
+global arrNewCostTime 	= iniCostTime
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
@@ -592,7 +592,7 @@ rcmenu menuConfig
 		-- menuItem mItemCustomScripts "自定义脚本配置管理"
 		menuItem mItemCollapse "自动收缩面板 [精简]"
 		menuItem mItemCollapseFull "自动收缩面板 [浮夸]"
-		-- menuItem mItemResetCount "面板计时重置 [浮夸]"
+		menuItem mItemResetCount "面板计时重置 [浮夸]"
 		menuItem mItemIsIcon "切换图标模式 [实验]"
 	)
 	separator menuSepCustom
@@ -628,6 +628,19 @@ rcmenu menuConfig
 			1:(mItemCollapse.checked = true;mItemCollapseFull.checked = false)
 			2:(mItemCollapse.checked = false;mItemCollapseFull.checked = true)
 			default:mItemCollapse.checked = false
+		)
+	)
+
+	on mItemResetCount picked do
+	(
+		if (queryBox "是否重置收缩面板计时统计？                " \
+		title:"计时重置" beep:false) then
+		(
+			dateTime     	= (dotNetClass "System.DateTime").Now
+			iniCostTime 	= #(0,0,0,0)
+			arrNewCostTime 	= #(0,0,0,0)
+			SetINISetting BulletConfig "BulletKeyToolsSet" "CostTime" (arrNewCostTime as string)
+			messagebox " (工具第一次打开开始计时) 重置完成!                                          " beep:false title:"BsKeyTools"
 		)
 	)
 
@@ -2401,9 +2414,10 @@ rollout rolBsKeyTools "" width:355 height:250
 		-- panelMyTools.backcolor = BsDotBackColor
 		-- panelMyTools.autoScroll = true
 		-- fnAddDotButton()
-		lblLink.font           = BsDotFont
-		lblLink.backcolor      = BsDotBackColor
-		lblLink.forecolor      = BsDotForeColor
+		arrNewCostTime 		= iniCostTime
+		lblLink.font        = BsDotFont
+		lblLink.backcolor   = BsDotBackColor
+		lblLink.forecolor   = BsDotForeColor
 		fnSwitchToolBtnName()
 		fnSetBtnPrimogem()
 		------刷新图标, 图标是max自带的,主要是懒得做

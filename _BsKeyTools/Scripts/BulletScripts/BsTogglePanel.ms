@@ -75,11 +75,15 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
     
     fn fnGetTimeCost =
     (
-        if dateTime != undefined then
+        if iniCostTime != undefined then
         (
             local timeNow = (dotNetClass "System.DateTime").Now
             local bsTimeCost = timeNow.Subtract dateTime
-            arrNewCostTime = #(bsTimeCost.days,bsTimeCost.Hours,bsTimeCost.Minutes,bsTimeCost.Seconds)
+            local newSeconds = mod (iniCostTime[4] + bsTimeCost.Seconds) 60
+            local newMintes = mod ((iniCostTime[4] + bsTimeCost.Seconds)/60 + iniCostTime[3] + bsTimeCost.Minutes) 60
+            local mewHours = mod (((iniCostTime[4] + bsTimeCost.Seconds)/60 + iniCostTime[3] + bsTimeCost.Minutes)/60 + iniCostTime[2] + bsTimeCost.Hours) 24
+            local newDays = ((((iniCostTime[4] + bsTimeCost.Seconds)/60 + iniCostTime[3] + bsTimeCost.Minutes)/60 + iniCostTime[2] + bsTimeCost.Hours)/24) + iniCostTime[1] + bsTimeCost.days
+            arrNewCostTime = #((newDays as integer),(mewHours as integer),(newMintes as integer),(newSeconds as integer))
 
             return ("Link Start : " + 
             arrNewCostTime[1] as string + " 天 " + 
