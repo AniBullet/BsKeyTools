@@ -1,53 +1,155 @@
--- åç§°ï¼šè½¨è¿¹æ’ä»¶ç»ˆæç‰ˆé‡ç½®ç‰ˆ
--- ä½œè€…:ä¸œè§äº‘
--- ç‰ˆæœ¬ï¼šv1.0
--- 3dsmaxï¼š2014+
--- åŠŸèƒ½ï¼šåŠ¨ç”»è½¨è¿¹
--- è”ç³»æ–¹å¼ï¼šyun7928903@163.com
+-- Ãû³Æ£º¹ì¼£²å¼şÖÕ¼«°æÖØÖÃ°æ
+-- ×÷Õß:¶«¼ûÔÆ
+-- °æ±¾£ºv1.0
+-- 3dsmax£º2014+
+-- ¹¦ÄÜ£º¶¯»­¹ì¼£
+-- ÁªÏµ·½Ê½£ºyun7928903@163.com
 
 
----å°è¯•å…³é—­å›è°ƒ
+---³¢ÊÔ¹Ø±Õ»Øµ÷
 try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()
 try unregisterRedrawViewsCallback yunMotionPathCallBackFn_exc catch()
-----å°è¯•å…³é—­ç•Œé¢
+----³¢ÊÔ¹Ø±Õ½çÃæ
 try DestroyDialog  yunTrajedit_rollout catch ()
 	
-function yunTrajEdit_UpdateRollout = () -- Protoæ”¾æŠ¥é”™åˆå§‹åŒ–	
----å®šä¹‰æ‰€æœ‰è½¨è¿¹	
+function yunTrajEdit_UpdateRollout = () -- Proto·Å±¨´í³õÊ¼»¯	
+---¶¨ÒåËùÓĞ¹ì¼£	
 global yunTrajEdit_DTrajs  
 if yunTrajEdit_DTrajs == undefined do yunTrajEdit_DTrajs = #()
------è½¨è¿¹ç‚¹æ ‡æ˜¾éšç”¨
+-----¹ì¼£µã±êÏÔÒşÓÃ
 global yunTrajEdit_DTrajs_dot 
 if yunTrajEdit_DTrajs_dot == undefined do yunTrajEdit_DTrajs_dot = #()
------è½¨è¿¹æ˜¾éšç”¨
+-----¹ì¼£ÏÔÒşÓÃ
 global yunTrajEdit_DTrajs_vis
 if yunTrajEdit_DTrajs_vis == undefined do yunTrajEdit_DTrajs_vis = #()
------å®æ—¶å¼€å…³ç”¨
+-----ÊµÊ±¿ª¹ØÓÃ
 global yunTrajEdit_DTrajs_timeLong
 if yunTrajEdit_DTrajs_timeLong == undefined do yunTrajEdit_DTrajs_timeLong = #()
 
------æ’­æ”¾å¼€å…³ç”¨
+-----²¥·Å¿ª¹ØÓÃ
 global yunTrajEdit_DTrajs_play
 if yunTrajEdit_DTrajs_play == undefined do yunTrajEdit_DTrajs_play = #()
 
 
+-----¹Ø¼üÖ¡ÏÔÒşÓÃ
+global yunTrajEdit_DTrajs_keyVis
+if yunTrajEdit_DTrajs_keyVis == undefined do yunTrajEdit_DTrajs_keyVis = #()
 
-----åœºæ™¯å†…ç‰©ä½“æ˜¯å¦å­˜åœ¨æ£€æŸ¥å‡½æ•°
+
+-----¿ªÊ¼ÑÕÉ«ÓÃ
+global yunTrajEdit_DTrajs_colStart
+if yunTrajEdit_DTrajs_colStart == undefined do yunTrajEdit_DTrajs_colStart = #()
+
+
+-----½áÊøÑÕÉ«ÓÃ
+global yunTrajEdit_DTrajs_colEnd
+if yunTrajEdit_DTrajs_colEnd == undefined do yunTrajEdit_DTrajs_colEnd = #()
+
+-----½¥±äÑÕÉ«¿ª¹ØÓÃ
+global yunTrajEdit_DTrajs_isGradual
+if yunTrajEdit_DTrajs_isGradual == undefined do yunTrajEdit_DTrajs_isGradual = #()
+ 
+
+
+----»ñÈ¡Ñ¡ÔñµÄÖ¡
+selKeyArray = #()  ---³õÊ¼»¯²»¿ÉÉÙ
+fn getAnimProp_yunEdit obj =
+(   
+try 
+(
+	local keytest  = #()
+	if classof obj != SubAnim then
+	( selKeyArray = #() )
+	if classof obj ==Biped_Object  then
+	(	
+		if (obj.controller != undefined) do
+		(
+			cs_Bone =  (for o in objects where classOf o == Biped_Object  OR (try(classOf o.transform.controller == BipSlave_Control)catch(false)) collect o)	
+			if obj.name==(cs_Bone[1].controller.rootName) then 				
+			(
+				for k in obj.controller[1].keys do	(appendIfUnique  selKeyArray k.time)
+				for k in obj.controller[2].keys do	(appendIfUnique  selKeyArray k.time)
+				for k in obj.controller[3].keys do	(appendIfUnique  selKeyArray k.time)			
+			)
+			else if (keyTest = obj.controller.keys) != undefined and keyTest.count > 0 do
+			(
+				keytest = obj.controller.keys
+				for k in 1 to keyTest.count  do ( appendIfUnique  selKeyArray keytest[k].time )
+			)
+		)
+	)
+	---·ÇbipÎïÌå
+	else 
+	(
+		--µü´úÖÁ×îµ×²ã
+		if obj.numSubs > 0 then ( for i = 1 to obj.numSubs do ( getAnimProp_yunEdit obj[i] ) )
+		---×îµ×²ã
+		else
+		(
+			if (obj.controller != undefined) do
+			(	
+				keytest = obj.keys	
+				if keyTest!= undefined and keyTest.count > 0 do
+				(	for k in 1 to keyTest.count  do ( appendIfUnique  selKeyArray keytest[k].time )) 
+			)
+		)
+	)	
+	
+		sort selKeyArray
+		makeUniqueArray  selKeyArray
+)
+catch()
+
+	return selKeyArray	
+)
+
+
+----³¡¾°ÄÚÎïÌåÊÇ·ñ´æÔÚ¼ì²éº¯Êı
 function yunTrajEdit_CheckExsitError  = 
 (
 	for i in  yunTrajEdit_DTrajs do 
 	(	
 		if (isvalidnode i)==false do 
-		(yunTrajEdit_DTrajs = #();yunTrajEdit_DTrajs_dot = #();yunTrajEdit_DTrajs_vis = #();yunTrajEdit_DTrajs_timeLong = #();yunTrajEdit_DTrajs_play = #())
+		(
+			yunTrajEdit_DTrajs = #()
+			yunTrajEdit_DTrajs_dot = #()
+			yunTrajEdit_DTrajs_vis = #()
+			yunTrajEdit_DTrajs_timeLong = #()
+			yunTrajEdit_DTrajs_play = #()
+			yunTrajEdit_DTrajs_keyVis = #()
+			yunTrajEdit_DTrajs_colStart = #()
+			yunTrajEdit_DTrajs_colEnd = #()
+			yunTrajEdit_DTrajs_isGradual = #()
+
+		)
 	)
 )
 yunTrajEdit_CheckExsitError()
+
+---Èç¹ûÓĞ²»ÏàµÈ¾Í¶¼¹éÁã
 if yunTrajEdit_DTrajs.count!=yunTrajEdit_DTrajs_dot.count or
 yunTrajEdit_DTrajs_dot.count!=yunTrajEdit_DTrajs_vis.count or 
-yunTrajEdit_DTrajs_vis.count!=yunTrajEdit_DTrajs_timeLong.count do
-(yunTrajEdit_DTrajs = #();yunTrajEdit_DTrajs_dot = #();yunTrajEdit_DTrajs_vis = #();yunTrajEdit_DTrajs_timeLong = #();yunTrajEdit_DTrajs_play = #() )
+yunTrajEdit_DTrajs_vis.count!=yunTrajEdit_DTrajs_timeLong.count or 
+yunTrajEdit_DTrajs_timeLong.count!=yunTrajEdit_DTrajs_play.count or 
+yunTrajEdit_DTrajs_play.count!=yunTrajEdit_DTrajs_keyVis.count or 
+yunTrajEdit_DTrajs_keyVis.count!=yunTrajEdit_DTrajs_colStart.count or 
+yunTrajEdit_DTrajs_colStart.count!=yunTrajEdit_DTrajs_colEnd.count or 
+yunTrajEdit_DTrajs_colEnd.count!=yunTrajEdit_DTrajs_isGradual.count do
 
-------å®æ—¶æ”¹å˜å‡½æ•°
+(
+	yunTrajEdit_DTrajs = #()
+	yunTrajEdit_DTrajs_dot = #()
+	yunTrajEdit_DTrajs_vis = #()
+	yunTrajEdit_DTrajs_timeLong = #()
+	yunTrajEdit_DTrajs_play =  #()
+	yunTrajEdit_DTrajs_keyVis = #()
+	yunTrajEdit_DTrajs_colStart = #()
+	yunTrajEdit_DTrajs_colEnd = #()
+	yunTrajEdit_DTrajs_isGradual = #()
+
+)
+
+------ÊµÊ±¸Ä±äº¯Êı
 Fn yun_refreshDT_byTime_new_fn  = 
 (	
 	if yunTrajEdit_DTrajs_timeLong.count > 0 then
@@ -66,17 +168,17 @@ Fn yun_refreshDT_byTime_new_fn  =
 
 
 
------ç‚¹æ ‡æ€§çŠ¶æ§åˆ¶
+-----µã±êĞÔ×´¿ØÖÆ
 KeyP_shape = #("hollowBox","plusSign","asterisk","xMarker","bigBox","circle","triangle","diamond","smallHollowBox","smallCircle","smallTriangle")
 global dotShape = "smallDiamond"
----å®ä¾‹å˜é‡
+---ÊµÀı±äÁ¿
 global yunTrajEdit_Globals	
--- å›¾æ ‡ä½ç½®
+-- Í¼±êÎ»ÖÃ
 global pathIcons = ((getDir #scripts) + "\\BulletScripts\\Res")
 
------å°è£…å¤„
+-----·â×°´¦
 (
-----å®ä¾‹ç»“æ„
+----ÊµÀı½á¹¹
 struct yunTrajEdit_Globals_Struct
 (
 	bmp_Background = openbitmap (pathIcons + "\DTools\DTrajEdit\BackGround.bmp"),
@@ -118,14 +220,14 @@ struct yunTrajEdit_Globals_Struct
 	
 	
 	
-	---åˆ‡å¤§å°ç•Œé¢ å›¾æ ‡
+	---ÇĞ´óĞ¡½çÃæ Í¼±ê
 	bDisplayAll = false,
 	function ToggleDisplayAll =
 	(
 		bDisplayAll = not(bDisplayAll)		
 		yunTrajEdit_Globals.UpdateBitmaps()
 	),
-	---åˆ‡å¤§å°ç•Œé¢  + åˆ·æ–°å›¾æ ‡
+	---ÇĞ´óĞ¡½çÃæ  + Ë¢ĞÂÍ¼±ê
 	function UpdateBitmaps =
 	(
 		--bDisplayAll = not(bDisplayAll)
@@ -142,30 +244,29 @@ struct yunTrajEdit_Globals_Struct
 			else
 			(
 				execute ("yunTrajedit_rollout.btn_DisplayAll.images = #(yunTrajEdit_Globals.bmp_DisplayAll_ON, undefined, 1, 1, 1, 1, 1)")
-				yunTrajedit_rollout.width = 37
+				yunTrajedit_rollout.width = 37+40
 				yunTrajedit_rollout.height = 40
 			)
 		)
 		catch()
 	),
-	----æ–°å»ºè½¨è¿¹
+	----ĞÂ½¨¹ì¼£
 	function NewTraj _bPivot =
 	(			
 		local nParent	
-		----åˆ†ç±»å‹ç”¨ çš„ï¼Œæš‚æ—¶æ— ç”¨
+		----·ÖÀàĞÍÓÃµÄÔİÊ±ÎŞÓÃ
 		if _bPivot do
 		(
-			---æ£€æŸ¥æ˜¯å¦é€‰æ‹©äº†ä¸€ä¸ªç‰©ä½“
+			---¼ì²éÊÇ·ñÑ¡ÔñÁËÒ»¸öÎïÌå
 			if selection.count == 1 then   
 			(
 				nParent = selection[1]
-			)
--- 				else (messagebox "æ¥é€‰ä¸€ä¸ªå˜›..." title:"yunTrajEdit")
+			)				
 		)			
 		setWaitCursor()				
 		
 		
-		-----çœŸæ­£åˆ›å»ºè½¨è¿¹
+		-----ÕæÕı´´½¨¹ì¼£
 		if IsValidNode nParent then
 		(
 			
@@ -174,19 +275,23 @@ struct yunTrajEdit_Globals_Struct
 			appendIfUnique yunTrajEdit_DTrajs nParent
 			append yunTrajEdit_DTrajs_dot true
 			append yunTrajEdit_DTrajs_vis true
-			append yunTrajEdit_DTrajs_timeLong false
+			append yunTrajEdit_DTrajs_timeLong true
 			append yunTrajEdit_DTrajs_play false
+			append yunTrajEdit_DTrajs_keyVis true				
+			append yunTrajEdit_DTrajs_colStart red
+			append yunTrajEdit_DTrajs_colEnd green				
+			append yunTrajEdit_DTrajs_isGradual true
 			)
 			
 		)
 		else
 		(
-		messagebox "æ¥é€‰ä¸€ä¸ªå˜›...  ." title:"yunTrajEdit"				
+		messagebox "À´Ñ¡Ò»¸öÂï...  ." title:"yunTrajEdit"				
 		)
-		----ç•Œé¢é‡ç”Ÿ
+		----½çÃæÖØÉú
 		yunTrajEdit_UpdateRollout()
 	),
-	---åˆ é™¤è½¨è¿¹
+	---É¾³ı¹ì¼£
 	function DeleteTraj _i =
 	(
 		if IsValidNode yunTrajEdit_DTrajs[_i] do 
@@ -196,10 +301,14 @@ struct yunTrajEdit_Globals_Struct
 			deleteItem yunTrajEdit_DTrajs_vis  _i
 			deleteItem yunTrajEdit_DTrajs_timeLong  _i 
 			deleteItem yunTrajEdit_DTrajs_play  _i 
+			deleteItem yunTrajEdit_DTrajs_keyVis  _i 
+			deleteItem yunTrajEdit_DTrajs_colStart  _i 
+			deleteItem yunTrajEdit_DTrajs_colEnd  _i 
+			deleteItem yunTrajEdit_DTrajs_isGradual  _i 
 		)		
 		yunTrajEdit_UpdateRollout()
 	),
-	---åˆ‡æ¢ç‚¹æ ‡æ˜¾éš
+	---ÇĞ»»µã±êÏÔÒş
 	function ToggleDot  _i =
 	(
 		try
@@ -217,7 +326,7 @@ struct yunTrajEdit_Globals_Struct
 		)			
 		catch()
 	),
-	---åˆ‡æ¢è½¨è¿¹æ˜¾éš
+	---ÇĞ»»¹ì¼£ÏÔÒş
 	function ToggleDisplay _i=
 	(
 		try
@@ -234,24 +343,42 @@ struct yunTrajEdit_Globals_Struct
 			)
 		)			
 		catch()
-	)
+	),
+	---ÇĞ»»¹Ø¼üÖ¡ÏÔÒş
+	function ToggleKeyVis  _i =
+	(
+		try
+		(					
+			if (not yunTrajEdit_DTrajs_keyVis[_i]) then
+			(
+				execute ("yunTrajEdit_Rollout.btn_Move" + _i as string + ".images = #(yunTrajEdit_Globals.bmp_Move, undefined, 1, 1, 1, 1, 1)")
+				yunTrajEdit_DTrajs_keyVis[_i] = true
+			)
+			else
+			(
+				execute ("yunTrajEdit_Rollout.btn_Move" + _i as string + ".images = #(yunTrajEdit_Globals.bmp_Move, undefined, 4, 1, 1, 1, 1)")
+				yunTrajEdit_DTrajs_keyVis[_i] = false
+			)
+		)			
+		catch()
+	)	
 )
 
 
-------ç”Ÿæˆè½¨è¿¹å‡½æ•°
-fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShape isPlay =
+------Éú³É¹ì¼£º¯Êı  ÎïÌå ÏÔÊ¾ ¿ªµã ¿ªÊ¼É« ½áÊøÉ« ¿ªÊ¼Ö¡Êı ½áÊøÖ¡Êı µãĞÎ×´ ²¥·ÅÊÇ·ñÏÔÊ¾ ¹Ø¼üÖ¡¿ª¹Ø ÊÇ·ñÑÕÉ«½¥±ä
+fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShape isPlay keyVis isGradual =
 (
-	--æ˜¯å¦æ’­æ”¾
-	playCheck = true  --é»˜è®¤ç”»æ›²çº¿
-	if isPlay and isAnimPlaying() then (playCheck = false )  ---éšè—è¢«å‹¾é€‰åˆ‡åœ¨æ’­æ”¾å°±ä¸ç”»äº†
+	--ÊÇ·ñ²¥·Å
+	playCheck = true  --Ä¬ÈÏ»­ÇúÏß
+	if isPlay and isAnimPlaying() then (playCheck = false )  ---Òş²Ø±»¹´Ñ¡ÇĞÔÚ²¥·Å¾Í²»»­ÁË
 	
 	--if vis and  not isAnimPlaying()  do
-	---ç”»è½¨è¿¹
+	---»­¹ì¼£
 	if vis and   playCheck  do
 	if vis   do
 	(	
 	
-		---è·å–æ•°æ® 
+		---»ñÈ¡Êı¾İ 
 		(	
 			if  ((currentTime as string) as integer) > tStart and
 			((currentTime as string) as integer)  < tEnd then
@@ -264,34 +391,55 @@ fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShap
 			for i = tNow to tEnd do append framesB i
 				
 			----------------------------------------------------
-			arrA = #()  --å¸§æ•°
-			arrColorA = #()   --é¢œè‰²
-			for vT in framesA do 
+			arrA = #()  --Ö¡Êı
+			arrColorA = #()   --ÑÕÉ«
+			arrColorA_reverse = #()
+			
+			if isGradual then		--½¥±ä
 			(
-			at time  vT 
-				(				
-					append arrA  obj.transform.pos
-					append arrColorA col_Start 	
-					
-				)
-			)	
+				rd = col_Start.red/framesA.count  
+				gd = col_Start.green /framesA.count
+				bd = col_Start.blue /framesA.count
+				ad = 255/framesA.count
+				for vT = 1 to  framesA.count do 
+				(
+					at time  framesA[vT](append arrA  obj.transform.pos)
+					col = (color (col_Start.red - rd*vT ) (col_Start.green - gd*vT ) (col_Start.blue - bd*vT ) )				
+					col.alpha = (col_Start.alpha - ad*vT )
+					col.alpha = 255
+					append arrColorA   col			
+				)	
+				
+				arrColorA_reverse = for i = arrColorA.count to 1 by -1 collect arrColorA[i]
+			)
+			else
+			(
+				for vT in framesA do (at time  vT (append arrA  obj.transform.pos;append arrColorA_reverse col_Start ))
+			)			
 			----------------------------------------------------
 			arrB = #()
 			arrColorB = #()
-			for vT in framesB do 
+			
+			if isGradual then		--½¥±ä
 			(
-			at time  vT 
-				(				
-					append arrB  obj.transform.pos
-					append arrColorB col_End
-					
+				rd = col_End.red/framesB.count  
+				gd = col_End.green /framesB.count
+				bd = col_End.blue /framesB.count				
+				for vT = 1 to  framesB.count do 
+				(
+					at time  framesB[vT]	(append arrB  obj.transform.pos	)
+					append arrColorB  (color (col_End.red - rd*vT ) (col_End.green - gd*vT ) (col_End.blue - bd*vT ))	
 				)
+			)
+			else
+			(
+				for vT in framesB do (at time  vT	(append arrB  obj.transform.pos;append arrColorB col_End)	)			
 			)
 		)
 		
 		-- reset
 		gw.setTransform(Matrix3 1)		
-		--ç”Ÿæˆå‰åŠæ®µ
+		--Éú³ÉÇ°°ë¶Î
 		for i = 1 to arrA.count do
 		(			
 			arrA[i] = gw.wTransPoint arrA[i] 
@@ -299,24 +447,25 @@ fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShap
 			( 
 				case of
 				(
-					(dotShape=="hollowBox"): gw.wMarker arrA[i] #hollowBox color:col_Start
-					(dotShape=="plusSign"): gw.wMarker arrA[i] #plusSign color:col_Start
-					(dotShape=="asterisk"): gw.wMarker arrA[i] #asterisk color:col_Start
-					(dotShape=="xMarker"): gw.wMarker arrA[i] #xMarker color:col_Start
-					(dotShape=="bigBox"): gw.wMarker arrA[i] #bigBox color:col_Start
-					(dotShape=="circle"): gw.wMarker arrA[i] #circle color:col_Start
-					(dotShape=="triangle"): gw.wMarker arrA[i] #triangle color:col_Start
-					(dotShape=="diamond"): gw.wMarker arrA[i] #diamond color:col_Start
-					(dotShape=="smallHollowBox"): gw.wMarker arrA[i] #smallHollowBox color:col_Start
-					(dotShape=="smallCircle"): gw.wMarker arrA[i] #smallCircle color:col_Start
-					(dotShape=="smallTriangle"): gw.wMarker arrA[i] #smallTriangle color:col_Start
-					default: gw.wMarker arrA[i] #smallDiamond       color:col_Start
+					(dotShape=="hollowBox"): gw.wMarker arrA[i] #hollowBox color:arrColorA_reverse[i]
+					(dotShape=="plusSign"): gw.wMarker arrA[i] #plusSign color:arrColorA_reverse[i]
+					(dotShape=="asterisk"): gw.wMarker arrA[i] #asterisk color:arrColorA_reverse[i]
+					(dotShape=="xMarker"): gw.wMarker arrA[i] #xMarker color:arrColorA_reverse[i]
+					(dotShape=="bigBox"): gw.wMarker arrA[i] #bigBox color:arrColorA_reverse[i]
+					(dotShape=="circle"): gw.wMarker arrA[i] #circle color:arrColorA_reverse[i]
+					(dotShape=="triangle"): gw.wMarker arrA[i] #triangle color:arrColorA_reverse[i]
+					(dotShape=="diamond"): gw.wMarker arrA[i] #diamond color:arrColorA_reverse[i]
+					(dotShape=="smallHollowBox"): gw.wMarker arrA[i] #smallHollowBox color:arrColorA_reverse[i]
+					(dotShape=="smallCircle"): gw.wMarker arrA[i] #smallCircle color:arrColorA_reverse[i]
+					(dotShape=="smallTriangle"): gw.wMarker arrA[i] #smallTriangle color:arrColorA_reverse[i]
+					default: gw.wMarker arrA[i] #smallDiamond       color:arrColorA_reverse[i]
 				)
 			)
-			else (gw.wMarker arrA[i] #point  color:col_Start)
+			else (gw.wMarker arrA[i] #point  color:arrColorA_reverse[i])
 		)
-			gw.wPolyline arrA false  rgb:arrColorA			
-		----ç”ŸæˆååŠæ®µ
+		gw.wPolyline arrA false  rgb:arrColorA_reverse	
+		
+		----Éú³Éºó°ë¶Î
 		for i = 1 to arrB.count do
 		(
 			arrB[i] = gw.wTransPoint arrB[i] 
@@ -324,24 +473,58 @@ fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShap
 			( 
 				case of
 				(
-					(dotShape=="hollowBox"): gw.wMarker arrB[i] #hollowBox  color:col_End
-					(dotShape=="plusSign"): gw.wMarker arrB[i] #plusSign color:col_End
-					(dotShape=="asterisk"): gw.wMarker arrB[i] #asterisk color:col_End
-					(dotShape=="xMarker"): gw.wMarker arrB[i] #xMarker color:col_End
-					(dotShape=="bigBox"): gw.wMarker arrB[i] #bigBox 	color:col_End
-					(dotShape=="circle"): gw.wMarker arrB[i] #circle color:col_End
-					(dotShape=="triangle"): gw.wMarker arrB[i] #triangle color:col_End
-					(dotShape=="diamond"): gw.wMarker arrB[i] #diamond color:col_End
-					(dotShape=="smallHollowBox"): gw.wMarker arrB[i] #smallHollowBox color:col_End
-					(dotShape=="smallCircle"): gw.wMarker arrB[i] #smallCircle color:col_End
-					(dotShape=="smallTriangle"): gw.wMarker arrB[i] #smallTriangle color:col_End
-					default: gw.wMarker arrB[i] #smallDiamond       color:col_End
+					(dotShape=="hollowBox"): gw.wMarker arrB[i] #hollowBox  color:arrColorB[i] 
+					(dotShape=="plusSign"): gw.wMarker arrB[i] #plusSign color:arrColorB[i] 
+					(dotShape=="asterisk"): gw.wMarker arrB[i] #asterisk color:arrColorB[i] 
+					(dotShape=="xMarker"): gw.wMarker arrB[i] #xMarker color:arrColorB[i] 
+					(dotShape=="bigBox"): gw.wMarker arrB[i] #bigBox 	color:arrColorB[i] 
+					(dotShape=="circle"): gw.wMarker arrB[i] #circle color:arrColorB[i] 
+					(dotShape=="triangle"): gw.wMarker arrB[i] #triangle color:arrColorB[i] 
+					(dotShape=="diamond"): gw.wMarker arrB[i] #diamond color:arrColorB[i] 
+					(dotShape=="smallHollowBox"): gw.wMarker arrB[i] #smallHollowBox color:arrColorB[i] 
+					(dotShape=="smallCircle"): gw.wMarker arrB[i] #smallCircle color:arrColorB[i] 
+					(dotShape=="smallTriangle"): gw.wMarker arrB[i] #smallTriangle color:arrColorB[i] 
+					default: gw.wMarker arrB[i] #smallDiamond       color:arrColorB[i] 
 				)
 -- 				gw.wMarker arrB[i]  #hollowBox       color:col_End
 			)	
-			else(  	gw.wMarker arrB[i]  #point  color:col_End )
+			else(  	gw.wMarker arrB[i]  #point  color:arrColorB[i] )
 		)
 		gw.wPolyline arrB false  rgb:arrColorB
+		
+			
+		---¹Ø¼üÖ¡ÏÔÊ¾   obj = $
+		if keyVis then	
+		(
+			keyArray = getAnimProp_yunEdit  obj			
+			keyA_num = for i in keyArray where 
+				( 
+				((i as string )as integer )> tStart and 	((i as string )as integer )< tend 				
+				)collect ((i as string )as integer)
+			arrK = #()
+			arrColorK = #()
+			for vT in keyA_num do 
+			(
+			at time  vT 
+				(				
+					append arrK  obj.transform.pos
+					append arrColorK white				
+				)
+			)	
+			gw.setTransform (matrix3 1)	
+			
+			for i = 1 to arrK.count do
+			(
+				arrK[i] = gw.wTransPoint arrK[i] 
+	 			--if isdot then 
+				( 	
+				gw.wtext  arrK[i] (keyA_num[i] as string) color:yellow		
+				gw.wMarker arrK[i] #xMarker  color:white
+				)	
+				
+			)
+			--gw.wPolyline arrK false  rgb:arrColorK
+		)
 		
 		at time (currentTime) (posRescue=  obj.transform.pos)
 		gw.wMarker posRescue #smallDiamond color:col_End
@@ -355,23 +538,26 @@ fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShap
 )
 function yunMotionPathCallBackFn_exc =
 (
-	----æ”¾æŠ¥é”™åˆ¤æ–­
+	----·Å±¨´íÅĞ¶Ï
 	if yunTrajEdit_DTrajs.count > 0 do
 	(
-		----å…¨å±€å˜é‡æ•´ç†
+		----È«¾Ö±äÁ¿ÕûÀí
 		yunTrajEdit_CheckExsitError()
 		
 
-		-----æ£€æŸ¥ç»“æŸå¼€å¯è½¨è¿¹   i = 1
+		-----¼ì²é½áÊø¿ªÆô¹ì¼£   i = 1
 		for i = yunTrajEdit_DTrajs.count to 1 by -1 do
 		(			
 			col_start = Execute ("yunTrajedit_rollout.col_Dot" + (i as string) + ".color")
 			col_end = Execute ("yunTrajedit_rollout.col_Spline" + (i as string) + ".color")
+			
 			tStart = Execute ("yunTrajedit_rollout.spn_Start" + (i as string) + ".value")
 			tEnd = Execute ("yunTrajedit_rollout.spn_End" + (i as string) + ".value")
-			if yunTrajEdit_DTrajs_dot.count > 0 do ( isdot = yunTrajEdit_DTrajs_dot[i] )
+			if yunTrajEdit_DTrajs_dot.count > 0 do ( isdot = yunTrajEdit_DTrajs_dot[i] )			
 			if yunTrajEdit_DTrajs_vis.count > 0 do ( vis = yunTrajEdit_DTrajs_vis[i] )
 			if yunTrajEdit_DTrajs_Play.count > 0 do ( isPlay = yunTrajEdit_DTrajs_Play[i] )
+			if yunTrajEdit_DTrajs_keyVis.count> 0 do ( keyVis = yunTrajEdit_DTrajs_keyVis[i] )			
+			if yunTrajEdit_DTrajs_isGradual.count> 0 do ( isGradual = yunTrajEdit_DTrajs_isGradual[i] )
 			
 
 			if yunTrajEdit_DTrajs[i] != undefined and
@@ -381,19 +567,21 @@ function yunMotionPathCallBackFn_exc =
 			tEnd != undefined and
 			vis != undefined and
 			dotShape != undefined and
-			isPlay != undefined and				
+			isPlay != undefined and
+			keyVis != undefined and
+			isGradual != undefined and
 			isdot != undefined do			
 			(	
-				----æ ¸å¿ƒç”»è½¨è¿¹ä»£ç 
-				(yunMotionPathCallBackFn   yunTrajEdit_DTrajs[i] vis  isdot col_start col_end tStart tEnd dotShape isPlay)
+				----ºËĞÄ»­¹ì¼£´úÂë
+				(yunMotionPathCallBackFn   yunTrajEdit_DTrajs[i] vis  isdot col_start col_end tStart tEnd dotShape isPlay keyVis isGradual)
 			)
 		)
 	)
 )
-------ç”Ÿæˆè½¨è¿¹å‡½æ•°ç»“æŸe
+------Éú³É¹ì¼£º¯Êı½áÊøe
 
 
-------å®æ—¶æ”¹å˜å‡½æ•°
+------ÊµÊ±¸Ä±äº¯Êı
 Fn yun_refreshDT_byTime_new_fn  = 
 (	
 	if yunTrajEdit_DTrajs_timeLong.count > 0 then
@@ -413,10 +601,10 @@ Fn yun_refreshDT_byTime_new_fn  =
 
 
 
----å®ä¾‹åŒ–
+---ÊµÀı»¯
 (yunTrajEdit_Globals = yunTrajEdit_Globals_Struct())
 
------ç•Œé¢å‡ºç”Ÿå‡½æ•°
+-----½çÃæ³öÉúº¯Êı
 global yunTrajEdit_Rollout
 function yunTrajEdit_UpdateRollout =
 (	
@@ -427,26 +615,26 @@ function yunTrajEdit_UpdateRollout =
 	rollout yunTrajedit_rollout \"\" width:254 height:40
 	(\n
 	--bDisplayAll = false
-	---å¼€å…³æŒ‰é’®
-	button btn_DisplayAll \"\" pos:[1,4] width:34 height:34 tooltip:\"å¤§å°å¦‚æ„\"
-	---logoå›¾æ ‡
+	---¿ª¹Ø°´Å¥
+	button btn_DisplayAll \"\" pos:[1,4] width:34 height:34 tooltip:\"´óĞ¡ÈçÒâ\"
+	---logoÍ¼±ê
 	bitmap bmp_Titlebmp pos:[35,1] width:255 height:40 bitmap:yunTrajEdit_Globals.bmp_Title
-	---å…³äºæŒ‰é’®
+	---¹ØÓÚ°´Å¥
 	button btn_About \"\" pos:[152,4] width:34 height:34 images:#(yunTrajEdit_Globals.bmp_About, undefined, 1, 1, 1, 1, 1) tooltip:\"ABOUT\"
 
 	
-	---æ–°å»ºè½¨è¿¹
-	button btn_New \"\" pos:[186,4] width:34 height:17 images:#(yunTrajEdit_Globals.bmp_New, undefined, 1, 1, 1, 1, 1) tooltip:\"å·¦é”®æ”¹å˜ç‚¹æ ‡å½¢çŠ¶ï¼Œå³é”®æ¢å¤é»˜è®¤\"
-	button btn_New_Pivot \"\" pos:[186,21] width:34 height:17 images:#(yunTrajEdit_Globals.bmp_New_Pivot, undefined, 1, 1, 1, 1, 1) tooltip:\"æ–°å»ºè½¨è¿¹\"
+	---ĞÂ½¨¹ì¼£
+	button btn_New \"\" pos:[186,4] width:34 height:17 images:#(yunTrajEdit_Globals.bmp_New, undefined, 1, 1, 1, 1, 1) tooltip:\"×ó¼ü¸Ä±äµã±êĞÎ×´£¬ÓÒ¼ü»Ö¸´Ä¬ÈÏ\"
+	button btn_New_Pivot \"\" pos:[186,21] width:34 height:17 images:#(yunTrajEdit_Globals.bmp_New_Pivot, undefined, 1, 1, 1, 1, 1) tooltip:\"ĞÂ½¨¹ì¼£\"
 	
-	---é€€å‡ºæŒ‰é’®
+	---ÍË³ö°´Å¥
 	button btn_Exit \"\" pos:[220,4] width:34 height:34 images:#(yunTrajEdit_Globals.bmp_Exit, undefined, 1, 1, 1, 1, 1) tooltip:\"EXIT\"
-	-- çª—å£ç§»åŠ¨åŠŸèƒ½
+	-- ´°¿ÚÒÆ¶¯¹¦ÄÜ
 	on yunTrajedit_rollout mousemove pos do yunTrajEdit_Globals.MoveWindow yunTrajedit_rollout
 	on yunTrajedit_rollout lbuttondown pos do yunTrajEdit_Globals.IsReadyToMove yunTrajedit_rollout pos
 	on yunTrajedit_rollout lbuttonup pos do yunTrajEdit_Globals.LetGoTheWindow()	
 	
-	----æ”¹å˜ç‚¹æ ‡å½¢çŠ¶åŠŸèƒ½
+	----¸Ä±äµã±êĞÎ×´¹¦ÄÜ
 	on btn_New pressed do
 	(
 		if dotShape == \"smallDiamond\" do (dotShape = \"hollowBox\")
@@ -468,7 +656,7 @@ function yunTrajEdit_UpdateRollout =
 	(
 		dotShape = \"smallDiamond\"
 	)
-	----æ‰“å¼€ç•Œé¢æ˜¯åˆ·æ–°å›¾æ ‡
+	----´ò¿ª½çÃæÊÇË¢ĞÂÍ¼±ê
 	on yunTrajedit_rollout open do 
 	(
 		yunTrajEdit_Globals.UpdateBitmaps()
@@ -477,9 +665,10 @@ function yunTrajEdit_UpdateRollout =
 
 		try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()		
 		try (registerTimeCallback yun_refreshDT_byTime_new_fn) catch ()
+		try (yun_refreshDT_byTime_new_fn())	 catch ()
 		
 	)
-	--é€€å‡ºçª—å£åŠŸèƒ½
+	--ÍË³ö´°¿Ú¹¦ÄÜ
 	on btn_Exit pressed do
 	(
 		try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()
@@ -491,28 +680,28 @@ function yunTrajEdit_UpdateRollout =
 
 
 
-		gc()  ---å†…å­˜ç®¡ç†
+		gc()  ---ÄÚ´æ¹ÜÀí
 		
 		
 	)
-	---å…³äºæŒ‰é’®åŠŸèƒ½
+	---¹ØÓÚ°´Å¥¹¦ÄÜ
 	on btn_About pressed do
 	(
-		messagebox \"DtraijEdit 2.07    è½¨è¿¹æ’ä»¶é‡å†™ç‰ˆ\nEricDLegare.com\nProgramming:Eric D Legare   /   ä¸œè§äº‘\nIconsï¼šSimon Dubuc\n---------è”ç³»æ–¹å¼-----------\nyun7928903@163.com
+		messagebox \"DtraijEdit 2.07    ¹ì¼£²å¼şÖØĞ´°æ\nEricDLegare.com\nProgramming:Eric D Legare   /   ¶«¼ûÔÆ\nIcons£ºSimon Dubuc\n---------ÁªÏµ·½Ê½-----------\nyun7928903@163.com
 		\"
 
 	)
-	------åˆ‡æ¢ç•Œé¢å¤§å°
+	------ÇĞ»»½çÃæ´óĞ¡
 	on btn_DisplayAll pressed do
 	(
 		yunTrajEdit_Globals.ToggleDisplayAll()
 	)
-	on btn_New_Pivot pressed do yunTrajEdit_Globals.NewTraj true
+	on btn_New_Pivot pressed do (yunTrajEdit_Globals.NewTraj true;yun_refreshDT_byTime_new_fn())
 	
 	
 	
 	"
-	----åŠ è½¨è¿¹åæ–°å»ºçš„ç•Œé¢
+	----¼Ó¹ì¼£ºóĞÂ½¨µÄ½çÃæ
 	local vSpacing = 34
 
 	if yunTrajEdit_DTrajs.count > 0 do
@@ -520,24 +709,24 @@ function yunTrajEdit_UpdateRollout =
 		yunTrajEdit_CheckExsitError()
 		for i = yunTrajEdit_DTrajs.count to 1 by -1 do
 		(
-			if IsValidNode yunTrajEdit_DTrajs[i] do   ----çœŸå®å­˜åœ¨
+			if IsValidNode yunTrajEdit_DTrajs[i] do   ----ÕæÊµ´æÔÚ
 			(
 				
-				---å¸§èŒƒä½ç½®æ§åˆ¶
+				---Ö¡·¶Î»ÖÃ¿ØÖÆ
 				local vStartPos = ([202,44+(vSpacing*(i-1))] as string) 
 				local vEndPos = ([202,61+(vSpacing*(i-1))] as string)  	
 			
 				local vDotCol = ([89,61+(vSpacing*(i-1))] as string) 
 					
-				--ä¿®æ”¹ï¼ï¼ï¼ï¼ï¼ï¼
-				local vtimeFB = ([39,61+(vSpacing*(i-1))] as string) 	
-				local vtimeFBOnOff = ([3,61+(vSpacing*(i-1))] as string)
-				---æ’­æ”¾å¤é€‰æ¡†ä½ç½®
-				local vplayFBOnOff = ([23,61+(vSpacing*(i-1))] as string)
+				--ĞŞ¸Ä£¡£¡£¡£¡£¡£¡
+				local vtimeFB = ([52,61+(vSpacing*(i-1))] as string) 	
+				local vtimeFBOnOff = ([2,61+(vSpacing*(i-1))] as string)
+				---²¥·Å¸´Ñ¡¿òÎ»ÖÃ
+				local vplayFBOnOff = ([19,61+(vSpacing*(i-1))] as string)
 
 				
 				-----------------
-					
+				local vColGradual = ([36,61+(vSpacing*(i-1))] as string) 
 				local vSplineCol = ([104,61+(vSpacing*(i-1))] as string) 
 				local vMovePos = ([124,61+(vSpacing*(i-1))] as string) 
 				local vDotPos = ([140,61+(vSpacing*(i-1))] as string) 
@@ -547,12 +736,12 @@ function yunTrajEdit_UpdateRollout =
 											
 						
 					
-				---æ ‡å¤´
+				---±êÍ·
 				local vNamePos = ([-3,44+(vSpacing*(i-1))] as string)				
 				szExecute += ("edittext edt_Name" + (i as string) + " \"\" pos:" + vNamePos + " width:206 height:16 text:\"" + yunTrajEdit_DTrajs[i].name + "\"\n")						
 				szExecute += ("on edt_Name" + (i as string) + " entered val do yunTrajEdit_DTrajs[" + (i as string) + "].name val\n")	
 				szExecute += "\n"	
-				---è½¨è¿¹é•¿åº¦èŒƒå›´	
+				---¹ì¼£³¤¶È·¶Î§	
 				szExecute += ("spinner spn_Start" + (i as string) + " \"\" pos:" + vStartPos + " width:52 height:16 type:#integer range:[-99999,99999," + (((animationRange.start as string) as integer) as string) +"]\n")
 				szExecute += ("spinner spn_End" +   (i as string) + " \"\" pos:" + vEndPos +   " width:52 height:16 type:#integer range:[-99999,99999," + (((animationRange.end   as string) as integer) as string) +"]\n")
 				szExecute += ("on spn_Start" + (i as string) + " changed val do 
@@ -570,62 +759,76 @@ function yunTrajEdit_UpdateRollout =
 				)\n")
 				szExecute += "\n"
 				
-				----å¡«å……å½“å‰æ—¶é—´åˆ°å¸§èŒƒå›´
+				----Ìî³äµ±Ç°Ê±¼äµ½Ö¡·¶Î§
 				szExecute += ("button btn_Range" + (i as string) + " \"\" pos:" + vRangePos + " width:16 height:16 images:#(yunTrajEdit_Globals.bmp_Range, undefined, 1, 1, 1, 1, 1)  tooltip:\"Reset the RANGE to the Active Time Segment\"\n")
 				szExecute += ("on btn_Range" + (i as string) + " pressed do ( spn_Start" + (i as string)+".value=((animationRange.start as string) as integer);spn_End" + (i as string)+".value=((animationRange.end as string) as integer))\n")
 
-				----åˆ é™¤è½¨è¿¹
+				----É¾³ı¹ì¼£
 				szExecute += ("button btn_Delete" + (i as string) + " \"\" pos:" + vDeletePos + " width:16 height:16 images:#(yunTrajEdit_Globals.bmp_Delete, undefined, 1, 1, 1, 1, 1)  tooltip:\"DELETE Trajectory\" \n")
 				szExecute += ("on btn_Delete" + (i as string) + " pressed do yunTrajEdit_Globals.DeleteTraj " + (i as string) + " \n")
 				szExecute += "\n"
 
-				----éšè—è½¨è¿¹
-				szExecute += ("button btn_Display" + (i as string) + " \"\" pos:" + vDisplayPos + " width:16 height:16  tooltip:\"éšè—è½¨è¿¹\" \n")
+				----Òş²Ø¹ì¼£
+				szExecute += ("button btn_Display" + (i as string) + " \"\" pos:" + vDisplayPos + " width:16 height:16  tooltip:\"Òş²Ø¹ì¼£\" \n")
 				szExecute += ("on btn_Display" + (i as string) + " pressed do yunTrajEdit_Globals.ToggleDisplay " + (i as string)+"  \n")
 				szExecute += "\n"
 				
-				----éšè—ç‚¹æ ‡
-				szExecute += ("button btn_Dot" + (i as string) + " \"\" pos:" + vDotPos + " width:16 height:16 tooltip:\"éšè—ç‚¹æ ‡è®°\" \n")
+				----Òş²Øµã±ê
+				szExecute += ("button btn_Dot" + (i as string) + " \"\" pos:" + vDotPos + " width:16 height:16 tooltip:\"Òş²Øµã±ê¼Ç\" \n")
 				szExecute += ("on btn_Dot" + (i as string) + " pressed do yunTrajEdit_Globals.ToggleDot " + (i as string)+"  \n")
 				szExecute += "\n"
 				
-				----ç»è¿‡åé¢œè‰²
-				szExecute += ("colorpicker col_Spline" + (i as string) + " \"\" pos:" + vSplineCol + " width:20 height:16 color:" + "green" +" title:\"Trajectory\" \n")
+				----¾­¹ıºóÑÕÉ«
+				szExecute += ("colorpicker col_Spline" + (i as string) + " \"\" pos:" + vSplineCol + " width:20 height:16 color:" + "yunTrajEdit_DTrajs_colStart[" + (i as string)+"]" +" title:\"Trajectory\" \n")
+				szExecute += ("on col_Spline" + (i as string) + " changed new_col do (yunTrajEdit_DTrajs_colStart[" + (i as string)+"] =  new_col)")				
 				szExecute += "\n"
 				
-				----ç»è¿‡å‰é¢œè‰²	
-				szExecute += ("colorpicker col_Dot" + (i as string) + " \"\" pos:" + vDotCol + " width:20 height:16 color:" + "red" + " title:\"Spacing Dots\" \n")
+				----¾­¹ıÇ°ÑÕÉ«	
+				szExecute += ("colorpicker col_Dot" + (i as string) + " \"\" pos:" + vDotCol + " width:20 height:16 color:" + "yunTrajEdit_DTrajs_colEnd[" + (i as string)+"]" + " title:\"Spacing Dots\" \n")
+				szExecute += ("on col_Dot" + (i as string) + " changed new_col do (yunTrajEdit_DTrajs_colEnd[" + (i as string)+"] =  new_col)")	
 				szExecute += "\n"
 				
-				-- ä¿®æ”¹æ·»åŠ å¸§èŒƒå›´é€‰é¡¹
-				szExecute += ("spinner time_FB" + (i as string) + " \"\" pos:" + vtimeFB + " width:52 height:16 type:#integer range:[1,999,10]\n")					
+				----ÊÇ·ñÆôÓÃÑÕÉ«½¥±ä  i =1 
+				szExecute += ("checkbox isGradual" + (i as string) + " \"\" pos:" + vColGradual + " width:16 height:16 checked:" + (yunTrajEdit_DTrajs_isGradual[i] as string)+ "  tooltip:\"¿ª¹ØÑÕÉ«½¥±ä\" \n")
+
+				szExecute +=  ("on isGradual" + (i as string) + " changed theState do (				
+				yunTrajEdit_DTrajs_isGradual["+ (i as string)+"] = theState
+				if theState do 
+				(	try (yun_refreshDT_byTime_new_fn())	 catch ())
+				)\n")
+				
+				szExecute += "\n"
+				
+				-- ĞŞ¸ÄÌí¼ÓÖ¡·¶Î§Ñ¡Ïî
+				szExecute += ("spinner time_FB" + (i as string) + " \"\" pos:" + vtimeFB + " width:42 height:16 type:#integer range:[1,999,20]\n")					
 				szExecute += ("on time_FB" + (i as string) + " changed val do (
 				yunTrajEdit_Rollout.time_FBONOff"+ (i as string)+".checked = true
 				yunTrajEdit_DTrajs_timeLong["+ (i as string)+"] = yunTrajEdit_Rollout.time_FBONOff"+ (i as string)+".checked 
 				yun_refreshDT_byTime_new_fn()
 				) \n")					
 					
-				szExecute += ("checkbox time_FBONOff" + (i as string) + " \"\" pos:" + vtimeFBOnOff + " width:16 height:16 checked:" + (yunTrajEdit_DTrajs_timeLong[i] as string)+ "  tooltip:\"å¼€å…³æ˜¯å¦å®æ—¶åˆ·æ–°è½¨è¿¹é•¿åº¦\" \n")
+				szExecute += ("checkbox time_FBONOff" + (i as string) + " \"\" pos:" + vtimeFBOnOff + " width:16 height:16 checked:" + (yunTrajEdit_DTrajs_timeLong[i] as string)+ "  tooltip:\"¿ª¹ØÊµÊ±Ë¢ĞÂ¹ì¼£³¤¶È\" \n")
 				szExecute += ("on time_FBONOff" + (i as string) + " changed theState do (				
 				yunTrajEdit_DTrajs_timeLong["+ (i as string)+"] = theState
 				if theState do 
 				(	try (yun_refreshDT_byTime_new_fn())	 catch ())
 				)\n")
 				
-				----æ˜¯å¦åœ¨æ’­æ”¾æ˜¯éšè—  i =1 
-				szExecute += ("checkbox play_FBONOff" + (i as string) + " \"\" pos:" + vplayFBOnOff + " width:16 height:16 checked:" + (yunTrajEdit_DTrajs_play[i] as string)+ "  tooltip:\"å¼€å…³æ˜¯å¦åœ¨æ’­æ”¾æ—¶éšè—å·²ä¿è¯å¸§ç‡\" \n")
+				----ÊÇ·ñÔÚ²¥·ÅÊÇÒş²Ø  i =1 
+				szExecute += ("checkbox play_FBONOff" + (i as string) + " \"\" pos:" + vplayFBOnOff + " width:16 height:16 checked:" + (yunTrajEdit_DTrajs_play[i] as string)+ "  tooltip:\"¿ª¹ØÔÚ²¥·ÅÊ±Òş²ØÒÑ±£Ö¤Ö¡ÂÊ\" \n")
 				szExecute += ("on play_FBONOff" + (i as string) + " changed theState do (				
 				yunTrajEdit_DTrajs_play["+ (i as string)+"] = theState			
 				)\n")
-
-
 				szExecute += "\n"
 				----------
 				
-				----ç§»åŠ¨è½¨è¿¹
-				szExecute += ("button btn_Move" + (i as string) + " \"\" pos:" + vMovePos + " width:16 height:16 images:#(yunTrajEdit_Globals.bmp_Move, undefined, 1, 1, 1, 1, 1)  tooltip:\"åç§»åŠŸèƒ½å¾…æ·»åŠ \" \n")
+				----ĞŞ¸ÄÎª¹Ø¼üÖ¡¿ª¹Ø (Ô­ÏÈÒÆ¶¯ÒÆ¶¯¹ì¼£)
+				szExecute += ("button btn_Move" + (i as string) + " \"\" pos:" + vMovePos + " width:16 height:16 images:#(yunTrajEdit_Globals.bmp_Move, undefined, 1, 1, 1, 1, 1)  tooltip:\"Æ«ÒÆ¹¦ÄÜ´ıÌí¼Ó\" \n")
+				
+				szExecute += ("on btn_Move" + (i as string) + " pressed do yunTrajEdit_Globals.ToggleKeyVis " + (i as string)+"  \n")
 				szExecute += "\n"
-				-------æ ¹æ®å½“å‰å¸§å®æ—¶åˆ·æ–°å¸§èŒƒå›´
+				
+				-------¸ù¾İµ±Ç°Ö¡ÊµÊ±Ë¢ĞÂÖ¡·¶Î§
 
 				
 				szExecute += "\n"
@@ -641,7 +844,7 @@ function yunTrajEdit_UpdateRollout =
 	local vOriginalPos = if yunTrajedit_rollout != undefined  then (GetDialogPos yunTrajedit_rollout) else [0,0]
 	
 	
-	----å°è¯•å…³é—­ç•Œé¢
+	----³¢ÊÔ¹Ø±Õ½çÃæ
 	try DestroyDialog  yunTrajedit_rollout catch ()
 	
 	
@@ -654,10 +857,9 @@ function yunTrajEdit_UpdateRollout =
 		(	createDialog  yunTrajedit_rollout 205 (43 + (yunTrajEdit_DTrajs.count * vSpacing)) style:#(#style_border) bitmap:yunTrajEdit_Globals.bmp_Background bmpstyle:#bmp_tile fgcolor:green )
 	
 			
-	----è½¨è¿¹å’Œç‚¹æ ‡å¤„ç†
+	----¹ì¼£ºÍµã±ê´¦Àí
 	if yunTrajEdit_DTrajs.count > 0 do
-	(
-		
+	(		
 		for i = yunTrajEdit_DTrajs.count to 1 by -1 do
 		(
 			try
@@ -687,7 +889,7 @@ function yunTrajEdit_UpdateRollout =
 			catch()
 		)
 	)
-	----------å›¾æ ‡å¤„ç†ç»“æŸ-----
+	----------Í¼±ê´¦Àí½áÊø-----
 	
 
 -- 	setDialogPos yunTrajedit_rollout [247,225]
