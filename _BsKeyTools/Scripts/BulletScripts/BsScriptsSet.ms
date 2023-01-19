@@ -403,7 +403,7 @@ rollout rolBsScriptsSet "" width:170 height:265
 	local btnMsPos    = [10,55]
 	
 	button btnConfig "配置" pos:[0,0] height:20 width:30 tootip:"也可按钮上右键打开配置" border:false
-	label lblTitle "[ BsScriptsSet ]" pos:[rolBsScriptsSet.width/2 - 40,3] height:15 width:80
+	-- label lblTitle "[ BsScriptsSet ]" pos:[rolBsScriptsSet.width/2 - 40,3] height:15 width:80
 	button btnMin "—" pos:[rolBsScriptsSet.width - 40,0] height:20 width:20 border:false
 	button btnClose "X" pos:[rolBsScriptsSet.width - 20,0] height:20 width:20 border:false
 
@@ -495,6 +495,8 @@ rollout rolBsScriptsSet "" width:170 height:265
 
 	on rolBsScriptsSet open do  ----打开脚本时操作
 	(
+		stLoadConfigAll.fnLoadConfigBsScriptsSet()
+		stSetConfigAll.fnSetConfigBsScriptsSet ()
 		fnSwitchToolBtnChecked idMsBtn
 		fnRefreshMyScripts()
 	)
