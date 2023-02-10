@@ -349,11 +349,16 @@ rollout BsVportTools "BsVportTools_v1.0"
 					BsVportTools.fnUpdateVportList()
 					BsVportTools.mlbVportSet.selection = arrVportValue.count
 				)
-				else (BsVportTools.mlbVportSet.selection = existCount)
+				else 
+				(
+					BsVportTools.fnUpdateVportList()
+					BsVportTools.mlbVportSet.selection = existCount
+				)
 				filename = (substituteString fileINISave ".ini" ("_" + ((BsVportTools.mlbVportSet.selection as array)[1]) as string + ".bmp"))
 				forceCompleteRedraw()
 				fnMakeThumbnail filename
 				fnReloadPreview()
+				btnPreview.text = BsVportTools.mlbVportSet.items[(BsVportTools.mlbVportSet.selection as array)[1]]
 			)
 		-- )
 	)
