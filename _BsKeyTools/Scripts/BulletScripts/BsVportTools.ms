@@ -198,12 +198,16 @@ rollout BsVportTools "BsVportTools_v1.0"
 	fn fnLoadVportINI fileINI =
 	(
 		listCount = (fnGetVportINI fileINI "BsVportToolsSet"  "ListCount" "0")
-		for i = 1 to listCount where listCount != 0 do
+		if listCount != 0 then
 		(
-			valueVport = (fnGetVportINI fileINI "BsVportToolsList" (i as string) (with printAllelements on ("" as string)))
-			if valueVport != "" then append arrVportValue valueVport
+			for i = 1 to listCount do
+			(
+				valueVport = (fnGetVportINI fileINI "BsVportToolsList" (i as string) (with printAllelements on ("" as string)))
+				if valueVport != "" then append arrVportValue valueVport
+			)
+			BsVportTools.fnUpdateVportList()
 		)
-		BsVportTools.fnUpdateVportList()
+		else (messagebox ("未读取到镜头配置，文件已损坏或所选文件类型不对，请检查~                                ") beep:false title:"BsVportTools")
 	)
 
 	fn fnRefreshVportSet =
@@ -447,12 +451,12 @@ rollout BsVportTools "BsVportTools_v1.0"
 		(
 			fnSaveVportINI()
 		)
-		else (messagebox "请先保存视角镜头参数再储存配置！                    " title:"BsKeyTools" beep:false)
+		else (messagebox "请先保存视角镜头参数再储存配置！                    " title:"BsVportTools" beep:false)
 	)	
 
 	on btnLoadVportINI pressed do
 	(
-		local pathLoad = getOpenFileName caption:"Load INI File" types:"INI(*.ini)|*.ini|" historyCategory:"BsVportLog" filename:(pathVportLog + @"\")
+		local pathLoad = getOpenFileName caption:"Load INI File" types:"INI(*.ini)|*.ini|All(*.*)|*.*" historyCategory:"BsVportLog" filename:(pathVportLog + @"\")
 		if pathLoad != undefined then
 		(
 			fnLoadVportINI pathLoad
