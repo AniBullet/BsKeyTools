@@ -2492,6 +2492,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	
 	on rolBsKeyTools lbuttondown posMou do
 	(
+		setSysCur #move
 		posMouMoved = posMou
 		switchMouseState = on
 	)
