@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-12-23 19:24:57
+ * @LastEditTime: 2023-02-14 01:56:28
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1167,12 +1167,12 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnMagicBtn "" pos:[150,20] width:60 height:18  \
 	tooltip:"点我点我点我~良心小工具" border:false
 	checkbox chkJudgeLinkKey "Link?" \
-	pos:[12,48] tooltip:"选择帧前确认是否存在 Link 帧?" width:40 height:15 checked:false
-	button btnSelBeforeKeys "" \
+	pos:[12,48] tooltip:"选择帧前确认是否存在 Link 帧" width:40 height:15 checked:false
+	button btnSelBeforeKeys "" border:false \
 	pos:[60,40] width:40 height:30 toolTip:"选择滑条前面关键帧"  
-	button btnSelAllKeys "" \
+	button btnSelAllKeys "" border:false \
 	pos:[100,40] width:40 height:30 toolTip:"选择所有关键帧"  
-	button btnSelAfterKeys "" \
+	button btnSelAfterKeys "" border:false \
 	pos:[140,40] width:40 height:30 toolTip:"选择滑条后面关键帧"
 
 	dotnetcontrol btnElement "button" pos:[180,40] width:30 height:30
@@ -1350,7 +1350,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	groupbox gbxTips "" pos:[5,215] width:210 height:30
 	
 	-- label lblLink "2019.9[miHoYo_Bullet.S]4869" pos:[12,226] width:145 height:15
-	dotnetcontrol lblLink "Label" text:"2019.9 [ miHoYo_Bullet.S ]✨" pos:[12,226] width:140 height:15
+	dotnetcontrol lblLink "Label" text:"2019.9 [ miHoYo_Bullet.S ]✨" pos:[12,226] width:150 height:15
 	button btnConfig "⚙️设置" pos:[165,222] width:49 height:22 border:false
 
 	timer timerTickTock interval:200 active:true
