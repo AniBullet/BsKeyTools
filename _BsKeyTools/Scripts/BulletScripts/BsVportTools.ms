@@ -29,7 +29,7 @@ rcmenu menuBsVportRightClick
 	)
 )
 
-rollout BsVportTools "BsVportTools_v1.0"
+rollout BsVportTools "BsVportTools_v1.1"
 (
 	MultiListBox mlbVportSet "" width:143 height:15 pos:[3,65]
 	button btnCreateCam "" width:40 height:35 pos:[5,5] tooltip:"以 \"P\" 自由视角创建相机"
