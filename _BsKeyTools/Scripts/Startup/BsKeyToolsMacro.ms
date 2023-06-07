@@ -8,7 +8,7 @@
 		on execute do
 		(
 			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
-			catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+			catch(messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
 		)
 	)
 
@@ -21,7 +21,7 @@
 		(
 			global rolBsKeyTools
             try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");SetDialogPos rolBsKeyTools (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
-            catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+            catch(messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
 		)
 	)
 
@@ -34,7 +34,7 @@
 		(
 			global rolBsScriptsSet
             try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsScriptsSet.ms");SetDialogPos rolBsScriptsSet (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
-            catch(messagebox "打开BsScriptsSet失败,\r\n建议重启Max或重新安装...          ")
+            catch(messagebox "打开 BsScriptsSet.ms 失败,\r\n建议重启Max或重新安装...          ")
 		)
 	)
 
@@ -137,7 +137,7 @@
 				if (rolBsKeyTools.open) then 
 				(
 					try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
-					catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+					catch(messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
 				)
 			)
 			catch()
@@ -253,7 +253,7 @@
 		on execute do
 		(
             try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsCleanVirus.ms"))
-			catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+			catch(messagebox "打开 BsCleanVirus.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 		)
 	)
 
