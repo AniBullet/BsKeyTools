@@ -190,17 +190,17 @@ fn f_changePivot ctrl index =
 			)
 			else
 			(
-				messagebox "错误：必须是固定帧或滑动帧。                       " title:"Pivots Selection"
+				messagebox "错误：必须是固定帧或滑动帧。                       " title:"选择 Pivots"
 			)
 		)
 		else
 		(
-			messagebox "错误：当前时间滑块没有帧。                        " title:"Pivots Selection"
+			messagebox "错误：当前时间滑块没有帧。                        " title:"选择 Pivots"
 		)
 	)
 	else
 	(
-		messagebox "错误：找不到键。\r\n设置一个固定键或滑动键。                             " title:"Pivots Selection"
+		messagebox "错误：找不到帧。\r\n设置一个固定帧或滑动帧。                             " title:"选择 Pivots"
 	)
 	
 	return false
