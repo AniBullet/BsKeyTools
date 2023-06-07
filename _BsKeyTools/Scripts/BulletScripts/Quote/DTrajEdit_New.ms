@@ -5,7 +5,7 @@
 -- 功能：动画轨迹
 -- 联系方式：yun7928903@163.com
 
-
+i=1
 ---尝试关闭回调
 try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()
 try unregisterRedrawViewsCallback yunMotionPathCallBackFn_exc catch()
@@ -104,6 +104,24 @@ catch()
 )
 
 
+fn HSV_to_RGB hsv = 
+(
+	hsv /= 255
+	h = hsv.x*6
+	i = h as integer
+	k = if (mod i 2) == 1 then (h-i) else (1-h+i)
+	m = hsv.z*(1-hsv.y)
+	n = hsv.z*(1-hsv.y*k)
+	case i of
+	(
+			1: [n, hsv.z, m]*255
+			2: [m, hsv.z, n]*255
+			3: [m, n, hsv.z]*255
+			4: [n, m, hsv.z]*255
+			5: [hsv.z, m, n]*255
+	  default: [hsv.z, n, m]*255
+	)
+)
 ----场景内物体是否存在检查函数
 function yunTrajEdit_CheckExsitError  = 
 (
@@ -573,7 +591,7 @@ function yunMotionPathCallBackFn_exc =
 			isdot != undefined do			
 			(	
 				----核心画轨迹代码
-				(yunMotionPathCallBackFn   yunTrajEdit_DTrajs[i] vis  isdot col_start col_end tStart tEnd dotShape isPlay keyVis isGradual)
+				try ((yunMotionPathCallBackFn   yunTrajEdit_DTrajs[i] vis  isdot col_start col_end tStart tEnd dotShape isPlay keyVis isGradual)) catch()
 			)
 		)
 	)
@@ -616,11 +634,11 @@ function yunTrajEdit_UpdateRollout =
 	(\n
 	--bDisplayAll = false
 	---开关按钮
-	button btn_DisplayAll \"\" pos:[1,4] width:34 height:34 tooltip:\"大小如意\"
+	button btn_DisplayAll \"\" pos:[1,4] width:34 height:34 tooltip:\"1，左键大小如意\n2，右键开关轨迹显示\n3，shift+左键开关实时更新轨迹长度\n（关闭则按时间轴长度显示）\n4，ctrl+左键开关显示关键帧数\n5,alt+左键开关颜色渐变\"
 	---logo图标
 	bitmap bmp_Titlebmp pos:[35,1] width:255 height:40 bitmap:yunTrajEdit_Globals.bmp_Title
 	---关于按钮
-	button btn_About \"\" pos:[152,4] width:34 height:34 images:#(yunTrajEdit_Globals.bmp_About, undefined, 1, 1, 1, 1, 1) tooltip:\"ABOUT\"
+	button btn_About \"\" pos:[152,4] width:34 height:34 images:#(yunTrajEdit_Globals.bmp_About, undefined, 1, 1, 1, 1, 1) tooltip:\"左键关于信息，右键随机轨迹颜色\"
 
 	
 	---新建轨迹
@@ -691,11 +709,62 @@ function yunTrajEdit_UpdateRollout =
 		\"
 
 	)
+	on btn_About rightClick do
+	(
+		print \"随机颜色\"
+		for i=1 to yunTrajEdit_DTrajs_colEnd.count do
+		(
+				bufferColorA = HSV_to_RGB [(random 0 255),(random 90 255),255] as color
+				bufferColorB =  HSV_to_RGB [(random 0 255),(random 90 255),255]  as color
+				execute (\"yunTrajedit_rollout.col_Dot\"+i as string+\".color = bufferColorA\")
+				execute (\"yunTrajedit_rollout.col_Spline\"+i as string+\".color = bufferColorB\")
+				yunTrajEdit_DTrajs_colStart[i] = bufferColorB
+				yunTrajEdit_DTrajs_colEnd[i] = bufferColorB
+		)		
+	)
 	------切换界面大小
 	on btn_DisplayAll pressed do
 	(
-		yunTrajEdit_Globals.ToggleDisplayAll()
+		if keyboard.shiftPressed then
+		(
+		    i=1
+			for i = 1 to 	yunTrajEdit_DTrajs_timeLong.count do 
+			(
+				yunTrajEdit_DTrajs_timeLong[i] = not yunTrajEdit_DTrajs_timeLong[i]
+				execute (\"yunTrajedit_rollout.time_FBONOff\"+(i as string)+\".state = yunTrajEdit_DTrajs_timeLong[i]\")
+				if not yunTrajEdit_DTrajs_timeLong[i] then
+				(execute (\"yunTrajedit_rollout.btn_Range\"+(i as string)+\".pressed()\"))
+				try (yun_refreshDT_byTime_new_fn())	 catch ()
+			)
+		
+		)
+		else if  keyboard.controlPressed then
+		(
+			for i = 1 to 	yunTrajEdit_DTrajs_timeLong.count do 
+			(
+				(execute (\"yunTrajedit_rollout.btn_Move\"+(i as string)+\".pressed()\"))
+				try (yun_refreshDT_byTime_new_fn())	 catch ()
+			)
+		)
+		else if  keyboard.altPressed then
+		(
+			for i = 1 to 	yunTrajEdit_DTrajs_timeLong.count do 
+			(
+				
+				execute (\"yunTrajedit_rollout.isGradual\"+(i as string)+\".checked = not yunTrajedit_rollout.isGradual\"+(i as string)+\".checked\")
+				execute (\"yunTrajEdit_DTrajs_isGradual[\"+(i as string)+\"] = yunTrajedit_rollout.isGradual\"+(i as string)+\".checked\")
+				try (yun_refreshDT_byTime_new_fn())	 catch ()
+			)
+		)
+		else (yunTrajEdit_Globals.ToggleDisplayAll())
 	)
+	
+	on btn_DisplayAll rightClick do
+	(
+		for i = 1 to 	yunTrajEdit_DTrajs_vis.count do (yunTrajEdit_Globals.ToggleDisplay  i)
+	)
+	
+	
 	on btn_New_Pivot pressed do (yunTrajEdit_Globals.NewTraj true;yun_refreshDT_byTime_new_fn())
 	
 	
@@ -823,7 +892,7 @@ function yunTrajEdit_UpdateRollout =
 				----------
 				
 				----修改为关键帧开关 (原先移动移动轨迹)
-				szExecute += ("button btn_Move" + (i as string) + " \"\" pos:" + vMovePos + " width:16 height:16 images:#(yunTrajEdit_Globals.bmp_Move, undefined, 1, 1, 1, 1, 1)  tooltip:\"偏移功能待添加\" \n")
+				szExecute += ("button btn_Move" + (i as string) + " \"\" pos:" + vMovePos + " width:16 height:16 images:#(yunTrajEdit_Globals.bmp_Move, undefined, 1, 1, 1, 1, 1)  tooltip:\"是否显示关键帧数\" \n")
 				
 				szExecute += ("on btn_Move" + (i as string) + " pressed do yunTrajEdit_Globals.ToggleKeyVis " + (i as string)+"  \n")
 				szExecute += "\n"

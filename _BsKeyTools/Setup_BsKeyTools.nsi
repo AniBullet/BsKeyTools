@@ -8,6 +8,7 @@
 ;!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 ;!define PRODUCT_UNINST_ROOT_KEY "HKLM"
 var maxVer
+var v2024
 
 SetCompressor lzma
 
@@ -72,6 +73,13 @@ OutFile "_BsKeyTools.exe"
 ; InstallDir "$INSTDIR"
 ShowInstDetails show
 ShowUnInstDetails show
+
+Section "3dsMax 2024" SEC18
+  SetOutPath "$v2024"
+  SetOverwrite on
+  File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
+  File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+SectionEnd
 
 Section "3dsMax 2023" SEC01
   SetOutPath "$1"
@@ -213,6 +221,17 @@ Function .onInit
 	${EndIf}
 
 ; 扫描已安装的max版本
+
+; MAX2024:
+  setRegView 64
+  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\26.0" "Installdir"
+  ${If} $maxVer != ""
+    SectionSetFlags ${Sec18} 1
+    StrCpy $v2024 $maxVer
+  ${Else}
+  	SectionSetFlags ${Sec18} 0
+    SectionSetText ${Sec18} ""
+  ${EndIf}
 
 ; MAX2023:
   setRegView 64
@@ -405,6 +424,7 @@ FunctionEnd
 
 ; 区段组件描述
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec18} $v2024
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec01} $1
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec02} $2
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec03} $3

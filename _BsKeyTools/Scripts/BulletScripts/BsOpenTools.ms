@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-13 13:36:42
+ * @LastEditTime: 2023-04-12 14:05:32
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -634,6 +634,7 @@ rollout rolBsOpenTools "" width:340 height:365
 					((id <= arrFolders.count) and (id > 0)):
 					(
 						edtBrowseFolder.text = arrFolders[id]
+						fnRefreshList edtBrowseFolder.text type:arrFileType[rdoFileType.state]
 						-- fnRefreshList edtBrowseFolder.text type:arrFileType[rdoFileType.state]
 					)
 					(id > arrFolders.count):
@@ -655,7 +656,6 @@ rollout rolBsOpenTools "" width:340 height:365
 						)
 					)
 				)
-				fnRefreshList edtBrowseFolder.text type:arrFileType[rdoFileType.state]
 			)
 		)
 		else 

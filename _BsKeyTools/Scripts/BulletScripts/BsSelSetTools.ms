@@ -305,9 +305,6 @@ rollout rolSelSetTools ""
 
 	on rolSelSetTools lbuttonup posMou do switchRolSelSetMouState = off
 
-	on rolSelSetTools rbuttondown pos do 
-		popupMenu RCmenuConfig pos:[mouse.screenpos.x + 20,mouse.screenpos.y]
-
 	on rolSelSetTools mouseMove pos do if switchRolSelSetMouState do
 		SetDialogPos rolSelSetTools (mouse.screenpos - posRolSelSetMouMove)
 

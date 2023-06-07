@@ -19,6 +19,7 @@
 	(
 		on execute do
 		(
+			global rolBsKeyTools
             try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");SetDialogPos rolBsKeyTools (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
             catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 		)
@@ -31,6 +32,7 @@
 	(
 		on execute do
 		(
+			global rolBsScriptsSet
             try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsScriptsSet.ms");SetDialogPos rolBsScriptsSet (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
             catch(messagebox "打开BsScriptsSet失败,\r\n建议重启Max或重新安装...          ")
 		)
@@ -43,9 +45,12 @@
 	(
 		on execute do
 		(
+			global rolBsKeyTools
+			global iniCollopseType
+			global BulletConfig
 			iniCollopseType = 1
 			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
-			if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = true
+			try(if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = true)catch()
 		)
 	)
 
@@ -56,9 +61,12 @@
 	(
 		on execute do
 		(
+			global rolBsKeyTools
+			global iniCollopseType
+			global BulletConfig
 			iniCollopseType = 2
 			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
-			if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = true
+			try(if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = true)catch()
 		)
 	)
 
@@ -69,9 +77,12 @@
 	(
 		on execute do
 		(
+			global rolBsKeyTools
+			global iniCollopseType
+			global BulletConfig
 			iniCollopseType = 0
 			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
-			if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = false
+			try(if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = false)catch()
 		)
 	)
 
@@ -115,13 +126,21 @@
 	(
 		on execute do
 		(
+			global rolBsKeyTools
+			global iniCollopseType
+			global BulletConfig
+			global iniBsAutoCheckUpdate
 			iniBsAutoCheckUpdate = true
 			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
-			if (rolBsKeyTools.open) then 
+			try
 			(
-				try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
-				catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+				if (rolBsKeyTools.open) then 
+				(
+					try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
+					catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+				)
 			)
+			catch()
 		)
 	)
 
@@ -132,6 +151,10 @@
 	(
 		on execute do
 		(
+			global rolBsKeyTools
+			global iniCollopseType
+			global BulletConfig
+			global iniBsAutoCheckUpdate
 			iniBsAutoCheckUpdate = false
 			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
 		)
@@ -144,6 +167,13 @@
 	(
 		on execute do
 		(
+			global rolBsKeyTools
+			global iniCollopseType
+			global BulletConfig
+			global iniBsAutoCheckUpdate
+			global iniAddToolbars
+			global fnDelDir
+			global fnDelFileDir
 			if (queryBox "是否彻底清除 BsKeyTools？          \r\n( 配置文件默认保留 )" \
 			title:"有缘再会" beep:false) then
 			(
@@ -234,10 +264,16 @@
 	(
 		on execute do
 		(
+			Global startupPath       = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
+			Global startupBsKeyTools = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BulletKeyTools.ms"
+			
 			if (not (SIOFile.Exists startupPath)) do
 			(
 				try 
 				(
+					Global FileIO            = dotnetclass "Microsoft.VisualBasic.FileIO.FileSystem"
+					Global SIOFile           = dotNetClass "System.IO.File"
+					Global UIOption          = (dotnetclass "Microsoft.VisualBasic.FileIO.UIOption").OnlyErrorDialogs
 					-- SIOFile.Copy startupBsKeyTools startupPath
 					FileIO.Copyfile startupBsKeyTools startupPath UIOption
 					messagebox ("已打开 BsKeyTools 自启！                  ")  title:"自启设置"
@@ -259,6 +295,8 @@
 	(
 		on execute do
 		(
+			global fnDelFileDir
+			Global startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
 			-- try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
 			-- catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 			fnDelFileDir startupPath
@@ -274,6 +312,8 @@
 	(
 		on execute do
 		(
+			global iniAddToolbars
+			global BulletConfig
 			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
 			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools"
 			iniAddToolbars = 1
@@ -288,6 +328,8 @@
 	(
 		on execute do
 		(
+			global iniAddToolbars
+			global BulletConfig
 			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
 			iniAddToolbars = 0
 			SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)

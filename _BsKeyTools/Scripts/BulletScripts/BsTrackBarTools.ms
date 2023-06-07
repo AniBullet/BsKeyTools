@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-18 12:07:38
+ * @LastEditTime: 2023-04-12 14:35:06
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -1403,14 +1403,15 @@ rollout rolBsBackupManager "" width:430 height:320
 	(
 		if textFolder != "" then 
 		(
+			local arrID = #()
 			for i in (rolBsBackupManager.mlbBackupFolders.items as array) do 
 			(
 				if (matchpattern i pattern:("*" + textFolder + "*")) then
 				(
-					mlbBackupFolders.selection = (finditem (rolBsBackupManager.mlbBackupFolders.items as array) i)
-					exit
+					append arrID (finditem (rolBsBackupManager.mlbBackupFolders.items as array) i)
 				)
 			)
+			mlbBackupFolders.selection = arrID
 		)
 		else 
 		(

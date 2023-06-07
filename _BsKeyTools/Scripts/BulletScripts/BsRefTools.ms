@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2020-12-29 01:12:45
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-11-13 18:23:43
+ * @LastEditTime: 2023-03-01 13:22:21
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -156,7 +156,7 @@ rcmenu RCmenuRefConfig
     menuItem menuJoinGroup "🐧交流小群"
     menuItem menuBilibili "📺Bullet.S"
 
-	fn addToolBarButton macro cat txt remove: false =
+	fn addToolBarRefTools macro cat txt remove: false =
 	(
 		fn insertContent f data: "" find: "" rewrite: false =
 		(						
@@ -168,7 +168,14 @@ rcmenu RCmenuRefConfig
 
 			seek stream 0 
 				
-			mt = "\"Main Toolbar\""			
+			if ((sysinfo.GetMaxLanguage())[3]=="CHS")  then 
+			(
+				mt = "\"主工具栏\""
+			)
+			else
+			(
+				mt = "\"Main Toolbar\""
+			)	
 			skipToString stream mt
 					
 			exist = (skipToString stream find) == undefined
@@ -314,13 +321,13 @@ rcmenu RCmenuRefConfig
 
 	on submConfigAddToolBar picked do
 	(
-		addToolBarButton "BsRefTools" "BulletTools" "BsRefTools" remove: true
-		addToolBarButton "BsRefTools" "BulletTools" "BsRefTools"
+		addToolBarRefTools "BsRefTools" "BulletTools" "BsRefTools" remove: true
+		addToolBarRefTools "BsRefTools" "BulletTools" "BsRefTools"
 	)
 
 	on submConfigDelToolBar picked do
 	(
-		addToolBarButton "BsRefTools" "BulletTools" "BsRefTools" remove: true
+		addToolBarRefTools "BsRefTools" "BulletTools" "BsRefTools" remove: true
 	)
 
 	on submConfigHighDpi picked do 

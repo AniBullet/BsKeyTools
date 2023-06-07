@@ -1,5 +1,4 @@
 /*
-https://obaidaviz.gumroad.com/l/vzOPnx
 - You Can Add New Import Extension to Import List By Adding it to "BIC_Import_arr"
 - to Add New Export Extension You Need to Add it to "BIC_Export_arr" And Add its Class to "FindExporterClass" Function
 
@@ -13,6 +12,12 @@ Important Notes :
   
 V 2.2 :
 - Add Checkbox to convert poly objects to mesh when using max 2021+ and saving max files to previous versions , OR the poly objects may get vertex distortion .
+
+V 2.3 :
+- The Checkbox will Convert Chamfer Modifier to mesh when using max 2021+ and saving max files to previous versions .
+
+V 2.4 :
+- Fix [Convert"] button not activate when selecting specific import Type (Thanks to "Yassine DADEN" for feedback) .
 */
 
 try(if BatchImportConvert != undefined do destroyDialog BatchImportConvert)catch()
@@ -20,7 +25,7 @@ global BatchImportConvert, BICDefault
 
 if BICDefault == undefined or BICDefault.count != 18 do BICDefault = #(true,false,0,false,0,false,1,1,1,1,4,false,true,unsupplied)
 	
-rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 height:355
+rollout BatchImportConvert "批量转换_BatchImportConvert_2.4" width:325 height:355
 (
 	local import_path, BIC_max_path, BIC_file_tag, BIC_SepDir, BIC_new_name, import_folders = #(), arr_import_files = #(), BIC_Scripts = #(),
 	BIC_Import_arr_EXT, BIC_Subfolders_state = true, save_prv_state = false,
@@ -52,7 +57,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 	dropdownList 'List_Output_Type' ""  pos:[258,73] width:55 items:BIC_Saveas_arr
 	checkbox 'out_sep' "  输出到单独的文件夹" pos:[5,110]
 	label 'out_label' "(文件夹名:" pos:[160,110] visible:false
-	label 'out_path' "MAX) ." pos:[220,110] visible:false
+	label 'out_path' " MAX ) ." pos:[220,110] visible:false
 	checkbox 'chk_2021' "" pos:[305,110] tooltip:"将所有多边形对象转换为网格\n仅在将 2021+ 保存到以前\n时才有效，以避免顶点变形。"
 	
 	groupbox 'g4a' "  输入路径  " pos:[5,130] width:315 height:45
@@ -60,7 +65,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 	edittext 'BIC_path' "" pos:[30,150] fieldWidth:255 readonly:true
 	button 'browse' "..." pos:[295,148] width:20 height:20 tooltip:"浏览"
 	
-	groupbox 'g4' "  输出前，脚本预处理  " pos:[5,180] width:315 height:45
+	groupbox 'g4' "  预处理脚本  " pos:[5,180] width:315 height:45
 	checkbox 'BIC_Sc_on' "" pos:[150,180] width:20 tooltip:"打开/关闭脚本选项"
 	button 'CSpath' "C" pos:[10,198] width:20 height:20 tooltip:"清除脚本列表" enabled:false
 	edittext 'Spath' "" pos:[30,200] fieldWidth:205 readonly:true enabled:false
@@ -132,16 +137,30 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 	fn Check_2021_Poly2Mesh = (
 		local state = ((maxVersion())[1] >= 23000) and (List_Output.selected == "Save as") and ((List_Output_Type.selected as integer) < 2021)
 		if state do (
-			for obj in objects do (
-				local cstate = false
-				case of (
-					(isKindOf obj PolyMeshObject):(cstate = true)
-					(isKindOf obj Editable_Poly):(cstate = true)
-					(iskindof obj.baseobject Editable_Poly):(cstate = true)
-					(try(findstring (obj.modifiers as string) "Edit Poly:Edit Poly" != undefined)catch(false)):(cstate = true)
+			local objs = for i in objects where classof i == Editable_Poly collect i
+			local arr = GetClassInstances Chamfer
+			if arr.count != 0 do (
+				for i in arr do (
+					for o in (refs.dependents i) where superClassOf o == GeometryClass and isValidNode o do appendIfUnique objs o
 				)
-				if cstate do convertToMesh obj
 			)
+			arr = GetClassInstances Edit_Poly
+			if arr.count != 0 do (
+				for i in arr do (
+					for o in (refs.dependents i) where superClassOf o == GeometryClass and isValidNode o do appendIfUnique objs o
+				)
+			)
+			for i = 1 to objs.count while i <= objs.count do (
+				insta = #()
+				InstanceMgr.GetInstances objs[i] &insta
+				for n = objs.count to i+1 by -1 do (
+					if findItem insta objs[n] do deleteItem objs n
+				)
+			)
+			for i in objs do try(
+				addmodifier i (Edit_Mesh())
+				maxOps.CollapseNodeTo i 1 off
+			)catch()
 		)
 	)
 	--( Material Library Open/Save
@@ -242,7 +261,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 	fn BIC_CheckReady = (
 		if BIC_TotalNumber == undefined then (lbl_1.text = "状态 : 设置路径 ..." ; lbl_2a.text = "-" ; start_convert.enabled = false)
 		else (
-			if BIC_TotalNumber != 0 then (lbl_1.text = "点击转换执行 ..." ; lbl_2a.text = BIC_TotalNumber as string ; start_convert.enabled = true)
+			if BIC_TotalNumber != 0 then (lbl_1.text = "点击转换开始执行 ..." ; lbl_2a.text = BIC_TotalNumber as string ; start_convert.enabled = true)
 	     	else (lbl_1.text = "没有文件转换 ..." ; lbl_2a.text = "-" ; start_convert.enabled = false)
 		)
 		lbl_3a.text = "-"
@@ -252,7 +271,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 		import_folders = #(); arr_import_files = #()
 		--- Check Input
 		case List_Input.selection of (
-			1:(BIC_inIdx = 1) --- Input : Import
+			1:(BIC_inIdx = 1 ; BIC_InEXT = List_Input_Type.selected) --- Input : Import
 			2:( --- Input : Open
 				case List_Input_Type.selection of (
 					1:(BIC_inIdx = 2 ; BIC_InEXT = ".max") --- Input : Open Max File
@@ -265,11 +284,11 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 		case List_Output.selection of (
 			1:( --- Output : Save as Max File
 				BIC_file_tag = "_" + BIC_Saveas_arr[List_Output_Type.selection]
-				if BIC_inIdx == 2 do ( -- Max to Lower Version
-					BIC_SepDir += "MAX\\" ; BIC_OutEXT = ".max" ; BIC_outIdx = 2
-				)
-				if BIC_inIdx == 3 do ( -- Mat to Max
+				if BIC_inIdx == 3 then ( -- Mat to Max
 					BIC_SepDir += "Max4Matlibs\\" ; BIC_OutEXT = ".max" ; BIC_outIdx = 2 ; mat_state = true
+				)
+				else ( -- Max to Lower Version
+					BIC_SepDir += "MAX\\" ; BIC_OutEXT = ".max" ; BIC_outIdx = 2
 				)
 			)
 			2:( --- Output : Export
@@ -300,7 +319,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 		else (out_label.visible = out_path.visible = false ; BIC_SepDir = "")
 		
 		---- Collect Array of Input Files if Path Exist
-		if try(doesFileExist import_path)catch(false) do (
+		if (try(doesFileExist import_path)catch(false)) and BIC_OutEXT != undefined do (
 			BIC_TotalNumber = 0
 			if BIC_Subfolders_state then BIC_GetFoldersRecursively import_path import_folders else append import_folders import_path
 			for f in import_folders do (
@@ -315,7 +334,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 			    	for i = import_files.count to 1 by -1 where import_files[i] != undefined do (
 		  	         	BIC_new_name = BIC_max_path + getFilenameFile import_files[i] + BIC_file_tag + BIC_OutEXT
 			     		if doesFileExist BIC_new_name do (
-							deleteitem import_files i ; print (BIC_new_name + " already xist !")
+							deleteitem import_files i ; print (BIC_new_name + " 已经存在 !")
 						)
 			     	)
 			    	BIC_TotalNumber += import_files.count
@@ -361,7 +380,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 				)
 			)
 		)
-		else (if indx != 3 do print ("无法打开 : " + f))
+		else (if indx != 3 do print ("无法打开文件 : " + f))
 		try(_user32.RedrawAllWindow (windows.getchildhwnd 0 BatchImportConvert.title)[1])catch()
 	)
 	fn BIC_Convert = (
@@ -426,7 +445,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 	--( Preview Btns
 	on save_prv changed state do (
 		if BIC_inIdx == 3 then (
-			save_prv.state = off ; messageBox "No Preview Generating with Mat File"
+			save_prv.state = off ; messageBox "没有使用 Mat 文件生成的预览"
 		)
 		else (
 			if state then cstm_prv.enabled = prv_type.enabled = true else (
@@ -487,7 +506,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 		else (CSpath.enabled = Spath.enabled = Sorder.enabled = Sbrowse.enabled = false)
 	)
 	on CSpath pressed do (
-		if queryBox "清除脚本列表 ?" do (BIC_Scripts = #() ; Spath.text = Sorder.text = "")
+		if queryBox "清除脚本列表 ?           " do (BIC_Scripts = #() ; Spath.text = Sorder.text = "")
 	)
 	on Sorder entered txt do (
 		if BIC_Scripts.count != 0 then (
@@ -523,7 +542,7 @@ rollout BatchImportConvert "批量转换_BatchImportConvert_2.2" width:325 heigh
 	--)
 	on chk_2021 changed state do (
 		if (maxVersion())[1] < 23000 do (
-			chk_2021.checked = false ; messageBox "No need ! , This option work only with max 2021+"
+			chk_2021.checked = false ; messageBox "不需要勾选 ！ , 此选项仅适用于 3dsmax 2021+                              "
 		)
 	)
 	on start_convert pressed do 

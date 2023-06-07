@@ -18,7 +18,7 @@ if (rol_RescaleWorldUnits != undefined and rol_RescaleWorldUnits.open == true) d
 )
 --  <Start Script>
 --  Variables  --
-Global RescaleWU_ver = "1.20";
+Global RescaleWU_ver = "1.30";
 
 Global rescaleWU_sign = 0;
 Global rescaleWU_temp = 1;
@@ -128,7 +128,7 @@ function fn_RWUdone size sel dia = /* Sent after click button:OK,RescaleWU done 
 	rescaleWU_selObj = selection as array;
 )
 --  Start Rollout --
-rollout rol_RescaleWorldUnits ("蒙皮缩放 ver:" + RescaleWU_ver)
+rollout rol_RescaleWorldUnits ("蒙皮缩放_v" + RescaleWU_ver)
 (
 	checkbox chkBatch "是否批量处理？" pos:[10,35] width:100
     button btnGetFiles "选择处理路径" pos:[125,30] width:120 height:25 enabled:false border:true

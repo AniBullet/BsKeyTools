@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-02-14 01:56:28
+ * @LastEditTime: 2023-04-06 12:21:24
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -18,7 +18,7 @@ try (callbacks.removeScripts #timeunitsChange id:#BsUpdateFps) catch ()
 try (callbacks.removeScripts #filePostOpen id:#BsUpdatePlaySpeed) catch ()
 try (callbacks.removeScripts #timeunitsChange id:#BsUpdatePlaySpeed) catch ()
 
-global curVerBsKeyTools  = "0.9.9.6"
+global curVerBsKeyTools  = "0.9.9.7"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
@@ -194,92 +194,8 @@ fn fnPseudoNaturalSort a b =  --文件名排序新方法--https://forums.cgsocie
 -- <Item typeID="2" type="CTB_MACROBUTTON" width="77" height="0" controlID="0" macroTypeID="3" macroType="MB_TYPE_ACTION" actionTableID="647394" imageID="-1" imageName="" actionID="BulletKeyTools`_[BulletTools]" tip="BsKeyTools" label="BsKeyTools" />
 
 -- <Item typeID="2" type="CTB_MACROBUTTON" width="0" height="0" controlID="0" macroTypeID="3" macroType="MB_TYPE_ACTION" actionTableID="647394" imageID="-1" imageName="" actionID="BulletKeyTools`_[BulletTools]" tip="BsKeyTools" label="BsKeyTools" />
-
 iniAddToolbars  = fnGetConfig iniAddToolbars "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
-fn addToolBarButton macro cat txt remove: false =
-(
-	fn insertContent f data: "" find: "" rewrite: false =
-	(						
-		file = MemStreamMgr.openFile f
-		size = file.size()
-		MemStreamMgr.close file
-				
-		stream = openFile f mode:"r+"
-
-		seek stream 0 
-		
-		if ((sysinfo.GetMaxLanguage())[3]=="CHS")  then 
-		(
-			mt = "\"主工具栏\""
-		)
-		else
-		(
-			mt = "\"Main Toolbar\""
-		)
-				
-		skipToString stream mt
-				
-		exist = (skipToString stream find) == undefined
-		
-		previousContent = ""
-		
-		findPos = filePos stream
-		
-		if(not exist) do
-		(							
-			if(rewrite) do 
-			(
-				pos = findPos - find.count
-				seek stream	0
-				previousContent += readChars stream (pos)					
-			)
-			
-			pos = findPos - (if(rewrite) then 0 else find.count)
-		
-			seek stream pos
-			
-			previousContent += readChars stream (size - pos)
-									
-			if(rewrite) do pos = 0
-			
-			seek stream pos
-				
-						
-			format data to: stream
-			format previousContent to: stream
-		)
-		
-		close stream
-		
-		return not exist
-	)
-	
-	try
-	(
-		f = cui.getConfigFile() 
-		
-		cui.loadConfig f
-		cui.saveConfigAs f
-		cui.loadConfig f
-		-- <Item typeID="2" type="CTB_MACROBUTTON" width="62" height="0" controlID="0" macroTypeID="3" macroType="MB_TYPE_ACTION" actionTableID="647394" imageID="-1" imageName="" actionID="BulletKeyTools`_[BulletTools]" tip="BsKeyTools" label="BsKeyTools" />
-		l = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"0\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
-		delBtnLine = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"62\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
-		if(remove) then
-		(			
-			insertContent f find: delBtnLine rewrite: true
-		)
-		else
-		(		
-			insertContent f find: "</Items>" data: ("\t\t" + l + "\n")			
-		)
-				
-		cui.loadConfig f
-		--cui.setConfigFile f
-		cui.saveConfigAs f
-		--cui.loadConfig f
-			
-	) catch(messageBox "请手动处理Toolbar!             \r\n" title: "错误!")
-)
+----addToolBarButton在BsKeyToolsMenuBar.ms中
 -----------------------------------------------------------------------------------------------------
 global arrToolNewC1 = #();global arrToolNewC2 = #();global arrToolNewC3 = #();global arrToolNewC4 = #();
 global arrToolsAll
@@ -1219,7 +1135,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnSpringMagic "飘带解" pos:[60,165] width:50 height:25 \
 	tooltip:"左点新版,右点旧版" 
 	button btnCSTools "CS选择" pos:[110,165] width:50 height:25 \
-	toolTip:"快速选择CS骨骼和调Biped等\r\n左键不稳定老版\r\n右键自用新做规划中" 
+	toolTip:"快速选择CS骨骼和调Biped等\r\n左键新版SoxBipedAssist\r\n右键老版CSTools精简版" 
 	button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
 	toolTip:"动画暴力粘贴东见云优化版\r\n(有时间我也会优化或新写)" 
 	checkButton ckbIsoSelection "独显" pos:[10,190] width:40 height:25 highlightcolor:myCheckedColor \
@@ -1351,7 +1267,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	
 	-- label lblLink "2019.9[miHoYo_Bullet.S]4869" pos:[12,226] width:145 height:15
 	dotnetcontrol lblLink "Label" text:"2019.9 [ miHoYo_Bullet.S ]✨" pos:[12,226] width:150 height:15
-	button btnConfig "⚙️设置" pos:[165,222] width:49 height:22 border:false
+	checkbutton btnConfig "⚙️设置" pos:[165,223] width:49 height:20 border:false checked:true highlightColor:myCheckedColor
 
 	timer timerTickTock interval:200 active:true
 
@@ -2481,9 +2397,17 @@ rollout rolBsKeyTools "" width:355 height:250
 		popupMenu menuConfig pos:(GetDialogPos rolBsKeyTools)
 	)
 
-	on btnConfig pressed do (popupMenu menuConfig pos:(GetDialogPos rolBsKeyTools))
+	on btnConfig changed state do 
+	(
+		btnConfig.state = true
+		popupMenu menuConfig pos:(GetDialogPos rolBsKeyTools)
+	)
 
-	on btnConfig rightclick do (popupMenu menuConfig pos:(GetDialogPos rolBsKeyTools))
+	on btnConfig rightclick do 
+	(
+		btnConfig.state = true
+		popupMenu menuConfig pos:(GetDialogPos rolBsKeyTools)
+	)
 
 	on rolBsKeyTools mbuttondown pos do 
 	(
@@ -2627,6 +2551,10 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
 		-- slidertime -= 1
 		-- slidertime += 1  ----------默认改了要划一下滑条才生效,脚本直接操作了~~没找到refresh的
+		disableSceneRedraw()
+		trackbar.visible = false
+		trackbar.visible = true
+		enableSceneRedraw()
 	)
 	
 	on btnMagicBtn pressed do  -------------切换整数帧小数帧,方便拖动滑条平滑预览
@@ -2679,13 +2607,13 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
     )
 
-	on btnCSTools rightclick do 
+	on btnCSTools pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsBipedTools.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnCSTools pressed do 
+	on btnCSTools rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\cstools.ms"))
 		catch(messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
