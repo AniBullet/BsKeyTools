@@ -4257,6 +4257,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	on uiCkbClearUserDef changed state do 
 	(
+		uiCkbClearUserDef.state = on
 		allBipedRootNode = fnGetAllSelRootNode()
 		print allBipedRootNode
 		for i in allBipedRootNode where isvalidnode i do 
