@@ -1860,6 +1860,10 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiPropR.state      = state
 		uiPivot.state     = state
 		uiPropL.state     = state
+		uiCkbHideBip.state = state
+		uiCkbXray.state = state
+		uiCkbShowBox.state = state
+		uiCkbZen.state = state
     )
 	
 	-- 씬 내 바이패드 오브젝트를 모두 조사하여 바이패드가 하나만 있으면 그 바이패드를 m_workingBipRoot에 세팅.
@@ -4108,6 +4112,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	on uiToggleMotionPanel rightclick do
 	(
 		uiToggleMotionPanel.state = on 
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
 		try
 		(
 			resumeEditing which:#motion
@@ -4118,8 +4123,9 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	)
 
 	on uiCkbZen changed state do
-	(
-		uiCkbZen.state = on 
+	( 
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
+		uiCkbZen.state = on
 		stateExpertMode = cui.getexpertmode()
 		if stateExpertMode then 
 		(
@@ -4132,8 +4138,9 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	)
 
 	on uiCkbShowBox changed state do
-	(
-		uiCkbShowBox.state = on 
+	( 
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
+		uiCkbShowBox.state = on
 		for o in m_AllBip where (o.isHidden == false) do 
 		(
 			if o.boxmode == off then o.boxmode = on 
@@ -4142,8 +4149,9 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	)
 
 	on uiCkbXray changed state do
-	(
-		uiCkbXray.state = on 
+	( 
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
+		uiCkbXray.state = on
 		for o in m_AllBip where (o.isHidden == false) do 
 		(
 			if o.xray == off then o.xray = on 
@@ -4153,12 +4161,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	
 	on uiCkbHideBip changed state do
 	(
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		uiCkbHideBip.state = on 
 		for o in m_AllBip do 
 		(
 			if o.isHidden == off then o.isHidden = on 
 			else o.isHidden = off
 		)
+		m_workingBipRoot.controller.displayFootsteps = false
 	)
 
 	on uiBtnFrameTick pressed do 
