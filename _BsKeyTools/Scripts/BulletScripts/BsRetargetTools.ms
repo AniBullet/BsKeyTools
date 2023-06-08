@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-12-08 10:13:10
+ * @LastEditTime: 2023-06-08 23:11:15
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -2020,14 +2020,15 @@ rollout biped_align_test "BsRetargetTools_v2.6 （ FBX 转 BIP + 动画重定向
 	
 	on bipedBones selected nameIndex do
 	(
-		print (nameIndex)
-		if $ != undefined and (selection as array).count == 1 then
-		(
-			local temp_array = characterBones.items;
-			temp_array[nameIndex] = $.name
-			characterBones.items = temp_array;
-		)
-		else (messagebox "只能填入一个有效骨骼节点!                                              ")
+		-- print (nameIndex)
+		-- if $ != undefined and (selection as array).count == 1 then
+		-- (
+		-- 	local temp_array = characterBones.items;
+		-- 	temp_array[nameIndex] = $.name
+		-- 	characterBones.items = temp_array;
+		-- )
+		-- else (messagebox "只能填入一个有效骨骼节点!                                              ")
+		try(select (GetSkeletalNode nameIndex false))catch()
 	)
 	
 	on characterBones selected nameIndex do
@@ -2060,14 +2061,15 @@ rollout biped_align_test "BsRetargetTools_v2.6 （ FBX 转 BIP + 动画重定向
 	
 	on bipedBones_B selected nameIndex do
 	(
-		print (nameIndex)
-		if $ != undefined and (selection as array).count == 1 then
-		(
-			local temp_array = characterBones_B.items;
-			temp_array[nameIndex] = $.name
-			characterBones_B.items = temp_array;
-		)
-		else (messagebox "只能填入一个有效骨骼节点!                                              ")
+		-- print (nameIndex)
+		-- if $ != undefined and (selection as array).count == 1 then
+		-- (
+		-- 	local temp_array = characterBones_B.items;
+		-- 	temp_array[nameIndex] = $.name
+		-- 	characterBones_B.items = temp_array;
+		-- )
+		-- else (messagebox "只能填入一个有效骨骼节点!                                              ")
+		try(select (GetSkeletalNode (nameIndex + 35) false))catch()
 	)
 	
 	on characterBones_B selected nameIndex do
