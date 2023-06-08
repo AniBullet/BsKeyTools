@@ -1395,8 +1395,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	tooltip:"选择循环内的所有帧\r\nSelect keys in the looping range." visible:false
 
 	--other tools
-	checkButton uiBtn0 "0" pos:[50,465] width:30 height:25 tooltip:"曲柄打直 Continuity (TCB)" border:true visible:false checked:true highlightColor:mcInPlace
-	checkButton uiBtn25 "25" pos:[82,465] width:30 height:25 tooltip:"曲柄默认 Continuity (TCB)" border:true visible:false checked:true highlightColor:mcInPlace
+	checkButton uiBtn0 "0" pos:[50,465] width:30 height:25 tooltip:"曲柄打直 Continuity (TCB)\r\nCtrl/Shift 可批处理\r\nESC可中断" border:true visible:false checked:true highlightColor:mcInPlace
+	checkButton uiBtn25 "25" pos:[82,465] width:30 height:25 tooltip:"曲柄默认 Continuity (TCB)\r\nCtrl/Shift 可批处理\r\nESC可中断" border:true visible:false checked:true highlightColor:mcInPlace
 	checkButton uiBtnLoadBip "S" pos:[114, 465] width:30 height:25 tooltip:"" border:true visible:false checked:true highlightColor:mcInPlace
 	checkButton uiBtnSaveBip "L" pos:[146, 465] width:30 height:25 tooltip:"" border:true visible:false checked:true highlightColor:mcInPlace
 
@@ -1934,6 +1934,50 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 			return true
 		)
 		return false
+	)
+	
+	mapped fn fnProcessTCB obj val =
+	(
+		if fnIsValidBiped() then
+		(
+			try
+			(
+				if obj == m_workingBipRoot then
+				(
+					(biped.getKey obj.controller[1].controller (getkeyindex obj.controller[1].controller slidertime)).continuity = val
+					(biped.getKey obj.controller[2].controller (getkeyindex obj.controller[2].controller slidertime)).continuity = val
+					(biped.getKey obj.controller[3].controller (getkeyindex obj.controller[3].controller slidertime)).continuity = val
+				)
+				else
+				(
+					(biped.getKey obj.controller (getkeyindex obj.controller slidertime)).continuity = val
+				)
+			)catch()
+		)
+	)
+
+	fn fnEvaluateTCB val =
+	(
+		if fnIsValidBiped() then
+		(
+			if selection.count > 0 do
+			(
+				if keyboard.shiftPressed OR keyboard.controlPressed then
+				(
+					slidertime = 0
+					for t = animationRange.start to animationRange.end while not keyboard.escPressed do
+					(
+						at time t (rolBsBipedTools.fnProcessTCB (selection as array) val)
+						slidertime += 1
+					)
+					messagebox "所选物体的 TCB 值批量处理完毕。" title:"BsBipedTools"
+				)
+				else
+				(
+					rolBsBipedTools.fnProcessTCB (selection as array) val
+				)
+			)
+		)
 	)
 
 	fn fnBSUpdateLayers =
@@ -4642,6 +4686,17 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		fnLockComTrack m_workingBipRoot
 		fnRefreshTrackSelection m_workingBipRoot
+	)
+
+	on uiBtn0 changed state do
+	(
+		uiBtn0.state = true
+		fnEvaluateTCB 0.0
+	)
+	on uiBtn25 changed state do
+	(
+		uiBtn25.state = true
+		fnEvaluateTCB 25.0
 	)
 )
 if (iniBsBTPos != 0) then 
