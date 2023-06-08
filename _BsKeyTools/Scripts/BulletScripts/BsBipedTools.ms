@@ -1,5 +1,7 @@
 /**************************************************************************************************************************
--- by Bullet.S 自用修改版,功能大集合,完全免费严禁出售,后果自负    from SoxBipedAssist_v0.423 & Biped Helper v3.1  2023.03
+-- By Bullet.S 自用修改版,功能大集合,完全开源免费仅供学习使用,请勿用于商业用途,否则后果自负    
+Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
+Since 2023.03
 **************************************************************************************************************************/
 
 global rolBsBipedTools		-- 롤아웃명을 글로벌 변수로 인식하기 위해 초기에 한 번 사용
@@ -1160,7 +1162,7 @@ fn fnGetThemeColor =
 	----获取当前主题是深色还是浅色,来更改文字颜色 fnGetColorTheme.ms
 )
 
-rollout rolBsBipedTools "BsBipedTools" width:180 height:555
+rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 (
 	local colorTheme = fnGetThemeColor()
 
@@ -1179,6 +1181,23 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 		else
 		(
 			return ctrl.turning.controller
+		)
+	)
+
+	fn fnAddBipedKey =
+	(
+		for i in selection as array where iskindof i.baseObject Biped_Object do
+		(
+			if ( classof i.controller == Vertical_Horizontal_Turn ) then
+			(
+				biped.addNewKey i.controller.vertical.controller slidertime
+				biped.addNewKey i.controller.horizontal.controller slidertime
+				biped.addNewKey (fnBipedComlocalization i.controller) slidertime
+			)
+			else 
+			(
+				try (biped.addNewKey i.controller sliderTime ) catch ()
+			)
 		)
 	)
 
@@ -1300,78 +1319,86 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 	checkButton uiPivot "" width:50 checked:true highlightColor:mcSelTools pos:[120, 335]
 	
 
-	groupbox grpKinInfo "" pos:[-10, 358] width:200 height:70
+	groupbox grpKinInfo "" pos:[-10, 358] width:200 height:100
 	
-	checkButton uiBtnSetAllKey "Set All Key" pos:[6, 370] across:4 width:28 height:25 border:false \
+	checkbutton uiCbtHorTrack "" pos:[10, 370] width:30 height:25 border:false
+	checkbutton uiCbtVerTrack "" pos:[40, 370] width:30 height:25 border:false
+	checkbutton uiCbtTurnTrack "" pos:[70, 370] width:30 height:25 border:false
+	button uiBtnComLock "" pos:[105, 370] width:30 height:25 border:false 
+	checkbutton uiBtnInPlace "" pos:[140,370] width:30 height:25 \
+	tooltip:"原地模式去前后位移\r\nIn Place Mode Y\r\n右键真原地模式" \
+	border:false highlightColor:mcInPlace
+
+	checkButton uiBtnSetAllKey "" pos:[10, 400] across:4 width:25 height:25 border:false \
 	tooltip:"左键选择K帧,\r\n右键Biped全帧." checked:true highlightColor:mcFK
-	checkButton uiBtnDeleteKey "DK" width:28 height:25 tooltip:"左键删除所选Biped当前滑条帧\r\n右键清除Biped所有帧" \
-	pos:[34, 370] border:false checked:true highlightColor:mcFK
-	checkButton uiBtnLimbPK "PK" width:28 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
-	pos:[62, 370] border:false checked:true highlightColor:mcFK
-	checkButton uiBtnLimbIK "IK" width:28 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
-	pos:[90, 370] border:false checked:true highlightColor:mcFK
-	checkButton uiBtnLimbFK "FK" width:28 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
-	pos:[118, 370] border:false checked:true highlightColor:mcFK
-	checkButton uiBtnTraj "Tr" width:28 height:25
-	pos:[146, 370] border:false checked:true highlightColor:mcFK
+	checkButton uiBtnDeleteKey "" width:25 height:25 tooltip:"左键删除所选Biped当前滑条帧\r\n右键清除Biped所有帧" \
+	pos:[37, 400] border:false checked:true highlightColor:mcFK
+	checkButton uiBtnLimbPK "" width:25 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
+	pos:[65, 400] border:false checked:true highlightColor:mcFK
+	checkButton uiBtnLimbIK "" width:25 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
+	pos:[90, 400] border:false checked:true highlightColor:mcFK
+	checkButton uiBtnLimbFK "" width:25 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
+	pos:[115, 400] border:false checked:true highlightColor:mcFK
+	checkButton uiBtnTraj "" width:25 height:25
+	pos:[145, 400] border:false checked:true highlightColor:mcFK
 	
-	dropdownlist uiDropPlaySpeed items:#("1/4", "1/2", "1", "2", "4") selection:3 tooltip:"播放速度" width:50 pos:[5, 400]
-	checkbutton uiPlayBlock "B" pos:[55, 400] width:24 height:21 tooltip:"播放Blocking(无过度)" border:true
-	checkbutton uiBtnInPlace "Y" pos:[79,400] width:24 height:21 tooltip:"原地模式去前后位移\r\nIn Place Mode Y\r\n右键真原地模式" border:true highlightColor:mcInPlace
-	button uiBtnFrameTick "T" pos:[103, 400] width:24 height:21 tooltip:"整数帧/小数帧切换\r\n便于拖滑条细调动画" border:true
-	checkbutton uiFigureMode "F" pos:[127,400] width:24 height:21 tooltip:"形体编辑模式\r\nFigure Mode" border:true highlightColor:mcInPlace
-	button uiWorkbench "W" pos:[151,400] width:24 height:21 tooltip:"Biped曲线编辑\r\nWorkbench" border:true
+	
+	dropdownlist uiDropPlaySpeed pos:[8, 430] items:#("1/4", "1/2", "1", "2", "4") selection:3 tooltip:"播放速度" width:50 
+	checkbutton uiPlayBlock "" pos:[60, 430] width:30 height:21 tooltip:"播放Blocking(无过度)" border:true
+	button uiBtnFrameTick "" pos:[90, 430] width:30 height:21 tooltip:"整数帧/小数帧切换\r\n便于拖滑条细调动画" border:true
+	checkbutton uiFigureMode "" pos:[120,430] width:25 height:21 tooltip:"形体编辑模式\r\nFigure Mode" border:true highlightColor:mcInPlace
+	button uiWorkbench "" pos:[145,430] width:27 height:21 tooltip:"Biped曲线编辑\r\nWorkbench" border:true
     
-	dotNetControl dotnetTabs "System.Windows.Forms.TabControl" pos:[2,430] height:160 width:45
+	dotNetControl dotnetTabs "System.Windows.Forms.TabControl" pos:[2,460] height:160 width:45
 
 	--copy paste tools
-	checkbutton uiCbtCopy "" pos:[50,435] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"复制Poseture"
-	checkbutton uiCbtPaste "" pos:[80,435] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"粘贴Poseture"
-	checkbutton uiCbtPasteOpposite "" pos:[110,435] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"镜像粘贴Poseture"
-	checkbutton uiCbtSelBones "选择" pos:[140,435] width:35 height:25 visible:false checked:true highlightColor:mcFK tooltip:"选择复制pose的Biped骨骼"
-	checkbutton uiCbtmirrorLArm "左→右臂" pos:[50,465] width:60 height:25 visible:false checked:true highlightColor:mcFK
-	checkbutton uiCbtMirrorRArm "右→左臂" pos:[115,465] width:60 height:25 visible:false checked:true highlightColor:mcFK
-	checkbutton uiCbtMirrorLLeg "左→右腿" pos:[50,493] width:60 height:25 visible:false checked:true highlightColor:mcFK
-	checkbutton uiCbtMirrorRLeg "右→左腿" pos:[115,493] width:60 height:25 visible:false checked:true highlightColor:mcFK
-	checkbutton uiCbtGrabPose "暂存Pose" pos:[50,520] width:60 height:25 visible:false checked:true highlightColor:mcFK
-	checkbutton uiCbtLoadPose "加载Pose" pos:[115,520] width:60 height:25 visible:false checked:true highlightColor:mcFK
+	checkbutton uiCbtCopy "" pos:[50,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"复制Poseture"
+	checkbutton uiCbtPaste "" pos:[80,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"粘贴Poseture"
+	checkbutton uiCbtPasteOpposite "" pos:[110,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"镜像粘贴Poseture"
+	checkbutton uiCbtSelBones "选择" pos:[140,465] width:35 height:25 visible:false checked:true highlightColor:mcFK tooltip:"选择复制pose的Biped骨骼"
+	checkbutton uiCbtmirrorLArm "左→右臂" pos:[50,495] width:60 height:25 visible:false checked:true highlightColor:mcFK
+	checkbutton uiCbtMirrorRArm "右→左臂" pos:[115,495] width:60 height:25 visible:false checked:true highlightColor:mcFK
+	checkbutton uiCbtMirrorLLeg "左→右腿" pos:[50,523] width:60 height:25 visible:false checked:true highlightColor:mcFK
+	checkbutton uiCbtMirrorRLeg "右→左腿" pos:[115,523] width:60 height:25 visible:false checked:true highlightColor:mcFK
+	checkbutton uiCbtGrabPose "暂存Pose" pos:[50,550] width:60 height:25 visible:false checked:true highlightColor:mcFK
+	checkbutton uiCbtLoadPose "加载Pose" pos:[115,550] width:60 height:25 visible:false checked:true highlightColor:mcFK
 
 	--layers tools
-	button uiCbtDown "" pos:[50,435] width:20 height:20 visible:false border:false
-	button uiCbtUp "" pos:[70,435] width:20 height:20 visible:false border:false
-	label uiLblLayerID "0" pos:[95,439] width:20 height:16 visible:false style_sunkenedge:true readonly:true
-	label uiLblActive "Active" pos:[123,440] width:40 height:25 visible:false
-	checkbox uiChkActive "" pos:[160,435] width:60 height:25 visible:false checked:true
-	dropDownList ddlLayers "" pos:[50,459] width:85 visible:false
-	checkbutton uiCbtRefreshLayer "刷新" pos:[140,460] width:35 height:20 visible:false checked:true highlightColor:mcScanBiped
-	button uiCbtAddLayer "" pos:[52,484] width:30 height:20 visible:false border:false
-	button uiCbtDelLayer "" pos:[82,484] width:30 height:20 visible:false border:false
-	button uiCbtDownLayer "" pos:[112,484] width:30 height:20 visible:false border:false
-	button uiCbtSnapKeys "" pos:[142,484] width:30 height:20 visible:false border:false
-	checkbutton uiCbtLeftArm "" pos:[52,507] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
-	checkbutton uiCbtRightArm "" pos:[82,507] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
-	checkbutton uiCbtLeftLeg "" pos:[112,507] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
-	checkbutton uiCbtRightLeg "" pos:[142,507] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
-	button uiCbtUpdate "Update" pos:[50,530] width:65 height:16 visible:false border:false
-	checkbox uiChkIKonly "IK Only" pos:[120,530] width:100 height:16 visible:false checked:false highlightColor:mcHead
+	button uiCbtDown "" pos:[50,465] width:20 height:20 visible:false border:false
+	button uiCbtUp "" pos:[70,465] width:20 height:20 visible:false border:false
+	label uiLblLayerID "0" pos:[95,469] width:20 height:16 visible:false style_sunkenedge:true readonly:true
+	label uiLblActive "Active" pos:[123,470] width:40 height:25 visible:false
+	checkbox uiChkActive "" pos:[160,465] width:60 height:25 visible:false checked:true
+	dropDownList ddlLayers "" pos:[50,489] width:85 visible:false
+	checkbutton uiCbtRefreshLayer "刷新" pos:[140,490] width:35 height:20 visible:false checked:true highlightColor:mcScanBiped
+	button uiCbtAddLayer "" pos:[52,514] width:30 height:20 visible:false border:false
+	button uiCbtDelLayer "" pos:[82,514] width:30 height:20 visible:false border:false
+	button uiCbtDownLayer "" pos:[112,514] width:30 height:20 visible:false border:false
+	button uiCbtSnapKeys "" pos:[142,514] width:30 height:20 visible:false border:false tootip:"左键吸附当前帧，右键吸附帧栏所有帧"
+	checkbutton uiCbtLeftArm "" pos:[52,537] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
+	checkbutton uiCbtRightArm "" pos:[82,537] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
+	checkbutton uiCbtLeftLeg "" pos:[112,537] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
+	checkbutton uiCbtRightLeg "" pos:[142,537] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
+	button uiCbtUpdate "Update" pos:[50,560] width:65 height:20 visible:false border:false
+	checkbox uiChkIKonly "IK Only" pos:[120,560] width:100 height:20 visible:false checked:false highlightColor:mcHead tooltip:"没找到获取状态的api...只能update设置"
 
 	--loopkey tools
 	checkButton uiBtnLoopGet "范围" tooltip:"获取当前时间轴\r\nGet current timerange" checked:true width:43 \
-	highlightColor:mcAllBiped align:#left pos:[50, 435] height:20 across:3 visible:false
-	spinner uiSpnLoopStart tooltip:"Loop Range" type:#integer range:[-9999,9999,0] width:50 align:#left pos:[48, 463] visible:false
-	spinner uiSpnLoopEnd tooltip:"Loop Range" type:#integer range:[-9999,9999,30] width:50 align:#left pos:[101, 463] visible:false
-	checkButton uiCkbClearUserDef "X" border:true pos:[159, 435] height:70 width:16 checked:true highlightColor:mcAllBiped visible:false
+	highlightColor:mcAllBiped align:#left pos:[50, 465] height:20 across:3 visible:false
+	spinner uiSpnLoopStart tooltip:"Loop Range" type:#integer range:[-9999,9999,0] width:50 align:#left pos:[48, 493] visible:false
+	spinner uiSpnLoopEnd tooltip:"Loop Range" type:#integer range:[-9999,9999,30] width:50 align:#left pos:[101, 493] visible:false
+	checkButton uiCkbClearUserDef "X" border:true pos:[159, 465] height:70 width:16 checked:true highlightColor:mcAllBiped visible:false
 	checkButton uiBtnGotoMirror "跳转对称帧" checked:true highlightColor:mcAllBiped tooltip:"滑条跳转到镜像帧\r\nGoto symmetry key" \
-	align:#left pos:[50, 485] height:20 width:103 across:2 visible:false
+	align:#left pos:[50, 515] height:20 width:103 across:2 visible:false
 
-	checkButton uiBtnLoopSel "选择帧" height:20 width:57 pos:[95, 435] checked:true highlightColor:mcAllBiped align:#left \
+	checkButton uiBtnLoopSel "选择帧" height:20 width:57 pos:[95, 465] checked:true highlightColor:mcAllBiped align:#left \
 	tooltip:"选择循环内的所有帧\r\nSelect keys in the looping range." visible:false
 
 	--other tools
-	checkButton uiBtn0 "0" pos:[50,435] width:30 height:25 tooltip:"曲柄打直 Continuity (TCB)" border:true visible:false checked:true highlightColor:mcInPlace
-	checkButton uiBtn25 "25" pos:[82,435] width:30 height:25 tooltip:"曲柄默认 Continuity (TCB)" border:true visible:false checked:true highlightColor:mcInPlace
-	checkButton uiBtnLoadBip "S" pos:[114, 435] width:30 height:25 tooltip:"" border:true visible:false checked:true highlightColor:mcInPlace
-	checkButton uiBtnSaveBip "L" pos:[146, 435] width:30 height:25 tooltip:"" border:true visible:false checked:true highlightColor:mcInPlace
+	checkButton uiBtn0 "0" pos:[50,465] width:30 height:25 tooltip:"曲柄打直 Continuity (TCB)" border:true visible:false checked:true highlightColor:mcInPlace
+	checkButton uiBtn25 "25" pos:[82,465] width:30 height:25 tooltip:"曲柄默认 Continuity (TCB)" border:true visible:false checked:true highlightColor:mcInPlace
+	checkButton uiBtnLoadBip "S" pos:[114, 465] width:30 height:25 tooltip:"" border:true visible:false checked:true highlightColor:mcInPlace
+	checkButton uiBtnSaveBip "L" pos:[146, 465] width:30 height:25 tooltip:"" border:true visible:false checked:true highlightColor:mcInPlace
 
 	-- label uiLblTitle "BsBipedTools_v1.0" height:16 width:rolBsBipedTools.width pos:[5, 585]
 	timer clock "PlayClock" interval:1 active:false -- 가장 빠른 인터벌로
@@ -1490,6 +1517,10 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 		uiCbtRightLeg.images       = #("bip_layer_i.bmp","bip_layer_i.bmp",24,23,23,23,23,true,true)
 		uiFingers.images           = #("curvecontrol_defstat_i.bmp","curvecontrol_defstat_i.bmp",13,5,5,5,5,true,true)
 		uiPivot.images             = #("bip_mflshare_i.bmp","bip_mflshare_i.bmp",2,2,2,2,2,true,true)
+		uiCbtHorTrack.images       = #("bip_tracksel_i.bmp","bip_tracksel_i.bmp",10,1,1,1,1,true,true)
+		uiCbtVerTrack.images       = #("bip_tracksel_i.bmp","bip_tracksel_i.bmp",10,3,3,3,3,true,true)
+		uiCbtTurnTrack.images      = #("bip_tracksel_i.bmp","bip_tracksel_i.bmp",10,5,5,5,5,true,true)
+		uiBtnComLock.images        = #("LockButtonExt_i.bmp","LockButtonExt_i.bmp",2,1,1,1,1,true,true)
 	)
 
 	fn fnDeleteUserProp nodeBipRoot prop = if getUserProp nodeBipRoot prop != undefined do
@@ -1900,11 +1931,15 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 		return false
 	)
 
-	fn fnUpdateLayers =
+	fn fnBSUpdateLayers =
 	(
 		if fnIsValidBiped() then
 		(
-			ctrl =m_workingBipRoot.controller
+			ctrl = m_workingBipRoot.controller
+			if m_LHand[1] != undefined then uiCbtLeftArm.checked = biped.getLimbRetargetState m_LHand[1]
+			if m_RHand[1] != undefined then uiCbtRightArm.checked = biped.getLimbRetargetState m_RHand[1]
+			if m_LFoot[1] != undefined then uiCbtLeftLeg.checked = biped.getLimbRetargetState m_LFoot[1]
+			if m_RFoot[1] != undefined then uiCbtRightLeg.checked = biped.getLimbRetargetState m_RFoot[1]
 			a_layerNames = #(("# "+(biped.getLayerName ctrl 0)+" #"))
 			numLayers = biped.numLayers ctrl
 			if numLayers > 0 then
@@ -2001,6 +2036,69 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 			uiCbtDown.images = #("bip_layer_i.bmp","bip_layer_i.bmp",24,3,3,3,3,true,true)
 		)
 		redrawViews()
+	)
+
+	fn fnLockComTrack com =
+	(
+		with redraw off 
+		(
+			-- max motion mode
+			theactionman = actionMan.executeAction
+			tableId = 972555510
+			-- max select
+			theactionman tableId "40185"
+			numTrackSel = com.controller.trackSelection
+			if numTrackSel != 7 then (com.controller.trackSelection = 7)
+			else if numTrackSel == 7 then (com.controller.trackSelection = 0)
+			-- max move
+		)
+	)
+
+	fn fnGetComTrackSelection com =
+	(
+		case com.controller.trackSelection of
+		(
+			1:(return [1,0,0])
+			2:(return [0,1,0])
+			3:(return [0,0,1])
+			4:(return [1,1,0])
+			5:(return [1,0,1])
+			6:(return [0,1,1])
+			7:(return [1,1,1])
+			default:(return [0,0,0])
+		)
+	)
+
+	-- fn fnSetComTrackSelection com =
+	-- (
+	-- 	numTrackSel = 0
+	-- 	typeTrackSel = [0,0,0]
+	-- 	typeTrackSel[1] = if rolBsBipedTools.uiCbtHorTrack.state then 1 else 0
+	-- 	typeTrackSel[2] = if rolBsBipedTools.uiCbtVerTrack.state then 1 else 0
+	-- 	typeTrackSel[3] = if rolBsBipedTools.uiCbtTurnTrack.state then 1 else 0
+	-- 	case typeTrackSel of 
+	-- 	(
+	-- 		([1,0,0]):(numTrackSel = 1)
+	-- 		([0,1,0]):(numTrackSel = 2)
+	-- 		([0,0,1]):(numTrackSel = 3)
+	-- 		([1,1,0]):(numTrackSel = 4)
+	-- 		([1,0,1]):(numTrackSel = 5)
+	-- 		([0,1,1]):(numTrackSel = 6)
+	-- 		([1,1,1]):(numTrackSel = 7)
+	-- 		default:(numTrackSel = 0)
+	-- 	)
+	-- 	if numTrackSel >= 5 and numTrackSel <= 7 then (fnLockComTrack com)
+	-- 	com.controller.trackSelection = numTrackSel
+	-- )
+
+	fn fnRefreshTrackSelection com =
+	(
+		typeTrackSel = rolBsBipedTools.fnGetComTrackSelection com
+		if selection.count == 0 then typeTrackSel = [0,0,0]
+		rolBsBipedTools.uiCbtHorTrack.state  = if typeTrackSel[1] == 1 then true else false
+		rolBsBipedTools.uiCbtVerTrack.state  = if typeTrackSel[2] == 1 then true else false
+		rolBsBipedTools.uiCbtTurnTrack.state = if typeTrackSel[3] == 1 then true else false
+		
 	)
 
 	-- 배열 빼기
@@ -2563,7 +2661,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 			uiFigureMode.state = false
 			uiBtnInPlace.state = false
 		)
-		fnUpdateLayers()
+		fnBSUpdateLayers()
+		fnRefreshTrackSelection m_workingBipRoot
 	)
 
 	-- 보정치 회전값을 입력받고 똑바로 펴주는 기능을 한다. bips는 배열. 보정치 회전값은 Toe 등에서 90도 추가 회전이 필요함
@@ -3872,7 +3971,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
         InitLocalVars() -- 작업용 바이패드 루트 노드라던가, 선택용 배열 변수 등을 미리 세팅
         
 		fnInitDotTabs()
-		fnUpdateLayers()
+		fnBSUpdateLayers()
 		fnChangeToolsVisble (dotnetTabs.SelectedIndex + 1)
 		if fnIsValidBiped() then 
 		(
@@ -3887,6 +3986,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 		callbacks.addScript #systemPostNew "rolBsBipedTools.InitLocalVars ()" id:#BsBTCallbackNew
 		callbacks.addScript #systemPostReset "rolBsBipedTools.InitLocalVars ()" id:#BsBTCallbackReset
 		callbacks.addScript #selectionSetChanged "rolBsBipedTools.InitLocalVars ()" id:#BsBTSelChange
+		callbacks.addScript #selectionSetChanged "rolBsBipedTools.fnBSUpdateLayers()" id:#BsBTUpdateLayers
 
 		fnSetBsBTConfig()
 	)
@@ -3896,6 +3996,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 		callbacks.removeScripts id:#BsBTCallbackNew
 		callbacks.removeScripts id:#BsBTCallbackReset
 		callbacks.removeScripts id:#BsBTSelChange
+		callbacks.removeScripts id:#BsBTUpdateLayers
 		fnSetBsBTConfig()
 	)
 
@@ -3933,8 +4034,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 
 	on btnMini pressed do 
 	(
-		if rolBsBipedTools.height == 428 then rolBsBipedTools.height = 555
-		else rolBsBipedTools.height = 428
+		if rolBsBipedTools.height == 458 then rolBsBipedTools.height = 585
+		else rolBsBipedTools.height = 458
 	)
 
 	on ddlAllBipedCom selected sel do
@@ -3970,10 +4071,20 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 			selectKeys b.controller sliderTime
 			if ( classof b.controller == Vertical_Horizontal_Turn ) then
 			(
+				local arrComSelType = fnGetComTrackSelection b
 				ctrlTurn = (fnBipedComlocalization b.controller)
-				deleteKeys b.controller.vertical.controller.keys #selection
-				deleteKeys b.controller.horizontal.controller.keys #selection
-				deleteKeys ctrlTurn.keys #selection
+				if arrComSelType[1] == 1 then
+				(
+					deleteKeys b.controller.horizontal.controller.keys #selection
+				)
+				if arrComSelType[2] == 1 then
+				(
+					deleteKeys b.controller.vertical.controller.keys #selection
+				)
+				if arrComSelType[3] == 1 then
+				(
+					deleteKeys ctrlTurn.keys #selection
+				)
 			)
 			else
 			(
@@ -4154,22 +4265,6 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 		)
 	)
 
-	on uiCbtSnapKeys pressed do
-	(
-		if fnIsValidBiped() then
-		(
-			fnSyncBipedPanel()
-			if $selection.count == 1 then
-			(
-				biped.setSnapKey selection[1]
-			)
-			else
-			(
-				messagebox ("请选择单个Biped骨骼!                       ") title:"BsBipedTools"
-			)
-		)
-	)
-
 	on uiCbtDown pressed do
 	(
 		if fnIsValidBiped() then
@@ -4192,7 +4287,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 				layerIndex = 0
 			)
 		)	
-		fnUpdateLayers()
+		fnBSUpdateLayers()
 	)
 
 	on uiCbtUp pressed do
@@ -4219,7 +4314,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 				uiCbtUp.images = #("bip_layer_i.bmp","bip_layer_i.bmp",24,2,2,2,2,true,true)
 			)
 		)
-		fnUpdateLayers()
+		fnBSUpdateLayers()
 	)
 
 	on uiChkActive changed state do
@@ -4236,7 +4331,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 				biped.setLayerActive ctrl layerIndex false
 			)
 		)
-		fnUpdateLayers()
+		fnBSUpdateLayers()
 	)
 
 	on ddlLayers selected val do
@@ -4250,7 +4345,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 				biped.setCurrentLayer ctrl index
 			)
 		)
-		fnUpdateLayers()
+		fnBSUpdateLayers()
 	)
 
 	on uiCbtRefreshLayer changed state do
@@ -4258,7 +4353,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 		uiCbtRefreshLayer.state = true
 		if fnIsValidBiped() then
 		(
-			fnUpdateLayers()
+			fnBSUpdateLayers()
 		)
 	)
 
@@ -4368,10 +4463,10 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 
 		case of 
 		(
-			(selection[1] == m_LHand[1]):(Createdialog rolBSLeftHandPivots pos:(mouse.screenPos + [40,-50]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
-			(selection[1] == m_RHand[1]):(Createdialog rolBSRightHandPivots pos:(mouse.screenPos + [40,-50]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
-			(selection[1] == m_LFoot[1]):(Createdialog rolBSLeftFootPivots pos:(mouse.screenPos + [40,-50]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
-			(selection[1] == m_RFoot[1]):(Createdialog rolBSRightFootPivots pos:(mouse.screenPos + [40,-50]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
+			(selection[1] == m_LHand[1]):(Createdialog rolBSLeftHandPivots pos:(mouse.screenPos + [40,-50]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)) style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+			(selection[1] == m_RHand[1]):(Createdialog rolBSRightHandPivots pos:(mouse.screenPos + [40,-50]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)) style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+			(selection[1] == m_LFoot[1]):(Createdialog rolBSLeftFootPivots pos:(mouse.screenPos + [40,-50]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)) style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+			(selection[1] == m_RFoot[1]):(Createdialog rolBSRightFootPivots pos:(mouse.screenPos + [40,-50]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)) style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
 			default:(messageBox "请先选择手或脚任意一根骨骼，并且设置滑动帧或固定帧!                            " title:"BsBipedTools")
 		)
 	)
@@ -4383,7 +4478,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 
 		try(destroyDialog rolBSFingers)catch()
 
-		Createdialog rolBSFingers pos:(mouse.screenPos - [270,100]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228))
+		Createdialog rolBSFingers pos:(mouse.screenPos - [270,100]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)) style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 	)
 
 	on uiBtnLoadBip changed state do
@@ -4399,7 +4494,144 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:555
 		uiBtnSaveBip.state = true
 		biped.saveBipFileDlg m_workingBipRoot.controller
 	)
+
+	on uiCbtAddLayer pressed do
+	(
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+		fnBSUpdateLayers()
+		ctrlCom = m_workingBipRoot.controller
+		numCurLayer = biped.getCurrentLayer ctrlCom
+		countAllLayers = biped.numLayers ctrlCom
+		numNewLayerIndex = numCurLayer + 1
+		numNewLayerName = (countAllLayers + 1) as string
+		biped.createLayer ctrlCom numNewLayerIndex ("Layer " + numNewLayerName )
+		fnBSUpdateLayers()
+	)
+
+	on uiCbtDelLayer pressed do
+	(
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+		fnBSUpdateLayers()
+		ctrlCom = m_workingBipRoot.controller
+		numCurLayer = biped.getCurrentLayer ctrlCom
+		biped.deleteLayer ctrlCom numCurLayer
+		fnBSUpdateLayers()
+	)
+
+	on uiCbtDownLayer pressed do
+	(
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+		fnBSUpdateLayers()
+		ctrlCom = m_workingBipRoot.controller
+		numCurLayer = biped.getCurrentLayer ctrlCom
+		biped.collapseAtLayer ctrlCom (numCurLayer - 1)
+		fnBSUpdateLayers()
+	)
+
+	on uiCbtSnapKeys pressed do 
+	(
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+		fnBSUpdateLayers()
+		ctrlCom = m_workingBipRoot.controller
+		for obj in selection as array where not isDeleted obj and classof obj.baseobject == Biped_Object do 
+		(
+			if (classof obj.controller == Vertical_Horizontal_Turn) then
+			(
+				numCurLayer = biped.getCurrentLayer ctrlCom
+				biped.setCurrentLayer ctrlCom (numCurLayer - 1)
+				tranPos = biped.getTransform obj #pos
+				tranRot = biped.getTransform obj #rotation
+				biped.setCurrentLayer ctrlCom numCurLayer
+				biped.setTransform obj #pos tranPos true
+				biped.setTransform obj #rotation tranRot true
+			)
+			else
+			(
+				biped.setSnapKey obj
+			)
+		)
+	)
+
+	on uiCbtSnapKeys rightclick do 
+	(
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+		fnBSUpdateLayers()
+		ctrlCom = m_workingBipRoot.controller
+		numCurLayer = biped.getCurrentLayer ctrlCom
+		for obj in selection as array where not isDeleted obj and classof obj.baseobject == Biped_Object do 
+		(
+			local arrAllBipedKeys = #()
+			biped.setCurrentLayer ctrlCom (numCurLayer - 1)
+			if (classof obj.controller == Vertical_Horizontal_Turn) then
+			(
+				arrKeyVer = for i in obj.controller.vertical.controller.keys collect i.time
+				arrKeyHor = for i in obj.controller.horizontal.controller.keys collect i.time
+				arrKeyTurn = for i in (fnBipedComlocalization obj.controller).keys collect i.time
+				arrAllBipedKeys = arrKeyVer + arrKeyHor + arrKeyTurn
+				arrAllBipedKeys = makeUniqueArray arrAllBipedKeys
+				sort arrAllBipedKeys
+				for t in arrAllBipedKeys where arrAllBipedKeys.count != 0 do 
+				(
+					-- at time t with animate on 
+					slidertime = t
+					with animate on
+					(
+						biped.createCopyCollection obj.controller "tempBipedComKeys"
+						copycol= biped.getcopycollection obj.controller (biped.numCopyCollections obj.controller)
+						icpmxbipcopy = biped.copybippose obj.controller copycol #snapview
+						biped.setCurrentLayer ctrlCom numCurLayer
+						biped.pastebippose obj.controller icpmxbipcopy false #pstdefault false true false false
+						biped.deleteCopyCollection obj.controller (biped.numCopyCollections obj.controller)
+					)
+				)
+			)
+			else 
+			(
+				arrAllBipedKeys = for i in obj.controller.keys collect i.time
+				biped.setCurrentLayer ctrlCom numCurLayer
+				for t in arrAllBipedKeys where arrAllBipedKeys.count != 0 do 
+				(
+					at time t with animate on 
+					(
+						try (biped.addNewKey obj.controller t) catch ()
+					)
+				)
+			)
+		)
+	)
+	on uiCbtHorTrack changed state do 
+	(
+		-- fnSetComTrackSelection m_workingBipRoot
+		uiCbtHorTrack.state = true
+		uiCbtVerTrack.state = uiCbtTurnTrack.state = false
+		m_workingBipRoot.controller.trackSelection = 1
+		select m_workingBipRoot
+	)
+	on uiCbtVerTrack changed state do 
+	(
+		-- fnSetComTrackSelection m_workingBipRoot
+		uiCbtVerTrack.state = true
+		uiCbtHorTrack.state = uiCbtTurnTrack.state = false
+		m_workingBipRoot.controller.trackSelection = 2
+		select m_workingBipRoot
+	)
+	on uiCbtTurnTrack changed state do 
+	(
+		-- fnSetComTrackSelection m_workingBipRoot
+		-- if not state then fnLockComTrack m_workingBipRoot
+		uiCbtTurnTrack.state = true
+		uiCbtVerTrack.state = uiCbtHorTrack.state = false
+		m_workingBipRoot.controller.trackSelection = 3
+		select m_workingBipRoot
+	)
+
+	on uiBtnComLock pressed do  -- 非状态显示,只是切换按钮,因为没找到API,干脆全锁切换
+	(
+		fnLockComTrack m_workingBipRoot
+		fnRefreshTrackSelection m_workingBipRoot
+	)
 )
 if (iniBsBTPos != 0) then 
 (Createdialog rolBsBipedTools pos:iniBsBTPos style:#() fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
 else (Createdialog rolBsBipedTools style:#() fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
+clearListener()

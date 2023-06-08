@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-04-12 14:35:06
+ * @LastEditTime: 2023-06-08 11:28:15
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -708,7 +708,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.1"
 		return isStopTime
 	)
 
-	fn fnQuickSave =
+	fn fnTrackBarQuickSave =
 	(
 		if objects.count != 0 and getSaveRequired() then 
 		(
@@ -907,7 +907,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.1"
 		(
 			setSaveRequired true
 
-			fnQuickSave()
+			fnTrackBarQuickSave()
 
 			clock.ticks = 0
 			
@@ -1016,7 +1016,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.1"
 				(
 					if autobackup == "true" then
 					(
-						fnQuickSave()
+						fnTrackBarQuickSave()
 						clock.ticks = 0
 				
 						btnTimer.backcolor = BsDotCheckColor

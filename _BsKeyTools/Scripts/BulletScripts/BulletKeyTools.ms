@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-06-08 03:43:01
+ * @LastEditTime: 2023-06-08 11:29:17
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1230,8 +1230,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"为长动画分段动作区间 (修改自San_oOo)"
 	button btnXrSkinTool "蒙皮辅助" width:btnWidth height:btnHeight visible:false \
 	tooltip:"by:东见云" pos:btnPos
-	button btnRetargetTools "重重定向" width:btnWidth height:btnHeight visible:false \
-	tooltip:"动画重定向工具" pos:btnPos
+	button btnRetargetTools "FBX转CS" width:btnWidth height:btnHeight visible:false \
+	tooltip:"FBX转CS骨骼，附带动画重定向工具" pos:btnPos
 	button btnCombineDetachSkin "Skin 拆合" width:btnWidth height:btnHeight visible:false \
 	tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos
 	button btnClearBiped "Bip 重置" width:btnWidth height:btnHeight visible:false \
@@ -2102,7 +2102,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		if (getNodeByName deleteTrajName) != undefined then (delete (getNodeByName deleteTrajName))
 	)
 
-	fn fnQuickSave =
+	fn fnBSQuickSave =
 	(
 		local strCurFilePath    = (maxFilePath + maxFileName)
 		local strCurFileName    = getFilenameFile maxFileName
@@ -2993,7 +2993,7 @@ rollout rolBsKeyTools "" width:355 height:250
 			messagebox "------------------------------------\r\n\r\n当前场景未保存过,\r\n\r\n请先保存初始版本~\r\n\r\n------------------------------------"
 			max file saveas
 		)
-		else fnQuickSave ()
+		else fnBSQuickSave ()
 	)
 
 	on btnQuicksave rightclick do 
