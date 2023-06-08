@@ -1374,7 +1374,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	button uiCbtAddLayer "" pos:[52,514] width:30 height:20 visible:false border:false
 	button uiCbtDelLayer "" pos:[82,514] width:30 height:20 visible:false border:false
 	button uiCbtDownLayer "" pos:[112,514] width:30 height:20 visible:false border:false
-	button uiCbtSnapKeys "" pos:[142,514] width:30 height:20 visible:false border:false tootip:"左键吸附当前帧，右键吸附帧栏所有帧"
+	button uiCbtSnapKeys "" pos:[142,514] width:30 height:20 visible:false border:false tooltip:"左键吸附当前帧，右键吸附帧栏所有帧"
 	checkbutton uiCbtLeftArm "" pos:[52,537] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
 	checkbutton uiCbtRightArm "" pos:[82,537] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
 	checkbutton uiCbtLeftLeg "" pos:[112,537] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
@@ -1922,8 +1922,9 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	fn fnSyncBipedPanel =
 	(
-		numLayers = biped.numLayers ctrl
-		layerIndex = biped.getCurrentLayer ctrl
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+		numLayers = biped.numLayers m_workingBipRoot.controller
+		layerIndex = biped.getCurrentLayer m_workingBipRoot.controller
 	)
 
 	fn fnIsValidBiped =
@@ -1937,6 +1938,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	fn fnBSUpdateLayers =
 	(
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
 		if fnIsValidBiped() then
 		(
 			ctrl = m_workingBipRoot.controller
@@ -2097,12 +2099,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	fn fnRefreshTrackSelection com =
 	(
-		typeTrackSel = rolBsBipedTools.fnGetComTrackSelection com
-		if selection.count == 0 then typeTrackSel = [0,0,0]
-		rolBsBipedTools.uiCbtHorTrack.state  = if typeTrackSel[1] == 1 then true else false
-		rolBsBipedTools.uiCbtVerTrack.state  = if typeTrackSel[2] == 1 then true else false
-		rolBsBipedTools.uiCbtTurnTrack.state = if typeTrackSel[3] == 1 then true else false
-		
+		if fnIsValidBiped() then
+		(
+			typeTrackSel = rolBsBipedTools.fnGetComTrackSelection com
+			if selection.count == 0 then typeTrackSel = [0,0,0]
+			rolBsBipedTools.uiCbtHorTrack.state  = if typeTrackSel[1] == 1 then true else false
+			rolBsBipedTools.uiCbtVerTrack.state  = if typeTrackSel[2] == 1 then true else false
+			rolBsBipedTools.uiCbtTurnTrack.state = if typeTrackSel[3] == 1 then true else false
+		)
 	)
 
 	-- 배열 빼기
@@ -2665,8 +2669,9 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 			uiFigureMode.state = false
 			uiBtnInPlace.state = false
 		)
-		fnBSUpdateLayers()
 		fnRefreshTrackSelection m_workingBipRoot
+		fnSyncBipedPanel()
+		fnBSUpdateLayers()
 	)
 
 	-- 보정치 회전값을 입력받고 똑바로 펴주는 기능을 한다. bips는 배열. 보정치 회전값은 Toe 등에서 90도 추가 회전이 필요함
@@ -3975,7 +3980,6 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
         InitLocalVars() -- 작업용 바이패드 루트 노드라던가, 선택용 배열 변수 등을 미리 세팅
         
 		fnInitDotTabs()
-		fnBSUpdateLayers()
 		fnChangeToolsVisble (dotnetTabs.SelectedIndex + 1)
 		if fnIsValidBiped() then 
 		(
@@ -3990,9 +3994,9 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		callbacks.addScript #systemPostNew "rolBsBipedTools.InitLocalVars ()" id:#BsBTCallbackNew
 		callbacks.addScript #systemPostReset "rolBsBipedTools.InitLocalVars ()" id:#BsBTCallbackReset
 		callbacks.addScript #selectionSetChanged "rolBsBipedTools.InitLocalVars ()" id:#BsBTSelChange
-		callbacks.addScript #selectionSetChanged "rolBsBipedTools.fnBSUpdateLayers()" id:#BsBTUpdateLayers
-
+		
 		fnSetBsBTConfig()
+
 	)
 	
 	on rolBsBipedTools close do (
@@ -4000,7 +4004,6 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		callbacks.removeScripts id:#BsBTCallbackNew
 		callbacks.removeScripts id:#BsBTCallbackReset
 		callbacks.removeScripts id:#BsBTSelChange
-		callbacks.removeScripts id:#BsBTUpdateLayers
 		fnSetBsBTConfig()
 	)
 

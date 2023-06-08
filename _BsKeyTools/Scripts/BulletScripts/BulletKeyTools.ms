@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-06-08 11:29:17
+ * @LastEditTime: 2023-06-08 23:43:18
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1234,8 +1234,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"FBX转CS骨骼，附带动画重定向工具" pos:btnPos
 	button btnCombineDetachSkin "Skin 拆合" width:btnWidth height:btnHeight visible:false \
 	tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos
-	button btnClearBiped "Bip 重置" width:btnWidth height:btnHeight visible:false \
-	tooltip:"清除所有帧，恢复 Biped Figure Pose" pos:btnPos
+	button btnBoxMan "Box Man" width:btnWidth height:btnHeight visible:false \
+	tooltip:"方块练习人制作工具，半成品待完善" pos:btnPos
 	button btnTwistBones "Twist创建" width:btnWidth height:btnHeight visible:false \
 	tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
 	button btnChainsTools "链条工具" width:btnWidth height:btnHeight visible:false \
@@ -1365,7 +1365,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnHideBipedTwists,rolBsKeyTools.btnQuickPrev,
 						rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnCutSequence,
 						rolBsKeyTools.btnSkinTools,rolBsKeyTools.btnCombineDetachSkin,
-						rolBsKeyTools.btnClearBiped,rolBsKeyTools.btnTwistBones)
+						rolBsKeyTools.btnBoxMan,rolBsKeyTools.btnTwistBones)
 		arrSourToolC4 = #(rolBsKeyTools.btnFnKeyType,rolBsKeyTools.btnRenderTools,
 						rolBsKeyTools.btnMopherSlider,rolBsKeyTools.btnMorpherCtrl,
 						rolBsKeyTools.btnMirrorMoph,rolBsKeyTools.btnDelDecimalKeys,
@@ -2915,19 +2915,10 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
 	)
 
-	on btnClearBiped pressed do with undo on 
+	on btnBoxMan pressed do
 	(
-		if (queryBox "是否恢复 Biped Figure Pose？\r\n\r\n会清除所有 Biped 关键帧！！！\r\n\r\n(请注意保存 Skin Pose 和备份文件！)                                " \
-		title:"是否恢复 Biped Figure Pose" beep:false) then
-		(
-			if selection.count == 1 and classof $ == Biped_Object then
-			(
-				biped.clearAllAnimation $.controller
-				$.controller.rootnode.transform.controller.figureMode = true
-				$.controller.rootnode.transform.controller.figureMode = false
-			)
-			else (messagebox "请选择任意【一个】 Biped 骨骼！！！                             ")
-		)
+		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsBoxMan.ms"))
+		catch(messagebox "打开 BsBoxMan.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on ckbHideBones changed state do
