@@ -71,7 +71,7 @@ Loop Key Tools，Others Tools"
 	dotLabel = dotnetobject "System.Windows.Forms.label"
 	dotLabel.autosize = true
 	dotLabel.ForeColor = (dotNetClass "System.Drawing.Color").black
-	dotLabel.text = "BsBipedTools"
+	dotLabel.text = "BsBipedTools_" + verBsBipedTools
 	dotLabel.font = fontTitle
 	dotLabel.Location = dotNetObject "System.Drawing.Point" 5 5
 	dotHelpLabel = dotnetobject "System.Windows.Forms.label"
@@ -1251,9 +1251,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local mcSelTools     = fnChangeThemeColor (color 20 180 180)
 	local mcInPlace      = fnChangeThemeColor (color 192 192 255)
 
-	button uiAbout "?" offset:[-15, -5] height:15 width:20 border:false align:#left across:4
-	label lblVer verBsBipedTools offset:[-27, -5] height:15 width:40 align:#left
-	button btnMini "☐" offset:[30, -5] height:15 width:20 border:false align:#right
+	button uiAbout "?" offset:[-15, -5] height:15 width:20 border:false align:#left across:3
+	button btnMini "☐" offset:[45, -5] height:15 width:20 border:false align:#right
 	button btnClose "X" offset:[15, -5] height:15 width:20 border:false align:#right
 	
 	dropdownlist ddlAllBipedCom items:#() selection:1 \
