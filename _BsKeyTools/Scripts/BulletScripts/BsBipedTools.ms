@@ -4217,6 +4217,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 			else o.isHidden = off
 		)
 		-- m_workingBipRoot.controller.displayFootsteps = false
+		hide $*Footsteps
 	)
 
 	on uiBtnFrameTick pressed do 
