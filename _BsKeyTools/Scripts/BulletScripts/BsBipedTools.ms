@@ -15,6 +15,7 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
+global verBsBipedTools = "v1.1"
 
 try(destroydialog rolBsBipedTools) catch()		-- 혹시 열려있는 창이 있으면 강제 종료
 try(destroyDialog rolBSLeftHandPivots)catch()
@@ -70,7 +71,7 @@ Loop Key Tools，Others Tools"
 	dotLabel = dotnetobject "System.Windows.Forms.label"
 	dotLabel.autosize = true
 	dotLabel.ForeColor = (dotNetClass "System.Drawing.Color").black
-	dotLabel.text = "BsBipedTools_v1.0"
+	dotLabel.text = "BsBipedTools"
 	dotLabel.font = fontTitle
 	dotLabel.Location = dotNetObject "System.Drawing.Point" 5 5
 	dotHelpLabel = dotnetobject "System.Windows.Forms.label"
@@ -1250,8 +1251,9 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local mcSelTools     = fnChangeThemeColor (color 20 180 180)
 	local mcInPlace      = fnChangeThemeColor (color 192 192 255)
 
-	button uiAbout "?" offset:[-15, -5] height:15 width:20 border:false align:#left across:3
-	button btnMini "☐" offset:[45, -5] height:15 width:20 border:false align:#right
+	button uiAbout "?" offset:[-15, -5] height:15 width:20 border:false align:#left across:4
+	label lblVer verBsBipedTools offset:[-27, -5] height:15 width:40 align:#left
+	button btnMini "☐" offset:[30, -5] height:15 width:20 border:false align:#right
 	button btnClose "X" offset:[15, -5] height:15 width:20 border:false align:#right
 	
 	dropdownlist ddlAllBipedCom items:#() selection:1 \
@@ -4662,6 +4664,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		-- fnSetComTrackSelection m_workingBipRoot
 		uiCbtHorTrack.state = true
 		uiCbtVerTrack.state = uiCbtTurnTrack.state = false
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
 		m_workingBipRoot.controller.trackSelection = 1
 		select m_workingBipRoot
 	)
@@ -4670,6 +4673,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		-- fnSetComTrackSelection m_workingBipRoot
 		uiCbtVerTrack.state = true
 		uiCbtHorTrack.state = uiCbtTurnTrack.state = false
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
 		m_workingBipRoot.controller.trackSelection = 2
 		select m_workingBipRoot
 	)
@@ -4679,12 +4683,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		-- if not state then fnLockComTrack m_workingBipRoot
 		uiCbtTurnTrack.state = true
 		uiCbtVerTrack.state = uiCbtHorTrack.state = false
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
 		m_workingBipRoot.controller.trackSelection = 3
 		select m_workingBipRoot
 	)
 
 	on uiBtnComLock pressed do  -- 非状态显示,只是切换按钮,因为没找到API,干脆全锁切换
 	(
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
 		fnLockComTrack m_workingBipRoot
 		fnRefreshTrackSelection m_workingBipRoot
 	)
