@@ -4199,67 +4199,85 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	( 
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		uiCkbShowBox.state = on
-		for o in m_AllBip where (o.isHidden == false) do 
-		(
-			if o.boxmode == off then o.boxmode = on 
-			else o.boxmode = off
+		try(
+			for o in m_AllBip where (o.isHidden == false) and (not isDeleted o) do 
+			(
+				if o.boxmode == off then o.boxmode = on 
+				else o.boxmode = off
+			)
 		)
+		catch(messageBox "骨骼可能有变动，请先点击 All Biped 刷新骨骼!         " title:"BsBipedTools")
 	)
 
 	on uiCkbShowBox rightclick do
 	( 
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		uiCkbShowBox.state = on
-		for o in m_AllBip where (o.isHidden == false) do 
-		(
-			o.boxmode = on
+		try(
+			for o in m_AllBip where (o.isHidden == false) and (not isDeleted o) do 
+			(
+				o.boxmode = on
+			)
 		)
+		catch(messageBox "骨骼可能有变动，请先点击 All Biped 刷新骨骼!         " title:"BsBipedTools")
 	)
 
 	on uiCkbXray changed state do
 	( 
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		uiCkbXray.state = on
-		for o in m_AllBip where (o.isHidden == false) do 
-		(
-			if o.xray == off then o.xray = on 
-			else o.xray = off
+		try(
+			for o in m_AllBip where (o.isHidden == false) and (not isDeleted o) do 
+			(
+				if o.xray == off then o.xray = on 
+				else o.xray = off
+			)
 		)
+		catch(messageBox "骨骼可能有变动，请先点击 All Biped 刷新骨骼!         " title:"BsBipedTools")
 	)
 
 	on uiCkbXray rightclick do
 	( 
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		uiCkbXray.state = on
-		for o in m_AllBip where (o.isHidden == false) do 
-		(
-			o.xray = on
+		try(
+			for o in m_AllBip where (o.isHidden == false) and (not isDeleted o) do 
+			(
+				o.xray = on
+			)
 		)
+		catch(messageBox "骨骼可能有变动，请先点击 All Biped 刷新骨骼!         " title:"BsBipedTools")
 	)
 	
 	on uiCkbHideBip changed state do
 	(
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		uiCkbHideBip.state = on 
-		for o in m_AllBip do 
-		(
-			if o.isHidden == off then o.isHidden = on 
-			else o.isHidden = off
+		try(
+			for o in m_AllBip where (not isDeleted o) do 
+			(
+				if o.isHidden == off then o.isHidden = on 
+				else o.isHidden = off
+			)
+			-- m_workingBipRoot.controller.displayFootsteps = false
+			hide $*Footsteps
 		)
-		-- m_workingBipRoot.controller.displayFootsteps = false
-		hide $*Footsteps
+		catch(messageBox "骨骼可能有变动，请先点击 All Biped 刷新骨骼!         " title:"BsBipedTools")
 	)
 
 	on uiCkbHideBip rightclick do
 	(
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		uiCkbHideBip.state = on 
-		for o in m_AllBip do 
-		(
-			o.isHidden = on
+		try(
+			for o in m_AllBip where (not isDeleted o) do 
+			(
+				o.isHidden = on
+			)
+			-- m_workingBipRoot.controller.displayFootsteps = false
+			hide $*Footsteps
 		)
-		-- m_workingBipRoot.controller.displayFootsteps = false
-		hide $*Footsteps
+		catch(messageBox "骨骼可能有变动，请先点击 All Biped 刷新骨骼!         " title:"BsBipedTools")
 	)
 
 	on uiBtnFrameTick pressed do 
