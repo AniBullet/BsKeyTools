@@ -629,10 +629,11 @@ rollout rolBSRightFootPivots "R-Foot" width:90
 
 rollout rolBSFingers "Fingers" width:220 height:160
 (
-	checkbutton chbLFingers "Left  Fingers" pos:[22,130] highlightColor:rolBsBipedTools.mcLeft checked:true
-	checkbutton chbRFingers "Right  Fingers" pos:[120,130] highlightColor:rolBsBipedTools.mcRight checked:true
+	checkbutton chbRFingers "Right" pos:[32,130] highlightColor:rolBsBipedTools.mcRight checked:true
+	checkbutton chbLFingers "Left" pos:[148,130] highlightColor:rolBsBipedTools.mcLeft checked:true
+	
 	--R Index Finger
-	button select_rhand1_btn "RHand"	enabled:true pos:[120,80] width:60 height:40 images:#(Bitmap 60 40 color:(color 5 173 5 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有右手手指"
+	button select_rhand1_btn "RHand"	enabled:true pos:[20,80] width:60 height:40 images:#(Bitmap 60 40 color:(color 5 173 5 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有右手手指"
 	button select_rfing11_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+45,(select_rhand1_btn.pos.y)-22]		width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rfing12_btn "RHand"	enabled:true pos:[(select_rfing11_btn.pos.x)+0,(select_rfing11_btn.pos.y)-21]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rfing13_btn "RHand"	enabled:true pos:[(select_rfing12_btn.pos.x)+0,(select_rfing12_btn.pos.y)-18]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
@@ -659,7 +660,7 @@ rollout rolBSFingers "Fingers" width:220 height:160
 
 	--LEFT HAND
 	--L Index Finger
-	button select_lhand1_btn "LHand"	enabled:true pos:[40,80] width:60 height:40 images:#(Bitmap 60 40 color:(color 18 18 167 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有左手手指"
+	button select_lhand1_btn "LHand"	enabled:true pos:[140,80] width:60 height:40 images:#(Bitmap 60 40 color:(color 18 18 167 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有左手手指"
 	button select_lfing11_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+0,(select_lhand1_btn.pos.y)-22]		width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lfing12_btn "LHand"	enabled:true pos:[(select_lfing11_btn.pos.x)+0,(select_lfing11_btn.pos.y)-21]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lfing13_btn "LHand"	enabled:true pos:[(select_lfing12_btn.pos.x)+0,(select_lfing12_btn.pos.y)-18]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
@@ -1265,12 +1266,12 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	checkButton uiCkbZen "Zen" checked:true width:25 height:23 pos:[10,50] highlightColor:mcMotionPanel \
 	tooltip:"禅模式切换（最大化视窗）"
 	checkButton uiCkbHideBip "HB" checked:true width:20 height:23 pos:[40,50] highlightColor:mcMotionPanel \
-	tooltip:"切换隐藏Biped骨骼"
+	tooltip:"左键切换隐藏显示Biped骨骼\r\n右键直接隐藏"
 
 	checkButton uiCkbXray "Xray" checked:true width:20 height:23 pos:[120,50] highlightColor:mcMotionPanel \
-	tooltip:"Xray模式切换"
+	tooltip:"左键Xray模式切换\r\n右键直接开启"
 	checkButton uiCkbShowBox "Box" checked:true width:25 height:23 pos:[145,50] highlightColor:mcMotionPanel \
-	tooltip:"Box模式切换"
+	tooltip:"左键Box模式切换\r\n右键直接开启"
 
 	checkBox uiChkSelHiddenObj "Select hidden biped" checked:true pos:[-99, -99]
 	
@@ -1357,10 +1358,10 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	checkbutton uiCbtPaste "" pos:[80,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"粘贴Poseture"
 	checkbutton uiCbtPasteOpposite "" pos:[110,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"镜像粘贴Poseture"
 	checkbutton uiCbtSelBones "选择" pos:[140,465] width:35 height:25 visible:false checked:true highlightColor:mcFK tooltip:"选择复制pose的Biped骨骼"
-	checkbutton uiCbtmirrorLArm "左→右臂" pos:[50,495] width:60 height:25 visible:false checked:true highlightColor:mcFK
-	checkbutton uiCbtMirrorRArm "右→左臂" pos:[115,495] width:60 height:25 visible:false checked:true highlightColor:mcFK
-	checkbutton uiCbtMirrorLLeg "左→右腿" pos:[50,523] width:60 height:25 visible:false checked:true highlightColor:mcFK
-	checkbutton uiCbtMirrorRLeg "右→左腿" pos:[115,523] width:60 height:25 visible:false checked:true highlightColor:mcFK
+	checkbutton uiCbtMirrorRArm "右→左臂" pos:[50,495] width:60 height:25 visible:false checked:true highlightColor:mcRight
+	checkbutton uiCbtMirrorLArm "左→右臂" pos:[115,495] width:60 height:25 visible:false checked:true highlightColor:mcLeft
+	checkbutton uiCbtMirrorRLeg "右→左腿" pos:[50,523] width:60 height:25 visible:false checked:true highlightColor:mcRight
+	checkbutton uiCbtMirrorLLeg "左→右腿" pos:[115,523] width:60 height:25 visible:false checked:true highlightColor:mcLeft
 	checkbutton uiCbtGrabPose "暂存Pose" pos:[50,550] width:60 height:25 visible:false checked:true highlightColor:mcFK
 	checkbutton uiCbtLoadPose "加载Pose" pos:[115,550] width:60 height:25 visible:false checked:true highlightColor:mcFK
 
@@ -1388,7 +1389,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	highlightColor:mcAllBiped align:#left pos:[50, 465] height:20 across:3 visible:false
 	spinner uiSpnLoopStart tooltip:"Loop Range" type:#integer range:[-9999,9999,0] width:50 align:#left pos:[48, 493] visible:false
 	spinner uiSpnLoopEnd tooltip:"Loop Range" type:#integer range:[-9999,9999,30] width:50 align:#left pos:[101, 493] visible:false
-	checkButton uiCkbClearUserDef "X" border:true pos:[159, 465] height:70 width:16 checked:true highlightColor:mcAllBiped visible:false
+	checkButton uiCkbClearUserDef "X" border:true pos:[159, 465] height:70 width:16 checked:true highlightColor:mcAllBiped visible:false \
+	tooltip:"清除 骨架保存的循环帧自定义属性值。\r\n（对文件本身无任何影响） "
 	checkButton uiBtnGotoMirror "跳转对称帧" checked:true highlightColor:mcAllBiped tooltip:"滑条跳转到镜像帧\r\nGoto symmetry key" \
 	align:#left pos:[50, 515] height:20 width:103 across:2 visible:false
 
@@ -1408,7 +1410,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local arrOtherTools = #("Other",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip)) 
 	local arrLayerTools = #("Layer",#(uiCbtRefreshLayer,uiCbtDown,uiCbtUp,uiLblLayerID,uiLblActive,uiChkActive,uiCbtAddLayer,\
 		uiCbtDelLayer,uiCbtDownLayer,uiCbtSnapKeys,uiCbtLeftArm,uiCbtRightArm,uiCbtLeftLeg,uiCbtRightLeg,uiCbtUpdate,uiChkIKonly,ddlLayers))
-	local arrCopyTools = #("CopyP",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtSelBones,uiCbtmirrorLArm,uiCbtMirrorRArm,\
+	local arrCopyTools = #("CopyP",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtSelBones,uiCbtMirrorLArm,uiCbtMirrorRArm,\
 		uiCbtMirrorLLeg,uiCbtMirrorRLeg,uiCbtGrabPose,uiCbtLoadPose))
 	local arrAllToolsTab = #(arrCopyTools,arrLayerTools,arrLoopTools,arrOtherTools)
 
@@ -1865,8 +1867,12 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCkbXray.state = state
 		uiCkbShowBox.state = state
 		uiCkbZen.state = state
+		uiCbtMirrorLLeg.state = state
+		uiCbtMirrorRLeg.state = state
+		uiCbtMirrorLArm.state = state
+		uiCbtMirrorRArm.state = state
     )
-	
+
 	-- 씬 내 바이패드 오브젝트를 모두 조사하여 바이패드가 하나만 있으면 그 바이패드를 m_workingBipRoot에 세팅.
 	-- 현재 선택된 오브젝트가 바이패드면 그것을 세팅
 	-- 선택이 성공하면 true, 실패하면 false 리턴
@@ -2902,9 +2908,10 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		)
 	)
 	
-	on uiCbtmirrorLArm changed state do
+	on uiCbtMirrorLArm changed state do
 	(
-		uiCbtmirrorLArm.state = true
+		uiCbtMirrorLArm.state = true
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		-- local arrMirror = makeUniqueArray (m_LArms + m_LHand)
 		fnMirrorPosture m_LArms
 	)
@@ -2912,6 +2919,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	on uiCbtMirrorRArm changed state do
 	(
 		uiCbtMirrorRArm.state = true
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		-- local arrMirror = makeUniqueArray (m_RArms + m_RHand)
 		fnMirrorPosture m_RArms
 	)
@@ -2919,12 +2927,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	on uiCbtMirrorLLeg changed state do
 	(
 		uiCbtMirrorLLeg.state = true
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		fnMirrorPosture m_LLegs
 	)
 	
 	on uiCbtMirrorRLeg changed state do
 	(
 		uiCbtMirrorRLeg.state = true
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		fnMirrorPosture m_RLegs
 	)
 
@@ -4196,6 +4206,16 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		)
 	)
 
+	on uiCkbShowBox rightclick do
+	( 
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
+		uiCkbShowBox.state = on
+		for o in m_AllBip where (o.isHidden == false) do 
+		(
+			o.boxmode = on
+		)
+	)
+
 	on uiCkbXray changed state do
 	( 
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
@@ -4204,6 +4224,16 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		(
 			if o.xray == off then o.xray = on 
 			else o.xray = off
+		)
+	)
+
+	on uiCkbXray rightclick do
+	( 
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
+		uiCkbXray.state = on
+		for o in m_AllBip where (o.isHidden == false) do 
+		(
+			o.xray = on
 		)
 	)
 	
@@ -4215,6 +4245,18 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		(
 			if o.isHidden == off then o.isHidden = on 
 			else o.isHidden = off
+		)
+		-- m_workingBipRoot.controller.displayFootsteps = false
+		hide $*Footsteps
+	)
+
+	on uiCkbHideBip rightclick do
+	(
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
+		uiCkbHideBip.state = on 
+		for o in m_AllBip do 
+		(
+			o.isHidden = on
 		)
 		-- m_workingBipRoot.controller.displayFootsteps = false
 		hide $*Footsteps
