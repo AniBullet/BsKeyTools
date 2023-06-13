@@ -1487,7 +1487,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiBtnLimbPK.images         = #("bip_ikkey_i.bmp","bip_ikkey_i.bmp",8,3,3,3,3,true,true)
 		uiBtnLimbIK.images         = #("bip_ikkey_i.bmp","bip_ikkey_i.bmp",8,5,5,5,5,true,true)
 		uiBtnLimbFK.images         = #("bip_ikkey_i.bmp","bip_ikkey_i.bmp",8,7,7,7,7,true,true)
-		uiPlayBlock.images         = #("SchematicView_24i.bmp","SchematicView_24i.bmp",4,3,3,3,3,true,true)
+		uiPlayBlock.images         = #("bip_mfltrans_i.bmp","bip_mfltrans_i.bmp",26,21,21,21,21,true,true)
 		uiToggleMotionPanel.images = #("bip_pivselbig_i.bmp","bip_pivselbig_i.bmp",6,6,6,6,6,true,true)
 		uiCkbShowBox.images        = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,9,9,9,9,true,false)
 		uiCkbXray.images           = #("bip_modes_i.bmp","bip_modes_i.bmp",8,2,2,2,2,true,true)

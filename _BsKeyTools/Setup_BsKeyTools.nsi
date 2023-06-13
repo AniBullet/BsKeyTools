@@ -2,7 +2,7 @@
 
 ; 安装程序初始定义常量
 !define PRODUCT_NAME "BsKeyTools"
-!define PRODUCT_VERSION "_v0.9.9.6"
+!define PRODUCT_VERSION "_v0.9.9.8"
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
 ;!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -77,8 +77,8 @@ ShowUnInstDetails show
 Section "3dsMax 2024" SEC18
   SetOutPath "$v2024"
   SetOverwrite on
-  File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
 SectionEnd
 
 Section "3dsMax 2023" SEC01
