@@ -15,7 +15,7 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
-global verBsBipedTools = "v1.1"
+global verBsBipedTools = "v1.2"
 
 try(destroydialog rolBsBipedTools) catch()		-- 혹시 열려있는 창이 있으면 강제 종료
 try(destroyDialog rolBSLeftHandPivots)catch()
@@ -1335,11 +1335,11 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	tooltip:"左键选择K帧,\r\n右键Biped全帧." checked:true highlightColor:mcFK
 	checkButton uiBtnDeleteKey "" width:25 height:25 tooltip:"左键删除所选Biped当前滑条帧\r\n右键清除Biped所有帧" \
 	pos:[37, 400] border:false checked:true highlightColor:mcFK
-	checkButton uiBtnLimbPK "" width:25 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
+	checkButton uiBtnLimbPK "" width:25 height:25 tooltip:"Shift + 单击 - 应用于所有帧，\r\nCtrl + 单击 - 应用于选定帧。\r\n（会卡一下因为必须要Motion面板）" \
 	pos:[65, 400] border:false checked:true highlightColor:mcFK
-	checkButton uiBtnLimbIK "" width:25 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
+	checkButton uiBtnLimbIK "" width:25 height:25 tooltip:"Shift + 单击 - 应用于所有帧，\r\nCtrl + 单击 - 应用于选定帧。\r\n（会卡一下因为必须要Motion面板）" \
 	pos:[90, 400] border:false checked:true highlightColor:mcFK
-	checkButton uiBtnLimbFK "" width:25 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
+	checkButton uiBtnLimbFK "" width:25 height:25 tooltip:"Shift + 单击 - 应用于所有帧，\r\nCtrl + 单击 - 应用于选定帧。\r\n（会卡一下因为必须要Motion面板）" \
 	pos:[115, 400] border:false checked:true highlightColor:mcFK
 	checkButton uiBtnTraj "" width:25 height:25
 	pos:[145, 400] border:false checked:true highlightColor:mcFK
@@ -3032,6 +3032,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 			) -- for
 		) -- Undo
+		setCommandPanelTaskMode mode:#create
 		enableSceneRedraw()
 		sliderTime = timeBefore
 	)
@@ -3070,6 +3071,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 			) -- for
 		) -- Undo
+		setCommandPanelTaskMode mode:#create
 		enableSceneRedraw()
 		sliderTime = timeBefore
 	)
@@ -3108,6 +3110,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 			) -- for
 		) -- Undo
+		setCommandPanelTaskMode mode:#create
 		enableSceneRedraw()
 		sliderTime = timeBefore
 	)
