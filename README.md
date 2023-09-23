@@ -23,9 +23,9 @@ B 站视频：https://space.bilibili.com/2031113/channel/collectiondetail?sid=56
 ## 特别感谢，代码或灵感贡献
 Crazyone  
 东见云  
-祥子
-SiChun Yuan
-动画大白
+祥子  
+SiChun Yuan  
+动画大白  
 
 ---
 ##### Since 2019.11
