@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-09-20 00:17:22
+ * @LastEditTime: 2023-12-04 19:09:06
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -139,7 +139,7 @@ rollout rolAddItem "添加常用路径" width:340 height:80
 
 rollout rolBsOpenTools "" width:580 height:400
 (
-	groupbox grpMain "时光机_v1.0" \
+	groupbox grpMain "时光机_v1.1" \
 	width:570 height:395 pos:[5,0]
 	button btnClose "X" pos:[rolBsOpenTools.width - 15,0] height:15 width:15 border:false
 	editText edtBrowseFolder "" text:"" labelOnTop:false align:#right \
