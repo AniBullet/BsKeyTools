@@ -190,7 +190,7 @@ rollout rolBsOpenTools "" width:580 height:400
 	label lblLikedFolder "" height:15 width:140 pos:[10,375]
 	label lblCountTips "" height:15 width:80 pos:[470,375]
 	label lblDateTime "" height:15 width:140 pos:[180,375] 
-	HyperLink lnkLink "miHoYo_Bullet.S" color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor \
+	HyperLink lnkLink "Bullet.S" color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor \
 	pos:[330,375] address:"https://space.bilibili.com/2031113"
 	-- checkbutton ckbLockWidth "🔒" pos:[86,312] width:20 height:20 border:false \
 	-- toolTip:"是否解锁宽度调节\r\n右：重置宽度" checked:false

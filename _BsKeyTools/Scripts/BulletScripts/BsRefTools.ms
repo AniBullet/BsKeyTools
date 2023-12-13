@@ -552,7 +552,7 @@ rollout rolRefTools ("[参考工具]-BsRefTools_v" + currentVersion)  width:340 
 	groupBox grpDate "" width:330 height:30 pos:[5,297]
 	label lblCountTips "" height:15 width:80 pos:[15,307]
 	label lblDateTime "" height:15 width:130 pos:[120,307] 
-	HyperLink lnkLink "miHoYo_Bullet.S" color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor \
+	HyperLink lnkLink "Bullet.S" color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor \
 	pos:[245,307] address:"https://www.anibullet.com/"
 
 -----------------------------------------------------------------------------

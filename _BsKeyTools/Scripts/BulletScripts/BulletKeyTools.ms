@@ -1265,8 +1265,8 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	groupbox gbxTips "" pos:[5,215] width:210 height:30
 	
-	-- label lblLink "2019.9[miHoYo_Bullet.S]4869" pos:[12,226] width:145 height:15
-	dotnetcontrol lblLink "Label" text:"2019.9 [ miHoYo_Bullet.S ]✨" pos:[12,226] width:150 height:15
+	-- label lblLink "2019.9[Bullet.S]4869" pos:[12,226] width:145 height:15
+	dotnetcontrol lblLink "Label" text:"2019.9 [ Bullet.S ]✨" pos:[12,226] width:150 height:15
 	checkbutton btnConfig "⚙️设置" pos:[165,223] width:49 height:20 border:false checked:true highlightColor:myCheckedColor
 
 	timer timerTickTock interval:200 active:true

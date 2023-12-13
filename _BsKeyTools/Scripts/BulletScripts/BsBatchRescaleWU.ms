@@ -138,7 +138,7 @@ rollout rol_RescaleWorldUnits ("蒙皮缩放_v" + RescaleWU_ver)
 	radioButtons rdo_affect "" pos:[145,67] labels:#("场景","所选物体") default:1 columns:1 width:220
 	button btn_ok "执行" pos:[5,110] width:120 height:24
 	button btn_cancel "取消" pos:[125,110] width:120 height:24
-	label lblMe "miHoYo_Bullet.S" pos:[20,88] width:120 height:16
+	label lblMe "Bullet.S" pos:[20,88] width:120 height:16
 
     local maxFiles = #()
 
