@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-03-19 10:33:26
+ * @LastEditTime: 2024-03-19 15:52:02
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1581,7 +1581,7 @@ rollout rolBsKeyTools "" width:355 height:250
 			(
 				for j in tempController.Keys do
 				(
-					if (tempSubAnimName == #Link_Times or tempSubAnimName == #链接时间) then
+					if (tempSubAnimName == #Link_Times or tempSubAnimName == ("链接时间" as name)) then
 					(
 						appendIfUnique arrLinkKeys j  ---------添加link帧到数组
 					)
@@ -1600,7 +1600,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	-- 	(
 	-- 		-- for i = 1 to tempObj.controller.numsubs do 
 	-- 		-- (
-	-- 			if ((GetSubAnimName tempObj.controller i) == #Link_Times or (GetSubAnimName tempObj.controller i) == #链接时间) then
+	-- 			if ((GetSubAnimName tempObj.controller i) == #Link_Times or (GetSubAnimName tempObj.controller i) == ("链接时间" as name)) then
 	-- 			(
 	-- 				if tempObj.controller[i].keys[1] != undefined then
 	-- 				(
@@ -1687,7 +1687,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	-- 	-- )
 	-- )
 
-	fn fnAddBipedKeys tempObj =------收集Biped帧
+	fn fnAddBipedKeys tempObj =  ---------收集Biped帧
 	(
 		local keyTimeStartTemp
 		local keyTimeEndTemp
@@ -1695,8 +1695,9 @@ rollout rolBsKeyTools "" width:355 height:250
 
 		if classof tempObj.controller != Footsteps then
 		(
-			if classof tempObj.controller != Vertical_Horizontal_Turn then --筛选出非质心的biped帧
+			if classof tempObj.controller != Vertical_Horizontal_Turn then
 			(
+				--筛选出非质心的biped帧
 				fnAddAllSubsKeys tempObj
 				-- if (tempObj.controller.keys[1] != undefined) then
 				-- (
@@ -2877,7 +2878,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
 	)
 
-	on btnCleanOutKeys pressed do with undo on-----------清理范围外帧(无限帧)
+	on btnCleanOutKeys pressed do with undo on  -----------清理范围外帧(无限帧)
 	(
 		if (queryBox "是否清除范围外关键帧？\r\n( Link 帧请手动删除 )    " \
 		title:"是否清除范围外关键帧？" beep:false) then
@@ -2894,7 +2895,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
 	)
 
-	on btnDelOutKeys pressed do with undo on-----------清理选择帧
+	on btnDelOutKeys pressed do with undo on --清理选择帧
 	(
 		if (queryBox "是否清除所有关键帧？\r\n\r\n有选择物体则删选择物体的帧，\r\n\r\n否则删所有物体的关键帧。\r\n\r\n(请注意保存 Skin Pose 和备份文件！)                                " \
 		title:"是否清除所有关键帧" beep:false) then
