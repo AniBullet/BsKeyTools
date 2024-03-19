@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-03-08 10:42:22
+ * @LastEditTime: 2024-03-19 10:33:26
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -2957,7 +2957,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			rolBsKeyTools.ckbFreezeMesh.text = "解模型"
 			for o in objects where (((classof o == Editable_mesh) \
-			or (classof o == Editable_Poly) or (classof o == PolyMeshObject)) \
+			or (classof o == Editable_Poly) or (classof o == PolyMeshObject) or (classof o == Plane) or (classof o == Box)) \
 			and (o.isHidden == false)) do
 			(
 				freeze o
@@ -2968,7 +2968,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			rolBsKeyTools.ckbFreezeMesh.text = "冻模型"
 			for o in objects where (((classof o == Editable_mesh) \
-			or (classof o == Editable_Poly) or (classof o == PolyMeshObject)) \
+			or (classof o == Editable_Poly) or (classof o == PolyMeshObject) or (classof o == Plane) or (classof o == Box)) \
 			and (o.isHidden == false)) do
 			(
 				unfreeze o
