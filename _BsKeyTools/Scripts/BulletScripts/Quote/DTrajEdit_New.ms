@@ -5,7 +5,7 @@
 -- 功能：动画轨迹
 -- 联系方式：yun7928903@163.com
 
-i=1
+
 ---尝试关闭回调
 try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()
 try unregisterRedrawViewsCallback yunMotionPathCallBackFn_exc catch()
@@ -13,6 +13,10 @@ try unregisterRedrawViewsCallback yunMotionPathCallBackFn_exc catch()
 try DestroyDialog  yunTrajedit_rollout catch ()
 	
 function yunTrajEdit_UpdateRollout = () -- Proto放报错初始化	
+
+---定义相对用的相机	
+global yunTrajEdit_DTrajs_camRef = false
+
 ---定义所有轨迹	
 global yunTrajEdit_DTrajs  
 if yunTrajEdit_DTrajs == undefined do yunTrajEdit_DTrajs = #()
@@ -49,7 +53,24 @@ if yunTrajEdit_DTrajs_colEnd == undefined do yunTrajEdit_DTrajs_colEnd = #()
 global yunTrajEdit_DTrajs_isGradual
 if yunTrajEdit_DTrajs_isGradual == undefined do yunTrajEdit_DTrajs_isGradual = #()
  
-
+fn HSV_to_RGB hsv = 
+		(
+			hsv /= 255
+			h = hsv.x*6
+			i = h as integer
+			k = if (mod i 2) == 1 then (h-i) else (1-h+i)
+			m = hsv.z*(1-hsv.y)
+			n = hsv.z*(1-hsv.y*k)
+			case i of
+			(
+					1: [n, hsv.z, m]*255
+					2: [m, hsv.z, n]*255
+					3: [m, n, hsv.z]*255
+					4: [n, m, hsv.z]*255
+					5: [hsv.z, m, n]*255
+			  default: [hsv.z, n, m]*255
+			)
+		)
 
 ----获取选择的帧
 selKeyArray = #()  ---初始化不可少
@@ -104,24 +125,6 @@ catch()
 )
 
 
-fn HSV_to_RGB hsv = 
-(
-	hsv /= 255
-	h = hsv.x*6
-	i = h as integer
-	k = if (mod i 2) == 1 then (h-i) else (1-h+i)
-	m = hsv.z*(1-hsv.y)
-	n = hsv.z*(1-hsv.y*k)
-	case i of
-	(
-			1: [n, hsv.z, m]*255
-			2: [m, hsv.z, n]*255
-			3: [m, n, hsv.z]*255
-			4: [n, m, hsv.z]*255
-			5: [hsv.z, m, n]*255
-	  default: [hsv.z, n, m]*255
-	)
-)
 ----场景内物体是否存在检查函数
 function yunTrajEdit_CheckExsitError  = 
 (
@@ -298,7 +301,7 @@ struct yunTrajEdit_Globals_Struct
 			append yunTrajEdit_DTrajs_keyVis true				
 			append yunTrajEdit_DTrajs_colStart red
 			append yunTrajEdit_DTrajs_colEnd green				
-			append yunTrajEdit_DTrajs_isGradual true
+			append yunTrajEdit_DTrajs_isGradual false
 			)
 			
 		)
@@ -397,66 +400,95 @@ fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShap
 	(	
 	
 		---获取数据 
-		(	
-			if  ((currentTime as string) as integer) > tStart and
-			((currentTime as string) as integer)  < tEnd then
-			(tNow = (currentTime as string) as integer)			
-			else (tNow = tStart+1 )
 			
-			framesA = #()
-			for i = tStart to tNow do append framesA i
-			framesB = #()
-			for i = tNow to tEnd do append framesB i
-				
-			----------------------------------------------------
-			arrA = #()  --帧数
-			arrColorA = #()   --颜色
-			arrColorA_reverse = #()
+		if  ((currentTime as string) as integer) > tStart and
+		((currentTime as string) as integer)  < tEnd then
+		(tNow = (currentTime as string) as integer)			
+		else (tNow = tStart+1 )
+		
+		framesA = #()
+		for i = tStart to tNow do append framesA i
+		framesB = #()
+		for i = tNow to tEnd do append framesB i
 			
-			if isGradual then		--渐变
-			(
-				rd = col_Start.red/framesA.count  
-				gd = col_Start.green /framesA.count
-				bd = col_Start.blue /framesA.count
-				ad = 255/framesA.count
-				for vT = 1 to  framesA.count do 
-				(
-					at time  framesA[vT](append arrA  obj.transform.pos)
-					col = (color (col_Start.red - rd*vT ) (col_Start.green - gd*vT ) (col_Start.blue - bd*vT ) )				
-					col.alpha = (col_Start.alpha - ad*vT )
-					col.alpha = 255
-					append arrColorA   col			
-				)	
-				
-				arrColorA_reverse = for i = arrColorA.count to 1 by -1 collect arrColorA[i]
-			)
-			else
-			(
-				for vT in framesA do (at time  vT (append arrA  obj.transform.pos;append arrColorA_reverse col_Start ))
-			)			
-			----------------------------------------------------
-			arrB = #()
-			arrColorB = #()
-			
-			if isGradual then		--渐变
-			(
-				rd = col_End.red/framesB.count  
-				gd = col_End.green /framesB.count
-				bd = col_End.blue /framesB.count				
-				for vT = 1 to  framesB.count do 
-				(
-					at time  framesB[vT]	(append arrB  obj.transform.pos	)
-					append arrColorB  (color (col_End.red - rd*vT ) (col_End.green - gd*vT ) (col_End.blue - bd*vT ))	
-				)
-			)
-			else
-			(
-				for vT in framesB do (at time  vT	(append arrB  obj.transform.pos;append arrColorB col_End)	)			
-			)
+		----------------------------------------------------
+		arrA = #()  --帧数
+		arrColorA = #()   --颜色
+		arrColorA_reverse = #()
+		
+		camGet = getActiveCamera()	
+		
+		--相机路径	
+		if  yunTrajEdit_DTrajs_camRef and  camGet != undefined then	(
+			nowCamTM = camGet.transform
+			for vT = 1 to  framesA.count do (
+				at time  framesA[vt] (
+					localPos = obj.transform.pos * inverse camGet.transform
+					append arrA  (localPos * nowCamTM)
+				)			
+			)	
+		)
+		else(
+			for vT = 1 to  framesA.count do (at time  framesA[vT] (append arrA  obj.transform.pos))
 		)
 		
+		--渐变颜色
+		if isGradual then		(
+			rd = col_Start.red/framesA.count  
+			gd = col_Start.green /framesA.count
+			bd = col_Start.blue /framesA.count
+			ad = 255/framesA.count
+			
+			for vT = 1 to  framesA.count do (
+				col = (color (col_Start.red - rd*vT ) (col_Start.green - gd*vT ) (col_Start.blue - bd*vT ) )				
+				col.alpha = (col_Start.alpha - ad*vT )
+				col.alpha = 255
+				append arrColorA   col			
+			)	
+			arrColorA_reverse = for i = arrColorA.count to 1 by -1 collect arrColorA[i]
+		)
+		else(for vT in framesA do (append arrColorA_reverse col_Start)	)		 
+		
+			
+
+
+		
+		----------------------------------------------------
+		arrB = #()
+		arrColorB = #()
+		
+		--相机路径	
+		if  yunTrajEdit_DTrajs_camRef and  camGet != undefined then	(
+			nowCamTM = camGet.transform
+			for vT = 1 to  framesB.count do (
+				at time  framesB[vt] (
+					localPos = obj.transform.pos * inverse camGet.transform
+					append arrB  (localPos * nowCamTM)
+				)			
+			)	
+		)
+		else(
+			for vT = 1 to  framesB.count do (at time  framesB[vT] (append arrB  obj.transform.pos))
+		)
+		
+		
+		--渐变
+		if isGradual then		(
+			rd = col_End.red/framesB.count  
+			gd = col_End.green /framesB.count
+			bd = col_End.blue /framesB.count
+			
+			for vT = 1 to  framesB.count do 
+			(append arrColorB  (color (col_End.red - rd*vT ) (col_End.green - gd*vT ) (col_End.blue - bd*vT ))	)
+		)
+		else	(for vT in framesB do (	append arrColorB col_End )	)
+		
+		
 		-- reset
-		gw.setTransform(Matrix3 1)		
+		gw.setTransform(Matrix3 1)	
+		
+
+		
 		--生成前半段
 		for i = 1 to arrA.count do
 		(			
@@ -504,7 +536,7 @@ fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShap
 					(dotShape=="smallTriangle"): gw.wMarker arrB[i] #smallTriangle color:arrColorB[i] 
 					default: gw.wMarker arrB[i] #smallDiamond       color:arrColorB[i] 
 				)
--- 				gw.wMarker arrB[i]  #hollowBox       color:col_End
+				--gw.wMarker arrB[i]  #hollowBox       color:col_End
 			)	
 			else(  	gw.wMarker arrB[i]  #point  color:arrColorB[i] )
 		)
@@ -521,27 +553,55 @@ fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShap
 				)collect ((i as string )as integer)
 			arrK = #()
 			arrColorK = #()
-			for vT in keyA_num do 
-			(
-			at time  vT 
-				(				
-					append arrK  obj.transform.pos
-					append arrColorK white				
+			camGet = getActiveCamera()	
+			--相机路径	
+			if  yunTrajEdit_DTrajs_camRef and  camGet != undefined then	(
+				nowCamTM = camGet.transform
+				for vT = 1 to  keyA_num.count do (
+					at time  keyA_num[vt] (
+						localPos = obj.transform.pos * inverse camGet.transform
+						append arrK  (localPos * nowCamTM)
+					)			
+				)	
+			)
+			else (
+				for vT in keyA_num do (
+					at time  vT (				
+						append arrK  obj.transform.pos
+					)
 				)
-			)	
-			gw.setTransform (matrix3 1)	
+			)
 			
+			for vT in keyA_num do (	append arrColorK white		)
+
+			
+			gw.setTransform (matrix3 1)	
 			for i = 1 to arrK.count do
 			(
 				arrK[i] = gw.wTransPoint arrK[i] 
-	 			--if isdot then 
 				( 	
 				gw.wtext  arrK[i] (keyA_num[i] as string) color:yellow		
 				gw.wMarker arrK[i] #xMarker  color:white
 				)	
 				
 			)
-			--gw.wPolyline arrK false  rgb:arrColorK
+			--camGet = getActiveCamera()
+			/*
+			--相机路径	
+			if  yunTrajEdit_DTrajs_camRef and  camGet != undefined then	(
+				nowCamTM = camGet.transform
+				for vT = 1 to  keyA_num.count do (
+					at time  keyA_num[vt] (
+						localPos = obj.transform.pos * inverse camGet.transform
+						append arrK  (localPos * nowCamTM)
+					)			
+				)	
+			)
+			else(
+				
+			)
+			*/
+		
 		)
 		
 		at time (currentTime) (posRescue=  obj.transform.pos)
@@ -625,7 +685,9 @@ Fn yun_refreshDT_byTime_new_fn  =
 -----界面出生函数
 global yunTrajEdit_Rollout
 function yunTrajEdit_UpdateRollout =
-(	
+(
+
+
 	
 	
 	
@@ -695,32 +757,76 @@ function yunTrajEdit_UpdateRollout =
 		yunTrajEdit_Globals = undefined
 
 		DestroyDialog yunTrajedit_rollout
-
-
-
-		gc()  ---内存管理
-		
+		gc()  ---内存管理	
 		
 	)
+	on btn_Exit rightClick do
+	(
+		if yunTrajEdit_DTrajs_camRef  then 
+		(	
+			yunTrajEdit_DTrajs_camRef = false
+			print \"画面路径关闭<——~\"
+			yunTrajEdit_Rollout.btn_Exit.images = #(yunTrajEdit_Globals.bmp_About, undefined, 1, 1, 1, 1, 1)
+			
+		)
+		else (
+			yunTrajEdit_DTrajs_camRef = true
+			cc = getActiveCamera()
+			if cc!=undefined then
+			(print cc.name +\"画面路径开启，相机——>~\")
+			else (print	(\"画面路径开启，无相机——>~\"))	
+			yunTrajEdit_Rollout.btn_Exit.images = #(yunTrajEdit_Globals.bmp_About, undefined, 2, 1, 1, 1, 1)	
+		)		
+		gc()  ---内存管理
+		
+	)
+	
+	
 	---关于按钮功能
 	on btn_About pressed do
-	(
+	(d
 		messagebox \"DtraijEdit 2.07    轨迹插件重写版\nEricDLegare.com\nProgramming:Eric D Legare   /   东见云\nIcons：Simon Dubuc\n---------联系方式-----------\nyun7928903@163.com
 		\"
 
 	)
 	on btn_About rightClick do
 	(
-		print \"随机颜色\"
+		--print \"随机颜色\"
+		fn HSV_to_RGB hsv = 
+		(
+			hsv /= 255
+			h = hsv.x*6
+			i = h as integer
+			k = if (mod i 2) == 1 then (h-i) else (1-h+i)
+			m = hsv.z*(1-hsv.y)
+			n = hsv.z*(1-hsv.y*k)
+			case i of
+			(
+					1: [n, hsv.z, m]*255
+					2: [m, hsv.z, n]*255
+					3: [m, n, hsv.z]*255
+					4: [n, m, hsv.z]*255
+					5: [hsv.z, m, n]*255
+			  default: [hsv.z, n, m]*255
+			)
+		)	
+		try(
+		yunTrajEdit_UpdateRollout()
 		for i=1 to yunTrajEdit_DTrajs_colEnd.count do
 		(
-				bufferColorA = HSV_to_RGB [(random 0 255),(random 90 255),255] as color
+				bufferColorA =  HSV_to_RGB [(random 0 255),(random 90 255),255]  as color
 				bufferColorB =  HSV_to_RGB [(random 0 255),(random 90 255),255]  as color
 				execute (\"yunTrajedit_rollout.col_Dot\"+i as string+\".color = bufferColorA\")
 				execute (\"yunTrajedit_rollout.col_Spline\"+i as string+\".color = bufferColorB\")
-				yunTrajEdit_DTrajs_colStart[i] = bufferColorB
+				
+				yunTrajEdit_DTrajs_colStart[i] = color 255 0 0
+				yunTrajEdit_DTrajs_colEnd[i]   = color 0 255 0
+
+				yunTrajEdit_DTrajs_colStart[i] = bufferColorA
 				yunTrajEdit_DTrajs_colEnd[i] = bufferColorB
-		)		
+		)
+		
+		)catch()		
 	)
 	------切换界面大小
 	on btn_DisplayAll pressed do
