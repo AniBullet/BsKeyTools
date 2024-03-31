@@ -92,86 +92,117 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
 ---通用方法预加载------
 global addToolBarButton
 fn addToolBarButton macro cat txt remove: false =
-			(
-				fn insertContent f data: "" find: "" rewrite: false =
-				(						
-					file = MemStreamMgr.openFile f
-					size = file.size()
-					MemStreamMgr.close file
-							
-					stream = openFile f mode:"r+"
+(
+    local dirIcon = getdir #usericons
+    local imgIcon16 = ((getDir #scripts) + "\\BulletScripts\\Icons\\BsBipTools_16i.bmp")
+    local imgIcon24 = ((getDir #scripts) + "\\BulletScripts\\Icons\\BsBipTools_24i.bmp")
+    local tarIcon16 = dirIcon + "\\BsBipTools_16i.bmp"
+    local tarIcon24 = dirIcon + "\\BsBipTools_24i.bmp"
 
-					seek stream 0 
-					
-					if ((sysinfo.GetMaxLanguage())[3]=="CHS")  then 
-					(
-						mt = "\"主工具栏\""
-					)
-					else
-					(
-						mt = "\"Main Toolbar\""
-					)
-							
-					skipToString stream mt
-							
-					exist = (skipToString stream find) == undefined
-					
-					previousContent = ""
-					
-					findPos = filePos stream
-					
-					if(not exist) do
-					(							
-						if(rewrite) do 
-						(
-							pos = findPos - find.count
-							seek stream	0
-							previousContent += readChars stream (pos)					
-						)
-						
-						pos = findPos - (if(rewrite) then 0 else find.count)
-					
-						seek stream pos
-						
-						previousContent += readChars stream (size - pos)
-												
-						if(rewrite) do pos = 0
-						
-						seek stream pos
-							
-									
-						format data to: stream
-						format previousContent to: stream
-					)
-					
-					close stream
-					
-					return not exist
-				)
-				
-				try
-				(
-					f = cui.getConfigFile() 
-					
-					cui.loadConfig f
-					cui.saveConfigAs f
-					cui.loadConfig f
-					-- <Item typeID="2" type="CTB_MACROBUTTON" width="62" height="0" controlID="0" macroTypeID="3" macroType="MB_TYPE_ACTION" actionTableID="647394" imageID="-1" imageName="" actionID="BulletKeyTools`_[BulletTools]" tip="BsKeyTools" label="BsKeyTools" />
-					l = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"0\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
-					delBtnLine = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"62\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
-					if(remove) then
-					(			
-						insertContent f find: delBtnLine rewrite: true
-					)
-					else
-					(		
-						insertContent f find: "</Items>" data: ("\t\t" + l + "\n")			
-					)
-							
-					cui.loadConfig f
-					--cui.setConfigFile f
-					cui.saveConfigAs f
-					--cui.loadConfig f
-						
-				) catch(messageBox "请手动处理Toolbar!             \r\n" title: "错误!")
-			)
+    if (not (SIOFile.Exists tarIcon16)) then
+    (
+        SIOFile.Copy imgIcon16 tarIcon16
+    )
+    else
+    (
+        SIOFile.Delete tarIcon16
+        SIOFile.Copy imgIcon16 tarIcon16
+    )
+
+    if (not (SIOFile.Exists tarIcon24)) then
+    (
+        SIOFile.Copy imgIcon24 tarIcon24
+    )
+    else
+    (
+        SIOFile.Delete tarIcon24
+        SIOFile.Copy imgIcon24 tarIcon24
+    )
+
+    fn insertContent f data: "" find: "" rewrite: false =
+    (						
+        file = MemStreamMgr.openFile f
+        size = file.size()
+        MemStreamMgr.close file
+                
+        stream = openFile f mode:"r+"
+
+        seek stream 0 
+        
+        if ((sysinfo.GetMaxLanguage())[3]=="CHS")  then 
+        (
+            mt = "\"主工具栏\""
+        )
+        else
+        (
+            mt = "\"Main Toolbar\""
+        )
+                
+        skipToString stream mt
+                
+        exist = (skipToString stream find) == undefined
+        
+        previousContent = ""
+        
+        findPos = filePos stream
+        
+        if(not exist) do
+        (							
+            if(rewrite) do 
+            (
+                pos = findPos - find.count
+                seek stream	0
+                previousContent += readChars stream (pos)					
+            )
+            
+            pos = findPos - (if(rewrite) then 0 else find.count)
+        
+            seek stream pos
+            
+            previousContent += readChars stream (size - pos)
+                                    
+            if(rewrite) do pos = 0
+            
+            seek stream pos
+                
+                        
+            format data to: stream
+            format previousContent to: stream
+        )
+        
+        close stream
+        
+        return not exist
+    )
+    
+    try
+    (
+        f = cui.getConfigFile() 
+        
+        cui.loadConfig f
+        cui.saveConfigAs f
+        cui.loadConfig f
+        -- <Item typeID="2" type="CTB_MACROBUTTON" width="62" height="0" controlID="0" macroTypeID="3" macroType="MB_TYPE_ACTION" actionTableID="647394" imageID="-1" imageName="" actionID="BulletKeyTools`_[BulletTools]" tip="BsKeyTools" label="BsKeyTools" />
+        l = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"0\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
+        delBtnLine = "<Item typeID=\"2\" type=\"CTB_MACROBUTTON\" width=\"0\" height=\"0\" controlID=\"0\" macroTypeID=\"3\" macroType=\"MB_TYPE_ACTION\" actionTableID=\"647394\" imageID=\"-1\" imageName=\"\" actionID=\"" + macro + "`_[" + cat + "]\" tip=\"" + txt + "\" label=\"" + txt + "\" />"
+        if(remove) then
+        (			
+            insertContent f find: delBtnLine rewrite: true
+        )
+        else
+        (		
+            insertContent f find: "</Items>" data: ("\t\t" + l + "\n")			
+        )
+                
+        cui.loadConfig f
+        --cui.setConfigFile f
+        cui.saveConfigAs f
+        --cui.loadConfig f
+            
+    ) catch(messageBox "请手动处理Toolbar!             \r\n" title: "错误!")
+
+    colorman.reInitIcons()
+
+    if (not remove) then (messageBox "添加工具栏快捷按钮完成，请注意蓝底白字“S”图标！                                   \r\n" title: "BsKeyTools")
+    if (remove) then (messageBox "删除工具栏快捷按钮完成！                                   \r\n" title: "BsKeyTools")
+)

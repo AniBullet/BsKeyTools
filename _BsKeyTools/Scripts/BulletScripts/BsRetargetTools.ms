@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-06-09 00:13:18
+ * @LastEditTime: 2023-08-12 19:00:43
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -604,7 +604,7 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
 	
 	button btnReplaceToBiped "4. FBX 转 Biped ( Skin )" pos:[310,570] width:(btnWidth + 35) height:40
     -- checkbutton ckbExportFBXTools "🎮 动画批量重定向工具" pos:[305,555] width:(btnWidth + 35) height:45
-	checkbox chkRealign "重置轴向 (解算飘带) ↓" pos:[158,620] height:20 width:(btnWidth + 25) checked:true
+	checkbox chkRealign "重置轴向 (解算飘带) ↓" pos:[158,620] height:20 width:(btnWidth + 25) checked:false
 	button btnConvertToBone "[可选] Helper 转 Bone" pos:[155,645] height:25 width:(btnWidth + 25) tooltip:"需要选中"
     dotnetcontrol dotbtnFBXTools "button" pos:[310,615] width:(btnWidth + 35) height:55
 	
@@ -645,11 +645,15 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
 	height:22 fieldWidth:225 pos:[240,270] readOnly:true visible:false
 
 	checkbox chkRecoverExport "不覆盖导出，用于崩溃后继续重导" checked:false pos:[250,305] width:225 height:20 visible:false
-    button btnRetargetSelected ">>>   重定向列表选中动画   <<<" pos:[240,370] width:225 height:50 visible:false \
+    button btnRetargetSelected ">>>   重定向列表选中动画   <<<" pos:[240,370] width:225 height:30 visible:false \
 	tooltip:"重定向列表选中的动画并且打开\r\n会保存一份 .max 和 .FBX 文件"
-    button btnRetargettAll ">>>   重定向列表所有动画   <<<" pos:[240,420] width:225 height:60 visible:false \
+    button btnRetargettAll ">>>   重定向列表所有动画   <<<" pos:[240,400] width:225 height:30 visible:false \
 	tooltip:"重定向列表选中的动画\r\n会保存一份 .max 和 .FBX 文件\r\n可能比较慢..."
-	button btnSpecial "[自用] 后处理集合" pos:[240,335] width:110 height:25 visible:false
+	checkbox chkXAxis "X" pos:[245,440] width:30 height:30 visible:false
+	checkbox chkYAxis "Y" pos:[275,440] width:30 height:30 visible:false
+	checkbox chkZAxis "Z" pos:[305,440] width:30 height:30 visible:false
+	button btnBatchAll "清零 Root 位移曲线" pos:[335,435] width:130 height:30 visible:false border:false tooltip:"自用"
+	button btnSpecial "[自用] 后处理集合" pos:[240,335] width:110 height:25 visible:false border:false
 	label lblVerTips "保存版本:" pos:[355,340] width:60 height:25 visible:false
 	dropdownList ddlSaveVersion "" pos:[410,337] width:55 items:arrSaveVer visible:false
 	button btnCount "待处理原始动画 FBX 数：0 个" pos:[15,461] width:215 height:20 visible:false border:true tooltip:"打开原始动画 FBX 文件夹"
@@ -2277,6 +2281,68 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
 		else (fnCopyChildSubBone boneFBXRoot)
 	)
 
+	fn fnCleanRootCurve x:false y:false z:false =
+	(
+		local boneHips = (biped_align_test.GetBipedNode 1)
+		if boneHips == undefined then
+		(
+			messagebox "没有找到 Biped 质心骨骼！                          "
+			return undefined
+		)
+		local boneRoot = boneHips.parent
+		if boneRoot == undefined then
+		(
+			messagebox "没有找到 Root 骨骼！                          "
+			return undefined
+		)
+		local hipsPosList = #()
+
+		
+		for t = (animationRange.start) to (animationRange.end) do
+		(
+			at time t with animate on 
+			(
+				append hipsPosList (in coordsys world Biped.getTransform boneHips #pos)
+			)  
+		)
+		biped.createLayer boneHips.controller 1 "layerRootMotionClean"
+		biped.setcurrentlayer boneHips.controller 1
+
+		for t = (animationRange.start) to (animationRange.end) do
+		(
+			slidertime = t
+			with animate on
+			(
+				if x then
+				(
+					boneRoot.controller.position.x = 0
+				)
+				if y then
+				(
+					boneRoot.controller.position.y = 0
+				)
+				if z then
+				(
+					boneRoot.controller.position.z = 0
+				)
+			)
+		)
+
+		local f = 1
+		for t = (animationRange.start) to (animationRange.end) do
+		(
+			slidertime = t
+			with animate on
+			(
+				-- Pos
+				local hipsPos = hipsPosList[f]
+				in coordsys world Biped.setTransform boneHips #pos hipsPos true
+				f += 1
+			)
+		)
+		biped.collapseAtLayer boneHips.controller 0
+	)
+
 	on spnObjSize changed val do
 	(
 		for b in selection where classof b == BoneGeometry or classof b == dummy or classof b == point do
@@ -2894,6 +2960,10 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
         btnSpecial.visible           = switchFBXTools
         lblVerTips.visible           = switchFBXTools
         ddlSaveVersion.visible       = switchFBXTools
+		btnBatchAll.visible          = switchFBXTools
+		chkXAxis.visible			 = switchFBXTools
+		chkYAxis.visible			 = switchFBXTools
+		chkZAxis.visible			 = switchFBXTools
 
 		if not switchFBXTools then dotbtnFBXTools.backcolor = BsDotBackColor 
 		else dotbtnFBXTools.backcolor = BsDotCheckColor
@@ -3060,6 +3130,20 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
 				)
 			)
 		)
+	)
+
+	on btnBatchAll pressed do
+	(
+		-- if CheckForSave() then 
+		-- (
+			local dirOpened = maxFilePath
+			local curFile = maxFilePath + maxfilename
+			local pathOutPut = (dirOpened + "\\FixRoot_" + maxfilename)
+			-- resetMaxFile #noPrompt
+			-- loadMaxFile curFile useFileUnits:true quiet:true
+			fnCleanRootCurve x:chkXAxis.state y:chkYAxis.state z:chkZAxis.state
+			saveMaxFile pathOutPut saveAsVersion:((biped_align_test.ddlSaveVersion.selected) as integer) clearNeedSaveFlag:true quiet:true
+		-- )
 	)
 
 	on biped_align_test open do 

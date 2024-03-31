@@ -2,9 +2,12 @@
 -- By Bullet.S 自用修改版,功能大集合,完全开源免费仅供学习使用,请勿用于商业用途,否则后果自负    
 Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
 Since 2023.03
+
+2024.04 update
+1. SoxBipedAssist_v0.510 更新了手指拓展功能，尝试集成
 **************************************************************************************************************************/
 
-global rolBsBipedTools		-- 롤아웃명을 글로벌 변수로 인식하기 위해 초기에 한 번 사용
+global rolBsBipedTools
 global posBsBipedTools
 global dragBsBipedTools = false
 global arrAllBipedCom
@@ -17,22 +20,17 @@ global dotLinkLabel1
 global dotLinkLabel2
 global verBsBipedTools = "v1.2"
 
-try(destroydialog rolBsBipedTools) catch()		-- 혹시 열려있는 창이 있으면 강제 종료
+try(destroydialog rolBsBipedTools) catch()
 try(destroyDialog rolBSLeftHandPivots)catch()
 try(destroyDialog rolBSRightHandPivots)catch()
 try(destroyDialog rolBSLeftFootPivots)catch()
 try(destroyDialog rolBSRightFootPivots)catch()
-try(rolBsAboutPanel.close())catch()
+try(destroyDialog rolBsBipToolsHelp)catch()
 
-fn fnCloseBsAboutForm dotObject evnt =
+rollout rolBsBipToolsHelp ("BsBipTools" + verBsBipedTools + " 帮助说明") width:320 height:340
 (
-	try(rolBsAboutPanel.close())catch()
-)
-
-fn fnOpenAboutPanel =
-(
-	strHelp = \
-"“减少卡顿，便捷K帧”
+	local strHelp = \
+	("“减少卡顿，便捷K帧”
 
 小圆点：Motion 面板开关，极大减少骨骼选取卡顿
 左键禁用，右键启用，未显示请右键慢速点击直到显示
@@ -51,114 +49,15 @@ Ctrl + Alt + 左击：骨骼旋转归零
 
 【辅助功能】
 Copy paste Tools，Layer Tools (Biped)，
-Loop Key Tools，Others Tools"
-    rolBsAboutPanel = dotNetObject "MaxCustomControls.MaxForm"
-    dotBtnClose = dotNetObject "System.Windows.Forms.Button"
-	fontTitle = dotNetObject "System.Drawing.Font" "comic sans ms" 11 (dotNetClass "System.Drawing.FontStyle").Bold
-	fontHelp = dotNetObject "System.Drawing.Font" "comic sans ms" 9 (dotNetClass "System.Drawing.FontStyle").Regular
-    -- dotBtnClose
-    dotBtnClose.BackColor = (dotNetClass "System.Drawing.Color").Black
-    dotBtnClose.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
-    dotBtnClose.ForeColor = (dotNetClass "System.Drawing.Color").AliceBlue
-    dotBtnClose.Location = dotNetObject "System.Drawing.Point" 335 400
-    dotBtnClose.Name = "dotBtnClose"
-    dotBtnClose.Size = dotNetObject "System.Drawing.Size" 60 45
-    dotBtnClose.TabIndex = 0
-    dotBtnClose.Text = "Close"
-    dotBtnClose.UseVisualStyleBackColor = False
-	dotBtnClose.font = fontTitle
-	-- label
-	dotLabel = dotnetobject "System.Windows.Forms.label"
-	dotLabel.autosize = true
-	dotLabel.ForeColor = (dotNetClass "System.Drawing.Color").black
-	dotLabel.text = "BsBipedTools_" + verBsBipedTools
-	dotLabel.font = fontTitle
-	dotLabel.Location = dotNetObject "System.Drawing.Point" 5 5
-	dotHelpLabel = dotnetobject "System.Windows.Forms.label"
-	dotHelpLabel.autosize = true
-	dotHelpLabel.text = strHelp
-	dotHelpLabel.font = fontHelp
-	dotHelpLabel.Location = dotNetObject "System.Drawing.Point" 5 40
-	-- link1
-	dotLinkLabel1 = dotnetobject "System.Windows.Forms.LinkLabel"
-	dotLinkLabel1.autosize = true
-	dotLinkLabel1.text = "Bullet.S: Help Docs || aniBullet Homepage"
-	dotLinkLabel1.font = fontTitle
-	dotLinkLabel1.Location = dotNetObject "System.Drawing.Point" 0 50
-	dotLinkLabel1.links.add 10 9 "https://anibullet.github.io/"
-	dotLinkLabel1.links.add 23 18 "https://www.anibullet.com/"
-	dotLinkLabel1.Dock = dotLinkLabel1.Dock.bottom
-	dotLinkLabel2 = dotnetobject "System.Windows.Forms.LinkLabel"
-	dotLinkLabel2.autosize = true
-	dotLinkLabel2.text = "References: SoxBipedAssist || BipedHelper"
-	dotLinkLabel2.font = fontTitle
-	dotLinkLabel2.Location = dotNetObject "System.Drawing.Point" 0 50
-	dotLinkLabel2.links.add 12 14 "http://cafe.naver.com/pinksox/6131"
-	dotLinkLabel2.links.add 30 11 "https://sites.google.com/view/lbtools-guide/home/biped-helper"
-	dotLinkLabel2.Dock = dotLinkLabel2.Dock.bottom
-    -- rolBsAboutPanel
-    rolBsAboutPanel.BackColor = (dotNetClass "System.Drawing.Color").LightPink
-    rolBsAboutPanel.ClientSize = dotNetObject "System.Drawing.Size" 400 450
-    rolBsAboutPanel.Controls.Add(dotBtnClose)
-	rolBsAboutPanel.Controls.Add(dotLabel)
-	rolBsAboutPanel.Controls.Add(dotHelpLabel)
-	rolBsAboutPanel.Controls.Add(dotLinkLabel1)
-	rolBsAboutPanel.Controls.Add(dotLinkLabel2)
-    rolBsAboutPanel.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderStyle").SizableToolWindow
-    rolBsAboutPanel.Name = "rolBsAboutPanel"
-    rolBsAboutPanel.Opacity = 0.75
-    rolBsAboutPanel.ShowIcon = False
-    rolBsAboutPanel.StartPosition = (dotNetClass "System.Windows.Forms.FormStartPosition").Manual
-	rolBsAboutPanel.Location = dotNetObject "System.Drawing.Point" (iniBsBTPos[1] as integer - rolBsAboutPanel.width) (iniBsBTPos[2] as integer)
-    rolBsAboutPanel.Text = "rolBsAboutPanel"
-    rolBsAboutPanel.TransparencyKey = (dotNetClass "System.Drawing.Color").LightPink
-    rolBsAboutPanel.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderStyle").None
-	rolBsAboutPanel.font = Font
-	thePtr = DotNetObject "System.IntPtr" (windows.getMAXHWND())
-	theHwnd = DotNetObject "MaxCustomControls.Win32HandleWrapper" thePtr
-	rolBsAboutPanel.Show(theHwnd)
+Loop Key Tools，Others Tools. \r\n\r\n")
 
-    fn fnMouseDown dotObject evnt =
-    (
-        offsetBsAboutPanel[1] = mouse.screenPos.x - rolBsAboutPanel.left
-        offsetBsAboutPanel[2] = mouse.screenPos.y - rolBsAboutPanel.top
-        global stateBsAboutPanel=1
-    )
-    dotnet.addEventHandler rolBsAboutPanel "MouseDown" fnMouseDown
-
-    fn fnMouseMove dotObject evnt =
-    (
-        if stateBsAboutPanel==1 then
-        (
-            local FormPos = #()
-            local NewPos = #()  
-            FormPos[1] = rolBsAboutPanel.left
-            FormPos[2] = rolBsAboutPanel.top
-                
-            NewPos[1] = mouse.screenpos.x - offsetBsAboutPanel[1]
-            NewPos[2] = mouse.screenpos.y - offsetBsAboutPanel[2]
-            
-            rolBsAboutPanel.left = NewPos[1]
-            rolBsAboutPanel.top = NewPos[2]
-        )
-    )
-    dotnet.addEventHandler rolBsAboutPanel "MouseMove" fnMouseMove
-
-    fn fnMouseUp dotObject evnt =
-    (
-        global stateBsAboutPanel=0
-    )
-    dotnet.addEventHandler rolBsAboutPanel "MouseUp" fnMouseUp
-
-    dotnet.addEventHandler dotBtnClose "MouseDown" fnCloseBsAboutForm
-
-	fn fnSoxBipedAssistLink s e = 
-	(
-		s.links.item[s.links.IndexOf e.link].Visited = on
-		(dotnetclass "System.Diagnostics.Process").Start e.link.LinkData		
-	)
-	dotnet.addEventHandler dotLinkLabel1 "LinkClicked" fnSoxBipedAssistLink
-	dotnet.addEventHandler dotLinkLabel2 "LinkClicked" fnSoxBipedAssistLink
+	label lblHelp strHelp width:300 height:280
+	label lblMe "Bullet.S Link: " align:#left across:3
+	hyperLink hplHelpDocs "Help Docs" address:"https://anibullet.github.io/" align:#right
+	hyperLink hplHome "aniBullet" address:"https://www.anibullet.com/" align:#right
+	label lblRef "References Link: " align:#left across:3
+	hyperLink hplSox "SoxBipedAssist" address:"http://cafe.naver.com/pinksox/6131" align:#right
+	hyperLink hplBH "BipedHelper" address:"https://sites.google.com/view/lbtools-guide/home/biped-helper" align:#right
 )
 
 fn f_getPivotIndex ctrl =
@@ -1362,7 +1261,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	checkbutton uiCbtMirrorLArm "左→右臂" pos:[115,495] width:60 height:25 visible:false checked:true highlightColor:mcLeft
 	checkbutton uiCbtMirrorRLeg "右→左腿" pos:[50,523] width:60 height:25 visible:false checked:true highlightColor:mcRight
 	checkbutton uiCbtMirrorLLeg "左→右腿" pos:[115,523] width:60 height:25 visible:false checked:true highlightColor:mcLeft
-	checkbutton uiCbtGrabPose "暂存Pose" pos:[50,550] width:60 height:25 visible:false checked:true highlightColor:mcFK
+	checkbutton uiCbtGrabPose "速存Pose" pos:[50,550] width:60 height:25 visible:false checked:true highlightColor:mcFK
 	checkbutton uiCbtLoadPose "加载Pose" pos:[115,550] width:60 height:25 visible:false checked:true highlightColor:mcFK
 
 	--layers tools
@@ -1406,11 +1305,11 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	-- label uiLblTitle "BsBipedTools_v1.0" height:16 width:rolBsBipedTools.width pos:[5, 585]
 	timer clock "PlayClock" interval:1 active:false -- 가장 빠른 인터벌로
 
-	local arrLoopTools = #("LoopK",#(uiBtnLoopGet,uiSpnLoopStart,uiSpnLoopEnd,uiCkbClearUserDef,uiBtnLoopSel,uiBtnGotoMirror))
-	local arrOtherTools = #("Other",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip)) 
-	local arrLayerTools = #("Layer",#(uiCbtRefreshLayer,uiCbtDown,uiCbtUp,uiLblLayerID,uiLblActive,uiChkActive,uiCbtAddLayer,\
+	local arrLoopTools = #("循环",#(uiBtnLoopGet,uiSpnLoopStart,uiSpnLoopEnd,uiCkbClearUserDef,uiBtnLoopSel,uiBtnGotoMirror))
+	local arrOtherTools = #("其他",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip)) 
+	local arrLayerTools = #("层",#(uiCbtRefreshLayer,uiCbtDown,uiCbtUp,uiLblLayerID,uiLblActive,uiChkActive,uiCbtAddLayer,\
 		uiCbtDelLayer,uiCbtDownLayer,uiCbtSnapKeys,uiCbtLeftArm,uiCbtRightArm,uiCbtLeftLeg,uiCbtRightLeg,uiCbtUpdate,uiChkIKonly,ddlLayers))
-	local arrCopyTools = #("CopyP",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtSelBones,uiCbtMirrorLArm,uiCbtMirrorRArm,\
+	local arrCopyTools = #("复制",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtSelBones,uiCbtMirrorLArm,uiCbtMirrorRArm,\
 		uiCbtMirrorLLeg,uiCbtMirrorRLeg,uiCbtGrabPose,uiCbtLoadPose))
 	local arrAllToolsTab = #(arrCopyTools,arrLayerTools,arrLoopTools,arrOtherTools)
 
@@ -4021,8 +3920,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	on uiAbout pressed do (
 		-- shellLaunch "http://cafe.naver.com/pinksox/6131" ""
 		-- rolBsAboutPanel.Show()
-		try(rolBsAboutPanel.close())catch()
-		fnOpenAboutPanel()
+		try(destroyDialog rolBsBipToolsHelp)catch()
+		Createdialog rolBsBipToolsHelp style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228))
 	)
 	
 	on rolBsBipedTools open do (
