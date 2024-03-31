@@ -203,6 +203,6 @@ fn addToolBarButton macro cat txt remove: false =
 
     colorman.reInitIcons()
 
-    if (not remove) then (messageBox "添加工具栏快捷按钮完成，请注意蓝底白字“S”图标！                                   \r\n" title: "BsKeyTools")
-    if (remove) then (messageBox "删除工具栏快捷按钮完成！                                   \r\n" title: "BsKeyTools")
+    if (not remove) then (messageBox "添加工具栏快捷按钮完成，请注意蓝底白字“S”图标！                                    \r\n" title: "BsKeyTools")
+    if (remove) then (messageBox "尝试删除工具栏快捷按钮完成！(添加时也会运行一次)                                      \r\n" title: "BsKeyTools")
 )
