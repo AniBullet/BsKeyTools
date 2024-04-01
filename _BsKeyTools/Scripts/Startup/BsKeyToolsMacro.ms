@@ -11,7 +11,7 @@
 			catch(messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
 			local str = "BsKeyTools 启动, 如果失败请查看帮助文档。（https://anibullet.github.io/）\r\n"
 			format str
-			colorman.reInitIcons()
+			-- colorman.reInitIcons()
 		-- )
 	)
 
