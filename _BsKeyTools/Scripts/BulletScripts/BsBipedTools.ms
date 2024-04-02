@@ -526,76 +526,76 @@ rollout rolBSRightFootPivots "R-Foot" width:90
 	on chkbtn_frontRight changed state do (f_updateButton state chkbtn_frontRight 7)
 ) --// end rollout
 
-rollout rolBSFingers "Fingers" width:220 height:180
+rollout rolBSFingers "Fingers" width:220 height:195
 (
-	checkbutton chbTips "暂不支持4节手指" pos:[57,5] height:16 highlightColor:white checked:true
+	checkbutton chbTips "暂不支持4节手指" pos:[57,5] height:16 highlightColor:gray checked:true
 
-	checkbutton chbRFingers "Right" pos:[32,150] highlightColor:rolBsBipedTools.mcRight checked:true
-	checkbutton chbLFingers "Left" pos:[148,150] highlightColor:rolBsBipedTools.mcLeft checked:true
+	checkbutton chbRFingers "Right Fingers" pos:[20,160] highlightColor:rolBsBipedTools.mcRight checked:true
+	checkbutton chbLFingers "Left Fingers" pos:[126,160] highlightColor:rolBsBipedTools.mcLeft checked:true
 	
 	--R Index Finger
 	button select_rhand1_btn "RHand"	enabled:true pos:[20,25] width:60 height:30 images:#(Bitmap 60 40 color:(color 5 173 5 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有右手手指"
-	button select_rfing11_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+45,(select_rhand1_btn.pos.y)+46]		width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing12_btn "RHand"	enabled:true pos:[(select_rfing11_btn.pos.x)+0,(select_rfing11_btn.pos.y)+22]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing13_btn "RHand"	enabled:true pos:[(select_rfing12_btn.pos.x)+0,(select_rfing12_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing11_btn "RHand"	enabled:true pos:[65,80] width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing12_btn "RHand"	enabled:true pos:[65,102] width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing13_btn "RHand"	enabled:true pos:[65,122] width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 
 	--R Middle Finger
-	button select_rfing21_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+30,(select_rhand1_btn.pos.y)+46]		width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing22_btn "RHand"	enabled:true pos:[(select_rfing21_btn.pos.x)+0,(select_rfing21_btn.pos.y)+23]	width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing23_btn "RHand"	enabled:true pos:[(select_rfing22_btn.pos.x)+0,(select_rfing22_btn.pos.y)+23]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) ttoolTip:""
+	button select_rfing21_btn "RHand"	enabled:true pos:[50,80]	width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing22_btn "RHand"	enabled:true pos:[50,103]	width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing23_btn "RHand"	enabled:true pos:[50,126]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) ttoolTip:""
 	
 	--R Ring Finger
-	button select_rfing31_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+15,(select_rhand1_btn.pos.y)+46]		width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing32_btn "RHand"	enabled:true pos:[(select_rfing31_btn.pos.x)+0,(select_rfing31_btn.pos.y)+22]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing33_btn "RHand"	enabled:true pos:[(select_rfing32_btn.pos.x)+0,(select_rfing32_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing31_btn "RHand"	enabled:true pos:[35,80]	width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing32_btn "RHand"	enabled:true pos:[35,102]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing33_btn "RHand"	enabled:true pos:[35,122]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	
 	--R Pinkie Finger
-	button select_rfing41_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+0,(select_rhand1_btn.pos.y)+46]		width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing42_btn "RHand"	enabled:true pos:[(select_rfing41_btn.pos.x)+0,(select_rfing41_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing43_btn "RHand"	enabled:true pos:[(select_rfing42_btn.pos.x)+0,(select_rfing42_btn.pos.y)+17]	width:15 height:16 images:#(Bitmap 15 16 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing41_btn "RHand"	enabled:true pos:[20,80]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing42_btn "RHand"	enabled:true pos:[20,100]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing43_btn "RHand"	enabled:true pos:[20,117]	width:15 height:16 images:#(Bitmap 15 16 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	
 	--R Thumb
-	button select_rthumb1_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+60,(select_rhand1_btn.pos.y)+30]		width:20 height:30 images:#(Bitmap 20 30 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rthumb2_btn "RHand"	enabled:true pos:[(select_rthumb1_btn.pos.x)+0,(select_rthumb1_btn.pos.y)+30]		width:18 height:19 images:#(Bitmap 18 19 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rthumb3_btn "RHand"	enabled:true pos:[(select_rthumb2_btn.pos.x)+0,(select_rthumb2_btn.pos.y)+19]		width:16 height:18 images:#(Bitmap 16 18 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rthumb1_btn "RHand"	enabled:true pos:[80,64]	width:20 height:30 images:#(Bitmap 20 30 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rthumb2_btn "RHand"	enabled:true pos:[80,94]	width:18 height:19 images:#(Bitmap 18 19 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rthumb3_btn "RHand"	enabled:true pos:[80,113]	width:16 height:18 images:#(Bitmap 16 18 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 
 	--LEFT HAND
 	--L Index Finger
-	button select_lhand1_btn "LHand"	enabled:true pos:[140,25] width:60 height:30 images:#(Bitmap 60 40 color:(color 18 18 167 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有左手手指"
-	button select_lfing11_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+0,(select_lhand1_btn.pos.y)+46]		width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing12_btn "LHand"	enabled:true pos:[(select_lfing11_btn.pos.x)+0,(select_lfing11_btn.pos.y)+22]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing13_btn "LHand"	enabled:true pos:[(select_lfing12_btn.pos.x)+0,(select_lfing12_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lhand1_btn "LHand"	enabled:true pos:[140,25]	width:60 height:30 images:#(Bitmap 60 40 color:(color 18 18 167 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有左手手指"
+	button select_lfing11_btn "LHand"	enabled:true pos:[140,80]	width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing12_btn "LHand"	enabled:true pos:[140,102]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing13_btn "LHand"	enabled:true pos:[140,122]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	
 	--L Middle Finger
-	button select_lfing21_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+15,(select_lhand1_btn.pos.y)+46]		width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing22_btn "LHand"	enabled:true pos:[(select_lfing21_btn.pos.x)+0,(select_lfing21_btn.pos.y)+23]	width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing23_btn "LHand"	enabled:true pos:[(select_lfing22_btn.pos.x)+0,(select_lfing22_btn.pos.y)+23]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing21_btn "LHand"	enabled:true pos:[155,80]	width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing22_btn "LHand"	enabled:true pos:[155,103]	width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing23_btn "LHand"	enabled:true pos:[155,126]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	
 	--L Ring Finger
-	button select_lfing31_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+30,(select_lhand1_btn.pos.y)+46]		width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing32_btn "LHand"	enabled:true pos:[(select_lfing31_btn.pos.x)+0,(select_lfing31_btn.pos.y)+22]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing33_btn "LHand"	enabled:true pos:[(select_lfing32_btn.pos.x)+0,(select_lfing32_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing31_btn "LHand"	enabled:true pos:[170,80]	width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing32_btn "LHand"	enabled:true pos:[170,102]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing33_btn "LHand"	enabled:true pos:[170,122]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 
 	--L Pinkie Finger
-	button select_lfing41_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+45,(select_lhand1_btn.pos.y)+46]		width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing42_btn "LHand"	enabled:true pos:[(select_lfing41_btn.pos.x)+0,(select_lfing41_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing43_btn "LHand"	enabled:true pos:[(select_lfing42_btn.pos.x)+0,(select_lfing42_btn.pos.y)+17]	width:15 height:16 images:#(Bitmap 15 16 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing41_btn "LHand"	enabled:true pos:[185,80]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing42_btn "LHand"	enabled:true pos:[185,100]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing43_btn "LHand"	enabled:true pos:[185,117]	width:15 height:16 images:#(Bitmap 15 16 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 
 	--L Thumb
-	button select_lthumb1_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)-20,(select_lhand1_btn.pos.y)+30]		width:20 height:30 images:#(Bitmap 20 30 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lthumb2_btn "LHand"	enabled:true pos:[(select_lthumb1_btn.pos.x)+2,(select_lthumb1_btn.pos.y)+30]	width:18 height:19 images:#(Bitmap 18 19 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lthumb3_btn "LHand"	enabled:true pos:[(select_lthumb2_btn.pos.x)+2,(select_lthumb2_btn.pos.y)+19]	width:16 height:18 images:#(Bitmap 16 18 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lthumb1_btn "LHand"	enabled:true pos:[120,64]	width:20 height:30 images:#(Bitmap 20 30 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lthumb2_btn "LHand"	enabled:true pos:[122,94]	width:18 height:19 images:#(Bitmap 18 19 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lthumb3_btn "LHand"	enabled:true pos:[124,113]	width:16 height:18 images:#(Bitmap 16 18 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 
-	button btnFingerLineR1 "0" enabled:true pos:[80,39] width:20 height:16 toolTip:"选择单条手指"
-	button btnFingerLineR2 "1" enabled:true pos:[btnFingerLineR1.pos.x-15,55] width:15 height:16 toolTip:"选择单条手指"
-	button btnFingerLineR3 "2" enabled:true pos:[btnFingerLineR2.pos.x-15,55] width:15 height:16 toolTip:"选择单条手指"
-	button btnFingerLineR4 "3" enabled:true pos:[btnFingerLineR3.pos.x-15,55] width:15 height:16 toolTip:"选择单条手指"
-	button btnFingerLineR5 "4" enabled:true pos:[btnFingerLineR4.pos.x-15,55] width:15 height:16 toolTip:"选择单条手指"
-	button btnFingerLineL1 "0" enabled:true pos:[120,39] width:20 height:16 toolTip:"选择单条手指"
-	button btnFingerLineL2 "1" enabled:true pos:[btnFingerLineL1.pos.x+20,55] width:15 height:16 toolTip:"选择单条手指"
-	button btnFingerLineL3 "2" enabled:true pos:[btnFingerLineL2.pos.x+15,55] width:15 height:16 toolTip:"选择单条手指"
-	button btnFingerLineL4 "3" enabled:true pos:[btnFingerLineL3.pos.x+15,55] width:15 height:16 toolTip:"选择单条手指"
-	button btnFingerLineL5 "4" enabled:true pos:[btnFingerLineL4.pos.x+15,55] width:15 height:16 toolTip:"选择单条手指"
+	button btnFingerLineR1 "0" enabled:true pos:[80,39] width:20 height:25 toolTip:"选择单条手指"
+	button btnFingerLineR2 "1" enabled:true pos:[65,55] width:15 height:25 toolTip:"选择单条手指"
+	button btnFingerLineR3 "2" enabled:true pos:[50,55] width:15 height:25 toolTip:"选择单条手指"
+	button btnFingerLineR4 "3" enabled:true pos:[35,55] width:15 height:25 toolTip:"选择单条手指"
+	button btnFingerLineR5 "4" enabled:true pos:[20,55] width:15 height:25 toolTip:"选择单条手指"
+	button btnFingerLineL1 "0" enabled:true pos:[120,39] width:20 height:25 toolTip:"选择单条手指"
+	button btnFingerLineL2 "1" enabled:true pos:[140,55] width:15 height:25 toolTip:"选择单条手指"
+	button btnFingerLineL3 "2" enabled:true pos:[155,55] width:15 height:25 toolTip:"选择单条手指"
+	button btnFingerLineL4 "3" enabled:true pos:[170,55] width:15 height:25 toolTip:"选择单条手指"
+	button btnFingerLineL5 "4" enabled:true pos:[185,55] width:15 height:25 toolTip:"选择单条手指"
 
 	fn GetFinger side index =
 	(
@@ -618,23 +618,63 @@ rollout rolBSFingers "Fingers" width:220 height:180
 		)
 	)
 
+	on select_lhand1_btn pressed do (
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
+		if keyboard.controlPressed and keyboard.altpressed do (
+			-- Shift 를 누르면 똑바로 펴는 기능
+			rolBsBipedTools.Straighten rolBsBipedTools.m_LHand ((eulerangles -90 0 0) as quat)
+			return ()
+		)
+		
+		selBackup = selection as array
+
+		try(rolBsBipedTools.CompSelect selBackup rolBsBipedTools.m_LHand) catch (
+			rolBsBipedTools.m_LHand = rolBsBipedTools.GetLHand()
+			select rolBsBipedTools.m_LHand
+		)
+	)
+
+	on select_lhand1_btn rightclick do 
+	(
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
+		rolBsBipedTools.m_RHand = rolBsBipedTools.GetRHand()
+		select rolBsBipedTools.m_RHand
+	)
+
+	
+	on select_rhand1_btn pressed do (
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
+		if keyboard.controlPressed and keyboard.altpressed do (
+			-- Shift 를 누르면 똑바로 펴는 기능
+			rolBsBipedTools.Straighten rolBsBipedTools.m_RHand ((eulerangles 90 0 0) as quat)
+			return ()
+		)
+
+		selBackup = selection as array
+
+		try(rolBsBipedTools.CompSelect selBackup rolBsBipedTools.m_RHand) catch (
+			rolBsBipedTools.m_RHand = rolBsBipedTools.GetRHand()
+			select rolBsBipedTools.m_RHand
+			
+		)
+	)
+
+	on select_rhand1_btn rightclick do 
+	(
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
+		rolBsBipedTools.m_LHand = rolBsBipedTools.GetLHand()
+		select rolBsBipedTools.m_LHand
+	)
+
 	on chbTips changed state do
 	(
 		chbTips.state = true
 	)
-	
-	on chbLFingers changed state do
-	(
-		chbLFingers.state = true
-	)
 
 	on chbRFingers changed state do
 	(
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or rolBsBipedTools.m_RHand == undefined ) do (return ())
 		chbRFingers.state = true
-	)
-
-	on select_rhand1_btn pressed do
-	(
 		rolBsBipedTools.fnSelAllChildrens rolBsBipedTools.m_RHand
 		deselect rolBsBipedTools.m_RHand
 	)
@@ -819,8 +859,10 @@ rollout rolBSFingers "Fingers" width:220 height:180
 		)
 	)
 
-	on select_Lhand1_btn pressed do
+	on chbLFingers changed state do
 	(
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or rolBsBipedTools.m_LHand == undefined ) do (return ())
+		chbLFingers.state = true
 		rolBsBipedTools.fnSelAllChildrens rolBsBipedTools.m_LHand
 		deselect rolBsBipedTools.m_LHand
 	)
@@ -2871,26 +2913,29 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtCopy.state = true
 		if selection.count > 0 then
 		(
-			local a_objs = selection as array
-			--// Make sure only Biped parts are selected for copying by filtering out non-Biped parts
-			a_objs = fnFilterBipedParts a_objs
-			if a_objs.count > 0 then
+			with undo on
 			(
-				fnStorePostureObjs a_objs
-				if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+				local a_objs = selection as array
+				--// Make sure only Biped parts are selected for copying by filtering out non-Biped parts
+				a_objs = fnFilterBipedParts a_objs
+				if a_objs.count > 0 then
 				(
-					local bRootCtrl = m_workingBipRoot.controller
-					biped.createCopyCollection bRootCtrl "CopyPosture"
-					local colIndex = biped.numCopyCollections bRootCtrl
-					local copyCol = biped.getCopyCollection bRootCtrl colIndex
-					biped.copyBipPosture bRootCtrl copyCol a_objs #snapAuto
-					biped.saveCopyPasteFile bRootCtrl (getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy")
-					biped.deleteCopyCollection bRootCtrl colIndex
+					fnStorePostureObjs a_objs
+					if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+					(
+						local bRootCtrl = m_workingBipRoot.controller
+						biped.createCopyCollection bRootCtrl "CopyPosture"
+						local colIndex = biped.numCopyCollections bRootCtrl
+						local copyCol = biped.getCopyCollection bRootCtrl colIndex
+						biped.copyBipPosture bRootCtrl copyCol a_objs #snapAuto
+						biped.saveCopyPasteFile bRootCtrl (getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy")
+						biped.deleteCopyCollection bRootCtrl colIndex
+					)
 				)
-			)
-			else
-			(
-				messageBox "错误：没有选择 Biped 对象。                       " title:"BsBipedTools"
+				else
+				(
+					messageBox "错误：没有选择 Biped 对象。                       " title:"BsBipedTools"
+				)
 			)
 		)
 		else
@@ -2904,24 +2949,27 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtPaste.state = true
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
-			if doesFileExist postureFile then
+			with undo on
 			(
-				local bRootCtrl = m_workingBipRoot.controller
-				biped.loadCopyPasteFile bRootCtrl postureFile
-				local colIndex = biped.numCopyCollections bRootCtrl
-				local copyCol = biped.getCopyCollection bRootCtrl colIndex
-				local copieBH_posture = getCopy copyCol #posture 1
-				with Animate on
+				local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
+				if doesFileExist postureFile then
 				(
-					biped.pasteBipPosture bRootCtrl copieBH_posture false #pstdefault false false false false
+					local bRootCtrl = m_workingBipRoot.controller
+					biped.loadCopyPasteFile bRootCtrl postureFile
+					local colIndex = biped.numCopyCollections bRootCtrl
+					local copyCol = biped.getCopyCollection bRootCtrl colIndex
+					local copieBH_posture = getCopy copyCol #posture 1
+					with Animate on
+					(
+						biped.pasteBipPosture bRootCtrl copieBH_posture false #pstdefault false false false false
+					)
+					local colIndex = biped.numCopyCollections bRootCtrl
+					biped.deleteCopyCollection bRootCtrl colIndex
 				)
-				local colIndex = biped.numCopyCollections bRootCtrl
-				biped.deleteCopyCollection bRootCtrl colIndex
-			)
-			else
-			(
-				messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
+				else
+				(
+					messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
+				)
 			)
 		)
 	)
@@ -2931,24 +2979,27 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtPasteOpposite.state = true
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
-			if doesFileExist postureFile then
+			with undo on
 			(
-				local bRootCtrl = m_workingBipRoot.controller
-				biped.loadCopyPasteFile bRootCtrl postureFile
-				local colIndex = biped.numCopyCollections bRootCtrl
-				local copyCol = biped.getCopyCollection bRootCtrl colIndex
-				local copieBH_posture = getCopy copyCol #posture 1
-				with Animate on
+				local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
+				if doesFileExist postureFile then
 				(
-					biped.pasteBipPosture bRootCtrl copieBH_posture true #pstdefault false false false false
+					local bRootCtrl = m_workingBipRoot.controller
+					biped.loadCopyPasteFile bRootCtrl postureFile
+					local colIndex = biped.numCopyCollections bRootCtrl
+					local copyCol = biped.getCopyCollection bRootCtrl colIndex
+					local copieBH_posture = getCopy copyCol #posture 1
+					with Animate on
+					(
+						biped.pasteBipPosture bRootCtrl copieBH_posture true #pstdefault false false false false
+					)
+					local colIndex = biped.numCopyCollections bRootCtrl
+					biped.deleteCopyCollection bRootCtrl colIndex
 				)
-				local colIndex = biped.numCopyCollections bRootCtrl
-				biped.deleteCopyCollection bRootCtrl colIndex
-			)
-			else
-			(
-				messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
+				else
+				(
+					messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
+				)
 			)
 		)
 	)
@@ -2968,7 +3019,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtMirrorLArm.state = true
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		-- local arrMirror = makeUniqueArray (m_LArms + m_LHand)
-		fnMirrorPosture m_LArms
+		with undo on (fnMirrorPosture m_LArms)
 	)
 	
 	on uiCbtMirrorRArm changed state do
@@ -2976,21 +3027,21 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtMirrorRArm.state = true
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		-- local arrMirror = makeUniqueArray (m_RArms + m_RHand)
-		fnMirrorPosture m_RArms
+		with undo on (fnMirrorPosture m_RArms)
 	)
 	
 	on uiCbtMirrorLLeg changed state do
 	(
 		uiCbtMirrorLLeg.state = true
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
-		fnMirrorPosture m_LLegs
+		with undo on (fnMirrorPosture m_LLegs)
 	)
 	
 	on uiCbtMirrorRLeg changed state do
 	(
 		uiCbtMirrorRLeg.state = true
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
-		fnMirrorPosture m_RLegs
+		with undo on (fnMirrorPosture m_RLegs)
 	)
 
 	on uiChkBtnScanBiped changed state do (
