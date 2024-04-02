@@ -528,6 +528,8 @@ rollout rolBSRightFootPivots "R-Foot" width:90
 
 rollout rolBSFingers "Fingers" width:220 height:180
 (
+	checkbutton chbTips "暂不支持4节手指" pos:[57,5] height:16 highlightColor:white checked:true
+
 	checkbutton chbRFingers "Right" pos:[32,150] highlightColor:rolBsBipedTools.mcRight checked:true
 	checkbutton chbLFingers "Left" pos:[148,150] highlightColor:rolBsBipedTools.mcLeft checked:true
 	
@@ -584,16 +586,16 @@ rollout rolBSFingers "Fingers" width:220 height:180
 	button select_lthumb2_btn "LHand"	enabled:true pos:[(select_lthumb1_btn.pos.x)+2,(select_lthumb1_btn.pos.y)+30]	width:18 height:19 images:#(Bitmap 18 19 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lthumb3_btn "LHand"	enabled:true pos:[(select_lthumb2_btn.pos.x)+2,(select_lthumb2_btn.pos.y)+19]	width:16 height:18 images:#(Bitmap 16 18 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 
-	button btnFingerLineL1 "" enabled:true pos:[80,39] width:20 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
-	button btnFingerLineL2 "" enabled:true pos:[btnFingerLineL1.pos.x-15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
-	button btnFingerLineL3 "" enabled:true pos:[btnFingerLineL2.pos.x-15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
-	button btnFingerLineL4 "" enabled:true pos:[btnFingerLineL3.pos.x-15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
-	button btnFingerLineL5 "" enabled:true pos:[btnFingerLineL4.pos.x-15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
-	button btnFingerLineR1 "" enabled:true pos:[120,39] width:20 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
-	button btnFingerLineR2 "" enabled:true pos:[btnFingerLineR1.pos.x+20,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
-	button btnFingerLineR3 "" enabled:true pos:[btnFingerLineR2.pos.x+15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
-	button btnFingerLineR4 "" enabled:true pos:[btnFingerLineR3.pos.x+15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
-	button btnFingerLineR5 "" enabled:true pos:[btnFingerLineR4.pos.x+15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
+	button btnFingerLineR1 "0" enabled:true pos:[80,39] width:20 height:16 toolTip:"选择单条手指"
+	button btnFingerLineR2 "1" enabled:true pos:[btnFingerLineR1.pos.x-15,55] width:15 height:16 toolTip:"选择单条手指"
+	button btnFingerLineR3 "2" enabled:true pos:[btnFingerLineR2.pos.x-15,55] width:15 height:16 toolTip:"选择单条手指"
+	button btnFingerLineR4 "3" enabled:true pos:[btnFingerLineR3.pos.x-15,55] width:15 height:16 toolTip:"选择单条手指"
+	button btnFingerLineR5 "4" enabled:true pos:[btnFingerLineR4.pos.x-15,55] width:15 height:16 toolTip:"选择单条手指"
+	button btnFingerLineL1 "0" enabled:true pos:[120,39] width:20 height:16 toolTip:"选择单条手指"
+	button btnFingerLineL2 "1" enabled:true pos:[btnFingerLineL1.pos.x+20,55] width:15 height:16 toolTip:"选择单条手指"
+	button btnFingerLineL3 "2" enabled:true pos:[btnFingerLineL2.pos.x+15,55] width:15 height:16 toolTip:"选择单条手指"
+	button btnFingerLineL4 "3" enabled:true pos:[btnFingerLineL3.pos.x+15,55] width:15 height:16 toolTip:"选择单条手指"
+	button btnFingerLineL5 "4" enabled:true pos:[btnFingerLineL4.pos.x+15,55] width:15 height:16 toolTip:"选择单条手指"
 
 	fn GetFinger side index =
 	(
@@ -616,6 +618,11 @@ rollout rolBSFingers "Fingers" width:220 height:180
 		)
 	)
 
+	on chbTips changed state do
+	(
+		chbTips.state = true
+	)
+	
 	on chbLFingers changed state do
 	(
 		chbLFingers.state = true
@@ -996,6 +1003,139 @@ rollout rolBSFingers "Fingers" width:220 height:180
 			m_LFing43 = (GetFinger "L" 15)
 			select m_LFing43
 		)
+	)
+
+	on btnFingerLineR1 pressed do (
+		local arrFingerLine = #()
+		for i = 1 to 3 do (
+			tempFinger = ((GetFinger "R" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		select arrFingerLine
+	)
+	on btnFingerLineR2 pressed do (
+		local arrFingerLine = #()
+		for i = 4 to 6 do (
+			tempFinger = ((GetFinger "R" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		select arrFingerLine
+	)
+	on btnFingerLineR3 pressed do (
+		local arrFingerLine = #()
+		for i = 7 to 9 do (
+			tempFinger = ((GetFinger "R" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		select arrFingerLine
+	)
+	on btnFingerLineR4 pressed do (
+		local arrFingerLine = #()
+		for i = 10 to 12 do (
+			tempFinger = ((GetFinger "R" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		select arrFingerLine
+	)
+	on btnFingerLineR5 pressed do (
+		local arrFingerLine = #()
+		for i = 13 to 15 do (
+			tempFinger = ((GetFinger "R" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		select arrFingerLine
+	)
+
+	
+	on btnFingerLineL1 pressed do (
+		local arrFingerLine = #()
+		for i = 1 to 3 do (
+			tempFinger = ((GetFinger "L" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		select arrFingerLine
+	)
+	on btnFingerLineL2 pressed do (
+		local arrFingerLine = #()
+		for i = 4 to 6 do (
+			tempFinger = ((GetFinger "L" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		select arrFingerLine
+	)
+	on btnFingerLineL3 pressed do (
+		local arrFingerLine = #()
+		for i = 7 to 9 do (
+			tempFinger = ((GetFinger "L" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		select arrFingerLine
+	)
+	on btnFingerLineL4 pressed do (
+		local arrFingerLine = #()
+		for i = 10 to 12 do (
+			tempFinger = ((GetFinger "L" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		select arrFingerLine
+	)
+	on btnFingerLineL5 pressed do (
+		local arrFingerLine = #()
+		for i = 13 to 15 do (
+			tempFinger = ((GetFinger "L" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		select arrFingerLine
 	)
 )
 
