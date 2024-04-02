@@ -2929,7 +2929,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 						local copyCol = biped.getCopyCollection bRootCtrl colIndex
 						biped.copyBipPosture bRootCtrl copyCol a_objs #snapAuto
 						biped.saveCopyPasteFile bRootCtrl (getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy")
-						biped.deleteCopyCollection bRootCtrl colIndex
+						-- biped.deleteCopyCollection bRootCtrl colIndex
 					)
 				)
 				else
@@ -2964,8 +2964,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 						biped.pasteBipPosture bRootCtrl copieBH_posture false #pstdefault false false false false
 					)
 				)
-				local colIndex = biped.numCopyCollections bRootCtrl
-				biped.deleteCopyCollection bRootCtrl colIndex
+				-- local colIndex = biped.numCopyCollections bRootCtrl
+				-- biped.deleteCopyCollection bRootCtrl colIndex
 			)
 			else
 			(
@@ -2994,8 +2994,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 						biped.pasteBipPosture bRootCtrl copieBH_posture true #pstdefault false false false false
 					)
 				)
-				local colIndex = biped.numCopyCollections bRootCtrl
-				biped.deleteCopyCollection bRootCtrl colIndex
+				-- local colIndex = biped.numCopyCollections bRootCtrl
+				-- biped.deleteCopyCollection bRootCtrl colIndex
 			)
 			else
 			(
