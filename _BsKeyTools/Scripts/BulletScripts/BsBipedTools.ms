@@ -2924,7 +2924,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 					if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 					(
 						local bRootCtrl = m_workingBipRoot.controller
-						biped.createCopyCollection bRootCtrl "CopyPosture"
+						biped.createCopyCollection bRootCtrl "BsBipedTools_CopyPosture"
 						local colIndex = biped.numCopyCollections bRootCtrl
 						local copyCol = biped.getCopyCollection bRootCtrl colIndex
 						biped.copyBipPosture bRootCtrl copyCol a_objs #snapAuto
@@ -2949,27 +2949,27 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtPaste.state = true
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			with undo on
+			local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
+			if doesFileExist postureFile then
 			(
-				local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
-				if doesFileExist postureFile then
+				local bRootCtrl = m_workingBipRoot.controller
+				biped.loadCopyPasteFile bRootCtrl postureFile
+				local colIndex = biped.numCopyCollections bRootCtrl
+				local copyCol = biped.getCopyCollection bRootCtrl colIndex
+				local copieBH_posture = getCopy copyCol #posture 1
+				with Animate on
 				(
-					local bRootCtrl = m_workingBipRoot.controller
-					biped.loadCopyPasteFile bRootCtrl postureFile
-					local colIndex = biped.numCopyCollections bRootCtrl
-					local copyCol = biped.getCopyCollection bRootCtrl colIndex
-					local copieBH_posture = getCopy copyCol #posture 1
-					with Animate on
+					with undo on
 					(
 						biped.pasteBipPosture bRootCtrl copieBH_posture false #pstdefault false false false false
 					)
-					local colIndex = biped.numCopyCollections bRootCtrl
-					biped.deleteCopyCollection bRootCtrl colIndex
 				)
-				else
-				(
-					messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
-				)
+				local colIndex = biped.numCopyCollections bRootCtrl
+				biped.deleteCopyCollection bRootCtrl colIndex
+			)
+			else
+			(
+				messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
 			)
 		)
 	)
@@ -2979,27 +2979,27 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtPasteOpposite.state = true
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			with undo on
+			local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
+			if doesFileExist postureFile then
 			(
-				local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
-				if doesFileExist postureFile then
+				local bRootCtrl = m_workingBipRoot.controller
+				biped.loadCopyPasteFile bRootCtrl postureFile
+				local colIndex = biped.numCopyCollections bRootCtrl
+				local copyCol = biped.getCopyCollection bRootCtrl colIndex
+				local copieBH_posture = getCopy copyCol #posture 1
+				with Animate on
 				(
-					local bRootCtrl = m_workingBipRoot.controller
-					biped.loadCopyPasteFile bRootCtrl postureFile
-					local colIndex = biped.numCopyCollections bRootCtrl
-					local copyCol = biped.getCopyCollection bRootCtrl colIndex
-					local copieBH_posture = getCopy copyCol #posture 1
-					with Animate on
+					with undo on
 					(
 						biped.pasteBipPosture bRootCtrl copieBH_posture true #pstdefault false false false false
 					)
-					local colIndex = biped.numCopyCollections bRootCtrl
-					biped.deleteCopyCollection bRootCtrl colIndex
 				)
-				else
-				(
-					messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
-				)
+				local colIndex = biped.numCopyCollections bRootCtrl
+				biped.deleteCopyCollection bRootCtrl colIndex
+			)
+			else
+			(
+				messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
 			)
 		)
 	)
