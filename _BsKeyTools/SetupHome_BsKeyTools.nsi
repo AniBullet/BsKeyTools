@@ -30,7 +30,7 @@ SetCompressor lzma
 ; 许可协议页面
 !define MUI_INNERTEXT_LICENSE_TOP "要阅读协议的其余部分，请按键盘 [PgDn] 键向下翻页。"
 !define MUI_INNERTEXT_LICENSE_BOTTOM "如果你接受许可证的条款，请点击 [我接受(I)] 继续安装。$\r$\n$\r$\n你必须在同意后才能安装 $(^NameDA) 。"
-!insertmacro MUI_PAGE_LICENSE "E:\_S\Scripts\GitHub\BsKeyTools\LICENSE"
+!insertmacro MUI_PAGE_LICENSE "D:\_Scripts\GitHub\BsKeyTools\LICENSE"
 ; 组件选择页面
 !insertmacro MUI_PAGE_COMPONENTS
 !define MUI_TEXT_COMPONENTS_TITLE "选择版本"
