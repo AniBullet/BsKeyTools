@@ -1451,7 +1451,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	checkbutton uiCbtCopy "" pos:[50,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"复制Poseture"
 	checkbutton uiCbtPaste "" pos:[80,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"粘贴Poseture"
 	checkbutton uiCbtPasteOpposite "" pos:[110,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"镜像粘贴Poseture"
-	checkbutton uiCbtSelBones "选择" pos:[140,465] width:35 height:25 visible:false checked:true highlightColor:mcFK tooltip:"选择复制pose的Biped骨骼"
+	checkbutton uiCbtDeleteAllCopy "" pos:[140,465] width:35 height:25 visible:false checked:true highlightColor:mcFK tooltip:"清除所有CopyCollection"
 	checkbutton uiCbtMirrorRArm "右→左臂" pos:[50,495] width:60 height:25 visible:false checked:true highlightColor:mcRight
 	checkbutton uiCbtMirrorLArm "左→右臂" pos:[115,495] width:60 height:25 visible:false checked:true highlightColor:mcLeft
 	checkbutton uiCbtMirrorRLeg "右→左腿" pos:[50,523] width:60 height:25 visible:false checked:true highlightColor:mcRight
@@ -1504,7 +1504,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local arrOtherTools = #("其他",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip)) 
 	local arrLayerTools = #("层层",#(uiCbtRefreshLayer,uiCbtDown,uiCbtUp,uiLblLayerID,uiLblActive,uiChkActive,uiCbtAddLayer,\
 		uiCbtDelLayer,uiCbtDownLayer,uiCbtSnapKeys,uiCbtLeftArm,uiCbtRightArm,uiCbtLeftLeg,uiCbtRightLeg,uiCbtUpdate,uiChkIKonly,ddlLayers))
-	local arrCopyTools = #("复制",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtSelBones,uiCbtMirrorLArm,uiCbtMirrorRArm,\
+	local arrCopyTools = #("复制",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtDeleteAllCopy,uiCbtMirrorLArm,uiCbtMirrorRArm,\
 		uiCbtMirrorLLeg,uiCbtMirrorRLeg,uiCbtGrabPose,uiCbtLoadPose))
 	local arrAllToolsTab = #(arrCopyTools,arrLayerTools,arrLoopTools,arrOtherTools)
 
@@ -1600,6 +1600,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiFigureMode.images        = #("bip_modes_i.bmp","bip_modes_i.bmp",8,1,1,1,1,true,true)
 		uiWorkbench.images         = #("bip_workbench_i.bmp","bip_workbench_i.bmp",10,7,7,7,7,true,true)
 		uiCbtCopy.images           = #("bip_keyframe_i.bmp","bip_keyframe_i.bmp",46,9,9,9,9,true,true)
+		uiCbtDeleteAllCopy.images  = #("bip_mflscript_i.bmp","bip_mflscript_i.bmp",22,5,5,5,5,true,true)
 		uiCbtPaste.images          = #("bip_keyframe_i.bmp","bip_keyframe_i.bmp",46,17,17,17,17,true,true)
 		uiCbtPasteOpposite.images  = #("bip_keyframe_i.bmp","bip_keyframe_i.bmp",46,19,19,19,19,true,true)
 		uiCbtUp.images             = #("bip_layer_i.bmp","bip_layer_i.bmp",24,1,1,1,1,true,true)
@@ -2855,17 +2856,21 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			local bRootCtrl = m_workingBipRoot.controller
-			biped.createCopyCollection bRootCtrl "MirrorTemp"
-			local colIndex = biped.numCopyCollections bRootCtrl
-			local copyCol = biped.getCopyCollection bRootCtrl colIndex
-			biped.copyBipPosture bRootCtrl copyCol a_bipObjs #snapAuto
-			local mirroreBH_pose = getCopy copyCol #posture 1
-			with Animate on
+			try
 			(
-				with undo on(biped.pasteBipPosture bRootCtrl mirroreBH_pose true #pstdefault false false false false)
+				local bRootCtrl = m_workingBipRoot.controller
+				biped.createCopyCollection bRootCtrl "MirrorTemp"
+				local colIndex = biped.numCopyCollections bRootCtrl
+				local copyCol = biped.getCopyCollection bRootCtrl colIndex
+				biped.copyBipPosture bRootCtrl copyCol a_bipObjs #snapAuto
+				local mirroreBH_pose = getCopy copyCol #posture 1
+				with Animate on
+				(
+					with undo on(biped.pasteBipPosture bRootCtrl mirroreBH_pose true #pstdefault false false false false)
+				)
+				biped.deleteCopyCollection bRootCtrl colIndex
 			)
-			-- biped.deleteCopyCollection bRootCtrl colIndex
+			catch(messageBox "错误：镜像失败，请重新尝试。                       " title:"BsBipedTools")
 		)
 	)
 	
@@ -2923,13 +2928,16 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				(
 					with undo on
 					(
-						local bRootCtrl = m_workingBipRoot.controller
-						biped.createCopyCollection bRootCtrl "BsBipedTools_CopyPosture"
-						local colIndex = biped.numCopyCollections bRootCtrl
-						local copyCol = biped.getCopyCollection bRootCtrl colIndex
-						biped.copyBipPosture bRootCtrl copyCol a_objs #snapAuto
-						-- biped.saveCopyPasteFile bRootCtrl (getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy")
-						-- biped.deleteCopyCollection bRootCtrl colIndex
+						try
+						(
+							local bRootCtrl = m_workingBipRoot.controller
+							biped.deleteAllCopies bRootCtrl #posture
+							local colIndex = biped.numCopyCollections bRootCtrl
+							if colIndex == 0 then (biped.createCopyCollection bRootCtrl "BsBipedTools_CopyPosture")
+							biped.copyPosture bRootCtrl #posture on on on
+							biped.setCopyName bRootCtrl #posture 1 "BsPosture_Temp"
+						)
+						catch()
 					)
 				)
 			)
@@ -2949,28 +2957,15 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtPaste.state = true
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			-- local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
-			-- if doesFileExist postureFile then
-			-- (
-				local bRootCtrl = m_workingBipRoot.controller
-				-- biped.loadCopyPasteFile bRootCtrl postureFile
-				local colIndex = biped.numCopyCollections bRootCtrl
-				local copyCol = biped.getCopyCollection bRootCtrl colIndex
-				local copieBH_posture = getCopy copyCol #posture 1
-				with Animate on
+			local bRootCtrl = m_workingBipRoot.controller
+			with Animate on
+			(
+				with undo on
 				(
-					with undo on
-					(
-						biped.pasteBipPosture bRootCtrl copieBH_posture false #pstdefault false false false false
-					)
+					try(biped.pastePosture  bRootCtrl #posture false "BsPosture_Temp")
+					catch(messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
 				)
-				-- local colIndex = biped.numCopyCollections bRootCtrl
-				-- biped.deleteCopyCollection bRootCtrl colIndex
-			-- )
-			-- else
-			-- (
-			-- 	messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
-			-- )
+			)
 		)
 	)
 
@@ -2979,38 +2974,25 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtPasteOpposite.state = true
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			-- local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
-			-- if doesFileExist postureFile then
-			-- (
-				local bRootCtrl = m_workingBipRoot.controller
-				-- biped.loadCopyPasteFile bRootCtrl postureFile
-				local colIndex = biped.numCopyCollections bRootCtrl
-				local copyCol = biped.getCopyCollection bRootCtrl colIndex
-				local copieBH_posture = getCopy copyCol #posture 1
-				with Animate on
+			local bRootCtrl = m_workingBipRoot.controller
+			with Animate on
+			(
+				with undo on
 				(
-					with undo on
-					(
-						biped.pasteBipPosture bRootCtrl copieBH_posture true #pstdefault false false false false
-					)
+					try(biped.pastePosture  bRootCtrl #posture true "BsPosture_Temp")
+					catch(messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
 				)
-				-- local colIndex = biped.numCopyCollections bRootCtrl
-				-- biped.deleteCopyCollection bRootCtrl colIndex
-			-- )
-			-- else
-			-- (
-			-- 	messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
-			-- )
+			)
 		)
 	)
 	
-	on uiCbtSelBones changed state do
+	on uiCbtDeleteAllCopy changed state do
 	(
-		uiCbtSelBones.state = true
-		local a_objs = fnRetrievePostureObjs()
-		if a_objs != undefined do
+		uiCbtDeleteAllCopy.state = true
+		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			try (select a_objs)catch(messageBox "错误：无法选择用于复制姿势的 Biped 部件。                                            " title:"BsBipedTools")
+			local bRootCtrl = m_workingBipRoot.controller
+			with undo on (try(biped.deleteAllCopyCollections bRootCtrl)catch())
 		)
 	)
 	
