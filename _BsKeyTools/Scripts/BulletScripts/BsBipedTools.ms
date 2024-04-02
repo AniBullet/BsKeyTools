@@ -2989,10 +2989,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	on uiCbtDeleteAllCopy changed state do
 	(
 		uiCbtDeleteAllCopy.state = true
-		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+		if (queryBox ("是否清除所有 CopyCollection ？                        ") title:"BsBipedTools") do
 		(
-			local bRootCtrl = m_workingBipRoot.controller
-			with undo on (try(biped.deleteAllCopyCollections bRootCtrl)catch())
+			if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+			(
+				local bRootCtrl = m_workingBipRoot.controller
+				with undo on (try(biped.deleteAllCopyCollections bRootCtrl)catch())
+			)
+			messageBox "清除 CopyCollection 成功。                       " title:"BsBipedTools"
 		)
 	)
 	
