@@ -4126,6 +4126,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		callbacks.addScript #systemPostNew "rolBsBipedTools.InitLocalVars ()" id:#BsBTCallbackNew
 		callbacks.addScript #systemPostReset "rolBsBipedTools.InitLocalVars ()" id:#BsBTCallbackReset
 		callbacks.addScript #selectionSetChanged "rolBsBipedTools.InitLocalVars ()" id:#BsBTSelChange
+		callbacks.addScript #sceneUndo "rolBsBipedTools.InitLocalVars()" id:#BsBTUpdateLayers
 		
 		fnSetBsBTConfig()
 
@@ -4136,6 +4137,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		callbacks.removeScripts id:#BsBTCallbackNew
 		callbacks.removeScripts id:#BsBTCallbackReset
 		callbacks.removeScripts id:#BsBTSelChange
+		callbacks.removeScripts id:#BsBTUpdateLayers
 		fnSetBsBTConfig()
 	)
 
@@ -4558,7 +4560,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if fnIsValidBiped() then 
 		(
-			if m_LHand[1] != undefined then biped.setLimbRetargetState m_LHand[1] state
+			if m_LHand[1] != undefined then (with undo on (biped.setLimbRetargetState m_LHand[1] state))
 		)
 	)
 	
@@ -4566,7 +4568,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if fnIsValidBiped() then 
 		(
-			if m_RHand[1] != undefined then biped.setLimbRetargetState m_RHand[1] state
+			if m_RHand[1] != undefined then (with undo on (biped.setLimbRetargetState m_RHand[1] state))
 		)
 	)
 	
@@ -4574,7 +4576,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if fnIsValidBiped() then 
 		(
-			if m_LFoot[1] != undefined then biped.setLimbRetargetState m_LFoot[1] state
+			if m_LFoot[1] != undefined then (with undo on (biped.setLimbRetargetState m_LFoot[1] state))
 		)
 	)
 	
@@ -4582,7 +4584,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if fnIsValidBiped() then 
 		(
-			if m_RFoot[1] != undefined then biped.setLimbRetargetState m_RFoot[1] state
+			if m_RFoot[1] != undefined then (with undo on (biped.setLimbRetargetState m_RFoot[1] state))
 		)
 	)
 		
@@ -4590,7 +4592,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if fnIsValidBiped() then
 		(
-			biped.retargetToBaseLayer ctrl uiChkIKonly.state
+			with undo on (biped.retargetToBaseLayer ctrl uiChkIKonly.state)
 			redrawViews()
 		)
 	)
@@ -4694,38 +4696,47 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	on uiCbtAddLayer pressed do
 	(
-		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
-		fnBSUpdateLayers()
-		ctrlCom = m_workingBipRoot.controller
-		numCurLayer = biped.getCurrentLayer ctrlCom
-		countAllLayers = biped.numLayers ctrlCom
-		numNewLayerIndex = numCurLayer + 1
-		numNewLayerName = (countAllLayers + 1) as string
-		biped.createLayer ctrlCom numNewLayerIndex ("Layer " + numNewLayerName )
+		with undo on
+		(
+			if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+			fnBSUpdateLayers()
+			ctrlCom = m_workingBipRoot.controller
+			numCurLayer = biped.getCurrentLayer ctrlCom
+			countAllLayers = biped.numLayers ctrlCom
+			numNewLayerIndex = numCurLayer + 1
+			numNewLayerName = (countAllLayers + 1) as string
+			biped.createLayer ctrlCom numNewLayerIndex ("Layer " + numNewLayerName )
+		)
 		fnBSUpdateLayers()
 	)
 
 	on uiCbtDelLayer pressed do
 	(
-		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
-		fnBSUpdateLayers()
-		ctrlCom = m_workingBipRoot.controller
-		numCurLayer = biped.getCurrentLayer ctrlCom
-		biped.deleteLayer ctrlCom numCurLayer
+		with undo on
+		(
+			if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+			fnBSUpdateLayers()
+			ctrlCom = m_workingBipRoot.controller
+			numCurLayer = biped.getCurrentLayer ctrlCom
+			biped.deleteLayer ctrlCom numCurLayer
+		)
 		fnBSUpdateLayers()
 	)
 
 	on uiCbtDownLayer pressed do
 	(
-		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
-		fnBSUpdateLayers()
-		ctrlCom = m_workingBipRoot.controller
-		numCurLayer = biped.getCurrentLayer ctrlCom
-		biped.collapseAtLayer ctrlCom (numCurLayer - 1)
+		with undo on
+		(
+			if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+			fnBSUpdateLayers()
+			ctrlCom = m_workingBipRoot.controller
+			numCurLayer = biped.getCurrentLayer ctrlCom
+			biped.collapseAtLayer ctrlCom (numCurLayer - 1)
+		)
 		fnBSUpdateLayers()
 	)
 
-	on uiCbtSnapKeys pressed do 
+	on uiCbtSnapKeys pressed do
 	(
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
 		fnBSUpdateLayers()
