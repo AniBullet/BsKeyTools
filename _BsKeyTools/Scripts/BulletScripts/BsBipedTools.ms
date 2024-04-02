@@ -2913,15 +2913,15 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtCopy.state = true
 		if selection.count > 0 then
 		(
-			with undo on
+			local a_objs = selection as array
+			--// Make sure only Biped parts are selected for copying by filtering out non-Biped parts
+			a_objs = fnFilterBipedParts a_objs
+			if a_objs.count > 0 then
 			(
-				local a_objs = selection as array
-				--// Make sure only Biped parts are selected for copying by filtering out non-Biped parts
-				a_objs = fnFilterBipedParts a_objs
-				if a_objs.count > 0 then
+				fnStorePostureObjs a_objs
+				if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 				(
-					fnStorePostureObjs a_objs
-					if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+					with undo on
 					(
 						local bRootCtrl = m_workingBipRoot.controller
 						biped.createCopyCollection bRootCtrl "BsBipedTools_CopyPosture"
@@ -2932,10 +2932,10 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 						-- biped.deleteCopyCollection bRootCtrl colIndex
 					)
 				)
-				else
-				(
-					messageBox "错误：没有选择 Biped 对象。                       " title:"BsBipedTools"
-				)
+			)
+			else
+			(
+				messageBox "错误：没有选择 Biped 对象。                       " title:"BsBipedTools"
 			)
 		)
 		else
