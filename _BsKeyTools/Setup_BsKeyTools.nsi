@@ -79,6 +79,7 @@ Section "3dsMax 2024" SEC18
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2024\plugins"
 SectionEnd
 
 Section "3dsMax 2023" SEC01
@@ -86,6 +87,7 @@ Section "3dsMax 2023" SEC01
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2023\plugins"
 SectionEnd
 
 Section "3dsMax 2022" SEC02
@@ -93,6 +95,7 @@ Section "3dsMax 2022" SEC02
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2022\plugins"
 SectionEnd
   
 Section "3dsMax 2021" SEC03
@@ -100,6 +103,7 @@ Section "3dsMax 2021" SEC03
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2021\plugins"
 SectionEnd
 
 Section "3dsMax 2020" SEC04
@@ -107,6 +111,7 @@ Section "3dsMax 2020" SEC04
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2020\plugins"
 SectionEnd
 
 Section "3dsMax 2019" SEC05
@@ -114,6 +119,7 @@ Section "3dsMax 2019" SEC05
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2019\plugins"
 SectionEnd
 
 Section "3dsMax 2018" SEC06
@@ -121,6 +127,7 @@ Section "3dsMax 2018" SEC06
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2018\plugins"
 SectionEnd
 
 Section "3dsMax 2017" SEC07
@@ -128,6 +135,7 @@ Section "3dsMax 2017" SEC07
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2017\plugins"
 SectionEnd
 
 Section "3dsMax 2016" SEC08
@@ -135,6 +143,7 @@ Section "3dsMax 2016" SEC08
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2016\plugins"
 SectionEnd
 
 Section "3dsMax 2015" SEC09
@@ -142,6 +151,7 @@ Section "3dsMax 2015" SEC09
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2015\plugins"
 SectionEnd
 
 Section "3dsMax 2014" SEC10
@@ -149,6 +159,7 @@ Section "3dsMax 2014" SEC10
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2014\plugins"
 SectionEnd
 
 Section "3dsMax 2013" SEC11
@@ -156,6 +167,7 @@ Section "3dsMax 2013" SEC11
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2013\plugins"
 SectionEnd
 
 Section "3dsMax 2012" SEC12
@@ -163,6 +175,7 @@ Section "3dsMax 2012" SEC12
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2012\plugins"
 SectionEnd
 
 Section "3dsMax 2011" SEC13
@@ -170,6 +183,7 @@ Section "3dsMax 2011" SEC13
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2011\plugins"
 SectionEnd
 
 Section "3dsMax 2010" SEC14
@@ -177,6 +191,7 @@ Section "3dsMax 2010" SEC14
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2010\plugins"
 SectionEnd
 
 Section "3dsMax 2009" SEC15
@@ -184,6 +199,7 @@ Section "3dsMax 2009" SEC15
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2009\plugins"
 SectionEnd
 
 Section "3dsMax 2008" SEC16
@@ -191,6 +207,7 @@ Section "3dsMax 2008" SEC16
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2008\plugins"
 SectionEnd
 
 Section "3dsMax 9" SEC17
@@ -198,6 +215,7 @@ Section "3dsMax 9" SEC17
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\9\plugins"
 SectionEnd
 
 ;Section -Post

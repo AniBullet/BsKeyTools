@@ -2856,16 +2856,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
 			local bRootCtrl = m_workingBipRoot.controller
+			biped.createCopyCollection bRootCtrl "MirrorTemp"
 			local colIndex = biped.numCopyCollections bRootCtrl
-			if colIndex == 0 then (biped.createCopyCollection bRootCtrl "MirrorTemp";colIndex = 1)
 			local copyCol = biped.getCopyCollection bRootCtrl colIndex
 			biped.copyBipPosture bRootCtrl copyCol a_bipObjs #snapAuto
-			
-			local numCopyCol = biped.numCopies bRootCtrl #posture
-			local mirroreBH_pose = getCopy copyCol #posture numCopyCol
+			local mirroreBH_pose = getCopy copyCol #posture 1
 			with Animate on
 			(
-				with undo on (biped.pasteBipPosture bRootCtrl mirroreBH_pose true #pstdefault false false false false)
+				with undo on(biped.pasteBipPosture bRootCtrl mirroreBH_pose true #pstdefault false false false false)
 			)
 			-- biped.deleteCopyCollection bRootCtrl colIndex
 		)
@@ -2926,8 +2924,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 					if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 					(
 						local bRootCtrl = m_workingBipRoot.controller
+						biped.createCopyCollection bRootCtrl "BsBipedTools_CopyPosture"
 						local colIndex = biped.numCopyCollections bRootCtrl
-						if colIndex == 0 then (biped.createCopyCollection bRootCtrl "BsBipedTools_CopyPosture";colIndex = 1)
 						local copyCol = biped.getCopyCollection bRootCtrl colIndex
 						biped.copyBipPosture bRootCtrl copyCol a_objs #snapAuto
 						-- biped.saveCopyPasteFile bRootCtrl (getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy")
@@ -2957,10 +2955,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				local bRootCtrl = m_workingBipRoot.controller
 				-- biped.loadCopyPasteFile bRootCtrl postureFile
 				local colIndex = biped.numCopyCollections bRootCtrl
-				if colIndex == 0 then (messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools";return())
 				local copyCol = biped.getCopyCollection bRootCtrl colIndex
-				local numCopyCol = biped.numCopies bRootCtrl #posture
-				local copieBH_posture = getCopy copyCol #posture numCopyCol
+				local copieBH_posture = getCopy copyCol #posture 1
 				with Animate on
 				(
 					with undo on
@@ -2989,10 +2985,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				local bRootCtrl = m_workingBipRoot.controller
 				-- biped.loadCopyPasteFile bRootCtrl postureFile
 				local colIndex = biped.numCopyCollections bRootCtrl
-				if colIndex == 0 then (messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools";return())
 				local copyCol = biped.getCopyCollection bRootCtrl colIndex
-				local numCopyCol = biped.numCopies bRootCtrl #posture
-				local copieBH_posture = getCopy copyCol #posture numCopyCol
+				local copieBH_posture = getCopy copyCol #posture 1
 				with Animate on
 				(
 					with undo on
