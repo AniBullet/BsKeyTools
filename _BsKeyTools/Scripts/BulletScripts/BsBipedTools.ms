@@ -2856,16 +2856,18 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
 			local bRootCtrl = m_workingBipRoot.controller
-			biped.createCopyCollection bRootCtrl "MirrorTemp"
 			local colIndex = biped.numCopyCollections bRootCtrl
+			if colIndex == 0 then (biped.createCopyCollection bRootCtrl "MirrorTemp";colIndex = 1)
 			local copyCol = biped.getCopyCollection bRootCtrl colIndex
 			biped.copyBipPosture bRootCtrl copyCol a_bipObjs #snapAuto
-			local mirroreBH_pose = getCopy copyCol #posture 1
+			
+			local numCopyCol = biped.numCopies bRootCtrl #posture
+			local mirroreBH_pose = getCopy copyCol #posture numCopyCol
 			with Animate on
 			(
-				biped.pasteBipPosture bRootCtrl mirroreBH_pose true #pstdefault false false false false
+				with undo on (biped.pasteBipPosture bRootCtrl mirroreBH_pose true #pstdefault false false false false)
 			)
-			biped.deleteCopyCollection bRootCtrl colIndex
+			-- biped.deleteCopyCollection bRootCtrl colIndex
 		)
 	)
 	
@@ -2924,11 +2926,11 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 					if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 					(
 						local bRootCtrl = m_workingBipRoot.controller
-						biped.createCopyCollection bRootCtrl "BsBipedTools_CopyPosture"
 						local colIndex = biped.numCopyCollections bRootCtrl
+						if colIndex == 0 then (biped.createCopyCollection bRootCtrl "BsBipedTools_CopyPosture";colIndex = 1)
 						local copyCol = biped.getCopyCollection bRootCtrl colIndex
 						biped.copyBipPosture bRootCtrl copyCol a_objs #snapAuto
-						biped.saveCopyPasteFile bRootCtrl (getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy")
+						-- biped.saveCopyPasteFile bRootCtrl (getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy")
 						-- biped.deleteCopyCollection bRootCtrl colIndex
 					)
 				)
@@ -2949,14 +2951,16 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtPaste.state = true
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
-			if doesFileExist postureFile then
-			(
+			-- local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
+			-- if doesFileExist postureFile then
+			-- (
 				local bRootCtrl = m_workingBipRoot.controller
-				biped.loadCopyPasteFile bRootCtrl postureFile
+				-- biped.loadCopyPasteFile bRootCtrl postureFile
 				local colIndex = biped.numCopyCollections bRootCtrl
+				if colIndex == 0 then (messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools";return())
 				local copyCol = biped.getCopyCollection bRootCtrl colIndex
-				local copieBH_posture = getCopy copyCol #posture 1
+				local numCopyCol = biped.numCopies bRootCtrl #posture
+				local copieBH_posture = getCopy copyCol #posture numCopyCol
 				with Animate on
 				(
 					with undo on
@@ -2966,11 +2970,11 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 				-- local colIndex = biped.numCopyCollections bRootCtrl
 				-- biped.deleteCopyCollection bRootCtrl colIndex
-			)
-			else
-			(
-				messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
-			)
+			-- )
+			-- else
+			-- (
+			-- 	messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
+			-- )
 		)
 	)
 
@@ -2979,14 +2983,16 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtPasteOpposite.state = true
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
-			if doesFileExist postureFile then
-			(
+			-- local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
+			-- if doesFileExist postureFile then
+			-- (
 				local bRootCtrl = m_workingBipRoot.controller
-				biped.loadCopyPasteFile bRootCtrl postureFile
+				-- biped.loadCopyPasteFile bRootCtrl postureFile
 				local colIndex = biped.numCopyCollections bRootCtrl
+				if colIndex == 0 then (messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools";return())
 				local copyCol = biped.getCopyCollection bRootCtrl colIndex
-				local copieBH_posture = getCopy copyCol #posture 1
+				local numCopyCol = biped.numCopies bRootCtrl #posture
+				local copieBH_posture = getCopy copyCol #posture numCopyCol
 				with Animate on
 				(
 					with undo on
@@ -2996,11 +3002,11 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 				-- local colIndex = biped.numCopyCollections bRootCtrl
 				-- biped.deleteCopyCollection bRootCtrl colIndex
-			)
-			else
-			(
-				messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
-			)
+			-- )
+			-- else
+			-- (
+			-- 	messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
+			-- )
 		)
 	)
 	
@@ -3019,7 +3025,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtMirrorLArm.state = true
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		-- local arrMirror = makeUniqueArray (m_LArms + m_LHand)
-		with undo on (fnMirrorPosture m_LArms)
+		fnMirrorPosture m_LArms
 	)
 	
 	on uiCbtMirrorRArm changed state do
@@ -3027,21 +3033,21 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiCbtMirrorRArm.state = true
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		-- local arrMirror = makeUniqueArray (m_RArms + m_RHand)
-		with undo on (fnMirrorPosture m_RArms)
+		fnMirrorPosture m_RArms
 	)
 	
 	on uiCbtMirrorLLeg changed state do
 	(
 		uiCbtMirrorLLeg.state = true
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
-		with undo on (fnMirrorPosture m_LLegs)
+		fnMirrorPosture m_LLegs
 	)
 	
 	on uiCbtMirrorRLeg changed state do
 	(
 		uiCbtMirrorRLeg.state = true
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
-		with undo on (fnMirrorPosture m_RLegs)
+		fnMirrorPosture m_RLegs
 	)
 
 	on uiChkBtnScanBiped changed state do (
