@@ -532,57 +532,68 @@ rollout rolBSFingers "Fingers" width:220 height:180
 	checkbutton chbLFingers "Left" pos:[148,150] highlightColor:rolBsBipedTools.mcLeft checked:true
 	
 	--R Index Finger
-	button select_rhand1_btn "RHand"	enabled:true pos:[20,10] width:60 height:40 images:#(Bitmap 60 40 color:(color 5 173 5 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有右手手指"
-	button select_rfing11_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+45,(select_rhand1_btn.pos.y)+40]		width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rhand1_btn "RHand"	enabled:true pos:[20,25] width:60 height:30 images:#(Bitmap 60 40 color:(color 5 173 5 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有右手手指"
+	button select_rfing11_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+45,(select_rhand1_btn.pos.y)+46]		width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rfing12_btn "RHand"	enabled:true pos:[(select_rfing11_btn.pos.x)+0,(select_rfing11_btn.pos.y)+22]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rfing13_btn "RHand"	enabled:true pos:[(select_rfing12_btn.pos.x)+0,(select_rfing12_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 
 	--R Middle Finger
-	button select_rfing21_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+30,(select_rhand1_btn.pos.y)+40]		width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing21_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+30,(select_rhand1_btn.pos.y)+46]		width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rfing22_btn "RHand"	enabled:true pos:[(select_rfing21_btn.pos.x)+0,(select_rfing21_btn.pos.y)+23]	width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rfing23_btn "RHand"	enabled:true pos:[(select_rfing22_btn.pos.x)+0,(select_rfing22_btn.pos.y)+23]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) ttoolTip:""
 	
 	--R Ring Finger
-	button select_rfing31_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+15,(select_rhand1_btn.pos.y)+40]		width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing31_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+15,(select_rhand1_btn.pos.y)+46]		width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rfing32_btn "RHand"	enabled:true pos:[(select_rfing31_btn.pos.x)+0,(select_rfing31_btn.pos.y)+22]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rfing33_btn "RHand"	enabled:true pos:[(select_rfing32_btn.pos.x)+0,(select_rfing32_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	
 	--R Pinkie Finger
-	button select_rfing41_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+0,(select_rhand1_btn.pos.y)+40]		width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rfing41_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+0,(select_rhand1_btn.pos.y)+46]		width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rfing42_btn "RHand"	enabled:true pos:[(select_rfing41_btn.pos.x)+0,(select_rfing41_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rfing43_btn "RHand"	enabled:true pos:[(select_rfing42_btn.pos.x)+0,(select_rfing42_btn.pos.y)+17]	width:15 height:16 images:#(Bitmap 15 16 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	
 	--R Thumb
-	button select_rthumb1_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+60,(select_rhand1_btn.pos.y)+20]		width:20 height:30 images:#(Bitmap 20 30 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_rthumb1_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+60,(select_rhand1_btn.pos.y)+30]		width:20 height:30 images:#(Bitmap 20 30 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rthumb2_btn "RHand"	enabled:true pos:[(select_rthumb1_btn.pos.x)+0,(select_rthumb1_btn.pos.y)+30]		width:18 height:19 images:#(Bitmap 18 19 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_rthumb3_btn "RHand"	enabled:true pos:[(select_rthumb2_btn.pos.x)+0,(select_rthumb2_btn.pos.y)+19]		width:16 height:18 images:#(Bitmap 16 18 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 
 	--LEFT HAND
 	--L Index Finger
-	button select_lhand1_btn "LHand"	enabled:true pos:[140,10] width:60 height:40 images:#(Bitmap 60 40 color:(color 18 18 167 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有左手手指"
-	button select_lfing11_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+0,(select_lhand1_btn.pos.y)+40]		width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lhand1_btn "LHand"	enabled:true pos:[140,25] width:60 height:30 images:#(Bitmap 60 40 color:(color 18 18 167 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有左手手指"
+	button select_lfing11_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+0,(select_lhand1_btn.pos.y)+46]		width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lfing12_btn "LHand"	enabled:true pos:[(select_lfing11_btn.pos.x)+0,(select_lfing11_btn.pos.y)+22]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lfing13_btn "LHand"	enabled:true pos:[(select_lfing12_btn.pos.x)+0,(select_lfing12_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	
 	--L Middle Finger
-	button select_lfing21_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+15,(select_lhand1_btn.pos.y)+40]		width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing21_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+15,(select_lhand1_btn.pos.y)+46]		width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lfing22_btn "LHand"	enabled:true pos:[(select_lfing21_btn.pos.x)+0,(select_lfing21_btn.pos.y)+23]	width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lfing23_btn "LHand"	enabled:true pos:[(select_lfing22_btn.pos.x)+0,(select_lfing22_btn.pos.y)+23]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	
 	--L Ring Finger
-	button select_lfing31_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+30,(select_lhand1_btn.pos.y)+40]		width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing31_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+30,(select_lhand1_btn.pos.y)+46]		width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lfing32_btn "LHand"	enabled:true pos:[(select_lfing31_btn.pos.x)+0,(select_lfing31_btn.pos.y)+22]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lfing33_btn "LHand"	enabled:true pos:[(select_lfing32_btn.pos.x)+0,(select_lfing32_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 
 	--L Pinkie Finger
-	button select_lfing41_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+45,(select_lhand1_btn.pos.y)+40]		width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lfing41_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+45,(select_lhand1_btn.pos.y)+46]		width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lfing42_btn "LHand"	enabled:true pos:[(select_lfing41_btn.pos.x)+0,(select_lfing41_btn.pos.y)+20]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lfing43_btn "LHand"	enabled:true pos:[(select_lfing42_btn.pos.x)+0,(select_lfing42_btn.pos.y)+17]	width:15 height:16 images:#(Bitmap 15 16 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 
 	--L Thumb
-	button select_lthumb1_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)-20,(select_lhand1_btn.pos.y)+20]		width:20 height:30 images:#(Bitmap 20 30 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	button select_lthumb1_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)-20,(select_lhand1_btn.pos.y)+30]		width:20 height:30 images:#(Bitmap 20 30 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lthumb2_btn "LHand"	enabled:true pos:[(select_lthumb1_btn.pos.x)+2,(select_lthumb1_btn.pos.y)+30]	width:18 height:19 images:#(Bitmap 18 19 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
 	button select_lthumb3_btn "LHand"	enabled:true pos:[(select_lthumb2_btn.pos.x)+2,(select_lthumb2_btn.pos.y)+19]	width:16 height:18 images:#(Bitmap 16 18 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+
+	button btnFingerLineL1 "" enabled:true pos:[80,39] width:20 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
+	button btnFingerLineL2 "" enabled:true pos:[btnFingerLineL1.pos.x-15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
+	button btnFingerLineL3 "" enabled:true pos:[btnFingerLineL2.pos.x-15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
+	button btnFingerLineL4 "" enabled:true pos:[btnFingerLineL3.pos.x-15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
+	button btnFingerLineL5 "" enabled:true pos:[btnFingerLineL4.pos.x-15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
+	button btnFingerLineR1 "" enabled:true pos:[120,39] width:20 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
+	button btnFingerLineR2 "" enabled:true pos:[btnFingerLineR1.pos.x+20,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
+	button btnFingerLineR3 "" enabled:true pos:[btnFingerLineR2.pos.x+15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
+	button btnFingerLineR4 "" enabled:true pos:[btnFingerLineR3.pos.x+15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
+	button btnFingerLineR5 "" enabled:true pos:[btnFingerLineR4.pos.x+15,55] width:15 height:16 images:#("AddPreset_16i.bmp","AddPreset_16i.bmp",1,1,1,1,1) toolTip:"选择单条手指"
 
 	fn GetFinger side index =
 	(
