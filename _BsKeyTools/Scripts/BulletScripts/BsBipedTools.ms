@@ -3,8 +3,10 @@
 Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
 Since 2023.03
 
-2024.04 update
-1. SoxBipedAssist_v0.510 更新了手指拓展功能，尝试集成
+2024.04 update v1.4
+1. 修复复制pose和加层功能回退导致的闪退
+2。稍微拓展手指选择功能
+3。IK帧切换面板功能优化，会保持之前面板
 **************************************************************************************************************************/
 
 global rolBsBipedTools
@@ -18,7 +20,7 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
-global verBsBipedTools = "v1.3"
+global verBsBipedTools = "v1.4"
 
 try(destroydialog rolBsBipedTools) catch()
 try(destroyDialog rolBSLeftHandPivots)catch()
@@ -1892,7 +1894,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		
 		local tAllChildren = #()
 		if ( obj.children.count != 0 ) do (
-			for o in obj.children do (
+			for o in obj.children where not isDeleted o and (classof o.baseobject == Biped_Object or (classof o.controller == Vertical_Horizontal_Turn)) do (
 				append tAllChildren o
 				if ( o.children.count != 0 ) do (
 					tAllChildren = tAllChildren +  (fnGetAllChildren o)		-- recursive
@@ -3092,6 +3094,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	on uiBtnLimbPK changed state do (
 		uiBtnLimbPK.state = on -- 어떤 상태에서도 버튼 스테이트는 눌려있도록
+		local tempPanel = getCommandPanelTaskMode()
 		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 등의 기능은 Motion판넬에서만 정상 작동한다. 다른 곳에서 하면 엉뚱한 자세가 덮어써짐
 		local timeBefore = sliderTime
 		disableSceneRedraw()
@@ -3124,13 +3127,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 			) -- for
 		) -- Undo
-		setCommandPanelTaskMode mode:#create
+		if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
 		enableSceneRedraw()
 		sliderTime = timeBefore
 	)
 
 	on uiBtnLimbIK changed state do (
 		uiBtnLimbIK.state = on -- 어떤 상태에서도 버튼 스테이트는 눌려있도록
+		local tempPanel = getCommandPanelTaskMode()
 		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 등의 기능은 Motion판넬에서만 정상 작동한다. 다른 곳에서 하면 엉뚱한 자세가 덮어써짐
 		local timeBefore = sliderTime
 		disableSceneRedraw()
@@ -3163,13 +3167,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 			) -- for
 		) -- Undo
-		setCommandPanelTaskMode mode:#create
+		if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
 		enableSceneRedraw()
 		sliderTime = timeBefore
 	)
 
 	on uiBtnLimbFK changed state do (
 		uiBtnLimbFK.state = on -- 어떤 상태에서도 버튼 스테이트는 눌려있도록
+		local tempPanel = getCommandPanelTaskMode()
 		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 등의 기능은 Motion판넬에서만 정상 작동한다. 다른 곳에서 하면 엉뚱한 자세가 덮어써짐
 		local timeBefore = sliderTime
 		disableSceneRedraw()
@@ -3202,7 +3207,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 			) -- for
 		) -- Undo
-		setCommandPanelTaskMode mode:#create
+		if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
 		enableSceneRedraw()
 		sliderTime = timeBefore
 	)

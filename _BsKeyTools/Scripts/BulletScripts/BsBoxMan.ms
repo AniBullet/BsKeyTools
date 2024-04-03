@@ -38,10 +38,6 @@ global dragStateBsBoxMan = off
 		)
 		
 		groupBox gpbDisplayUnit "Display Unit" pos:[5,355] width:105 height:50
-		-- button centimeterButton "Centimeters" pos:[120,365] width:80 height:28 toolTip:"Set Units to Decimal Feet"
-		-- button kilometerButton "Kilometers" pos:[120,395] width:80 height:28 toolTip:"Set Units to Decimal Feet"
-		-- button millimeterButton "Millimeters" pos:[20,365] width:80 height:28 toolTip:"Set Units to Decimal Feet"
-		-- button meterButton "Meters" pos:[20,395] width:80 height:28 toolTip:"Set Units to Decimal Feet"
 		dropdownlist ddlMetric "" align:#left selection:1 height:15 width:95 pos:[10,375] \
 		items:#("Millimeters","Centimeters","Meters","Kilometers")
 
@@ -52,6 +48,43 @@ global dragStateBsBoxMan = off
 		button btnGetUnit "刷新" tooltip:"获取当前 Unit (单位) 状态" pos:[225,361] width:30 height:44
 
 		dotnetcontrol lblTips "Label" text:"2023.2 [ Bullet.S ] ✨        创建专属练习方块人" pos:[0,413] width:260 height:16
+
+		local arrCreateBox = #("创建 Body Box",#(btnCreateBodyBox,rdoColor,rtcp,ckbFreeze,btnClearBox,ckbSync,\
+			ckbCopy,ckbPaste,sldLenthValue,sldWidthValue,sldHeightValue,gpbDisplayUnit,gpbSystemUnit,btnGetUnit,\
+			ddlSystemUnit,ddlMetric))
+		local arrBoxColor = #("调整 Box 颜色",#()) 
+		local arrTestFunc = #("实验功能",#())
+		local arrAllToolsTab = #(arrCreateBox,arrBoxColor,arrTestFunc)
+
+		fn fnInitDotTabs =
+		(
+			lblTips.font       = dotnetobject "System.Drawing.Font" "Roboto" 8
+			lblTips.TextAlign  = (dotnetclass "system.drawing.contentalignment").MiddleCenter
+			lblTips.BackColor  = (dotColor.FromArgb	255 250 250)
+			lblTips.ForeColor  = (dotColor.FromArgb 60 0 160)
+			tabBoxMan.sizeMode  = (dotnetclass "System.Windows.Forms.TabSizeMode").Fixed
+			tabBoxMan.itemSize  = dotNetObject "System.Drawing.Size" 85 30
+			tabBoxMan.dock      = tabBoxMan.dock.Fill
+			tabBoxMan.Drawmode  = tabBoxMan.Drawmode.OwnerDrawFixed
+	
+			for aTab = 1 to arrAllToolsTab.count do
+			(
+				tabBoxMan.TabPages.add arrAllToolsTab[aTab][1]
+			)
+		)
+
+		fn fnChangeToolsVisble id =
+		(
+			for i = 1 to arrAllToolsTab.count do 
+			(
+				if i == id then
+				(
+					for j in arrAllToolsTab[i][2] do j.visible = true
+				)
+				else (for j in arrAllToolsTab[i][2] do j.visible = false)
+			)
+			LastSubRollout = id
+		)
 
 		fn fnCreateBoxBody =
 		(
@@ -66,7 +99,7 @@ global dragStateBsBoxMan = off
 				b.transform = i.transform
 				b.pos = i.center
 			-- 	b.pivot = i.pivot
-				b.name = i.name + "_box"
+				b.name = i.name + "_BsBoxManBox"
 				lc = Link_Constraint()
 				b.transform.controller = lc
 				lc.key_mode = 0
@@ -78,28 +111,17 @@ global dragStateBsBoxMan = off
 
 		on tabBoxMan Selected itm do
 		(
-			-- if LastSubRollout != (itm.TabPageIndex + 1) do --do not update if the same tab clicked twice
-			-- (
-			-- 	for subroll in arrTabRollout[LastSubRollout][2] do
-			-- 		removeSubRollout subRolUI subroll
-			-- 	for subroll in arrTabRollout[LastSubRollout = itm.TabPageIndex+1][2] do	
-			-- 		addSubRollout subRolUI subroll
-			-- ) 
+			arrID = (itm.TabPageIndex + 1)
+			if LastSubRollout != arrID do --避免点击重复
+			(
+				fnChangeToolsVisble arrID
+			) 
 		)
 		
 		on rolBsBoxMan open do
 		(
-			lblTips.font       = dotnetobject "System.Drawing.Font" "Roboto" 8
-			lblTips.TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleCenter
-			tabBoxMan.sizeMode = (dotnetclass "System.Windows.Forms.TabSizeMode").Fixed
-			tabBoxMan.itemSize = dotNetObject "System.Drawing.Size" 85 30
-			tabBoxMan.dock     = tabBoxMan.dock.Fill
-			tabBoxMan.Drawmode = tabBoxMan.Drawmode.OwnerDrawFixed
-			arrTabRollout = #("创建 Body Box","调整 Box 颜色","实验功能")
-			for aTab in arrTabRollout do
-			(
-				tabBoxMan.TabPages.add aTab
-			)
+			fnInitDotTabs()
+			fnChangeToolsVisble (tabBoxMan.SelectedIndex + 1)
 		)
 
 		on btnClose pressed do 
@@ -137,26 +159,11 @@ global dragStateBsBoxMan = off
 			fnCreateBoxBody()
 		)
 
-		-- on centimeterButton pressed do
-		-- (
-		-- 	units.displayType= #Metric
-		-- 	units.metricType= #Centimeters
-		-- )
-		-- on kilometerButton pressed do
-		-- (
-		-- 	units.displayType= #Metric
-		-- 	units.metricType= #Kilometers
-		-- )
-		-- on millimeterButton pressed do
-		-- (
-		-- 	units.displayType= #Metric
-		-- 	units.metricType= #Millimeters
-		-- )
-		-- on meterButton pressed do
-		-- (
-		-- 	units.displayType= #Metric
-		-- 	units.metricType= #Meters
-		-- )
+		on btnClearBox pressed do 
+		(
+			try(delete $'*_BsBoxManBox';messagebox "清除BsBox成功!                      " title:"BsBoxMan")
+			catch(messagebox "错误：清除BsBox失败!                      " title:"BsBoxMan")
+		)
 	)
 
 	createDialog rolBsBoxMan style:#()
