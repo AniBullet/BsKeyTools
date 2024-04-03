@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-08-12 19:00:43
+ * @LastEditTime: 2024-04-03 20:22:43
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -3425,13 +3425,16 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
 			)
 			else
 			(
-				if tarBone.name != tarBiped.parent.name then 
+				if tarBiped.parent != undefined then
 				(
-					tarBiped.name = tarBone.name
-					tarBone.name = "ReTempNode_" + tarBone.name
-					
-					for i in tarBone.children where i != undefined and (finditem biped_align_test.characterBones.items i.name == 0) and \
-					(finditem biped_align_test.characterBones_B.items i.name == 0) do (i.parent = tarBiped)
+					if tarBone.name != tarBiped.parent.name do
+					(
+						tarBiped.name = tarBone.name
+						tarBone.name = "ReTempNode_" + tarBone.name
+						
+						for i in tarBone.children where i != undefined and (finditem biped_align_test.characterBones.items i.name == 0) and \
+						(finditem biped_align_test.characterBones_B.items i.name == 0) do (i.parent = tarBiped)
+					)
 				)
 			)
 		)
@@ -3503,7 +3506,7 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
 
 			fnRenameBiped characterBones.items isB:false
 			fnRenameBiped characterBones_B.items isB:true
-
+			-- delete hips
 			-- bipRoot = getnodebyname (substituteString biped_align_test.characterBones.items[1] "NewHip_" "")
 			-- bipPelvis = getnodebyname (substituteString biped_align_test.characterBones.items[2]"NewPelvis_" "")
 			-- bipSpine = getnodebyname (substituteString biped_align_test.characterBones.items[3]"NewSpine_" "")
@@ -3556,7 +3559,7 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
 			-- delete $
 			for i in selection as array where isvalidnode i do delete i
 
-			messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。                                              "
+			messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。\r\n\r\n【可能存在冗余节点未删除】，请检查骨骼链外的节点，自行清理~                                              " title:"BsRetargetTools"
 		)
 		else (messageBox "请先验证并检查映射列表是否完整！                                       " title:"BsRetargetTools")
 	)
