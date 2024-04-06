@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-03 00:36:44
+ * @LastEditTime: 2024-04-07 02:04:24
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1206,8 +1206,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"选择带morpher的mesh，\r\n打开快速调节滑条方便K表情~" pos:btnPos
 	button btnBipedScale "CS缩放" width:btnWidth height:btnHeight visible:false \
 	toolTip:"效果展示可用，导入引擎别用\r\n再次点击可解除" pos:btnPos
-	button btnBatchExport "批量转换" width:btnWidth height:btnHeight visible:false \
-	toolTip:"2021 以上降版本可能有损害，工具做了修复处理，注意保存蒙皮" pos:btnPos
+	button btnBatchExport "批量降低" width:btnWidth height:btnHeight visible:false \
+	toolTip:"左:新版批量降版本工具\r\n\r\n右:老版批量转换\r\n\r\n2021 以上降版本可能有损害，工具做了修复处理，注意保存蒙皮" pos:btnPos
 	button btnVportTools "视角镜头" width:btnWidth height:btnHeight visible:false \
 	toolTip:"储存视角参数，便于分镜头" pos:btnPos
 	button btnMeshToBone "破碎工具" width:btnWidth height:btnHeight visible:false \
@@ -3359,6 +3359,12 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnBatchExport pressed do
 	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Batch version down.ms"))
+		catch(messagebox "打开 Batch version down.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnBatchExport rightclick do
+	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Batch Import Convert.ms"))
 		catch(messagebox "打开 Batch Import Convert.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
@@ -3577,6 +3583,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
 		tooglePersp = (not tooglePersp)
 		messagebox ("BsKeyTools：透视锁定（旋转镜头自动按 P 转透视）-- " + msgPersp + "                                ") beep:false title:"BsKeyTools" 
+	)
+
+	on btnDemoTool pressed do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsAnimDemoTools.ms"))
+		catch(messagebox "打开 BsAnimDemoTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 )
 if (iniPos != 0) then (Createdialog rolBsKeyTools fgcolor:myFgColor pos:iniPos style:#())
