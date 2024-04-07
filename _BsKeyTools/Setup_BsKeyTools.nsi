@@ -9,6 +9,7 @@
 ;!define PRODUCT_UNINST_ROOT_KEY "HKLM"
 var maxVer
 var v2024
+var v2025
 
 SetCompressor lzma
 
@@ -73,6 +74,14 @@ OutFile "_BsKeyTools.exe"
 ; InstallDir "$INSTDIR"
 ShowInstDetails show
 ShowUnInstDetails show
+
+Section "3dsMax 2025" SEC19
+  SetOutPath "$v2025"
+  SetOverwrite on
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2025\plugins"
+SectionEnd
 
 Section "3dsMax 2024" SEC18
   SetOutPath "$v2024"
@@ -239,6 +248,17 @@ Function .onInit
 	${EndIf}
 
 ; 扫描已安装的max版本
+
+; MAX2025:
+  setRegView 64
+  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\27.0" "Installdir"
+  ${If} $maxVer != ""
+    SectionSetFlags ${Sec19} 1
+    StrCpy $v2025 $maxVer
+  ${Else}
+  	SectionSetFlags ${Sec19} 0
+    SectionSetText ${Sec19} ""
+  ${EndIf}
 
 ; MAX2024:
   setRegView 64
@@ -442,7 +462,6 @@ FunctionEnd
 
 ; 区段组件描述
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-	!insertmacro MUI_DESCRIPTION_TEXT ${Sec18} $v2024
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec01} $1
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec02} $2
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec03} $3
@@ -460,6 +479,8 @@ FunctionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec15} $R7
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec16} $R8
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec17} $R9
+  !insertmacro MUI_DESCRIPTION_TEXT ${Sec18} $v2024
+  !insertmacro MUI_DESCRIPTION_TEXT ${Sec19} $v2025
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 /******************************
