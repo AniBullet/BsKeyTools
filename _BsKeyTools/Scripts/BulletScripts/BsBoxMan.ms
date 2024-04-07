@@ -16,27 +16,30 @@ global dragStateBsBoxMan = off
 
 		button btnClose "X" pos:[rolBsBoxMan.width - 20,0] height:16 width:20
 		label lblTitle "BsBoxMan_v1.0" pos:[5,3]
-		dotNetControl tabBoxMan "System.Windows.Forms.TabControl" height:30 width:260 pos:[8,20] align:#center
-		group ""
-		(
-			button btnCreateBodyBox "根据所选物体 渲染框 创建 Body Box" pos:[10,70] height:25 width:240
-			radiobuttons rdoColor labels:#("随机颜色", "统一单色") columns:2 align:#center pos:[20,105]
-			colorpicker rtcp "" width:70 height:20 color:[38,130,118] pos:[170,103]
-			checkbox ckbFreeze "Box 是否冻结" pos:[20,135] width:100 height:20 color:[152, 227, 213] checked:true
-			button btnClearBox "一键清除 Body Box" pos:[120,135] width:130 height:20 border:true
-		)
-		group ""
-		(
-			checkbutton ckbSync "同调" pos:[210,185] height:90 width:40 tooltip:"同时调节长宽高"
-			checkbutton ckbCopy "获取" pos:[210,280] height:30 width:40 tooltip:"获取选择单个物体长宽高"
-			checkbutton ckbPaste "应用" pos:[210,310] height:30 width:40 tooltip:"应用长宽高至选择的所有物体"
-			slider sldLenthValue "Box 长："  pos:[15,180] align:#center range:[-100,100,10] \
-			type:#integer tooltip:"调节选中" width:200 ticks:50
-			slider sldWidthValue "Box 宽："  pos:[15,235] align:#center range:[-100,100,10] \
-			type:#integer tooltip:"调节选中" width:200 ticks:50
-			slider sldHeightValue "Box 高："  pos:[15,295] align:#center range:[-100,100,10] \
-			type:#integer tooltip:"调节选中" width:200 ticks:50
-		)
+		dotNetControl tabBoxMan "System.Windows.Forms.TabControl" height:30 width:260 pos:[8,25] align:#center
+		
+		groupBox gpbBox "" pos:[5,55] width:250 height:110
+		
+		checkbutton chkCreateBodyBox ">> 根据所选物体 渲染框 创建 Body Box <<" pos:[10,70] height:25 width:240 border:false checked:true 
+		radiobuttons rdoColor labels:#("随机颜色", "统一单色") columns:2 align:#center pos:[20,105]
+		colorpicker rtcp "" width:70 height:20 color:[38,130,118] pos:[170,103]
+		checkbox ckbFreeze "Box 是否冻结" pos:[20,135] width:100 height:20 color:[152, 227, 213] checked:true
+		button btnClearBox "一键清除 Body Box" pos:[120,135] width:130 height:20 border:true
+			
+		groupBox gbpLWH "" pos:[5,170] width:250 height:180
+		
+		checkbutton ckbSync "同调" pos:[210,185] height:60 width:40 tooltip:"同时调节长宽高"
+		checkbutton ckbReset "重置" pos:[210,250] height:30 width:40 tooltip:"重置长宽高"
+		checkbutton ckbCopy "获取" pos:[210,280] height:30 width:40 tooltip:"获取选择单个物体长宽高"
+		checkbutton ckbPaste "应用" pos:[210,310] height:30 width:40 tooltip:"应用长宽高至选择的所有物体"
+		slider sldLenthValue "长："  pos:[15,180] align:#center range:[-100,100,10] \
+		type:#integer width:40 height:150 ticks:50 orient:#vertical
+		slider sldWidthValue "宽："  pos:[65,180] align:#center range:[-100,100,10] \
+		type:#integer width:40 height:150 ticks:50 orient:#vertical
+		slider sldHeightValue "高："  pos:[115,180] align:#center range:[-100,100,10] \
+		type:#integer width:40 height:150 ticks:50 orient:#vertical
+		slider sldScaleValue "等比："  pos:[165,180] align:#center range:[-100,100,10] \
+		type:#integer width:40 height:150 ticks:50 orient:#vertical
 		
 		groupBox gpbDisplayUnit "Display Unit" pos:[5,355] width:105 height:50
 		dropdownlist ddlMetric "" align:#left selection:2 height:15 width:95 pos:[10,375] \
@@ -55,17 +58,19 @@ global dragStateBsBoxMan = off
 		local IDKEYWORDTARGETHANDLE = "RefBoneTargetHandle"		-- Ref 본 의 타겟에 Ref 본의 핸들 번호를 기록
 		local NAMEPREFIX = "Ref_"
 		
-		button uiBtnProcess "Process" width:70 pos:[10,70] visible:false
-		button uiBtnSelect "Select" width:70 visible:false pos:[120,70]
-		spinner uiSpnBoneWidth "BoneScale%" offset:[30, 0] tooltip:"생성되는 본의 크기, rolBsBoxMan를 선택 후 조절해주세요." range:[1, 500, 100] type:#integer align:#right width:110  visible:false
-		colorPicker uiColorWireColor color:yellow offset:[30, -2] toolTip:"rolBsBoxMan를 선택 후 색을 변경해주세요."  visible:false
+		checkbutton chkProcess "生成参考骨骼" width:100 pos:[10,70] visible:false border:false checked:true 
+		button uiBtnSelect "选中" width:50 visible:false pos:[120,70]
+		button uiBtnClearAll "清除参考" width:70 visible:false pos:[180,70]
+		spinner uiSpnBoneWidth "骨骼缩放比 %" pos:[50, 105] tooltip:"选择并调整创建的骨骼的大小。" range:[1, 500, 100] type:#integer width:100  visible:false
+		colorPicker uiColorWireColor "颜色：" color:yellow pos:[165, 102] toolTip:"选择并更改颜色。"  visible:false height:20
 
 		--checkbox <name> [<caption>] [checked:<boolean>] [triState:<integer>][tooltip:<string>
-		checkbox uiChkOptPos "Position" checked:true  visible:false
-		checkbox uiChkOptRot "Rotation" checked:true visible:false
-		checkbox uiChkOptScale "Scale" checked:true visible:false
+		checkbox uiChkOptPos "Position" checked:true  visible:false pos:[15,135]
+		checkbox uiChkOptRot "Rotation" checked:true visible:false pos:[100,135]
+		checkbox uiChkOptScale "Scale" checked:true visible:false pos:[185,135]
 		
-		checkbox uiChkOptInheritScale "Inherit Scale" checked:false align:#left toolTip:"Default: Off\r특별한 경우가 아니면 Inherit Scale은 끄기를 권장합니다."  visible:false
+		checkbox uiChkOptInheritScale "继承缩放" pos:[15,160] checked:false toolTip:"默认：关闭\r\n\r\n除非有特殊情况，否则建议不继承"  visible:false
+		checkbox uiChkKeepParent "保持父子层级关系" pos:[100,160] checked:false
 		
 		/*
 		Set Scalable Biped 버튼은 척추와 쇄골의 위치를 보정해주는 서브애님까지 추가하는 작업이 필요해서 만들다 말고 홀드 --> 서브애님 위치 보정을 해보려 헀는데, 단순 스케일에서 어긋나는 포지션이 규칙이 없다. (스케일을 키를 걸어놓고 보면 확실함)
@@ -73,18 +78,19 @@ global dragStateBsBoxMan = off
 		*/
 		
 		-- 더미 생성하는 스크립트 --
-		spinner uiDummySize "DummySize" offset:[10, 0] tooltip:"생성되는 더미의 크기" range:[0.001, 100, 0.1] type:#float align:#right width:100 visible:false
-		button uiBtnDummy "Dummy" width:70 visible:false
-		button uiBtnHelp "About" visible:false
+		spinner uiDummySize "Point 大小：" pos:[150, 203] tooltip:"创建辅助点的大小" range:[0.001, 100, 0.1] type:#float align:#right width:95 visible:false
+		checkbutton uiBtnDummy "生成辅助 Point" pos:[10, 200] width:90 visible:false border:false checked:true 
+		button uiBtnHelp "RefBones 关于，原作者" visible:false width:240 pos:[10, 240]
 
 		
-		local arrCreateBox = #("方块包裹",#(btnCreateBodyBox,rdoColor,rtcp,ckbFreeze,btnClearBox,ckbSync,\
+		local arrCreateBox = #("方块包裹",#(sldScaleValue,ckbReset,gpbBox,gbpLWH,chkCreateBodyBox,rdoColor,rtcp,ckbFreeze,btnClearBox,ckbSync,\
 			ckbCopy,ckbPaste,sldLenthValue,sldWidthValue,sldHeightValue,gpbDisplayUnit,gpbSystemUnit,btnGetUnit,\
 			ddlSystemUnit,ddlMetric))
-		local arrRefBones = #("参考骨骼",#(uiBtnProcess,uiBtnSelect,uiSpnBoneWidth,uiColorWireColor,uiChkOptPos,\
+		local arrRefBones = #("参考骨骼",#(uiChkKeepParent,uiBtnClearAll,chkProcess,uiBtnSelect,uiSpnBoneWidth,uiColorWireColor,uiChkOptPos,\
 			uiChkOptRot,uiChkOptScale,uiChkOptInheritScale,uiDummySize,uiBtnDummy,uiBtnHelp))
-		local arrTestFunc = #("待添加",#())
-		local arrAllToolsTab = #(arrCreateBox,arrRefBones,arrTestFunc,arrTestFunc)
+		local arrEquipTools = #("⚔️ 装备",#())
+		local arrColorTools = #("🎨 调色",#())
+		local arrAllToolsTab = #(arrCreateBox,arrRefBones,arrEquipTools,arrColorTools)
 
 		
 		function GetAlignBB obj = (		-- 월드 좌표상에서 자유롭게 회전되어있는 오브젝트의 바운딩 박스 포지션을 월드 중점으로 위치와 회전을 리셋하여 point 값 두 개를 리턴한다. 주로 길이를 재기 위한 용도
@@ -382,6 +388,9 @@ global dragStateBsBoxMan = off
 
 		fn fnCreateBoxBody =
 		(
+			LayerManager.newLayerFromName "001_Ref_Boxes"
+			tmpLayer = LayerManager.getLayerFromName "001_Ref_Boxes"
+
 			for i in selection do with undo off 
 			(
 				c = snapshot i
@@ -400,6 +409,8 @@ global dragStateBsBoxMan = off
 				lc.addTarget i 0
 				-- freeze b
 				b.showFrozenInGray = off
+
+				tmplayer.addnode b
 			)
 		)
 
@@ -482,8 +493,9 @@ global dragStateBsBoxMan = off
 			)
 		)
 
-		on btnCreateBodyBox pressed do
+		on chkCreateBodyBox changed state do
 		(
+			chkCreateBodyBox.state = true
 			fnCreateBoxBody()
 		)
 
@@ -509,10 +521,15 @@ global dragStateBsBoxMan = off
 			fnRefreshUnite()
 		)
 
-		on uiBtnProcess pressed do (
+		on chkProcess changed state do (
+			chkProcess.state = true
 			if selection.count == 0 do return ()		-- 선택된 오브젝트가 없으면 그냥 리턴
 			
-			undo on (		-- Undo 가 가능하도록
+			undo on (
+				
+				LayerManager.newLayerFromName "001_Ref_Bones"   -- 레이어 생성.
+				tmpLayer = LayerManager.getLayerFromName "001_Ref_Bones"  --생성한 레이어 가져오기.
+						-- Undo 가 가능하도록
 				local tTarget = #()		-- 부모 링크 작업을 위해서는 모든 Ref Bone 이 생겨난 뒤에 for 문을 한 번 더 돌려야하므로 작업 대상을 기억시키는 배열이 필요함
 				local tNew = #()			-- 부모 링크 작업을 위해서는 모든 Ref Bone 이 생겨난 뒤에 for 문을 한 번 더 돌려야하므로 작업 대상을 기억시키는 배열이 필요함
 				for o in selection do (
@@ -562,6 +579,8 @@ global dragStateBsBoxMan = off
 				)
 				
 				select tNew
+
+				for i in selection do tmplayer.addnode i
 			)
 		)
 		
@@ -599,40 +618,41 @@ global dragStateBsBoxMan = off
 		)
 		
 		-- 스케일시 1번 척추와 쇄골의 위치가 엉뚱한 곳에 있게된다. 이것을 보정해주는 Position 서브애님 컨트롤러를 추가해야함.
-		on uiBtnSetScalableBiped pressed do
-		(
-			if selection[1] == undefined do return()
-			if (classof selection[1].baseobject != Biped_Object) do return()
+		-- on uiBtnSetScalableBiped pressed do
+		-- (
+		-- 	if selection[1] == undefined do return()
+		-- 	if (classof selection[1].baseobject != Biped_Object) do return()
 			
 		
-			local allBiped = GetAllBiped selection[1]
-			local rootBiped = selection[1].controller.rootNode
-			local pelvis = biped.getNode selection[1] #Pelvis link:1
+		-- 	local allBiped = GetAllBiped selection[1]
+		-- 	local rootBiped = selection[1].controller.rootNode
+		-- 	local pelvis = biped.getNode selection[1] #Pelvis link:1
 			
-			local newPoint = Point isSelected:off Box:on Centermarker:off axistripod:off cross:off size:((GetWidthX pelvis) * 2.2) wirecolor:green
-			newPoint.transform = rootBiped.transform
-			newPoint.parent = rootBiped
+		-- 	local newPoint = Point isSelected:off Box:on Centermarker:off axistripod:off cross:off size:((GetWidthX pelvis) * 2.2) wirecolor:green
+		-- 	newPoint.transform = rootBiped.transform
+		-- 	newPoint.parent = rootBiped
 			
-			-- 혹시 모를 오류를 방지하기 위해 figure모드는 꺼준다.
-			rootBiped.controller.figureMode = false
+		-- 	-- 혹시 모를 오류를 방지하기 위해 figure모드는 꺼준다.
+		-- 	rootBiped.controller.figureMode = false
 			
-			--paramWire.connect $.transform.controller[#Scale] $'Bip001 L Forearm'.transform.controller.Biped_SubAnim.controller.BipScaleList.controller[#Bezier_Scale] "Scale"
+		-- 	--paramWire.connect $.transform.controller[#Scale] $'Bip001 L Forearm'.transform.controller.Biped_SubAnim.controller.BipScaleList.controller[#Bezier_Scale] "Scale"
 	
-			for o in allBiped do
-			(
-				if ( classof o.controller == BipSlave_Control) do
-				(
-					o.controller.Biped_SubAnim.controller.BipScaleList.Available.controller = bezier_scale()
-					o.controller.Biped_SubAnim.controller.BipScaleList.active = o.controller.Biped_SubAnim.controller.BipScaleList.count
+		-- 	for o in allBiped do
+		-- 	(
+		-- 		if ( classof o.controller == BipSlave_Control) do
+		-- 		(
+		-- 			o.controller.Biped_SubAnim.controller.BipScaleList.Available.controller = bezier_scale()
+		-- 			o.controller.Biped_SubAnim.controller.BipScaleList.active = o.controller.Biped_SubAnim.controller.BipScaleList.count
 					
-					paramWire.connect newPoint.transform.controller[#Scale] o.transform.controller.Biped_SubAnim.controller.BipScaleList.controller[o.controller.Biped_SubAnim.controller.BipScaleList.count] "Scale"
-				)
-			)
-			select newPoint
-		)
+		-- 			paramWire.connect newPoint.transform.controller[#Scale] o.transform.controller.Biped_SubAnim.controller.BipScaleList.controller[o.controller.Biped_SubAnim.controller.BipScaleList.count] "Scale"
+		-- 		)
+		-- 	)
+		-- 	select newPoint
+		-- )
 	
 		--찌노님 제작--
-		on uiBtnDummy pressed do ( 
+		on uiBtnDummy changed state do ( 
+			uiBtnDummy.state = true
 			LayerManager.newLayerFromName "001_Ref_Dummy"   -- 레이어 생성.
 			tmpLayer = LayerManager.getLayerFromName "001_Ref_Dummy"  --생성한 레이어 가져오기.
 			sel = selection as array
@@ -644,13 +664,15 @@ global dragStateBsBoxMan = off
 				pt = point centerMaker:False axisTripod:False cross:True box:True size:uiDummySize.value
 				pt.wirecolor = color 250 160 0
 				--rename point
-				pt.name = "dummy_" + s.name
+				pt.name = "RefPoint_" + s.name
 				--match transform to selected object
 				pt.transform = s.transform
 				--assign rotation controller
 				pt.rotation.controller = orientation_constraint()
+				pt.position.controller = position_constraint()
 				--append target
 				pt.rotation.controller.appendTarget s 100
+				pt.position.controller.appendTarget s 100
 				
 				tmplayer.addnode pt --새성한 포인트 레이어에 넣기.
 				
@@ -660,6 +682,56 @@ global dragStateBsBoxMan = off
 		
 		on uiBtnHelp pressed do (
 			shellLaunch "http://cafe.naver.com/pinksox/5035" ""
+		)
+		
+		on uiDummySize changed val do
+		(
+			for b in selection where classof b == BoneGeometry or classof b == dummy or classof b == point do
+			(
+				case classof b of
+				(
+					(BoneGeometry):(b.width = val;b.height = val)
+					(Dummy):(b.boxsize = [val,val,val])
+					(point):(b.size = val)
+				)
+			)
+		)
+
+		on uiBtnClearAll pressed do
+		(
+			delLayerA    = LayerManager.getLayerFromName "001_Ref_Bones"
+			delLayerB	 = LayerManager.getLayerFromName "001_Ref_Dummy"
+			
+			if delLayerA != undefined then with undo on
+			(
+				delLayerObj = #()
+				layerRTA = delLayerA.nodes &delLayerObj
+				delLayerA.lock = off
+				tDel = #()
+				for o in delLayerObj do (
+					if ((getUserProp o IDKEYWORD) == true) do (delete o)
+				)
+				LayerManager.deleteLayerByName "001_Ref_Bones"
+				delLayerObj = #()
+
+				messageBox "清理 RefBones 成功！				" title:"BsBoxMan"
+			)
+
+			if delLayerB != undefined then with undo on
+			(
+				delLayerObj = #()
+				layerRTB = delLayerB.nodes &delLayerObj
+				delLayerB.lock = off
+				for j in delLayerObj where (delLayerObj.count != 0) do 
+				(
+					if ((matchpattern j.name pattern:"RefPoint_*") == true) do 
+					delete j
+				)
+				LayerManager.deleteLayerByName "001_Ref_Dummy"
+				delLayerObj = #()
+
+				messageBox "清理 RefPoints 成功！				" title:"BsBoxMan"
+			)
 		)
 	)
 	createDialog rolBsBoxMan style:#()

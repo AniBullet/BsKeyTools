@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-07 02:04:24
+ * @LastEditTime: 2024-04-07 23:31:03
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1267,7 +1267,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	
 	-- label lblLink "2019.9[Bullet.S]4869" pos:[12,226] width:145 height:15
 	dotnetcontrol lblLink "Label" text:"2019.9 _ [ Bullet.S ]✨" pos:[12,226] width:125 height:15
-	checkbutton btnConfig "⚙️设置⚙️" pos:[145,223] width:69 height:20 border:false checked:true highlightColor:myCheckedColor
+	checkbutton btnConfig "⚙️_设置_⚙️" pos:[145,223] width:69 height:20 border:false checked:true highlightColor:myCheckedColor
 
 	timer timerTickTock interval:200 active:true
 
