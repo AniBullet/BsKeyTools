@@ -28,22 +28,21 @@ global dragStateBsBoxMan = off
 			
 		groupBox gbpLWH "" pos:[5,170] width:250 height:180
 		
-		checkbutton ckbSync "同调" pos:[210,185] height:60 width:40 tooltip:"同时调节长宽高"
-		checkbutton ckbReset "重置" pos:[210,250] height:30 width:40 tooltip:"重置长宽高"
-		checkbutton ckbCopy "获取" pos:[210,280] height:30 width:40 tooltip:"获取选择单个物体长宽高"
-		checkbutton ckbPaste "应用" pos:[210,310] height:30 width:40 tooltip:"应用长宽高至选择的所有物体"
-		slider sldLenthValue ""  pos:[50,185] align:#center range:[-100,100,10] \
-		type:#integer width:160 ticks:50
-		slider sldWidthValue ""  pos:[50,225] align:#center range:[-100,100,10] \
-		type:#integer width:160 ticks:50 
-		slider sldHeightValue ""  pos:[50,265] align:#center range:[-100,100,10] \
-		type:#integer width:160 ticks:50
-		slider sldScaleValue ""  pos:[50,305] align:#center range:[-100,100,10] \
-		type:#integer width:160 ticks:50
-		label lblLenth "长" pos:[15,195] width:30
-		label lblWidth "宽" pos:[15,235] width:30
-		label lblHeight "高" pos:[15,275] width:30
-		label lblScale "等比" pos:[15,315] width:30
+		checkbutton ckbSync "等比调节" pos:[175,310] height:30 width:75 tooltip:"同时调节长宽高" highlightColor:white border:false checked:true 
+		checkbutton ckbReset "重置大小" pos:[110,310] height:30 width:60 tooltip:"重置长宽高" highlightColor:white border:false checked:true 
+		radiobuttons rdoReduce labels:#("放大", "缩小") columns:2 pos:[15,318] height:30 width:50 border:true Selection:1
+		slider sldLenthValue ""  pos:[50,185] align:#center range:[1,20,1] \
+		type:#integer width:170 ticks:50
+		slider sldWidthValue ""  pos:[50,225] align:#center range:[1,20,1] \
+		type:#integer width:170 ticks:50 
+		slider sldHeightValue ""  pos:[50,265] align:#center range:[1,20,1] \
+		type:#integer width:170 ticks:50
+		label lblLenth "X：" pos:[15,195] width:30
+		label lblWidth "Y：" pos:[15,235] width:30
+		label lblHeight "Z：" pos:[15,275] width:30
+		label lblLenthValue "x " pos:[215,195] width:30
+		label lblWidthValue "x " pos:[215,235] width:30
+		label lblHeightValue "x " pos:[215,275] width:30
 		
 		groupBox gpbDisplayUnit "Display Unit" pos:[5,355] width:105 height:50
 		dropdownlist ddlMetric "" align:#left selection:2 height:15 width:95 pos:[10,375] \
@@ -93,7 +92,7 @@ global dragStateBsBoxMan = off
 		groupBox gpbType "" pos:[5,55] width:250 height:145 visible:false
 
 		radiobuttons radObject "类型" pos:[20,70] labels:#( "几何体", "形状", "所有组", "所有物体", "选择物体" )  visible:false
-		radiobuttons radColor "配色" pos:[130,70] columns:2 labels:#( "粉彩", "灰白", "毒彩" , "黏土", "随机")  visible:false
+		radiobuttons radColor "配色" pos:[130,70] columns:2 labels:#( "粉彩", "灰白", "毒彩" , "黏土" , "淡彩", "深沉" , "荧彩", "随机")  visible:false
 		checkButton chkIsInstance "相关实例" pos:[20,170] height:20 width:80 tooltip:"启用后，相关实例\r\n(如复制出的Instance)\r\n也会保持一致的颜色。" height:  30 align:#left  visible:false
 		checkbutton btnRandom ">> 随机颜色 <<" pos:[120,160] height:30 width:125 visible:false border:false checked:true  highlightColor:white
 
@@ -126,9 +125,9 @@ global dragStateBsBoxMan = off
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-		local arrCreateBox = #("方块包裹",#(lblLenth,lblWidth,lblHeight,lblScale,sldScaleValue,ckbReset,gpbBox,gbpLWH,\
-			chkCreateBodyBox,rdoColor,rtcp,ckbFreeze,btnClearBox,ckbSync,ckbCopy,ckbPaste,sldLenthValue,sldWidthValue,\
-			sldHeightValue,gpbDisplayUnit,gpbSystemUnit,btnGetUnit,ddlSystemUnit,ddlMetric))
+		local arrCreateBox = #("方块包裹",#(lblLenth,lblWidth,lblHeight,ckbReset,gpbBox,gbpLWH,\
+			chkCreateBodyBox,rdoColor,rtcp,ckbFreeze,btnClearBox,ckbSync,rdoReduce,sldLenthValue,sldWidthValue,\
+			sldHeightValue,gpbDisplayUnit,gpbSystemUnit,btnGetUnit,ddlSystemUnit,ddlMetric,lblLenthValue,lblWidthValue,lblHeightValue))
 		local arrRefBones = #("参考骨骼",#(uiChkKeepParent,uiBtnClearAll,chkProcess,uiBtnSelect,uiSpnBoneWidth,uiColorWireColor,uiChkOptPos,\
 			uiChkOptRot,uiChkOptScale,uiChkOptInheritScale,uiDummySize,uiBtnDummy,uiBtnHelp))
 		local arrEquipTools = #("⚔️ 装备",#())
@@ -136,6 +135,12 @@ global dragStateBsBoxMan = off
 			cp,gpbMaterial,radMaterial,btnConverter,radErase,btnErase,author,edtValue,btnSet,btnSet0,btnSet100,sldValue,lnkLink))
 		local arrAllToolsTab = #(arrCreateBox,arrRefBones,arrEquipTools,arrColorTools)
 
+		fn fnRefreshSliderValue =
+		(
+			rolBsBoxMan.lblLenthValue.text = "x " + (rolBsBoxMan.sldLenthValue.value as string)
+			rolBsBoxMan.lblWidthValue.text = "x " + (rolBsBoxMan.sldWidthValue.value as string)
+			rolBsBoxMan.lblHeightValue.text = "x " + (rolBsBoxMan.sldHeightValue.value as string)
+		)
 		
 		function GetAlignBB obj = (		-- 월드 좌표상에서 자유롭게 회전되어있는 오브젝트의 바운딩 박스 포지션을 월드 중점으로 위치와 회전을 리셋하여 point 값 두 개를 리턴한다. 주로 길이를 재기 위한 용도
 			bb = nodeGetBoundingBox obj obj.transform		-- 로컬 바운딩 박스 포지션 값 두 개가 배열로 bb에 저장됨 bb[1], bb[2]
@@ -495,6 +500,7 @@ global dragStateBsBoxMan = off
 			fnInitDotTabs()
 			fnChangeToolsVisble (tabBoxMan.SelectedIndex + 1)
 			fnRefreshUnite()
+			fnRefreshSliderValue()
 
 			callbacks.addScript #filePostOpen "rolBsBoxMan.fnRefreshUnite ()" id:#BsBoxManCallbackOpen
 			callbacks.addScript #systemPostNew "rolBsBoxMan.fnRefreshUnite ()" id:#BsBoxManCallbackNew
@@ -800,11 +806,29 @@ global dragStateBsBoxMan = off
 			(  	
 				local r = random 5 30	
 				randomColor = color (r*6) (r*2) r
+			)
+			else if radColor.state == 5 then       
+			(  
+				randomColor.hue = random 0 255  
+				randomColor.saturation = 30  
+				-- randomColor.value = 180
+			)
+			else if radColor.state == 6 then  
+			(  
+				randomColor.hue = random 0 255 
+				randomColor.saturation = 90  
+				randomColor.value = 90 
 			)  
-			else if radColor.state == 5 then  
+			else if radColor.state == 7 then  
+			(  	
+				randomColor.hue = random 40 140  
+				randomColor.saturation = 255  
+				randomColor.value = 255
+			)
+			else if radColor.state == 8 then  
 			(  
 				randomColor = random black white  
-			)  
+			)
 			return randomColor  
 		)  
 
@@ -1086,6 +1110,57 @@ global dragStateBsBoxMan = off
 		on btnSet0 pressed do (jugdeSel ();fnSetSelfIllumAmount arrSelObj 0;sldValue.value = 0;edtValue.text = "0")
 	
 		on btnSet100 pressed do (jugdeSel ();fnSetSelfIllumAmount arrSelObj 100;sldValue.value = 100;edtValue.text = "100")
+
+		on rdoReduce changed state do
+		(
+			try(
+				if rdoReduce.state == 2 then 
+				(
+					$.scale.x = (1.0/sldLenthValue.value)
+					$.scale.y = (1.0/sldWidthValue.value)
+					$.scale.z = (1.0/sldHeightValue.value)
+				)
+				else
+				(
+					$.scale.x = sldLenthValue.value
+					$.scale.y = sldWidthValue.value
+					$.scale.z = sldHeightValue.value
+				)
+			)catch()
+		)
+
+		on sldLenthValue changed val do 
+		(
+			fnRefreshSliderValue()
+			try(if rdoReduce.state == 2 then $.scale.x = (1.0/val) else $.scale.x = val)catch()
+		)
+
+		on sldWidthValue changed val do 
+		(
+			fnRefreshSliderValue()
+			try(if rdoReduce.state == 2 then $.scale.y = (1.0/val) else $.scale.y = val)catch()
+		)
+
+		on sldHeightValue changed val do 
+		(
+			fnRefreshSliderValue()
+			try(if rdoReduce.state == 2 then $.scale.z = (1.0/val) else $.scale.z = val)catch()
+		)
+
+		on ckbReset changed state do 
+		(
+			--可以记录之前长宽高在自定义属性里面
+			ckbReset.state = true
+			try 
+			(
+				$.scale = [1,1,1]
+				sldLenthValue.value = 1
+				sldWidthValue.value = 1
+				sldHeightValue.value = 1
+			)
+			catch(messagebox "仅支持创建的 Boxes！请勿选择其他类型！                 " title:"BsBoxMan")
+			fnRefreshSliderValue()
+		)
 	)
 	createDialog rolBsBoxMan style:#()
 )
