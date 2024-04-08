@@ -115,7 +115,7 @@ global dragStateBsBoxMan = off
 
 		edittext edtValue "\"卡通色\""  pos:[10,332] width:85 usePercentageWidth:true  visible:false \
 		percentageWidth:44.0 labelOnTop:false text:"100" bold:false readOnly:false --自发光数值
-		button btnSet "应用自发光"  pos:[180,330] width:75 height:20 tooltip:"调节选中，否则全部。\r\n需要有材质!!!"  visible:false
+		button btnSet "应用自发光"  pos:[180,330] width:75 height:20 tooltip:"调节选中，否则全部。\r\n需要先有材质!\r\n且非一致色彩模式!"  visible:false
 		button btnSet0 "0"  pos:[105,330] width:25 height:20 tooltip:"调节选中，否则全部。"  visible:false
 		button btnSet100 "100"  pos:[140,330] width:30 height:20 tooltip:"调节选中，否则全部。"  visible:false
 		slider sldValue ""  pos:[15,350] align:#center range:[0,100,0]  visible:false \
