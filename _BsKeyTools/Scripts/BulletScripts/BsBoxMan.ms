@@ -1,5 +1,5 @@
 -- 试验功能可以加入快速创建方块武器，刀剑，锤，长枪，手枪等~~
--- 集成 RefBones 工具，http://cafe.naver.com/pinksox/5035
+-- 集成 RefBones 工具，WireColorPro 工具等
 
 try(destroyDialog rolBsBoxMan )catch()
 
@@ -15,12 +15,12 @@ global dragStateBsBoxMan = off
 		local dotColor = dotnetclass "System.Drawing.Color"
 
 		button btnClose "X" pos:[rolBsBoxMan.width - 20,0] height:16 width:20
-		label lblTitle "BsBoxMan_v1.0" pos:[5,3]
+		label lblTitle "BsBoxMan_v1.1" pos:[5,3]
 		dotNetControl tabBoxMan "System.Windows.Forms.TabControl" height:30 width:260 pos:[8,25] align:#center
 		
 		groupBox gpbBox "" pos:[5,55] width:250 height:110
 		
-		checkbutton chkCreateBodyBox ">> 根据所选物体 渲染框 创建 Body Box <<" pos:[10,70] height:25 width:240 border:false checked:true 
+		checkbutton chkCreateBodyBox ">> 根据所选物体 渲染框 创建 Body Box <<" pos:[10,70] height:25 width:240 highlightColor:white border:false checked:true 
 		radiobuttons rdoColor labels:#("随机颜色", "统一单色") columns:2 align:#center pos:[20,105]
 		colorpicker rtcp "" width:70 height:20 color:[38,130,118] pos:[170,103]
 		checkbox ckbFreeze "Box 是否冻结" pos:[20,135] width:100 height:20 color:[152, 227, 213] checked:true
@@ -32,14 +32,18 @@ global dragStateBsBoxMan = off
 		checkbutton ckbReset "重置" pos:[210,250] height:30 width:40 tooltip:"重置长宽高"
 		checkbutton ckbCopy "获取" pos:[210,280] height:30 width:40 tooltip:"获取选择单个物体长宽高"
 		checkbutton ckbPaste "应用" pos:[210,310] height:30 width:40 tooltip:"应用长宽高至选择的所有物体"
-		slider sldLenthValue "长："  pos:[15,180] align:#center range:[-100,100,10] \
-		type:#integer width:40 height:150 ticks:50 orient:#vertical
-		slider sldWidthValue "宽："  pos:[65,180] align:#center range:[-100,100,10] \
-		type:#integer width:40 height:150 ticks:50 orient:#vertical
-		slider sldHeightValue "高："  pos:[115,180] align:#center range:[-100,100,10] \
-		type:#integer width:40 height:150 ticks:50 orient:#vertical
-		slider sldScaleValue "等比："  pos:[165,180] align:#center range:[-100,100,10] \
-		type:#integer width:40 height:150 ticks:50 orient:#vertical
+		slider sldLenthValue ""  pos:[50,185] align:#center range:[-100,100,10] \
+		type:#integer width:160 ticks:50
+		slider sldWidthValue ""  pos:[50,225] align:#center range:[-100,100,10] \
+		type:#integer width:160 ticks:50 
+		slider sldHeightValue ""  pos:[50,265] align:#center range:[-100,100,10] \
+		type:#integer width:160 ticks:50
+		slider sldScaleValue ""  pos:[50,305] align:#center range:[-100,100,10] \
+		type:#integer width:160 ticks:50
+		label lblLenth "长" pos:[15,195] width:30
+		label lblWidth "宽" pos:[15,235] width:30
+		label lblHeight "高" pos:[15,275] width:30
+		label lblScale "等比" pos:[15,315] width:30
 		
 		groupBox gpbDisplayUnit "Display Unit" pos:[5,355] width:105 height:50
 		dropdownlist ddlMetric "" align:#left selection:2 height:15 width:95 pos:[10,375] \
@@ -53,12 +57,14 @@ global dragStateBsBoxMan = off
 
 		dotnetcontrol lblTips "Label" text:"2023.2 [ Bullet.S ] ✨        创建专属练习方块人" pos:[0,413] width:260 height:16
 
+--------------------------------------------------------------------------------------------------------------------------------------------
+
 		local IDKEYWORD = "RefBone"		-- Ref Bone 임을 알아보는 유저디파인 정보용 키워드 디파인
 		local IDKEYWORDHANDLE = "RefBoneHandle"		-- Ref Bone 임을 알아보는 유저디파인 정보용 키워드 디파인
 		local IDKEYWORDTARGETHANDLE = "RefBoneTargetHandle"		-- Ref 본 의 타겟에 Ref 본의 핸들 번호를 기록
 		local NAMEPREFIX = "Ref_"
 		
-		checkbutton chkProcess "生成参考骨骼" width:100 pos:[10,70] visible:false border:false checked:true 
+		checkbutton chkProcess "生成参考骨骼" width:100 pos:[10,70] visible:false border:false checked:true  highlightColor:white
 		button uiBtnSelect "选中" width:50 visible:false pos:[120,70]
 		button uiBtnClearAll "清除参考" width:70 visible:false pos:[180,70]
 		spinner uiSpnBoneWidth "骨骼缩放比 %" pos:[50, 105] tooltip:"选择并调整创建的骨骼的大小。" range:[1, 500, 100] type:#integer width:100  visible:false
@@ -70,7 +76,7 @@ global dragStateBsBoxMan = off
 		checkbox uiChkOptScale "Scale" checked:true visible:false pos:[185,135]
 		
 		checkbox uiChkOptInheritScale "继承缩放" pos:[15,160] checked:false toolTip:"默认：关闭\r\n\r\n除非有特殊情况，否则建议不继承"  visible:false
-		checkbox uiChkKeepParent "保持父子层级关系" pos:[100,160] checked:false
+		checkbox uiChkKeepParent "保持父子层级关系" pos:[100,160] checked:false  visible:false
 		
 		/*
 		Set Scalable Biped 버튼은 척추와 쇄골의 위치를 보정해주는 서브애님까지 추가하는 작업이 필요해서 만들다 말고 홀드 --> 서브애님 위치 보정을 해보려 헀는데, 단순 스케일에서 어긋나는 포지션이 규칙이 없다. (스케일을 키를 걸어놓고 보면 확실함)
@@ -79,17 +85,55 @@ global dragStateBsBoxMan = off
 		
 		-- 더미 생성하는 스크립트 --
 		spinner uiDummySize "Point 大小：" pos:[150, 203] tooltip:"创建辅助点的大小" range:[0.001, 100, 0.1] type:#float align:#right width:95 visible:false
-		checkbutton uiBtnDummy "生成辅助 Point" pos:[10, 200] width:90 visible:false border:false checked:true 
+		checkbutton uiBtnDummy "生成辅助 Point" pos:[10, 200] width:90 visible:false border:false checked:true  highlightColor:white
 		button uiBtnHelp "RefBones 关于，原作者" visible:false width:240 pos:[10, 240]
 
-		
-		local arrCreateBox = #("方块包裹",#(sldScaleValue,ckbReset,gpbBox,gbpLWH,chkCreateBodyBox,rdoColor,rtcp,ckbFreeze,btnClearBox,ckbSync,\
-			ckbCopy,ckbPaste,sldLenthValue,sldWidthValue,sldHeightValue,gpbDisplayUnit,gpbSystemUnit,btnGetUnit,\
-			ddlSystemUnit,ddlMetric))
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+		groupBox gpbType "" pos:[5,55] width:250 height:145 visible:false
+
+		radiobuttons radObject "类型" pos:[20,70] labels:#( "几何体", "形状", "所有组", "所有物体", "选择物体" )  visible:false
+		radiobuttons radColor "配色" pos:[130,70] columns:2 labels:#( "粉彩", "灰白", "毒彩" , "黏土", "随机")  visible:false
+		checkButton chkIsInstance "相关实例" pos:[20,170] height:20 width:80 tooltip:"启用后，相关实例\r\n(如复制出的Instance)\r\n也会保持一致的颜色。" height:  30 align:#left  visible:false
+		checkbutton btnRandom ">> 随机颜色 <<" pos:[120,160] height:30 width:125 visible:false border:false checked:true  highlightColor:white
+
+		groupBox gpbGradient "渐变" pos:[5,210] width:170 height:45 visible:false
+		colorpicker cpGradient1 pos:[15,230] color:  [58, 122, 205] width:70 height:15 align:#left  visible:false
+		colorpicker cpGradient2 pos:[95,230] color:  [139, 49, 165] width:70 height:15 align:#right visible:false
+
+		groupBox gpbRealTime "实时" pos:[185,210] width:70 height:45 visible:false
+		colorpicker cp "" pos:[195,230] width:50 height:15 color:  [119, 95, 192] align:#center visible:false
+
+		groupBox gpbMaterial "材质" pos:[5,260] width:250 height:60 visible:false
+		radiobuttons radMaterial pos:[15,280] labels:#( "标准", "物理" ) columns:1 visible:false
+		button btnConverter "转换" pos:[70,280] width:50 height:30 tooltip:"Convert WireColor to Material" width:70 height:30 visible:false
+
+		radiobuttons radErase pos:[140,280] labels:#( "选择", "所有" )  columns:1 visible:false 
+		Button btnErase "清除" pos:[195,280] width:50 height:30 tooltip:"Assign to objects" width:70 height:30 visible:false
+		hyperLink author "markulie" pos:[15,390] address:"https://markulie.github.io" color:(color 255 255 255) hovercolor:(color 255 0 0) visitedcolor:(color 255 255 255) visible:false
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+		edittext edtValue "\"卡通色\""  pos:[10,332] width:85 usePercentageWidth:true  visible:false \
+		percentageWidth:44.0 labelOnTop:false text:"100" bold:false readOnly:false --自发光数值
+		button btnSet "应用"  pos:[180,330] width:75 height:20 tooltip:"调节选中，否则全部。"  visible:false
+		button btnSet0 "0"  pos:[105,330] width:25 height:20 tooltip:"调节选中，否则全部。"  visible:false
+		button btnSet100 "100"  pos:[140,330] width:30 height:20 tooltip:"调节选中，否则全部。"  visible:false
+		slider sldValue ""  pos:[15,350] align:#center range:[0,100,0]  visible:false \
+		type:#integer tooltip:"调节选中，否则全部。" width:250
+
+		HyperLink lnkLink "Adapter: Bullet.S" color:(color 255 255 255) hovercolor:(color 255 0 0) visitedcolor:(color 255 255 255) visible:false \
+		address:"https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" pos:[165,390]
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+		local arrCreateBox = #("方块包裹",#(lblLenth,lblWidth,lblHeight,lblScale,sldScaleValue,ckbReset,gpbBox,gbpLWH,\
+			chkCreateBodyBox,rdoColor,rtcp,ckbFreeze,btnClearBox,ckbSync,ckbCopy,ckbPaste,sldLenthValue,sldWidthValue,\
+			sldHeightValue,gpbDisplayUnit,gpbSystemUnit,btnGetUnit,ddlSystemUnit,ddlMetric))
 		local arrRefBones = #("参考骨骼",#(uiChkKeepParent,uiBtnClearAll,chkProcess,uiBtnSelect,uiSpnBoneWidth,uiColorWireColor,uiChkOptPos,\
 			uiChkOptRot,uiChkOptScale,uiChkOptInheritScale,uiDummySize,uiBtnDummy,uiBtnHelp))
 		local arrEquipTools = #("⚔️ 装备",#())
-		local arrColorTools = #("🎨 调色",#())
+		local arrColorTools = #("🎨 调色",#(gpbRealTime,gpbType,radObject,radColor,chkIsInstance,btnRandom,gpbGradient,cpGradient1,cpGradient2,\
+			cp,gpbMaterial,radMaterial,btnConverter,radErase,btnErase,author,edtValue,btnSet,btnSet0,btnSet100,sldValue,lnkLink))
 		local arrAllToolsTab = #(arrCreateBox,arrRefBones,arrEquipTools,arrColorTools)
 
 		
@@ -733,6 +777,315 @@ global dragStateBsBoxMan = off
 				messageBox "清理 RefPoints 成功！				" title:"BsBoxMan"
 			)
 		)
+
+		fn getRandomColor =  
+		(  
+			local randomColor = blue  
+			if radColor.state == 1 then  
+			(  
+				randomColor.hue = random 0 255  
+				randomColor.saturation = 120  
+				randomColor.value = random 150 240  
+			)  
+			else if radColor.state == 2 then       
+			(  
+				randomColor = white * random 0.2 0.8  
+			)  
+			else if radColor.state == 3 then  
+			(  
+				randomColor.hue = random 0 255  
+				randomColor.saturation = 255  
+			)
+			else if radColor.state == 4 then  
+			(  	
+				local r = random 5 30	
+				randomColor = color (r*6) (r*2) r
+			)  
+			else if radColor.state == 5 then  
+			(  
+				randomColor = random black white  
+			)  
+			return randomColor  
+		)  
+
+		on btnRandom changed state do  
+		(  
+			btnRandom.state = true
+			with undo on
+			(	
+				if radObject.state == 1 then  
+				(  
+					for i in geometry do  
+					(  
+						InstanceMgr.GetInstances i &instArray  
+						if chkIsInstance.checked then  
+						(  
+							instArray.wirecolor = getRandomColor()   
+						)  
+						else  
+						(  
+							i.wirecolor = getRandomColor()   
+						)  
+					)  
+				) 
+				else if radObject.state == 2 then  
+				(  
+					for i in shapes do  
+					(  
+						InstanceMgr.GetInstances i &instArray  
+						if chkIsInstance.checked then  
+						(  
+							instArray.wirecolor = getRandomColor()   
+						)  
+						else  
+						(  
+							i.wirecolor = getRandomColor()   
+						)  
+					)  
+				)
+				else if radObject.state == 3 then  
+				(  
+					allGroups = for obj in objects where isGroupHead obj collect obj  
+					if allGroups.count == 0 then  
+					(  
+						messageBox "There are no groups in the scene."  
+					)  
+					else  
+					(  
+						fn changeInstancesRandom group =  
+						(  
+							local randomColor = getRandomColor()   
+							for i in group do  
+							(  
+								InstanceMgr.GetInstances i &instArray  
+								instArray.wirecolor = randomColor	
+							)
+						) 
+						fn changeWireColorRandom group =  
+						(  
+							local randomColor = getRandomColor()   
+							for i in group do  
+							(
+								i.wirecolor = randomColor  
+							)
+						)
+						
+						if chkIsInstance.checked then
+						(
+							for group in allGroups do  
+							(  
+								changeInstancesRandom group  
+							)
+						)
+						for group in allGroups do  
+						(  
+							changeWireColorRandom group  
+						)						
+					)  
+				) 
+				else if radObject.state == 4 then  
+				(  
+					for i in objects do  
+					(  
+						InstanceMgr.GetInstances i &instArray  
+						if chkIsInstance.checked then  
+						(  
+							instArray.wirecolor = getRandomColor()   
+						)  
+						else  
+						(  
+							i.wirecolor = getRandomColor()   
+						)  
+					)  
+				)  				
+				else if radObject.state == 5 then  
+				(  
+					if selection.count < 1 then messagebox "Please select at least one object"  
+					else  
+					(  
+						for i in selection do  
+						(  
+							InstanceMgr.GetInstances i &instArray  
+							if chkIsInstance.checked then  
+							(  
+								instArray.wirecolor = getRandomColor()   
+							)  
+							else  
+							(  
+								i.wirecolor = getRandomColor()   
+							)  
+						)  
+					)  
+				) 
+			)
+			redrawviews()   
+		)  
+		fn FnGradient =  
+		(  
+			local domain = if selection.count == 0 then objects else selection  
+			local cnt = domain.count  
+			if cnt >= 2 then  
+			(  
+				local col1 = cpGradient1.color  
+				local col2 = cpGradient2.color  
+				local step = ( col2 - col1 ) / ( cnt - 1 )  
+				for i = 1 to cnt do domain[i].wireColor = col1 + ( i - 1 ) * step  
+			)  
+			redrawviews()   
+		)  
+
+		on cpGradient1 changed val do FnGradient()   
+		on cpGradient2 changed val do FnGradient()   
+
+		on cp changed newColor do  
+		(  
+			if selection.count > 0 then  
+			(  
+				for obj in selection do  
+				(  
+					selection.wirecolor = newColor  
+				)  
+			)  
+			else  
+			(  
+				for obj in geometry do  
+				(  
+					geometry.wirecolor = newColor  
+				)  
+			)  
+		)  
+		
+		fn FnMatS objs =  
+		(  
+			for i in objs do  
+			(  
+				if superClassOf i == geometryClass then  
+				(  
+					newColor = i.wireColor  
+					i.material = standardMaterial showInViewport:true name:  ( "WireColor Pro - " + i.name )  
+					i.material.diffuse = newColor  
+				)  
+			)  
+			redrawviews()   
+		)  
+
+		fn FnMatP objs =  
+		(  
+			for i in objs do  
+			(  
+				if superClassOf i == geometryClass then  
+				(  
+					newColor = i.wireColor  
+					i.material = physicalMaterial showInViewport:true name:  ( "WireColor Pro - " + i.name )  
+					i.material.Base_Color = newColor  
+				)  
+			)  
+			redrawviews()   
+		)  
+
+		on btnConverter pressed do  
+		(  
+			if selection.count < 1 then  
+			(  
+				messagebox "Please select at least one object"  
+			)  
+			else  
+			(  
+				if radMaterial.state == 1 then  
+				(  
+					FnMatS selection  
+				)  
+				else if radMaterial.state == 2 then  
+				(  
+					FnMatP selection  
+				)  
+			)  
+		)  
+		on btnErase pressed do  
+		(  
+			if radErase.state == 1 then  
+			(  
+				if selection.count < 1 then  
+				(  
+					messagebox "Please select at least one object"  
+				)  
+				else  
+				(  
+					$.material = undefined  
+				)  
+			)  
+			else  
+			(  
+				if geometry.count < 1 then  
+				(  
+					messagebox "You have no geometry objects"  
+				)  
+				else  
+				(  
+					geometry.material = undefined  
+				)  
+			)  
+		)  
+
+		-- End  
+		
+		local selfValue = 100
+		local arrSelObj = #()
+	
+	
+		fn jugdeSel =
+		(
+			if (selection.count == 0) then
+			(
+				arrSelObj = #()
+				for i in objects do (append arrSelObj i)
+			)
+			else
+			(
+				arrSelObj = #()
+				for i in selection do (append arrSelObj i)
+			)
+		)
+	
+		fn fnSetSelfIllumAmount arrSelObj val = 
+		(
+			for i in arrSelObj do
+			(
+				if (classof i.mat == Multimaterial) do  
+				(
+					for s = 1 to i.mat.materialList.count do  i.mat.materialList[s].selfIllumAmount = val
+				)
+				if (classof i.mat == Standardmaterial) do 
+				(
+					i.mat.selfIllumAmount = val
+				)
+			)
+		)
+	
+		on edtValue entered val do
+		(
+			jugdeSel ()
+			if ((val != ".") and (val as integer != undefined) and (val != "") and (val as integer <= 100) and (val as integer >= 0)) then
+			(
+				sldValue.value = (val as integer)
+			)
+		)
+	
+		on sldValue changed val do (jugdeSel ();fnSetSelfIllumAmount arrSelObj val;edtValue.text = val as string)
+	
+		on btnSet pressed do 
+		(
+			jugdeSel ()
+			if ((edtValue.text != ".") and (edtValue.text as integer != undefined) and (edtValue.text != "") and (edtValue.text as integer <= 100) and (edtValue.text as integer >= 0)) then
+			(
+				fnSetSelfIllumAmount arrSelObj (edtValue.text as integer)
+				sldValue.value = (edtValue.text as integer)
+			)
+			else messagebox "-------------------------\r\n请输入0-100的整数数值\r\n"
+		)
+		on btnSet0 pressed do (jugdeSel ();fnSetSelfIllumAmount arrSelObj 0;sldValue.value = 0;edtValue.text = "0")
+	
+		on btnSet100 pressed do (jugdeSel ();fnSetSelfIllumAmount arrSelObj 100;sldValue.value = 100;edtValue.text = "100")
 	)
 	createDialog rolBsBoxMan style:#()
 )
