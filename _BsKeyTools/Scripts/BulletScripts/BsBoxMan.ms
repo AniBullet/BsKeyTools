@@ -1161,6 +1161,11 @@ global dragStateBsBoxMan = off
 			catch(messagebox "仅支持创建的 Boxes！请勿选择其他类型！                 " title:"BsBoxMan")
 			fnRefreshSliderValue()
 		)
+
+		on lblTips mouseup arg do
+		(
+			shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" ""
+		)
 	)
 	createDialog rolBsBoxMan style:#()
 )
