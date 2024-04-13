@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-07 23:31:03
+ * @LastEditTime: 2024-04-14 03:53:19
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -1110,7 +1110,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	-- button btnZeroFrameDisplay "零帧" pos:[100,40] width:30 height:20 \
 	-- tooltip:"首帧回到0帧"
 	checkbutton ckbShadowCut "秀剪影" highlightcolor:myCheckedColor \
-	pos:[110,90] width:50 height:25 toolTip:"切换剪影显示"
+	pos:[110,90] width:50 height:25 toolTip:"切换剪影显示\r\n右键打开环境色设置(8)"
 	button btnQuicksave "快备份" pos:[160,90] width:50 height:25 \
 	tooltip:"备份当前文件\r\n当前文件目录.backup 文件夹\r\n右键可快速打开备份文件夹\r\n“时光机” 工具中也能快速查看自动保存目录"
 	checkbutton ckbFnBoxDisplay "BOX显"  highlightcolor:myCheckedColor \
@@ -1222,7 +1222,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"带有Skin的缩放,带批处理\r\n(右键打开老版本)" pos:btnPos
 	button btnSkinTools "Skin 工具" width:btnWidth height:btnHeight visible:false \
 	toolTip:"Skin工具集成 (修改自San_oOo)" pos:btnPos
-	button btnKeyStepMode "切帧过滤" width:btnWidth height:btnHeight visible:false pos:btnPos \
+	button btnTweenMachine "补间工具" width:btnWidth height:btnHeight visible:false pos:btnPos \
 	tooltip:"前后切关键帧设置，\r\n可配合删帧或单轴修帧"
 	button btnDemoTool "作品预设" width:btnWidth height:btnHeight visible:false pos:btnPos \
 	toolTip:"[已有想法待补充]\r\n方便渲染作品和练习的工具"
@@ -1351,7 +1351,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		arrSourToolC1 = #(rolBsKeyTools.btnPicker,rolBsKeyTools.btnFastAlign,
 						rolBsKeyTools.ckbPerspLock,rolBsKeyTools.btnAnimMirror,
 						rolBsKeyTools.btnVportTools,rolBsKeyTools.btnBatchExport,
-						rolBsKeyTools.ckbIsoMesh,rolBsKeyTools.btnProTraj,
+						rolBsKeyTools.btnTweenMachine,rolBsKeyTools.btnProTraj,
 						rolBsKeyTools.btnRescaleWU,rolBsKeyTools.btnXrSkinTool,
 						rolBsKeyTools.btnFnFrame,rolBsKeyTools.btnRetargetTools)
 		arrSourToolC2 = #(rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnDemoTool,
@@ -1371,7 +1371,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnMirrorMoph,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnColorTools,rolBsKeyTools.ckbFnMtlDisplay,
 						rolBsKeyTools.btnXpsConvert,rolBsKeyTools.btnCleanCustomAtts,
-						rolBsKeyTools.btnLODCreate,rolBsKeyTools.btnKeyStepMode)
+						rolBsKeyTools.btnLODCreate,rolBsKeyTools.ckbIsoMesh)
 		
 		fnLoadToolBtnConfig()
 		arrToolsAllTemp = arrSourToolC1 + arrSourToolC2 + arrSourToolC3 + arrSourToolC4
@@ -3305,8 +3305,26 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on ckbShadowCut changed state do
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Silhouette.ms"))
-		catch(messagebox "打开 Silhouette.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		if state then
+		(
+			actionMan.executeAction 0 "63566"
+			ambientColor = color 0 0 0
+			lightTintColor = color 0 0 0
+			redrawViews()
+		)
+		else 
+		(
+			ambientColor=color 0 0 0
+			lightTintColor=color 255 255 255
+			redrawViews()
+		)
+		deletekeys ambientColorController #allKeys
+		deletekeys lightTintColorController #allKeys
+	)
+
+	on ckbShadowCut rightclick do 
+	(
+		actionMan.executeAction 0 "40029"  -- Render: Environment Dialog Toggle
 	)
 
 	on btnRenameTools pressed do
@@ -3518,9 +3536,9 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(messagebox "打开 SkinTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnKeyStepMode pressed do 
+	on btnTweenMachine pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsKeyStepMode.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsTweenMachine.ms"))
 		catch(messagebox "打开 BsKeyStepMode.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 

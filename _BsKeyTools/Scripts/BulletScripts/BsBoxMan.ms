@@ -20,7 +20,7 @@ global dragStateBsBoxMan = off
 		
 		groupBox gpbBox "" pos:[5,55] width:250 height:110
 		
-		checkbutton chkCreateBodyBox ">> 根据所选物体 渲染框 创建 Body Box <<" pos:[10,70] height:25 width:240 highlightColor:white border:false checked:true 
+		checkbutton chkCreateBodyBox ">> 根据所选物体 渲染框 创建 Body Box <<" pos:[10,70] height:25 width:240 border:false checked:true 
 		radiobuttons rdoColor labels:#("随机颜色", "统一单色") columns:2 align:#center pos:[20,105]
 		colorpicker rtcp "" width:70 height:20 color:[38,130,118] pos:[170,103]
 		checkbox ckbFreeze "Box 是否冻结" pos:[20,135] width:100 height:20 color:[152, 227, 213] checked:true
@@ -28,8 +28,8 @@ global dragStateBsBoxMan = off
 			
 		groupBox gbpLWH "" pos:[5,170] width:250 height:180
 		
-		checkbutton ckbSync "等比调节" pos:[175,310] height:30 width:75 tooltip:"同时调节长宽高" highlightColor:white border:false checked:true 
-		checkbutton ckbReset "重置大小" pos:[110,310] height:30 width:60 tooltip:"重置长宽高" highlightColor:white border:false checked:true 
+		checkbutton ckbSync "等比调节" pos:[175,310] height:30 width:75 tooltip:"同时调节长宽高" border:false checked:true 
+		checkbutton ckbReset "重置大小" pos:[110,310] height:30 width:60 tooltip:"重置长宽高" border:false checked:true 
 		radiobuttons rdoReduce labels:#("放大", "缩小") columns:2 pos:[15,318] height:30 width:50 border:true Selection:1
 		slider sldLenthValue ""  pos:[50,185] align:#center range:[1,20,1] \
 		type:#integer width:170 ticks:50
@@ -63,7 +63,7 @@ global dragStateBsBoxMan = off
 		local IDKEYWORDTARGETHANDLE = "RefBoneTargetHandle"		-- Ref 본 의 타겟에 Ref 본의 핸들 번호를 기록
 		local NAMEPREFIX = "Ref_"
 		
-		checkbutton chkProcess "生成参考骨骼" width:100 pos:[10,70] visible:false border:false checked:true  highlightColor:white
+		checkbutton chkProcess "生成参考骨骼" width:100 pos:[10,70] visible:false border:false checked:true 
 		button uiBtnSelect "选中" width:50 visible:false pos:[120,70]
 		button uiBtnClearAll "清除参考" width:70 visible:false pos:[180,70]
 		spinner uiSpnBoneWidth "骨骼缩放比 %" pos:[50, 105] tooltip:"选择并调整创建的骨骼的大小。" range:[1, 500, 100] type:#integer width:100  visible:false
@@ -84,7 +84,7 @@ global dragStateBsBoxMan = off
 		
 		-- 더미 생성하는 스크립트 --
 		spinner uiDummySize "Point 大小：" pos:[150, 203] tooltip:"创建辅助点的大小" range:[0.001, 100, 0.1] type:#float align:#right width:95 visible:false
-		checkbutton uiBtnDummy "生成辅助 Point" pos:[10, 200] width:90 visible:false border:false checked:true  highlightColor:white
+		checkbutton uiBtnDummy "生成辅助 Point" pos:[10, 200] width:90 visible:false border:false checked:true 
 		button uiBtnHelp "RefBones 关于，原作者" visible:false width:240 pos:[10, 240]
 
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ global dragStateBsBoxMan = off
 		radiobuttons radObject "类型" pos:[20,70] labels:#( "几何体", "形状", "所有组", "所有物体", "选择物体" )  visible:false
 		radiobuttons radColor "配色" pos:[130,70] columns:2 labels:#( "粉彩", "灰白", "毒彩" , "黏土" , "淡彩", "深沉" , "荧彩", "随机")  visible:false
 		checkButton chkIsInstance "相关实例" pos:[20,170] height:20 width:80 tooltip:"启用后，相关实例\r\n(如复制出的Instance)\r\n也会保持一致的颜色。" height:  30 align:#left  visible:false
-		checkbutton btnRandom ">> 随机颜色 <<" pos:[120,160] height:30 width:125 visible:false border:false checked:true  highlightColor:white
+		checkbutton btnRandom ">> 随机颜色 <<" pos:[120,160] height:30 width:125 visible:false border:false checked:true 
 
 		groupBox gpbGradient "渐变" pos:[5,210] width:170 height:45 visible:false
 		colorpicker cpGradient1 pos:[15,230] color:  [58, 122, 205] width:70 height:15 align:#left  visible:false
