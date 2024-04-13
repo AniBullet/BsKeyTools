@@ -528,76 +528,76 @@ rollout rolBSRightFootPivots "R-Foot" width:90
 	on chkbtn_frontRight changed state do (f_updateButton state chkbtn_frontRight 7)
 ) --// end rollout
 
-rollout rolBSFingers "Fingers" width:220 height:195
+rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 (
-	checkbutton chbTips "暂不支持4节手指" pos:[57,5] height:16 highlightColor:gray checked:true
+	checkbutton chbTips "暂不支持4节手指" pos:[77,5] height:20 highlightColor:rolBsBipedTools.mcScanBiped checked:true
 
-	checkbutton chbRFingers "Right Fingers" pos:[20,160] highlightColor:rolBsBipedTools.mcRight checked:true
-	checkbutton chbLFingers "Left Fingers" pos:[126,160] highlightColor:rolBsBipedTools.mcLeft checked:true
+	checkbutton chbRFingers "Right Fingers" pos:[20,160] width:100 highlightColor:rolBsBipedTools.mcRightFinger checked:true
+	checkbutton chbLFingers "Left Fingers" pos:[142,160] width:100 highlightColor:rolBsBipedTools.mcLeftFinger checked:true
 	
 	--R Index Finger
-	button select_rhand1_btn "RHand"	enabled:true pos:[20,25] width:60 height:30 images:#(Bitmap 60 40 color:(color 5 173 5 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有右手手指"
-	button select_rfing11_btn "RHand"	enabled:true pos:[65,80] width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing12_btn "RHand"	enabled:true pos:[65,102] width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing13_btn "RHand"	enabled:true pos:[65,122] width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_rhand1_btn "R Hand"	enabled:true pos:[20,30] width:80 height:30 highlightColor:rolBsBipedTools.mcRight checked:true toolTip:""
+	checkbutton select_rfing11_btn ""	enabled:true pos:[80,85] width:20 height:22 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing12_btn ""	enabled:true pos:[80,107] width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing13_btn ""	enabled:true pos:[80,127] width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
 
 	--R Middle Finger
-	button select_rfing21_btn "RHand"	enabled:true pos:[50,80]	width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing22_btn "RHand"	enabled:true pos:[50,103]	width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing23_btn "RHand"	enabled:true pos:[50,126]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) ttoolTip:""
+	checkbutton select_rfing21_btn ""	enabled:true pos:[60,85]	width:20 height:23 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing22_btn ""	enabled:true pos:[60,108]	width:20 height:23 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing23_btn ""	enabled:true pos:[60,131]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true ttoolTip:""
 	
 	--R Ring Finger
-	button select_rfing31_btn "RHand"	enabled:true pos:[35,80]	width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing32_btn "RHand"	enabled:true pos:[35,102]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing33_btn "RHand"	enabled:true pos:[35,122]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_rfing31_btn ""	enabled:true pos:[40,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing32_btn ""	enabled:true pos:[40,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing33_btn ""	enabled:true pos:[40,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
 	
 	--R Pinkie Finger
-	button select_rfing41_btn "RHand"	enabled:true pos:[20,80]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing42_btn "RHand"	enabled:true pos:[20,100]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing43_btn "RHand"	enabled:true pos:[20,117]	width:15 height:16 images:#(Bitmap 15 16 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_rfing41_btn ""	enabled:true pos:[20,85]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing42_btn ""	enabled:true pos:[20,105]	width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing43_btn ""	enabled:true pos:[20,122]	width:20 height:16 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
 	
 	--R Thumb
-	button select_rthumb1_btn "RHand"	enabled:true pos:[80,64]	width:20 height:30 images:#(Bitmap 20 30 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rthumb2_btn "RHand"	enabled:true pos:[80,94]	width:18 height:19 images:#(Bitmap 18 19 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rthumb3_btn "RHand"	enabled:true pos:[80,113]	width:16 height:18 images:#(Bitmap 16 18 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_rthumb1_btn ""	enabled:true pos:[100,69]	width:20 height:30 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
+	checkbutton select_rthumb2_btn ""	enabled:true pos:[100,99]	width:18 height:19 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
+	checkbutton select_rthumb3_btn ""	enabled:true pos:[100,118]	width:16 height:18 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
 
 	--LEFT HAND
 	--L Index Finger
-	button select_lhand1_btn "LHand"	enabled:true pos:[140,25]	width:60 height:30 images:#(Bitmap 60 40 color:(color 18 18 167 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有左手手指"
-	button select_lfing11_btn "LHand"	enabled:true pos:[140,80]	width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing12_btn "LHand"	enabled:true pos:[140,102]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing13_btn "LHand"	enabled:true pos:[140,122]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_lhand1_btn "L Hand"	enabled:true pos:[160,30]	width:80 height:30 highlightColor:rolBsBipedTools.mcLeft checked:true toolTip:""
+	checkbutton select_lfing11_btn ""	enabled:true pos:[160,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing12_btn ""	enabled:true pos:[160,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing13_btn ""	enabled:true pos:[160,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 	
 	--L Middle Finger
-	button select_lfing21_btn "LHand"	enabled:true pos:[155,80]	width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing22_btn "LHand"	enabled:true pos:[155,103]	width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing23_btn "LHand"	enabled:true pos:[155,126]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_lfing21_btn ""	enabled:true pos:[180,85]	width:20 height:23 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing22_btn ""	enabled:true pos:[180,108]	width:20 height:23 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing23_btn ""	enabled:true pos:[180,131]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 	
 	--L Ring Finger
-	button select_lfing31_btn "LHand"	enabled:true pos:[170,80]	width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing32_btn "LHand"	enabled:true pos:[170,102]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing33_btn "LHand"	enabled:true pos:[170,122]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_lfing31_btn ""	enabled:true pos:[200,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing32_btn ""	enabled:true pos:[200,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing33_btn ""	enabled:true pos:[200,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 
 	--L Pinkie Finger
-	button select_lfing41_btn "LHand"	enabled:true pos:[185,80]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing42_btn "LHand"	enabled:true pos:[185,100]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing43_btn "LHand"	enabled:true pos:[185,117]	width:15 height:16 images:#(Bitmap 15 16 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_lfing41_btn ""	enabled:true pos:[220,85]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing42_btn ""	enabled:true pos:[220,105]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing43_btn ""	enabled:true pos:[220,122]	width:20 height:16 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 
 	--L Thumb
-	button select_lthumb1_btn "LHand"	enabled:true pos:[120,64]	width:20 height:30 images:#(Bitmap 20 30 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lthumb2_btn "LHand"	enabled:true pos:[122,94]	width:18 height:19 images:#(Bitmap 18 19 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lthumb3_btn "LHand"	enabled:true pos:[124,113]	width:16 height:18 images:#(Bitmap 16 18 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_lthumb1_btn ""	enabled:true pos:[140,69]	width:20 height:30 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
+	checkbutton select_lthumb2_btn ""	enabled:true pos:[142,99]	width:18 height:19 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
+	checkbutton select_lthumb3_btn ""	enabled:true pos:[144,118]	width:16 height:18 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
 
-	button btnFingerLineR1 "0" enabled:true pos:[80,39] width:20 height:25 toolTip:"选择单条手指"
-	button btnFingerLineR2 "1" enabled:true pos:[65,55] width:15 height:25 toolTip:"选择单条手指"
-	button btnFingerLineR3 "2" enabled:true pos:[50,55] width:15 height:25 toolTip:"选择单条手指"
-	button btnFingerLineR4 "3" enabled:true pos:[35,55] width:15 height:25 toolTip:"选择单条手指"
-	button btnFingerLineR5 "4" enabled:true pos:[20,55] width:15 height:25 toolTip:"选择单条手指"
-	button btnFingerLineL1 "0" enabled:true pos:[120,39] width:20 height:25 toolTip:"选择单条手指"
-	button btnFingerLineL2 "1" enabled:true pos:[140,55] width:15 height:25 toolTip:"选择单条手指"
-	button btnFingerLineL3 "2" enabled:true pos:[155,55] width:15 height:25 toolTip:"选择单条手指"
-	button btnFingerLineL4 "3" enabled:true pos:[170,55] width:15 height:25 toolTip:"选择单条手指"
-	button btnFingerLineL5 "4" enabled:true pos:[185,55] width:15 height:25 toolTip:"选择单条手指"
+	checkbutton btnFingerLineR1 "0" enabled:true pos:[100,44] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR2 "1" enabled:true pos:[80,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR3 "2" enabled:true pos:[60,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR4 "3" enabled:true pos:[40,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR5 "4" enabled:true pos:[20,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL1 "0" enabled:true pos:[140,44] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL2 "1" enabled:true pos:[160,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL3 "2" enabled:true pos:[180,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL4 "3" enabled:true pos:[200,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL5 "4" enabled:true pos:[220,60] width:20 height:25 checked:true toolTip:"选择单条手指"
 
 	fn GetFinger side index =
 	(
@@ -620,7 +620,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_lhand1_btn pressed do (
+	on select_lhand1_btn changed state do (
+		select_lhand1_btn.state = true
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
 		if keyboard.controlPressed and keyboard.altpressed do (
 			-- Shift 를 누르면 똑바로 펴는 기능
@@ -644,7 +645,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 	)
 
 	
-	on select_rhand1_btn pressed do (
+	on select_rhand1_btn changed state do (
+		select_rhand1_btn.state = true
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
 		if keyboard.controlPressed and keyboard.altpressed do (
 			-- Shift 를 누르면 똑바로 펴는 기능
@@ -675,13 +677,15 @@ rollout rolBSFingers "Fingers" width:220 height:195
 
 	on chbRFingers changed state do
 	(
+		chbRFingers.state = true
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or rolBsBipedTools.m_RHand == undefined ) do (return ())
 		chbRFingers.state = true
 		rolBsBipedTools.fnSelAllChildrens rolBsBipedTools.m_RHand
 		deselect rolBsBipedTools.m_RHand
 	)
 
-	on select_rthumb1_btn pressed do (
+	on select_rthumb1_btn changed state do (
+		select_rthumb1_btn.state = true
 		m_RThumb1 = (GetFinger "R" 1)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RThumb1 == undefined ) do (return ())
 
@@ -693,7 +697,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rthumb2_btn pressed do (
+	on select_rthumb2_btn changed state do (
+		select_rthumb2_btn.state = true
 		m_RThumb2 = (GetFinger "R" 2)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RThumb2 == undefined ) do (return ())
 
@@ -705,7 +710,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rthumb3_btn pressed do (
+	on select_rthumb3_btn changed state do (
+		select_rthumb3_btn.state = true
 		m_RThumb3 = (GetFinger "R" 3)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RThumb3 == undefined ) do (return ())
 
@@ -717,7 +723,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing11_btn pressed do (
+	on select_rfing11_btn changed state do (
+		select_rfing11_btn.state = true
 		m_RFing11 = (GetFinger "R" 4)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing11 == undefined ) do (return ())
 
@@ -729,7 +736,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing12_btn pressed do (
+	on select_rfing12_btn changed state do (
+		select_rfing12_btn.state = true
 		m_RFing12 = (GetFinger "R" 5)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing12 == undefined ) do (return ())
 
@@ -741,7 +749,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing13_btn pressed do (
+	on select_rfing13_btn changed state do (
+		select_rfing13_btn.state = true
 		m_RFing13 = (GetFinger "R" 6)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing13 == undefined ) do (return ())
 
@@ -753,7 +762,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing21_btn pressed do (
+	on select_rfing21_btn changed state do (
+		select_rfing21_btn.state = true
 		m_RFing21 = (GetFinger "R" 7)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing21 == undefined ) do (return ())
 
@@ -765,7 +775,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing22_btn pressed do (
+	on select_rfing22_btn changed state do (
+		select_rfing22_btn.state = true
 		m_RFing22 = (GetFinger "R" 8)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing22 == undefined ) do (return ())
 
@@ -777,7 +788,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing23_btn pressed do (
+	on select_rfing23_btn changed state do (
+		select_rfing23_btn.state = true
 		m_RFing23 = (GetFinger "R" 9)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing23 == undefined ) do (return ())
 
@@ -789,7 +801,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing31_btn pressed do (
+	on select_rfing31_btn changed state do (
+		select_rfing31_btn.state = true
 		m_RFing31 = (GetFinger "R" 10)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing31 == undefined ) do (return ())
 
@@ -801,7 +814,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing32_btn pressed do (
+	on select_rfing32_btn changed state do (
+		select_rfing32_btn.state = true
 		m_RFing32 = (GetFinger "R" 11)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing32 == undefined ) do (return ())
 
@@ -813,7 +827,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing33_btn pressed do (
+	on select_rfing33_btn changed state do (
+		select_rfing33_btn.state = true
 		m_RFing33 = (GetFinger "R" 12)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing33 == undefined ) do (return ())
 
@@ -825,7 +840,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing41_btn pressed do (
+	on select_rfing41_btn changed state do (
+		select_rfing41_btn.state = true
 		m_RFing41 = (GetFinger "R" 13)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing41 == undefined ) do (return ())
 
@@ -837,7 +853,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing42_btn pressed do (
+	on select_rfing42_btn changed state do (
+		select_rfing42_btn.state = true
 		m_RFing42 = (GetFinger "R" 14)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing42 == undefined ) do (return ())
 
@@ -849,7 +866,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_rfing43_btn pressed do (
+	on select_rfing43_btn changed state do (
+		select_rfing43_btn.state = true
 		m_RFing43 = (GetFinger "R" 15)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing43 == undefined ) do (return ())
 
@@ -863,13 +881,15 @@ rollout rolBSFingers "Fingers" width:220 height:195
 
 	on chbLFingers changed state do
 	(
+		chbLFingers.state = true
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or rolBsBipedTools.m_LHand == undefined ) do (return ())
 		chbLFingers.state = true
 		rolBsBipedTools.fnSelAllChildrens rolBsBipedTools.m_LHand
 		deselect rolBsBipedTools.m_LHand
 	)
 
-	on select_Lthumb1_btn pressed do (
+	on select_Lthumb1_btn changed state do (
+		select_Lthumb1_btn.state = true
 		m_LThumb1 = (GetFinger "L" 1)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LThumb1 == undefined ) do (return ())
 
@@ -881,7 +901,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lthumb2_btn pressed do (
+	on select_Lthumb2_btn changed state do (
+		select_Lthumb2_btn.state = true
 		m_LThumb2 = (GetFinger "L" 2)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LThumb2 == undefined ) do (return ())
 
@@ -893,7 +914,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lthumb3_btn pressed do (
+	on select_Lthumb3_btn changed state do (
+		select_Lthumb3_btn.state = true
 		m_LThumb3 = (GetFinger "L" 3)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LThumb3 == undefined ) do (return ())
 
@@ -905,7 +927,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing11_btn pressed do (
+	on select_Lfing11_btn changed state do (
+		select_Lfing11_btn.state = true
 		m_LFing11 = (GetFinger "L" 4)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing11 == undefined ) do (return ())
 
@@ -917,7 +940,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing12_btn pressed do (
+	on select_Lfing12_btn changed state do (
+		select_Lfing12_btn.state = true
 		m_LFing12 = (GetFinger "L" 5)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing12 == undefined ) do (return ())
 
@@ -929,7 +953,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing13_btn pressed do (
+	on select_Lfing13_btn changed state do (
+		select_Lfing13_btn.state = true
 		m_LFing13 = (GetFinger "L" 6)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing13 == undefined ) do (return ())
 
@@ -941,7 +966,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing21_btn pressed do (
+	on select_Lfing21_btn changed state do (
+		select_Lfing21_btn.state = true
 		m_LFing21 = (GetFinger "L" 7)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing21 == undefined ) do (return ())
 
@@ -953,7 +979,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing22_btn pressed do (
+	on select_Lfing22_btn changed state do (
+		select_Lfing22_btn.state = true
 		m_LFing22 = (GetFinger "L" 8)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing22 == undefined ) do (return ())
 
@@ -965,7 +992,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing23_btn pressed do (
+	on select_Lfing23_btn changed state do (
+		select_Lfing23_btn.state = true
 		m_LFing23 = (GetFinger "L" 9)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing23 == undefined ) do (return ())
 
@@ -977,7 +1005,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing31_btn pressed do (
+	on select_Lfing31_btn changed state do (
+		select_Lfing31_btn.state = true
 		m_LFing31 = (GetFinger "L" 10)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing31 == undefined ) do (return ())
 
@@ -989,7 +1018,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing32_btn pressed do (
+	on select_Lfing32_btn changed state do (
+		select_Lfing32_btn.state = true
 		m_LFing32 = (GetFinger "L" 11)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing32 == undefined ) do (return ())
 
@@ -1001,7 +1031,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing33_btn pressed do (
+	on select_Lfing33_btn changed state do (
+		select_Lfing33_btn.state = true
 		m_LFing33 = (GetFinger "L" 12)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing33 == undefined ) do (return ())
 
@@ -1013,7 +1044,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing41_btn pressed do (
+	on select_Lfing41_btn changed state do (
+		select_Lfing41_btn.state = true
 		m_LFing41 = (GetFinger "L" 13)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing41 == undefined ) do (return ())
 
@@ -1025,7 +1057,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing42_btn pressed do (
+	on select_Lfing42_btn changed state do (
+		select_Lfing42_btn.state = true
 		m_LFing42 = (GetFinger "L" 14)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing42 == undefined ) do (return ())
 
@@ -1037,7 +1070,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on select_Lfing43_btn pressed do (
+	on select_Lfing43_btn changed state do (
+		select_Lfing43_btn.state = true
 		m_LFing43 = (GetFinger "L" 15)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing43 == undefined ) do (return ())
 
@@ -1049,7 +1083,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 	)
 
-	on btnFingerLineR1 pressed do (
+	on btnFingerLineR1 changed state do (
+		btnFingerLineR1.state = true
 		local arrFingerLine = #()
 		for i = 1 to 3 do (
 			tempFinger = ((GetFinger "R" i)[1])
@@ -1062,7 +1097,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 		select arrFingerLine
 	)
-	on btnFingerLineR2 pressed do (
+	on btnFingerLineR2 changed state do (
+		btnFingerLineR2.state = true
 		local arrFingerLine = #()
 		for i = 4 to 6 do (
 			tempFinger = ((GetFinger "R" i)[1])
@@ -1075,7 +1111,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 		select arrFingerLine
 	)
-	on btnFingerLineR3 pressed do (
+	on btnFingerLineR3 changed state do (
+		btnFingerLineR3.state = true
 		local arrFingerLine = #()
 		for i = 7 to 9 do (
 			tempFinger = ((GetFinger "R" i)[1])
@@ -1088,7 +1125,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 		select arrFingerLine
 	)
-	on btnFingerLineR4 pressed do (
+	on btnFingerLineR4 changed state do (
+		btnFingerLineR4.state = true
 		local arrFingerLine = #()
 		for i = 10 to 12 do (
 			tempFinger = ((GetFinger "R" i)[1])
@@ -1101,7 +1139,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 		select arrFingerLine
 	)
-	on btnFingerLineR5 pressed do (
+	on btnFingerLineR5 changed state do (
+		btnFingerLineR5.state = true
 		local arrFingerLine = #()
 		for i = 13 to 15 do (
 			tempFinger = ((GetFinger "R" i)[1])
@@ -1116,7 +1155,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 	)
 
 	
-	on btnFingerLineL1 pressed do (
+	on btnFingerLineL1 changed state do (
+		btnFingerLineL1.state = true
 		local arrFingerLine = #()
 		for i = 1 to 3 do (
 			tempFinger = ((GetFinger "L" i)[1])
@@ -1129,7 +1169,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 		select arrFingerLine
 	)
-	on btnFingerLineL2 pressed do (
+	on btnFingerLineL2 changed state do (
+		btnFingerLineL2.state = true
 		local arrFingerLine = #()
 		for i = 4 to 6 do (
 			tempFinger = ((GetFinger "L" i)[1])
@@ -1142,7 +1183,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 		select arrFingerLine
 	)
-	on btnFingerLineL3 pressed do (
+	on btnFingerLineL3 changed state do (
+		btnFingerLineL3.state = true
 		local arrFingerLine = #()
 		for i = 7 to 9 do (
 			tempFinger = ((GetFinger "L" i)[1])
@@ -1155,7 +1197,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 		select arrFingerLine
 	)
-	on btnFingerLineL4 pressed do (
+	on btnFingerLineL4 changed state do (
+		btnFingerLineL4.state = true
 		local arrFingerLine = #()
 		for i = 10 to 12 do (
 			tempFinger = ((GetFinger "L" i)[1])
@@ -1168,7 +1211,8 @@ rollout rolBSFingers "Fingers" width:220 height:195
 		)
 		select arrFingerLine
 	)
-	on btnFingerLineL5 pressed do (
+	on btnFingerLineL5 changed state do (
+		btnFingerLineL5.state = true
 		local arrFingerLine = #()
 		for i = 13 to 15 do (
 			tempFinger = ((GetFinger "L" i)[1])
@@ -1345,6 +1389,10 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local mcMotionPanel  = fnChangeThemeColor (color 223 225 200)
 	local mcSelTools     = fnChangeThemeColor (color 20 180 180)
 	local mcInPlace      = fnChangeThemeColor (color 192 192 255)
+	local mcLeftFinger   = fnChangeThemeColor (color 163 61 180)
+	local mcRightFinger  = fnChangeThemeColor (color 176 191 46)
+	local mcLeftThumb    = fnChangeThemeColor (color 191 46 46)
+	local mcRightThumb   = fnChangeThemeColor (color 241 228 157)
 
 	label lblVersion verBsBipedTools height:15 width:30 align:#left pos:[3,0]
 	button btnMini "☐" offset:[45, -5] height:15 width:20 border:false align:#right pos:[120,0]
@@ -4768,7 +4816,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 		try(destroyDialog rolBSFingers)catch()
 
-		Createdialog rolBSFingers pos:(mouse.screenPos - [270,100]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)) style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
+		Createdialog rolBSFingers pos:(mouse.screenPos - [310,100]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)) style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 	)
 
 	on uiBtnLoadBip changed state do
