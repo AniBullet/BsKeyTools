@@ -2868,7 +2868,10 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				local mirroreBH_pose = getCopy copyCol #posture 1
 				with Animate on
 				(
-					with undo on(biped.pasteBipPosture bRootCtrl mirroreBH_pose true #pstdefault false false false false)
+					undo "MirrorPosture" on
+					(
+						biped.pasteBipPosture bRootCtrl mirroreBH_pose true #pstdefault true true true false
+					)
 				)
 				biped.deleteCopyCollection bRootCtrl colIndex
 			)
@@ -2918,74 +2921,120 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	on uiCbtCopy changed state do
 	(
 		uiCbtCopy.state = true
-		if selection.count > 0 then
+		try
 		(
-			local a_objs = selection as array
-			--// Make sure only Biped parts are selected for copying by filtering out non-Biped parts
-			a_objs = fnFilterBipedParts a_objs
-			if a_objs.count > 0 then
+			if selection.count > 0 then
 			(
-				fnStorePostureObjs a_objs
-				if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+				local a_objs = selection as array
+				--// Make sure only Biped parts are selected for copying by filtering out non-Biped parts
+				a_objs = fnFilterBipedParts a_objs
+				if a_objs.count > 0 then
 				(
-					with undo on
+					fnStorePostureObjs a_objs
+					if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 					(
-						try
-						(
-							local bRootCtrl = m_workingBipRoot.controller
-							biped.deleteAllCopies bRootCtrl #posture
-							local colIndex = biped.numCopyCollections bRootCtrl
-							if colIndex == 0 then (biped.createCopyCollection bRootCtrl "BsBipedTools_CopyPosture")
-							biped.copyPosture bRootCtrl #posture on on on
-							biped.setCopyName bRootCtrl #posture 1 "BsPosture_Temp"
-						)
-						catch()
+						local bRootCtrl = m_workingBipRoot.controller
+						biped.createCopyCollection bRootCtrl "CopyPosture"
+						local colIndex = biped.numCopyCollections bRootCtrl
+						local copyCol = biped.getCopyCollection bRootCtrl colIndex
+						biped.copyBipPosture bRootCtrl copyCol a_objs #snapAuto
+						biped.saveCopyPasteFile bRootCtrl (getDir #plugcfg + "\BsBipedTools_PoseGrabbed.cpy")
+						biped.deleteCopyCollection bRootCtrl colIndex
 					)
+				)
+				else
+				(
+					messageBox "错误：没有选择 Biped 对象。                       " title:"BsBipedTools"
 				)
 			)
 			else
 			(
-				messageBox "错误：没有选择 Biped 对象。                       " title:"BsBipedTools"
+				messageBox "错误：请选择一些要复制的 Biped 对象。                            " title:"BsBipedTools"
 			)
 		)
-		else
-		(
-			messageBox "错误：请选择一些要复制的 Biped 对象。                            " title:"BsBipedTools"
-		)
+		catch(messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
 	)
 	
 	on uiCbtPaste changed state do
 	(
 		uiCbtPaste.state = true
-		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+		try
 		(
-			local bRootCtrl = m_workingBipRoot.controller
-			with Animate on
+			local postureFile = getDir #plugcfg + "\BsBipedTools_PoseGrabbed.cpy"
+			if doesFileExist postureFile then
 			(
-				with undo on
+				if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 				(
-					try(biped.pastePosture  bRootCtrl #posture false "BsPosture_Temp")
-					catch(messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
+					local bRootCtrl = m_workingBipRoot.controller
+					biped.loadCopyPasteFile bRootCtrl postureFile
+					local colIndex = biped.numCopyCollections bRootCtrl
+					local copyCol = biped.getCopyCollection bRootCtrl colIndex
+					local copyBH_posture = getCopy copyCol #posture 1
+					if copyBH_posture != false then
+					(
+						with Animate on
+						(
+							undo "PastePosture" on
+							(
+								biped.pasteBipPosture bRootCtrl copyBH_posture false #pstdefault true true true false
+							)
+						)
+					)
+					else
+					(
+						messagebox "错误：确保 Copy/Paste Posture 不包含名为“CopyPosture”的集合。                            " title:"BsBipedTools"
+					)
+					local colIndex = biped.numCopyCollections bRootCtrl
+					biped.deleteCopyCollection bRootCtrl colIndex
 				)
 			)
+			else
+			(
+				messageBox "错误：请先复制一个 Pose。                          " title:"BsBipedTools"
+			)
 		)
+		catch (messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
 	)
 
 	on uiCbtPasteOpposite changed state do
 	(
 		uiCbtPasteOpposite.state = true
-		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+		try
 		(
-			local bRootCtrl = m_workingBipRoot.controller
-			with Animate on
+			local postureFile = getDir #plugcfg + "\BsBipedTools_PoseGrabbed.cpy"
+			if doesFileExist postureFile then
 			(
-				with undo on
+				if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 				(
-					try(biped.pastePosture  bRootCtrl #posture true "BsPosture_Temp")
-					catch(messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
+					local bRootCtrl = m_workingBipRoot.controller
+					biped.loadCopyPasteFile bRootCtrl postureFile
+					local colIndex = biped.numCopyCollections bRootCtrl
+					local copyCol = biped.getCopyCollection bRootCtrl colIndex
+					local copyBH_posture = getCopy copyCol #posture 1
+					if copyBH_posture != false then
+					(
+						with Animate on
+						(
+							undo "PastePosture" on
+							(
+								biped.pasteBipPosture bRootCtrl copyBH_posture true #pstdefault true true true false
+							)
+						)
+					)
+					else
+					(
+						messagebox "错误：确保 Copy/Paste Posture 不包含名为“CopyPosture”的集合。                            " title:"BsBipedTools"
+					)
+					local colIndex = biped.numCopyCollections bRootCtrl
+					biped.deleteCopyCollection bRootCtrl colIndex
 				)
 			)
+			else
+			(
+				messageBox "错误：请先复制一个 Pose。                          " title:"BsBipedTools"
+			)
 		)
+		catch (messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
 	)
 	
 	on uiCbtDeleteAllCopy changed state do
