@@ -14,22 +14,24 @@ global dragStateBsBoxMan = off
 	(
 		local dotColor = dotnetclass "System.Drawing.Color"
 
+		button btnAbout "?" pos:[rolBsBoxMan.width - 40,0] height:16 width:20
 		button btnClose "X" pos:[rolBsBoxMan.width - 20,0] height:16 width:20
 		label lblTitle "BsBoxMan_v1.1" pos:[5,3]
 		dotNetControl tabBoxMan "System.Windows.Forms.TabControl" height:30 width:260 pos:[8,25] align:#center
 		
 		groupBox gpbBox "" pos:[5,55] width:250 height:110
 		
-		checkbutton chkCreateBodyBox ">> 根据所选物体 渲染框 创建 Body Box <<" pos:[10,70] height:25 width:240 border:false checked:true 
+		checkbutton chkCreateBodyBox ">> 创建方块包裹 <<" pos:[10,70] height:25 width:150 border:false checked:true 
+		button btnClearBox "一键清除" pos:[170,70] width:80 height:25 border:true
 		radiobuttons rdoColor labels:#("随机颜色", "统一单色") columns:2 align:#center pos:[20,105]
 		colorpicker rtcp "" width:70 height:20 color:[38,130,118] pos:[170,103]
 		checkbox ckbFreeze "Box 是否冻结" pos:[20,135] width:100 height:20 color:[152, 227, 213] checked:true
-		button btnClearBox "一键清除 Body Box" pos:[120,135] width:130 height:20 border:true
-			
+		checkbox uiChkKeepParentBox "保持父子层级关系" pos:[130,138] checked:false
+		
 		groupBox gbpLWH "" pos:[5,170] width:250 height:180
 		
-		checkbutton ckbSync "等比调节" pos:[175,310] height:30 width:75 tooltip:"同时调节长宽高" border:false checked:true 
-		checkbutton ckbReset "重置大小" pos:[110,310] height:30 width:60 tooltip:"重置长宽高" border:false checked:true 
+		checkbutton ckbSync "等比调节" pos:[110,310] height:30 width:60 tooltip:"同时调节长宽高" border:true checked:false 
+		checkbutton ckbReset "重置大小" pos:[175,310] height:30 width:75 tooltip:"重置长宽高" border:false checked:true 
 		radiobuttons rdoReduce labels:#("放大", "缩小") columns:2 pos:[15,318] height:30 width:50 border:true Selection:1
 		slider sldLenthValue ""  pos:[50,185] align:#center range:[1,20,1] \
 		type:#integer width:170 ticks:50
@@ -52,7 +54,7 @@ global dragStateBsBoxMan = off
 		dropdownlist ddlSystemUnit "" align:#left selection:5 height:15 width:95 pos:[120,375] \
 		items:#("Inches","Feet","Miles","Millimeters","Centimeters","Meters","Kilometers")
 
-		button btnGetUnit "刷新" tooltip:"获取当前 Unit (单位) 状态" pos:[225,361] width:30 height:44
+		button btnGetUnit "刷新" tooltip:"获取当前 Unit (单位) 状态" pos:[225,361] width:30 height:44 
 
 		dotnetcontrol lblTips "Label" text:"2023.2 [ Bullet.S ] ✨        创建专属练习方块人" pos:[0,413] width:260 height:16
 
@@ -63,6 +65,7 @@ global dragStateBsBoxMan = off
 		local IDKEYWORDTARGETHANDLE = "RefBoneTargetHandle"		-- Ref 본 의 타겟에 Ref 본의 핸들 번호를 기록
 		local NAMEPREFIX = "Ref_"
 		
+		groupbox gpbRefBone "" pos:[5,55] width:250 height:130 visible:false
 		checkbutton chkProcess "生成参考骨骼" width:100 pos:[10,70] visible:false border:false checked:true 
 		button uiBtnSelect "选中" width:50 visible:false pos:[120,70]
 		button uiBtnClearAll "清除参考" width:70 visible:false pos:[180,70]
@@ -82,17 +85,19 @@ global dragStateBsBoxMan = off
 		button uiBtnSetScalableBiped "Set Scalable Biped" tooltip:"Scale이 가능한 바이패드로 변경하고 Scale을 조정하는 헬퍼를 추가합니다."
 		*/
 		
+		groupbox gpbRefDummy "" pos:[5,185] width:250 height:45 visible:false
 		-- 더미 생성하는 스크립트 --
 		spinner uiDummySize "Point 大小：" pos:[150, 203] tooltip:"创建辅助点的大小" range:[0.001, 100, 0.1] type:#float align:#right width:95 visible:false
 		checkbutton uiBtnDummy "生成辅助 Point" pos:[10, 200] width:90 visible:false border:false checked:true 
 		button uiBtnHelp "RefBones 关于，原作者" visible:false width:240 pos:[10, 240]
+		label lblSuggest "欢迎提供建议或灵感，\r\n可以点击下方横幅联系~" visible:false width:240 height:60 pos:[20, 300]
 
 -----------------------------------------------------------------------------------------------------------------------------------------
 
 		groupBox gpbType "" pos:[5,55] width:250 height:145 visible:false
 
 		radiobuttons radObject "类型" pos:[20,70] labels:#( "几何体", "形状", "所有组", "所有物体", "选择物体" )  visible:false
-		radiobuttons radColor "配色" pos:[130,70] columns:2 labels:#( "粉彩", "灰白", "毒彩" , "黏土" , "淡彩", "深沉" , "荧彩", "随机")  visible:false
+		radiobuttons radColor "配色" pos:[130,75] columns:2 labels:#( "粉彩", "灰白", "毒彩" , "黏土" , "淡彩", "深沉" , "荧彩", "随机")  visible:false
 		checkButton chkIsInstance "相关实例" pos:[20,170] height:20 width:80 tooltip:"启用后，相关实例\r\n(如复制出的Instance)\r\n也会保持一致的颜色。" height:  30 align:#left  visible:false
 		checkbutton btnRandom ">> 随机颜色 <<" pos:[120,160] height:30 width:125 visible:false border:false checked:true 
 
@@ -117,18 +122,18 @@ global dragStateBsBoxMan = off
 		button btnSet "应用自发光"  pos:[180,330] width:75 height:20 tooltip:"调节选中，否则全部。\r\n需要先有材质!\r\n且非一致色彩模式!"  visible:false
 		button btnSet0 "0"  pos:[105,330] width:25 height:20 tooltip:"调节选中，否则全部。"  visible:false
 		button btnSet100 "100"  pos:[140,330] width:30 height:20 tooltip:"调节选中，否则全部。"  visible:false
-		slider sldValue ""  pos:[15,350] align:#center range:[0,100,0]  visible:false \
-		type:#integer tooltip:"调节选中，否则全部。" width:250
+		slider sldValue ""  pos:[10,350] align:#center range:[0,100,0]  visible:false \
+		type:#integer tooltip:"调节选中，否则全部。" width:255 
 
-		HyperLink lnkLink "Adapter: Bullet.S" color:(color 255 255 255) hovercolor:(color 255 0 0) visitedcolor:(color 255 255 255) visible:false \
+		HyperLink lnkLink "Mod: Bullet.S" color:(color 255 255 255) hovercolor:(color 255 0 0) visitedcolor:(color 255 255 255) visible:false \
 		address:"https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" pos:[165,390]
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-		local arrCreateBox = #("方块包裹",#(lblLenth,lblWidth,lblHeight,ckbReset,gpbBox,gbpLWH,\
+		local arrCreateBox = #("方块包裹",#(uiChkKeepParentBox,lblLenth,lblWidth,lblHeight,ckbReset,gpbBox,gbpLWH,\
 			chkCreateBodyBox,rdoColor,rtcp,ckbFreeze,btnClearBox,ckbSync,rdoReduce,sldLenthValue,sldWidthValue,\
 			sldHeightValue,gpbDisplayUnit,gpbSystemUnit,btnGetUnit,ddlSystemUnit,ddlMetric,lblLenthValue,lblWidthValue,lblHeightValue))
-		local arrRefBones = #("参考骨骼",#(uiChkKeepParent,uiBtnClearAll,chkProcess,uiBtnSelect,uiSpnBoneWidth,uiColorWireColor,uiChkOptPos,\
+		local arrRefBones = #("参考骨骼",#(lblSuggest,gpbRefDummy,gpbRefBone,uiChkKeepParent,uiBtnClearAll,chkProcess,uiBtnSelect,uiSpnBoneWidth,uiColorWireColor,uiChkOptPos,\
 			uiChkOptRot,uiChkOptScale,uiChkOptInheritScale,uiDummySize,uiBtnDummy,uiBtnHelp))
 		local arrEquipTools = #("⚔️ 装备",#())
 		local arrColorTools = #("🎨 调色",#(gpbRealTime,gpbType,radObject,radColor,chkIsInstance,btnRandom,gpbGradient,cpGradient1,cpGradient2,\
@@ -437,6 +442,7 @@ global dragStateBsBoxMan = off
 
 		fn fnCreateBoxBody =
 		(
+			arrBoxes = #()
 			LayerManager.newLayerFromName "001_Ref_Boxes"
 			tmpLayer = LayerManager.getLayerFromName "001_Ref_Boxes"
 
@@ -458,8 +464,20 @@ global dragStateBsBoxMan = off
 				lc.addTarget i 0
 				-- freeze b
 				b.showFrozenInGray = off
-
+				append arrBoxes b
 				tmplayer.addnode b
+			)
+
+			if uiChkKeepParentBox.state then 
+			(
+				for i in arrBoxes where not isDeleted i and isValidnode i do
+				(
+					parentBox = (getnodebyname (replace i.name (i.name.count - 11) "_BsBoxManBox".count "")).parent
+					if parentBox != undefined and not isDeleted parentBox and isValidnode parentBox then
+					(
+						i.parent = getnodebyname (parentBox.name + "_BsBoxManBox")
+					)
+				)
 			)
 		)
 
@@ -624,10 +642,10 @@ global dragStateBsBoxMan = off
 						default:()
 					)
 				) -- for end
-				if tTarget.count != 0 do (		-- CheckWorkingBone 체크에 의해 tTarget 개수가 0일 가능성이 있음.
-					--for o = 1 to tTarget.count do (AutoParent tTarget[o] tNew[o])
+				if ((tTarget.count != 0) and (uiChkKeepParent.state == true)) do 
+				(		-- CheckWorkingBone 체크에 의해 tTarget 개수가 0일 가능성이 있음.
+					for o = 1 to tTarget.count do (AutoParent tTarget[o] tNew[o])
 				)
-				
 				select tNew
 
 				for i in selection do tmplayer.addnode i
@@ -1132,19 +1150,58 @@ global dragStateBsBoxMan = off
 		on sldLenthValue changed val do 
 		(
 			fnRefreshSliderValue()
-			try(if rdoReduce.state == 2 then $.scale.x = (1.0/val) else $.scale.x = val)catch()
+			if ckbSync.state == false then
+			(
+				try(if rdoReduce.state == 2 then $.scale.x = (1.0/val) else $.scale.x = val)catch()
+			)
+			else 
+			(
+				try(
+					if rdoReduce.state == 2 then $.scale.x = (1.0/val) else $.scale.x = val
+					if rdoReduce.state == 2 then $.scale.y = (1.0/val) else $.scale.y = val
+					if rdoReduce.state == 2 then $.scale.z = (1.0/val) else $.scale.z = val
+					sldWidthValue.value = val
+					sldHeightValue.value = val
+				)catch()
+			)
 		)
 
 		on sldWidthValue changed val do 
 		(
 			fnRefreshSliderValue()
-			try(if rdoReduce.state == 2 then $.scale.y = (1.0/val) else $.scale.y = val)catch()
+			if ckbSync.state == false then
+			(
+				try(if rdoReduce.state == 2 then $.scale.y = (1.0/val) else $.scale.y = val)catch()
+			)
+			else
+			(
+				try(
+					if rdoReduce.state == 2 then $.scale.x = (1.0/val) else $.scale.x = val
+					if rdoReduce.state == 2 then $.scale.y = (1.0/val) else $.scale.y = val
+					if rdoReduce.state == 2 then $.scale.z = (1.0/val) else $.scale.z = val
+					sldHeightValue.value = val
+					sldLenthValue.value = val
+				)catch()
+			)
 		)
 
 		on sldHeightValue changed val do 
 		(
 			fnRefreshSliderValue()
-			try(if rdoReduce.state == 2 then $.scale.z = (1.0/val) else $.scale.z = val)catch()
+			if ckbSync.state == false then
+			(
+				try(if rdoReduce.state == 2 then $.scale.z = (1.0/val) else $.scale.z = val)catch()
+			)
+			else
+			(
+				try(
+					if rdoReduce.state == 2 then $.scale.x = (1.0/val) else $.scale.x = val
+					if rdoReduce.state == 2 then $.scale.y = (1.0/val) else $.scale.y = val
+					if rdoReduce.state == 2 then $.scale.z = (1.0/val) else $.scale.z = val
+					sldWidthValue.value = val
+					sldLenthValue.value = val
+				)catch()
+			)
 		)
 
 		on ckbReset changed state do 
@@ -1163,6 +1220,10 @@ global dragStateBsBoxMan = off
 		)
 
 		on lblTips mouseup arg do
+		(
+			shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" ""
+		)
+		on btnAbout pressed do 
 		(
 			shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" ""
 		)

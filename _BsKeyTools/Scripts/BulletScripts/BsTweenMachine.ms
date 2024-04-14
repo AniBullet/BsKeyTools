@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-13 13:20:58
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-14 03:45:22
+ * @LastEditTime: 2024-04-14 14:43:51
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -439,16 +439,16 @@ rollout rolBsTweenMachine "" width:335 height:185
 	
 	groupbox gpbOutline "" pos:[5,15] width:325 height:145
 
-	label lblTitle "BsTweenMachine_v2.0" pos:[5,3]
+	label lblTitle "TweenMachineMod_v2.0" pos:[5,3]
 	button btnAbout "?" pos:[rolBsTweenMachine.width - 40,0] height:16 width:20
 	button btnClose "X" pos:[rolBsTweenMachine.width - 20,0] height:16 width:20 
 	spinner tweenSp "Key % " range:[0.0,100.0,50.0] width:75 height:20 pos:[40,58]
 	button less "-10" width:45 pos:[15,30] height:20
 	button more "+10" width:45 pos:[70,30] height:20
-	radiobuttons rdoType "" pos:[210,30] offsets:#([0,0],[-7,0]) columns:2 labels:#("选中","全 Biped") default:1
+	radiobuttons rdoType "" pos:[210,30] offsets:#([0,0],[-10,0]) columns:2 labels:#("选中","全Biped") default:1
 	button btnFrameTick "整小数帧" pos:[132.5,30] width:65 height:20 checked:true
 	button btnStepPlay	"|◀▶| 切换" pos:[132.5,55] width:65 height:20
-	checkbutton chkAutoKey	"自动帧 - AutoKey (N)" pos:[210,55] width:110 height:20 checked:animButtonState
+	checkbutton chkAutoKey	"自动帧-AutoKey(N)" pos:[210,55] width:110 height:20 checked:animButtonState
 	
 	checkbutton prev "前 Pose" pos:[10,85] width:50 height:30 border:true checked:true
 	button onefourth "25.0" pos:[65,90] width:30 height:20 border:true
@@ -462,7 +462,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 	hyperlink website "TheMichaelSmith" tooltip:"" pos:[20,165]
 	hoverColor:red address:"http://www.themichaelsmith.com/p/tutorials.html" 
 
-	hyperLink hplHome "Bullet.S" address:"https://www.anibullet.com/" hoverColor:green pos:[280,165]
+	hyperLink hplHome "Bullet.S" address:"https://www.anibullet.com/" hoverColor:green pos:[270,165]
 
 	on rolBsTweenMachine open do
 	(

@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-14 03:53:19
+ * @LastEditTime: 2024-04-14 22:24:24
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -527,6 +527,8 @@ rcmenu menuConfig
 		menuItem mItemBackupConfigFile "备份配置 [电脑桌面]"
 		menuItem mItemRolloutBuilder "脚本界面 [学习工具]"
 		menuItem mItemHwndViewer "句柄研究 [查看工具]"
+		menuItem mItemDotNetProperty "DotNet属性 [索引工具]"
+		menuItem mItemFixThumbnail "修复缩略图 [管理员运行]"
 	)
 
 	on menuConfig open do
@@ -607,6 +609,12 @@ rcmenu menuConfig
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\simple_hwnd_viewer.ms"))
 		catch(messagebox "打开 simple_hwnd_viewer.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on mItemDotNetProperty picked do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Show.NetProperty.ms"))
+		catch(messagebox "打开 Show.NetProperty.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemIsStartup picked do 
@@ -808,6 +816,14 @@ rcmenu menuConfig
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\WinBox.ms"))
 		catch(messagebox "打开 WinBox.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on mItemFixThumbnail picked do
+	(
+		if (queryBox "尝试修复缩略图，若失败请注意先用管理员运行3dsMax...                          " title:"BsKeyTools") then
+		(
+			try(HiddenDOSCommand ("regsvr32 \"" + (getdir #maxroot) + "MaxThumbnailShellExt.dll\""))catch(messagebox "修复缩略图失败，\r\n\r\n必须先管理员运行3dsMax...                    " beep:false title:"BsKeyTools")
+		)
 	)
 )
 
