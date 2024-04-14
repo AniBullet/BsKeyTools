@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-15 00:57:41
+ * @LastEditTime: 2024-04-15 00:59:54
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -188,13 +188,11 @@ global dragStateBsADT = off
 
 		on btnHideTrail pressed do
 		(
-			btnHideTrail.state = true
 			try(hide $'BsGhostTrails_*')catch()
 		)
 
 		on btnShowTrail pressed do
 		(
-			btnShowTrail.state = true
 			try(unhide $'BsGhostTrails_*')catch()
 		)
 	)
