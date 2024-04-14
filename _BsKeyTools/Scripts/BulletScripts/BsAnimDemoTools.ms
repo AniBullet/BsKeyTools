@@ -140,9 +140,9 @@ global dragStateBsADT = off
 			)
 		)
 
-		on btnCreateLine pressed do
+		on chkCreateLine changed state do
 		(
-			
+			chkCreateLine.state = true
 			if selection.count == 2 then
 			(
 				local p1 = selection[1].pos
