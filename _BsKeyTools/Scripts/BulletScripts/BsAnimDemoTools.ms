@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-15 11:00:25
+ * @LastEditTime: 2024-04-15 20:03:48
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -38,6 +38,7 @@ global dragStateBsADT = off
 		------------------------------------------------------------------------------------------------------------------------------
 -- TODO：导出到引擎
 -- TODO：透明材质
+-- TODO：缩小高度，默认收缩，添加0-100以外的补间
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
 		local arrGhostTrails = #("刀光",#())
