@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-13 13:20:58
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-15 10:42:34
+ * @LastEditTime: 2024-04-16 01:27:33
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -422,7 +422,7 @@ fn TweenMachine sliderValue objArray =
 	)
 	else
 	(
-		messageBox "必须打开 AutoKey 或者 SetKey，否则可能造成其他帧 Pose 混乱~                        " title:"BsTweenMachine - 请注意..."
+		messageBox "必须打开 AutoKey 或者 SetKey，否则可能造成其他帧 Pose 混乱~                        " title:"TweenMachine - 请注意..."
 	)
 )
 
@@ -433,40 +433,60 @@ fn TweenMachine sliderValue objArray =
 --slider value is determined with it.
 ------------------------------------------------------------------------------------------
 
-rollout rolBsTweenMachine "" width:335 height:185
+rollout rolBsTweenMachine "" width:410 height:120
 (
 	local theMessageError ="出错，请重试，或联系作者~                  "
 	
-	groupbox gpbOutline "" pos:[5,15] width:325 height:145
+	groupbox gpbOutline "" pos:[5,15] width:400 height:100
 
-	label lblTitle "TweenMachineMod_v2.0" pos:[5,3]
-	button btnAbout "?" pos:[rolBsTweenMachine.width - 40,0] height:16 width:20
+	label lblTitle "TweenMachine_Mod_v2.1" pos:[5,3]
+	button btnLink "关于" pos:[rolBsTweenMachine.width - 100,0] height:16 width:50
+	button btnHelp "?" pos:[rolBsTweenMachine.width - 40,0] height:16 width:20
 	button btnClose "X" pos:[rolBsTweenMachine.width - 20,0] height:16 width:20 
-	spinner tweenSp "Key % " range:[0.0,100.0,50.0] width:75 height:20 pos:[40,58]
-	button less "-10" width:45 pos:[15,30] height:20
-	button more "+10" width:45 pos:[70,30] height:20
-	radiobuttons rdoType "" pos:[210,30] offsets:#([0,0],[-5,0]) columns:2 labels:#("选中","全Biped") default:1
-	button btnFrameTick "整小数帧" pos:[132.5,30] width:65 height:20 checked:true
-	button btnStepPlay	"|◀▶| 切换" pos:[132.5,55] width:65 height:20
-	checkbutton chkAutoKey	"自动帧-AutoKey(N)" pos:[210,55] width:110 height:20 checked:animButtonState
+	spinner tweenSp "Key % " range:[-100.0,200.0,50.0] width:80 height:20 pos:[205,93]
+	button less "--10" width:40 pos:[15,60] height:25
+	button more "++10" width:40 pos:[355,60] height:25
+	radiobuttons rdoType "" pos:[300,93] offsets:#([0,0],[0,0]) columns:2 labels:#("选中","全Bip") default:1
+	-- button btnFrameTick "整小数帧" pos:[132.5,90] width:65 height:20 checked:true
+	button btnStepPlay	"|◀▶| 切换" pos:[15,90] width:65 height:20
+	checkbutton chkAutoKey	"AutoKey(N)" pos:[90,90] width:80 height:20 checked:animButtonState
 	
-	checkbutton prev "前 Pose" pos:[10,85] width:50 height:30 border:true checked:true
-	button onefourth "25.0" pos:[65,90] width:30 height:20 border:true
-	button onethird "33.3" pos:[100,90] width:30 height:20 border:true
-	checkbutton tween "中间 Pose" pos:[135,85] width:60 height:30 border:true checked:true
-	button twothird "66.6" pos:[200,90] width:30 height:20 border:true
-	button threefourth "75.0" pos:[235,90] width:30 height:20 border:true
-	checkbutton next "后 Pose" pos:[270,85] width:50 height:30 border:true checked:true
-	slider tweenSl range:[0.0,100.0,50.0] pos:[15,125] width:315 ticks:10
+	checkbutton prev "前 Pose" pos:[50,25] width:50 height:30 border:true checked:true
+	button twoNegativeHundred "-100" pos:[15,30] width:30 height:20 border:true tooltip:"慎用，可能出现未知pose...\r\n别怕，可以回退~"
+	button onefourth "25.0" pos:[105,30] width:30 height:20 border:true
+	button onethird "33.3" pos:[140,30] width:30 height:20 border:true
+	checkbutton tween "中间 Pose" pos:[175,25] width:60 height:30 border:true checked:true
+	button twothird "66.6" pos:[240,30] width:30 height:20 border:true
+	button threefourth "75.0" pos:[275,30] width:30 height:20 border:true
+	checkbutton next "后 Pose" pos:[310,25] width:50 height:30 border:true checked:true
+	button twoHundred "200" pos:[365,30] width:30 height:20 border:true tooltip:"慎用，可能出现未知pose...\r\n别怕，可以回退~"
+	slider tweenSl range:[0.0,100.0,50.0] pos:[65,55] width:295 ticks:10
 
-	hyperlink website "TheMichaelSmith" tooltip:"" pos:[20,165]
+	hyperlink website "TheMichaelSmith" tooltip:"" pos:[20,120]
 	hoverColor:red address:"http://www.themichaelsmith.com/p/tutorials.html" 
 
-	hyperLink hplHome "Bullet.S" address:"https://www.anibullet.com/" hoverColor:green pos:[270,165]
+	hyperLink hplHome "Bullet.S" address:"https://www.anibullet.com/" hoverColor:green pos:[320,120]
+
+	
+	fn fnBsRefreshAutoKeyState = 
+	(
+		rolBsTweenMachine.chkAutoKey.state = animButtonState
+	)
 
 	on rolBsTweenMachine open do
 	(
+		callbacks.addScript #filePostOpen "rolBsTweenMachine.fnBsRefreshAutoKeyState()" id:#BsTMCallbackOpen
+		callbacks.addScript #systemPostNew "rolBsTweenMachine.fnBsRefreshAutoKeyState()" id:#BsTMCallbackNew
+		callbacks.addScript #systemPostReset "rolBsTweenMachine.fnBsRefreshAutoKeyState()" id:#BsTMCallbackReset
+		callbacks.addScript #selectionSetChanged "rolBsTweenMachine.fnBsRefreshAutoKeyState()" id:#BsTMSelChange
+	)
 
+	on rolBsTweenMachine close do 
+	(
+		callbacks.removeScripts id:#BsTMCallbackOpen
+		callbacks.removeScripts id:#BsTMCallbackNew
+		callbacks.removeScripts id:#BsTMCallbackReset
+		callbacks.removeScripts id:#BsTMSelChange
 	)
 
 	on btnClose pressed do 
@@ -521,7 +541,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
@@ -536,7 +556,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
@@ -551,14 +571,14 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
 	on less pressed do
 	(
-		if tweenSp.value < 10 then tweenSp.value = 0.0 else tweenSp.value -= 10.0
-		if tweenSl.value < 10 then tweenSl.value = 0.0 else tweenSl.value -= 10.0
+		if tweenSp.value < -100 then tweenSp.value = -100.0 else tweenSp.value -= 10.0
+		if tweenSl.value < 0 then tweenSl.value = 0.0 else (if tweenSp.value < 100 and tweenSp.value >= 0 do tweenSl.value -= 10.0)
 		sliderValue = tweenSP.value/100	
 		try
 		(	
@@ -568,14 +588,14 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
 	on more pressed do
 	(
-		if tweenSp.value > 90 then tweenSp.value = 100.0 else tweenSp.value += 10.0
-		if tweenSl.value > 90 then tweenSl.value = 100.0 else tweenSl.value += 10.0
+		if tweenSp.value > 200 then tweenSp.value = 200.0 else tweenSp.value += 10.0
+		if tweenSl.value > 100 then tweenSl.value = 100.0 else (if tweenSp.value <= 100 and tweenSp.value > 0 do (tweenSl.value += 10.0))
 		sliderValue = tweenSP.value/100	
 		try
 		(	
@@ -585,7 +605,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
@@ -603,7 +623,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
@@ -620,7 +640,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
@@ -637,7 +657,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
@@ -654,7 +674,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
@@ -671,7 +691,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
@@ -689,7 +709,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 		)
 		catch 
 		(	
-			messageBox theMessageError title:"BsTweenMachine - ERROR"
+			messageBox theMessageError title:"TweenMachine - ERROR"
 		)
 	)
 	
@@ -707,7 +727,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 		--)
 		--catch 
 		--(	
-		--	messageBox theMessageError title:"BsTweenMachine - ERROR"
+		--	messageBox theMessageError title:"TweenMachine - ERROR"
 		--)
 	)
 
@@ -721,26 +741,67 @@ rollout rolBsTweenMachine "" width:335 height:185
 		max key mode
 	)
 
-	on btnFrameTick pressed do 
-	(
-		if timeDisplayMode != #frameTicks then 
-		(
-			timeDisplayMode = #frameTicks
-		)
-		else 
-		(
-			timeDisplayMode = #frames
-		)
-		disableSceneRedraw()
-		trackbar.visible = false
-		trackbar.visible = true
-		enableSceneRedraw()
-	)
+	-- on btnFrameTick pressed do 
+	-- (
+	-- 	if timeDisplayMode != #frameTicks then 
+	-- 	(
+	-- 		timeDisplayMode = #frameTicks
+	-- 	)
+	-- 	else 
+	-- 	(
+	-- 		timeDisplayMode = #frames
+	-- 	)
+	-- 	disableSceneRedraw()
+	-- 	trackbar.visible = false
+	-- 	trackbar.visible = true
+	-- 	enableSceneRedraw()
+	-- )
 
-	on btnAbout pressed do 
+	on btnHelp pressed do 
 	(
 		shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" ""
 	)
+
+	on twoNegativeHundred pressed do
+	(
+		tweenSp.value = -100.0
+		tweenSl.value = 0.0
+		sliderValue = tweenSP.value/100
+		try
+		(	
+			if rdoType.state !=	2 then tarObjs = (selection as array)
+			else tarObjs = (for obj in objects where (classof obj.baseObject == Biped_Object) collect obj)
+			TweenMachine sliderValue tarObjs
+		)
+		catch 
+		(	
+			messageBox theMessageError title:"TweenMachine - ERROR"
+		)
+	)
+
+	on twoHundred pressed do
+	(
+		tweenSp.value = 200.0
+		tweenSl.value = 100.0
+		sliderValue = tweenSP.value/100
+		try
+		(	
+			if rdoType.state !=	2 then tarObjs = (selection as array)
+			else tarObjs = (for obj in objects where (classof obj.baseObject == Biped_Object) collect obj)
+			TweenMachine sliderValue tarObjs
+		)
+		catch 
+		(	
+			messageBox theMessageError title:"TweenMachine - ERROR"
+		)
+	)
+
+	on btnLink pressed do 
+	(
+		if rolBsTweenMachine.height == 120 then rolBsTweenMachine.height = 135
+		else rolBsTweenMachine.height = 120
+	)
+
 )
 CreateDialog rolBsTweenMachine style: #()
 
