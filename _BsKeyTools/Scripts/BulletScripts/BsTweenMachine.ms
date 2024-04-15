@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-13 13:20:58
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-14 14:43:51
+ * @LastEditTime: 2024-04-15 10:40:34
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -445,7 +445,7 @@ rollout rolBsTweenMachine "" width:335 height:185
 	spinner tweenSp "Key % " range:[0.0,100.0,50.0] width:75 height:20 pos:[40,58]
 	button less "-10" width:45 pos:[15,30] height:20
 	button more "+10" width:45 pos:[70,30] height:20
-	radiobuttons rdoType "" pos:[210,30] offsets:#([0,0],[-10,0]) columns:2 labels:#("选中","全Biped") default:1
+	radiobuttons rdoType "" pos:[210,30] offsets:#([0,0],[-5,0]) columns:2 labels:#("选中","全Biped") default:1
 	button btnFrameTick "整小数帧" pos:[132.5,30] width:65 height:20 checked:true
 	button btnStepPlay	"|◀▶| 切换" pos:[132.5,55] width:65 height:20
 	checkbutton chkAutoKey	"自动帧-AutoKey(N)" pos:[210,55] width:110 height:20 checked:animButtonState
