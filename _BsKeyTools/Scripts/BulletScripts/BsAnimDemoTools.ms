@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-15 00:59:54
+ * @LastEditTime: 2024-04-15 11:00:25
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -36,7 +36,8 @@ global dragStateBsADT = off
 		checkbutton chkCreateTrail "2.创建刀光" pos:[100,95] width:75 height:20 checked:true
 		button btnDeleteTrail "清除线和刀光" pos:[180,95] width:75 height:20
 		------------------------------------------------------------------------------------------------------------------------------
-
+-- TODO：导出到引擎
+-- TODO：透明材质
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
 		local arrGhostTrails = #("刀光",#())
