@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-14 22:24:24
+ * @LastEditTime: 2024-04-15 10:43:05
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -3554,7 +3554,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnTweenMachine pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsTweenMachine.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\BsTweenMachine.ms"))
 		catch(messagebox "打开 BsKeyStepMode.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
