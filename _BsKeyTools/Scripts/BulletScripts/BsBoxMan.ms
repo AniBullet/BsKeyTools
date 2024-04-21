@@ -414,7 +414,7 @@ global dragStateBsBoxMan = off
 		(
 			lblTips.font       = dotnetobject "System.Drawing.Font" "Roboto" 8
 			lblTips.TextAlign  = (dotnetclass "system.drawing.contentalignment").MiddleCenter
-			lblTips.BackColor  = (dotColor.FromArgb	255 250 250)
+			lblTips.BackColor  = (dotColor.FromArgb	200 200 200)
 			lblTips.ForeColor  = (dotColor.FromArgb 60 0 160)
 			tabBoxMan.sizeMode  = (dotnetclass "System.Windows.Forms.TabSizeMode").Fixed
 			tabBoxMan.itemSize  = dotNetObject "System.Drawing.Size" 60 30

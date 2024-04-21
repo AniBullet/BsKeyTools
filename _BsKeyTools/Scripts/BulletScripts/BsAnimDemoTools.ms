@@ -3,10 +3,10 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-15 20:03:48
+ * @LastEditTime: 2024-04-22 01:12:34
  * @Email: animator.bullet@foxmail.com
  */
-
+--E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
 
 try(destroyDialog rolBsAnimDemoTools )catch()
 
@@ -20,22 +20,39 @@ global dragStateBsADT = off
 	rollout rolBsAnimDemoTools "" width:265 height:300
 	(
 		local dotColor = dotnetclass "System.Drawing.Color"
-
+		button btnRegister "注册" pos:[rolBsAnimDemoTools.width - 80,0] width:40 height:16 border:false
 		button btnAbout "?" pos:[rolBsAnimDemoTools.width - 40,0] height:16 width:20
 		button btnClose "X" pos:[rolBsAnimDemoTools.width - 20,0] height:16 width:20
-		label lblTitle "BsAnimDemoTools_v1.0" pos:[5,3]
+		label lblTitle "BsAnimDemo_v1.0" pos:[5,3]
 		dotNetControl tabBsADT "System.Windows.Forms.TabControl" height:30 width:rolBsAnimDemoTools.width pos:[0,20] align:#center
-
 		------------------------------------------------------------------------------------------------------------------------------
-		groupbox gpbTrail "GhostTrails" pos:[5,50] width:(rolBsAnimDemoTools.width - 10) height:75
-		spinner spnRadian "弧度 " pos:[30,72] width:60 height:20 type:#float range:[-20,20,0] scale:0.1
-		checkbutton chkCreateLine "1.创建线" pos:[100,70] width:75 height:20 checked:true
-		button btnDeleteLine "删除线" pos:[180,70] width:75 height:20
-		button btnHideTrail "隐藏" pos:[15,95] width:35 height:20
-		button btnShowTrail "显示" pos:[55,95] width:35 height:20 
-		checkbutton chkCreateTrail "2.创建刀光" pos:[100,95] width:75 height:20 checked:true
-		button btnDeleteTrail "清除线和刀光" pos:[180,95] width:75 height:20
-		------------------------------------------------------------------------------------------------------------------------------
+		groupbox gpbTrail "" pos:[5,50] width:(rolBsAnimDemoTools.width - 10) height:70
+		spinner spnRadian "弧度 " pos:[30,65] width:60 height:20 type:#float range:[-20,20,0] scale:0.1
+		checkbutton chkCreateLine "1.创建线" pos:[100,65] width:75 height:20 checked:true
+		checkbutton chkCreateTrail "2.创建刀光" pos:[180,65] width:75 height:20 checked:true
+		button btnSelectTrail "选中" pos:[15,90] width:55 height:20
+		button btnHideTrail "隐藏" pos:[75,90] width:55 height:20
+		button btnShowTrail "显示" pos:[135,90] width:55 height:20 
+		button btnDeleteTrail "清除" pos:[195,90] width:60 height:20
+		-------------------------------------------------------------------------------------------------------------------------------------
+		groupbox gpbPreset "" pos:[5,120] width:(rolBsAnimDemoTools.width - 10) height:65
+		radiobuttons rdoTrailType "刀光类型:" labels:#("移动","固定") columns:2 pos:[15,135] offsets:#([60,-16],[0,-16])
+		spinner spnFrameToLag "帧延迟" pos:[190,136]	width:60 height:20 type:#integer range:[0,1000,3]
+		checkbox ckbSetRange "指定帧范围" pos:[15,156] width:75 height:20 checked:false enabled:false
+		spinner spnStartFrame "起始" pos:[120,160] width:55 height:20 type:#integer range:[0,999999,animationrange.start] enabled:false
+		spinner spnEndFrame "结束" pos:[195,160] width:55 height:20 type:#integer range:[0,999999,animationrange.end] enabled:false
+		----------------------------------------------------------------------------------------------------------------------------------------
+		groupbox gpbMesh "" pos:[5,185] width:(rolBsAnimDemoTools.width - 10) height:65
+		spinner spnSegments "每帧段数" pos:[45,200] width:75 height:20 type:#integer range:[0.0001,1000,10.0]
+		spinner spnSplineSteps "样条步数" pos:[165,200] width:75 height:20 type:#integer range:[0,1000,2]
+		spinner spnURepeat "U 重复" pos:[40,225] width:55 height:20 type:#integer range:[0.0001,1000,1]
+		checkbox ckbFlipNormals "翻转法线" pos:[110,223] width:70 height:20 checked:false
+		checkbox ckbGenerateMapping "生成映射" pos:[185,223] width:70 height:20 checked:true
+		-----------------------------------------------------------------------------------------------------------------------------------------
+		button btnMaterial "材质窗口" pos:[5,255] width:70 height:20
+		dropdownlist ddlDefaultTex "" pos:[80,255] width:80 height:20 items:#("默认刀光")
+		button btnSelectTex "指定" pos:[170,255] width:40 height:20
+		-------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO：导出到引擎
 -- TODO：透明材质
 -- TODO：缩小高度，默认收缩，添加0-100以外的补间
@@ -51,7 +68,7 @@ global dragStateBsADT = off
 		(
 			lblTips.font       = dotnetobject "System.Drawing.Font" "Roboto" 8
 			lblTips.TextAlign  = (dotnetclass "system.drawing.contentalignment").MiddleCenter
-			lblTips.BackColor  = (dotColor.FromArgb	255 250 250)
+			lblTips.BackColor  = (dotColor.FromArgb	200 200 200)
 			lblTips.ForeColor  = (dotColor.FromArgb 139 0 0)
 			tabBsADT.sizeMode  = (dotnetclass "System.Windows.Forms.TabSizeMode").Fixed
 			tabBsADT.itemSize  = dotNetObject "System.Drawing.Size" 65 30
@@ -75,6 +92,11 @@ global dragStateBsADT = off
 				else (for j in arrAllToolsTab[i][2] do j.visible = false)
 			)
 			LastSubRollout = id
+		)
+
+		fn fnInitGUI =
+		(
+			
 		)
 
 		fn fnMakeSpline pos1 pos2 sinkF:0 = 
@@ -152,12 +174,13 @@ global dragStateBsADT = off
 				local spline = fnMakeSpline p1 p2 sinkF:spnRadian.value
 				local newName = "BsGhostTrails_" + spline.name
 				spline.name = newName
-				
+				CenterPivot spline
 				lc = Link_Constraint()
 				spline.transform.controller = lc
 				lc.key_mode = 0
 				lc.addTarget selection[1] 0
 				spline.showFrozenInGray = off
+				spline.isfrozen = on
 
 				select spline
 			) 
@@ -186,6 +209,11 @@ global dragStateBsADT = off
 			(
 				try(delete $'BsGhostTrails_*';messagebox "清除 GhostTrails 刀光相关物体成功!                      " title:"BsAnimDemoTools")catch()
 			)
+		)
+
+		on btnSelectTrail pressed do
+		(
+			try(select $'BsGhostTrails_*';max modify mode)catch()
 		)
 
 		on btnHideTrail pressed do
