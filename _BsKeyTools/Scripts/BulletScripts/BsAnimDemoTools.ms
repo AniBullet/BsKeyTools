@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-22 09:10:42
+ * @LastEditTime: 2024-04-22 09:15:39
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -30,7 +30,7 @@ global dragStateBsADT = off
 		spinner spnRadian "弧度 " pos:[30,65] width:60 height:20 type:#float range:[-20,20,0] scale:0.1
 		checkbutton chkCreateLine "1.创建线" pos:[100,65] width:75 height:20 checked:true
 		checkbutton chkCreateTrail "2.创建刀光" pos:[180,65] width:75 height:20 checked:true
-		button btnSelectTrail "选中" pos:[15,90] width:55 height:24
+		button btnSelectTrail "选中" pos:[10,90] width:60 height:24
 		button btnHideTrail "隐藏" pos:[75,90] width:55 height:24
 		button btnShowTrail "显示" pos:[135,90] width:55 height:24
 		button btnDeleteTrail "清除" pos:[195,90] width:60 height:24
