@@ -30,10 +30,10 @@ global dragStateBsADT = off
 		spinner spnRadian "弧度 " pos:[30,65] width:60 height:20 type:#float range:[-20,20,0] scale:0.1
 		checkbutton chkCreateLine "1.创建线" pos:[100,65] width:75 height:20 checked:true
 		checkbutton chkCreateTrail "2.创建刀光" pos:[180,65] width:75 height:20 checked:true
-		button btnSelectTrail "选中" pos:[15,90] width:55 height:20
-		button btnHideTrail "隐藏" pos:[75,90] width:55 height:20
-		button btnShowTrail "显示" pos:[135,90] width:55 height:20 
-		button btnDeleteTrail "清除" pos:[195,90] width:60 height:20
+		button btnSelectTrail "选中" pos:[15,90] width:55 height:24
+		button btnHideTrail "隐藏" pos:[75,90] width:55 height:24
+		button btnShowTrail "显示" pos:[135,90] width:55 height:24
+		button btnDeleteTrail "清除" pos:[195,90] width:60 height:24
 		-------------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbPreset "" pos:[5,120] width:(rolBsAnimDemoTools.width - 10) height:65
 		radiobuttons rdoTrailType "类型:" labels:#("移动","固定") columns:2 pos:[15,135] offsets:#([40,-16],[0,-16])
