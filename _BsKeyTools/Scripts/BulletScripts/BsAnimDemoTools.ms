@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-22 01:12:34
+ * @LastEditTime: 2024-04-22 09:10:42
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -36,22 +36,23 @@ global dragStateBsADT = off
 		button btnDeleteTrail "清除" pos:[195,90] width:60 height:20
 		-------------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbPreset "" pos:[5,120] width:(rolBsAnimDemoTools.width - 10) height:65
-		radiobuttons rdoTrailType "刀光类型:" labels:#("移动","固定") columns:2 pos:[15,135] offsets:#([60,-16],[0,-16])
-		spinner spnFrameToLag "帧延迟" pos:[190,136]	width:60 height:20 type:#integer range:[0,1000,3]
-		checkbox ckbSetRange "指定帧范围" pos:[15,156] width:75 height:20 checked:false enabled:false
+		radiobuttons rdoTrailType "类型:" labels:#("移动","固定") columns:2 pos:[15,135] offsets:#([40,-16],[0,-16])
+		spinner spnFrameToLag "帧延迟" pos:[185,136] width:65 height:20 type:#integer range:[0,1000,3]
+		checkbox ckbSetRange "指定帧范围" pos:[15,158] width:80 height:20 checked:false enabled:false
 		spinner spnStartFrame "起始" pos:[120,160] width:55 height:20 type:#integer range:[0,999999,animationrange.start] enabled:false
 		spinner spnEndFrame "结束" pos:[195,160] width:55 height:20 type:#integer range:[0,999999,animationrange.end] enabled:false
 		----------------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbMesh "" pos:[5,185] width:(rolBsAnimDemoTools.width - 10) height:65
-		spinner spnSegments "每帧段数" pos:[45,200] width:75 height:20 type:#integer range:[0.0001,1000,10.0]
-		spinner spnSplineSteps "样条步数" pos:[165,200] width:75 height:20 type:#integer range:[0,1000,2]
-		spinner spnURepeat "U 重复" pos:[40,225] width:55 height:20 type:#integer range:[0.0001,1000,1]
+		spinner spnSegments "每帧段数" pos:[40,200] width:90 height:20 type:#float range:[0.0001,1000,10.0]
+		spinner spnSplineSteps "线 段数" pos:[175,200] width:75 height:20 type:#integer range:[0,1000,6]
+		spinner spnURepeat "U 重复" pos:[40,224] width:55 height:20 type:#float range:[0.0001,1000,1.0]
 		checkbox ckbFlipNormals "翻转法线" pos:[110,223] width:70 height:20 checked:false
 		checkbox ckbGenerateMapping "生成映射" pos:[185,223] width:70 height:20 checked:true
 		-----------------------------------------------------------------------------------------------------------------------------------------
-		button btnMaterial "材质窗口" pos:[5,255] width:70 height:20
-		dropdownlist ddlDefaultTex "" pos:[80,255] width:80 height:20 items:#("默认刀光")
-		button btnSelectTex "指定" pos:[170,255] width:40 height:20
+		button btnMaterial "材质窗口" pos:[5,256] width:65 height:20
+		button btnTransparency "透明" pos:[75,256] width:40 height:20
+		dropdownlist ddlDefaultTex "" pos:[120,255] width:90 height:20 items:#("默认刀光")
+		button btnSelectTex "指定" pos:[215,256] width:45 height:20
 		-------------------------------------------------------------------------------------------------------------------------------------------
 -- TODO：导出到引擎
 -- TODO：透明材质
