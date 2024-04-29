@@ -206,3 +206,27 @@ fn addToolBarButton macro cat txt remove: false =
     if (not remove) then (messageBox "添加工具栏快捷按钮完成，请注意蓝底白字“S”图标！                                    \r\n" title: "BsKeyTools")
     if (remove) then (messageBox "尝试删除工具栏快捷按钮完成！(添加时也会运行一次)                                      \r\n" title: "BsKeyTools")
 )
+
+fn fnCheckRolloutPos tarRol =
+(
+    if (tarRol.open) then
+    (
+        posTarRol  = getdialogpos tarRol
+        posMaxWin  = getMAXWindowPos() --max窗口位置
+        sizeMaxWin = getMaxWindowSize() --max窗口大小
+
+        posTemp = dotNetObject "System.Drawing.Point" posTarRol.x posTarRol.y
+        scrBounds = ((dotNetClass "System.Windows.Forms.Screen").GetBounds posTemp)  --边界位置坐标
+        posBounds = [scrBounds.x,scrBounds.y]
+
+        if posTarRol.X > (posMaxWin.X + sizeMaxWin.X - 100) or posTarRol.X < (posMaxWin.X - tarRol.width + 100) \
+        or posTarRol.y < (posMaxWin.y - tarRol.height) or posTarRol.y > (posMaxWin.y + sizeMaxWin.y - 100) then
+        (
+            if (queryBox ("疑似脚本界面不在3dsMax窗口内 ( " + tarRol.name + " )          \r\n\r\n是否重置脚本窗口位置？                               ") \
+			title:"BsKeyRools - 疑似窗口位置错误") then
+            (
+                SetDialogPos tarRol (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0])
+            )
+        )
+    )
+)
