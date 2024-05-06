@@ -226,6 +226,7 @@ fn fnCheckRolloutPos tarRol =
 			title:"BsKeyRools - 疑似窗口位置错误") then
             (
                 SetDialogPos tarRol (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0])
+                (messageBox "重置位置成功, 请重新打开插件!                                    \r\n" title: "BsKeyTools")
             )
         )
     )
