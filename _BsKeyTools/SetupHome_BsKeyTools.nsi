@@ -80,7 +80,6 @@ Section "3dsMax 2025" SEC19
   SetOverwrite on
   File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "D:\_Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2025\plugins"
 SectionEnd
 
 Section "3dsMax 2024" SEC18

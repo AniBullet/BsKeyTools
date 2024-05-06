@@ -2,7 +2,7 @@
 
 ; 安装程序初始定义常量
 !define PRODUCT_NAME "BsKeyTools"
-!define PRODUCT_VERSION "_v0.9.9.9"
+!define PRODUCT_VERSION "_v0.9.9.9_Beta1"
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
 ;!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -80,7 +80,6 @@ Section "3dsMax 2025" SEC19
   SetOverwrite on
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
   File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2025\plugins"
 SectionEnd
 
 Section "3dsMax 2024" SEC18
