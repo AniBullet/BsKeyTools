@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-03 20:22:43
+ * @LastEditTime: 2024-05-18 20:28:37
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -588,14 +588,14 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
     groupbox grpBiped "" pos:[149,485] width:320 height:190
 	spinner spnObjSize "Helper Size" pos:[20,506] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:35 scale:0.01
 	button btnResetSize "R" pos:[120,505] width:20 height:18 tooltip:"重置选中辅助骨骼大小"
-	label lblThumbAxis "拇指 zAxis (父级)" pos:[158,533] width:(btnWidth + 25) height:25
+	label lblThumbAxis "拇指 zAxis (父级)" pos:[158,533] width:(btnWidth - 15) height:25
 	dropdownList ddlThumbAxis "" pos:[255,530] width:40 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:2
-	label lblHandAxis "四指 zAxis (父级)" pos:[158,558] width:(btnWidth + 25) height:25
+	label lblHandAxis "四指 zAxis (父级)" pos:[158,558] width:(btnWidth - 15) height:25
 	dropdownList ddlHandAxis "" pos:[255,555] width:40 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:6
-	button reAlignFingers "🤞🏼 重新对齐手指骨骼 🤞🏼" pos:[155,580] width:(btnWidth + 25) height:30
+	button reAlignFingers "🤞🏼 重新对齐手指 🤞🏼" pos:[155,580] width:(btnWidth + 25) height:30
 	-- checkbox chkRenameBiped "Biped 保持 Bone 原名" checked:false pos:[164,535] width:(btnWidth + 20) height:20
 	-- radiobuttons rdoUpAxis " 映射 RootMotion 轴向" pos:[155,500] width:154 height:46 labels:#("Y-Up (U3D)", "Z-Up (UE)") columns:2 default:2
-	label lblUpAxis "RootMotion" pos:[158,505] width:(btnWidth + 25) height:25
+	label lblUpAxis "RootMotion" pos:[158,505] width:(btnWidth/2 + 10) height:25
 	dropdownList ddlUpAxis "" pos:[215,503] width:80 height:25 items:#("Y-Up (U3D)","Z-Up (UE)") selection:2
 	checkbox chkCopySubs "↓ 映射飘带骨骼动画 ↓" pos:[315,505] height:20 width:(btnWidth + 25) checked:false
     button alignBipedToHelper "3. 创建重定向映射文件" pos:[310,530] width:(btnWidth + 35) height:40
