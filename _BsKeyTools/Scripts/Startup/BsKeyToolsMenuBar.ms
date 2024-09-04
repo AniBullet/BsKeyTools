@@ -96,8 +96,12 @@ fn addToolBarButton macro cat txt remove: false =
     local dirIcon = getdir #usericons
     local imgIcon16 = ((getDir #scripts) + "\\BulletScripts\\Icons\\BsBipTools_16i.bmp")
     local imgIcon24 = ((getDir #scripts) + "\\BulletScripts\\Icons\\BsBipTools_24i.bmp")
+    local imgIcon16a = ((getDir #scripts) + "\\BulletScripts\\Icons\\BsBipTools_16a.bmp")
+    local imgIcon24a = ((getDir #scripts) + "\\BulletScripts\\Icons\\BsBipTools_24a.bmp")
     local tarIcon16 = dirIcon + "\\BsBipTools_16i.bmp"
     local tarIcon24 = dirIcon + "\\BsBipTools_24i.bmp"
+    local tarIcon16a = dirIcon + "\\BsBipTools_16a.bmp"
+    local tarIcon24a = dirIcon + "\\BsBipTools_24a.bmp"
 
     if (not (SIOFile.Exists tarIcon16)) then
     (
@@ -117,6 +121,25 @@ fn addToolBarButton macro cat txt remove: false =
     (
         SIOFile.Delete tarIcon24
         SIOFile.Copy imgIcon24 tarIcon24
+    )
+    if (not (SIOFile.Exists tarIcon16a)) then
+    (
+        SIOFile.Copy imgIcon16a tarIcon16a
+    )
+    else
+    (
+        SIOFile.Delete tarIcon16a
+        SIOFile.Copy imgIcon16a tarIcon16a
+    )
+
+    if (not (SIOFile.Exists tarIcon24a)) then
+    (
+        SIOFile.Copy imgIcon24a tarIcon24a
+    )
+    else
+    (
+        SIOFile.Delete tarIcon24a
+        SIOFile.Copy imgIcon24a tarIcon24a
     )
 
     fn insertContent f data: "" find: "" rewrite: false =
