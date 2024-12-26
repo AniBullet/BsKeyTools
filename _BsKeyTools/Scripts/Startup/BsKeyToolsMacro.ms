@@ -188,15 +188,19 @@
 					iniAddToolbars = 0
 					SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
 				)
-				if ((menuMan.findMenu "🎮 BsKeyTools") != undefined) then 
+				curMaxVersion = ((maxVersion())[1] / 1000)
+				if curMaxVersion < 27 then
 				(
-					menuMan.unRegisterMenu (menuMan.findMenu "🎮 BsKeyTools")
-					menuMan.updateMenuBar()
-				)
-				if ((menuMan.findMenu "BsKeyTools") != undefined) then 
-				(
-					menuMan.unRegisterMenu (menuMan.findMenu "BsKeyTools")
-					menuMan.updateMenuBar()
+					if ((menuMan.findMenu "🎮 BsKeyTools") != undefined) then 
+					(
+						menuMan.unRegisterMenu (menuMan.findMenu "🎮 BsKeyTools")
+						menuMan.updateMenuBar()
+					)
+					if ((menuMan.findMenu "BsKeyTools") != undefined) then 
+					(
+						menuMan.unRegisterMenu (menuMan.findMenu "BsKeyTools")
+						menuMan.updateMenuBar()
+					)
 				)
 				arrDelPath = #(((getDir #Scripts)+ "\\BulletScripts"),((getDir #maxroot) + "\\UI_ln\\Icons\\cstoolIcons"))
 				arrDelMs = #(((getDir #StartupScripts)+ "\\BulletKeyTools.ms"),\
