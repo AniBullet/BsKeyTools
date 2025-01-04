@@ -210,6 +210,7 @@
 				((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"))
 				for d in arrDelPath do (fnDelDir d)
 				for f in arrDelMs do (fnDelFileDir f)
+				try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
 				try(destroydialog rolBsKeyTools)catch()
 				try(destroydialog rolFnKeys)catch()
 				try(destroydialog rolAddMyScripts)catch()

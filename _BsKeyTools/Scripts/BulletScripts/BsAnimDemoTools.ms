@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-22 09:15:39
+ * @LastEditTime: 2025-01-03 23:50:09
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -113,6 +113,16 @@ global dragStateBsADT = off
 					addKnot new_spline 1 #smooth #curve pos2
 				updateshape new_spline
 			return new_spline
+		)
+
+		on btnRegister pressed do
+		(
+			if (queryBox ("是否复制注册码到剪切板？                        ") title:"BsAnimMemoTools") do
+			(
+				getclipboardText()
+				setclipboardText "E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454"
+				messageBox "复制成功,选中刀光点击注册粘贴即可(下面可创建)。                                   " title:"BsAnimMemoTools"
+			)
 		)
 
 		on btnAbout pressed do 

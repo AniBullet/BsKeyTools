@@ -6,7 +6,6 @@ global fnSetMsBtnConfig
 global stSetConfigAll
 global stLoadConfigAll
 global fnGetConfig
-global fnLoadDockPos
 struct myScript (id,msName,dir)
 
 fn fnGetConfig attr nameAttrClass nameAttr valueAttr =  --设置初始信息方法
@@ -82,13 +81,14 @@ struct stLoadConfigAll
 	fn fnLoadConfigBsKeyToolsAll =
 	(
 		iniPos               = fnGetConfig iniPos "BulletKeyToolsSet" "Pos" "0"
+		iniRolDockPos        = fnGetConfig iniRolDockPos "BulletKeyToolsSet" "DockPos" "float"
 		switchToolPanel      = fnGetConfig switchToolPanel "BulletKeyToolsSet" "ToolPanel" (switchToolPanel as string)
 		-- switchMSPanel        = fnGetConfig switchMSPanel "BulletKeyToolsSet" "MSPanel" (switchMSPanel as string)
 		idBtn                = fnGetConfig idBtn "BulletKeyToolsSet" "idBtn" (idBtn as string)
 		iniBsAutoCheckUpdate = fnGetConfig iniBsAutoCheckUpdate "BulletKeyToolsSet"  "AutoCheckUpdate" (iniBsAutoCheckUpdate as string)
 		iniIsIcon            = fnGetConfig iniIsIcon "BulletKeyToolsSet" "IsIcon" (iniIsIcon as string)
 		iniCollopseType      = fnGetConfig iniCollopseType "BulletKeyToolsSet" "CollopseType" (iniCollopseType as string)
-		iniCostTime         = fnGetConfig iniCostTime "BulletKeyToolsSet" "CostTime" (iniCostTime as string)
+		iniCostTime          = fnGetConfig iniCostTime "BulletKeyToolsSet" "CostTime" (iniCostTime as string)
 		fnLoadToolBtnConfig()
 		-- print "Loaded BsKeyTools Config"
 	),
@@ -156,6 +156,7 @@ struct stSetConfigAll
 	fn fnSetConfigBsKeyTools =
 	(
 		SetINISetting BulletConfig "BulletKeyToolsSet" "Pos" (iniPos as string)
+		SetINISetting BulletConfig "BulletKeyToolsSet" "DockPos" (iniRolDockPos as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "ToolPanel" (switchToolPanel as string)
 		-- SetINISetting BulletConfig "BulletKeyToolsSet" "MSPanel" (switchMSPanel as string)
 		SetINISetting BulletConfig "BulletKeyToolsSet" "idBtn" (idBtn as string)

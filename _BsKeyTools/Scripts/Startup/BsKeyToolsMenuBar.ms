@@ -1,3 +1,85 @@
+
+fn fnCheckRolloutPos tarRol =
+(
+    if (tarRol.open) then
+    (
+        posTarRol  = getdialogpos tarRol
+        posMaxWin  = getMAXWindowPos() --max窗口位置
+        sizeMaxWin = getMaxWindowSize() --max窗口大小
+
+        posTemp = dotNetObject "System.Drawing.Point" posTarRol.x posTarRol.y
+        scrBounds = ((dotNetClass "System.Windows.Forms.Screen").GetBounds posTemp)  --边界位置坐标
+        posBounds = [scrBounds.x,scrBounds.y]
+
+        if posTarRol.X > (posMaxWin.X + sizeMaxWin.X - 100) or posTarRol.X < (posMaxWin.X - tarRol.width + 100) \
+        or posTarRol.y < (posMaxWin.y - tarRol.height) or posTarRol.y > (posMaxWin.y + sizeMaxWin.y - 100) then
+        (
+            if (queryBox ("疑似脚本界面不在3dsMax窗口内 ( " + tarRol.name + " )          \r\n\r\n是否重置脚本窗口位置？                               ") \
+			title:"BsKeyRools - 疑似窗口位置错误") then
+            (
+                SetDialogPos tarRol (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0])
+                (messageBox "重置位置成功, 请重新打开插件!                                    \r\n" title: "BsKeyTools")
+            )
+        )
+    )
+)
+
+fn fnDelFileDir targetDel =  --删除文件
+(
+	if (SIOFile.Exists targetDel == true) then ---判断是否存在文件
+	(
+		dotnet.loadAssembly "Microsoft.VisualBasic.dll"
+	
+		FileIO = dotnetclass "Microsoft.VisualBasic.FileIO.FileSystem"
+		UIOption = (dotnetclass "Microsoft.VisualBasic.FileIO.UIOption").OnlyErrorDialogs
+		RecycleOption = (dotnetclass "Microsoft.VisualBasic.FileIO.RecycleOption").SendToRecycleBin
+
+		if getFileAttribute targetDel #readOnly == true or \
+		getFileAttribute targetDel #hidden == true do --修改只读或者隐藏属性
+		(
+			setFileAttribute targetDel #readOnly false ; \
+			setFileAttribute targetDel #hidden false
+		)
+		try 
+		(
+			FileIO.DeleteFile targetDel UIOption RecycleOption
+			-- SIOFile.Delete(targetDel)
+			(print ("已删除: "+ filenameFromPath targetDel  + " 至回收站"))
+		)
+		catch 
+		(
+			messagebox ("删除失败: "+ filenameFromPath targetDel + ". 请尝试手动删除。          ")
+			(shellLaunch (getfilenamepath targetDel) "")
+		)
+	)
+)
+fn fnDelDir dirDel =
+(
+	if (SIODir.Exists dirDel) == true do
+	(
+		dotnet.loadAssembly "Microsoft.VisualBasic.dll"
+	
+		FileIO = dotnetclass "Microsoft.VisualBasic.FileIO.FileSystem"
+		UIOption = (dotnetclass "Microsoft.VisualBasic.FileIO.UIOption").OnlyErrorDialogs
+		RecycleOption = (dotnetclass "Microsoft.VisualBasic.FileIO.RecycleOption").SendToRecycleBin
+
+		if getFileAttribute dirDel #readOnly == true or getFileAttribute dirDel #hidden == true do
+		(
+			setFileAttribute dirDel #readOnly false ; setFileAttribute dirDel #hidden false
+		)
+		try 
+		(
+			FileIO.DeleteDirectory dirDel UIOption RecycleOption
+			-- SIODir.Delete(dirDel) true
+			(print ("已删除: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹至回收站"))
+		)
+		catch 
+		(
+			messagebox ("删除失败: "+ pathConfig.stripPathToLeaf dirDel + " 文件夹. 请尝试手动删除.")
+			(shellLaunch dirDel "")
+		)
+	)
+)
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
 (
     curMaxVersion = ((maxVersion())[1] / 1000)
@@ -289,29 +371,4 @@ fn addToolBarButton macro cat txt remove: false =
 
     if (not remove) then (messageBox "添加工具栏快捷按钮完成，请注意蓝底白字“S”图标！                                    \r\n" title: "BsKeyTools")
     if (remove) then (messageBox "尝试删除工具栏快捷按钮完成！(添加时也会运行一次)                                      \r\n" title: "BsKeyTools")
-)
-
-fn fnCheckRolloutPos tarRol =
-(
-    if (tarRol.open) then
-    (
-        posTarRol  = getdialogpos tarRol
-        posMaxWin  = getMAXWindowPos() --max窗口位置
-        sizeMaxWin = getMaxWindowSize() --max窗口大小
-
-        posTemp = dotNetObject "System.Drawing.Point" posTarRol.x posTarRol.y
-        scrBounds = ((dotNetClass "System.Windows.Forms.Screen").GetBounds posTemp)  --边界位置坐标
-        posBounds = [scrBounds.x,scrBounds.y]
-
-        if posTarRol.X > (posMaxWin.X + sizeMaxWin.X - 100) or posTarRol.X < (posMaxWin.X - tarRol.width + 100) \
-        or posTarRol.y < (posMaxWin.y - tarRol.height) or posTarRol.y > (posMaxWin.y + sizeMaxWin.y - 100) then
-        (
-            if (queryBox ("疑似脚本界面不在3dsMax窗口内 ( " + tarRol.name + " )          \r\n\r\n是否重置脚本窗口位置？                               ") \
-			title:"BsKeyRools - 疑似窗口位置错误") then
-            (
-                SetDialogPos tarRol (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0])
-                (messageBox "重置位置成功, 请重新打开插件!                                    \r\n" title: "BsKeyTools")
-            )
-        )
-    )
 )
