@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-06 10:53:48
+ * @LastEditTime: 2025-01-06 20:13:04
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -489,384 +489,775 @@ rcmenu menuConfig
 	(
 		if doesFileExist BulletConfig do
 		(
-			try
+			curMaxVersion = ((maxVersion())[1] / 1000)
+			if curMaxVersion > 20 then
 			(
-				nameAttrClass = "BulletKeyToolsSet"
-				btnsArr = rolTarget.controls
-				iniRolDockPos = fnGetConfig iniRolDockPos nameAttrClass "DockPos" "float"
-				case iniRolDockPos of
+				try
 				(
-					"cui_dock_top":
+					nameAttrClass = "BulletKeyToolsSet"
+					btnsArr = rolTarget.controls
+					iniRolDockPos = fnGetConfig iniRolDockPos nameAttrClass "DockPos" "float"
+					case iniRolDockPos of
 					(
-						try(cui.UnRegisterDialogBar rolTarget)catch()
-						--	rearrange buttons to be horizontal
-						for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
+						"cui_dock_top":
 						(
-							if b == 1 then
+							try(cui.UnRegisterDialogBar rolTarget)catch()
+							--	rearrange buttons to be horizontal
+							for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
 							(
-								btnsArr[b].pos = [0,2]
-								btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
-								btnsArr[b].height = 38
-								btnsArr[b].width = 130
+								if b == 1 then
+								(
+									btnsArr[b].pos = [0,2]
+									btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
+									btnsArr[b].height = 38
+									btnsArr[b].width = 130
+								)
+								else if b == 2 then (btnsArr[b].pos = [50,20])
+								else if b == 3 then (btnsArr[b].pos = [115,20])
+								else if b == 4 then (btnsArr[b].pos = [340,10])
+								else if b == 7 then (btnsArr[b].pos = [135,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
+								else if b == 8 then (btnsArr[b].pos = [165,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
+								else if b == 9 then (btnsArr[b].pos = [195,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
+								else if b == 11 then (btnsArr[b].pos = [232,2];btnsArr[b].width = 47;btnsArr[b].height = 17)
+								else if b == 12 then (btnsArr[b].pos = [230,20];btnsArr[b].width = 50)
+								else if b == 13 then (btnsArr[b].pos = [280,0];btnsArr[b].width = 60)
+								else if b == 14 then (btnsArr[b].pos = [280,20];btnsArr[b].width = 60)
+								else if b == 15 then (btnsArr[b].pos = [360,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [360,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
+								else if b > 16 and b < 31 then 
+								(
+									btnsArr[b].height = 20
+									btnsArr[b].width = 60
+									if ((mod b 2) == 1) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,0])
+									else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,20])
+								)
+								else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].height = 20)
+								else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 20)
+								else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 20)
+								else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 4].pos.x + btnsArr[b - 4].width,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 38 then (btnsArr[b].pos = rolBsKeyTools.btnPos)
+								else if b == 39 then (btnsArr[b].pos = [btnsArr[35].pos.x + btnsArr[35].width + 5,0];btnsArr[b].height = 40;btnsArr[b].width = 25)
+								else if b >= 40 and b <= 42 then 
+								(
+									btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[35].pos.y]
+									btnsArr[b].height = 40
+									btnsArr[b].width = 25
+								)
+								else if b == 43 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width + 5,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --右边工具箱第一个按钮
+								else if b == 44 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --右边工具箱第二个按钮
+								else if b == 55 then (btnsArr[b].pos = [btnsArr[43].pos.x,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 56 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 67 then (btnsArr[b].pos = [btnsArr[43].pos.x,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 68 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 79 then (btnsArr[b].pos = [btnsArr[43].pos.x,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 80 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b > 44 and b <= 90 then 
+								(
+									btnsArr[b].height = 20
+									btnsArr[b].width = 60
+									if ((mod b 2) == 0) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
+									else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
+								)
+								else if b == 92 then 
+								(
+									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].visible = false
+									btnsArr[b].pos = rolBsKeyTools.btnPos
+								)
+								else if b == 93 then
+								(
+									btnsArr[b].text = "设置"
+									btnsArr[b].pos = [92,0]
+									btnsArr[b].width = 35
+									btnsArr[b].height = 16
+								)
+								else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos;btnsArr[b].width = 130)
+								-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
+								else
+								(
+									btnsArr[b].visible = false
+									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+								)
 							)
-							else if b == 2 then (btnsArr[b].pos = [50,20])
-							else if b == 3 then (btnsArr[b].pos = [115,20])
-							else if b == 4 then (btnsArr[b].pos = [340,10])
-							else if b == 7 then (btnsArr[b].pos = [135,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
-							else if b == 8 then (btnsArr[b].pos = [165,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
-							else if b == 9 then (btnsArr[b].pos = [195,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
-							else if b == 11 then (btnsArr[b].pos = [232,2];btnsArr[b].width = 47;btnsArr[b].height = 17)
-							else if b == 12 then (btnsArr[b].pos = [230,20];btnsArr[b].width = 50)
-							else if b == 13 then (btnsArr[b].pos = [280,0];btnsArr[b].width = 60)
-							else if b == 14 then (btnsArr[b].pos = [280,20];btnsArr[b].width = 60)
-							else if b == 15 then (btnsArr[b].pos = [360,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
-							else if b == 16 then (btnsArr[b].pos = [360,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
-							else if b > 16 and b < 31 then 
-							(
-								btnsArr[b].height = 20
-								btnsArr[b].width = 60
-								if ((mod b 2) == 1) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,0])
-								else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,20])
-							)
-							else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].height = 20)
-							else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 20)
-							else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 20)
-							else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 4].pos.x + btnsArr[b - 4].width,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 38 then (btnsArr[b].pos = rolBsKeyTools.btnPos)
-							else if b == 39 then (btnsArr[b].pos = [btnsArr[35].pos.x + btnsArr[35].width + 5,0];btnsArr[b].height = 40;btnsArr[b].width = 25)
-							else if b >= 40 and b <= 42 then 
-							(
-								btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[35].pos.y]
-								btnsArr[b].height = 40
-								btnsArr[b].width = 25
-							)
-							else if b == 43 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width + 5,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --右边工具箱第一个按钮
-							else if b == 44 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --右边工具箱第二个按钮
-							else if b == 55 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width + 5,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 56 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 67 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width + 5,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 68 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 79 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width + 5,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 80 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b > 44 and b <= 90 then 
-							(
-								btnsArr[b].height = 20
-								btnsArr[b].width = 60
-								if ((mod b 2) == 0) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
-								else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
-							)
-							else if b == 92 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
-							else if b == 93 then
-							(
-								btnsArr[b].text = "设置"
-								btnsArr[b].pos = [92,0]
-								btnsArr[b].width = 35
-								btnsArr[b].height = 16
-							)
-							else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
-							-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
-							else
-							(
-								btnsArr[b].visible = false
-								-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
-							)
+							rolTarget.height = 40
+							rolTarget.width = wSize
+							cui.RegisterDialogBar rolTarget minSize:[wSize,rolTarget.height] maxSize:[wSize,rolTarget.height] style:#(#cui_dock_horz)
+							cui.DockDialogBar rolTarget #cui_dock_top
+							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_top as string))catch()
 						)
-						rolTarget.height = 40
-						rolTarget.width = wSize
-						cui.RegisterDialogBar rolTarget minSize:[wSize,rolTarget.height] maxSize:[wSize,rolTarget.height] style:#(#cui_dock_horz)
-						cui.DockDialogBar rolTarget #cui_dock_top
-						try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_top as string))catch()
-					)
-					"cui_dock_bottom":
-					(
-						try(cui.UnRegisterDialogBar rolTarget)catch()
-						--	rearrange buttons to be horizontal
-						for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
+						"cui_dock_bottom":
 						(
-							if b == 1 then
+							try(cui.UnRegisterDialogBar rolTarget)catch()
+							--	rearrange buttons to be horizontal
+							for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
 							(
-								btnsArr[b].pos = [0,2]
-								btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
-								btnsArr[b].height = 38
-								btnsArr[b].width = 130
+								if b == 1 then
+								(
+									btnsArr[b].pos = [0,2]
+									btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
+									btnsArr[b].height = 38
+									btnsArr[b].width = 130
+								)
+								else if b == 2 then (btnsArr[b].pos = [50,20])
+								else if b == 3 then (btnsArr[b].pos = [115,20])
+								else if b == 4 then (btnsArr[b].pos = [340,10])
+								else if b == 7 then (btnsArr[b].pos = [135,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
+								else if b == 8 then (btnsArr[b].pos = [165,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
+								else if b == 9 then (btnsArr[b].pos = [195,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
+								else if b == 11 then (btnsArr[b].pos = [232,2];btnsArr[b].width = 47;btnsArr[b].height = 17)
+								else if b == 12 then (btnsArr[b].pos = [230,20];btnsArr[b].width = 50)
+								else if b == 13 then (btnsArr[b].pos = [280,0];btnsArr[b].width = 60)
+								else if b == 14 then (btnsArr[b].pos = [280,20];btnsArr[b].width = 60)
+								else if b == 15 then (btnsArr[b].pos = [360,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [360,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
+								else if b > 16 and b < 31 then 
+								(
+									btnsArr[b].height = 20
+									btnsArr[b].width = 60
+									if ((mod b 2) == 1) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,0])
+									else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,20])
+								)
+								else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].height = 20)
+								else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 20)
+								else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 20)
+								else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 4].pos.x + btnsArr[b - 4].width,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 38 then (btnsArr[b].pos = rolBsKeyTools.btnPos)
+								else if b == 39 then (btnsArr[b].pos = [btnsArr[35].pos.x + btnsArr[35].width + 5,0];btnsArr[b].height = 40;btnsArr[b].width = 25)
+								else if b >= 40 and b <= 42 then 
+								(
+									btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[35].pos.y]
+									btnsArr[b].height = 40
+									btnsArr[b].width = 25
+								)
+								else if b == 43 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width + 5,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --右边工具箱第一个按钮
+								else if b == 44 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --右边工具箱第二个按钮
+								else if b == 55 then (btnsArr[b].pos = [btnsArr[43].pos.x,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 56 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 67 then (btnsArr[b].pos = [btnsArr[43].pos.x,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 68 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 79 then (btnsArr[b].pos = [btnsArr[43].pos.x,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b == 80 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
+								else if b > 44 and b <= 90 then 
+								(
+									btnsArr[b].height = 20
+									btnsArr[b].width = 60
+									if ((mod b 2) == 0) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
+									else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
+								)
+								else if b == 92 then 
+								(
+									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].visible = false
+									btnsArr[b].pos = rolBsKeyTools.btnPos
+								)
+								else if b == 93 then
+								(
+									btnsArr[b].text = "设置"
+									btnsArr[b].pos = [92,0]
+									btnsArr[b].width = 35
+									btnsArr[b].height = 16
+								)
+								else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos;btnsArr[b].width = 130)
+								-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
+								else
+								(
+									btnsArr[b].visible = false
+									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+								)
 							)
-							else if b == 2 then (btnsArr[b].pos = [50,20])
-							else if b == 3 then (btnsArr[b].pos = [115,20])
-							else if b == 4 then (btnsArr[b].pos = [340,10])
-							else if b == 7 then (btnsArr[b].pos = [135,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
-							else if b == 8 then (btnsArr[b].pos = [165,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
-							else if b == 9 then (btnsArr[b].pos = [195,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
-							else if b == 11 then (btnsArr[b].pos = [232,2];btnsArr[b].width = 47;btnsArr[b].height = 17)
-							else if b == 12 then (btnsArr[b].pos = [230,20];btnsArr[b].width = 50)
-							else if b == 13 then (btnsArr[b].pos = [280,0];btnsArr[b].width = 60)
-							else if b == 14 then (btnsArr[b].pos = [280,20];btnsArr[b].width = 60)
-							else if b == 15 then (btnsArr[b].pos = [360,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
-							else if b == 16 then (btnsArr[b].pos = [360,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
-							else if b > 16 and b < 31 then 
-							(
-								btnsArr[b].height = 20
-								btnsArr[b].width = 60
-								if ((mod b 2) == 1) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,0])
-								else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,20])
-							)
-							else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].height = 20)
-							else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 20)
-							else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 20)
-							else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 4].pos.x + btnsArr[b - 4].width,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 38 then
-							(
-								btnsArr[b].pos = rolBsKeyTools.btnPos
-							)
-							else if b == 39 then (btnsArr[b].pos = [btnsArr[35].pos.x + btnsArr[35].width + 5,0];btnsArr[b].height = 40;btnsArr[b].width = 25)
-							else if b >= 40 and b <= 42 then 
-							(
-								btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[35].pos.y]
-								btnsArr[b].height = 40
-								btnsArr[b].width = 25
-							)
-							else if b == 43 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width + 5,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --右边工具箱第一个按钮
-							else if b == 44 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --右边工具箱第二个按钮
-							else if b == 55 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width + 5,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 56 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 67 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width + 5,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 68 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 79 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width + 5,0];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b == 80 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,20];btnsArr[b].width = 60;btnsArr[b].height = 20)
-							else if b > 44 and b <= 90 then 
-							(
-								btnsArr[b].height = 20
-								btnsArr[b].width = 60
-								if ((mod b 2) == 0) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
-								else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
-							)
-							else if b == 92 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
-							else if b == 93 then
-							(
-								btnsArr[b].text = "设置"
-								btnsArr[b].pos = [92,0]
-								btnsArr[b].width = 35
-								btnsArr[b].height = 16
-							)
-							else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
-							-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
-							else
-							(
-								btnsArr[b].visible = false
-								-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
-							)
+							rolTarget.height = 40
+							rolTarget.width = wSize
+							cui.RegisterDialogBar rolTarget minSize:[wSize,rolTarget.height] maxSize:[wSize,rolTarget.height] style:#(#cui_dock_horz)
+							cui.DockDialogBar rolTarget #cui_dock_bottom
+							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_bottom as string))catch()
 						)
-						rolTarget.height = 40
-						rolTarget.width = wSize
-						cui.RegisterDialogBar rolTarget minSize:[wSize,rolTarget.height] maxSize:[wSize,rolTarget.height] style:#(#cui_dock_horz)
-						cui.DockDialogBar rolTarget #cui_dock_bottom
-						try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_bottom as string))catch()
-					)
-					"cui_dock_left":
-					(
-						try(cui.UnRegisterDialogBar rolTarget)catch()
-						--	rearrange buttons to be vertical 
-						for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
+						"cui_dock_left":
 						(
-							if b == 1 then
+							try(cui.UnRegisterDialogBar rolTarget)catch()
+							--	rearrange buttons to be vertical 
+							for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
 							(
-								btnsArr[b].pos = [0,2]
-								btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
-								btnsArr[b].height = 120
-								btnsArr[b].width = 130
+								if b == 1 then
+								(
+									btnsArr[b].pos = [0,2]
+									btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
+									btnsArr[b].height = 120
+									btnsArr[b].width = 130
+								)
+								else if b == 2 then (btnsArr[b].pos = [50,20])
+								else if b == 3 then (btnsArr[b].pos = [115,20])
+								else if b == 4 then (btnsArr[b].pos = [0,660])
+								else if b == 7 then (btnsArr[b].pos = [5,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
+								else if b == 8 then (btnsArr[b].pos = [45,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
+								else if b == 9 then (btnsArr[b].pos = [85,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
+								else if b == 11 then (btnsArr[b].pos = [7,75];btnsArr[b].width = 55;btnsArr[b].height = 17)
+								else if b == 12 then (btnsArr[b].pos = [65,73];btnsArr[b].width = 60)
+								else if b == 13 then (btnsArr[b].pos = [5,95];btnsArr[b].width = 60)
+								else if b == 14 then (btnsArr[b].pos = [65,95];btnsArr[b].width = 60)
+								else if b == 15 then (btnsArr[b].pos = [5,125];btnsArr[b].width = 60;btnsArr[b].height = 25) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [65,125];btnsArr[b].width = 60;btnsArr[b].height = 25) --首尾帧
+								else if b > 16 and b < 31 then 
+								(
+									btnsArr[b].height = 25
+									btnsArr[b].width = 60
+									if ((mod b 2) == 1) then (btnsArr[b].pos = [5,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
+									else (btnsArr[b].pos = [65,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
+								)
+								else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 2].pos.x,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2];btnsArr[b].width = 60;btnsArr[b].height = 25)
+								else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
+								else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
+								else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
+								else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 4].pos.x,btnsArr[b - 4].pos.y + btnsArr[b - 4].height + 2];btnsArr[b].width = 60;btnsArr[b].height = 25)
+								else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].width = 60;btnsArr[b].height = 25)
+								else if b == 38 then
+								(
+									btnsArr[b].pos = [0,395]
+									btnsArr[b].width = 130
+									btnsArr[b].height = 260
+								)
+								else if b == 39 then (btnsArr[b].pos = [btnsArr[35].pos.x,btnsArr[35].pos.y + btnsArr[35].height + 15];btnsArr[b].height = 30;btnsArr[b].width = 30)
+								else if b >= 40 and b <= 42 then 
+								(
+									btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[35].pos.y + btnsArr[35].height + 15]
+									btnsArr[b].width = 30
+									btnsArr[b].height = 30
+								)
+								else if b == 43 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32) --右边工具箱第一个按钮
+								else if b == 44 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32) --右边工具箱第二个按钮
+								else if b == 55 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b == 56 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b == 67 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b == 68 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b == 79 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b == 80 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b > 44 and b <= 90 then 
+								(
+									;btnsArr[b].height = 32
+									btnsArr[b].width = 60
+									if ((mod b 2) == 1) then (btnsArr[b].pos = [5,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
+									else (btnsArr[b].pos = [65,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
+								)
+								else if b == 92 then 
+								(
+									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].visible = true;btnsArr[b].pos = [30,663]
+								)
+								else if b == 93 then
+								(
+									btnsArr[b].text = "设置"
+									btnsArr[b].pos = [92,0]
+									btnsArr[b].width = 35
+									btnsArr[b].height = 16
+								)
+								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,680];btnsArr[b].width = 130)
+								-- else if b == 96 then (btnsArr[b].pos = [0,885];btnsArr[b].width = 130)
+								else
+								(
+									btnsArr[b].visible = false
+									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+								)
 							)
-							else if b == 2 then (btnsArr[b].pos = [50,20])
-							else if b == 3 then (btnsArr[b].pos = [115,20])
-							else if b == 4 then (btnsArr[b].pos = [0,660])
-							else if b == 7 then (btnsArr[b].pos = [5,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
-							else if b == 8 then (btnsArr[b].pos = [45,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
-							else if b == 9 then (btnsArr[b].pos = [85,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
-							else if b == 11 then (btnsArr[b].pos = [7,75];btnsArr[b].width = 55;btnsArr[b].height = 17)
-							else if b == 12 then (btnsArr[b].pos = [65,73];btnsArr[b].width = 60)
-							else if b == 13 then (btnsArr[b].pos = [5,95];btnsArr[b].width = 60)
-							else if b == 14 then (btnsArr[b].pos = [65,95];btnsArr[b].width = 60)
-							else if b == 15 then (btnsArr[b].pos = [5,125];btnsArr[b].width = 60;btnsArr[b].height = 25) --选定帧
-							else if b == 16 then (btnsArr[b].pos = [65,125];btnsArr[b].width = 60;btnsArr[b].height = 25) --首尾帧
-							else if b > 16 and b < 31 then 
-							(
-								btnsArr[b].height = 25
-								btnsArr[b].width = 60
-								if ((mod b 2) == 1) then (btnsArr[b].pos = [5,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
-								else (btnsArr[b].pos = [65,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
-							)
-							else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 2].pos.x,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2];btnsArr[b].width = 60;btnsArr[b].height = 25)
-							else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
-							else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
-							else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
-							else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 4].pos.x,btnsArr[b - 4].pos.y + btnsArr[b - 4].height + 2];btnsArr[b].width = 60;btnsArr[b].height = 25)
-							else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].width = 60;btnsArr[b].height = 25)
-							else if b == 38 then
-							(
-								btnsArr[b].pos = [0,395]
-								btnsArr[b].width = 130
-								btnsArr[b].height = 260
-							)
-							else if b == 39 then (btnsArr[b].pos = [btnsArr[35].pos.x,btnsArr[35].pos.y + btnsArr[35].height + 15];btnsArr[b].height = 30;btnsArr[b].width = 30)
-							else if b >= 40 and b <= 42 then 
-							(
-								btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[35].pos.y + btnsArr[35].height + 15]
-								btnsArr[b].width = 30
-								btnsArr[b].height = 30
-							)
-							else if b == 43 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32) --右边工具箱第一个按钮
-							else if b == 44 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32) --右边工具箱第二个按钮
-							else if b == 55 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b == 56 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b == 67 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b == 68 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b == 79 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b == 80 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b > 44 and b <= 90 then 
-							(
-								;btnsArr[b].height = 32
-								btnsArr[b].width = 60
-								if ((mod b 2) == 1) then (btnsArr[b].pos = [5,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
-								else (btnsArr[b].pos = [65,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
-							)
-							else if b == 92 then (btnsArr[b].visible = true;btnsArr[b].pos = [20,663])
-							else if b == 93 then
-							(
-								btnsArr[b].text = "设置"
-								btnsArr[b].pos = [92,0]
-								btnsArr[b].width = 35
-								btnsArr[b].height = 16
-							)
-							else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,680];btnsArr[b].width = 130)
-							-- else if b == 96 then (btnsArr[b].pos = [0,885];btnsArr[b].width = 130)
-							else
-							(
-								btnsArr[b].visible = false
-								-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
-							)
+							rolTarget.height = hSize
+							rolTarget.width = 130
+							--
+							cui.RegisterDialogBar rolTarget minSize:[130,500] maxSize:[130,500] style:#(#cui_dock_vert)
+							cui.DockDialogBar rolTarget #cui_dock_left
+							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_left as string))catch()
 						)
-						rolTarget.height = hSize
-						rolTarget.width = 130
-						--
-						cui.RegisterDialogBar rolTarget minSize:[130,500] maxSize:[130,500] style:#(#cui_dock_vert)
-						cui.DockDialogBar rolTarget #cui_dock_left
-						try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_left as string))catch()
-					)
-					"cui_dock_right":
-					(
-						try(cui.UnRegisterDialogBar rolTarget)catch()
-						--	rearrange buttons to be vertical 
-						for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
+						"cui_dock_right":
 						(
-							if b == 1 then
+							try(cui.UnRegisterDialogBar rolTarget)catch()
+							--	rearrange buttons to be vertical 
+							for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
 							(
-								btnsArr[b].pos = [0,2]
-								btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
-								btnsArr[b].height = 120
-								btnsArr[b].width = 130
+								if b == 1 then
+								(
+									btnsArr[b].pos = [0,2]
+									btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
+									btnsArr[b].height = 120
+									btnsArr[b].width = 130
+								)
+								else if b == 2 then (btnsArr[b].pos = [50,20])
+								else if b == 3 then (btnsArr[b].pos = [115,20])
+								else if b == 4 then (btnsArr[b].pos = [0,660])
+								else if b == 7 then (btnsArr[b].pos = [5,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
+								else if b == 8 then (btnsArr[b].pos = [45,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
+								else if b == 9 then (btnsArr[b].pos = [85,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
+								else if b == 11 then (btnsArr[b].pos = [7,75];btnsArr[b].width = 55;btnsArr[b].height = 17)
+								else if b == 12 then (btnsArr[b].pos = [65,73];btnsArr[b].width = 60)
+								else if b == 13 then (btnsArr[b].pos = [5,95];btnsArr[b].width = 60)
+								else if b == 14 then (btnsArr[b].pos = [65,95];btnsArr[b].width = 60)
+								else if b == 15 then (btnsArr[b].pos = [5,125];btnsArr[b].width = 60;btnsArr[b].height = 25) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [65,125];btnsArr[b].width = 60;btnsArr[b].height = 25) --首尾帧
+								else if b > 16 and b < 31 then 
+								(
+									btnsArr[b].height = 25
+									btnsArr[b].width = 60
+									if ((mod b 2) == 1) then (btnsArr[b].pos = [5,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
+									else (btnsArr[b].pos = [65,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
+								)
+								else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 2].pos.x,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2];btnsArr[b].width = 60;btnsArr[b].height = 25)
+								else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
+								else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
+								else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
+								else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 4].pos.x,btnsArr[b - 4].pos.y + btnsArr[b - 4].height + 2];btnsArr[b].width = 60;btnsArr[b].height = 25)
+								else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].width = 60;btnsArr[b].height = 25)
+								else if b == 38 then
+								(
+									btnsArr[b].pos = [0,395]
+									btnsArr[b].width = 130
+									btnsArr[b].height = 260
+								)
+								else if b == 39 then (btnsArr[b].pos = [btnsArr[35].pos.x,btnsArr[35].pos.y + btnsArr[35].height + 15];btnsArr[b].height = 30;btnsArr[b].width = 30)
+								else if b >= 40 and b <= 42 then 
+								(
+									btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[35].pos.y + btnsArr[35].height + 15]
+									btnsArr[b].width = 30
+									btnsArr[b].height = 30
+								)
+								else if b == 43 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32) --右边工具箱第一个按钮
+								else if b == 44 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32) --右边工具箱第二个按钮
+								else if b == 55 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b == 56 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b == 67 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b == 68 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b == 79 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b == 80 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
+								else if b > 44 and b <= 90 then 
+								(
+									;btnsArr[b].height = 32
+									btnsArr[b].width = 60
+									if ((mod b 2) == 1) then (btnsArr[b].pos = [5,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
+									else (btnsArr[b].pos = [65,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
+								)
+								else if b == 92 then 
+								(
+									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].visible = true;btnsArr[b].pos = [30,663]
+								)
+								else if b == 93 then
+								(
+									btnsArr[b].text = "设置"
+									btnsArr[b].pos = [92,0]
+									btnsArr[b].width = 35
+									btnsArr[b].height = 16
+								)
+								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,680];btnsArr[b].width = 130)
+								-- else if b == 96 then (btnsArr[b].pos = [0,885];btnsArr[b].width = 130)
+								else
+								(
+									btnsArr[b].visible = false
+									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+								)
 							)
-							else if b == 2 then (btnsArr[b].pos = [50,20])
-							else if b == 3 then (btnsArr[b].pos = [115,20])
-							else if b == 4 then (btnsArr[b].pos = [0,660])
-							else if b == 7 then (btnsArr[b].pos = [5,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
-							else if b == 8 then (btnsArr[b].pos = [45,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
-							else if b == 9 then (btnsArr[b].pos = [85,40];btnsArr[b].width = 40;btnsArr[b].height = 30)
-							else if b == 11 then (btnsArr[b].pos = [7,75];btnsArr[b].width = 55;btnsArr[b].height = 17)
-							else if b == 12 then (btnsArr[b].pos = [65,73];btnsArr[b].width = 60)
-							else if b == 13 then (btnsArr[b].pos = [5,95];btnsArr[b].width = 60)
-							else if b == 14 then (btnsArr[b].pos = [65,95];btnsArr[b].width = 60)
-							else if b == 15 then (btnsArr[b].pos = [5,125];btnsArr[b].width = 60;btnsArr[b].height = 25) --选定帧
-							else if b == 16 then (btnsArr[b].pos = [65,125];btnsArr[b].width = 60;btnsArr[b].height = 25) --首尾帧
-							else if b > 16 and b < 31 then 
-							(
-								btnsArr[b].height = 25
-								btnsArr[b].width = 60
-								if ((mod b 2) == 1) then (btnsArr[b].pos = [5,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
-								else (btnsArr[b].pos = [65,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
-							)
-							else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 2].pos.x,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2];btnsArr[b].width = 60;btnsArr[b].height = 25)
-							else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
-							else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
-							else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].height = 25)
-							else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 4].pos.x,btnsArr[b - 4].pos.y + btnsArr[b - 4].height + 2];btnsArr[b].width = 60;btnsArr[b].height = 25)
-							else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[b - 1].pos.y];btnsArr[b].width = 60;btnsArr[b].height = 25)
-							else if b == 38 then
-							(
-								btnsArr[b].pos = [0,395]
-								btnsArr[b].width = 130
-								btnsArr[b].height = 260
-							)
-							else if b == 39 then (btnsArr[b].pos = [btnsArr[35].pos.x,btnsArr[35].pos.y + btnsArr[35].height + 15];btnsArr[b].height = 30;btnsArr[b].width = 30)
-							else if b >= 40 and b <= 42 then 
-							(
-								btnsArr[b].pos = [btnsArr[b - 1].pos.x + btnsArr[b - 1].width,btnsArr[35].pos.y + btnsArr[35].height + 15]
-								btnsArr[b].width = 30
-								btnsArr[b].height = 30
-							)
-							else if b == 43 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32) --右边工具箱第一个按钮
-							else if b == 44 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32) --右边工具箱第二个按钮
-							else if b == 55 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b == 56 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b == 67 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b == 68 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b == 79 then (btnsArr[b].pos = [5,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b == 80 then (btnsArr[b].pos = [65,445];btnsArr[b].width = 60;btnsArr[b].height = 32)
-							else if b > 44 and b <= 90 then 
-							(
-								;btnsArr[b].height = 32
-								btnsArr[b].width = 60
-								if ((mod b 2) == 1) then (btnsArr[b].pos = [5,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
-								else (btnsArr[b].pos = [65,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
-							)
-							else if b == 92 then (btnsArr[b].visible = true;btnsArr[b].pos = [20,663])
-							else if b == 93 then
-							(
-								btnsArr[b].text = "设置"
-								btnsArr[b].pos = [92,0]
-								btnsArr[b].width = 35
-								btnsArr[b].height = 16
-							)
-							else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,680];btnsArr[b].width = 130)
-							-- else if b == 96 then (btnsArr[b].pos = [0,885];btnsArr[b].width = 130)
-							else
-							(
-								btnsArr[b].visible = false
-								-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
-							)
+							rolTarget.height = hSize
+							rolTarget.width = 130
+							cui.RegisterDialogBar rolTarget minSize:[130,500] maxSize:[130,500] style:#(#cui_dock_vert)
+							cui.DockDialogBar rolTarget #cui_dock_right
+							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_right as string))catch()
 						)
-						rolTarget.height = hSize
-						rolTarget.width = 130
-						cui.RegisterDialogBar rolTarget minSize:[130,500] maxSize:[130,500] style:#(#cui_dock_vert)
-						cui.DockDialogBar rolTarget #cui_dock_right
-						try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_right as string))catch()
-					)
-					default:
-					(
-						try(cui.UnRegisterDialogBar rolTarget)catch()
-						-- for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
-						-- (
-						-- 	case b of
-						-- 	(
-						-- 		(92):
-						-- 		(
-						-- 			btnsArr[b].pos = [12,226]
-						-- 			btnsArr[b].width = 125 
-						-- 			btnsArr[b].height = 15
-						-- 		)
-						-- 		default:
-						-- 		(
-									
-						-- 		)
-						-- 	)
-						-- )
-						rolTarget.height = hSize
-						rolTarget.width = wSize
+						default:
+						(
+							btnsArr[92].text = "2019.9 _ [ aniBullet.S ]✨"
+							try(cui.UnRegisterDialogBar rolTarget)catch()
+							-- for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
+							-- (
+							-- 	case b of
+							-- 	(
+							-- 		(92):
+							-- 		(
+							-- 			btnsArr[b].pos = [12,226]
+							-- 			btnsArr[b].width = 125 
+							-- 			btnsArr[b].height = 15
+							-- 		)
+							-- 		default:
+							-- 		(
+										
+							-- 		)
+							-- 	)
+							-- )
+							rolTarget.height = hSize
+							rolTarget.width = wSize
+						)
 					)
 				)
+				catch()
 			)
-			catch()
+			else
+			(
+				try
+				(
+					nameAttrClass = "BulletKeyToolsSet"
+					btnsArr = rolTarget.controls
+					iniRolDockPos = fnGetConfig iniRolDockPos nameAttrClass "DockPos" "float"
+					case iniRolDockPos of
+					(
+						"cui_dock_top":
+						(
+							try(cui.UnRegisterDialogBar rolTarget)catch()
+							--	rearrange buttons to be horizontal
+							for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
+							(
+								if b == 1 then
+								(
+									btnsArr[b].pos = [0,2]
+									btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
+									btnsArr[b].height = 45
+									btnsArr[b].width = 135
+								)
+								else if b == 2 then (btnsArr[b].pos = [50,25])
+								else if b == 3 then (btnsArr[b].pos = [120,25])
+								else if b == 4 then (btnsArr[b].pos = [405,15])
+								else if b == 7 then (btnsArr[b].pos = [140,10])
+								else if b == 8 then (btnsArr[b].pos = [190,10])
+								else if b == 9 then (btnsArr[b].pos = [240,10])
+								else if b == 11 then (btnsArr[b].pos = [297,7])
+								else if b == 12 then (btnsArr[b].pos = [295,25])
+								else if b == 13 then (btnsArr[b].pos = [350,5])
+								else if b == 14 then (btnsArr[b].pos = [350,25])
+								else if b == 15 then (btnsArr[b].pos = [430,0]) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [430,25]) --首尾帧
+								else if b > 16 and b < 31 then 
+								(
+									if ((mod b 2) == 1) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + 50,0])
+									else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + 50,25])
+								)
+								else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + 50,0])
+								else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
+								else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 20,25])
+								else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 20,25])
+								else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 4].pos.x + 60,0])
+								else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
+								else if b == 38 then (btnsArr[b].pos = rolBsKeyTools.btnPos)
+								else if b == 39 then (btnsArr[b].pos = [btnsArr[35].pos.x + 50 + 5,10])
+								else if b >= 40 and b <= 42 then 
+								(
+									btnsArr[b].pos = [btnsArr[b - 1].pos.x + 30,btnsArr[39].pos.y]
+								)
+								else if b == 43 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10]) --右边工具箱第一个按钮
+								-- else if b == 44 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25]) --右边工具箱第二个按钮
+								else if b == 55 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								-- else if b == 56 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
+								else if b == 67 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								-- else if b == 68 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
+								else if b == 79 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								-- else if b == 80 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
+								else if b >= 44 and b <= 90 then 
+								(
+									-- btnsArr[b].pos = [btnsArr[b - 1].pos.x + 60,btnsArr[b - 1].pos.y]
+									if ((mod (b - 43) 12) != 0) then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 60,btnsArr[b - 1].pos.y])
+								)
+								else if b == 92 then 
+								(
+									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].visible = false
+									btnsArr[b].pos = rolBsKeyTools.btnPos
+								)
+								else if b == 93 then
+								(
+									btnsArr[b].text = "设置"
+									btnsArr[b].pos = [92,0]
+								)
+								else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
+								-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
+								else
+								(
+									btnsArr[b].visible = false
+									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+								)
+							)
+							rolTarget.height = 50
+							rolTarget.width = wSize
+							cui.RegisterDialogBar rolTarget minSize:[wSize,rolTarget.height] maxSize:[wSize,rolTarget.height] style:#(#cui_dock_horz)
+							cui.DockDialogBar rolTarget #cui_dock_top
+							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_top as string))catch()
+						)
+						"cui_dock_bottom":
+						(
+							try(cui.UnRegisterDialogBar rolTarget)catch()
+							--	rearrange buttons to be horizontal
+							for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
+							(
+								if b == 1 then
+								(
+									btnsArr[b].pos = [0,2]
+									btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
+									btnsArr[b].height = 45
+									btnsArr[b].width = 135
+								)
+								else if b == 2 then (btnsArr[b].pos = [50,25])
+								else if b == 3 then (btnsArr[b].pos = [120,25])
+								else if b == 4 then (btnsArr[b].pos = [405,15])
+								else if b == 7 then (btnsArr[b].pos = [140,10])
+								else if b == 8 then (btnsArr[b].pos = [190,10])
+								else if b == 9 then (btnsArr[b].pos = [240,10])
+								else if b == 11 then (btnsArr[b].pos = [297,7])
+								else if b == 12 then (btnsArr[b].pos = [295,25])
+								else if b == 13 then (btnsArr[b].pos = [350,5])
+								else if b == 14 then (btnsArr[b].pos = [350,25])
+								else if b == 15 then (btnsArr[b].pos = [430,0]) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [430,25]) --首尾帧
+								else if b > 16 and b < 31 then 
+								(
+									if ((mod b 2) == 1) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + 50,0])
+									else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + 50,25])
+								)
+								else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + 50,0])
+								else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
+								else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 20,25])
+								else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 20,25])
+								else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 4].pos.x + 60,0])
+								else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
+								else if b == 38 then (btnsArr[b].pos = rolBsKeyTools.btnPos)
+								else if b == 39 then (btnsArr[b].pos = [btnsArr[35].pos.x + 50 + 5,10])
+								else if b >= 40 and b <= 42 then 
+								(
+									btnsArr[b].pos = [btnsArr[b - 1].pos.x + 30,btnsArr[39].pos.y]
+								)
+								else if b == 43 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10]) --右边工具箱第一个按钮
+								-- else if b == 44 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25]) --右边工具箱第二个按钮
+								else if b == 55 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								-- else if b == 56 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
+								else if b == 67 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								-- else if b == 68 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
+								else if b == 79 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								-- else if b == 80 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
+								else if b >= 44 and b <= 90 then 
+								(
+									-- btnsArr[b].pos = [btnsArr[b - 1].pos.x + 60,btnsArr[b - 1].pos.y]
+									if ((mod (b - 43) 12) != 0) then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 60,btnsArr[b - 1].pos.y])
+								)
+								else if b == 92 then 
+								(
+									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].visible = false
+									btnsArr[b].pos = rolBsKeyTools.btnPos
+								)
+								else if b == 93 then
+								(
+									btnsArr[b].text = "设置"
+									btnsArr[b].pos = [92,0]
+								)
+								else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
+								-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
+								else
+								(
+									btnsArr[b].visible = false
+									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+								)
+							)
+							rolTarget.height = 50
+							rolTarget.width = wSize
+							cui.RegisterDialogBar rolTarget minSize:[wSize,rolTarget.height] maxSize:[wSize,rolTarget.height] style:#(#cui_dock_horz)
+							cui.DockDialogBar rolTarget #cui_dock_bottom
+							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_bottom as string))catch()
+						)
+						"cui_dock_left":
+						(
+							try(cui.UnRegisterDialogBar rolTarget)catch()
+							--	rearrange buttons to be vertical 
+							for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
+							(
+								if b == 1 then
+								(
+									btnsArr[b].pos = [0,2]
+									btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
+									btnsArr[b].height = 100
+									btnsArr[b].width = 160
+								)
+								else if b == 2 then (btnsArr[b].pos = [60,20])
+								else if b == 3 then (btnsArr[b].pos = [135,20])
+								else if b == 4 then (btnsArr[b].pos = [10,558])
+								else if b == 7 then (btnsArr[b].pos = [5,40])
+								else if b == 8 then (btnsArr[b].pos = [55,40])
+								else if b == 9 then (btnsArr[b].pos = [105,40])
+								else if b == 11 then (btnsArr[b].pos = [7,77])
+								else if b == 12 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
+								else if b == 13 then (btnsArr[b].pos = [55,75])
+								else if b == 14 then (btnsArr[b].pos = [105,75])
+								else if b == 15 then (btnsArr[b].pos = [5,105]) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [55,105]) --首尾帧
+								else if b == 17 then (btnsArr[b].pos = [105,105]) --首尾帧
+								else if b > 17 and b < 31 then 
+								(
+									if ((mod b 3) == 0) then (btnsArr[b].pos = [5,btnsArr[b - 3].pos.y + 25 + 2])
+									else if (mod b 3) == 1 then (btnsArr[b].pos = [55,btnsArr[b - 3].pos.y + 25 + 2])
+									else if (mod b 3) == 2 then (btnsArr[b].pos = [105,btnsArr[b - 3].pos.y + 25 + 2])
+								)
+								else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 50,btnsArr[b - 1].pos.y])
+								else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 40,btnsArr[b - 1].pos.y])
+								else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 20,btnsArr[b - 1].pos.y])
+								else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 20,btnsArr[b - 1].pos.y])
+								else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 5].pos.x,btnsArr[b - 5].pos.y + 25 + 2])
+								else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 50,btnsArr[b - 1].pos.y])
+								else if b == 38 then
+								(
+									btnsArr[b].pos = [5,290]
+									btnsArr[b].width = 150
+									btnsArr[b].height = 260
+								)
+								else if b == 39 then (btnsArr[b].pos = [btnsArr[30].pos.x + 15,btnsArr[30].pos.y + 50 + 15])
+								else if b >= 40 and b <= 42 then 
+								(
+									btnsArr[b].pos = [btnsArr[b - 1].pos.x + 30,btnsArr[39].pos.y]
+								)
+								else if b == 43 then (btnsArr[b].pos = [15,340]) --右边工具箱第一个按钮
+								else if b == 44 then (btnsArr[b].pos = [85,340]) --右边工具箱第二个按钮
+								else if b == 55 then (btnsArr[b].pos = [15,340])
+								else if b == 56 then (btnsArr[b].pos = [85,340])
+								else if b == 67 then (btnsArr[b].pos = [15,340])
+								else if b == 68 then (btnsArr[b].pos = [85,340])
+								else if b == 79 then (btnsArr[b].pos = [15,340])
+								else if b == 80 then (btnsArr[b].pos = [85,340])
+								else if b > 44 and b <= 90 then 
+								(
+
+									if ((mod b 2) == 1) then (btnsArr[b].pos = [15,btnsArr[b - 2].pos.y + 34])
+									else (btnsArr[b].pos = [85,btnsArr[b - 2].pos.y + 34])
+								)
+								else if b == 92 then 
+								(
+									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].visible = true;btnsArr[b].pos = [40,560]
+								)
+								else if b == 93 then
+								(
+									btnsArr[b].text = "设置"
+									btnsArr[b].pos = btnsArr[36].pos + [55,3]
+								)
+								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,585])
+								-- else if b == 96 then (btnsArr[b].pos = [0,885];btnsArr[b].width = 130)
+								else
+								(
+									btnsArr[b].visible = false
+									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+								)
+							)
+							rolTarget.height = hSize
+							rolTarget.width = 160
+							--
+							cui.RegisterDialogBar rolTarget minSize:[160,500] maxSize:[160,500] style:#(#cui_dock_vert)
+							cui.DockDialogBar rolTarget #cui_dock_left
+							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_left as string))catch()
+						)
+						"cui_dock_right":
+						(
+							try(cui.UnRegisterDialogBar rolTarget)catch()
+							--	rearrange buttons to be vertical 
+							for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
+							(
+								if b == 1 then
+								(
+									btnsArr[b].pos = [0,2]
+									btnsArr[b].text = ("BsKeyTools_v" + curVerBsKeyTools)
+									btnsArr[b].height = 100
+									btnsArr[b].width = 160
+								)
+								else if b == 2 then (btnsArr[b].pos = [60,20])
+								else if b == 3 then (btnsArr[b].pos = [135,20])
+								else if b == 4 then (btnsArr[b].pos = [10,558])
+								else if b == 7 then (btnsArr[b].pos = [5,40])
+								else if b == 8 then (btnsArr[b].pos = [55,40])
+								else if b == 9 then (btnsArr[b].pos = [105,40])
+								else if b == 11 then (btnsArr[b].pos = [7,77])
+								else if b == 12 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
+								else if b == 13 then (btnsArr[b].pos = [55,75])
+								else if b == 14 then (btnsArr[b].pos = [105,75])
+								else if b == 15 then (btnsArr[b].pos = [5,105]) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [55,105]) --首尾帧
+								else if b == 17 then (btnsArr[b].pos = [105,105]) --首尾帧
+								else if b > 17 and b < 31 then 
+								(
+									if ((mod b 3) == 0) then (btnsArr[b].pos = [5,btnsArr[b - 3].pos.y + 25 + 2])
+									else if (mod b 3) == 1 then (btnsArr[b].pos = [55,btnsArr[b - 3].pos.y + 25 + 2])
+									else if (mod b 3) == 2 then (btnsArr[b].pos = [105,btnsArr[b - 3].pos.y + 25 + 2])
+								)
+								else if b == 31 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 50,btnsArr[b - 1].pos.y])
+								else if b == 32 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 40,btnsArr[b - 1].pos.y])
+								else if b == 33 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 20,btnsArr[b - 1].pos.y])
+								else if b == 34 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 20,btnsArr[b - 1].pos.y])
+								else if b == 35 then (btnsArr[b].pos = [btnsArr[b - 5].pos.x,btnsArr[b - 5].pos.y + 25 + 2])
+								else if b == 36 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x + 50,btnsArr[b - 1].pos.y])
+								else if b == 38 then
+								(
+									btnsArr[b].pos = [5,290]
+									btnsArr[b].width = 150
+									btnsArr[b].height = 260
+								)
+								else if b == 39 then (btnsArr[b].pos = [btnsArr[30].pos.x + 15,btnsArr[30].pos.y + 50 + 15])
+								else if b >= 40 and b <= 42 then 
+								(
+									btnsArr[b].pos = [btnsArr[b - 1].pos.x + 30,btnsArr[39].pos.y]
+								)
+								else if b == 43 then (btnsArr[b].pos = [15,340]) --右边工具箱第一个按钮
+								else if b == 44 then (btnsArr[b].pos = [85,340]) --右边工具箱第二个按钮
+								else if b == 55 then (btnsArr[b].pos = [15,340])
+								else if b == 56 then (btnsArr[b].pos = [85,340])
+								else if b == 67 then (btnsArr[b].pos = [15,340])
+								else if b == 68 then (btnsArr[b].pos = [85,340])
+								else if b == 79 then (btnsArr[b].pos = [15,340])
+								else if b == 80 then (btnsArr[b].pos = [85,340])
+								else if b > 44 and b <= 90 then 
+								(
+
+									if ((mod b 2) == 1) then (btnsArr[b].pos = [15,btnsArr[b - 2].pos.y + 34])
+									else (btnsArr[b].pos = [85,btnsArr[b - 2].pos.y + 34])
+								)
+								else if b == 92 then 
+								(
+									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].visible = true;btnsArr[b].pos = [40,560]
+								)
+								else if b == 93 then
+								(
+									btnsArr[b].text = "设置"
+									btnsArr[b].pos = btnsArr[36].pos + [55,3]
+								)
+								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,585])
+								-- else if b == 96 then (btnsArr[b].pos = [0,885];btnsArr[b].width = 130)
+								else
+								(
+									btnsArr[b].visible = false
+									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
+								)
+							)
+							rolTarget.height = hSize
+							rolTarget.width = 160
+							cui.RegisterDialogBar rolTarget minSize:[160,500] maxSize:[160,500] style:#(#cui_dock_vert)
+							cui.DockDialogBar rolTarget #cui_dock_right
+							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_right as string))catch()
+						)
+						default:
+						(
+							btnsArr[92].text = "2019.9 _ [ aniBullet.S ]✨"
+							try(cui.UnRegisterDialogBar rolTarget)catch()
+							-- for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
+							-- (
+							-- 	case b of
+							-- 	(
+							-- 		(92):
+							-- 		(
+							-- 			btnsArr[b].pos = [12,226]
+							-- 			btnsArr[b].width = 125 
+							-- 			btnsArr[b].height = 15
+							-- 		)
+							-- 		default:
+							-- 		(
+										
+							-- 		)
+							-- 	)
+							-- )
+							rolTarget.height = hSize
+							rolTarget.width = wSize
+						)
+					)
+				)
+				catch()
+			)
 		)
 	)
 
@@ -1721,12 +2112,12 @@ rollout rolBsKeyTools "" width:355 height:250
 	groupbox gbxTips "" pos:[5,215] width:210 height:30
 	
 	-- label lblLink "2019.9[Bullet.S]4869" pos:[12,226] width:145 height:15
-	dotnetcontrol lblLink "Label" text:"2019.9 _ [ Bullet.S ]✨" pos:[12,226] width:125 height:15
-	checkbutton btnConfig "⚙️_设置_⚙️" pos:[145,223] width:69 height:20 border:false checked:true highlightColor:myCheckedColor
+	dotnetcontrol lblLink "Label" text:"2019.9 _ [ aniBullet.S ]✨" pos:[12,226] width:145 height:15
+	checkbutton btnConfig "设置" pos:[170,223] width:40 height:20 border:false checked:true highlightColor:myCheckedColor
 
 	timer timerTickTock interval:200 active:true
 
-	dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:200 width:340 pos:btnPos
+	dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:200 width:160 pos:btnPos
 	-- checkbutton ckbOpenConfigFilePath "打开配置文件目录" width:120 height:20 pos:btnPos  border:false checked:true highlightColor:myCheckedColor
 
 	local m_PBKeyTimeArray
@@ -1971,7 +2362,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	fn fnSwitchToolsBtn idBtn =
 	(
 		local arrBtnAll = arrToolC1 + arrToolC2 + arrToolC3 + arrToolC4
-
+		local curMaxVersion = ((maxVersion())[1] / 1000)
 		for b in arrBtnAll do (b.visible = false)
 
 		if not rolBsKeyTools.dialogBar then 
@@ -1996,11 +2387,25 @@ rollout rolBsKeyTools "" width:355 height:250
 			str += "	arrToolC" + idBtn as string + "[b].visible = true" + "\r\n"
 			str += "	if (mod b 2 == 1) then \r\n"
 			str += "	("
-			str += "		arrToolC" + idBtn as string + "[b].pos = " + [5,445] as string + " + [0,(b - 1) * 17]" + "\r\n"
+			str += "        if " + curMaxVersion as string + " > 20 then "
+			str += "		("
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [5,445] as string + " + [0,(b - 1) * 17]" + "\r\n"
+			str += "		)"
+			str += "		else"
+			str += "		("
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [15,340] as string + " + [0,(b - 1) * 17]" + "\r\n"
+			str += "		)"
 			str += "	)"
 			str += "	else if (mod b 2 == 0) then"
 			str += "	("
-			str += "		arrToolC" + idBtn as string + "[b].pos = " + [65,445] as string + " + [0,(b - 2) * 17]" + "\r\n"
+			str += "		if " + curMaxVersion as string + " > 20 then "
+			str += "		("
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [65,445] as string + " + [0,(b - 2) * 17]" + "\r\n"
+			str += "		)"
+			str += "		else"
+			str += "		("
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [85,340] as string + " + [0,(b - 2) * 17]" + "\r\n"
+			str += "		)"
 			str += "	)"
 			str += ")"
 		)
@@ -2011,11 +2416,25 @@ rollout rolBsKeyTools "" width:355 height:250
 			str += "	arrToolC" + idBtn as string + "[b].visible = true" + "\r\n"
 			str += "	if (mod b 2 == 1) then \r\n"
 			str += "	("
-			str += "		arrToolC" + idBtn as string + "[b].pos = " + [1070,0] as string + " + [(b - 1) * 30,0]" + "\r\n"
+			str += "        if " + curMaxVersion as string + " > 20 then "
+			str += "		("
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1070,0] as string + " + [(b - 1) * 30,0]" + "\r\n"
+			str += "		)"
+			str += "		else"
+			str += "		("
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1070,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
+			str += "		)"
 			str += "	)"
 			str += "	else if (mod b 2 == 0) then"
 			str += "	("
-			str += "		arrToolC" + idBtn as string + "[b].pos = " + [1070,20] as string + " + [(b - 2) * 30,0]" + "\r\n"
+			str += "		if " + curMaxVersion as string + " > 20 then "
+			str += "		("
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1070,20] as string + " + [(b - 2) * 30,0]" + "\r\n"
+			str += "		)"
+			str += "		else"
+			str += "		("
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1070,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
+			str += "		)"
 			str += "	)"
 			str += ")"
 		)
