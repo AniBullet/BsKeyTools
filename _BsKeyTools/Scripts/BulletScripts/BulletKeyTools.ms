@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-05 19:29:38
+ * @LastEditTime: 2025-01-06 10:53:48
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -557,7 +557,7 @@ rcmenu menuConfig
 								if ((mod b 2) == 0) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
 								else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
 							)
-							else if b == 92 then (btnsArr[b].pos = [1435,5])
+							else if b == 92 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
 							else if b == 93 then
 							(
 								btnsArr[b].text = "设置"
@@ -565,8 +565,8 @@ rcmenu menuConfig
 								btnsArr[b].width = 35
 								btnsArr[b].height = 16
 							)
-							else if b == 95 then (btnsArr[b].pos = rolBsKeyTools.btnPos)
-							else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
+							else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
+							-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
 							else
 							(
 								btnsArr[b].visible = false
@@ -643,7 +643,7 @@ rcmenu menuConfig
 								if ((mod b 2) == 0) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
 								else (btnsArr[b].pos = [btnsArr[b - 2].pos.x + btnsArr[b - 2].width,btnsArr[b - 2].pos.y])
 							)
-							else if b == 92 then (btnsArr[b].pos = [1435,5])
+							else if b == 92 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
 							else if b == 93 then
 							(
 								btnsArr[b].text = "设置"
@@ -651,11 +651,8 @@ rcmenu menuConfig
 								btnsArr[b].width = 35
 								btnsArr[b].height = 16
 							)
-							else if b == 95 then 
-							(
-								btnsArr[b].pos = [999999,999999];btnsArr[b].width = 260
-							)
-							else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
+							else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
+							-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
 							else
 							(
 								btnsArr[b].visible = false
@@ -734,7 +731,7 @@ rcmenu menuConfig
 								if ((mod b 2) == 1) then (btnsArr[b].pos = [5,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
 								else (btnsArr[b].pos = [65,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
 							)
-							else if b == 92 then (btnsArr[b].pos = [20,663])
+							else if b == 92 then (btnsArr[b].visible = true;btnsArr[b].pos = [20,663])
 							else if b == 93 then
 							(
 								btnsArr[b].text = "设置"
@@ -742,8 +739,8 @@ rcmenu menuConfig
 								btnsArr[b].width = 35
 								btnsArr[b].height = 16
 							)
-							else if b == 95 then (btnsArr[b].pos = [0,680];btnsArr[b].width = 130)
-							else if b == 96 then (btnsArr[b].pos = [0,885];btnsArr[b].width = 130)
+							else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,680];btnsArr[b].width = 130)
+							-- else if b == 96 then (btnsArr[b].pos = [0,885];btnsArr[b].width = 130)
 							else
 							(
 								btnsArr[b].visible = false
@@ -823,7 +820,7 @@ rcmenu menuConfig
 								if ((mod b 2) == 1) then (btnsArr[b].pos = [5,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
 								else (btnsArr[b].pos = [65,btnsArr[b - 2].pos.y + btnsArr[b - 2].height + 2])
 							)
-							else if b == 92 then (btnsArr[b].pos = [20,663])
+							else if b == 92 then (btnsArr[b].visible = true;btnsArr[b].pos = [20,663])
 							else if b == 93 then
 							(
 								btnsArr[b].text = "设置"
@@ -831,8 +828,8 @@ rcmenu menuConfig
 								btnsArr[b].width = 35
 								btnsArr[b].height = 16
 							)
-							else if b == 95 then (btnsArr[b].pos = [0,680];btnsArr[b].width = 130)
-							else if b == 96 then (btnsArr[b].pos = [0,885];btnsArr[b].width = 130)
+							else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,680];btnsArr[b].width = 130)
+							-- else if b == 96 then (btnsArr[b].pos = [0,885];btnsArr[b].width = 130)
 							else
 							(
 								btnsArr[b].visible = false
@@ -1730,7 +1727,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	timer timerTickTock interval:200 active:true
 
 	dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:200 width:340 pos:btnPos
-	checkbutton ckbOpenConfigFilePath "打开配置文件目录" width:120 height:20 pos:btnPos  border:false checked:true highlightColor:myCheckedColor
+	-- checkbutton ckbOpenConfigFilePath "打开配置文件目录" width:120 height:20 pos:btnPos  border:false checked:true highlightColor:myCheckedColor
 
 	local m_PBKeyTimeArray
 	local m_PBKeyMiliSecArray
@@ -1814,9 +1811,9 @@ rollout rolBsKeyTools "" width:355 height:250
 			(
 				if doesFileExist i then
 				(
-					append arrRecentFilesName ("📄" + (getFilenameFile i) + ".max")
+					append arrRecentFilesName ("📄 " + (getFilenameFile i) + ".max")
 				)
-				else append arrRecentFilesName ("📄(疑丢失)" + (getFilenameFile i) + ".max")
+				else append arrRecentFilesName ("📄 (疑丢失)" + (getFilenameFile i) + ".max")
 			)
 			-- dotLVFilesList.items = arrRecentFilesName
 			fnAddToLbxList arrRecentFilesName
@@ -2494,17 +2491,17 @@ rollout rolBsKeyTools "" width:355 height:250
 			if arrKeysTime.count != 0 then
 			(
 				selectkeys $ keyFirst KeyEnd  -------------选中正常帧
-				if rolBsKeyTools.chkJudgeLinkKey.state == true then
-				(
+				-- if rolBsKeyTools.chkJudgeLinkKey.state == true then
+				-- (
 					fnSelLinkKeys keyFirst KeyEnd symbol --------------选中link帧
-				)
+				-- )
 			)
 			else
 			(
-				if rolBsKeyTools.chkJudgeLinkKey.state == true then
-				(
+				-- if rolBsKeyTools.chkJudgeLinkKey.state == true then
+				-- (
 					fnSelLinkKeys keyFirst KeyEnd symbol
-				)
+				-- )
 			)
 		)
 		case of 
@@ -2525,8 +2522,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	(
 		local arrTargetID  = #()
 		moveKeys obj offset #selection  ---先移动非link帧
-		if rolBsKeyTools.chkJudgeLinkKey.state == true then 
-		(
+		-- if rolBsKeyTools.chkJudgeLinkKey.state == true then 
+		-- (
 			if classof obj.controller == Link_Constraint do
 			(
 				nTargets = obj.controller.getNumTargets()  ---得到link的帧数量
@@ -2562,7 +2559,7 @@ rollout rolBsKeyTools "" width:355 height:250
 					)
 				)
 			)
-		)
+		-- )
 	)
 
 	-- fn fnSplitSelBiped = --分开选择四肢和身体,例如同一条手臂只选择最父级的(方便移动帧)
@@ -3484,21 +3481,21 @@ rollout rolBsKeyTools "" width:355 height:250
 		
 	on btnSetSpeed pressed do (popupMenu menuSetSpeed pos:[mouse.screenpos.x,mouse.screenpos.y - 160])
 
-	on chkJudgeLinkKey changed state do   --切换是否勾选link
-	(
-		if chkJudgeLinkKey.state == false then
-		(
-			if arrLinkKeys.count != 0 then
-			(
-				for i in arrLinkKeys do i.selected = false
-			)
-		)
-		else 
-		(
-			fnCollectKeys ()
-			(messagebox "无法移动选定 Link 帧，\r\n\r\n只能全局移动，\r\n\r\n其他功能正常生效，\r\n\r\n反正 Link 也很坑还要重新调整你说是吧~                            " title:"BsKeyTools" beep:false)
-		)
-	)
+	-- on chkJudgeLinkKey changed state do   --切换是否勾选link
+	-- (
+	-- 	if chkJudgeLinkKey.state == false then
+	-- 	(
+	-- 		if arrLinkKeys.count != 0 then
+	-- 		(
+	-- 			for i in arrLinkKeys do i.selected = false
+	-- 		)
+	-- 	)
+	-- 	else 
+	-- 	(
+	-- 		fnCollectKeys ()
+	-- 		(messagebox "无法移动选定 Link 帧，\r\n\r\n只能全局移动，\r\n\r\n其他功能正常生效，\r\n\r\n反正 Link 也很坑还要重新调整你说是吧~                            " title:"BsKeyTools" beep:false)
+	-- 	)
+	-- )
 
 	on btnCleanOutKeys pressed do with undo on  -----------清理范围外帧(无限帧)
 	(
@@ -4241,18 +4238,18 @@ rollout rolBsKeyTools "" width:355 height:250
 		if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Right do fnOpenRecentFilePath()
 	)
 
-	on ckbOpenConfigFilePath changed state do
-	(
-		ckbOpenConfigFilePath.state = true
-		if (queryBox "是否打开配置文件目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
-		title:"配置文件" beep:false) then (shellLaunch (getFilenamePath BulletConfig) "")
-	)
-	on ckbOpenConfigFilePath rightClick do
-	(
-		ckbOpenConfigFilePath.state = true
-		if (queryBox "是否打开配置文件目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
-		title:"配置文件" beep:false) then (shellLaunch (getFilenamePath BulletConfig) "")
-	)
+	-- on ckbOpenConfigFilePath changed state do
+	-- (
+	-- 	ckbOpenConfigFilePath.state = true
+	-- 	if (queryBox "是否打开配置文件目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
+	-- 	title:"配置文件" beep:false) then (shellLaunch (getFilenamePath BulletConfig) "")
+	-- )
+	-- on ckbOpenConfigFilePath rightClick do
+	-- (
+	-- 	ckbOpenConfigFilePath.state = true
+	-- 	if (queryBox "是否打开配置文件目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
+	-- 	title:"配置文件" beep:false) then (shellLaunch (getFilenamePath BulletConfig) "")
+	-- )
 )
 if (iniPos != 0) then (Createdialog rolBsKeyTools fgcolor:myFgColor pos:iniPos style:#())
 else (Createdialog rolBsKeyTools fgcolor:myFgColor style:#())

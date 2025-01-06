@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-04 02:00:03
+ * @LastEditTime: 2025-01-06 11:01:46
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -863,6 +863,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.1"
 		-- print iniDockPos
 		callbacks.removeScripts #filePostOpen id:#UpdateBsBackup
 		callbacks.removeScripts #filePostSave id:#UpdateBsBackup
+		callbacks.removeScripts #systemPostReset id:#UpdateBsBackup
 		stSetConfigAll.fnSetConfigTrackBarTools()
 		callbacks.removeScripts id:#SaveButtonCallback
 		callbacks.removeScripts id:#SaveButtonResetCallback
