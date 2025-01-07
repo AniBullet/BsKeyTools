@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-07 11:18:17
+ * @LastEditTime: 2025-01-07 15:13:13
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -2245,9 +2245,9 @@ rollout rolBsKeyTools "" width:355 height:250
 			if doesFileExist arrRecentFiles[idSelFile] then
 			(
 				shellLaunch (getFilenamePath (arrRecentFiles[idSelFile])) ""
-				fnRefreshRecentFileList()
 			)
 		)
+		fnRefreshRecentFileList()
 	)
 
 	fn fnDotnetBitmap fName =
