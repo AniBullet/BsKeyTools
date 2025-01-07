@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-03 23:50:09
+ * @LastEditTime: 2025-01-07 22:00:05
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -20,7 +20,7 @@ global dragStateBsADT = off
 	rollout rolBsAnimDemoTools "" width:265 height:300
 	(
 		local dotColor = dotnetclass "System.Drawing.Color"
-		button btnRegister "注册" pos:[rolBsAnimDemoTools.width - 80,0] width:40 height:16 border:false
+		button btnRegister "免费注册刀光" pos:[rolBsAnimDemoTools.width - 120,0] width:80 height:16 border:false
 		button btnAbout "?" pos:[rolBsAnimDemoTools.width - 40,0] height:16 width:20
 		button btnClose "X" pos:[rolBsAnimDemoTools.width - 20,0] height:16 width:20
 		label lblTitle "BsAnimDemo_v1.0" pos:[5,3]
@@ -50,16 +50,16 @@ global dragStateBsADT = off
 		checkbox ckbGenerateMapping "生成映射" pos:[185,223] width:70 height:20 checked:true
 		-----------------------------------------------------------------------------------------------------------------------------------------
 		button btnMaterial "材质窗口" pos:[5,256] width:65 height:20
-		button btnTransparency "透明" pos:[75,256] width:40 height:20
-		dropdownlist ddlDefaultTex "" pos:[120,255] width:90 height:20 items:#("默认刀光")
-		button btnSelectTex "指定" pos:[215,256] width:45 height:20
+		-- button btnTransparency "透明" pos:[75,256] width:40 height:20
+		dropdownlist ddlDefaultTex "" pos:[75,255] width:105 height:20 items:#("默认刀光")
+		button btnSelectTex "赋予材质" pos:[185,256] width:75 height:20
 		-------------------------------------------------------------------------------------------------------------------------------------------
--- TODO：导出到引擎
--- TODO：透明材质
--- TODO：缩小高度，默认收缩，添加0-100以外的补间
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
-		local arrGhostTrails = #("刀光",#())
+		local arrGhostTrails = #("刀光",#(gpbTrail,spnRadian,chkCreateLine,chkCreateTrail,btnSelectTrail,btnHideTrail, \
+										btnShowTrail,btnDeleteTrail,gpbPreset,rdoTrailType,spnFrameToLag,ckbSetRange, \
+										spnStartFrame,spnEndFrame,gpbMesh,spnSegments,spnSplineSteps,spnURepeat, \
+										ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnSelectTex))
 		local arrDemoScene = #("场景",#()) 
 		local arrDemoLight = #("灯光",#())
 		local arrDemoMat = #("材质",#())
@@ -82,6 +82,22 @@ global dragStateBsADT = off
 			)
 		)
 
+		fn fnRefreshInitValue = 
+		(
+			try
+			(
+				rdoTrailType.state       = $.modifiers[#GhostTrails].movingorstill + 1
+				spnFrameToLag.value      = $.modifiers[#GhostTrails].old_frames
+				spnStartFrame.value      = $.modifiers[#GhostTrails].startFrame/80
+				spnEndFrame.value        = $.modifiers[#GhostTrails].endFrame/80
+				spnSegments.value        = $.modifiers[#GhostTrails].segmentsperframe
+				spnSplineSteps.value     = $.modifiers[#GhostTrails].splineSteps
+				spnURepeat.value         = $.modifiers[#GhostTrails].pb_urepeat
+				ckbFlipNormals.state     = $.modifiers[#GhostTrails].flipNormals
+				ckbGenerateMapping.state = $.modifiers[#GhostTrails].generateMap
+			)catch()
+		)
+
 		fn fnChangeToolsVisble id =
 		(
 			for i = 1 to arrAllToolsTab.count do 
@@ -93,11 +109,6 @@ global dragStateBsADT = off
 				else (for j in arrAllToolsTab[i][2] do j.visible = false)
 			)
 			LastSubRollout = id
-		)
-
-		fn fnInitGUI =
-		(
-			
 		)
 
 		fn fnMakeSpline pos1 pos2 sinkF:0 = 
@@ -143,6 +154,7 @@ global dragStateBsADT = off
 		(
 			fnInitDotTabs()
 			fnChangeToolsVisble (tabBsADT.SelectedIndex + 1)
+			fnRefreshInitValue()
 		)
 
 		on btnClose pressed do 
@@ -235,6 +247,113 @@ global dragStateBsADT = off
 		on btnShowTrail pressed do
 		(
 			try(unhide $'BsGhostTrails_*')catch()
+		)
+
+		on spnFrameToLag changed val do
+		(
+			try
+			(
+				$.modifiers[#GhostTrails].old_frames = val
+			)catch()
+		)
+
+		on spnStartFrame changed val do
+		(
+			try
+			(
+				$.modifiers[#GhostTrails].startFrame = val*80
+			)catch()
+		)
+
+		on spnEndFrame changed val do
+		(
+			try
+			(
+				$.modifiers[#GhostTrails].endFrame = val*80
+			)catch()
+		)
+
+		on spnSegments changed val do
+		(
+			try
+			(
+				$.modifiers[#GhostTrails].segmentsperframe = val
+			)catch()
+		)
+
+		on spnSplineSteps changed val do
+		(
+			try
+			(
+				$.modifiers[#GhostTrails].splineSteps = val
+			)catch()
+		)
+
+		on spnURepeat changed val do
+		(
+			try
+			(
+				$.modifiers[#GhostTrails].pb_urepeat = val
+			)catch()
+		)
+
+		on ckbFlipNormals changed state do
+		(
+			try
+			(
+				$.modifiers[#GhostTrails].flipNormals = state
+			)catch()
+		)
+
+		on ckbGenerateMapping changed state do
+		(
+			try
+			(
+				$.modifiers[#GhostTrails].generateMap = state
+			)catch()
+		)
+
+		on rdoTrailType changed id do
+		(
+			if id == 2 then
+			(
+				try
+				(
+					$.modifiers[#GhostTrails].movingorstill = 1
+					spnFrameToLag.enabled = off
+					ckbSetRange.enabled   = on
+				)catch()
+			)
+			else
+			(
+				try
+				(
+					$.modifiers[#GhostTrails].movingorstill = 0
+					spnFrameToLag.enabled = on
+					ckbSetRange.enabled   = off
+					spnStartFrame.enabled = off
+					spnEndFrame.enabled   = off
+				)catch()
+			)
+		)
+
+		on ckbSetRange changed state do
+		(
+			if state then
+			(
+				spnStartFrame.enabled = on
+				spnEndFrame.enabled   = on
+			)
+			else
+			(
+				spnStartFrame.enabled = off
+				spnEndFrame.enabled   = off
+			)
+		)
+
+		on btnMaterial pressed do
+		(
+			max mtledit
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()
