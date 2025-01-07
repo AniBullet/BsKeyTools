@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-07 22:00:05
+ * @LastEditTime: 2025-01-08 01:32:12
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -51,8 +51,8 @@ global dragStateBsADT = off
 		-----------------------------------------------------------------------------------------------------------------------------------------
 		button btnMaterial "材质窗口" pos:[5,256] width:65 height:20
 		-- button btnTransparency "透明" pos:[75,256] width:40 height:20
-		dropdownlist ddlDefaultTex "" pos:[75,255] width:105 height:20 items:#("默认刀光")
-		button btnSelectTex "赋予材质" pos:[185,256] width:75 height:20
+		dropdownlist ddlDefaultTex "" pos:[75,255] width:95 height:20 items:#("默认刀光")
+		button btnSelectTex "指定刀光贴图" pos:[175,256] width:85 height:20
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 

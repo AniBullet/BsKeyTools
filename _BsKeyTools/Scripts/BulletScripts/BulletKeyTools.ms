@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-07 15:13:13
+ * @LastEditTime: 2025-01-08 01:15:43
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -441,11 +441,6 @@ rcmenu menuConfig
 		separator menuSepClose
 		menuItem mItemUninstall "卸载 [期待再再见]"
 	)
-	separator menuSepHelp
-	menuItem mItemCleanVirus "杀毒工具 [推荐开启]"
-	menuItem mItemWinBack "窗口找回 [会有用的]"
-	menuItem mItemIsStartup "是否随3dsMax自启"
-	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
 	submenu "面板嵌入设置"
 	(
 		menuItem mItemFloat "浮动" checked:(if not rolBsKeyTools.dialogBar then true else false)
@@ -455,6 +450,11 @@ rcmenu menuConfig
 		menuItem mItemLeft "左" checked:(if rolBsKeyTools.dialogBar and (cui.getDockState rolBsKeyTools) as string == "cui_dock_left" then true else false)
 		menuItem mItemRight "右" checked:(if rolBsKeyTools.dialogBar and (cui.getDockState rolBsKeyTools) as string == "cui_dock_right" then true else false)
 	)
+	separator menuSepHelp
+	menuItem mItemCleanVirus "杀毒工具 [推荐开启]"
+	menuItem mItemWinBack "窗口找回 [会有用的]"
+	menuItem mItemIsStartup "是否随3dsMax自启"
+	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
 	subMenu "自定义功能配置"
 	(
 		menuItem mItemCustomSortBtn "自定义功能按钮位置"
