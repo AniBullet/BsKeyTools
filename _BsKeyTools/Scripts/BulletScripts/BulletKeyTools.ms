@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-07 00:15:22
+ * @LastEditTime: 2025-01-07 11:18:17
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -916,7 +916,7 @@ rcmenu menuConfig
 								else if b == 8 then (btnsArr[b].pos = [190,10])
 								else if b == 9 then (btnsArr[b].pos = [240,10])
 								else if b == 11 then (btnsArr[b].pos = [297,7])
-								else if b == 12 then (btnsArr[b].pos = [295,25])
+								else if b == 12 then (btnsArr[b].visible = true;btnsArr[b].pos = [295,25])
 								else if b == 13 then (btnsArr[b].pos = [350,5])
 								else if b == 14 then (btnsArr[b].pos = [350,25])
 								else if b == 15 then (btnsArr[b].pos = [430,0]) --选定帧
@@ -971,8 +971,8 @@ rcmenu menuConfig
 								)
 							)
 							rolTarget.height = 50
-							rolTarget.width = wSize
-							cui.RegisterDialogBar rolTarget minSize:[wSize,rolTarget.height] maxSize:[wSize,rolTarget.height] style:#(#cui_dock_horz)
+							rolTarget.width = 1800
+							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_horz)
 							cui.DockDialogBar rolTarget #cui_dock_top
 							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_top as string))catch()
 						)
@@ -996,7 +996,7 @@ rcmenu menuConfig
 								else if b == 8 then (btnsArr[b].pos = [190,10])
 								else if b == 9 then (btnsArr[b].pos = [240,10])
 								else if b == 11 then (btnsArr[b].pos = [297,7])
-								else if b == 12 then (btnsArr[b].pos = [295,25])
+								else if b == 12 then (btnsArr[b].visible = true;btnsArr[b].pos = [295,25])
 								else if b == 13 then (btnsArr[b].pos = [350,5])
 								else if b == 14 then (btnsArr[b].pos = [350,25])
 								else if b == 15 then (btnsArr[b].pos = [430,0]) --选定帧
@@ -1051,8 +1051,8 @@ rcmenu menuConfig
 								)
 							)
 							rolTarget.height = 50
-							rolTarget.width = wSize
-							cui.RegisterDialogBar rolTarget minSize:[wSize,rolTarget.height] maxSize:[wSize,rolTarget.height] style:#(#cui_dock_horz)
+							rolTarget.width = 1800
+							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_horz)
 							cui.DockDialogBar rolTarget #cui_dock_bottom
 							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_bottom as string))catch()
 						)
@@ -1137,10 +1137,10 @@ rcmenu menuConfig
 									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
 								)
 							)
-							rolTarget.height = hSize
+							rolTarget.height = 800
 							rolTarget.width = 160
 							--
-							cui.RegisterDialogBar rolTarget minSize:[160,500] maxSize:[160,500] style:#(#cui_dock_vert)
+							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_vert)
 							cui.DockDialogBar rolTarget #cui_dock_left
 							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_left as string))catch()
 						)
@@ -1225,9 +1225,9 @@ rcmenu menuConfig
 									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
 								)
 							)
-							rolTarget.height = hSize
+							rolTarget.height = 800
 							rolTarget.width = 160
-							cui.RegisterDialogBar rolTarget minSize:[160,500] maxSize:[160,500] style:#(#cui_dock_vert)
+							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_vert)
 							cui.DockDialogBar rolTarget #cui_dock_right
 							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_right as string))catch()
 						)
@@ -2117,7 +2117,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	timer timerTickTock interval:200 active:true
 
-	dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:200 width:160 pos:btnPos
+	dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:200 width:160 pos:[0,585]
 	-- checkbutton ckbOpenConfigFilePath "打开配置文件目录" width:120 height:20 pos:btnPos  border:false checked:true highlightColor:myCheckedColor
 
 	local m_PBKeyTimeArray
@@ -3395,6 +3395,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		ckbPlayBlocking.state = false
 		clock.active = false
 		ckbPerspLock.state = tooglePersp
+		fnRefreshRecentFileList()
 		menuConfig.fnLoadDockPos rolBsKeyTools widthBsSize heightBsSize
 		fnSwitchToolsBtn idBtn
 		fnSwitchToolBtnChecked idBtn
@@ -3410,7 +3411,6 @@ rollout rolBsKeyTools "" width:355 height:250
 			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
 			catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 		)
-		fnRefreshRecentFileList()
 		-- print ("iniBsAutoCheckUpdate: " + iniBsAutoCheckUpdate as string)
 	)
 	
