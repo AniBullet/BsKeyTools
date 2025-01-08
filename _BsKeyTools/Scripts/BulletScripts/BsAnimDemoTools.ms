@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-08 17:03:41
+ * @LastEditTime: 2025-01-08 21:54:06
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -20,6 +20,8 @@ global dragStateBsADT = off
 	rollout rolBsAnimDemoTools "" width:265 height:300
 	(
 		local selGhostTex = undefined
+		local selEffTex = undefined
+		local arrEffTexFiles = #()
 		local dotColor = dotnetclass "System.Drawing.Color"
 		button btnRegister "免费注册刀光" pos:[rolBsAnimDemoTools.width - 120,0] width:80 height:16 border:false
 		button btnAbout "?" pos:[rolBsAnimDemoTools.width - 40,0] height:16 width:20
@@ -57,6 +59,15 @@ global dragStateBsADT = off
 		dropdownlist ddlDefaultTex "" pos:[75,255] width:105 height:20 items:#("默认刀光")
 		button btnApplyTex "指定刀光" pos:[185,255] width:75 height:21 tooltip:"左键赋予刀光贴图，右键重新指定"
 		-------------------------------------------------------------------------------------------------------------------------------------------
+		dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:185 width:(rolBsAnimDemoTools.width - 10) pos:[5,-500]
+		spinner spnU "横" pos:[10,240] width:50 height:20 range:[-99999,99999,4] type:#integer align:#left visible:false
+		spinner spnV "纵" pos:[10,260] width:50 height:20 range:[-99999,99999,4] type:#integer align:#left visible:false
+		label lblFrameOffset "↓帧偏移↓" pos:[75,240] width:50 height:20 visible:false
+		spinner spnFrameOffest "" pos:[75,260] width:40 height:20 range:[-99999,99999,2] type:#integer align:#left visible:false
+		button btnOpenPath "打开仓库" pos:[125,240] width:55 height:40 visible:false
+		button btnApplyEff "应用序列帧" pos:[rolBsAnimDemoTools.width - 80,240] width:75 height:40 visible:false
+		-------序列帧工具来源 "https://www.cgjoy.com/thread-275528-1-1.html" 开发者：叶孤弦
+		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
 		local arrGhostTrails = #("刀光",#(gpbTrail,spnRadian,chkCreateLine,chkCreateTrail,btnSelectTrail,btnUnfreezeTrail,btnFreezeTrail, \
@@ -65,8 +76,8 @@ global dragStateBsADT = off
 										ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnApplyTex))
 		local arrDemoScene = #("场景",#()) 
 		local arrDemoLight = #("灯光",#())
-		local arrDemoMat = #("材质",#())
-		local arrAllToolsTab = #(arrGhostTrails,arrDemoScene,arrDemoLight,arrDemoMat)
+		local arrDemoEff = #("简单特效",#(dotLVFilesList,spnU,spnV,btnApplyEff,lblFrameOffset,spnFrameOffest,btnOpenPath))
+		local arrAllToolsTab = #(arrGhostTrails,arrDemoScene,arrDemoLight,arrDemoEff)
 	
 		fn fnInitDotTabs =
 		(
@@ -82,6 +93,71 @@ global dragStateBsADT = off
 			for aTab = 1 to arrAllToolsTab.count do
 			(
 				tabBsADT.TabPages.add arrAllToolsTab[aTab][1]
+			)
+		)
+
+		fn fnInitDotNetListView =
+		(	
+			local align = dotNetClass "HorizontalAlignment"
+		
+			dotLVFilesList.Clear()
+			dotLVFilesList.View = (dotNetClass "System.Windows.Forms.View").Details	
+			dotLVFilesList.FullRowSelect = true
+			dotLVFilesList.GridLines = false		
+			dotLVFilesList.ShowItemToolTips = true
+			dotLVFilesList.MultiSelect = false
+			dotLVFilesList.CheckBoxes = false
+			dotLVFilesList.HideSelection = false
+			dotLVFilesList.Columns.Add "特效序列帧  （叶孤弦 分享）" (rolBsAnimDemoTools.width - 35)
+			dotLVFilesList.ForeColor = BsDotForeColor
+			dotLVFilesList.BackColor = BsDotBackColor
+			if dotLVFilesList.SelectedItems.Count > 0 then
+			(
+				dotLVFilesList.SelectedItems[0].BackColor = BsDotCheckColor
+			)
+
+			dotLVFilesList.Update()
+			dotLVFilesList.Refresh()
+		)
+
+		fn fnRefreshTexFiles =
+		(
+			fnInitDotNetListView()
+			local arrTexFiles = getFiles ((getDir #scripts) + "\\BulletScripts\\Res\\BsSpriteTex\\*.png")
+			rows = #()
+			dotLVFilesList.Items.Clear()
+			for i = 1 to arrTexFiles.count where arrTexFiles.count != 0 do
+			(
+				local li = dotNetObject "System.Windows.Forms.ListViewItem" ""
+				li.useItemStyleForSubItems = false
+				li.text = (getFilenameFile arrTexFiles[i])
+				bold = (dotnetclass "System.Drawing.FontStyle").Bold
+				li.subitems.add arrTexFiles[i]
+				append rows li
+			)		
+			dotLVFilesList.Items.addRange rows
+			arrEffTexFiles = arrtexFiles
+		)
+
+		fn fnGetSelectedId =
+		(
+			c = dotLVFilesList.SelectedItems.Count - 1		
+			id = 0		
+			for i = 0 to c do id = dotLVFilesList.SelectedItems.Item[i].Index + 1
+			return id
+		)
+	
+		fn fnSelEffTex =
+		(
+			local idSelFile = fnGetSelectedId()
+	
+			if idSelFile > 0  then
+			(
+				if doesFileExist arrEffTexFiles[idSelFile] then
+				(
+					selEffTex = arrEffTexFiles[idSelFile]
+				)
+				else (messagebox ("文件可能已被删除或移走，请检查！：\r\n\r\n" + (arrEffTexFiles[idSelFile] as string) + "                                                                            ") title:"提示")
 			)
 		)
 
@@ -157,14 +233,14 @@ global dragStateBsADT = off
 			catch()
 		)
 
-		function fnApplyMat objs =
+		function fnApplyMat objs tex =
 		(
 			for i in objs do
 			(
 				if objs != undefined then
 				(
 					
-					bitmapTex1 = (Bitmaptexture filename:selGhostTex)
+					bitmapTex1 = (Bitmaptexture filename:tex)
 					if ((maxVersion())[1] < 2200) then 
 					(
 						i.material = standardMaterial showInViewport:true name: ("Mat_BsGhostTrails_"+i.name)
@@ -181,6 +257,38 @@ global dragStateBsADT = off
 						i.material.cutout_map_on  = true
 					)
 					showTextureMap i.material true
+				)
+			)
+		)
+
+		--设置UV大小
+		fn uvScaleSet obj GridX GridY =
+		(
+			GridU = 1.0/GridX
+			GridV = 1.0/GridY
+			--选择所有uv多边形 											uv多边形 编号
+			obj.modifiers[#unwrap_uvw].unwrap6.selectFacesByNode #{1..(obj.modifiers[#unwrap_uvw].numberPolygons())} obj
+			obj.modifiers[#unwrap_uvw].unwrap2.ScaleSelectedXY GridU GridV [0,1,0]
+			)
+		--设置UV动画
+		fn SEUVPosSet obj GridX GridY =
+		(
+			--选择所有uv多边形 													uv多边形 编号
+			local offsetMove = rolBsAnimDemoTools.spnFrameOffest.value
+			obj.modifiers[#unwrap_uvw].unwrap6.selectFacesByNode #{1..(obj.modifiers[#unwrap_uvw].numberPolygons())} obj
+			for Y = 1 to GridY do
+			(
+				if Y != 1 then 
+				(
+					sliderTime+=offsetMove
+					obj.modifiers[#unwrap_uvw].unwrap2.MoveSelected [-(1-1.0/GridX),-(1.0/GridY),0]
+					-- print ("y: " + sliderTime as string)
+				)
+				for X in 1 to (GridX-1) do
+				(
+					sliderTime+=offsetMove
+					obj.modifiers[#unwrap_uvw].unwrap2.MoveSelected [(1.0/GridX),0,0]
+					-- print ("x: " + sliderTime as string)
 				)
 			)
 		)
@@ -206,6 +314,8 @@ global dragStateBsADT = off
 			if LastSubRollout != arrID do --避免点击重复
 			(
 				fnChangeToolsVisble arrID
+				if arrID == 4 then (dotLVFilesList.pos = [5,50];fnRefreshTexFiles())
+				else (dotLVFilesList.pos = [5,-500])
 			) 
 		)
 		
@@ -252,6 +362,7 @@ global dragStateBsADT = off
 			chkCreateLine.state = true
 			if selection.count == 2 then
 			(
+				sliderTime = 0
 				local p1 = selection[1].pos
 				local p2 = selection[2].pos
 				local spline = fnMakeSpline p1 p2 sinkF:spnRadian.value
@@ -445,7 +556,7 @@ global dragStateBsADT = off
 
 		on btnApplyTex pressed do
 		(
-			try(fnApplyMat $)catch(messageBox "失败,请检查是否选中刀光物体...             " title:"BsAnimDemoTools")
+			try(fnApplyMat $ selGhostTex )catch(messageBox "失败,请检查是否选中刀光物体...             " title:"BsAnimDemoTools")
 			btnApplyTex.text = "指定刀光"
 		)
 
@@ -453,11 +564,54 @@ global dragStateBsADT = off
 		(
 			selGhostTex = getOpenFileName caption:"选择刀光贴图" filename:((getDir #scripts) + "\\BulletScripts\\Res\\BsGhostTrailsTex\\【中】红.png") \
 			types:"刀光贴图(*.tga;*.png;*.dds)|*.tga;*.png;*.dds|所有文件(*.*)|*.*|"
-			-- if selGhostTex != undefined then
-			-- (
-			-- 	try(fnApplyMat $)catch(messageBox "失败,请检查是否选中刀光物体...             " title:"BsAnimDemoTools")
-			-- )
 			btnApplyTex.text = getfilenamefile selGhostTex
+		)
+
+		on btnApplyEff pressed do
+		(
+			if selEffTex != undefined then
+			(
+				local frameCount = animationrange.end - animationrange.start
+				if frameCount >= (spnU.value * spnV.value * spnFrameOffest.value) then
+				(
+					undo on(
+						---------分UV---------
+						sliderTime = animationrange.start	
+						local obj
+						if selection[1] != undefined then (
+							obj = selection[1]
+							------上贴图---------
+							if obj != undefined do (fnApplyMat obj selEffTex)
+							if obj.Modifiers[#unwrap_uvw]!=undefined then deleteModifier obj obj.modifiers[#unwrap_uvw]	
+							modPanel.addModToSelection (Unwrap_UVW ()) ui:on
+						)
+						uvScaleSet obj spnU.value spnV.value
+						----------创建动画----------------
+						if selection[1] != undefined then (
+						maxops.setDefaultTangentType #step #step			
+						set animate on
+						SEUVPosSet obj spnU.value spnV.value
+						maxops.setDefaultTangentType #flat #flat
+						subobjectLevel = 0
+					))
+				)
+				else (messagebox ("帧数区间不足以支持序列帧动画，结束帧至少需要到 " + (animationrange.start + (spnU.value * spnV.value * spnFrameOffest.value)) as string + " ...                          ") title:"BsAnimDemoTools")
+			)
+			else (messagebox "请先选择上方序列帧...\r\n\r\n也可自行添加入库~                                " title:"BsAnimDemoTools")
+		)
+
+		on dotLVFilesList mouseup sender args do
+		(
+			if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Right then
+			(
+				shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\BsSpriteTex\\") ""
+			)
+			else if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Left then fnSelEffTex()
+		)
+
+		on dotLVFilesList doubleClick sender args do
+		(
+			try(shellLaunch selEffTex "")catch()
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()
