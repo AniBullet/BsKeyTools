@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-08 01:32:12
+ * @LastEditTime: 2025-01-08 16:48:50
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -19,6 +19,7 @@ global dragStateBsADT = off
 	
 	rollout rolBsAnimDemoTools "" width:265 height:300
 	(
+		local selGhostTex = undefined
 		local dotColor = dotnetclass "System.Drawing.Color"
 		button btnRegister "免费注册刀光" pos:[rolBsAnimDemoTools.width - 120,0] width:80 height:16 border:false
 		button btnAbout "?" pos:[rolBsAnimDemoTools.width - 40,0] height:16 width:20
@@ -30,10 +31,12 @@ global dragStateBsADT = off
 		spinner spnRadian "弧度 " pos:[30,65] width:60 height:20 type:#float range:[-20,20,0] scale:0.1
 		checkbutton chkCreateLine "1.创建线" pos:[100,65] width:75 height:20 checked:true
 		checkbutton chkCreateTrail "2.创建刀光" pos:[180,65] width:75 height:20 checked:true
-		button btnSelectTrail "选中" pos:[10,90] width:60 height:24
-		button btnHideTrail "隐藏" pos:[75,90] width:55 height:24
-		button btnShowTrail "显示" pos:[135,90] width:55 height:24
-		button btnDeleteTrail "清除" pos:[195,90] width:60 height:24
+		button btnSelectTrail "选中" pos:[10,90] width:40 height:24
+		button btnUnfreezeTrail "解冻" pos:[55,90] width:40 height:24
+		button btnFreezeTrail "冻结" pos:[100,90] width:40 height:24
+		button btnHideTrail "隐藏" pos:[145,90] width:35 height:24
+		button btnShowTrail "显示" pos:[185,90] width:35 height:24
+		button btnDeleteTrail "清除" pos:[225,90] width:30 height:24
 		-------------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbPreset "" pos:[5,120] width:(rolBsAnimDemoTools.width - 10) height:65
 		radiobuttons rdoTrailType "类型:" labels:#("移动","固定") columns:2 pos:[15,135] offsets:#([40,-16],[0,-16])
@@ -49,17 +52,17 @@ global dragStateBsADT = off
 		checkbox ckbFlipNormals "翻转法线" pos:[110,223] width:70 height:20 checked:false
 		checkbox ckbGenerateMapping "生成映射" pos:[185,223] width:70 height:20 checked:true
 		-----------------------------------------------------------------------------------------------------------------------------------------
-		button btnMaterial "材质窗口" pos:[5,256] width:65 height:20
+		button btnMaterial "材质窗口" pos:[5,255] width:65 height:20
 		-- button btnTransparency "透明" pos:[75,256] width:40 height:20
-		dropdownlist ddlDefaultTex "" pos:[75,255] width:95 height:20 items:#("默认刀光")
-		button btnSelectTex "指定刀光贴图" pos:[175,256] width:85 height:20
+		dropdownlist ddlDefaultTex "" pos:[75,255] width:105 height:20 items:#("默认刀光")
+		button btnApplyTex "指定刀光" pos:[185,255] width:75 height:21 tooltip:"左键赋予刀光贴图，右键重新指定"
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
-		local arrGhostTrails = #("刀光",#(gpbTrail,spnRadian,chkCreateLine,chkCreateTrail,btnSelectTrail,btnHideTrail, \
-										btnShowTrail,btnDeleteTrail,gpbPreset,rdoTrailType,spnFrameToLag,ckbSetRange, \
-										spnStartFrame,spnEndFrame,gpbMesh,spnSegments,spnSplineSteps,spnURepeat, \
-										ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnSelectTex))
+		local arrGhostTrails = #("刀光",#(gpbTrail,spnRadian,chkCreateLine,chkCreateTrail,btnSelectTrail,btnUnfreezeTrail,btnFreezeTrail, \
+										btnHideTrail,btnShowTrail,btnDeleteTrail,gpbPreset,rdoTrailType,spnFrameToLag, \
+										ckbSetRange,spnStartFrame,spnEndFrame,gpbMesh,spnSegments,spnSplineSteps,spnURepeat, \
+										ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnApplyTex))
 		local arrDemoScene = #("场景",#()) 
 		local arrDemoLight = #("灯光",#())
 		local arrDemoMat = #("材质",#())
@@ -126,6 +129,62 @@ global dragStateBsADT = off
 			return new_spline
 		)
 
+		fn fnGetFilesInPath strFilesDir type =
+		(
+			if ((strFilesDir != "") and (doesDirectoryExist strFilesDir)) then
+			(
+				local arrFiles    = #()
+				local arrTexFiles = getFiles (strFilesDir + "\\*" + type)
+
+				for i in arrTexFiles where arrTexFiles.count != 0 do 
+				(
+					append arrFiles i
+				)
+
+				ddlDefaultTex.items = for i in arrFiles collect (getFilenameFile i)
+				return arrFiles
+			)
+			else (messageBox "请检查刀光贴图路径是否不存在...                      ")
+		)
+
+		fn fnRefreshTex =
+		(
+			try
+			(
+				local arrTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsGhostTrailsTex") ".*")
+				selGhostTex = arrTexFiles[1]
+			)
+			catch()
+		)
+
+		function fnApplyMat objs =
+		(
+			for i in objs do
+			(
+				if objs != undefined then
+				(
+					
+					bitmapTex1 = (Bitmaptexture filename:selGhostTex)
+					if ((maxVersion())[1] < 2200) then 
+					(
+						i.material = standardMaterial showInViewport:true name: ("Mat_BsGhostTrails_"+i.name)
+						i.material.diffuseMap       = bitmapTex1
+						i.material.opacityMap       = bitmapTex1
+						i.material.opacityMapAmount = 100
+					)
+					else 
+					(
+						i.modifiers[#GhostTrails].generateMap = on
+						i.material                = physicalMaterial showInViewport:true name: ("Mat_BsGhostTrails_"+i.name)
+						i.material.base_color_map = bitmapTex1
+						i.material.cutout_map     = bitmapTex1
+						i.material.cutout_map_on  = true
+					)
+					showTextureMap i.material true
+				)
+			)
+		)
+
 		on btnRegister pressed do
 		(
 			if (queryBox ("是否复制注册码到剪切板？                        ") title:"BsAnimMemoTools") do
@@ -155,6 +214,7 @@ global dragStateBsADT = off
 			fnInitDotTabs()
 			fnChangeToolsVisble (tabBsADT.SelectedIndex + 1)
 			fnRefreshInitValue()
+			selGhostTex = fnRefreshTex()
 		)
 
 		on btnClose pressed do 
@@ -237,6 +297,26 @@ global dragStateBsADT = off
 		on btnSelectTrail pressed do
 		(
 			try(select $'BsGhostTrails_*';max modify mode)catch()
+		)
+
+		on btnUnfreezeTrail pressed do
+		(
+			try
+			(
+				select $'BsGhostTrails_*'
+				$.isfrozen = off
+				$.showFrozenInGray = off
+			)catch()
+		)
+
+		on btnFreezeTrail pressed do
+		(
+			try
+			(
+				select $'BsGhostTrails_*'
+				$.isfrozen = on
+				$.showFrozenInGray = off
+			)catch()
 		)
 
 		on btnHideTrail pressed do
@@ -354,6 +434,23 @@ global dragStateBsADT = off
 		on btnMaterial pressed do
 		(
 			max mtledit
+		)
+
+		on ddlDefaultTex selected id do
+		(
+			local arrTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsGhostTrailsTex") ".*")
+			selGhostTex = arrTexFiles[id]
+			-- print selGhostTex
+		)
+
+		on btnApplyTex pressed do
+		(
+			try(fnApplyMat $)catch(messageBox "失败,请检查是否选中刀光物体...             " title:"BsAnimDemoTools")
+		)
+
+		on btnApplyTex rightclick do
+		(
+			
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()

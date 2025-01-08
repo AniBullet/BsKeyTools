@@ -438,6 +438,7 @@ rollout BsVportTools "BsVportTools_v1.1"
 		iniPosVportTools = (GetDialogPos BsVportTools)
         stSetConfigAll.fnSetConfigVportTools ()
 		BsVportTools.fnSaveVportINI ignoreMsg:true
+		try (callbacks.removeScripts #filePostOpen id:#UpdateBsVport) catch ()
 	)
 
 	-- on edtAddVport entered txt do
