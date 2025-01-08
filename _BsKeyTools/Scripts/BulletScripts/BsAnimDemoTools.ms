@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-08 16:48:50
+ * @LastEditTime: 2025-01-08 17:03:41
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -174,7 +174,7 @@ global dragStateBsADT = off
 					)
 					else 
 					(
-						i.modifiers[#GhostTrails].generateMap = on
+						try(i.modifiers[#GhostTrails].generateMap = on)catch()
 						i.material                = physicalMaterial showInViewport:true name: ("Mat_BsGhostTrails_"+i.name)
 						i.material.base_color_map = bitmapTex1
 						i.material.cutout_map     = bitmapTex1
@@ -446,11 +446,18 @@ global dragStateBsADT = off
 		on btnApplyTex pressed do
 		(
 			try(fnApplyMat $)catch(messageBox "失败,请检查是否选中刀光物体...             " title:"BsAnimDemoTools")
+			btnApplyTex.text = "指定刀光"
 		)
 
 		on btnApplyTex rightclick do
 		(
-			
+			selGhostTex = getOpenFileName caption:"选择刀光贴图" filename:((getDir #scripts) + "\\BulletScripts\\Res\\BsGhostTrailsTex\\【中】红.png") \
+			types:"刀光贴图(*.tga;*.png;*.dds)|*.tga;*.png;*.dds|所有文件(*.*)|*.*|"
+			-- if selGhostTex != undefined then
+			-- (
+			-- 	try(fnApplyMat $)catch(messageBox "失败,请检查是否选中刀光物体...             " title:"BsAnimDemoTools")
+			-- )
+			btnApplyTex.text = getfilenamefile selGhostTex
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()

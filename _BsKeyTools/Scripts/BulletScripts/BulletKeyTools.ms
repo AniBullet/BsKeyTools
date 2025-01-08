@@ -562,7 +562,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].text = "[ Bullet.S ]✨"
 									btnsArr[b].visible = false
 									btnsArr[b].pos = rolBsKeyTools.btnPos
 								)
@@ -650,7 +650,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].text = "[ Bullet.S ]✨"
 									btnsArr[b].visible = false
 									btnsArr[b].pos = rolBsKeyTools.btnPos
 								)
@@ -743,7 +743,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].text = "[ Bullet.S ]✨"
 									btnsArr[b].visible = true;btnsArr[b].pos = [30,683]
 								)
 								else if b == 93 then
@@ -836,7 +836,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].text = "[ Bullet.S ]✨"
 									btnsArr[b].visible = true;btnsArr[b].pos = [30,683]
 								)
 								else if b == 93 then
@@ -862,7 +862,7 @@ rcmenu menuConfig
 						)
 						default:
 						(
-							btnsArr[92].text = "2019.9 _ [ aniBullet.S ]✨"
+							btnsArr[92].text = "2019.9 _ [ Bullet.S ]✨"
 							try(cui.UnRegisterDialogBar rolTarget)catch()
 							-- for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
 							-- (
@@ -953,7 +953,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].text = "[ Bullet.S ]✨"
 									btnsArr[b].visible = false
 									btnsArr[b].pos = rolBsKeyTools.btnPos
 								)
@@ -1033,7 +1033,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].text = "[ Bullet.S ]✨"
 									btnsArr[b].visible = false
 									btnsArr[b].pos = rolBsKeyTools.btnPos
 								)
@@ -1121,7 +1121,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].text = "[ Bullet.S ]✨"
 									btnsArr[b].visible = true;btnsArr[b].pos = [40,560]
 								)
 								else if b == 93 then
@@ -1209,7 +1209,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ aniBullet.S ]✨"
+									btnsArr[b].text = "[ Bullet.S ]✨"
 									btnsArr[b].visible = true;btnsArr[b].pos = [40,560]
 								)
 								else if b == 93 then
@@ -1233,7 +1233,7 @@ rcmenu menuConfig
 						)
 						default:
 						(
-							btnsArr[92].text = "2019.9 _ [ aniBullet.S ]✨"
+							btnsArr[92].text = "2019.9 _ [ Bullet.S ]✨"
 							try(cui.UnRegisterDialogBar rolTarget)catch()
 							-- for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
 							-- (
@@ -2112,7 +2112,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	groupbox gbxTips "" pos:[5,215] width:210 height:30
 	
 	-- label lblLink "2019.9[Bullet.S]4869" pos:[12,226] width:145 height:15
-	dotnetcontrol lblLink "Label" text:"2019.9 _ [ aniBullet.S ]✨" pos:[12,226] width:145 height:15
+	dotnetcontrol lblLink "Label" text:"2019.9 _ [ Bullet.S ]✨" pos:[12,226] width:145 height:15
 	checkbutton btnConfig "设置" pos:[170,223] width:40 height:20 border:false checked:true highlightColor:myCheckedColor
 
 	timer timerTickTock interval:200 active:true
