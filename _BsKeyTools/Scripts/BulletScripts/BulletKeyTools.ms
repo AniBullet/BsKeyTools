@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-08 01:15:43
+ * @LastEditTime: 2025-01-09 23:56:32
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -562,7 +562,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ Bullet.S ]✨"
+									-- btnsArr[b].text = "2019 [ Bullet.S ]✨"
 									btnsArr[b].visible = false
 									btnsArr[b].pos = rolBsKeyTools.btnPos
 								)
@@ -650,7 +650,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ Bullet.S ]✨"
+									-- btnsArr[b].text = "2019 [ Bullet.S ]✨"
 									btnsArr[b].visible = false
 									btnsArr[b].pos = rolBsKeyTools.btnPos
 								)
@@ -690,7 +690,7 @@ rcmenu menuConfig
 								)
 								else if b == 2 then (btnsArr[b].pos = [50,40])
 								else if b == 3 then (btnsArr[b].pos = [115,40])
-								else if b == 4 then (btnsArr[b].pos = [0,680])
+								else if b == 4 then (btnsArr[b].pos = [5,20])
 								else if b == 7 then (btnsArr[b].pos = [5,60];btnsArr[b].width = 40;btnsArr[b].height = 30)
 								else if b == 8 then (btnsArr[b].pos = [45,60];btnsArr[b].width = 40;btnsArr[b].height = 30)
 								else if b == 9 then (btnsArr[b].pos = [85,60];btnsArr[b].width = 40;btnsArr[b].height = 30)
@@ -743,14 +743,14 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ Bullet.S ]✨"
-									btnsArr[b].visible = true;btnsArr[b].pos = [30,683]
+									-- btnsArr[b].text = "2019 [ Bullet.S ]✨"
+									btnsArr[b].visible = true;btnsArr[b].pos = [10,683]
 								)
 								else if b == 93 then
 								(
 									btnsArr[b].text = "设置"
-									btnsArr[b].pos = [5,20]
-									btnsArr[b].width = 120
+									btnsArr[b].pos = [25,20]
+									btnsArr[b].width = 100
 									btnsArr[b].height = 16
 								)
 								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,700];btnsArr[b].width = 130)
@@ -783,7 +783,7 @@ rcmenu menuConfig
 								)
 								else if b == 2 then (btnsArr[b].pos = [50,40])
 								else if b == 3 then (btnsArr[b].pos = [115,40])
-								else if b == 4 then (btnsArr[b].pos = [0,680])
+								else if b == 4 then (btnsArr[b].pos = [5,20])
 								else if b == 7 then (btnsArr[b].pos = [5,60];btnsArr[b].width = 40;btnsArr[b].height = 30)
 								else if b == 8 then (btnsArr[b].pos = [45,60];btnsArr[b].width = 40;btnsArr[b].height = 30)
 								else if b == 9 then (btnsArr[b].pos = [85,60];btnsArr[b].width = 40;btnsArr[b].height = 30)
@@ -836,14 +836,14 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ Bullet.S ]✨"
-									btnsArr[b].visible = true;btnsArr[b].pos = [30,683]
+									-- btnsArr[b].text = "2019 [ Bullet.S ]✨"
+									btnsArr[b].visible = true;btnsArr[b].pos = [10,683]
 								)
 								else if b == 93 then
 								(
 									btnsArr[b].text = "设置"
-									btnsArr[b].pos = [5,20]
-									btnsArr[b].width = 120
+									btnsArr[b].pos = [25,20]
+									btnsArr[b].width = 100
 									btnsArr[b].height = 16
 								)
 								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,700];btnsArr[b].width = 130)
@@ -953,7 +953,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ Bullet.S ]✨"
+									-- btnsArr[b].text = "2019 [ Bullet.S ]✨"
 									btnsArr[b].visible = false
 									btnsArr[b].pos = rolBsKeyTools.btnPos
 								)
@@ -1033,7 +1033,7 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ Bullet.S ]✨"
+									-- btnsArr[b].text = "2019 [ Bullet.S ]✨"
 									btnsArr[b].visible = false
 									btnsArr[b].pos = rolBsKeyTools.btnPos
 								)
@@ -1069,9 +1069,9 @@ rcmenu menuConfig
 									btnsArr[b].height = 100
 									btnsArr[b].width = 160
 								)
-								else if b == 2 then (btnsArr[b].pos = [60,20])
-								else if b == 3 then (btnsArr[b].pos = [135,20])
-								else if b == 4 then (btnsArr[b].pos = [10,558])
+								else if b == 2 then (btnsArr[b].pos = [52,20])
+								else if b == 3 then (btnsArr[b].pos = [143,20])
+								else if b == 4 then (btnsArr[b].pos = [70,20])
 								else if b == 7 then (btnsArr[b].pos = [5,40])
 								else if b == 8 then (btnsArr[b].pos = [55,40])
 								else if b == 9 then (btnsArr[b].pos = [105,40])
@@ -1121,8 +1121,8 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ Bullet.S ]✨"
-									btnsArr[b].visible = true;btnsArr[b].pos = [40,560]
+									-- btnsArr[b].text = "2019 [ Bullet.S ]✨"
+									btnsArr[b].visible = true;btnsArr[b].pos = [25,560]
 								)
 								else if b == 93 then
 								(
@@ -1157,9 +1157,9 @@ rcmenu menuConfig
 									btnsArr[b].height = 100
 									btnsArr[b].width = 160
 								)
-								else if b == 2 then (btnsArr[b].pos = [60,20])
-								else if b == 3 then (btnsArr[b].pos = [135,20])
-								else if b == 4 then (btnsArr[b].pos = [10,558])
+								else if b == 2 then (btnsArr[b].pos = [52,20])
+								else if b == 3 then (btnsArr[b].pos = [143,20])
+								else if b == 4 then (btnsArr[b].pos = [70,20])
 								else if b == 7 then (btnsArr[b].pos = [5,40])
 								else if b == 8 then (btnsArr[b].pos = [55,40])
 								else if b == 9 then (btnsArr[b].pos = [105,40])
@@ -1209,8 +1209,8 @@ rcmenu menuConfig
 								)
 								else if b == 92 then 
 								(
-									btnsArr[b].text = "[ Bullet.S ]✨"
-									btnsArr[b].visible = true;btnsArr[b].pos = [40,560]
+									-- btnsArr[b].text = "2019 [ Bullet.S ]✨"
+									btnsArr[b].visible = true;btnsArr[b].pos = [25,560]
 								)
 								else if b == 93 then
 								(
@@ -1233,7 +1233,7 @@ rcmenu menuConfig
 						)
 						default:
 						(
-							btnsArr[92].text = "2019.9 _ [ Bullet.S ]✨"
+							-- btnsArr[92].text = "2019.9 _ [ Bullet.S ]✨"
 							try(cui.UnRegisterDialogBar rolTarget)catch()
 							-- for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
 							-- (
@@ -1469,16 +1469,22 @@ rcmenu menuConfig
 	(
 		if (mItemAddToolBarBtn.checked == false) then 
 		(
-			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
-			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools"
-			mItemAddToolBarBtn.checked = true
-			iniAddToolbars = 1
+			if (queryBox "是否添加 BsKeyTools 快捷启动图标到工具栏？\r\n\r\n(添加后可在工具栏中找到 S 图标，点击即可打开)                                             " title:"添加到工具栏") do
+			(
+				addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
+				addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools"
+				mItemAddToolBarBtn.checked = true
+				iniAddToolbars = 1
+			)
 		)
 		else
 		(
-			addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
-			mItemAddToolBarBtn.checked = false
-			iniAddToolbars = 0
+			if (queryBox "是否移除 BsKeyTools 工具栏快捷启动图标？(不会卸载插件)                                           " title:"添加到工具栏") do
+			(
+				addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
+				mItemAddToolBarBtn.checked = false
+				iniAddToolbars = 0
+			)
 		)
 		SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
 	)
