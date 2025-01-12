@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-08 21:54:06
+ * @LastEditTime: 2025-01-13 01:16:00
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -70,14 +70,14 @@ global dragStateBsADT = off
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
-		local arrGhostTrails = #("刀光",#(gpbTrail,spnRadian,chkCreateLine,chkCreateTrail,btnSelectTrail,btnUnfreezeTrail,btnFreezeTrail, \
+		local arrGhostTrails = #("刀光拖尾",#(gpbTrail,spnRadian,chkCreateLine,chkCreateTrail,btnSelectTrail,btnUnfreezeTrail,btnFreezeTrail, \
 										btnHideTrail,btnShowTrail,btnDeleteTrail,gpbPreset,rdoTrailType,spnFrameToLag, \
 										ckbSetRange,spnStartFrame,spnEndFrame,gpbMesh,spnSegments,spnSplineSteps,spnURepeat, \
 										ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnApplyTex))
-		local arrDemoScene = #("场景",#()) 
-		local arrDemoLight = #("灯光",#())
-		local arrDemoEff = #("简单特效",#(dotLVFilesList,spnU,spnV,btnApplyEff,lblFrameOffset,spnFrameOffest,btnOpenPath))
-		local arrAllToolsTab = #(arrGhostTrails,arrDemoScene,arrDemoLight,arrDemoEff)
+		local arrDemoEff     = #("简单特效",#(dotLVFilesList,spnU,spnV,btnApplyEff,lblFrameOffset,spnFrameOffest,btnOpenPath))
+		local arrDemoScene   = #("环境灯光",#())
+		local arrDemo        = #("XXXXXXXX",#())
+		local arrAllToolsTab = #(arrGhostTrails,arrDemoEff,arrDemoScene,arrDemo)
 	
 		fn fnInitDotTabs =
 		(
@@ -264,31 +264,37 @@ global dragStateBsADT = off
 		--设置UV大小
 		fn uvScaleSet obj GridX GridY =
 		(
-			GridU = 1.0/GridX
-			GridV = 1.0/GridY
-			--选择所有uv多边形 											uv多边形 编号
-			obj.modifiers[#unwrap_uvw].unwrap6.selectFacesByNode #{1..(obj.modifiers[#unwrap_uvw].numberPolygons())} obj
-			obj.modifiers[#unwrap_uvw].unwrap2.ScaleSelectedXY GridU GridV [0,1,0]
+			if obj != undefined then
+			(
+				GridU = 1.0/GridX
+				GridV = 1.0/GridY
+				--选择所有uv多边形 											uv多边形 编号
+				obj.modifiers[#unwrap_uvw].unwrap6.selectFacesByNode #{1..(obj.modifiers[#unwrap_uvw].numberPolygons())} obj
+				obj.modifiers[#unwrap_uvw].unwrap2.ScaleSelectedXY GridU GridV [0,1,0]
 			)
+		)
 		--设置UV动画
 		fn SEUVPosSet obj GridX GridY =
 		(
 			--选择所有uv多边形 													uv多边形 编号
-			local offsetMove = rolBsAnimDemoTools.spnFrameOffest.value
-			obj.modifiers[#unwrap_uvw].unwrap6.selectFacesByNode #{1..(obj.modifiers[#unwrap_uvw].numberPolygons())} obj
-			for Y = 1 to GridY do
+			if obj != undefined then
 			(
-				if Y != 1 then 
+				local offsetMove = rolBsAnimDemoTools.spnFrameOffest.value
+				obj.modifiers[#unwrap_uvw].unwrap6.selectFacesByNode #{1..(obj.modifiers[#unwrap_uvw].numberPolygons())} obj
+				for Y = 1 to GridY do
 				(
-					sliderTime+=offsetMove
-					obj.modifiers[#unwrap_uvw].unwrap2.MoveSelected [-(1-1.0/GridX),-(1.0/GridY),0]
-					-- print ("y: " + sliderTime as string)
-				)
-				for X in 1 to (GridX-1) do
-				(
-					sliderTime+=offsetMove
-					obj.modifiers[#unwrap_uvw].unwrap2.MoveSelected [(1.0/GridX),0,0]
-					-- print ("x: " + sliderTime as string)
+					if Y != 1 then 
+					(
+						sliderTime+=offsetMove
+						obj.modifiers[#unwrap_uvw].unwrap2.MoveSelected [-(1-1.0/GridX),-(1.0/GridY),0]
+						-- print ("y: " + sliderTime as string)
+					)
+					for X in 1 to (GridX-1) do
+					(
+						sliderTime+=offsetMove
+						obj.modifiers[#unwrap_uvw].unwrap2.MoveSelected [(1.0/GridX),0,0]
+						-- print ("x: " + sliderTime as string)
+					)
 				)
 			)
 		)
@@ -314,7 +320,7 @@ global dragStateBsADT = off
 			if LastSubRollout != arrID do --避免点击重复
 			(
 				fnChangeToolsVisble arrID
-				if arrID == 4 then (dotLVFilesList.pos = [5,50];fnRefreshTexFiles())
+				if arrID == 2 then (dotLVFilesList.pos = [5,50];fnRefreshTexFiles())
 				else (dotLVFilesList.pos = [5,-500])
 			) 
 		)
@@ -508,22 +514,22 @@ global dragStateBsADT = off
 		(
 			if id == 2 then
 			(
+				ckbSetRange.enabled   = on
+				spnFrameToLag.enabled = off
 				try
 				(
 					$.modifiers[#GhostTrails].movingorstill = 1
-					spnFrameToLag.enabled = off
-					ckbSetRange.enabled   = on
 				)catch()
 			)
 			else
 			(
+				spnFrameToLag.enabled = on
+				ckbSetRange.enabled   = off
+				spnStartFrame.enabled = off
+				spnEndFrame.enabled   = off
 				try
 				(
 					$.modifiers[#GhostTrails].movingorstill = 0
-					spnFrameToLag.enabled = on
-					ckbSetRange.enabled   = off
-					spnStartFrame.enabled = off
-					spnEndFrame.enabled   = off
 				)catch()
 			)
 		)
@@ -565,6 +571,11 @@ global dragStateBsADT = off
 			selGhostTex = getOpenFileName caption:"选择刀光贴图" filename:((getDir #scripts) + "\\BulletScripts\\Res\\BsGhostTrailsTex\\【中】红.png") \
 			types:"刀光贴图(*.tga;*.png;*.dds)|*.tga;*.png;*.dds|所有文件(*.*)|*.*|"
 			btnApplyTex.text = getfilenamefile selGhostTex
+		)
+
+		on btnOpenPath pressed do
+		(
+			try(shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\BsSpriteTex\\") "")catch(messageBox "打开失败,请检查路径是否存在...                        " title:"BsAnimDemoTools")
 		)
 
 		on btnApplyEff pressed do
