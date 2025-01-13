@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-13 14:37:09
+ * @LastEditTime: 2025-01-13 23:09:08
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -55,8 +55,7 @@ global dragStateBsADT = off
 		checkbox ckbGenerateMapping "生成映射" pos:[185,223] width:70 height:20 checked:true
 		-----------------------------------------------------------------------------------------------------------------------------------------
 		button btnMaterial "材质窗口" pos:[5,255] width:65 height:20
-		-- button btnTransparency "透明" pos:[75,256] width:40 height:20
-		dropdownlist ddlDefaultTex "" pos:[75,255] width:105 height:20 items:#("默认刀光")
+		dropdownlist ddlDefaultTex "" pos:[75,255] width:105 height:20 items:#("")
 		button btnApplyTex "指定刀光" pos:[185,255] width:75 height:21 tooltip:"左键赋予刀光贴图，右键重新指定"
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:185 width:(rolBsAnimDemoTools.width - 10) pos:[5,-500]
@@ -68,14 +67,42 @@ global dragStateBsADT = off
 		button btnApplyEff "应用序列帧" pos:[rolBsAnimDemoTools.width - 80,240] width:75 height:40 visible:false
 		-------序列帧工具来源 "https://www.cgjoy.com/thread-275528-1-1.html" 开发者：叶孤弦
 		-------------------------------------------------------------------------------------------------------------------------------------------
+		groupbox gpbSkyBox "天空盒" pos:[5,55] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
+		dropdownlist ddlSkyBoxTex "" pos:[15,75] width:80 height:20 items:#("") visible:false
+		button btnCreateSkyBox "创建" pos:[100,75] width:50 height:20 visible:false
+		button btnDeleteSkyBox "清除" pos:[155,75] width:50 height:20 visible:false
+		button btnOpenSkyBox "打开" pos:[210,75] width:40 height:20 visible:false
+		groupbox gbpLight "灯光箱" pos:[5,110] width:(rolBsAnimDemoTools.width - 10) height:75 visible:false
+		button btnOmniLight "点光源" pos:[15,130] width:55 height:20 visible:false
+		button btnSpotLight "聚光灯" pos:[75,130] width:55 height:20 visible:false
+		button btnDirectLight "平行光" pos:[135,130] width:55 height:20 visible:false
+		button btnSkyLight "环境光" pos:[195,130] width:55 height:20 visible:false
+		button btnSelectLastLight "选上个灯" pos:[15,155] width:55 height:20 visible:false
+		button btnSelectNextLight "选下个灯" pos:[75,155] width:55 height:20 visible:false
+		button btnToggleLight "灯光开关" pos:[135,155] width:55 height:20 visible:false
+		button btnDeleteLight "清除灯光" pos:[195,155] width:55 height:20 visible:false
+		groupbox gbpFloor "地板片" pos:[5,190] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
+		button btnCreateFloor "一键创建" pos:[15,210] width:70 height:20 visible:false
+		button btnFreezeFloor "冻结" pos:[90,210] width:50 height:20 visible:false
+		button btnUnfreezeFloor "解冻" pos:[145,210] width:50 height:20 visible:false
+		button btnDeleteFloor "清除" pos:[200,210] width:50 height:20 visible:false
+		button btnMakePreview "快速拍屏" pos:[5,250] width:60 height:25 visible:false
+		button btnOpenPrevPath "打开路径" pos:[70,250] width:60 height:25 visible:false
+		button btnMakeRenderer "渲染设置" pos:[135,250] width:60 height:25 visible:false
+		button btnClearAll "清除所有" pos:[200,250] width:60 height:25 visible:false
+		-- label lblEnvTips "仅在默认 Scanline 渲染器测试，\r\n效果比较简陋，推荐直接用引擎环境" pos:[15,245] width:(rolBsAnimDemoTools.width - 80) height:35
+		-------------------------------------------------------------------------------------------------------------------------------------------
+
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
 		local arrGhostTrails = #("刀光拖尾",#(gpbTrail,spnRadian,chkCreateLine,chkCreateTrail,btnSelectTrail,btnUnfreezeTrail,btnFreezeTrail, \
-										btnHideTrail,btnShowTrail,btnDeleteTrail,gpbPreset,rdoTrailType,spnFrameToLag, \
-										ckbSetRange,spnStartFrame,spnEndFrame,gpbMesh,spnSegments,spnSplineSteps,spnURepeat, \
-										ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnApplyTex))
+											btnHideTrail,btnShowTrail,btnDeleteTrail,gpbPreset,rdoTrailType,spnFrameToLag, \
+											ckbSetRange,spnStartFrame,spnEndFrame,gpbMesh,spnSegments,spnSplineSteps,spnURepeat, \
+											ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnApplyTex))
 		local arrDemoEff     = #("简单特效",#(dotLVFilesList,spnU,spnV,btnApplyEff,lblFrameOffset,spnFrameOffest,btnOpenPath))
-		local arrDemoScene   = #("环境灯光",#())
+		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnToggleLight, \
+											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnSelectLastLight,btnSelectNextLight,btnDeleteLight, \
+											gbpFloor,btnCreateFloor,btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll))
 		local arrDemoMat     = #("材质预设",#())
 		local arrAllToolsTab = #(arrGhostTrails,arrDemoEff,arrDemoScene,arrDemoMat)
 	
