@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-13 01:16:00
+ * @LastEditTime: 2025-01-13 14:37:09
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -76,8 +76,8 @@ global dragStateBsADT = off
 										ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnApplyTex))
 		local arrDemoEff     = #("简单特效",#(dotLVFilesList,spnU,spnV,btnApplyEff,lblFrameOffset,spnFrameOffest,btnOpenPath))
 		local arrDemoScene   = #("环境灯光",#())
-		local arrDemo        = #("XXXXXXXX",#())
-		local arrAllToolsTab = #(arrGhostTrails,arrDemoEff,arrDemoScene,arrDemo)
+		local arrDemoMat     = #("材质预设",#())
+		local arrAllToolsTab = #(arrGhostTrails,arrDemoEff,arrDemoScene,arrDemoMat)
 	
 		fn fnInitDotTabs =
 		(
