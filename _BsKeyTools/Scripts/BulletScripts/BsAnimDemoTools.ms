@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-13 23:09:08
+ * @LastEditTime: 2025-01-14 18:51:33
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -61,10 +61,11 @@ global dragStateBsADT = off
 		dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:185 width:(rolBsAnimDemoTools.width - 10) pos:[5,-500]
 		spinner spnU "横" pos:[10,240] width:50 height:20 range:[-99999,99999,4] type:#integer align:#left visible:false
 		spinner spnV "纵" pos:[10,260] width:50 height:20 range:[-99999,99999,4] type:#integer align:#left visible:false
-		label lblFrameOffset "↓帧偏移↓" pos:[75,240] width:50 height:20 visible:false
-		spinner spnFrameOffest "" pos:[75,260] width:40 height:20 range:[-99999,99999,2] type:#integer align:#left visible:false
-		button btnOpenPath "打开仓库" pos:[125,240] width:55 height:40 visible:false
-		button btnApplyEff "应用序列帧" pos:[rolBsAnimDemoTools.width - 80,240] width:75 height:40 visible:false
+		label lblFrameOffset "↓ 隔帧 ↓" pos:[75,240] width:50 height:20 visible:false
+		spinner spnFrameOffest "" pos:[75,260] width:40 height:20 range:[-99999,99999,0] type:#integer align:#left visible:false
+		button btnOpenPath "仓库" pos:[125,240] width:40 height:40 visible:false
+		checkbutton ckbLoopToogle "循环开关切换" pos:[170,240] width:90 height:20 visible:false
+		checkbutton ckbApplyEff "应用图集特效" pos:[170,260] width:90 height:20 visible:false checked:true
 		-------序列帧工具来源 "https://www.cgjoy.com/thread-275528-1-1.html" 开发者：叶孤弦
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbSkyBox "天空盒" pos:[5,55] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
@@ -87,19 +88,19 @@ global dragStateBsADT = off
 		button btnUnfreezeFloor "解冻" pos:[145,210] width:50 height:20 visible:false
 		button btnDeleteFloor "清除" pos:[200,210] width:50 height:20 visible:false
 		button btnMakePreview "快速拍屏" pos:[5,250] width:60 height:25 visible:false
-		button btnOpenPrevPath "打开路径" pos:[70,250] width:60 height:25 visible:false
-		button btnMakeRenderer "渲染设置" pos:[135,250] width:60 height:25 visible:false
+		button btnOpenPrevPath "拍屏目录" pos:[70,250] width:60 height:25 visible:false
+		button btnMakeRenderer "渲染预览" pos:[135,250] width:60 height:25 visible:false tooltip:"仅用作快速预览环境设置, \r\n不影响之前的渲染保存路径设置等"
 		button btnClearAll "清除所有" pos:[200,250] width:60 height:25 visible:false
-		-- label lblEnvTips "仅在默认 Scanline 渲染器测试，\r\n效果比较简陋，推荐直接用引擎环境" pos:[15,245] width:(rolBsAnimDemoTools.width - 80) height:35
 		-------------------------------------------------------------------------------------------------------------------------------------------
 
+		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
 		local arrGhostTrails = #("刀光拖尾",#(gpbTrail,spnRadian,chkCreateLine,chkCreateTrail,btnSelectTrail,btnUnfreezeTrail,btnFreezeTrail, \
 											btnHideTrail,btnShowTrail,btnDeleteTrail,gpbPreset,rdoTrailType,spnFrameToLag, \
 											ckbSetRange,spnStartFrame,spnEndFrame,gpbMesh,spnSegments,spnSplineSteps,spnURepeat, \
 											ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnApplyTex))
-		local arrDemoEff     = #("简单特效",#(dotLVFilesList,spnU,spnV,btnApplyEff,lblFrameOffset,spnFrameOffest,btnOpenPath))
+		local arrDemoEff     = #("简单特效",#(dotLVFilesList,spnU,spnV,ckbApplyEff,lblFrameOffset,spnFrameOffest,btnOpenPath,ckbLoopToogle))
 		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnToggleLight, \
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnSelectLastLight,btnSelectNextLight,btnDeleteLight, \
 											gbpFloor,btnCreateFloor,btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll))
@@ -135,7 +136,7 @@ global dragStateBsADT = off
 			dotLVFilesList.MultiSelect = false
 			dotLVFilesList.CheckBoxes = false
 			dotLVFilesList.HideSelection = false
-			dotLVFilesList.Columns.Add "特效序列帧  （叶孤弦 分享）" (rolBsAnimDemoTools.width - 35)
+			dotLVFilesList.Columns.Add "特效图集  （叶孤弦 分享）" (rolBsAnimDemoTools.width - 35)
 			dotLVFilesList.ForeColor = BsDotForeColor
 			dotLVFilesList.BackColor = BsDotBackColor
 			if dotLVFilesList.SelectedItems.Count > 0 then
@@ -296,6 +297,7 @@ global dragStateBsADT = off
 				GridU = 1.0/GridX
 				GridV = 1.0/GridY
 				--选择所有uv多边形 											uv多边形 编号
+				subobjectLevel = 3
 				obj.modifiers[#unwrap_uvw].unwrap6.selectFacesByNode #{1..(obj.modifiers[#unwrap_uvw].numberPolygons())} obj
 				obj.modifiers[#unwrap_uvw].unwrap2.ScaleSelectedXY GridU GridV [0,1,0]
 			)
@@ -322,6 +324,30 @@ global dragStateBsADT = off
 						obj.modifiers[#unwrap_uvw].unwrap2.MoveSelected [(1.0/GridX),0,0]
 						-- print ("x: " + sliderTime as string)
 					)
+				)
+			)
+		)
+
+		fn fnGetController tempObj = 
+		(
+			if tempObj != undefined and tempObj.modifiers[#unwrap_uvw] != undefined then
+			(
+				local arrCtrl = #()
+				for i = 1 to tempObj.modifiers[#unwrap_uvw].numsubs do append arrCtrl tempObj.modifiers[#unwrap_uvw][i].controller
+				return arrCtrl
+			)
+			else return undefined
+		)
+
+		fn fnSetOutOfRangeType tempObj type = 
+		(
+			arrCtrl = fnGetController tempObj
+			for i in arrCtrl where arrCtrl != undefined do
+			(
+				if i != undefined then
+				(
+					setBeforeORT arrCtrl type
+					setAfterORT arrCtrl type
 				)
 			)
 		)
@@ -605,8 +631,9 @@ global dragStateBsADT = off
 			try(shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\BsSpriteTex\\") "")catch(messageBox "打开失败,请检查路径是否存在...                        " title:"BsAnimDemoTools")
 		)
 
-		on btnApplyEff pressed do
+		on ckbApplyEff changed state do
 		(
+			ckbApplyEff.state = true
 			if selEffTex != undefined then
 			(
 				local frameCount = animationrange.end - animationrange.start
@@ -650,6 +677,18 @@ global dragStateBsADT = off
 		on dotLVFilesList doubleClick sender args do
 		(
 			try(shellLaunch selEffTex "")catch()
+		)
+
+		on ckbLoopToogle changed state do 
+		(
+			if state then 
+			(
+				fnSetOutOfRangeType $ #loop
+			)
+			else 
+			(
+				fnSetOutOfRangeType $ #constant
+			)
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()
