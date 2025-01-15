@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-15 16:26:45
+ * @LastEditTime: 2025-01-15 18:12:33
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -66,7 +66,7 @@ global dragStateBsADT = off
 		label lblFrameOffset "↓ 隔帧 ↓" pos:[75,240] width:50 height:20 visible:false
 		spinner spnFrameOffest "" pos:[75,260] width:40 height:20 range:[-99999,99999,0] type:#integer align:#left visible:false
 		button btnOpenPath "仓库" pos:[125,240] width:40 height:40 visible:false
-		checkbutton ckbLoopToogle "循环开关切换" pos:[170,240] width:90 height:20 visible:false
+		checkbutton ckbLoopToogle "循环开关" pos:[170,240] width:90 height:20 visible:false
 		checkbutton ckbApplyEff "应用图集特效" pos:[170,260] width:90 height:20 visible:false checked:true
 		-------序列帧工具来源 "https://www.cgjoy.com/thread-275528-1-1.html" 开发者：叶孤弦
 		-------------------------------------------------------------------------------------------------------------------------------------------
@@ -95,6 +95,13 @@ global dragStateBsADT = off
 		button btnClearAll "清除所有" pos:[200,250] width:60 height:25 visible:false
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 10) pos:[5,-500]
+		radiobuttons rdoMatType "" labels:#("普通","流体") columns:2 pos:[10,160] width:100 visible:false
+		checkbutton ckbApplyEffMat "应用材质" pos:[110,160] width:90 height:20 visible:false checked:true
+		button btnClearMat "清除" pos:[205,160] width:55 height:20 visible:false
+		groupbox gpbToonMat "卡通材质" pos:[5,185] width:(rolBsAnimDemoTools.width - 10) height:65 visible:false
+		edittext edtWatermarkText "水印" pos:[5,257] width:125 height:16 visible:false
+		button btnFileWM "文件水印" pos:[135,255] width:60 height:20 visible:false
+		button btnRnderWM "渲染水印" pos:[200,255] width:60 height:20 visible:false
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
@@ -106,7 +113,7 @@ global dragStateBsADT = off
 		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnToggleLight, \
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnSelectLastLight,btnSelectNextLight,btnDeleteLight, \
 											gbpFloor,btnCreateFloor,btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll))
-		local arrDemoMat     = #("材质水印",#())
+		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnClearMat,gpbToonMat))
 		local arrAllToolsTab = #(arrGhostTrails,arrDemoEff,arrDemoScene,arrDemoMat)
 	
 		fn fnInitDotTabs =
@@ -171,7 +178,7 @@ global dragStateBsADT = off
 
 		fn fnRefreshFlowTexFiles =
 		(
-			fnInitDotNetListView dotFlowMatList "材质贴图 [双击预览]  (来源网络)"
+			fnInitDotNetListView dotFlowMatList "其他材质贴图 [双击预览]  (来源网络)"
 			local arrTexFiles = getFiles ((getDir #scripts) + "\\BulletScripts\\Res\\BsFlowTex\\*.*")
 			rows = #()
 			dotFlowMatList.Items.Clear()
