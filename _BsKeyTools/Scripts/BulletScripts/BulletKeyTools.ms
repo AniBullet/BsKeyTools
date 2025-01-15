@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-09 23:56:32
+ * @LastEditTime: 2025-01-15 15:28:07
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -2101,8 +2101,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"镜像 Morpher 拾取对象，方便表情绑定" pos:btnPos
 	button btnDelDecimalKeys "删小数帧" width:btnWidth height:btnHeight visible:false \
 	toolTip:"删除所有小数帧" pos:btnPos
-	button btnColorTools "颜色渐变" width:btnWidth height:btnHeight visible:false \
-	tooltip:"做 Demo 素模或特效方便~" pos:btnPos
+	button btnReplaceSkinBones "蒙皮换骨" width:btnWidth height:btnHeight visible:false \
+	tooltip:"替换Skin蒙皮骨骼~\r\n（左右键点击有2个不同插件）" pos:btnPos
 	checkbutton ckbFnMtlDisplay "素模切换" width:btnWidth height:btnHeight visible:false \
 	toolTip:"左:切换显示隐藏贴图,方便白模预览\r\n右:Clay显示开关(红色模型显示)\r\n暂不支持子材质和Vray材质..."
 	button btnXpsConvert "XPS 转换" width:btnWidth height:btnHeight visible:false \
@@ -2348,7 +2348,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		arrSourToolC4 = #(rolBsKeyTools.btnFnKeyType,rolBsKeyTools.btnRenderTools,
 						rolBsKeyTools.btnMopherSlider,rolBsKeyTools.btnMorpherCtrl,
 						rolBsKeyTools.btnMirrorMoph,rolBsKeyTools.btnDelDecimalKeys,
-						rolBsKeyTools.btnColorTools,rolBsKeyTools.ckbFnMtlDisplay,
+						rolBsKeyTools.btnReplaceSkinBones,rolBsKeyTools.ckbFnMtlDisplay,
 						rolBsKeyTools.btnXpsConvert,rolBsKeyTools.btnCleanCustomAtts,
 						rolBsKeyTools.btnLODCreate,rolBsKeyTools.ckbIsoMesh)
 		
@@ -4313,10 +4313,16 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnBipedScale pressed do (fnBipedScale ())
 
-	on btnColorTools pressed do 
+	on btnReplaceSkinBones pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\ProColor.ms"))
-		catch(messagebox "打开 ProColor.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\sox_replacebonefromskin.ms"))
+		catch(messagebox "打开 sox_replacebonefromskin.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnReplaceSkinBones rightclick do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\ChangeSkinBones.ms"))
+		catch(messagebox "打开 ChangeSkinBones.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnAnimCopyPaste pressed do 

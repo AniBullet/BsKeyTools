@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-14 18:51:33
+ * @LastEditTime: 2025-01-15 16:26:45
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -19,10 +19,12 @@ global dragStateBsADT = off
 	
 	rollout rolBsAnimDemoTools "" width:265 height:300
 	(
-		local selGhostTex = undefined
-		local selEffTex = undefined
-		local arrEffTexFiles = #()
-		local dotColor = dotnetclass "System.Drawing.Color"
+		local selGhostTex     = undefined
+		local selEffTex       = undefined
+		local selTex          = undefined
+		local arrEffTexFiles  = #()
+		local arrFlowTexFiles = #()
+		local dotColor        = dotnetclass "System.Drawing.Color"
 		button btnRegister "免费注册刀光" pos:[rolBsAnimDemoTools.width - 120,0] width:80 height:16 border:false
 		button btnAbout "?" pos:[rolBsAnimDemoTools.width - 40,0] height:16 width:20
 		button btnClose "X" pos:[rolBsAnimDemoTools.width - 20,0] height:16 width:20
@@ -92,7 +94,7 @@ global dragStateBsADT = off
 		button btnMakeRenderer "渲染预览" pos:[135,250] width:60 height:25 visible:false tooltip:"仅用作快速预览环境设置, \r\n不影响之前的渲染保存路径设置等"
 		button btnClearAll "清除所有" pos:[200,250] width:60 height:25 visible:false
 		-------------------------------------------------------------------------------------------------------------------------------------------
-
+		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 10) pos:[5,-500]
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
@@ -104,7 +106,7 @@ global dragStateBsADT = off
 		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnToggleLight, \
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnSelectLastLight,btnSelectNextLight,btnDeleteLight, \
 											gbpFloor,btnCreateFloor,btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll))
-		local arrDemoMat     = #("材质预设",#())
+		local arrDemoMat     = #("材质水印",#())
 		local arrAllToolsTab = #(arrGhostTrails,arrDemoEff,arrDemoScene,arrDemoMat)
 	
 		fn fnInitDotTabs =
@@ -124,34 +126,34 @@ global dragStateBsADT = off
 			)
 		)
 
-		fn fnInitDotNetListView =
+		fn fnInitDotNetListView dotCtrl str =
 		(	
 			local align = dotNetClass "HorizontalAlignment"
 		
-			dotLVFilesList.Clear()
-			dotLVFilesList.View = (dotNetClass "System.Windows.Forms.View").Details	
-			dotLVFilesList.FullRowSelect = true
-			dotLVFilesList.GridLines = false		
-			dotLVFilesList.ShowItemToolTips = true
-			dotLVFilesList.MultiSelect = false
-			dotLVFilesList.CheckBoxes = false
-			dotLVFilesList.HideSelection = false
-			dotLVFilesList.Columns.Add "特效图集  （叶孤弦 分享）" (rolBsAnimDemoTools.width - 35)
-			dotLVFilesList.ForeColor = BsDotForeColor
-			dotLVFilesList.BackColor = BsDotBackColor
-			if dotLVFilesList.SelectedItems.Count > 0 then
+			dotCtrl.Clear()
+			dotCtrl.View = (dotNetClass "System.Windows.Forms.View").Details	
+			dotCtrl.FullRowSelect = true
+			dotCtrl.GridLines = false		
+			dotCtrl.ShowItemToolTips = true
+			dotCtrl.MultiSelect = false
+			dotCtrl.CheckBoxes = false
+			dotCtrl.HideSelection = false
+			dotCtrl.Columns.Add str (rolBsAnimDemoTools.width - 35)
+			dotCtrl.ForeColor = BsDotForeColor
+			dotCtrl.BackColor = BsDotBackColor
+			if dotCtrl.SelectedItems.Count > 0 then
 			(
-				dotLVFilesList.SelectedItems[0].BackColor = BsDotCheckColor
+				dotCtrl.SelectedItems[0].BackColor = BsDotCheckColor
 			)
 
-			dotLVFilesList.Update()
-			dotLVFilesList.Refresh()
+			dotCtrl.Update()
+			dotCtrl.Refresh()
 		)
 
 		fn fnRefreshTexFiles =
 		(
-			fnInitDotNetListView()
-			local arrTexFiles = getFiles ((getDir #scripts) + "\\BulletScripts\\Res\\BsSpriteTex\\*.png")
+			fnInitDotNetListView dotLVFilesList "特效图集 [双击预览]  (叶孤弦 分享)"
+			local arrTexFiles = getFiles ((getDir #scripts) + "\\BulletScripts\\Res\\BsSpriteTex\\*.*")
 			rows = #()
 			dotLVFilesList.Items.Clear()
 			for i = 1 to arrTexFiles.count where arrTexFiles.count != 0 do
@@ -167,17 +169,36 @@ global dragStateBsADT = off
 			arrEffTexFiles = arrtexFiles
 		)
 
-		fn fnGetSelectedId =
+		fn fnRefreshFlowTexFiles =
 		(
-			c = dotLVFilesList.SelectedItems.Count - 1		
+			fnInitDotNetListView dotFlowMatList "材质贴图 [双击预览]  (来源网络)"
+			local arrTexFiles = getFiles ((getDir #scripts) + "\\BulletScripts\\Res\\BsFlowTex\\*.*")
+			rows = #()
+			dotFlowMatList.Items.Clear()
+			for i = 1 to arrTexFiles.count where arrTexFiles.count != 0 do
+			(
+				local li = dotNetObject "System.Windows.Forms.ListViewItem" ""
+				li.useItemStyleForSubItems = false
+				li.text = (getFilenameFile arrTexFiles[i])
+				bold = (dotnetclass "System.Drawing.FontStyle").Bold
+				li.subitems.add arrTexFiles[i]
+				append rows li
+			)		
+			dotFlowMatList.Items.addRange rows
+			arrFlowTexFiles = arrtexFiles
+		)
+
+		fn fnGetSelectedId ddl =
+		(
+			c = ddl.SelectedItems.Count - 1		
 			id = 0		
-			for i = 0 to c do id = dotLVFilesList.SelectedItems.Item[i].Index + 1
+			for i = 0 to c do id = ddl.SelectedItems.Item[i].Index + 1
 			return id
 		)
 	
 		fn fnSelEffTex =
 		(
-			local idSelFile = fnGetSelectedId()
+			local idSelFile = fnGetSelectedId dotLVFilesList
 	
 			if idSelFile > 0  then
 			(
@@ -186,6 +207,20 @@ global dragStateBsADT = off
 					selEffTex = arrEffTexFiles[idSelFile]
 				)
 				else (messagebox ("文件可能已被删除或移走，请检查！：\r\n\r\n" + (arrEffTexFiles[idSelFile] as string) + "                                                                            ") title:"提示")
+			)
+		)
+
+		fn fnSelTex =
+		(
+			local idSelFile = fnGetSelectedId dotFlowMatList
+	
+			if idSelFile > 0  then
+			(
+				if doesFileExist arrFlowTexFiles[idSelFile] then
+				(
+					selTex = arrFlowTexFiles[idSelFile]
+				)
+				else (messagebox ("文件可能已被删除或移走，请检查！：\r\n\r\n" + (arrFlowTexFiles[idSelFile] as string) + "                                                                            ") title:"提示")
 			)
 		)
 
@@ -375,6 +410,8 @@ global dragStateBsADT = off
 				fnChangeToolsVisble arrID
 				if arrID == 2 then (dotLVFilesList.pos = [5,50];fnRefreshTexFiles())
 				else (dotLVFilesList.pos = [5,-500])
+				if arrID == 4 then (dotFlowMatList.pos = [5,50];fnRefreshFlowTexFiles())
+				else (dotFlowMatList.pos = [5,-500])
 			) 
 		)
 		
@@ -677,6 +714,20 @@ global dragStateBsADT = off
 		on dotLVFilesList doubleClick sender args do
 		(
 			try(shellLaunch selEffTex "")catch()
+		)
+
+		on dotFlowMatList mouseup sender args do
+		(
+			if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Right then
+			(
+				shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\BsFlowTex\\") ""
+			)
+			else if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Left then fnSelTex()
+		)
+
+		on dotFlowMatList doubleClick sender args do
+		(
+			try(shellLaunch selTex "")catch()
 		)
 
 		on ckbLoopToogle changed state do 
