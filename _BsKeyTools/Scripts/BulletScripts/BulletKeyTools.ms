@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-16 19:55:30
+ * @LastEditTime: 2025-01-16 22:31:15
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -753,9 +753,9 @@ rcmenu menuConfig
 									btnsArr[b].height = 16
 								)
 								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,725];btnsArr[b].width = 130)
-								else if b == 96 then (btnsArr[b].pos = [0,140])
-								else if b == 97 then (btnsArr[b].pos = [0,430])
-								else if b == 98 then (btnsArr[b].pos = [0,930])
+								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,140])
+								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,430])
+								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,930])
 								else
 								(
 									btnsArr[b].visible = false
@@ -848,9 +848,9 @@ rcmenu menuConfig
 									btnsArr[b].height = 16
 								)
 								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,725];btnsArr[b].width = 130)
-								else if b == 96 then (btnsArr[b].pos = [0,140])
-								else if b == 97 then (btnsArr[b].pos = [0,430])
-								else if b == 98 then (btnsArr[b].pos = [0,930])
+								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,140])
+								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,430])
+								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,930])
 								else
 								(
 									btnsArr[b].visible = false
@@ -1133,9 +1133,9 @@ rcmenu menuConfig
 									btnsArr[b].pos = btnsArr[36].pos + [60,3]
 								)
 								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,610])
-								else if b == 96 then (btnsArr[b].pos = [0,100])
-								else if b == 97 then (btnsArr[b].pos = [0,310])
-								else if b == 98 then (btnsArr[b].pos = [0,815])
+								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,100])
+								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,310])
+								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,815])
 								else
 								(
 									btnsArr[b].visible = false
@@ -1223,9 +1223,9 @@ rcmenu menuConfig
 									btnsArr[b].pos = btnsArr[36].pos + [60,3]
 								)
 								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,610])
-								else if b == 96 then (btnsArr[b].pos = [0,100])
-								else if b == 97 then (btnsArr[b].pos = [0,310])
-								else if b == 98 then (btnsArr[b].pos = [0,815])
+								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,100])
+								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,310])
+								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,815])
 								else
 								(
 									btnsArr[b].visible = false
