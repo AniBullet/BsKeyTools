@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-15 15:28:07
+ * @LastEditTime: 2025-01-16 18:12:08
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -453,6 +453,7 @@ rcmenu menuConfig
 	separator menuSepHelp
 	menuItem mItemCleanVirus "杀毒工具 [推荐开启]"
 	menuItem mItemWinBack "窗口找回 [会有用的]"
+	menuItem mItemTimeline "时间轴工具 [Maya风格]"
 	menuItem mItemIsStartup "是否随3dsMax自启"
 	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
 	subMenu "自定义功能配置"
@@ -1261,12 +1262,17 @@ rcmenu menuConfig
 		)
 	)
 
+	local startupEXTimelineMS = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\EXTimelineStartup.ms"
+	local startupEXTimelinePath = (getDir #StartupScripts)+ "\\EXTimelineStartup.ms"
+
 	on menuConfig open do
 	(
 		-- rolBsKeyTools.timerTickTock.active = false
 		-- stLoadConfigAll.fnLoadConfigBsKeyToolsAll ()
 		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
 		else (mItemIsStartup.checked = false)
+		if(SIOFile.Exists startupEXTimelinePath) then (mItemTimeline.checked = true)
+		else (mItemTimeline.checked = false)
 		if (iniAddToolbars == 1) then (mItemAddToolBarBtn.checked = true)
 		else (mItemAddToolBarBtn.checked = false)
 		mItemAutoCheckUpdate.checked = iniBsAutoCheckUpdate
@@ -1548,7 +1554,8 @@ rcmenu menuConfig
 			((getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"),\
 			((getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"),\
 			((getDir #StartupScripts)+ "\\BsTrackBarToolsStartup.ms"),\
-			((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"))
+			((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"),\
+			((getDir #StartupScripts)+ "\\EXTimelineStartup.ms"))
 			for d in arrDelPath do (fnDelDir d)
 			for f in arrDelMs do (fnDelFileDir f)
 			try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -1650,6 +1657,32 @@ rcmenu menuConfig
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\WinBox.ms"))
 		catch(messagebox "打开 WinBox.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on mItemTimeline picked do 
+	(
+		if (mItemTimeline.checked == true) then 
+		(
+			fnDelFileDir startupEXTimelinePath
+			mItemTimeline.checked = false
+			messagebox ("已解除 extended_timeline 自启！                  ")  title:"timeline 自启设置"
+		)
+		else 
+		(
+			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\Quote\\Heavenly Pictures\\Extended Timeline\\extended_timeline.ms"))
+			catch(messagebox "打开 extended_timeline.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+			if (not (SIOFile.Exists startupEXTimelinePath)) do
+			(
+				try 
+				(
+					FileIO.Copyfile startupEXTimelineMS startupEXTimelinePath UIOption
+					messagebox ("已打开 extended_timeline 自启！                  ")  title:"timeline 自启设置"
+					mItemTimeline.checked = true
+					setFileAttribute startupEXTimelinePath #readOnly true
+				)
+				catch()
+			)
+		)
 	)
 
 	on mItemFixThumbnail picked do
