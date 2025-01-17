@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-18 01:01:49
+ * @LastEditTime: 2025-01-18 01:14:55
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -78,11 +78,11 @@ global dragStateBsADT = off
 		groupbox gbpLight "灯光箱" pos:[5,110] width:(rolBsAnimDemoTools.width - 10) height:75 visible:false
 		button btnOmniLight "点光源" pos:[15,130] width:55 height:20 visible:false
 		button btnSpotLight "聚光灯" pos:[75,130] width:55 height:20 visible:false
-		button btnDirectLight "平行光" pos:[135,130] width:55 height:20 visible:false
-		button btnSkyLight "环境光" pos:[195,130] width:55 height:20 visible:false
-		button btnSelectLastLight "选上个灯" pos:[15,155] width:55 height:20 visible:false
-		button btnSelectNextLight "选下个灯" pos:[75,155] width:55 height:20 visible:false
-		button btnToggleLight "灯光开关" pos:[135,155] width:55 height:20 visible:false
+		button btnDirectLight "平行光" pos:[15,155] width:55 height:20 visible:false
+		button btnSkyLight "环境光" pos:[75,155] width:55 height:20 visible:false
+		label lblLightStrenth "灯光强度" pos:[139,135] width:50 height:20 visible:false
+		spinner spnLightStrenth "" pos:[137,157] width:50 height:16 visible:false
+		button btnToggleLight "灯光开关" pos:[195,130] width:55 height:20 visible:false
 		button btnDeleteLight "清除灯光" pos:[195,155] width:55 height:20 visible:false
 		groupbox gbpFloor "地板片" pos:[5,190] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
 		button btnCreateFloor "一键创建" pos:[15,210] width:70 height:20 visible:false
@@ -124,9 +124,8 @@ global dragStateBsADT = off
 											ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnApplyTex))
 		local arrDemoEff     = #("简单特效",#(dotLVFilesList,spnU,spnV,ckbApplyEff,lblFrameOffset,spnFrameOffest,btnOpenPath,ckbLoopToogle))
 		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnToggleLight, \
-											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnSelectLastLight,btnSelectNextLight,btnDeleteLight, \
-											gbpFloor,btnCreateFloor,btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath, \
-											btnMakeRenderer,btnClearAll))
+											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnDeleteLight,gbpFloor,btnCreateFloor,spnLightStrenth, \
+											btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll,lblLightStrenth))
 		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnClearMat,gpbToonMat,rdoNormalFlip, \
 											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat, \
 											btnUnFreezeLineMesh,btnFreezeLineMesh,btnReCollectMat,btnTint,btnTwoSides))
