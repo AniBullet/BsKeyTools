@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-16 22:31:15
+ * @LastEditTime: 2025-01-17 16:47:21
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -491,7 +491,7 @@ rcmenu menuConfig
 		if doesFileExist BulletConfig do
 		(
 			curMaxVersion = ((maxVersion())[1] / 1000)
-			if curMaxVersion > 20 then
+			if curMaxVersion > 20 then  --高版本max,2019+
 			(
 				try
 				(
@@ -515,7 +515,7 @@ rcmenu menuConfig
 								)
 								else if b == 2 then (btnsArr[b].pos = [50,20])
 								else if b == 3 then (btnsArr[b].pos = [115,20])
-								else if b == 4 then (btnsArr[b].pos = [340,10])
+								else if b == 4 then (btnsArr[b].pos = [351,2])
 								else if b == 7 then (btnsArr[b].pos = [135,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
 								else if b == 8 then (btnsArr[b].pos = [165,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
 								else if b == 9 then (btnsArr[b].pos = [195,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
@@ -523,8 +523,8 @@ rcmenu menuConfig
 								else if b == 12 then (btnsArr[b].pos = [230,20];btnsArr[b].width = 50)
 								else if b == 13 then (btnsArr[b].pos = [280,0];btnsArr[b].width = 60)
 								else if b == 14 then (btnsArr[b].pos = [280,20];btnsArr[b].width = 60)
-								else if b == 15 then (btnsArr[b].pos = [360,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
-								else if b == 16 then (btnsArr[b].pos = [360,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
+								else if b == 15 then (btnsArr[b].pos = [380,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [380,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
 								else if b > 16 and b < 31 then 
 								(
 									btnsArr[b].height = 20
@@ -570,7 +570,7 @@ rcmenu menuConfig
 								else if b == 93 then
 								(
 									btnsArr[b].text = "设置"
-									btnsArr[b].pos = [92,0]
+									btnsArr[b].pos = [342,22]
 									btnsArr[b].width = 35
 									btnsArr[b].height = 16
 								)
@@ -602,7 +602,7 @@ rcmenu menuConfig
 								)
 								else if b == 2 then (btnsArr[b].pos = [50,20])
 								else if b == 3 then (btnsArr[b].pos = [115,20])
-								else if b == 4 then (btnsArr[b].pos = [340,10])
+								else if b == 4 then (btnsArr[b].pos = [351,2])
 								else if b == 7 then (btnsArr[b].pos = [135,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
 								else if b == 8 then (btnsArr[b].pos = [165,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
 								else if b == 9 then (btnsArr[b].pos = [195,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
@@ -610,8 +610,8 @@ rcmenu menuConfig
 								else if b == 12 then (btnsArr[b].pos = [230,20];btnsArr[b].width = 50)
 								else if b == 13 then (btnsArr[b].pos = [280,0];btnsArr[b].width = 60)
 								else if b == 14 then (btnsArr[b].pos = [280,20];btnsArr[b].width = 60)
-								else if b == 15 then (btnsArr[b].pos = [360,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
-								else if b == 16 then (btnsArr[b].pos = [360,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
+								else if b == 15 then (btnsArr[b].pos = [380,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [380,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
 								else if b > 16 and b < 31 then 
 								(
 									btnsArr[b].height = 20
@@ -657,7 +657,7 @@ rcmenu menuConfig
 								else if b == 93 then
 								(
 									btnsArr[b].text = "设置"
-									btnsArr[b].pos = [92,0]
+									btnsArr[b].pos = [342,22]
 									btnsArr[b].width = 35
 									btnsArr[b].height = 16
 								)
@@ -914,7 +914,7 @@ rcmenu menuConfig
 								)
 								else if b == 2 then (btnsArr[b].pos = [50,25])
 								else if b == 3 then (btnsArr[b].pos = [120,25])
-								else if b == 4 then (btnsArr[b].pos = [405,15])
+								else if b == 4 then (btnsArr[b].pos = [415,5])
 								else if b == 7 then (btnsArr[b].pos = [140,10])
 								else if b == 8 then (btnsArr[b].pos = [190,10])
 								else if b == 9 then (btnsArr[b].pos = [240,10])
@@ -922,8 +922,8 @@ rcmenu menuConfig
 								else if b == 12 then (btnsArr[b].visible = true;btnsArr[b].pos = [295,25])
 								else if b == 13 then (btnsArr[b].pos = [350,5])
 								else if b == 14 then (btnsArr[b].pos = [350,25])
-								else if b == 15 then (btnsArr[b].pos = [430,0]) --选定帧
-								else if b == 16 then (btnsArr[b].pos = [430,25]) --首尾帧
+								else if b == 15 then (btnsArr[b].pos = [450,0]) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [450,25]) --首尾帧
 								else if b > 16 and b < 31 then 
 								(
 									if ((mod b 2) == 1) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + 50,0])
@@ -941,13 +941,13 @@ rcmenu menuConfig
 								(
 									btnsArr[b].pos = [btnsArr[b - 1].pos.x + 30,btnsArr[39].pos.y]
 								)
-								else if b == 43 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10]) --右边工具箱第一个按钮
+								else if b == 43 then (btnsArr[b].pos = [btnsArr[42].pos.x + 35,10]) --右边工具箱第一个按钮
 								-- else if b == 44 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25]) --右边工具箱第二个按钮
-								else if b == 55 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								else if b == 55 then (btnsArr[b].pos = [btnsArr[42].pos.x + 35,10])
 								-- else if b == 56 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
-								else if b == 67 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								else if b == 67 then (btnsArr[b].pos = [btnsArr[42].pos.x + 35,10])
 								-- else if b == 68 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
-								else if b == 79 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								else if b == 79 then (btnsArr[b].pos = [btnsArr[42].pos.x + 35,10])
 								-- else if b == 80 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
 								else if b >= 44 and b <= 90 then 
 								(
@@ -963,7 +963,7 @@ rcmenu menuConfig
 								else if b == 93 then
 								(
 									btnsArr[b].text = "设置"
-									btnsArr[b].pos = [92,0]
+									btnsArr[b].pos = [405,25]
 								)
 								else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
 								-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
@@ -974,7 +974,7 @@ rcmenu menuConfig
 								)
 							)
 							rolTarget.height = 50
-							rolTarget.width = 1800
+							rolTarget.width = 1820
 							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_horz)
 							cui.DockDialogBar rolTarget #cui_dock_top
 							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_top as string))catch()
@@ -994,7 +994,7 @@ rcmenu menuConfig
 								)
 								else if b == 2 then (btnsArr[b].pos = [50,25])
 								else if b == 3 then (btnsArr[b].pos = [120,25])
-								else if b == 4 then (btnsArr[b].pos = [405,15])
+								else if b == 4 then (btnsArr[b].pos = [415,5])
 								else if b == 7 then (btnsArr[b].pos = [140,10])
 								else if b == 8 then (btnsArr[b].pos = [190,10])
 								else if b == 9 then (btnsArr[b].pos = [240,10])
@@ -1002,8 +1002,8 @@ rcmenu menuConfig
 								else if b == 12 then (btnsArr[b].visible = true;btnsArr[b].pos = [295,25])
 								else if b == 13 then (btnsArr[b].pos = [350,5])
 								else if b == 14 then (btnsArr[b].pos = [350,25])
-								else if b == 15 then (btnsArr[b].pos = [430,0]) --选定帧
-								else if b == 16 then (btnsArr[b].pos = [430,25]) --首尾帧
+								else if b == 15 then (btnsArr[b].pos = [450,0]) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [450,25]) --首尾帧
 								else if b > 16 and b < 31 then 
 								(
 									if ((mod b 2) == 1) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + 50,0])
@@ -1021,13 +1021,13 @@ rcmenu menuConfig
 								(
 									btnsArr[b].pos = [btnsArr[b - 1].pos.x + 30,btnsArr[39].pos.y]
 								)
-								else if b == 43 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10]) --右边工具箱第一个按钮
+								else if b == 43 then (btnsArr[b].pos = [btnsArr[42].pos.x + 35,10]) --右边工具箱第一个按钮
 								-- else if b == 44 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25]) --右边工具箱第二个按钮
-								else if b == 55 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								else if b == 55 then (btnsArr[b].pos = [btnsArr[42].pos.x + 35,10])
 								-- else if b == 56 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
-								else if b == 67 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								else if b == 67 then (btnsArr[b].pos = [btnsArr[42].pos.x + 35,10])
 								-- else if b == 68 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
-								else if b == 79 then (btnsArr[b].pos = [btnsArr[42].pos.x + 30 + 5,10])
+								else if b == 79 then (btnsArr[b].pos = [btnsArr[42].pos.x + 35,10])
 								-- else if b == 80 then (btnsArr[b].pos = [btnsArr[b - 1].pos.x,25])
 								else if b >= 44 and b <= 90 then 
 								(
@@ -1043,7 +1043,7 @@ rcmenu menuConfig
 								else if b == 93 then
 								(
 									btnsArr[b].text = "设置"
-									btnsArr[b].pos = [92,0]
+									btnsArr[b].pos = [405,25]
 								)
 								else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
 								-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
@@ -1054,7 +1054,7 @@ rcmenu menuConfig
 								)
 							)
 							rolTarget.height = 50
-							rolTarget.width = 1800
+							rolTarget.width = 1820
 							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_horz)
 							cui.DockDialogBar rolTarget #cui_dock_bottom
 							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_bottom as string))catch()
@@ -1985,7 +1985,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	dotnetcontrol btnElement "button" pos:[170,40] width:30 height:30
 
 	edittext edtMoveKey "" width:50 usePercentageWidth:true percentageWidth:44.0 \ 
-	pos:[6,72] labelOnTop:false text:"5f" bold:true readOnly:false height:17
+	pos:[7,72] labelOnTop:false text:"5f" bold:true readOnly:false height:17
 	button btnSet5 "±5f" width:50 pos:[60,70] height:20 \
 	toolTip:"恢复默认移动帧数\r\n左击：5f\r\n右击：-5f"
 	button btnSetAdd "左+右-" width:50 pos:[110,70] height:20 \
@@ -2044,13 +2044,13 @@ rollout rolBsKeyTools "" width:355 height:250
 	
 	groupbox gbxMinTools "" pos:[220,5] width:130 height:240
 
-	checkbutton ckbC1 "" width:30 height:29 highlightcolor:myCheckedColor \
+	checkbutton ckbC1 "" width:30 height:29 highlightcolor:(myCheckedColor) \
 	pos:[225,15] toolTip:"" border:true
-	checkbutton ckbC2 "" width:30 height:29 highlightcolor:myCheckedColor \
+	checkbutton ckbC2 "" width:30 height:29 highlightcolor:(myCheckedColor) \
 	pos:[255,15] toolTip:"" border:true
-	checkbutton ckbC3 "" width:30 height:29 highlightcolor:myCheckedColor \
+	checkbutton ckbC3 "" width:30 height:29 highlightcolor:(myCheckedColor) \
 	pos:[285,15] toolTip:"" border:true
-	checkbutton ckbC4 "" width:30 height:29 highlightcolor:myCheckedColor \
+	checkbutton ckbC4 "" width:30 height:29 highlightcolor:(myCheckedColor) \
 	pos:[315,15] toolTip:"" border:true
 
 	local btnHeight = 32
@@ -2124,7 +2124,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"Skin工具集成 (修改自San_oOo)" pos:btnPos
 	button btnCombineDetachSkin "Skin 拆合" width:btnWidth height:btnHeight visible:false \
 	tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos
-	button btnBoxMan "Box Man" width:btnWidth height:btnHeight visible:false \
+	button btnBoxMan "方块超人" width:btnWidth height:btnHeight visible:false \
 	tooltip:"方块练习人制作工具，半成品待完善" pos:btnPos
 	button btnTwistBones "Twist创建" width:btnWidth height:btnHeight visible:false \
 	tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
@@ -2186,7 +2186,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		dotLVFilesList.MultiSelect = false
 		dotLVFilesList.CheckBoxes = false
 		dotLVFilesList.HideSelection = false
-		dotLVFilesList.Columns.Add "打开最近文件" 120
+		dotLVFilesList.Columns.Add "打开最近文件" 150
 		dotLVFilesList.ForeColor = BsDotForeColor
 		dotLVFilesList.BackColor = BsDotBackColor
 		if dotLVFilesList.SelectedItems.Count > 0 then
@@ -2469,22 +2469,22 @@ rollout rolBsKeyTools "" width:355 height:250
 			str += "	("
 			str += "        if " + curMaxVersion as string + " > 20 then "
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1070,0] as string + " + [(b - 1) * 30,0]" + "\r\n"
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1090,0] as string + " + [(b - 1) * 30,0]" + "\r\n"
 			str += "		)"
 			str += "		else"
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1070,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1090,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
 			str += "		)"
 			str += "	)"
 			str += "	else if (mod b 2 == 0) then"
 			str += "	("
 			str += "		if " + curMaxVersion as string + " > 20 then "
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1070,20] as string + " + [(b - 2) * 30,0]" + "\r\n"
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1090,20] as string + " + [(b - 2) * 30,0]" + "\r\n"
 			str += "		)"
 			str += "		else"
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1070,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1090,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
 			str += "		)"
 			str += "	)"
 			str += ")"
@@ -3649,6 +3649,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	
 	on btnMagicBtn pressed do  -------------切换整数帧小数帧,方便拖动滑条平滑预览
 	(
+		setfocus rolbskeytools.btnPrimogem
 		fnSwitchMagicBtn switchToolPanel
 		-- fnRefreshMsPanel()
 	)
@@ -4130,6 +4131,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	------------切换工具栏分类--------------------------------------------
 	on ckbC1 changed state do 
 	(
+		setfocus rolbskeytools.btnPrimogem
 		if state == true then 
 		(
 			fnSwitchToolBtnChecked 1
@@ -4139,6 +4141,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	)
 	on ckbC2 changed state do 
 	(
+		setfocus rolbskeytools.btnPrimogem
 		if state == true then 
 		(
 			fnSwitchToolBtnChecked 2
@@ -4148,6 +4151,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	)
 	on ckbC3 changed state do 
 	(
+		setfocus rolbskeytools.btnPrimogem
 		if state == true then 
 		(
 			fnSwitchToolBtnChecked 3
@@ -4157,6 +4161,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	)
 	on ckbC4 changed state do 
 	(
+		setfocus rolbskeytools.btnPrimogem
 		if state == true then 
 		(
 			fnSwitchToolBtnChecked 4

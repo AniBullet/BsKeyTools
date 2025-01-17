@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-15 18:12:33
+ * @LastEditTime: 2025-01-17 19:06:54
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -94,12 +94,22 @@ global dragStateBsADT = off
 		button btnMakeRenderer "渲染预览" pos:[135,250] width:60 height:25 visible:false tooltip:"仅用作快速预览环境设置, \r\n不影响之前的渲染保存路径设置等"
 		button btnClearAll "清除所有" pos:[200,250] width:60 height:25 visible:false
 		-------------------------------------------------------------------------------------------------------------------------------------------
-		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 10) pos:[5,-500]
-		radiobuttons rdoMatType "" labels:#("普通","流体") columns:2 pos:[10,160] width:100 visible:false
-		checkbutton ckbApplyEffMat "应用材质" pos:[110,160] width:90 height:20 visible:false checked:true
-		button btnClearMat "清除" pos:[205,160] width:55 height:20 visible:false
-		groupbox gpbToonMat "卡通材质" pos:[5,185] width:(rolBsAnimDemoTools.width - 10) height:65 visible:false
-		edittext edtWatermarkText "水印" pos:[5,257] width:125 height:16 visible:false
+		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 100) pos:[5,-500]
+		radiobuttons rdoMatType "" labels:#("普通材质","流体材质") columns:1 pos:[180,60] width:80 visible:false
+		checkbutton ckbApplyEffMat "应用材质" pos:[175,100] width:80 height:25 visible:false checked:true
+		button btnClearMat "清除" pos:[175,130] width:80 height:20 visible:false
+		groupbox gpbLineMat "卡通描边" pos:[5,155] width:(rolBsAnimDemoTools.width - 140) height:95 visible:false
+		radiobuttons rdoNormalFlip "" labels:#("法线翻转","不变") columns:2 pos:[12,175] width:100 visible:false
+		colorpicker cpLineColor "" pos:[10,199] width:25 height:20 visible:false color:(color 30 30 30)
+		checkbutton ckbApplyLineMat "添加描边" pos:[40,199] width:85 height:20 visible:false checked:true
+		button btnSelLineMesh "选" pos:[10,225] width:25 height:20 visible:false
+		button btnUnFreezeLineMesh "解" pos:[40,225] width:25 height:20 visible:false
+		button btnFreezeLineMesh "冻" pos:[65,225] width:25 height:20 visible:false
+		button btnDeleteLine "清除" pos:[95,225] width:30 height:20 visible:false
+		groupbox gpbToonMat "简易卡通材质" pos:[140,155] width:(rolBsAnimDemoTools.width - 145) height:95 visible:false
+		colorpicker cpPureToonColor "" pos:[140,175] width:25 height:20 visible:false color:(color 255 60 60)
+		button btnApplyPureToonMat "应用纯色材质" pos:[170,175] width:85 height:20 visible:false
+		edittext edtWatermarkText "水印文字" pos:[5,257] width:125 height:16 visible:false
 		button btnFileWM "文件水印" pos:[135,255] width:60 height:20 visible:false
 		button btnRnderWM "渲染水印" pos:[200,255] width:60 height:20 visible:false
 		-------------------------------------------------------------------------------------------------------------------------------------------
@@ -113,7 +123,9 @@ global dragStateBsADT = off
 		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnToggleLight, \
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnSelectLastLight,btnSelectNextLight,btnDeleteLight, \
 											gbpFloor,btnCreateFloor,btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll))
-		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnClearMat,gpbToonMat))
+		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnClearMat,gpbToonMat,rdoNormalFlip, \
+											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat,\
+											btnUnFreezeLineMesh,btnFreezeLineMesh))
 		local arrAllToolsTab = #(arrGhostTrails,arrDemoEff,arrDemoScene,arrDemoMat)
 	
 		fn fnInitDotTabs =
@@ -145,7 +157,7 @@ global dragStateBsADT = off
 			dotCtrl.MultiSelect = false
 			dotCtrl.CheckBoxes = false
 			dotCtrl.HideSelection = false
-			dotCtrl.Columns.Add str (rolBsAnimDemoTools.width - 35)
+			dotCtrl.Columns.Add str (dotCtrl.width - 25)
 			dotCtrl.ForeColor = BsDotForeColor
 			dotCtrl.BackColor = BsDotBackColor
 			if dotCtrl.SelectedItems.Count > 0 then
@@ -178,7 +190,7 @@ global dragStateBsADT = off
 
 		fn fnRefreshFlowTexFiles =
 		(
-			fnInitDotNetListView dotFlowMatList "其他材质贴图 [双击预览]  (来源网络)"
+			fnInitDotNetListView dotFlowMatList "其他材质 [双击预览]"
 			local arrTexFiles = getFiles ((getDir #scripts) + "\\BulletScripts\\Res\\BsFlowTex\\*.*")
 			rows = #()
 			dotFlowMatList.Items.Clear()
