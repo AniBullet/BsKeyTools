@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-17 19:06:54
+ * @LastEditTime: 2025-01-18 01:01:49
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -100,7 +100,7 @@ global dragStateBsADT = off
 		button btnClearMat "清除" pos:[175,130] width:80 height:20 visible:false
 		groupbox gpbLineMat "卡通描边" pos:[5,155] width:(rolBsAnimDemoTools.width - 140) height:95 visible:false
 		radiobuttons rdoNormalFlip "" labels:#("法线翻转","不变") columns:2 pos:[12,175] width:100 visible:false
-		colorpicker cpLineColor "" pos:[10,199] width:25 height:20 visible:false color:(color 30 30 30)
+		colorpicker cpLineColor "" pos:[8,199] width:25 height:20 visible:false color:(color 30 30 30)
 		checkbutton ckbApplyLineMat "添加描边" pos:[40,199] width:85 height:20 visible:false checked:true
 		button btnSelLineMesh "选" pos:[10,225] width:25 height:20 visible:false
 		button btnUnFreezeLineMesh "解" pos:[40,225] width:25 height:20 visible:false
@@ -109,6 +109,9 @@ global dragStateBsADT = off
 		groupbox gpbToonMat "简易卡通材质" pos:[140,155] width:(rolBsAnimDemoTools.width - 145) height:95 visible:false
 		colorpicker cpPureToonColor "" pos:[140,175] width:25 height:20 visible:false color:(color 255 60 60)
 		button btnApplyPureToonMat "应用纯色材质" pos:[170,175] width:85 height:20 visible:false
+		button btnTint "色调环境光" pos:[145,200] width:75 height:20 visible:false
+		button btnTwoSides "双面" pos:[225,200] width:30 height:20 visible:false
+		button btnReCollectMat "整理" pos:[215,225] width:40 height:20 visible:false
 		edittext edtWatermarkText "水印文字" pos:[5,257] width:125 height:16 visible:false
 		button btnFileWM "文件水印" pos:[135,255] width:60 height:20 visible:false
 		button btnRnderWM "渲染水印" pos:[200,255] width:60 height:20 visible:false
@@ -122,10 +125,11 @@ global dragStateBsADT = off
 		local arrDemoEff     = #("简单特效",#(dotLVFilesList,spnU,spnV,ckbApplyEff,lblFrameOffset,spnFrameOffest,btnOpenPath,ckbLoopToogle))
 		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnToggleLight, \
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnSelectLastLight,btnSelectNextLight,btnDeleteLight, \
-											gbpFloor,btnCreateFloor,btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll))
+											gbpFloor,btnCreateFloor,btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath, \
+											btnMakeRenderer,btnClearAll))
 		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnClearMat,gpbToonMat,rdoNormalFlip, \
-											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat,\
-											btnUnFreezeLineMesh,btnFreezeLineMesh))
+											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat, \
+											btnUnFreezeLineMesh,btnFreezeLineMesh,btnReCollectMat,btnTint,btnTwoSides))
 		local arrAllToolsTab = #(arrGhostTrails,arrDemoEff,arrDemoScene,arrDemoMat)
 	
 		fn fnInitDotTabs =
@@ -429,8 +433,18 @@ global dragStateBsADT = off
 				fnChangeToolsVisble arrID
 				if arrID == 2 then (dotLVFilesList.pos = [5,50];fnRefreshTexFiles())
 				else (dotLVFilesList.pos = [5,-500])
-				if arrID == 4 then (dotFlowMatList.pos = [5,50];fnRefreshFlowTexFiles())
-				else (dotFlowMatList.pos = [5,-500])
+				if arrID == 4 then 
+				(
+					dotFlowMatList.pos = [5,50]
+					fnRefreshFlowTexFiles()
+					btnMaterial.visible = true 
+					btnMaterial.pos = [145,225]
+				)
+				else 
+				(
+					dotFlowMatList.pos = [5,-500]
+					if arrID == 1 then (btnMaterial.pos = [5,255] ;btnMaterial.visible = true)
+				)
 			) 
 		)
 		
