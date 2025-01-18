@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-17 16:47:21
+ * @LastEditTime: 2025-01-19 01:57:11
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -478,8 +478,10 @@ rcmenu menuConfig
 	(
 		menuItem mItemScriptsPath "脚本目录 [查错优化]"
 		menuItem mItemConfigFilePath "配置文件 [备份导入]"
-		menuItem mItemBackupConfigFile "备份配置 [电脑桌面]"
-		menuItem mItemRolloutBuilder "脚本界面 [学习工具]"
+		menuItem mItemBackupConfigFile "备份配置 [到电脑桌面]"
+		menuItem mItemDarkEditor "深色编辑器 [Maxscript]"
+		menuItem mItemHelpDocs "脚本文档 [3dsMax官方]"
+		menuItem mItemRolloutBuilder "脚本界面创建 [学习工具]"
 		menuItem mItemHwndViewer "句柄研究 [查看工具]"
 		menuItem mItemDotNetProperty "DotNet属性 [索引工具]"
 		menuItem mItemFixThumbnail "修复缩略图 [管理员运行]"
@@ -1475,6 +1477,18 @@ rcmenu menuConfig
 		)
 		if (queryBox "是否打开配置文件备份目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
 		title:"备份配置文件" beep:false) then (shellLaunch pathDesktop "")
+	)
+
+	on mItemDarkEditor picked do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\DarkScintilla.mzp"))
+		catch(messagebox "打开 DarkScintilla.mzp 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on mItemHelpDocs picked do 
+	(
+		try(shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\MAXScript-Help_2024_ENU.chm") "")
+		catch(messagebox "打开 MAXScript-Help 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemAddToolBarBtn picked do
