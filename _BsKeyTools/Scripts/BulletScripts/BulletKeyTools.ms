@@ -4291,8 +4291,8 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnAnimMirror pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\动画镜像工具.mse"))
-		catch(messagebox "打开 动画镜像工具.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\Anim_mirror.ms"))
+		catch(messagebox "打开 Anim_mirror.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on ckbIsoSelection changed stateIso do 
