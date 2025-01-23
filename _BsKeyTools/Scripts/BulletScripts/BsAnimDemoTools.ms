@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-18 22:41:06
+ * @LastEditTime: 2025-01-23 21:48:41
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -75,19 +75,22 @@ global dragStateBsADT = off
 		button btnCreateSkyBox "创建" pos:[100,75] width:50 height:20 visible:false
 		button btnDeleteSkyBox "清除" pos:[155,75] width:50 height:20 visible:false
 		button btnOpenSkyBox "打开" pos:[210,75] width:40 height:20 visible:false
-		groupbox gbpLight "灯光箱" pos:[5,110] width:(rolBsAnimDemoTools.width - 10) height:75 visible:false
-		button btnOmniLight "点光源" pos:[15,130] width:55 height:20 visible:false
-		button btnSpotLight "聚光灯" pos:[75,130] width:55 height:20 visible:false
-		button btnDirectLight "平行光" pos:[15,155] width:55 height:20 visible:false
-		button btnSkyLight "环境光" pos:[75,155] width:55 height:20 visible:false
-		button btnSelectLastLight "选↑灯" pos:[135,130] width:55 height:20 visible:false
-		button btnSelectNextLight "选↓灯" pos:[135,155] width:55 height:20 visible:false
-		button btnToggleLight "灯光开关" pos:[195,130] width:55 height:20 visible:false
-		button btnDeleteLight "清除灯光" pos:[195,155] width:55 height:20 visible:false
+		groupbox gbpLight "灯光箱" pos:[5,110] width:(rolBsAnimDemoTools.width - 80) height:75 visible:false
+		button btnOmniLight "点光源" pos:[10,130] width:55 height:20 visible:false
+		button btnSpotLight "聚光灯" pos:[70,130] width:55 height:20 visible:false
+		button btnDirectLight "平行光" pos:[10,155] width:55 height:20 visible:false
+		button btnSkyLight "环境光" pos:[70,155] width:55 height:20 visible:false
+		-- button btnSelectLastLight "选↑灯" pos:[135,130] width:55 height:20 visible:false
+		-- button btnSelectNextLight "选↓灯" pos:[135,155] width:55 height:20 visible:false
+		button btnLightOn "灯光开" pos:[130,130] width:25 height:20 visible:false tooltip:"灯光开 (影响几乎所有灯光)" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,15,15,15,15,true,false)
+		button btnLightOff "灯光关" pos:[159,130] width:25 height:20 visible:false tooltip:"灯光关 (影响几乎所有灯光)" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,13,13,13,13,true,false)
+		button btnDeleteLight "清除灯光" pos:[130,155] width:55 height:20 visible:false tooltip:"清除灯光 (仅影响此工具创建的灯光)"
+		button btnCameraPlane "相机背景" pos:[195,120] width:65 height:30 visible:false
+		button btnDeleteCameraPlane "清除背景" pos:[195,155] width:65 height:25 visible:false
 		groupbox gbpFloor "地板片" pos:[5,190] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
 		button btnCreateFloor "一键创建" pos:[15,210] width:70 height:20 visible:false
-		button btnFreezeFloor "冻结" pos:[90,210] width:50 height:20 visible:false
-		button btnUnfreezeFloor "解冻" pos:[145,210] width:50 height:20 visible:false
+		button btnUnfreezeFloor "解冻" pos:[90,210] width:50 height:20 visible:false
+		button btnFreezeFloor "冻结" pos:[145,210] width:50 height:20 visible:false
 		button btnDeleteFloor "清除" pos:[200,210] width:50 height:20 visible:false
 		button btnMakePreview "快速拍屏" pos:[5,250] width:60 height:25 visible:false
 		button btnOpenPrevPath "拍屏目录" pos:[70,250] width:60 height:25 visible:false
@@ -123,10 +126,10 @@ global dragStateBsADT = off
 											ckbSetRange,spnStartFrame,spnEndFrame,gpbMesh,spnSegments,spnSplineSteps,spnURepeat, \
 											ckbFlipNormals,ckbGenerateMapping,btnMaterial,ddlDefaultTex,btnApplyTex))
 		local arrDemoEff     = #("简单特效",#(dotLVFilesList,spnU,spnV,ckbApplyEff,lblFrameOffset,spnFrameOffest,btnOpenPath,ckbLoopToogle))
-		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnToggleLight, \
+		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnLightOn,btnLightOff, \
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnDeleteLight,gbpFloor,btnCreateFloor, \
 											btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll, \
-											btnSelectLastLight,btnSelectNextLight))
+											btnCameraPlane,btnDeleteCameraPlane))
 		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnClearMat,gpbToonMat,rdoNormalFlip, \
 											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat, \
 											btnUnFreezeLineMesh,btnFreezeLineMesh,btnReCollectMat,btnTint,btnTwoSides))
@@ -408,6 +411,28 @@ global dragStateBsADT = off
 					setAfterORT arrCtrl type
 				)
 			)
+		)
+
+		fn fnCreatLight type =
+		(
+			local posTarget = [0,0,0]
+			if selection.count != 0 then
+			(
+				posTarget = selection[1].pos
+			)
+			local lightSpot = 
+			(
+				case type of
+				(
+					"omniLight": omniLight pos:[0,0,200]
+					"Targetspot": Targetspot pos:[120,120,200] target:(targetObject pos:posTarget)
+					"TargetDirectionallight": TargetDirectionallight pos:[0,120,200] target:(targetObject pos:posTarget)
+					"SkyLight": SkyLight isSelected:on
+				)
+			)
+			select lightSpot
+			lightSpot.name        = "BsLights" + (type as string) + "_Light"
+			try(lightSpot.target.name = "BsLights" + (type as string) + "_Target")catch()
 		)
 
 		on btnRegister pressed do
@@ -772,6 +797,34 @@ global dragStateBsADT = off
 			else 
 			(
 				fnSetOutOfRangeType $ #constant
+			)
+		)
+
+		on btnOmniLight pressed do 
+		(
+			fnCreatLight "omniLight"
+		)
+
+		on btnSpotLight pressed do 
+		(
+			fnCreatLight "Targetspot"
+		)
+
+		on btnDirectLight pressed do 
+		(
+			fnCreatLight "TargetDirectionallight"
+		)
+
+		on btnSkyLight pressed do 
+		(
+			fnCreatLight "SkyLight"
+		)
+
+		on btnDeleteLight pressed do 
+		(
+			undo "deleteLight" on
+			(
+				try(delete $'BsLights*';messagebox "清除灯光成功!                      " title:"BsAnimDemoTools")catch()
 			)
 		)
 	)
