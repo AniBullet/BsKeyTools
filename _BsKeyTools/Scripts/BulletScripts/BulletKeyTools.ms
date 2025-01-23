@@ -1603,8 +1603,8 @@ rcmenu menuConfig
 
 	on mItemIsIcon picked do 
 	(
-		if not rolBsKeyTools.dialogBar then
-		(
+		-- if not rolBsKeyTools.dialogBar then
+		-- (
 			if (mItemIsIcon.checked == false) then 
 			(
 				fnSwitchIconStyle()
@@ -1618,11 +1618,11 @@ rcmenu menuConfig
 				try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
 				catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 			)
-		)
-		else
-		(
-			messagebox "请设置嵌入模式为【浮动】!                        "
-		)
+		-- )
+		-- else
+		-- (
+		-- 	messagebox "请设置嵌入模式为【浮动】!                        "
+		-- )
 	)
 
 	on mItemCollapse picked do 
