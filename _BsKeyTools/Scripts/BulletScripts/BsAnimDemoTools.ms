@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-23 21:48:41
+ * @LastEditTime: 2025-01-26 17:32:43
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -85,8 +85,9 @@ global dragStateBsADT = off
 		button btnLightOn "灯光开" pos:[130,130] width:25 height:20 visible:false tooltip:"灯光开 (影响几乎所有灯光)" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,15,15,15,15,true,false)
 		button btnLightOff "灯光关" pos:[159,130] width:25 height:20 visible:false tooltip:"灯光关 (影响几乎所有灯光)" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,13,13,13,13,true,false)
 		button btnDeleteLight "清除灯光" pos:[130,155] width:55 height:20 visible:false tooltip:"清除灯光 (仅影响此工具创建的灯光)"
-		button btnCameraPlane "相机背景" pos:[195,120] width:65 height:30 visible:false
-		button btnDeleteCameraPlane "清除背景" pos:[195,155] width:65 height:25 visible:false
+		button btnCameraPlane "添加背景" pos:[195,120] width:65 height:30 visible:false
+		button btnRefCam "相机" pos:[195,155] width:30 height:30 visible:false images:#("Cameras_24i.bmp","Cameras_24i.bmp",3,3,3,3,3,false,false)
+		button btnSelectCameraPlane "背景" pos:[230,155] width:30 height:30 visible:false images:#("Standard_24i.bmp","Standard_24i.bmp",11,10,10,10,10,false,false)
 		groupbox gbpFloor "地板片" pos:[5,190] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
 		button btnCreateFloor "一键创建" pos:[15,210] width:70 height:20 visible:false
 		button btnUnfreezeFloor "解冻" pos:[90,210] width:50 height:20 visible:false
@@ -129,7 +130,7 @@ global dragStateBsADT = off
 		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnLightOn,btnLightOff, \
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnDeleteLight,gbpFloor,btnCreateFloor, \
 											btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll, \
-											btnCameraPlane,btnDeleteCameraPlane))
+											btnCameraPlane,btnSelectCameraPlane,btnRefCam))
 		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnClearMat,gpbToonMat,rdoNormalFlip, \
 											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat, \
 											btnUnFreezeLineMesh,btnFreezeLineMesh,btnReCollectMat,btnTint,btnTwoSides))
@@ -433,6 +434,262 @@ global dragStateBsADT = off
 			select lightSpot
 			lightSpot.name        = "BsLights" + (type as string) + "_Light"
 			try(lightSpot.target.name = "BsLights" + (type as string) + "_Target")catch()
+		)
+		----------相机视角添加参考图,修改子 ScreenLock Reference ---------------------------------------------------------------------
+		fn createRefPlane cam mappingType:1 nDistance:1.0 =
+		(
+			refPlane = undefined
+			bmap = selectBitMap()
+			
+			if bmap!=undefined then (
+				
+				-- Create material
+				stdmat = Standardmaterial ()
+				texMap = Bitmaptexture fileName:bmap.filename
+				stdmat.diffuseMap = texMap
+				
+				if bmap.hasAlpha then (
+					texMap.monoOutput = 1
+					texMap.alphasource = 0
+					mixMap = Mix color1:(color 255 255 255) map1:texMap color2:(color 0 0 0)
+					stdmat.opacityMap = mixMap
+				)			
+				
+				stdmat.selfIllumAmount = 100.0
+				
+				assignNewName stdmat
+				showTextureMap stdmat on
+				
+				-- Create ref. Plane
+				refPlane = Plane length:(bmap.height/1000.0) width:(bmap.width/1000.0) lengthsegs:1 widthsegs:1 name:(uniquename "CamRefPlane")
+				refPlane.material = stdmat
+				addModifier refPlane (SpaceCameraMap camera:cam)
+				refPlane.modifiers[1].enabled = (if mappingType==1 then false else true)
+				
+				-- Align the plane with the camera
+				refPlane.transform = cam.transform
+				refPlane.scale = [1,1,1]
+				vecDir = refPlane.dir*(-1)
+				refPlane.pos = (vecDir * nDistance) + refPlane.pos
+				
+				-- Parent to cam / set non-renderable
+				refPlane.parent = cam
+				refPlane.renderable = false
+				refPlane.showFrozenInGray = false
+				
+				-- Add to separate layer
+				layName = "ScreenLock Refs"
+				nLayer = LayerManager.getLayerFromName layName
+				if nLayer==undefined then nLayer = layermanager.newLayerFromName layName
+				nLayer.addNode refPlane
+				nLayer.isFrozen = true			
+			)
+			refPlane
+		)
+	
+		-- Add custom controls to camera
+		fn addCustomCtrls theCam =
+		(
+			objAttrib = attributes screenLockRef_custProps (
+				
+				parameters custAttribParams rollout:custAttribRoll (
+					pRefPlane type:#maxobject
+					pScale type:#float default:100.0 ui:spnScale
+					pOffsetX type:#worldunits default:0 ui:spnOffsetX
+					pOffsetY type:#worldunits default:0 ui:spnOffsetY
+					pOffsetZ type:#worldunits default:1.1 ui:spnOffsetZ
+					pOpacity type:#float default:100.0 ui:spnOpacity
+					pLockRef type:#boolean default:false
+				)
+				
+				rollout custAttribRoll "Reference Image Controls" (				
+					
+					-- Get the Attribute Holder mod
+					fn getThisMod = (custAttributes.getOwner this)
+					
+					-- Get the camera object
+					fn getThisObj = (refs.dependentnodes (getThisMod()))[1]
+					
+					-- Get reference plane
+					fn getRefPlane =
+					(
+						refPlane = undefined
+						md = getThisMod()
+						if (classof md.pRefPlane)==NodeTransformMonitor then (
+							if (isValidNode md.pRefPlane.node) then refPlane = md.pRefPlane.node
+						)
+						refPlane
+					)
+					
+					-- Set refPlane Opacity
+					fn setOpacity refPlane val =
+					(
+						mat = refPlane.material
+						if (isProperty mat #opacityMap) then (
+							if (isProperty mat.opacityMap #mixAmount) then (
+								mat.opacityMap.mixAmount = 100.0 - val
+							) else (
+								mat.opacity = val
+							)
+						)
+					)
+					
+					-- Trim string
+					fn trimString str maxLength =
+					(
+						newStr = str
+						cropSymbol = "..."
+						if str.count > maxLength then (			
+							newStr = (substring str 1 (maxLength - cropSymbol.count)) + cropSymbol
+						)
+						newStr
+					)
+					
+					checkbox chbVisible "显示" checked:true align:#left offset:[-10,0]
+					button loadRefImage "加载图片..." width:134 height:22 align:#left offset:[-10,4] across:2
+					button btnDelRefPlane "X" tooltip:"移除图片" width:22 height:22 pos:[(loadRefImage.pos.x+136),loadRefImage.pos.y]
+					dropdownList dpdMappingType "" items:#("与参考平面绑定","从相机投影") selection:2 width:158 align:#center offset:[0,2]
+					spinner spnScale "缩放 (%)       " range:[0.01,10000.0,100.0] type:#float fieldWidth:72 align:#left offset:[-6,0]
+					spinner spnOffsetX "偏移 X         " range:[-100000.0,100000.0,0] type:#worldunits scale:0.001 fieldWidth:72 align:#left offset:[-6,0]
+					spinner spnOffsetY "偏移 Y         " range:[-100000.0,100000.0,0] type:#worldunits scale:0.001 fieldWidth:72 align:#left offset:[-6,0]
+					button btnResetTr "重置变换信息" width:158 height:22 align:#center offset:[0,0]
+					spinner spnOffsetZ "到相机距离  " range:[-100000.0,100000.0,1.1] type:#worldunits scale:0.001 fieldWidth:46 align:#left offset:[-6,0]
+					spinner spnOpacity "透明度 (%)  " range:[0,100.0,100.0] type:#float fieldWidth:74 align:#left offset:[-6,0]
+					checkbutton btnLockRefPlane "解锁参考平面" checked:false width:158 height:22 align:#center offset:[0,0]
+					
+					-- timer tmLink interval:8000
+					hyperLink hlink "" color:orange hoverColor:yellow visitedColor:orange address:"" align:#left offset:[0,2]
+					
+					-- local linkVal = 1
+					fn showLink rnd:false = (
+					-- 	txtArr = #("Clean your Splines Easily!","Create Animations Quickly!","Streamline your Rendering Jobs!","Speed Up your Renders!")
+					-- 	urlArr = #("spline-cleaner","showcaser","overnight-batch-render","proxy-textures")
+					-- 	if rnd then linkVal = random 1 txtArr.count
+					hlink.text = "www.splinedynamics.com"; hlink.address = "https://www.splinedynamics.com/"
+					)
+					
+					-- Update loadRefImage button text
+					fn updateLoadImgBtn =
+					(
+						txt = "加载图片..."
+						if this.pRefPlane!=undefined then (
+							if (isValidNode this.pRefPlane.node) then (
+								refPlane = this.pRefPlane.node
+								if (isProperty refPlane.material #diffuseMap) then txt = trimString (filenameFromPath refPlane.material.diffuseMap.filename) 18
+							)
+						)
+						loadRefImage.text = txt
+					)
+					
+					-- Set the text of btnLockRefPlane
+					fn setBtnLockRefPlaneTxt state =
+					(
+						btnLockRefPlane.text = (if state then "锁定参考背景" else "解锁参考背景")
+					)
+					
+					on custAttribRoll open do (
+						updateLoadImgBtn()
+						btnLockRefPlane.checked = this.pLockRef
+						setBtnLockRefPlaneTxt this.pLockRef
+						showLink rnd:false
+					)
+					
+					on chbVisible changed state do (
+						refPlane = getRefPlane()
+						if refPlane!=undefined then refPlane.isHidden = not state
+					)
+					
+					on loadRefImage pressed do (
+						cam = getThisObj()
+						md = getThisMod()
+						refPlane = createRefPlane cam mappingType:dpdMappingType.selection nDistance:1.1
+						if refPlane!=undefined then (
+							if (classof md.pRefPlane)==NodeTransformMonitor then (
+								if (isValidNode md.pRefPlane.node) then delete md.pRefPlane.node
+							)						
+							md.pRefPlane = nodeTransformMonitor node:refPlane forwardTransformChangeMsgs:false
+							refPlane.scale = [md.pScale, md.pScale, md.pScale] / 100.0
+							in coordsys parent refPlane.pos = [md.pOffsetY, md.pOffsetY, -md.pOffsetZ]
+							setOpacity refPlane md.pOpacity
+							updateLoadImgBtn()
+						)
+					)
+					
+					on dpdMappingType selected item do (
+						refPlane = getRefPlane()
+						if refPlane!=undefined then (
+							if (classOf refPlane.modifiers[1])==SpaceCameraMap then (
+								refPlane.modifiers[1].enabled = (if item==1 then false else true)
+							)
+						)					
+					)
+					
+					on btnDelRefPlane pressed do (
+						qb = queryBox "清除参考背景?"
+						if qb then (
+							refPlane = getRefPlane()
+							if (isValidNode refPlane) then (
+								delete refPlane
+								updateLoadImgBtn()
+								nLayer = LayerManager.getLayerFromName "ScreenLock Refs"
+								if nLayer!=undefined then (
+									LayerManager.deleteLayerByName "ScreenLock Refs"
+								)
+							)
+						)
+					)
+					
+					on spnScale changed val do (
+						refPlane = getRefPlane()
+						if refPlane!=undefined then refPlane.scale = [val,val,val] / 100.0
+					)
+					
+					on spnOffsetX changed val do (
+						refPlane = getRefPlane()
+						if refPlane!=undefined then (in coordsys parent refPlane.pos.x = val)
+					)
+					
+					on spnOffsetY changed val do (
+						refPlane = getRefPlane()
+						if refPlane!=undefined then (in coordsys parent refPlane.pos.y = val)
+					)
+					
+					on spnOffsetZ changed val do (
+						refPlane = getRefPlane()
+						if refPlane!=undefined then (in coordsys parent refPlane.pos.z = -val)
+					)
+					
+					on spnOpacity changed val do (
+						refPlane = getRefPlane()
+						if refPlane!=undefined then setOpacity refPlane val
+					)
+					
+					on btnResetTr pressed do (
+						this.pScale = 100.0
+						this.pOffsetX = 0
+						this.pOffsetY = 0
+						refPlane = getRefPlane()
+						if refPlane!=undefined then (
+							refPlane.scale = [1,1,1]
+							in coordsys parent refPlane.pos = [0, 0, -this.pOffsetZ]
+						)
+					)
+					
+					on btnLockRefPlane changed state do (
+						nLayer = LayerManager.getLayerFromName "ScreenLock Refs"
+						if nLayer!=undefined then (
+							nLayer.isFrozen = not state
+							this.pLockRef = state
+							setBtnLockRefPlaneTxt state
+						)
+					)
+					
+					-- on tmLink tick do showLink()
+				)
+			)
+			eMod = EmptyModifier name:"ScreenLock Reference"
+			addModifier theCam eMod
+			custAttributes.add eMod objAttrib
 		)
 
 		on btnRegister pressed do
@@ -826,6 +1083,36 @@ global dragStateBsADT = off
 			(
 				try(delete $'BsLights*';messagebox "清除灯光成功!                      " title:"BsAnimDemoTools")catch()
 			)
+		)
+
+		on btnCameraPlane pressed do
+		(
+			with undo off (
+				if (selection.count > 0) then (
+					local cam = selection[1]
+					if (superClassOf cam)==camera then (
+						if (isProperty cam.modifiers[1] #screenLockRef_custProps)==false then (
+							addCustomCtrls cam
+							max modify mode
+							messagebox "请查看右边修改器，添加参考图片...                        "
+						)
+					) else (
+						messagebox "请先选择一个 Camera 相机！                                      "
+					)
+				) else (
+					messagebox "请先选择一个 Camera 相机！                                      "
+				)
+			)
+		)
+
+		on btnSelectCameraPlane pressed do
+		(
+			try(select ($'CamRefPlane*' as array)[1])catch(messagebox "当前场景没有参考平面或者已被改名...                          ")
+		)
+
+		on btnRefCam pressed do 
+		(
+			try(select ($'CamRefPlane*' as array)[1].parent)catch(messagebox "参考平面可能已删除，请自行选择相机...                        ")
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()
