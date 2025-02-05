@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-26 17:32:43
+ * @LastEditTime: 2025-02-05 23:16:24
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -21,10 +21,12 @@ global dragStateBsADT = off
 	(
 		local selGhostTex     = undefined
 		local selEffTex       = undefined
-		local selTex          = undefined
+		local selFlowTex      = undefined
+		local selSkyBoxTex    = undefined
 		local arrEffTexFiles  = #()
 		local arrFlowTexFiles = #()
 		local dotColor        = dotnetclass "System.Drawing.Color"
+
 		button btnRegister "免费注册刀光" pos:[rolBsAnimDemoTools.width - 120,0] width:80 height:16 border:false
 		button btnAbout "?" pos:[rolBsAnimDemoTools.width - 40,0] height:16 width:20
 		button btnClose "X" pos:[rolBsAnimDemoTools.width - 20,0] height:16 width:20
@@ -40,7 +42,7 @@ global dragStateBsADT = off
 		button btnFreezeTrail "冻结" pos:[100,90] width:40 height:24
 		button btnHideTrail "隐藏" pos:[145,90] width:35 height:24
 		button btnShowTrail "显示" pos:[185,90] width:35 height:24
-		button btnDeleteTrail "清除" pos:[225,90] width:30 height:24
+		button btnDeleteTrail "清除" pos:[225,90] width:30 height:24 images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		-------------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbPreset "" pos:[5,120] width:(rolBsAnimDemoTools.width - 10) height:65
 		radiobuttons rdoTrailType "类型:" labels:#("移动","固定") columns:2 pos:[15,135] offsets:#([40,-16],[0,-16])
@@ -71,10 +73,10 @@ global dragStateBsADT = off
 		-------序列帧工具来源 "https://www.cgjoy.com/thread-275528-1-1.html" 开发者：叶孤弦
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbSkyBox "天空盒" pos:[5,55] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
-		dropdownlist ddlSkyBoxTex "" pos:[15,75] width:80 height:20 items:#("") visible:false
-		button btnCreateSkyBox "创建" pos:[100,75] width:50 height:20 visible:false
-		button btnDeleteSkyBox "清除" pos:[155,75] width:50 height:20 visible:false
-		button btnOpenSkyBox "打开" pos:[210,75] width:40 height:20 visible:false
+		dropdownlist ddlSkyBoxTex "" pos:[15,75] width:120 height:20 items:#("") visible:false
+		button btnCreateSkyBox "创建" pos:[140,75] width:40 height:20 visible:false
+		button btnOpenSkyBox "打开" pos:[185,75] width:40 height:20 visible:false
+		button btnDeleteSkyBox "清除" pos:[230,75] width:25 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		groupbox gbpLight "灯光箱" pos:[5,110] width:(rolBsAnimDemoTools.width - 80) height:75 visible:false
 		button btnOmniLight "点光源" pos:[10,130] width:55 height:20 visible:false
 		button btnSpotLight "聚光灯" pos:[70,130] width:55 height:20 visible:false
@@ -85,14 +87,15 @@ global dragStateBsADT = off
 		button btnLightOn "灯光开" pos:[130,130] width:25 height:20 visible:false tooltip:"灯光开 (影响几乎所有灯光)" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,15,15,15,15,true,false)
 		button btnLightOff "灯光关" pos:[159,130] width:25 height:20 visible:false tooltip:"灯光关 (影响几乎所有灯光)" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,13,13,13,13,true,false)
 		button btnDeleteLight "清除灯光" pos:[130,155] width:55 height:20 visible:false tooltip:"清除灯光 (仅影响此工具创建的灯光)"
-		button btnCameraPlane "添加背景" pos:[195,120] width:65 height:30 visible:false
-		button btnRefCam "相机" pos:[195,155] width:30 height:30 visible:false images:#("Cameras_24i.bmp","Cameras_24i.bmp",3,3,3,3,3,false,false)
-		button btnSelectCameraPlane "背景" pos:[230,155] width:30 height:30 visible:false images:#("Standard_24i.bmp","Standard_24i.bmp",11,10,10,10,10,false,false)
+		button btnCameraPlane "添加背景" pos:[195,115] width:65 height:35 visible:false tooltip:"添加相机背景参考图"
+		button btnRefCam "相机" pos:[195,155] width:30 height:30 visible:false tooltip:"选择相机（需要先创建参考背景）" images:#("Cameras_24i.bmp","Cameras_24i.bmp",3,3,3,3,3,false,false)
+		button btnSelectCameraPlane "背景" pos:[230,155] width:30 height:30 visible:false tooltip:"选择背景面片（需要先创建参考背景）" images:#("Standard_24i.bmp","Standard_24i.bmp",11,10,10,10,10,false,false)
 		groupbox gbpFloor "地板片" pos:[5,190] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
 		button btnCreateFloor "一键创建" pos:[15,210] width:70 height:20 visible:false
-		button btnUnfreezeFloor "解冻" pos:[90,210] width:50 height:20 visible:false
-		button btnFreezeFloor "冻结" pos:[145,210] width:50 height:20 visible:false
-		button btnDeleteFloor "清除" pos:[200,210] width:50 height:20 visible:false
+		button btnUnfreezeFloor "解冻" pos:[90,210] width:45 height:20 visible:false
+		button btnFreezeFloor "冻结" pos:[140,210] width:45 height:20 visible:false
+		button btnReflection "反射" pos:[190,210] width:30 height:20 visible:false tooltips:"地面反射开关"
+		button btnDeleteFloor "清除" pos:[225,210] width:30 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		button btnMakePreview "快速拍屏" pos:[5,250] width:60 height:25 visible:false
 		button btnOpenPrevPath "拍屏目录" pos:[70,250] width:60 height:25 visible:false
 		button btnMakeRenderer "渲染预览" pos:[135,250] width:60 height:25 visible:false tooltip:"仅用作快速预览环境设置, \r\n不影响之前的渲染保存路径设置等"
@@ -101,7 +104,7 @@ global dragStateBsADT = off
 		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 100) pos:[5,-500]
 		radiobuttons rdoMatType "" labels:#("普通材质","流体材质") columns:1 pos:[180,60] width:80 visible:false
 		checkbutton ckbApplyEffMat "应用材质" pos:[175,100] width:80 height:25 visible:false checked:true
-		button btnClearMat "清除" pos:[175,130] width:80 height:20 visible:false
+		button btnClearMat "清除" pos:[175,130] width:80 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		groupbox gpbLineMat "卡通描边" pos:[5,155] width:(rolBsAnimDemoTools.width - 140) height:95 visible:false
 		radiobuttons rdoNormalFlip "" labels:#("法线翻转","不变") columns:2 pos:[12,175] width:100 visible:false
 		colorpicker cpLineColor "" pos:[8,199] width:25 height:20 visible:false color:(color 30 30 30)
@@ -109,7 +112,7 @@ global dragStateBsADT = off
 		button btnSelLineMesh "选" pos:[10,225] width:25 height:20 visible:false
 		button btnUnFreezeLineMesh "解" pos:[40,225] width:25 height:20 visible:false
 		button btnFreezeLineMesh "冻" pos:[65,225] width:25 height:20 visible:false
-		button btnDeleteLine "清除" pos:[95,225] width:30 height:20 visible:false
+		button btnDeleteLine "清除" pos:[95,225] width:30 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		groupbox gpbToonMat "简易卡通材质" pos:[140,155] width:(rolBsAnimDemoTools.width - 145) height:95 visible:false
 		colorpicker cpPureToonColor "" pos:[140,175] width:25 height:20 visible:false color:(color 255 60 60)
 		button btnApplyPureToonMat "应用纯色材质" pos:[170,175] width:85 height:20 visible:false
@@ -130,7 +133,7 @@ global dragStateBsADT = off
 		local arrDemoScene   = #("环境灯光",#(gpbSkyBox,btnOpenSkyBox,ddlSkyBoxTex,btnCreateSkyBox,btnDeleteSkyBox,gbpLight,btnLightOn,btnLightOff, \
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnDeleteLight,gbpFloor,btnCreateFloor, \
 											btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll, \
-											btnCameraPlane,btnSelectCameraPlane,btnRefCam))
+											btnCameraPlane,btnSelectCameraPlane,btnRefCam,btnReflection))
 		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnClearMat,gpbToonMat,rdoNormalFlip, \
 											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat, \
 											btnUnFreezeLineMesh,btnFreezeLineMesh,btnReCollectMat,btnTint,btnTwoSides))
@@ -237,7 +240,7 @@ global dragStateBsADT = off
 			)
 		)
 
-		fn fnSelTex =
+		fn fnSelFlowTex =
 		(
 			local idSelFile = fnGetSelectedId dotFlowMatList
 	
@@ -245,7 +248,7 @@ global dragStateBsADT = off
 			(
 				if doesFileExist arrFlowTexFiles[idSelFile] then
 				(
-					selTex = arrFlowTexFiles[idSelFile]
+					selFlowTex = arrFlowTexFiles[idSelFile]
 				)
 				else (messagebox ("文件可能已被删除或移走，请检查！：\r\n\r\n" + (arrFlowTexFiles[idSelFile] as string) + "                                                                            ") title:"提示")
 			)
@@ -306,8 +309,6 @@ global dragStateBsADT = off
 				(
 					append arrFiles i
 				)
-
-				ddlDefaultTex.items = for i in arrFiles collect (getFilenameFile i)
 				return arrFiles
 			)
 			else (messageBox "请检查刀光贴图路径是否不存在...                      ")
@@ -317,8 +318,12 @@ global dragStateBsADT = off
 		(
 			try
 			(
-				local arrTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsGhostTrailsTex") ".*")
-				selGhostTex = arrTexFiles[1]
+				local arrTexFiles       = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsGhostTrailsTex") ".*")
+				local arrSkyBoxTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") ".*")
+				selGhostTex  = arrTexFiles[1]
+				selSkyBoxTex = arrSkyBoxTexFiles[1]
+				rolBsAnimDemoTools.ddlDefaultTex.items = for i in arrTexFiles collect (getFilenameFile i)
+				rolBsAnimDemoTools.ddlSkyBoxTex.items = for i in arrSkyBoxTexFiles collect (getFilenameFile i)
 			)
 			catch()
 		)
@@ -692,6 +697,37 @@ global dragStateBsADT = off
 			custAttributes.add eMod objAttrib
 		)
 
+		fn fnToggleLights state = (
+			-- 定义检测是否为灯光的条件
+			fn isLight obj = (
+				-- 检测是否存在灯光核心属性
+				(isProperty obj "on") and 
+				(isProperty obj "enabled") and 
+				(superClassOf obj == Light or 
+				matchPattern (classOf obj as string) pattern:"*Light*")
+			)
+		
+			-- 根据选择状态筛选灯光
+			local targetLights = if selection.count > 0 then (
+				for obj in selection where isLight obj collect obj
+			) else (
+				for obj in objects where isLight obj collect obj
+			)
+		
+			-- 执行开关操作并记录状态
+			if targetLights.count > 0 then (
+				undo "Toggle Lights" on (
+					for light in targetLights do (
+						light.on = state
+						light.enabled = state
+					)
+				)
+				format "已切换 % 盏灯光状态\n" targetLights.count
+			) else (
+				messageBox "未找到可操作的灯光对象！" title:"警告"
+			)
+		)
+
 		on btnRegister pressed do
 		(
 			if (queryBox ("是否复制注册码到剪切板？                        ") title:"BsAnimMemoTools") do
@@ -735,7 +771,7 @@ global dragStateBsADT = off
 			fnInitDotTabs()
 			fnChangeToolsVisble (tabBsADT.SelectedIndex + 1)
 			fnRefreshInitValue()
-			selGhostTex = fnRefreshTex()
+			fnRefreshTex()
 		)
 
 		on btnClose pressed do 
@@ -1028,7 +1064,7 @@ global dragStateBsADT = off
 
 		on dotLVFilesList doubleClick sender args do
 		(
-			try(shellLaunch selEffTex "")catch()
+			try(shellLaunch selEffTex "")catch(messageBox "打开失败,请检查路径是否存在...                        " title:"BsAnimDemoTools")
 		)
 
 		on dotFlowMatList mouseup sender args do
@@ -1037,12 +1073,12 @@ global dragStateBsADT = off
 			(
 				shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\BsFlowTex\\") ""
 			)
-			else if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Left then fnSelTex()
+			else if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Left then fnSelFlowTex()
 		)
 
 		on dotFlowMatList doubleClick sender args do
 		(
-			try(shellLaunch selTex "")catch()
+			try(shellLaunch selFlowTex "")catch(messageBox "打开失败,请检查路径是否存在...                        " title:"BsAnimDemoTools")
 		)
 
 		on ckbLoopToogle changed state do 
@@ -1107,12 +1143,33 @@ global dragStateBsADT = off
 
 		on btnSelectCameraPlane pressed do
 		(
-			try(select ($'CamRefPlane*' as array)[1])catch(messagebox "当前场景没有参考平面或者已被改名...                          ")
+			try(select ($'CamRefPlane*' as array)[1])catch(messagebox "当前场景没有相机参考背景或者已被改名...                          ")
 		)
 
 		on btnRefCam pressed do 
 		(
-			try(select ($'CamRefPlane*' as array)[1].parent)catch(messagebox "参考平面可能已删除，请自行选择相机...                        ")
+			try(select ($'CamRefPlane*' as array)[1].parent)catch(messagebox "相机参考背景面片可能已删除，请重新创建...                        ")
+		)
+
+		on btnLightOn pressed do 
+		(
+			fnToggleLights on
+		)
+
+		on btnLightOff pressed do 
+		(
+			fnToggleLights off
+		)
+
+		on ddlSkyBoxTex selected id do
+		(
+			local arrTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") ".*")
+			selSkyBoxTex = arrTexFiles[id]
+		)
+
+		on btnOpenSkyBox pressed do 
+		(
+			try(shellLaunch selSkyBoxTex "")catch(messageBox "打开失败,请检查路径是否存在...                        " title:"BsAnimDemoTools")
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()
