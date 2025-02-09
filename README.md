@@ -9,7 +9,7 @@ Bullet.S KeyTools，All for Animator...
 > 工具全开源无任何收费，请勿商用，仅供学习参考和自用
 
 ## 使用帮助
-B 站视频：https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782  
+视频教程：https://space.bilibili.com/2031113/lists/560782  
 帮助文档（建设中）：https://anibullet.github.io/  
 个人主页：https://www.anibullet.com/
 

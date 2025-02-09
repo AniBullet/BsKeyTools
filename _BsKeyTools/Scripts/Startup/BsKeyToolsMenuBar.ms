@@ -177,7 +177,7 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
     (
         function callbackBsMenu =
         (
-            print "BsKeyTools menu loaded"
+            -- print "BsKeyTools menu loaded"
             local menuMgr = callbacks.notificationParam()
 
             local mainMenuBar = menuMgr.mainMenuBar

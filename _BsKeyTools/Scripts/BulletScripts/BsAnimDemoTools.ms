@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-05 23:16:24
+ * @LastEditTime: 2025-02-10 01:12:18
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -72,7 +72,7 @@ global dragStateBsADT = off
 		checkbutton ckbApplyEff "应用图集特效" pos:[170,260] width:90 height:20 visible:false checked:true
 		-------序列帧工具来源 "https://www.cgjoy.com/thread-275528-1-1.html" 开发者：叶孤弦
 		-------------------------------------------------------------------------------------------------------------------------------------------
-		groupbox gpbSkyBox "天空盒" pos:[5,55] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
+		groupbox gpbSkyBox "天空球" pos:[5,55] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
 		dropdownlist ddlSkyBoxTex "" pos:[15,75] width:120 height:20 items:#("") visible:false
 		button btnCreateSkyBox "创建" pos:[140,75] width:40 height:20 visible:false
 		button btnOpenSkyBox "打开" pos:[185,75] width:40 height:20 visible:false
@@ -94,11 +94,11 @@ global dragStateBsADT = off
 		button btnCreateFloor "一键创建" pos:[15,210] width:70 height:20 visible:false
 		button btnUnfreezeFloor "解冻" pos:[90,210] width:45 height:20 visible:false
 		button btnFreezeFloor "冻结" pos:[140,210] width:45 height:20 visible:false
-		button btnReflection "反射" pos:[190,210] width:30 height:20 visible:false tooltips:"地面反射开关"
+		button btnReflection "镜面" pos:[190,210] width:30 height:20 visible:false tooltips:"地面反射开关"
 		button btnDeleteFloor "清除" pos:[225,210] width:30 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
-		button btnMakePreview "快速拍屏" pos:[5,250] width:60 height:25 visible:false
-		button btnOpenPrevPath "拍屏目录" pos:[70,250] width:60 height:25 visible:false
-		button btnMakeRenderer "渲染预览" pos:[135,250] width:60 height:25 visible:false tooltip:"仅用作快速预览环境设置, \r\n不影响之前的渲染保存路径设置等"
+		button btnMakePreview "快速拍屏" pos:[5,250] width:60 height:25 visible:false tooltip:"快速预览视窗效果,可能跟实际渲染有差别"
+		button btnOpenPrevPath "拍屏目录" pos:[70,250] width:60 height:25 visible:false tooltip:"打开拍屏目录"
+		button btnMakeRenderer "渲染一帧" pos:[135,250] width:60 height:25 visible:false tooltip:"快速预览场景整体效果,注意先设置好渲染设置"
 		button btnClearAll "清除所有" pos:[200,250] width:60 height:25 visible:false
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 100) pos:[5,-500]
@@ -137,7 +137,7 @@ global dragStateBsADT = off
 		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnClearMat,gpbToonMat,rdoNormalFlip, \
 											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat, \
 											btnUnFreezeLineMesh,btnFreezeLineMesh,btnReCollectMat,btnTint,btnTwoSides))
-		local arrAllToolsTab = #(arrGhostTrails,arrDemoEff,arrDemoScene,arrDemoMat)
+		local arrAllToolsTab = #(arrGhostTrails,arrDemoScene,arrDemoEff,arrDemoMat)
 	
 		fn fnInitDotTabs =
 		(
@@ -319,7 +319,7 @@ global dragStateBsADT = off
 			try
 			(
 				local arrTexFiles       = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsGhostTrailsTex") ".*")
-				local arrSkyBoxTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") ".*")
+				local arrSkyBoxTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") ".hdr")
 				selGhostTex  = arrTexFiles[1]
 				selSkyBoxTex = arrSkyBoxTexFiles[1]
 				rolBsAnimDemoTools.ddlDefaultTex.items = for i in arrTexFiles collect (getFilenameFile i)
@@ -749,7 +749,7 @@ global dragStateBsADT = off
 			if LastSubRollout != arrID do --避免点击重复
 			(
 				fnChangeToolsVisble arrID
-				if arrID == 2 then (dotLVFilesList.pos = [5,50];fnRefreshTexFiles())
+				if arrID == 3 then (dotLVFilesList.pos = [5,50];fnRefreshTexFiles())
 				else (dotLVFilesList.pos = [5,-500])
 				if arrID == 4 then 
 				(
@@ -1163,13 +1163,168 @@ global dragStateBsADT = off
 
 		on ddlSkyBoxTex selected id do
 		(
-			local arrTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") ".*")
+			local arrTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") ".hdr")
 			selSkyBoxTex = arrTexFiles[id]
 		)
 
 		on btnOpenSkyBox pressed do 
 		(
 			try(shellLaunch selSkyBoxTex "")catch(messageBox "打开失败,请检查路径是否存在...                        " title:"BsAnimDemoTools")
+		)
+
+		on btnCreateSkyBox pressed do 
+		(
+			-- 创建唯一名称天空球
+			local skySphere = Sphere radius:10000 segs:64 smooth:on name:(uniquename"BS_SkySphere")
+    
+			-- 添加Normal修改器并翻转法线
+			addModifier skySphere (Normalmodifier flip:on)
+			
+			-- 设置背面消隐
+			skySphere.backfacecull = on
+			
+			--否则预览窗不会显示贴图
+			skySphere.mapcoords = on
+			
+			-- 创建环境材质
+			local skyMat = StandardMaterial()
+			skyMat.name = uniquename "SKY_MAT"
+			skyMat.selfIllumAmount = 100  -- 自发光100%
+			skyMat.showInViewport = true
+			
+			-- 设置环境贴图
+			local envTex = Bitmaptexture fileName:rolBsAnimDemoTools.selSkyBoxTex gamma:1.0
+			envTex.coordinates.mappingType = 1
+			envTex.coordinates.mapping = 0  -- Spherical Environment
+			skyMat.diffuseMap = envTex
+			
+			-- 设置材质给天空球
+			skySphere.material = skyMat
+
+			--设置颜色模式
+			try(
+				-- 启用Gamma校正并设置参数
+				IDisplayGamma.colorCorrectionMode = #gamma  -- 启用Gamma校正模式:cite[4]
+				IDisplayGamma.gamma = 2.2  -- 标准Gamma值（通常为2.2，根据需求调整）:cite[4]:cite[9]
+				fileInGamma = 1.0  -- 输入贴图的Gamma值（默认1.0表示线性空间）:cite[4]
+				fileOutGamma = 2.2  -- 输出图像的Gamma值:cite[4]
+
+				-- 强制更新渲染设置（确保参数生效）
+				renderers.current.settings.applyGammaCorrection = true
+			)catch()
+			---高版本3dsmax
+			try(ColorPipelineMgr.mode = #OCIO_Default)catch()
+
+			select skySphere
+			messagebox "天空球创建成功!请自行缩放大小。                      " title:"BsAnimDemoTools"
+		)
+
+		on btnDeleteSkyBox pressed do 
+		(
+			undo "deleteSkyBox" on
+			(
+				try(delete $'BS_SkySphere*';messagebox "清除天空球成功!                      " title:"BsAnimDemoTools")catch()
+			)
+		)
+
+		on btnCreateFloor pressed do 
+		(
+			-- 创建平面对象
+			local floor_plane = plane length:100000 width:100000 pos:[0,0,0] isSelected:on name:(uniquename"BS_FloorPlane")
+
+			-- 创建标准镜面材质
+			floor_mat = standard()
+			floor_mat.name = "Standard_Mirror"
+			floor_mat.shaderType = 3  -- 使用Metal shader类型
+
+			-- 核心镜面参数
+			floor_mat.ambient = color 0 0 0    -- 环境色归零
+			floor_mat.diffuse = color 0 0 0    -- 漫反射关闭
+			floor_mat.specularLevel = 98      -- 高光强度
+			floor_mat.glossiness = 97         -- 光泽度
+			-- floor_mat.soften = 0.1            -- 高光柔化
+			floor_mat.selfIllumAmount = 0     -- 自发光关闭
+
+			-- 反射控制
+			floor_mat.reflectionMapEnable = true
+			floor_mat.reflectionMapAmount = 85  -- 反射强度
+			-- floor_mat.useEnvironmentMap = true  -- 使用环境贴图
+
+			-- 创建平面反射贴图（可选）
+			reflectionMap = FlatMirror()
+			-- reflectionMap.numBlurFrames = 3     -- 模糊帧数
+			reflectionMap.applyBlur = true      -- 启用模糊
+			floor_mat.reflectionMap = reflectionMap
+
+			-- 材质高级设置
+			-- floor_mat.superSample = on          -- 启用超级采样
+			floor_mat.twoSided = off           -- 单面显示
+			floor_mat.falloffType = 1          -- 衰减类型：垂直
+			floor_mat.opacityFalloff = 50      -- 边缘透明度衰减
+
+			-- 应用材质到平面
+			floor_plane.material = floor_mat
+
+			-- 视口显示优化
+			floor_plane.backfaceCull = on       -- 背面消隐
+			floor_plane.showVertexColors = off  -- 关闭顶点色显示
+
+			select floor_plane
+			messagebox "地面创建成功!请自行缩放大小。                      " title:"BsAnimDemoTools"
+		)
+
+		on btnReflection pressed do 
+		(
+			try(
+				local BS_floor = $'BS_FloorPlane*'[1]
+				BS_floor.material.reflectionMapEnable = not BS_floor.material.reflectionMapEnable
+				if BS_floor.material.reflectionMapEnable then messagebox "开启地板镜面反射成功!                               " title:"BsAnimDemoTools"
+				else messagebox "关闭地板镜面反射成功!                               " title:"BsAnimDemoTools"
+			)catch(messagebox "找不到地板面片，或者命名不是\"BS_FloorPlane*\"                                 " title:"BsAnimDemoTools")
+		)
+
+		on btnDeleteFloor pressed do 
+		(
+			undo "deleteFloor" on
+			(
+				try(delete $'BS_FloorPlane*';messagebox "清除地面成功!                      " title:"BsAnimDemoTools")catch()
+			)
+		)
+
+		on btnUnfreezeFloor pressed do 
+		(
+			try
+			(
+				$'BS_FloorPlane*'[1].isfrozen = off
+				$'BS_FloorPlane*'[1].showFrozenInGray = off
+				select $'BS_FloorPlane*'[1]
+			)catch()
+		)
+
+		on btnFreezeFloor pressed do 
+		(
+			try
+			(
+				$'BS_FloorPlane*'[1].isfrozen = on
+				$'BS_FloorPlane*'[1].showFrozenInGray = off
+				clearselection()
+			)catch()
+		)
+
+		on btnMakePreview pressed do 
+		(
+			createPreview percentSize:100 \
+			dspGeometry:true dspShapes:false dspLights:false \
+			dspCameras:false dspHelpers:false dspParticles:true dspBones:false \
+			dspGrid:true dspSafeFrame:false dspFrameNums:false dspBkg:true \
+			rndLevel:#smoothhighlights
+		)
+	
+		on btnOpenPrevPath rightclick do (shellLaunch (getdir #preview) "")
+
+		on btnMakeRenderer pressed do 
+		(
+			max quick render
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()
