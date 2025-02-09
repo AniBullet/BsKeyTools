@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-01-19 01:57:11
+ * @LastEditTime: 2025-02-09 12:56:11
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -1377,7 +1377,7 @@ rcmenu menuConfig
 	)
 
 	on mItemHelpVideo picked do 
-	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
+	(shellLaunch "https://space.bilibili.com/2031113/lists/560782" "")
 
 	on mItemHelpDoc picked do 
 	(shellLaunch "https://anibullet.github.io/" "")

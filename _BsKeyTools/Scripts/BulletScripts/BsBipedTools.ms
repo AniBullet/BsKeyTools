@@ -691,6 +691,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RThumb1 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+
 		try(rolBsBipedTools.CompSelect selBackup m_RThumb1) catch (
 			m_RThumb1 = (GetFinger "R" 1)
 			select m_RThumb1
@@ -703,6 +708,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RThumb2 == undefined ) do (return ())
 
 		selBackup = selection as array
+
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RThumb2 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
 
 		try(rolBsBipedTools.CompSelect selBackup m_RThumb2) catch (
 			m_RThumb2 = (GetFinger "R" 2)
@@ -717,6 +727,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RThumb3 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RThumb3) catch (
 			m_RThumb3 = (GetFinger "R" 3)
 			select m_RThumb3
@@ -730,6 +745,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing11 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing11) catch (
 			m_RFing11 = (GetFinger "R" 4)
 			select m_RFing11
@@ -743,6 +763,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing12 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing12) catch (
 			m_RFing12 = (GetFinger "R" 5)
 			select m_RFing12
@@ -756,6 +781,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing13 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing13) catch (
 			m_RFing13 = (GetFinger "R" 6)
 			select m_RFing13
@@ -769,6 +799,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing21 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing21) catch (
 			m_RFing21 = (GetFinger "R" 7)
 			select m_RFing21
@@ -782,6 +817,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing22 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing22) catch (
 			m_RFing22 = (GetFinger "R" 8)
 			select m_RFing22
@@ -795,6 +835,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing23 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing23) catch (
 			m_RFing23 = (GetFinger "R" 9)
 			select m_RFing23
@@ -808,6 +853,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing31 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing31) catch (
 			m_RFing31 = (GetFinger "R" 10)
 			select m_RFing31
@@ -821,6 +871,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing32 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing32) catch (
 			m_RFing32 = (GetFinger "R" 11)
 			select m_RFing32
@@ -834,6 +889,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing33 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing33) catch (
 			m_RFing33 = (GetFinger "R" 12)
 			select m_RFing33
@@ -847,6 +907,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing41 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing41) catch (
 			m_RFing41 = (GetFinger "R" 13)
 			select m_RFing41
@@ -860,6 +925,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing42 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing42) catch (
 			m_RFing42 = (GetFinger "R" 14)
 			select m_RFing42
@@ -873,6 +943,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing43 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing43) catch (
 			m_RFing43 = (GetFinger "R" 15)
 			select m_RFing43
@@ -895,6 +970,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LThumb1 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LThumb1) catch (
 			m_LThumb1 = (GetFinger "L" 1)
 			select m_LThumb1
@@ -908,6 +988,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LThumb2 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LThumb2) catch (
 			m_LThumb2 = (GetFinger "L" 2)
 			select m_LThumb2
@@ -921,6 +1006,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LThumb3 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LThumb3) catch (
 			m_LThumb3 = (GetFinger "L" 3)
 			select m_LThumb3
@@ -934,6 +1024,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing11 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing11) catch (
 			m_LFing11 = (GetFinger "L" 4)
 			select m_LFing11
@@ -947,6 +1042,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing12 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing12) catch (
 			m_LFing12 = (GetFinger "L" 5)
 			select m_LFing12
@@ -960,6 +1060,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing13 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing13) catch (
 			m_LFing13 = (GetFinger "L" 6)
 			select m_LFing13
@@ -973,6 +1078,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing21 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing21) catch (
 			m_LFing21 = (GetFinger "L" 7)
 			select m_LFing21
@@ -986,6 +1096,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing22 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing22) catch (
 			m_LFing22 = (GetFinger "L" 8)
 			select m_LFing22
@@ -999,6 +1114,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing23 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing23) catch (
 			m_LFing23 = (GetFinger "L" 9)
 			select m_LFing23
@@ -1012,6 +1132,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing31 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing31) catch (
 			m_LFing31 = (GetFinger "L" 10)
 			select m_LFing31
@@ -1025,6 +1150,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing32 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing32) catch (
 			m_LFing32 = (GetFinger "L" 11)
 			select m_LFing32
@@ -1038,6 +1168,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing33 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing33) catch (
 			m_LFing33 = (GetFinger "L" 12)
 			select m_LFing33
@@ -1051,6 +1186,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing41 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing41) catch (
 			m_LFing41 = (GetFinger "L" 13)
 			select m_LFing41
@@ -1064,6 +1204,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing42 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing42) catch (
 			m_LFing42 = (GetFinger "L" 14)
 			select m_LFing42
@@ -1077,6 +1222,11 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing43 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing43) catch (
 			m_LFing43 = (GetFinger "L" 15)
 			select m_LFing43
@@ -1095,6 +1245,12 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 			)
 			append arrFingerLine tempFinger
 		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		select arrFingerLine
 	)
 	on btnFingerLineR2 changed state do (
@@ -1109,6 +1265,12 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 			)
 			append arrFingerLine tempFinger
 		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		select arrFingerLine
 	)
 	on btnFingerLineR3 changed state do (
@@ -1123,6 +1285,12 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 			)
 			append arrFingerLine tempFinger
 		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		select arrFingerLine
 	)
 	on btnFingerLineR4 changed state do (
@@ -1137,6 +1305,12 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 			)
 			append arrFingerLine tempFinger
 		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		select arrFingerLine
 	)
 	on btnFingerLineR5 changed state do (
@@ -1151,6 +1325,12 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 			)
 			append arrFingerLine tempFinger
 		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		select arrFingerLine
 	)
 
@@ -1167,6 +1347,12 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 			)
 			append arrFingerLine tempFinger
 		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		select arrFingerLine
 	)
 	on btnFingerLineL2 changed state do (
@@ -1181,6 +1367,12 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 			)
 			append arrFingerLine tempFinger
 		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		select arrFingerLine
 	)
 	on btnFingerLineL3 changed state do (
@@ -1195,6 +1387,12 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 			)
 			append arrFingerLine tempFinger
 		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		select arrFingerLine
 	)
 	on btnFingerLineL4 changed state do (
@@ -1209,6 +1407,12 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 			)
 			append arrFingerLine tempFinger
 		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		select arrFingerLine
 	)
 	on btnFingerLineL5 changed state do (
@@ -1223,6 +1427,12 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 			)
 			append arrFingerLine tempFinger
 		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		select arrFingerLine
 	)
 )
