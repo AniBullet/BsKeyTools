@@ -1751,6 +1751,17 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	checkButton uiBtnLoopSel "选择帧" height:20 width:57 pos:[95, 465] checked:true highlightColor:mcAllBiped align:#left \
 	tooltip:"选择循环内的所有帧\r\nSelect keys in the looping range." visible:false
 
+	-- groupbox grpKeyList "关键帧书签" pos:[50, 535] width:140 height:45
+	button btnKey1 "Key" width:30 height:20 pos:[50, 540] border:true
+	button btnKey2 "Key" width:30 height:20 pos:[82, 540] border:true
+	button btnKey3 "Key" width:30 height:20 pos:[114, 540] border:true
+	button btnKey4 "Key" width:30 height:20 pos:[146, 540] border:true
+	button btnKey5 "Key" width:30 height:20 pos:[50, 560] border:true
+	button btnKey6 "Key" width:30 height:20 pos:[82, 560] border:true
+	button btnKey7 "Key" width:30 height:20 pos:[114, 560] border:true
+	button btnKey8 "Key" width:30 height:20 pos:[146, 560] border:true
+
+
 	--other tools
 	checkButton uiBtn0 "0" pos:[50,465] width:30 height:25 tooltip:"曲柄打直 Continuity (TCB)\r\nCtrl/Shift 可批处理\r\nESC可中断" border:true visible:false checked:true highlightColor:mcInPlace
 	checkButton uiBtn25 "25" pos:[82,465] width:30 height:25 tooltip:"曲柄默认 Continuity (TCB)\r\nCtrl/Shift 可批处理\r\nESC可中断" border:true visible:false checked:true highlightColor:mcInPlace
@@ -1760,13 +1771,16 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	-- label uiLblTitle "BsBipedTools_v1.0" height:16 width:rolBsBipedTools.width pos:[5, 585]
 	timer clock "PlayClock" interval:1 active:false -- 가장 빠른 인터벌로
 
-	local arrLoopTools = #("循环",#(uiBtnLoopGet,uiSpnLoopStart,uiSpnLoopEnd,uiCkbClearUserDef,uiBtnLoopSel,uiBtnGotoMirror))
+	local arrLoopTools = #("循环",#(uiBtnLoopGet,uiSpnLoopStart,uiSpnLoopEnd,uiCkbClearUserDef,uiBtnLoopSel,uiBtnGotoMirror,\
+		btnKey1,btnKey2,btnKey3,btnKey4,btnKey5,btnKey6,btnKey7,btnKey8))
 	local arrOtherTools = #("其他",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip)) 
 	local arrLayerTools = #("层层",#(uiCbtRefreshLayer,uiCbtDown,uiCbtUp,uiLblLayerID,uiLblActive,uiChkActive,uiCbtAddLayer,\
 		uiCbtDelLayer,uiCbtDownLayer,uiCbtSnapKeys,uiCbtLeftArm,uiCbtRightArm,uiCbtLeftLeg,uiCbtRightLeg,uiCbtUpdate,uiChkIKonly,ddlLayers))
 	local arrCopyTools = #("复制",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtDeleteAllCopy,uiCbtMirrorLArm,uiCbtMirrorRArm,\
 		uiCbtMirrorLLeg,uiCbtMirrorRLeg,uiCbtGrabPose,uiCbtLoadPose))
 	local arrAllToolsTab = #(arrCopyTools,arrLayerTools,arrLoopTools,arrOtherTools)
+
+	local m_goto1; local m_goto2; local m_goto3; local m_goto4; local m_goto5; local m_goto6; local m_goto7; local m_goto8
 
 	fn fnChangeToolsVisble id =
 	(
@@ -1973,6 +1987,93 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 			uiSpnLoopStart.value = getUserProp m_workingBipRoot "BsBT_RangeLoopStart"
 			uiSpnLoopEnd.value = getUserProp m_workingBipRoot "BsBT_RangeLoopEnd"
 		) catch ()
+	)
+
+	function LoadGoto = (
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do return ()
+		try (
+			m_goto1 = getUserProp m_workingBipRoot "BsBT_Goto1"
+			if (m_goto1 == "undefined") do (m_goto1 = undefined)
+			m_goto2 = getUserProp m_workingBipRoot "BsBT_Goto2"
+			if (m_goto2 == "undefined") do (m_goto2 = undefined)
+			m_goto3 = getUserProp m_workingBipRoot "BsBT_Goto3"
+			if (m_goto3 == "undefined") do (m_goto3 = undefined)
+			m_goto4 = getUserProp m_workingBipRoot "BsBT_Goto4"
+			if (m_goto4 == "undefined") do (m_goto4 = undefined)
+			m_goto5 = getUserProp m_workingBipRoot "BsBT_Goto5"
+			if (m_goto5 == "undefined") do (m_goto5 = undefined)
+			m_goto6 = getUserProp m_workingBipRoot "BsBT_Goto6"
+			if (m_goto6 == "undefined") do (m_goto6 = undefined)
+			m_goto7 = getUserProp m_workingBipRoot "BsBT_Goto7"
+			if (m_goto7 == "undefined") do (m_goto7 = undefined)
+			m_goto8 = getUserProp m_workingBipRoot "BsBT_Goto8"
+			if (m_goto8 == "undefined") do (m_goto8 = undefined)
+		) catch ()
+	)
+
+    function SaveGoto ui val index = (
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do return ()
+		local pString = "BsBT_Goto" + (index as string)
+		try (
+			setUserProp m_workingBipRoot pString val
+		) catch ()
+	)
+
+	function SetGotoBtnTextSub ui val = (
+		local tString
+		if (val == undefined) then (tString = "Key") else (tString = (val as string))
+		ui.text = tString
+		ui.tooltip = tString
+	)
+
+	function SetGotoBtnText = (
+		SetGotoBtnTextSub btnKey1 m_goto1
+		SetGotoBtnTextSub btnKey2 m_goto2
+		SetGotoBtnTextSub btnKey3 m_goto3
+		SetGotoBtnTextSub btnKey4 m_goto4
+		SetGotoBtnTextSub btnKey5 m_goto5
+		SetGotoBtnTextSub btnKey6 m_goto6
+		SetGotoBtnTextSub btnKey7 m_goto7
+		SetGotoBtnTextSub btnKey8 m_goto8
+	)
+
+	-- m_goto1 등의 변수를 참조 형식으로 &val 매개변수에 전달
+	function GotoFrame ui &val index setKey:false = (
+		if (setKey) then (
+			if (ui.text == "Key") then 
+			(
+				val = int sliderTime
+				SetGotoBtnText()
+				SaveGoto ui val index
+			)
+			else
+			(
+				if (queryBox "当前已设定跳转帧,是否清除？                   " beep:false) then
+				(
+					val = undefined
+					SetGotoBtnText()
+					SaveGoto ui val index
+				)
+			)
+			return ()
+		)
+		else 
+		(
+			if (ui.text == "Key") then 
+			(
+				val = int sliderTime
+				SetGotoBtnText()
+				SaveGoto ui val index
+			)
+			else
+			(
+				if (val != undefined) do (
+					try (
+						sliderTime = val
+					) catch ()
+				)
+			)
+		)
 	)
 	
 		-- 리턴 스트럭쳐의 멤버 : limbName, linkIndex
@@ -3038,8 +3139,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		LoadRangeLoop()
 		-- LoadRangeA()
 		-- LoadRangeB()
-		-- LoadGoto()
-		-- SetGotoBtnText()
+		LoadGoto()
+		SetGotoBtnText()
 
 		uiDropPlaySpeed.selection = timeConfiguration.playbackSpeed
 
@@ -4758,6 +4859,16 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				(
 					fnDeleteUserProp i "BsBT_RangeLoopStart"
 					fnDeleteUserProp i "BsBT_RangeLoopEnd"
+					fnDeleteUserProp i "BsBT_Goto1"
+					fnDeleteUserProp i "BsBT_Goto2"
+					fnDeleteUserProp i "BsBT_Goto3"
+					fnDeleteUserProp i "BsBT_Goto4"
+					fnDeleteUserProp i "BsBT_Goto5"
+					fnDeleteUserProp i "BsBT_Goto6"
+					fnDeleteUserProp i "BsBT_Goto7"
+					fnDeleteUserProp i "BsBT_Goto8"
+					btnKey1.text = btnKey2.text = btnKey3.text = btnKey4.text = btnKey5.text = btnKey6.text = btnKey7.text = btnKey8.text = "Key"
+					m_goto1 = m_goto2 = m_goto3 = m_goto4 = m_goto5 = m_goto6 = m_goto7 = m_goto8 = undefined
 				)
 				catch()
 			)
@@ -5202,6 +5313,24 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiBtn25.state = true
 		fnEvaluateTCB 25.0
 	)
+
+	on btnKey1 pressed do (GotoFrame btnKey1 &m_goto1 1)
+	on btnKey2 pressed do (GotoFrame btnKey2 &m_goto2 2)
+	on btnKey3 pressed do (GotoFrame btnKey3 &m_goto3 3)
+	on btnKey4 pressed do (GotoFrame btnKey4 &m_goto4 4)
+	on btnKey5 pressed do (GotoFrame btnKey5 &m_goto5 5)
+	on btnKey6 pressed do (GotoFrame btnKey6 &m_goto6 6)
+	on btnKey7 pressed do (GotoFrame btnKey7 &m_goto7 7)
+	on btnKey8 pressed do (GotoFrame btnKey8 &m_goto8 8)
+
+	on btnKey1 rightclick do (GotoFrame btnKey1 &m_goto1 1 setKey:true)
+	on btnKey2 rightclick do (GotoFrame btnKey2 &m_goto2 2 setKey:true)
+	on btnKey3 rightclick do (GotoFrame btnKey3 &m_goto3 3 setKey:true)
+	on btnKey4 rightclick do (GotoFrame btnKey4 &m_goto4 4 setKey:true)
+	on btnKey5 rightclick do (GotoFrame btnKey5 &m_goto5 5 setKey:true)
+	on btnKey6 rightclick do (GotoFrame btnKey6 &m_goto6 6 setKey:true)
+	on btnKey7 rightclick do (GotoFrame btnKey7 &m_goto7 7 setKey:true)
+	on btnKey8 rightclick do (GotoFrame btnKey8 &m_goto8 8 setKey:true)
 )
 if (iniBsBTPos != 0) then 
 (Createdialog rolBsBipedTools pos:iniBsBTPos style:#() fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
