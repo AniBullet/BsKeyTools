@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-10 01:12:18
+ * @LastEditTime: 2025-02-10 10:09:04
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -37,11 +37,11 @@ global dragStateBsADT = off
 		spinner spnRadian "弧度 " pos:[30,65] width:60 height:20 type:#float range:[-20,20,0] scale:0.1
 		checkbutton chkCreateLine "1.创建线" pos:[100,65] width:75 height:20 checked:true
 		checkbutton chkCreateTrail "2.创建刀光" pos:[180,65] width:75 height:20 checked:true
-		button btnSelectTrail "选中" pos:[10,90] width:40 height:24
-		button btnUnfreezeTrail "解冻" pos:[55,90] width:40 height:24
-		button btnFreezeTrail "冻结" pos:[100,90] width:40 height:24
-		button btnHideTrail "隐藏" pos:[145,90] width:35 height:24
-		button btnShowTrail "显示" pos:[185,90] width:35 height:24
+		button btnSelectTrail "选中" pos:[10,90] width:40 height:24 tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true,false)
+		button btnUnfreezeTrail "解冻" pos:[55,90] width:40 height:24 tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true,false)
+		button btnFreezeTrail "冻结" pos:[100,90] width:40 height:24 tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true,false)
+		button btnHideTrail "隐藏" pos:[145,90] width:35 height:24 tooltip:"隐藏" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,6,6,6,6,true,false)
+		button btnShowTrail "显示" pos:[185,90] width:35 height:24 tooltip:"显示" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,5,5,5,5,true,false)
 		button btnDeleteTrail "清除" pos:[225,90] width:30 height:24 images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		-------------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbPreset "" pos:[5,120] width:(rolBsAnimDemoTools.width - 10) height:65
@@ -91,10 +91,10 @@ global dragStateBsADT = off
 		button btnRefCam "相机" pos:[195,155] width:30 height:30 visible:false tooltip:"选择相机（需要先创建参考背景）" images:#("Cameras_24i.bmp","Cameras_24i.bmp",3,3,3,3,3,false,false)
 		button btnSelectCameraPlane "背景" pos:[230,155] width:30 height:30 visible:false tooltip:"选择背景面片（需要先创建参考背景）" images:#("Standard_24i.bmp","Standard_24i.bmp",11,10,10,10,10,false,false)
 		groupbox gbpFloor "地板片" pos:[5,190] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
-		button btnCreateFloor "一键创建" pos:[15,210] width:70 height:20 visible:false
-		button btnUnfreezeFloor "解冻" pos:[90,210] width:45 height:20 visible:false
-		button btnFreezeFloor "冻结" pos:[140,210] width:45 height:20 visible:false
-		button btnReflection "镜面" pos:[190,210] width:30 height:20 visible:false tooltips:"地面反射开关"
+		button btnCreateFloor "一键创建" pos:[15,210] width:75 height:20 visible:false
+		button btnUnfreezeFloor "解冻" pos:[95,210] width:40 height:20 visible:false tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true,false)
+		button btnFreezeFloor "冻结" pos:[140,210] width:40 height:20 visible:false tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true,false)
+		button btnReflection "镜面" pos:[185,210] width:35 height:20 visible:false tooltips:"地面反射开关"
 		button btnDeleteFloor "清除" pos:[225,210] width:30 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		button btnMakePreview "快速拍屏" pos:[5,250] width:60 height:25 visible:false tooltip:"快速预览视窗效果,可能跟实际渲染有差别"
 		button btnOpenPrevPath "拍屏目录" pos:[70,250] width:60 height:25 visible:false tooltip:"打开拍屏目录"
@@ -104,14 +104,14 @@ global dragStateBsADT = off
 		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 100) pos:[5,-500]
 		radiobuttons rdoMatType "" labels:#("普通材质","流体材质") columns:1 pos:[180,60] width:80 visible:false
 		checkbutton ckbApplyEffMat "应用材质" pos:[175,100] width:80 height:25 visible:false checked:true
-		button btnClearMat "清除" pos:[175,130] width:80 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
+		button btnClearMat "清除材质" pos:[175,130] width:80 height:20 visible:false
 		groupbox gpbLineMat "卡通描边" pos:[5,155] width:(rolBsAnimDemoTools.width - 140) height:95 visible:false
 		radiobuttons rdoNormalFlip "" labels:#("法线翻转","不变") columns:2 pos:[12,175] width:100 visible:false
 		colorpicker cpLineColor "" pos:[8,199] width:25 height:20 visible:false color:(color 30 30 30)
 		checkbutton ckbApplyLineMat "添加描边" pos:[40,199] width:85 height:20 visible:false checked:true
-		button btnSelLineMesh "选" pos:[10,225] width:25 height:20 visible:false
-		button btnUnFreezeLineMesh "解" pos:[40,225] width:25 height:20 visible:false
-		button btnFreezeLineMesh "冻" pos:[65,225] width:25 height:20 visible:false
+		button btnSelLineMesh "选" pos:[10,225] width:25 height:20 visible:false tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true,false)
+		button btnUnFreezeLineMesh "解" pos:[40,225] width:25 height:20 visible:false tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true,false)
+		button btnFreezeLineMesh "冻" pos:[65,225] width:25 height:20 visible:false tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true,false)
 		button btnDeleteLine "清除" pos:[95,225] width:30 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		groupbox gpbToonMat "简易卡通材质" pos:[140,155] width:(rolBsAnimDemoTools.width - 145) height:95 visible:false
 		colorpicker cpPureToonColor "" pos:[140,175] width:25 height:20 visible:false color:(color 255 60 60)
@@ -437,8 +437,8 @@ global dragStateBsADT = off
 				)
 			)
 			select lightSpot
-			lightSpot.name        = "BsLights" + (type as string) + "_Light"
-			try(lightSpot.target.name = "BsLights" + (type as string) + "_Target")catch()
+			lightSpot.name = uniquename ("BsLights" + (type as string) + "_Light")
+			try(lightSpot.target.name = uniquename ("BsLights" + (type as string) + "_Target"))catch()
 		)
 		----------相机视角添加参考图,修改子 ScreenLock Reference ---------------------------------------------------------------------
 		fn createRefPlane cam mappingType:1 nDistance:1.0 =
@@ -1325,6 +1325,19 @@ global dragStateBsADT = off
 		on btnMakeRenderer pressed do 
 		(
 			max quick render
+		)
+
+		on btnClearAll pressed do 
+		(
+			undo "deleteAllEnv" on
+			(
+				try(
+					delete $'BS_FloorPlane*';
+					delete $'BS_SkySphere*'
+					delete $'BsLights*'
+					messagebox "清除环境成功!                      " title:"BsAnimDemoTools"
+				)catch()
+			)
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()
