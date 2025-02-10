@@ -2267,7 +2267,7 @@ rollout rolBsKeyTools "" width:355 height:250
 				(
 					append arrRecentFilesName ("📄 " + (getFilenameFile i) + ".max")
 				)
-				else append arrRecentFilesName ("📄 (疑丢失)" + (getFilenameFile i) + ".max")
+				else append arrRecentFilesName ("📄 ( X )" + (getFilenameFile i) + ".max")
 			)
 			-- dotLVFilesList.items = arrRecentFilesName
 			fnAddToLbxList arrRecentFilesName

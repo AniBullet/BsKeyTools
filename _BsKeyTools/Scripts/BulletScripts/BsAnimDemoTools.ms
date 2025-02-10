@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-10 10:09:04
+ * @LastEditTime: 2025-02-10 23:37:54
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -94,8 +94,8 @@ global dragStateBsADT = off
 		button btnCreateFloor "一键创建" pos:[15,210] width:75 height:20 visible:false
 		button btnUnfreezeFloor "解冻" pos:[95,210] width:40 height:20 visible:false tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true,false)
 		button btnFreezeFloor "冻结" pos:[140,210] width:40 height:20 visible:false tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true,false)
-		button btnReflection "镜面" pos:[185,210] width:35 height:20 visible:false tooltips:"地面反射开关"
-		button btnDeleteFloor "清除" pos:[225,210] width:30 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
+		button btnReflection "镜面" pos:[185,210] width:35 height:20 visible:false tooltip:"地面反射开关" images:#("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,1,1,1,1,true,true)
+		button btnDeleteFloor "清除" pos:[225,210] width:30 height:20 visible:false tooltip:"删除地板" images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		button btnMakePreview "快速拍屏" pos:[5,250] width:60 height:25 visible:false tooltip:"快速预览视窗效果,可能跟实际渲染有差别"
 		button btnOpenPrevPath "拍屏目录" pos:[70,250] width:60 height:25 visible:false tooltip:"打开拍屏目录"
 		button btnMakeRenderer "渲染一帧" pos:[135,250] width:60 height:25 visible:false tooltip:"快速预览场景整体效果,注意先设置好渲染设置"
@@ -1320,7 +1320,7 @@ global dragStateBsADT = off
 			rndLevel:#smoothhighlights
 		)
 	
-		on btnOpenPrevPath rightclick do (shellLaunch (getdir #preview) "")
+		on btnOpenPrevPath pressed do (shellLaunch (getdir #preview) "")
 
 		on btnMakeRenderer pressed do 
 		(
