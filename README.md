@@ -1,12 +1,16 @@
 # BsKeyTools
 ![image](https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/BsKeyToolsPrev.gif)  
-Bullet.S KeyTools，All for Animator...
+Bullet.S KeyTools，All for Animator...  
+  
+\>> main 分支更新较慢，可切换 dev 分支查看最新进度！<<  
+  
+[![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AniBullet/BsKeyTools/dev?style=flat&logo=github&label=dev-last-commit)](https://github.com/AniBullet/BsKeyTools/tree/dev)  
+[![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AniBullet/BsKeyTools/main?style=flat&logo=github&label=main-last-commit)](https://github.com/AniBullet/BsKeyTools/tree/main)  
 
-> 个人学习作品，工具一切仅代表个人，轻喷
-
-> 部分工具引用和学习其他老师脚本，均有注明，侵删
-
-> 工具全开源无任何收费，请勿商用，仅供学习参考和自用
+> 个人业余学习作品，工具一切仅代表个人，轻喷  
+部分工具引用和学习其他老师脚本，均有注明，侵删  
+工具全开源无任何收费，请勿商用，仅供学习参考和自用  
+\>> 转载或修改工具请注明作者和来源 <<
 
 ## 使用帮助
 视频教程：https://space.bilibili.com/2031113/lists/560782  
@@ -26,6 +30,7 @@ Crazyone
 祥子  
 SiChun Yuan  
 动画大白  
+哈库呐玛哒哒  
 
 ---
 ##### Since 2019.11
