@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-10 23:37:54
+ * @LastEditTime: 2025-02-11 20:45:57
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -67,9 +67,9 @@ global dragStateBsADT = off
 		spinner spnV "纵" pos:[10,260] width:50 height:20 range:[-99999,99999,4] type:#integer align:#left visible:false
 		label lblFrameOffset "↓ 隔帧 ↓" pos:[75,240] width:50 height:20 visible:false
 		spinner spnFrameOffest "" pos:[75,260] width:40 height:20 range:[-99999,99999,0] type:#integer align:#left visible:false
-		button btnOpenPath "仓库" pos:[125,240] width:40 height:40 visible:false
-		checkbutton ckbLoopToogle "循环开关" pos:[170,240] width:90 height:20 visible:false
-		checkbutton ckbApplyEff "应用图集特效" pos:[170,260] width:90 height:20 visible:false checked:true
+		button btnOpenPath "仓库" pos:[125,240] width:40 height:20 visible:false 
+		checkbutton ckbLoopToogle "循环" pos:[125,260] width:40 height:20 visible:false
+		checkbutton ckbApplyEff "应用图集特效" pos:[170,240] width:90 height:40 visible:false checked:true
 		-------序列帧工具来源 "https://www.cgjoy.com/thread-275528-1-1.html" 开发者：叶孤弦
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbSkyBox "天空球" pos:[5,55] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
@@ -104,15 +104,16 @@ global dragStateBsADT = off
 		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 100) pos:[5,-500]
 		radiobuttons rdoMatType "" labels:#("普通材质","流体材质") columns:1 pos:[180,60] width:80 visible:false
 		checkbutton ckbApplyEffMat "应用材质" pos:[175,100] width:80 height:25 visible:false checked:true
-		button btnClearMat "清除材质" pos:[175,130] width:80 height:20 visible:false
+		button btnOpenEffPath "仓库" pos:[175,130] width:40 height:20 visible:false images: #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
+		button btnClearMat "清除" pos:[220,130] width:35 height:20 visible:false
 		groupbox gpbLineMat "卡通描边" pos:[5,155] width:(rolBsAnimDemoTools.width - 140) height:95 visible:false
 		radiobuttons rdoNormalFlip "" labels:#("法线翻转","不变") columns:2 pos:[12,175] width:100 visible:false
 		colorpicker cpLineColor "" pos:[8,199] width:25 height:20 visible:false color:(color 30 30 30)
 		checkbutton ckbApplyLineMat "添加描边" pos:[40,199] width:85 height:20 visible:false checked:true
 		button btnSelLineMesh "选" pos:[10,225] width:25 height:20 visible:false tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true,false)
 		button btnUnFreezeLineMesh "解" pos:[40,225] width:25 height:20 visible:false tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true,false)
-		button btnFreezeLineMesh "冻" pos:[65,225] width:25 height:20 visible:false tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true,false)
-		button btnDeleteLine "清除" pos:[95,225] width:30 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
+		button btnFreezeLineMesh "冻" pos:[70,225] width:25 height:20 visible:false tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true,false)
+		button btnDeleteLine "清除" pos:[100,225] width:25 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		groupbox gpbToonMat "简易卡通材质" pos:[140,155] width:(rolBsAnimDemoTools.width - 145) height:95 visible:false
 		colorpicker cpPureToonColor "" pos:[140,175] width:25 height:20 visible:false color:(color 255 60 60)
 		button btnApplyPureToonMat "应用纯色材质" pos:[170,175] width:85 height:20 visible:false
@@ -134,7 +135,7 @@ global dragStateBsADT = off
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnDeleteLight,gbpFloor,btnCreateFloor, \
 											btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll, \
 											btnCameraPlane,btnSelectCameraPlane,btnRefCam,btnReflection))
-		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnClearMat,gpbToonMat,rdoNormalFlip, \
+		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnOpenEffPath,btnClearMat,gpbToonMat,rdoNormalFlip, \
 											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat, \
 											btnUnFreezeLineMesh,btnFreezeLineMesh,btnReCollectMat,btnTint,btnTwoSides))
 		local arrAllToolsTab = #(arrGhostTrails,arrDemoScene,arrDemoEff,arrDemoMat)
@@ -180,12 +181,12 @@ global dragStateBsADT = off
 			dotCtrl.Refresh()
 		)
 
-		fn fnRefreshTexFiles =
+		fn fnRefreshTexFiles ui strUI path =
 		(
-			fnInitDotNetListView dotLVFilesList "特效图集 [双击预览]  (叶孤弦 分享)"
-			local arrTexFiles = getFiles ((getDir #scripts) + "\\BulletScripts\\Res\\BsSpriteTex\\*.*")
+			fnInitDotNetListView ui strUI
+			local arrTexFiles = getFiles path
 			rows = #()
-			dotLVFilesList.Items.Clear()
+			ui.Items.Clear()
 			for i = 1 to arrTexFiles.count where arrTexFiles.count != 0 do
 			(
 				local li = dotNetObject "System.Windows.Forms.ListViewItem" ""
@@ -195,27 +196,8 @@ global dragStateBsADT = off
 				li.subitems.add arrTexFiles[i]
 				append rows li
 			)		
-			dotLVFilesList.Items.addRange rows
-			arrEffTexFiles = arrtexFiles
-		)
-
-		fn fnRefreshFlowTexFiles =
-		(
-			fnInitDotNetListView dotFlowMatList "其他材质 [双击预览]"
-			local arrTexFiles = getFiles ((getDir #scripts) + "\\BulletScripts\\Res\\BsFlowTex\\*.*")
-			rows = #()
-			dotFlowMatList.Items.Clear()
-			for i = 1 to arrTexFiles.count where arrTexFiles.count != 0 do
-			(
-				local li = dotNetObject "System.Windows.Forms.ListViewItem" ""
-				li.useItemStyleForSubItems = false
-				li.text = (getFilenameFile arrTexFiles[i])
-				bold = (dotnetclass "System.Drawing.FontStyle").Bold
-				li.subitems.add arrTexFiles[i]
-				append rows li
-			)		
-			dotFlowMatList.Items.addRange rows
-			arrFlowTexFiles = arrtexFiles
+			ui.Items.addRange rows
+			return arrTexFiles
 		)
 
 		fn fnGetSelectedId ddl =
@@ -225,32 +207,21 @@ global dragStateBsADT = off
 			for i = 0 to c do id = ddl.SelectedItems.Item[i].Index + 1
 			return id
 		)
-	
-		fn fnSelEffTex =
-		(
-			local idSelFile = fnGetSelectedId dotLVFilesList
-	
-			if idSelFile > 0  then
-			(
-				if doesFileExist arrEffTexFiles[idSelFile] then
-				(
-					selEffTex = arrEffTexFiles[idSelFile]
-				)
-				else (messagebox ("文件可能已被删除或移走，请检查！：\r\n\r\n" + (arrEffTexFiles[idSelFile] as string) + "                                                                            ") title:"提示")
-			)
-		)
 
-		fn fnSelFlowTex =
+		fn fnSelTex ui arr =
 		(
-			local idSelFile = fnGetSelectedId dotFlowMatList
-	
-			if idSelFile > 0  then
+			local idSel = fnGetSelectedId ui
+			if idSel > 0 then 
 			(
-				if doesFileExist arrFlowTexFiles[idSelFile] then
+				if doesFileExist arr[idSel] then
 				(
-					selFlowTex = arrFlowTexFiles[idSelFile]
+					return arr[idSel]
 				)
-				else (messagebox ("文件可能已被删除或移走，请检查！：\r\n\r\n" + (arrFlowTexFiles[idSelFile] as string) + "                                                                            ") title:"提示")
+				else 
+				(
+					messagebox ("文件可能已被删除或移走，请检查！：\r\n\r\n" + (arr[idSel] as string) + "                                                                            ") title:"提示"
+					return undefined
+				)
 			)
 		)
 
@@ -749,12 +720,18 @@ global dragStateBsADT = off
 			if LastSubRollout != arrID do --避免点击重复
 			(
 				fnChangeToolsVisble arrID
-				if arrID == 3 then (dotLVFilesList.pos = [5,50];fnRefreshTexFiles())
+				if arrID == 3 then 
+				(
+					dotLVFilesList.pos = [5,50]
+					local pathTex = ((getDir #scripts) + "\\BulletScripts\\Res\\BsSpriteTex\\*.*")
+					arrEffTexFiles = (fnRefreshTexFiles dotLVFilesList "特效图集 [双击预览]  (叶孤弦 分享)" pathTex)
+				)
 				else (dotLVFilesList.pos = [5,-500])
 				if arrID == 4 then 
 				(
 					dotFlowMatList.pos = [5,50]
-					fnRefreshFlowTexFiles()
+					local pathTex = ((getDir #scripts) + "\\BulletScripts\\Res\\BsFlowTex\\*.*")
+					arrFlowTexFiles = (fnRefreshTexFiles dotFlowMatList "其他材质 [双击预览]" pathTex)
 					btnMaterial.visible = true 
 					btnMaterial.pos = [145,225]
 				)
@@ -1059,7 +1036,10 @@ global dragStateBsADT = off
 			(
 				shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\BsSpriteTex\\") ""
 			)
-			else if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Left then fnSelEffTex()
+			else if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Left then 
+			(
+				selEffTex = (fnSelTex dotLVFilesList arrEffTexFiles)
+			)
 		)
 
 		on dotLVFilesList doubleClick sender args do
@@ -1073,12 +1053,20 @@ global dragStateBsADT = off
 			(
 				shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\BsFlowTex\\") ""
 			)
-			else if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Left then fnSelFlowTex()
+			else if args.Button == (dotNetClass "System.Windows.Forms.MouseButtons").Left then 
+			(
+				selFlowTex = (fnSelTex dotFlowMatList arrFlowTexFiles)
+			)
 		)
 
 		on dotFlowMatList doubleClick sender args do
 		(
 			try(shellLaunch selFlowTex "")catch(messageBox "打开失败,请检查路径是否存在...                        " title:"BsAnimDemoTools")
+		)
+
+		on btnOpenEffPath pressed do 
+		(
+			try(shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\BsFlowTex\\") "")catch(messageBox "打开失败,请检查路径是否存在...                        " title:"BsAnimDemoTools")
 		)
 
 		on ckbLoopToogle changed state do 
