@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-13 01:59:38
+ * @LastEditTime: 2025-02-13 02:08:33
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -105,7 +105,7 @@ global dragStateBsADT = off
 		checkbox ckbOpacityMat "开启透明" checked:false pos:[180,65] width:80 visible:false
 		checkbutton ckbApplyEffMat "应用材质" pos:[175,85] width:80 height:30 visible:false checked:true
 		button btnOpenEffPath "仓库" pos:[175,120] width:40 height:25 visible:false tooltip:"由于安装包大小，没有添加太多材质贴图，建议自行添加" images: #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
-		button btnClearMat "清除" pos:[220,120] width:35 height:25 visible:false
+		button btnClearMat "清除" pos:[220,120] width:35 height:25 visible:false tooltip:"恢复初始材质球"
 		groupbox gpbLineMat "卡通描边" pos:[5,155] width:(rolBsAnimDemoTools.width - 140) height:95 visible:false
 		radiobuttons rdoNormalFlip "" labels:#("法线翻转","不变") columns:2 pos:[12,175] width:100 visible:false
 		colorpicker cpLineColor "" pos:[8,199] width:25 height:20 visible:false color:(color 10 10 10)
@@ -859,7 +859,7 @@ global dragStateBsADT = off
 		(
 			undo "deleteGhostTrails" on
 			(
-				try(delete $'BsGhostTrails_*';messagebox "清除 GhostTrails 刀光相关物体成功!                      " title:"BsAnimDemoTools")catch()
+				try(delete $'BsGhostTrails_*';completeRedraw();messagebox "清除 GhostTrails 刀光相关物体成功!                      " title:"BsAnimDemoTools")catch()
 			)
 		)
 
@@ -1139,7 +1139,7 @@ global dragStateBsADT = off
 		(
 			undo "deleteLight" on
 			(
-				try(delete $'BsLights*';messagebox "清除灯光成功!                      " title:"BsAnimDemoTools")catch()
+				try(delete $'BsLights*';completeRedraw();messagebox "清除灯光成功!                      " title:"BsAnimDemoTools")catch()
 			)
 		)
 
@@ -1238,6 +1238,7 @@ global dragStateBsADT = off
 			try(ColorPipelineMgr.mode = #OCIO_Default)catch()
 
 			select skySphere
+			completeRedraw()
 			messagebox "天空球创建成功!请自行缩放大小。                      " title:"BsAnimDemoTools"
 		)
 
@@ -1245,7 +1246,7 @@ global dragStateBsADT = off
 		(
 			undo "deleteSkyBox" on
 			(
-				try(delete $'BS_SkySphere*';messagebox "清除天空球成功!                      " title:"BsAnimDemoTools")catch()
+				try(delete $'BS_SkySphere*';completeRedraw();messagebox "清除天空球成功!                      " title:"BsAnimDemoTools")catch()
 			)
 		)
 
@@ -1300,8 +1301,8 @@ global dragStateBsADT = off
 			try(
 				local BS_floor = $'BS_FloorPlane*'[1]
 				BS_floor.material.reflectionMapEnable = not BS_floor.material.reflectionMapEnable
-				if BS_floor.material.reflectionMapEnable then messagebox "开启地板镜面反射成功!                               " title:"BsAnimDemoTools"
-				else messagebox "关闭地板镜面反射成功!                               " title:"BsAnimDemoTools"
+				if BS_floor.material.reflectionMapEnable then (completeRedraw();messagebox "开启地板镜面反射成功!                               " title:"BsAnimDemoTools")
+				else (completeRedraw();messagebox "关闭地板镜面反射成功!                               " title:"BsAnimDemoTools")
 			)catch(messagebox "找不到地板面片，或者命名不是\"BS_FloorPlane*\"                                 " title:"BsAnimDemoTools")
 		)
 
@@ -1309,7 +1310,7 @@ global dragStateBsADT = off
 		(
 			undo "deleteFloor" on
 			(
-				try(delete $'BS_FloorPlane*';messagebox "清除地面成功!                      " title:"BsAnimDemoTools")catch()
+				try(delete $'BS_FloorPlane*';completeRedraw();messagebox "清除地面成功!                      " title:"BsAnimDemoTools")catch()
 			)
 		)
 
@@ -1357,6 +1358,7 @@ global dragStateBsADT = off
 					delete $'BS_FloorPlane*';
 					delete $'BS_SkySphere*'
 					delete $'BsLights*'
+					completeRedraw()
 					messagebox "清除环境成功!                      " title:"BsAnimDemoTools"
 				)catch()
 			)
@@ -1400,6 +1402,7 @@ global dragStateBsADT = off
 					select outlineMesh
 					-- setCommandPanelTaskMode mode: #modify
 				)
+				completeRedraw()
 				messageBox "创建描边完成,请调整右侧 Push Value (通常为负数)...                              " title:"BsAnimDemoTools"
 			)
 			else (messageBox "失败,请检查是否选中场景内物体...             " title:"BsAnimDemoTools")
@@ -1434,7 +1437,7 @@ global dragStateBsADT = off
 		(
 			undo "deleteBsOutLine" on
 			(
-				try(delete $'*_BsOutLine*';messagebox "清除 BsOutLine 描边相关物体成功!                        " title:"BsAnimDemoTools")catch()
+				try(delete $'*_BsOutLine*';completeRedraw();messagebox "清除 BsOutLine 描边相关物体成功!                        " title:"BsAnimDemoTools")catch()
 			)
 		)
 
@@ -1492,6 +1495,7 @@ global dragStateBsADT = off
 			if edtWatermarkText.text != "" then 
 			(
 				fnAddWaterMark edtWatermarkText.text
+				completeRedraw()
 				messageBox "水印添加成功!请在右侧属性面板中调整位置...\r\n\r\n文字大小只有这么大, 勉强可做文件个人标记~\r\n\r\n高级水印请用后期添加!                                                  " title:"BsAnimDemoTools"
 			)
 			else 
@@ -1506,8 +1510,29 @@ global dragStateBsADT = off
 		(
 			undo "deleteWaterMark" on
 			(
-				try(delete $BsWaterMark*;messagebox "清除水印成功!                      " title:"BsAnimDemoTools")catch()
+				try(delete $BsWaterMark*;completeRedraw();messagebox "清除水印成功!                      " title:"BsAnimDemoTools")catch()
 			)
+		)
+
+		on btnApplyPureToonMat pressed do 
+		(
+			if selection.count != 0 then 
+			(
+				for i in selection where i != undefined do 
+				(
+					-- 创建纯色材质
+					local pureToonMat = StandardMaterial()
+					pureToonMat.name = uniquename "BsPureToonMat"
+					pureToonMat.diffuse = cpPureToonColor.color
+					pureToonMat.selfIllumAmount = 0
+					pureToonMat.showInViewport = true
+					i.material = pureToonMat
+					select i
+				)
+				completeRedraw()
+				messageBox "创建纯色材质成功!请自行调整颜色...                      " title:"BsAnimDemoTools"
+			)
+			else (messageBox "失败,请检查是否选中场景内物体...             " title:"BsAnimDemoTools")
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()
