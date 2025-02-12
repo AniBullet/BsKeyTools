@@ -42,7 +42,7 @@ rollout rolKeyStepMode "关键帧跳转设置 (by: Bullet.S)"
 	)
 
     on btnHelp pressed do 
-    (shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
+    (shellLaunch "https://space.bilibili.com/2031113/lists/560782" "")
 
 	on rolKeyStepMode open do 
 	(

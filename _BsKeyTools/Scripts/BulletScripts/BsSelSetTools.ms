@@ -295,7 +295,7 @@ rollout rolSelSetTools ""
 	on btnCloseRol pressed do (try (destroydialog rolSelSetTools) catch ())
 
 	on btnHelp pressed do 
-	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
+	(shellLaunch "https://space.bilibili.com/2031113/lists/560782" "")
 
 	on rolSelSetTools mbuttondown pos do (try (destroydialog rolSelSetTools) catch ())
 

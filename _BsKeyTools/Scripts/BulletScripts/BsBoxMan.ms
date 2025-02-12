@@ -21,7 +21,7 @@ global dragStateBsBoxMan = off
 		
 		groupBox gpbBox "" pos:[5,55] width:250 height:110
 		
-		checkbutton chkCreateBodyBox ">> 创建方块包裹 <<" pos:[10,70] height:25 width:150 border:false checked:true 
+		checkbutton chkCreateBodyBox ">> 创建方块包裹 <<" pos:[10,70] height:25 width:150 border:false checked:true tooltip:"请先选择骨骼"
 		button btnClearBox "一键清除" pos:[170,70] width:80 height:25 border:true
 		radiobuttons rdoColor labels:#("随机颜色", "统一单色") columns:2 align:#center pos:[20,105]
 		colorpicker rtcp "" width:70 height:20 color:[38,130,118] pos:[170,103]
@@ -33,12 +33,9 @@ global dragStateBsBoxMan = off
 		checkbutton ckbSync "等比调节" pos:[110,310] height:30 width:60 tooltip:"同时调节长宽高" border:true checked:false 
 		checkbutton ckbReset "重置大小" pos:[175,310] height:30 width:75 tooltip:"重置长宽高" border:false checked:true 
 		radiobuttons rdoReduce labels:#("放大", "缩小") columns:2 pos:[15,318] height:30 width:50 border:true Selection:1
-		slider sldLenthValue ""  pos:[50,185] align:#center range:[1,20,1] \
-		type:#integer width:170 ticks:50
-		slider sldWidthValue ""  pos:[50,225] align:#center range:[1,20,1] \
-		type:#integer width:170 ticks:50 
-		slider sldHeightValue ""  pos:[50,265] align:#center range:[1,20,1] \
-		type:#integer width:170 ticks:50
+		slider sldLenthValue ""  pos:[50,185] align:#center range:[1,20,1] type:#integer width:170 ticks:50
+		slider sldWidthValue ""  pos:[50,225] align:#center range:[1,20,1] type:#integer width:170 ticks:50 
+		slider sldHeightValue ""  pos:[50,265] align:#center range:[1,20,1] type:#integer width:170 ticks:50
 		label lblLenth "X：" pos:[15,195] width:30
 		label lblWidth "Y：" pos:[15,235] width:30
 		label lblHeight "Z：" pos:[15,275] width:30
@@ -126,7 +123,7 @@ global dragStateBsBoxMan = off
 		type:#integer tooltip:"调节选中，否则全部。" width:255 
 
 		HyperLink lnkLink "Mod: Bullet.S" color:(color 255 255 255) hovercolor:(color 255 0 0) visitedcolor:(color 255 255 255) visible:false \
-		address:"https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" pos:[165,390]
+		address:"https://space.bilibili.com/2031113/lists/560782" pos:[165,390]
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -440,7 +437,7 @@ global dragStateBsBoxMan = off
 			LastSubRollout = id
 		)
 
-		fn fnCreateBoxBody =
+		fn fnCreateBoxBody isFreeze =
 		(
 			arrBoxes = #()
 			LayerManager.newLayerFromName "001_Ref_Boxes"
@@ -462,7 +459,7 @@ global dragStateBsBoxMan = off
 				b.transform.controller = lc
 				lc.key_mode = 0
 				lc.addTarget i 0
-				-- freeze b
+				b.isFrozen = isFreeze
 				b.showFrozenInGray = off
 				append arrBoxes b
 				tmplayer.addnode b
@@ -564,7 +561,8 @@ global dragStateBsBoxMan = off
 		on chkCreateBodyBox changed state do
 		(
 			chkCreateBodyBox.state = true
-			fnCreateBoxBody()
+			if selection.count != 0 then fnCreateBoxBody ckbFreeze.state
+			else (Messagebox "请先选择对象！如 Biped 骨骼。                          " title:"BsBoxMan")
 		)
 
 		on btnClearBox pressed do 
@@ -1149,7 +1147,6 @@ global dragStateBsBoxMan = off
 
 		on sldLenthValue changed val do 
 		(
-			fnRefreshSliderValue()
 			if ckbSync.state == false then
 			(
 				try(if rdoReduce.state == 2 then $.scale.x = (1.0/val) else $.scale.x = val)catch()
@@ -1164,11 +1161,11 @@ global dragStateBsBoxMan = off
 					sldHeightValue.value = val
 				)catch()
 			)
+			fnRefreshSliderValue()
 		)
 
 		on sldWidthValue changed val do 
 		(
-			fnRefreshSliderValue()
 			if ckbSync.state == false then
 			(
 				try(if rdoReduce.state == 2 then $.scale.y = (1.0/val) else $.scale.y = val)catch()
@@ -1183,11 +1180,11 @@ global dragStateBsBoxMan = off
 					sldLenthValue.value = val
 				)catch()
 			)
+			fnRefreshSliderValue()
 		)
 
 		on sldHeightValue changed val do 
 		(
-			fnRefreshSliderValue()
 			if ckbSync.state == false then
 			(
 				try(if rdoReduce.state == 2 then $.scale.z = (1.0/val) else $.scale.z = val)catch()
@@ -1202,6 +1199,7 @@ global dragStateBsBoxMan = off
 					sldLenthValue.value = val
 				)catch()
 			)
+			fnRefreshSliderValue()
 		)
 
 		on ckbReset changed state do 
@@ -1221,11 +1219,18 @@ global dragStateBsBoxMan = off
 
 		on lblTips mouseup arg do
 		(
-			shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" ""
+			shellLaunch "https://space.bilibili.com/2031113/lists/560782" ""
 		)
 		on btnAbout pressed do 
 		(
-			shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" ""
+			shellLaunch "https://space.bilibili.com/2031113/lists/560782" ""
+		)
+
+		on ckbFreeze changed state do 
+		(
+			local arrBox = $'*_BsBoxManBox*'
+			for i in arrBox do i.isFrozen = state
+			if state do clearselection()
 		)
 	)
 	createDialog rolBsBoxMan style:#()

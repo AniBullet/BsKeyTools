@@ -745,7 +745,7 @@ global dragStateBsADT = off
 
 		on btnAbout pressed do 
 		(
-			shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" ""
+			shellLaunch "https://space.bilibili.com/2031113/lists/560782" ""
 		)
 
 		on tabBsADT Selected itm do

@@ -54,7 +54,7 @@ ComponentText "请勾选你想安装到的版本，并取消勾选你不想安装的版本。 $\r$\n$\r$\n
 
 !insertmacro MUI_PAGE_FINISH
 Function Info
-ExecShell "open" "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782"
+ExecShell "open" "https://space.bilibili.com/2031113/lists/560782"
 Functionend
 
 ; 安装卸载过程页面
