@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-12 22:19:59
+ * @LastEditTime: 2025-02-13 01:59:38
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -58,8 +58,8 @@ global dragStateBsADT = off
 		checkbox ckbFlipNormals "翻转法线" pos:[110,223] width:70 height:20 checked:false
 		checkbox ckbGenerateMapping "生成映射" pos:[185,223] width:70 height:20 checked:true
 		-----------------------------------------------------------------------------------------------------------------------------------------
-		button btnMaterial "材质窗口" pos:[5,255] width:65 height:20
-		dropdownlist ddlDefaultTex "" pos:[75,255] width:105 height:20 items:#("")
+		button btnMaterial "材质窗口" pos:[5,255] width:60 height:20
+		dropdownlist ddlDefaultTex "" pos:[70,255] width:110 height:20 items:#("")
 		button btnApplyTex "指定刀光" pos:[185,255] width:75 height:21 tooltip:"左键赋予刀光贴图，右键重新指定"
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:185 width:(rolBsAnimDemoTools.width - 10) pos:[5,-500]
@@ -104,7 +104,7 @@ global dragStateBsADT = off
 		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 100) pos:[5,-500]
 		checkbox ckbOpacityMat "开启透明" checked:false pos:[180,65] width:80 visible:false
 		checkbutton ckbApplyEffMat "应用材质" pos:[175,85] width:80 height:30 visible:false checked:true
-		button btnOpenEffPath "仓库" pos:[175,120] width:40 height:25 visible:false images: #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
+		button btnOpenEffPath "仓库" pos:[175,120] width:40 height:25 visible:false tooltip:"由于安装包大小，没有添加太多材质贴图，建议自行添加" images: #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
 		button btnClearMat "清除" pos:[220,120] width:35 height:25 visible:false
 		groupbox gpbLineMat "卡通描边" pos:[5,155] width:(rolBsAnimDemoTools.width - 140) height:95 visible:false
 		radiobuttons rdoNormalFlip "" labels:#("法线翻转","不变") columns:2 pos:[12,175] width:100 visible:false
@@ -117,12 +117,13 @@ global dragStateBsADT = off
 		groupbox gpbToonMat "简易卡通材质" pos:[140,155] width:(rolBsAnimDemoTools.width - 145) height:95 visible:false
 		colorpicker cpPureToonColor "" pos:[140,175] width:25 height:20 visible:false color:(color 255 60 60)
 		button btnApplyPureToonMat "应用纯色材质" pos:[170,175] width:85 height:20 visible:false
-		button btnTint "色调环境光" pos:[145,200] width:75 height:20 visible:false
-		button btnTwoSides "双面" pos:[225,200] width:30 height:20 visible:false
-		button btnReCollectMat "整理" pos:[215,225] width:40 height:20 visible:false
-		edittext edtWatermarkText "水印文字" pos:[5,257] width:125 height:16 visible:false
-		button btnFileWM "文件水印" pos:[135,255] width:60 height:20 visible:false
-		button btnRnderWM "渲染水印" pos:[200,255] width:60 height:20 visible:false
+		button btnReCollectMat "整理 | #1页" pos:[145,200] width:70 height:20 visible:false
+		button btnTint "环境" pos:[215,200] width:40 height:20 visible:false
+		button btnRenderSet "渲染设置" pos:[205,225] width:50 height:20 visible:false
+		edittext edtWatermarkText "水印" pos:[5,257] width:125 height:16 visible:false
+		button btnAddWaterMark "生成" pos:[135,255] width:50 height:20 visible:false tooltip:"简陋水印, 默认创建在右下角，字体很小，跟随文件" images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false,true)
+		button btnSelWM "选中" pos:[190,255] width:35 height:20 visible:false tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true,false)
+		button btnDelWM "清除" pos:[230,255] width:30 height:20 visible:false tooltip:"清除" images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 
@@ -135,9 +136,9 @@ global dragStateBsADT = off
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnDeleteLight,gbpFloor,btnCreateFloor, \
 											btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll, \
 											btnCameraPlane,btnSelectCameraPlane,btnRefCam,btnReflection))
-		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,ckbOpacityMat,ckbApplyEffMat,btnOpenEffPath,btnClearMat,gpbToonMat,rdoNormalFlip, \
+		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnAddWaterMark,btnSelWM,ckbOpacityMat,ckbApplyEffMat,btnOpenEffPath,btnClearMat,gpbToonMat,rdoNormalFlip, \
 											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat, \
-											btnUnFreezeLineMesh,btnFreezeLineMesh,btnReCollectMat,btnTint,btnTwoSides))
+											btnUnFreezeLineMesh,btnFreezeLineMesh,btnReCollectMat,btnTint,btnRenderSet,btnDelWM))
 		local arrAllToolsTab = #(arrGhostTrails,arrDemoScene,arrDemoEff,arrDemoMat)
 	
 		fn fnInitDotTabs =
@@ -722,6 +723,14 @@ global dragStateBsADT = off
 			) else (
 				messageBox "未找到可操作的灯光对象！" title:"警告"
 			)
+		)
+
+		fn fnAddWaterMark text =
+		(
+			local sldWM = sliderManipulator isSelected:on hide:on sldName:text xPos:0.8 yPos:1 name:(uniquename "BsWaterMark")
+			sldWM.isfrozen = on
+			sldWM.showFrozenInGray = off
+			-- actionMan.executeAction 0 "59225"  -- Tools: Select and Manipulate
 		)
 
 		on btnRegister pressed do
@@ -1372,7 +1381,7 @@ global dragStateBsADT = off
 				for i in selection where i != undefined do 
 				(
 					outlineMesh = copy i 
-					outlineMesh.name = uniquename (i.name + "_BSOutLine")
+					outlineMesh.name = uniquename (i.name + "_BsOutLine")
 					-- 添加Normal修改器并翻转法线
 					addModifier outlineMesh (Normalmodifier flip:on)
 					addModifier outlineMesh (push ui:on pushvalue:-3) 
@@ -1398,16 +1407,16 @@ global dragStateBsADT = off
 
 		on btnSelLineMesh pressed do 
 		(
-			try(select $'*_BSOutLine*'[1])catch(messageBox "失败,可能场景内没有描边物体或命名已被修改...                            " title:"BsAnimDemoTools")
+			try(select $'*_BsOutLine*'[1])catch(messageBox "失败,可能场景内没有描边物体或命名已被修改...                            " title:"BsAnimDemoTools")
 		)
 
 		on btnUnFreezeLineMesh pressed do 
 		(
 			try
 			(
-				$'*_BSOutLine*'[1].isfrozen = off
-				$'*_BSOutLine*'[1].showFrozenInGray = off
-				select $'*_BSOutLine*'[1]
+				$'*_BsOutLine*'[1].isfrozen = off
+				$'*_BsOutLine*'[1].showFrozenInGray = off
+				select $'*_BsOutLine*'[1]
 			)catch()
 		)
 
@@ -1415,17 +1424,89 @@ global dragStateBsADT = off
 		(
 			try
 			(
-				$'*_BSOutLine*'[1].isfrozen = on
-				$'*_BSOutLine*'[1].showFrozenInGray = off
+				$'*_BsOutLine*'[1].isfrozen = on
+				$'*_BsOutLine*'[1].showFrozenInGray = off
 				clearselection()
 			)catch()
 		)
 
 		on btnDeleteLine pressed do 
 		(
-			undo "deleteBSOutLine" on
+			undo "deleteBsOutLine" on
 			(
-				try(delete $'*_BSOutLine*';messagebox "清除 BSOutLine 描边相关物体成功!                        " title:"BsAnimDemoTools")catch()
+				try(delete $'*_BsOutLine*';messagebox "清除 BsOutLine 描边相关物体成功!                        " title:"BsAnimDemoTools")catch()
+			)
+		)
+
+		on btnTint pressed do 
+		(
+			actionMan.executeAction 0 "40029"  -- Render: Environment Dialog Toggle
+		)
+
+		on btnRenderSet pressed do
+		(
+			actionMan.executeAction 0 "60010"  -- Render: Render SetUp...
+		)
+
+		on btnReCollectMat pressed do 
+		(
+			disableSceneRedraw()
+			if scenematerials.count>0 and geometry.count>0 do
+			(
+				s = scenematerials.count
+				x=int(s/24)
+				y=mod s 24 
+				if k== undefined then k=1
+				if k > x+2 do k=1
+				if y>0 and k == x+1 then
+				(
+					for j=1 to 24 do
+					(
+						new_mat_name = (j+24*(k-1)) as string + " - Default"
+						meditMaterials[j] = standard name:new_mat_name
+					)
+					for i = 1 to y do
+					(
+						meditMaterials[i] = sceneMaterials[i+24*(k-1)]
+					)
+					
+				)else
+				(
+					for j=1 to 24 do
+					(
+						meditMaterials[j]=sceneMaterials[j+24*(k-1)]
+					)
+				)
+				k=k+1
+				pushPrompt ("第 "as string+k as string+" 批材质成功运行!! "as string +s as string+"个场景材质。")
+				if k==x+1 and y==0 do k=1
+				if k==x+2 and y>0 do k=1
+				btnReCollectMat.caption = "整理 | #" + k as string + "页"
+			)
+			if scenematerials.count==0 do (pushPrompt ("本场景没有任何材质"))
+			enableSceneRedraw()
+		)
+
+		on btnAddWaterMark pressed do
+		(
+			if edtWatermarkText.text != "" then 
+			(
+				fnAddWaterMark edtWatermarkText.text
+				messageBox "水印添加成功!请在右侧属性面板中调整位置...\r\n\r\n文字大小只有这么大, 勉强可做文件个人标记~\r\n\r\n高级水印请用后期添加!                                                  " title:"BsAnimDemoTools"
+			)
+			else 
+			(
+				messageBox "请先在左侧输入水印文字...                          " title:"BsAnimDemoTools"
+			)
+		)
+
+		on btnSelWM pressed do (actionMan.executeAction 0 "59225";select $BsWaterMark*[1])
+
+		on btnDelWM pressed do 
+		(
+			undo "deleteWaterMark" on
+			(
+				try(delete $BsWaterMark*;messagebox "清除水印成功!                      " title:"BsAnimDemoTools")catch()
 			)
 		)
 	)
