@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-12 21:33:04
+ * @LastEditTime: 2025-02-12 22:19:59
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -108,7 +108,7 @@ global dragStateBsADT = off
 		button btnClearMat "清除" pos:[220,120] width:35 height:25 visible:false
 		groupbox gpbLineMat "卡通描边" pos:[5,155] width:(rolBsAnimDemoTools.width - 140) height:95 visible:false
 		radiobuttons rdoNormalFlip "" labels:#("法线翻转","不变") columns:2 pos:[12,175] width:100 visible:false
-		colorpicker cpLineColor "" pos:[8,199] width:25 height:20 visible:false color:(color 30 30 30)
+		colorpicker cpLineColor "" pos:[8,199] width:25 height:20 visible:false color:(color 10 10 10)
 		checkbutton ckbApplyLineMat "添加描边" pos:[40,199] width:85 height:20 visible:false checked:true
 		button btnSelLineMesh "选" pos:[10,225] width:25 height:20 visible:false tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true,false)
 		button btnUnFreezeLineMesh "解" pos:[40,225] width:25 height:20 visible:false tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true,false)
@@ -1362,6 +1362,71 @@ global dragStateBsADT = off
 		on btnClearMat pressed do 
 		(
 			try(fnSetDefaultMat $)catch(messageBox "失败,请检查是否选中场景内物体...             " title:"BsAnimDemoTools")
+		)
+
+		on ckbApplyLineMat changed state do 
+		(
+			ckbApplyLineMat.state = true
+			if selection.count != 0 then 
+			(
+				for i in selection where i != undefined do 
+				(
+					outlineMesh = copy i 
+					outlineMesh.name = uniquename (i.name + "_BSOutLine")
+					-- 添加Normal修改器并翻转法线
+					addModifier outlineMesh (Normalmodifier flip:on)
+					addModifier outlineMesh (push ui:on pushvalue:-3) 
+					-- 设置背面消隐
+					outlineMesh.backfacecull = on
+					
+					--否则预览窗不会显示贴图
+					outlineMesh.mapcoords = on
+					
+					-- 创建描边材质
+					local outlineMat = InkNPaint()
+					outlineMat.name           = uniquename "OUTLINE_MAT"
+					outlineMat.paint_color    = cpLineColor.color
+					outlineMat.showInViewport = true
+					outlineMesh.material      = outlineMat
+					select outlineMesh
+					-- setCommandPanelTaskMode mode: #modify
+				)
+				messageBox "创建描边完成,请调整右侧 Push Value (通常为负数)...                              " title:"BsAnimDemoTools"
+			)
+			else (messageBox "失败,请检查是否选中场景内物体...             " title:"BsAnimDemoTools")
+		)
+
+		on btnSelLineMesh pressed do 
+		(
+			try(select $'*_BSOutLine*'[1])catch(messageBox "失败,可能场景内没有描边物体或命名已被修改...                            " title:"BsAnimDemoTools")
+		)
+
+		on btnUnFreezeLineMesh pressed do 
+		(
+			try
+			(
+				$'*_BSOutLine*'[1].isfrozen = off
+				$'*_BSOutLine*'[1].showFrozenInGray = off
+				select $'*_BSOutLine*'[1]
+			)catch()
+		)
+
+		on btnFreezeLineMesh pressed do 
+		(
+			try
+			(
+				$'*_BSOutLine*'[1].isfrozen = on
+				$'*_BSOutLine*'[1].showFrozenInGray = off
+				clearselection()
+			)catch()
+		)
+
+		on btnDeleteLine pressed do 
+		(
+			undo "deleteBSOutLine" on
+			(
+				try(delete $'*_BSOutLine*';messagebox "清除 BSOutLine 描边相关物体成功!                        " title:"BsAnimDemoTools")catch()
+			)
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()
