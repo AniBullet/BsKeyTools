@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-11 20:45:57
+ * @LastEditTime: 2025-02-12 21:33:04
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -66,7 +66,7 @@ global dragStateBsADT = off
 		spinner spnU "横" pos:[10,240] width:50 height:20 range:[-99999,99999,4] type:#integer align:#left visible:false
 		spinner spnV "纵" pos:[10,260] width:50 height:20 range:[-99999,99999,4] type:#integer align:#left visible:false
 		label lblFrameOffset "↓ 隔帧 ↓" pos:[75,240] width:50 height:20 visible:false
-		spinner spnFrameOffest "" pos:[75,260] width:40 height:20 range:[-99999,99999,0] type:#integer align:#left visible:false
+		spinner spnFrameOffest "" pos:[75,260] width:40 height:20 range:[-99999,99999,1] type:#integer align:#left visible:false
 		button btnOpenPath "仓库" pos:[125,240] width:40 height:20 visible:false 
 		checkbutton ckbLoopToogle "循环" pos:[125,260] width:40 height:20 visible:false
 		checkbutton ckbApplyEff "应用图集特效" pos:[170,240] width:90 height:40 visible:false checked:true
@@ -102,10 +102,10 @@ global dragStateBsADT = off
 		button btnClearAll "清除所有" pos:[200,250] width:60 height:25 visible:false
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 100) pos:[5,-500]
-		radiobuttons rdoMatType "" labels:#("普通材质","流体材质") columns:1 pos:[180,60] width:80 visible:false
-		checkbutton ckbApplyEffMat "应用材质" pos:[175,100] width:80 height:25 visible:false checked:true
-		button btnOpenEffPath "仓库" pos:[175,130] width:40 height:20 visible:false images: #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
-		button btnClearMat "清除" pos:[220,130] width:35 height:20 visible:false
+		checkbox ckbOpacityMat "开启透明" checked:false pos:[180,65] width:80 visible:false
+		checkbutton ckbApplyEffMat "应用材质" pos:[175,85] width:80 height:30 visible:false checked:true
+		button btnOpenEffPath "仓库" pos:[175,120] width:40 height:25 visible:false images: #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
+		button btnClearMat "清除" pos:[220,120] width:35 height:25 visible:false
 		groupbox gpbLineMat "卡通描边" pos:[5,155] width:(rolBsAnimDemoTools.width - 140) height:95 visible:false
 		radiobuttons rdoNormalFlip "" labels:#("法线翻转","不变") columns:2 pos:[12,175] width:100 visible:false
 		colorpicker cpLineColor "" pos:[8,199] width:25 height:20 visible:false color:(color 30 30 30)
@@ -135,7 +135,7 @@ global dragStateBsADT = off
 											btnOmniLight,btnSpotLight,btnDirectLight,btnSkyLight,btnDeleteLight,gbpFloor,btnCreateFloor, \
 											btnFreezeFloor,btnUnfreezeFloor,btnDeleteFloor,btnMakePreview,btnOpenPrevPath,btnMakeRenderer,btnClearAll, \
 											btnCameraPlane,btnSelectCameraPlane,btnRefCam,btnReflection))
-		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,rdoMatType,ckbApplyEffMat,btnOpenEffPath,btnClearMat,gpbToonMat,rdoNormalFlip, \
+		local arrDemoMat     = #("材质水印",#(edtWatermarkText,btnFileWM,btnRnderWM,ckbOpacityMat,ckbApplyEffMat,btnOpenEffPath,btnClearMat,gpbToonMat,rdoNormalFlip, \
 											gpbLineMat,cpLineColor,ckbApplyLineMat,btnSelLineMesh,btnDeleteLine,cpPureToonColor,btnApplyPureToonMat, \
 											btnUnFreezeLineMesh,btnFreezeLineMesh,btnReCollectMat,btnTint,btnTwoSides))
 		local arrAllToolsTab = #(arrGhostTrails,arrDemoScene,arrDemoEff,arrDemoMat)
@@ -299,7 +299,7 @@ global dragStateBsADT = off
 			catch()
 		)
 
-		function fnApplyMat objs tex =
+		function fnApplyMat objs tex cutout:true =
 		(
 			for i in objs do
 			(
@@ -311,20 +311,45 @@ global dragStateBsADT = off
 					(
 						i.material = standardMaterial showInViewport:true name: ("Mat_BsGhostTrails_"+i.name)
 						i.material.diffuseMap       = bitmapTex1
-						i.material.opacityMap       = bitmapTex1
-						i.material.opacityMapAmount = 100
+						if cutout do 
+						(
+							i.material.opacityMap       = bitmapTex1
+							i.material.opacityMapAmount = 100
+						)
 					)
 					else 
 					(
 						try(i.modifiers[#GhostTrails].generateMap = on)catch()
 						i.material                = physicalMaterial showInViewport:true name: ("Mat_BsGhostTrails_"+i.name)
 						i.material.base_color_map = bitmapTex1
-						i.material.cutout_map     = bitmapTex1
-						i.material.cutout_map_on  = true
+						if cutout do
+						(
+							i.material.cutout_map     = bitmapTex1
+							i.material.cutout_map_on  = true
+						)
 					)
 					showTextureMap i.material true
 				)
 			)
+		)
+		fn fnSetDefaultMat objs =
+		(
+			for i in objs do
+			(
+				if objs != undefined then
+				(
+					
+					if ((maxVersion())[1] < 2200) then 
+					(
+						i.material   = standardMaterial()
+					)
+					else 
+					(
+						i.material = physicalMaterial()
+					)
+				)
+			)
+			completeRedraw()
 		)
 
 		--设置UV大小
@@ -1326,6 +1351,17 @@ global dragStateBsADT = off
 					messagebox "清除环境成功!                      " title:"BsAnimDemoTools"
 				)catch()
 			)
+		)
+
+		on ckbApplyEffMat changed state do 
+		(
+			ckbApplyEffMat.state = true
+			try(fnApplyMat $ selFlowTex cutout:ckbOpacityMat.state)catch(messageBox "失败,请检查是否选中左侧材质和场景内物体...             " title:"BsAnimDemoTools")
+		)
+
+		on btnClearMat pressed do 
+		(
+			try(fnSetDefaultMat $)catch(messageBox "失败,请检查是否选中场景内物体...             " title:"BsAnimDemoTools")
 		)
 	)
 	createDialog rolBsAnimDemoTools style:#()
