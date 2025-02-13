@@ -797,7 +797,7 @@ rollout rolBsOpenTools "" width:580 height:400
 			(
 				append arrRecentFilesName ("📄 " + (getFilenameFile i) + ".max")
 			)
-			else append arrRecentFilesName ("📄 ( X ) " + (getFilenameFile i) + ".max")
+			else append arrRecentFilesName ("📄 ( X )  " + (getFilenameFile i) + ".max")
 		)
 		rdoFileType.state  = 1
 		ltbFilesList.items = arrRecentFilesName
