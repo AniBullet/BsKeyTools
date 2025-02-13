@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-09 12:56:11
+ * @LastEditTime: 2025-02-14 00:52:08
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -481,6 +481,7 @@ rcmenu menuConfig
 		menuItem mItemBackupConfigFile "备份配置 [到电脑桌面]"
 		menuItem mItemDarkEditor "深色编辑器 [Maxscript]"
 		menuItem mItemHelpDocs "脚本文档 [3dsMax官方]"
+		menuItem mItemFBXReview "FBX查看器 [3dsMax官方]"
 		menuItem mItemRolloutBuilder "脚本界面创建 [学习工具]"
 		menuItem mItemHwndViewer "句柄研究 [查看工具]"
 		menuItem mItemDotNetProperty "DotNet属性 [索引工具]"
@@ -1429,6 +1430,12 @@ rcmenu menuConfig
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Show.NetProperty.ms"))
 		catch(messagebox "打开 Show.NetProperty.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on mItemFBXReview picked do
+	(
+		try(shelllaunch ((getDir #scripts) + "\\BulletScripts\\Res\\fbxreview.exe") "")
+		catch(messagebox "打开 FBXReview 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemIsStartup picked do 

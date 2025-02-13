@@ -8,11 +8,11 @@ global offsetBsBoxMan = [0,0]
 global dragStateBsBoxMan = off
 
 (
-	local LastSubRollout = 1
-	
+	local LastSubRollout    = 1
 	rollout rolBsBoxMan "" width:260 height:430
 	(
-		local dotColor = dotnetclass "System.Drawing.Color"
+		local dotColor       = dotnetclass "System.Drawing.Color"
+		local pathWeaponPack = ((getDir #scripts) + "\\BulletScripts\\Res\\LowPolyWeaponsPack\\")
 
 		button btnAbout "?" pos:[rolBsBoxMan.width - 40,0] height:16 width:20
 		button btnClose "X" pos:[rolBsBoxMan.width - 20,0] height:16 width:20
@@ -89,8 +89,12 @@ global dragStateBsBoxMan = off
 		button uiBtnHelp "RefBones 关于，原作者" visible:false width:240 pos:[10, 240]
 		label lblSuggest "欢迎提供建议或灵感，\r\n可以点击下方横幅联系~" visible:false width:240 height:60 pos:[20, 300]
 
------------------------------------------------------------------------------------------------------------------------------------------
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		listBox ltbWeaponTypes "类型" pos:[15,65] width:130 height:10 visible:false selection:0
+		listBox ltbWeaponPick "选择" pos:[155,65] width:95 height:8 visible:false selection:0
+		button btnCreateWeapon ">> 添加进场景 <<" pos:[155,197] width:95 height:20 visible:false
+		button btnWeaponPreview ">> 预览 <<" pos:[5,225] width:250 height:180 visible:false
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		groupBox gpbType "" pos:[5,55] width:250 height:145 visible:false
 
 		radiobuttons radObject "类型" pos:[20,70] labels:#( "几何体", "形状", "所有组", "所有物体", "选择物体" )  visible:false
@@ -132,7 +136,7 @@ global dragStateBsBoxMan = off
 			sldHeightValue,gpbDisplayUnit,gpbSystemUnit,btnGetUnit,ddlSystemUnit,ddlMetric,lblLenthValue,lblWidthValue,lblHeightValue))
 		local arrRefBones = #("参考骨骼",#(lblSuggest,gpbRefDummy,gpbRefBone,uiChkKeepParent,uiBtnClearAll,chkProcess,uiBtnSelect,uiSpnBoneWidth,uiColorWireColor,uiChkOptPos,\
 			uiChkOptRot,uiChkOptScale,uiChkOptInheritScale,uiDummySize,uiBtnDummy,uiBtnHelp))
-		local arrEquipTools = #("⚔️ 装备",#())
+		local arrEquipTools = #("⚔️ 装备",#(ltbWeaponTypes,ltbWeaponPick,btnCreateWeapon,btnWeaponPreview))
 		local arrColorTools = #("🎨 调色",#(gpbRealTime,gpbType,radObject,radColor,chkIsInstance,btnRandom,gpbGradient,cpGradient1,cpGradient2,\
 			cp,gpbMaterial,radMaterial,btnConverter,radErase,btnErase,author,edtValue,btnSet,btnSet0,btnSet100,sldValue,lnkLink))
 		local arrAllToolsTab = #(arrCreateBox,arrRefBones,arrEquipTools,arrColorTools)
@@ -501,13 +505,50 @@ global dragStateBsBoxMan = off
 			)
 		)
 
-		on tabBoxMan Selected itm do
+		fn fnRefreshWeaponTypeList = 
 		(
-			arrID = (itm.TabPageIndex + 1)
-			if LastSubRollout != arrID do --避免点击重复
+			if pathWeaponPack != undefined and pathWeaponPack != "" then
 			(
-				fnChangeToolsVisble arrID
-			) 
+				local arrWeaponTypePath = getDirectories (pathWeaponPack + "*")
+				local arrWeaponTypesString = #()
+				local arrWeaponPickName = #()
+				for i in arrWeaponTypePath do 
+				(
+					local arrPath = (filterstring i "\\")
+					append arrWeaponTypesString arrPath[arrPath.count]
+				)
+				if ltbWeaponTypes.selection > 0 then
+				(
+					local pathWeaponPick = pathWeaponPack + arrWeaponTypesString[ltbWeaponTypes.selection]
+					local arrWeaponPick = getFiles (pathWeaponPick + "\\*.fbx")
+					arrWeaponPickName =  for j in arrWeaponPick collect (getFilenameFile j)
+				)
+				ltbWeaponTypes.items = arrWeaponTypesString
+				ltbWeaponPick.items = arrWeaponPickName
+			)
+		)
+
+		fn fnRefreshWeaponPreview = 
+		(
+			if ltbWeaponTypes.selection != 0 and ltbWeaponPick.selection != 0 then
+			(
+				local fileWeapon = (pathWeaponPack + ltbWeaponTypes.selected + "\\" + ltbWeaponPick.selected + ".png")
+				btnWeaponPreview.images = #(fileWeapon, undefined, 1,1,1,1,1 ) 
+			)
+		)
+
+		fn fnAddWeapon = 
+		(
+			if ltbWeaponTypes.selection != 0 and ltbWeaponPick.selection != 0 then
+			(
+				local fileWeapon = (pathWeaponPack + ltbWeaponTypes.selected + "\\" + ltbWeaponPick.selected + ".fbx")
+
+				FbxImporterSetParam "Mode" #create
+				
+				importFile fileWeapon #noPrompt
+				
+				messagebox "已导入简易武器,可自行改色,缩放大小~                                    " title:"BsBoxMan"
+			)
 		)
 		
 		on rolBsBoxMan open do
@@ -516,6 +557,7 @@ global dragStateBsBoxMan = off
 			fnChangeToolsVisble (tabBoxMan.SelectedIndex + 1)
 			fnRefreshUnite()
 			fnRefreshSliderValue()
+			-- fnRefreshWeaponTypeList()
 
 			callbacks.addScript #filePostOpen "rolBsBoxMan.fnRefreshUnite ()" id:#BsBoxManCallbackOpen
 			callbacks.addScript #systemPostNew "rolBsBoxMan.fnRefreshUnite ()" id:#BsBoxManCallbackNew
@@ -557,6 +599,46 @@ global dragStateBsBoxMan = off
 				SetDialogPos rolBsBoxMan (mouse.screenpos - offsetBsBoxMan)
 			)
 		)
+
+		on tabBoxMan Selected itm do
+		(
+			arrID = (itm.TabPageIndex + 1)
+			if LastSubRollout != arrID do --避免点击重复
+			(
+				fnChangeToolsVisble arrID
+			) 
+			if arrID == 3 then fnRefreshWeaponTypeList()
+		)
+
+		on ltbWeaponTypes selected id do (fnRefreshWeaponTypeList();fnRefreshWeaponPreview())
+
+		on ltbWeaponPick selected id do (fnRefreshWeaponPreview())
+
+		on ltbWeaponPick doubleclicked id do (fnAddWeapon())
+
+		on btnCreateWeapon pressed do (fnAddWeapon())
+
+		on ltbWeaponPick rightclick id do
+		(
+			if ltbWeaponTypes.selection != 0 and ltbWeaponPick.selection != 0 then
+			(
+				local fileWeapon = (pathWeaponPack + ltbWeaponTypes.selected + "\\" + ltbWeaponPick.selected + ".fbx")
+				ShellLaunch fileWeapon ""
+			)
+		)
+
+		on btnWeaponPreview rightclick do 
+		(
+			if ltbWeaponTypes.selection != 0 and ltbWeaponPick.selection != 0 then
+			(
+				local fileWeapon = (pathWeaponPack + ltbWeaponTypes.selected + "\\" + ltbWeaponPick.selected + ".png")
+				ShellLaunch fileWeapon ""
+			)
+		)
+
+		on btnCreateWeapon rightclick do (ShellLaunch pathWeaponPack "")
+
+		on btnWeaponPreview pressed do (fnAddWeapon())
 
 		on chkCreateBodyBox changed state do
 		(
