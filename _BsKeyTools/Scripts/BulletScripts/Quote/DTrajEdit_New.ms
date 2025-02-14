@@ -1,2012 +1,1077 @@
--- coding: utf-8
+-- åç§°ï¼šè½¨è¿¹æ’ä»¶ç»ˆæç‰ˆé‡ç½®ç‰ˆ
+-- ä½œè€…:ä¸œè§äº‘
+-- ç‰ˆæœ¬ï¼šv1.0
+-- 3dsmaxï¼š2014+
+-- åŠŸèƒ½ï¼šåŠ¨ç”»è½¨è¿¹
+-- è”ç³»æ–¹å¼ï¼šyun7928903@163.com
+
+
+---å°è¯•å…³é—­å›è°ƒ
+try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()
+try unregisterRedrawViewsCallback yunMotionPathCallBackFn_exc catch()
+----å°è¯•å…³é—­ç•Œé¢
+try DestroyDialog  yunTrajedit_rollout catch ()
+	
+function yunTrajEdit_UpdateRollout = () -- Protoæ”¾æŠ¥é”™åˆå§‹åŒ–	
+
+---å®šä¹‰ç›¸å¯¹ç”¨çš„ç›¸æœº	
+global yunTrajEdit_DTrajs_camRef = false
+
+---å®šä¹‰æ‰€æœ‰è½¨è¿¹	
+global yunTrajEdit_DTrajs  
+if yunTrajEdit_DTrajs == undefined do yunTrajEdit_DTrajs = #()
+-----è½¨è¿¹ç‚¹æ ‡æ˜¾éšç”¨
+global yunTrajEdit_DTrajs_dot 
+if yunTrajEdit_DTrajs_dot == undefined do yunTrajEdit_DTrajs_dot = #()
+-----è½¨è¿¹æ˜¾éšç”¨
+global yunTrajEdit_DTrajs_vis
+if yunTrajEdit_DTrajs_vis == undefined do yunTrajEdit_DTrajs_vis = #()
+-----å®æ—¶å¼€å…³ç”¨
+global yunTrajEdit_DTrajs_timeLong
+if yunTrajEdit_DTrajs_timeLong == undefined do yunTrajEdit_DTrajs_timeLong = #()
+
+-----æ’­æ”¾å¼€å…³ç”¨
+global yunTrajEdit_DTrajs_play
+if yunTrajEdit_DTrajs_play == undefined do yunTrajEdit_DTrajs_play = #()
+
+
+-----å…³é”®å¸§æ˜¾éšç”¨
+global yunTrajEdit_DTrajs_keyVis
+if yunTrajEdit_DTrajs_keyVis == undefined do yunTrajEdit_DTrajs_keyVis = #()
+
+
+-----å¼€å§‹é¢œè‰²ç”¨
+global yunTrajEdit_DTrajs_colStart
+if yunTrajEdit_DTrajs_colStart == undefined do yunTrajEdit_DTrajs_colStart = #()
+
+
+-----ç»“æŸé¢œè‰²ç”¨
+global yunTrajEdit_DTrajs_colEnd
+if yunTrajEdit_DTrajs_colEnd == undefined do yunTrajEdit_DTrajs_colEnd = #()
+
+-----æ¸å˜é¢œè‰²å¼€å…³ç”¨
+global yunTrajEdit_DTrajs_isGradual
+if yunTrajEdit_DTrajs_isGradual == undefined do yunTrajEdit_DTrajs_isGradual = #()
+ 
+fn HSV_to_RGB hsv = 
+		(
+			hsv /= 255
+			h = hsv.x*6
+			i = h as integer
+			k = if (mod i 2) == 1 then (h-i) else (1-h+i)
+			m = hsv.z*(1-hsv.y)
+			n = hsv.z*(1-hsv.y*k)
+			case i of
+			(
+					1: [n, hsv.z, m]*255
+					2: [m, hsv.z, n]*255
+					3: [m, n, hsv.z]*255
+					4: [n, m, hsv.z]*255
+					5: [hsv.z, m, n]*255
+			  default: [hsv.z, n, m]*255
+			)
+		)
+
+----è·å–é€‰æ‹©çš„å¸§
+selKeyArray = #()  ---åˆå§‹åŒ–ä¸å¯å°‘
+fn getAnimProp_yunEdit obj =
+(   
+try 
 (
-	global BipFastAssembly = undefined
-	--bip¼ÓËÙÄ£¿é
-	--²»Í¬°æ±¾autodest.max.dllµÄÊÊÅä
-	--´óÓÚmax2010Ğ¡ÓÚmax2022¡¢´óÓÚµÈÓÚmax2022£¬Ğ¡ÓÚµÈÓÚmax2018  C#ÅÜmaxscriptº¯ÊıĞèÒªµÄĞÎ²Î²»Ò»Ñù
-	--max2016»¹ÓĞFPVlalueÄÚ´æ»ØÊÕÎÊÌâ£¬ĞèÒª×ª´æFPVlalue
-	if (maxVersion())[1] >= 21000 and  (maxVersion())[1] < 24000 then
-	(
-		strVersionDiff = "g.ExecuteMAXScriptScript(MXS_script, true, v, true);"
-		strVersionDiff_deffer = "g.ExecuteMAXScriptScript(MXS_script, true, vv, true);"
-		strVersionDiff_communicate = "g.ExecuteMAXScriptScript(MXS_script, true, null, true);"
-		strVersionDiff_setNobipBones = "g.ExecuteMAXScriptScript(script, true, null, true);"
+	local keytest  = #()
+	if classof obj != SubAnim then
+	( selKeyArray = #() )
+	if classof obj ==Biped_Object  then
+	(	
+		if (obj.controller != undefined) do
+		(
+			cs_Bone =  (for o in objects where classOf o == Biped_Object  OR (try(classOf o.transform.controller == BipSlave_Control)catch(false)) collect o)	
+			if obj.name==(cs_Bone[1].controller.rootName) then 				
+			(
+				for k in obj.controller[1].keys do	(appendIfUnique  selKeyArray k.time)
+				for k in obj.controller[2].keys do	(appendIfUnique  selKeyArray k.time)
+				for k in obj.controller[3].keys do	(appendIfUnique  selKeyArray k.time)			
+			)
+			else if (keyTest = obj.controller.keys) != undefined and keyTest.count > 0 do
+			(
+				keytest = obj.controller.keys
+				for k in 1 to keyTest.count  do ( appendIfUnique  selKeyArray keytest[k].time )
+			)
+		)
 	)
-	else if (maxVersion())[1] >= 24000  then
-	(
-		strVersionDiff = "g.ExecuteMAXScriptScript(MXS_script,0, true, v, true);"
-		strVersionDiff_deffer = "g.ExecuteMAXScriptScript(MXS_script,0, true, vv, true);"
-		strVersionDiff_communicate = "g.ExecuteMAXScriptScript(MXS_script,0, true, null, true);"
-		strVersionDiff_setNobipBones = "g.ExecuteMAXScriptScript(script,0, true, null, true);"
-	)
+	---ébipç‰©ä½“
 	else 
 	(
-		strVersionDiff = "g.ExecuteMAXScriptScript(MXS_script, true, v);"
-		strVersionDiff_deffer = "g.ExecuteMAXScriptScript(MXS_script, true, vv);"
-		strVersionDiff_communicate = "g.ExecuteMAXScriptScript(MXS_script, true, null);"
-		strVersionDiff_setNobipBones = "g.ExecuteMAXScriptScript(script, true, null);"
-	
-	)
-	--max2022¿ªÊ¼ÆúÓÃÁË IBipMaster12¸ÄÎª" + bip_sdk_VarName+ " 
-	if (maxVersion())[1] >= 24000  then
-	(
-		bip_sdk_Varclass = "IIBipDriver12"
-		bip_sdk_VarName = "IBipDriver12"
-		bip_sdk_GetFunction = "GetBipDriver12Interface"
-	)
-	else
-	(
-		bip_sdk_Varclass = "IIBipMaster12"
-		bip_sdk_VarName = "IBipMaster12"
-		bip_sdk_GetFunction = "GetBipMaster12Interface"
-	)
-	
-	--max2016µÄµ¥¶À´¦Àí,FPVlaue·µ»ØµÄNtabÀï´æµÄIInodeÔÚmax2016ÖĞ±ØĞëÓÃIntPtrÖ¸ÕëÄÃµ½
-	if   (maxVersion())[1] == 18000  then 
-	(
-		global ValueFormMaxBackToC = "
-					for (int i = 0; i < v.NTab.Count; i++)
-					{ 
-						IntPtr ptr = new IntPtr(i);
-						bipedBones.Add(v.NTab[ptr]); 
-					}"     
-	)
-	else
-	(
-		global ValueFormMaxBackToC = "
-					for (int i = 0; i < v.NTab.Count; i++)
-					{ bipedBones.Add(v.NTab[i]); }"
-			 
-	)
-	
-	
-	global CSharpCodeSourceBipFast ="
-    using System.Collections.Generic;
-    using Autodesk.Max;
-    using System.IO;
-    using System.Threading.Tasks;
-    using System;
-	
-	namespace bipedSetTM
-	{
-		public class SetTM_test
-		{
-			internal static readonly IGlobal g = GlobalInterface.Instance;
-			internal static readonly IInterface13 ip = g.COREInterface13;
-	
-			//»ñÈ¡ËùÓĞµÄbip
-			public static List<IINode> GetBipAll()
-			{
-				string MXS_script = \"for o in objects where isKindOf o Biped_Object collect o\";
-				List<IINode> bipedBones = new List<IINode>();
-				IFPValue v = g.FPValue.Create();
-				" + strVersionDiff + "
-				" + ValueFormMaxBackToC + "
-				return bipedBones.Count > 0 ? bipedBones : null;
-			}
-	
-			public static " + bip_sdk_Varclass + " GetBipMaster(IINode inputBip)
-			{
-				try
-				{
-					" + bip_sdk_Varclass + " bipMaster = g." + bip_sdk_VarName+ "." + bip_sdk_GetFunction + "(inputBip.TMController);  
-					return bipMaster;
-				}
-				catch
-				{
-					return null;
-				}
-			}
-	   
-			public static List<" + bip_sdk_Varclass + "> GetBipCOMAndMaster()
-			{
-				string MXS_script = \"for o in objects where isKindOf o Biped_Object collect o\";
-				List<IINode> bipedBones = new List<IINode>();
-				IFPValue v = g.FPValue.Create();
-				" + strVersionDiff + "
-				"+ ValueFormMaxBackToC +"
-				
-	
-				if (bipedBones.Count == 0)
-				{
-					return null;
-				}
-				List<" + bip_sdk_Varclass + "> uniqueBipMasters = new List<" + bip_sdk_Varclass + ">();	
-				foreach (IINode node in bipedBones)
-				{
-					" + bip_sdk_Varclass + " bipMaster = GetBipMaster(node);
-					if (bipMaster != null)
-					{
-						bool isUnique = true;
-						if (bipMaster != null && !uniqueBipMasters.Exists(existingBipMaster => existingBipMaster.RootName == bipMaster.RootName))
-						{
-							uniqueBipMasters.Add(bipMaster);
-						}
-					}
-				}
-				MXS_script = \"print \\\"\" +\"-->³¡¾°ÄÚÓĞ\" + uniqueBipMasters.Count.ToString() + \"Ì×bip¹Ç¼Ü\\\"\";				
-				" + strVersionDiff_communicate + "				
-				return uniqueBipMasters;
-			}
-	
-			/*
-			infileName±©Á¦Õ³ÌùÑ¡ÔñµÄÒªÕ³ÌùµÄ¶¯»­
-			pasteOffset ÊÇÖ¡Æ«ÒÆ
-			frame_arraylÊÇ´«ÈëµÄÖ¡ÊıÊı×é£¬¸ù¾İÖğÖ¡ºÍ¹Ø¼üÖ¡Ä£Ê½±ä»¯            
-			loopTimeÊÇ±©Á¦Õ³Ìù¾«¶ÈÊìÏ¤£¬¾ÍÊÇÒªÕ³Ìù¼¸´Î
-			ACÄ£Ê½´«ÈëÇ°ÔÚframe_arraylmaxÀï´¦Àí        
-			*/
-			public static string pastAnimationEveryFrame(string inFileName, int pasteOffset, string frame_arrayl, int loopTime)
-			{
-				if (!File.Exists(inFileName))
-				{
-					return \"×ËÊÆÎÄ¼ş²»´æÔÚ: \" + inFileName;
-				}
-				List<IINode> allBip = GetBipAll();
-				List<" + bip_sdk_Varclass + "> allBipCOM = GetBipCOMAndMaster();
-				List<string> MXS_scripts_notBIP = new List<string>();
-			
-				//É¾³ı
-				string MXS_script = \"\";
-				char separator = '|';
-				// Ê¹ÓÃSplit·½·¨°´ÕÕÖ¸¶¨µÄ·Ö¸ô·û·Ö¸î×Ö·û´®
-				string[] parts = frame_arrayl.Split(separator);
-				// ´´½¨Ò»¸öList<int>À´´æ´¢×ª»»ºóµÄÕûÊı
-				List<int> intList = new List<int>();
-				foreach (string part in parts)
-				{
-					// ¼ì²é·Ö¸îºóµÄÔªËØÊÇ·ñÎª¿Õ
-					if (!string.IsNullOrEmpty(part))
-					{
-						// ½«·Ç¿Õ×Ö·û´®ÔªËØ×ª»»ÎªÕûÊı²¢Ìí¼Óµ½ÁĞ±íÖĞ
-						intList.Add(int.Parse(part));
-					}
-				}
-				int[] intFrameArray = intList.ToArray();
-	
-				string[] allTexts = File.ReadAllLines(inFileName);
-	
-				//¿ªÆôËùÓĞbip¹Ç¼ÜµÄ¼ÓËÙº¯Êı
-				if (allBipCOM != null)
-				{
-					foreach (" + bip_sdk_Varclass + " bipMaster in allBipCOM)
-					{
-						bipMaster.StartSettingBipedKeys();
-					}
-				}
-				
-				for (int n = 0; n < intFrameArray.Length; n++)
-				{
-					int m = intFrameArray[n];
-					if (ip.SelNodeCount < 1)
-					{
-						return  \"Ã»ÓĞÑ¡ÖĞÈÎºÎ½Úµã\";
-					}
-					for (int i = 0; i < ip.SelNodeCount; i++)
-					{
-						IINode node = ip.GetSelNode(i);
-						IMatrix3 finalTM = g.Matrix3.Create();
-						string targetString = \"<\" + (m + pasteOffset).ToString() + \"f>|\" + node.NodeName + \"|\";
-						//¶ÁÈ¡ĞĞĞÅÏ¢
-						string str_line = FindLineContaining(allTexts, targetString);
-						if (str_line == null)
-						{ continue; }
-						string[] partss = str_line.Split(separator);
-						if (partss.Length <= 1) { continue; }
-						string result = partss[partss.Length - 1];
-						//È¥µô¡° = ¡±                        
-						result = result.Replace(\"=\", \"\");
-	
-						// ÅĞ¶ÏÊÇmaya»¹ÊÇmax×ËÊÆ
-						string[] checkTM = result.Split('#');
-						if (checkTM.Length > 1)
-						{
-							// maya¼ÇÂ¼µÄ¾ØÕó×ª»¯³Émax¾ØÕó
-							MXS_script = \"(\" + checkTM[1] + \" * (matrix3 [1,0,0] [0,0,1] [0,-1,0] [0,0,0])  ) as string\";
-							IFPValue vv = g.FPValue.Create();
-							" + strVersionDiff_deffer + "
-														
-							result = vv.S;
-						}
-	
-						MXS_script = \"at time \" + m.ToString() + \"f ($'\" + node.NodeName + \"'.transform = \" + result + \")\";
-	
-						int frame2tick = (m * g.TicksPerFrame);
-						/////bip ¹Ç÷À                       
-						if (allBip != null && allBip.Contains(node))
-						{
-							MXS_script = result;   //ÖØÔØ±äÁ¿£¬²»ÄÜÉ¾
-							//×Ö·û×ª¾ØÕó
-							IFPValue v = g.FPValue.Create();
-							" + strVersionDiff + "
-							finalTM = v.M;
-							if (finalTM == null) { continue; }
-	
-							" + bip_sdk_Varclass + " bipMasterEach = GetBipMaster(node);
-							int id = 0;
-							int link = 0;
-							bool getBipBoneIdLink = bipMasterEach.GetIdLink(node, ref id, ref link);
-							if (getBipBoneIdLink)
-							{
-								bipMasterEach.SetBipedTM(frame2tick, finalTM, id, link);
-							}
-						}
-						//¼ÇÂ¼¾ØÕó,not_BIP
-						else
-						{
-							string MXS_script_notBIP = \"at time \" + m.ToString() + \"f ($'\" + node.NodeName + \"'.transform = \" + result + \")\";
-							MXS_scripts_notBIP.Add(MXS_script_notBIP);
-						}
-					}
-				}
-				//¹Ø±ÕËùÓĞbip¹Ç¼ÜµÄ¼ÓËÙº¯Êı
-				if (allBipCOM != null)
-				{
-					foreach (" + bip_sdk_Varclass + " bipMaster in allBipCOM)
-					{
-						bipMaster.StopSettingBipedKeys();
-					}
-				}
-				//·ÇbipÎïÌåÎü¸½n±ß
-				int currentLoop = 0;
-				while (currentLoop <= loopTime)
-				{
-					foreach (string script in MXS_scripts_notBIP)
-					{
-						" + strVersionDiff_setNobipBones + "					
-					}
-					currentLoop++;
-				}
-				return \"Õ³ÌùÍê³É\";
-			}
-	
-			//²¢ĞĞ
-			static string FindLineContaining(string[] lines, string target)
-			{
-				object lockObject = new object();
-				string foundLine = null;
-				Parallel.For(1, lines.Length, (i, state) =>
-				{
-					if (lines[i].Contains(target))
-					{
-						lock (lockObject)
-						{
-							foundLine = lines[i];
-							state.Stop();
-						}
-					}
-				});
-				return foundLine;
-			}
-		}
-	}
-	"
-	try
-	(
-		CSharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
-		CompilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
-
-		CompilerParams.ReferencedAssemblies.Add("System.dll")
-		CompilerParams.ReferencedAssemblies.Add("System.Windows.Forms.dll")
-		CompilerParams.ReferencedAssemblies.Add("System.IO.dll")
-		CompilerParams.ReferencedAssemblies.Add("System.Threading.Tasks.dll")
-		compilerParams.ReferencedAssemblies.Add((getdir #maxroot) + @"Autodesk.Max.dll");	
-		CompilerParams.GenerateExecutable = false
-		CompilerParams.GenerateInMemory = true
-
-		CompilerResults = CSharpProvider.CompileAssemblyFromSource CompilerParams #(CSharpCodeSourceBipFast)
-		WinAssembly = CompilerResults.CompiledAssembly
-		BipFastAssembly =  WinAssembly.CreateInstance "bipedSetTM.SetTM_test"
-		-- showMethods  BipFastAssembly
-		-- BipFastAssembly.GetBipAll()	
-
-	)
-	catch(print ("¶¯Ì¬±àÒëÊ§°Ü£¡£¡ÎŞ·¨Ê¹ÓÃ¿ìËÙÕ³Ìù¹¦ÄÜ"))
-
-	----»ñÈ¡Ğ´ÈëÑ¡ÔñµÄÖ¡	
-	fn getAnimProp_yunEdit obj =(    ----»ñÈ¡Ñ¡ÔñµÄÖ¡
-		keytest  = #()
-		if selKeyArray==undefined then(selKeyArray = #())	
-		if obj!=undefined then
-		(	
-			if classof obj ==Biped_Object  then
-			(
-				
-				if (obj.controller != undefined) do
-				(	
-					cs_Bone =  (for o in objects where classOf o == Biped_Object  OR (try(classOf o.transform.controller == BipSlave_Control)catch(false)) collect o)	
-					bipeRoot = (getNodeByName cs_Bone[1].controller.rootName)	
-					bipCtr = bipeRoot.controller  
-					layerCount = biped.numLayers bipCtr				
-					--layerCount>0ÓĞ²ãµÄÇé¿ö
-					for i=0 to layerCount do(
-						biped.setCurrentLayer bipCtr i
-						if obj.name==(cs_Bone[1].controller.rootName) then 				
-						(
-							
-							for k in obj.controller[1].keys do
-							(appendIfUnique  selKeyArray k.time)
-							for k in obj.controller[2].keys do
-							(appendIfUnique  selKeyArray k.time)
-							for k in obj.controller[3].keys do
-							(appendIfUnique  selKeyArray k.time)
-						
-						)
-						else if (keyTest = obj.controller.keys) != undefined and keyTest.count > 0 do
-						(
-							keytest = obj.controller.keys
-							for k in 1 to keyTest.count  do (
-								appendIfUnique  selKeyArray keytest[k].time
-							)
-						)
-						
-					) 
-				)				
-				
-			)	
-			else (
-				if obj.numSubs > 0 then	(
-					for i = 1 to obj.numSubs do(
-						buffer = getAnimProp_yunEdit obj[i]
-						join selKeyArray buffer
-						makeUniqueArray  buffer
-					)
-				)		
-				else		(			
-					if (obj.controller != undefined) do	(
-						if (keyTest = obj.keys) != undefined and keyTest.count > 0 do
-						(
-							keytest = obj.keys
-							--print ("<-----"+ obj as string)
-							for k in 1 to keyTest.count  do	(						
-								appendIfUnique  selKeyArray keytest[k].time
-							)					
-						)
-						--return undefined
-						
-					)
-					
-					
-				)
-			)
-			
-			sort selKeyArray
-			selKeyArray = makeUniqueArray  selKeyArray
-			return selKeyArray	
-		
-		)
-	
-	)
-	
-	fn getKeyframeFromIni objs  fileName = ( -- ¶ÁÈ¡¹Ø¼üÖ¡Êı¾İ  
-		preferences.fileProperties.useUnicodeForLegacyFiles = true
-		frameCount = getINISetting fileName obj.name
-		keyFF = #()
-		for i  in frameCount do 	(
-			append keyFF ((getINISetting fileName obj.name i) as time)	
-		)
-		return keyFF
-	)
-	
-	
-	fn exprotFbxforMayaToXdic = (
-		try (makeDir @"D:/tools/Maya\AnimLibrary/Characters") catch()
-	
-		-- ÉèÖÃ FBX µ¼³ö²ÎÊı
-		FBXExporterSetParam "Animation" true
-		FbxExporterSetParam "BakeAnimation" true
-		FBXExporterSetParam "ASCII" false
-		FBXExporterSetParam "FileVersion" "FBX201600"
-	
-		-- Ö¸¶¨Òªµ¼³öµÄÎÄ¼şÂ·¾¶
-		outputFile = @"D:/tools/Maya/AnimLibrary/Characters/maxFbxAnim.fbx"
-	
-		-- µ¼³ö FBX ÎÄ¼ş
-		exportFile  outputFile #noPrompt selectedOnly:true using:FBXEXP 
-	
-		fileName = "D:/tools/Maya\AnimLibrary/Characters/maxKeyFrameInfo.ini"
-	
-		if not doesFileExist fileName then(   
-			createFile fileName		
-			try(close fileName)catch()
-		)
-		-- try (makeDir filePath) catch()
-		sel = selection as array
-		--Ğ´Èë²âÊÔ
-		setIniForceUTF16Default false
-		for i in sel do(			-- 	i = sel[1]
-		-- 	delIniSetting fileName i.name
-			keyInfo = getAnimProp_yunEdit i	
-			keyInfo_str = "("
-			for i = 1 to keyInfo.count do      (
-				keyInfo_str += (keyInfo[i] as string)
-				if i != keyInfo.count then
-				keyInfo_str += ", "
-			)
-			keyInfo_str += ")"
-	
-			buffer = substituteString (keyInfo_str as string) "f" ""
-			keyInfoRemoveChar = substituteString buffer "#" ""
-			setINISetting fileName  i.name  "Keys:" keyInfoRemoveChar forceUTF16:false  
-		)
-		-- ¶Á³ö²âÊÔ
-	)
-	
-	fn cptoolsSetAnimRange = 	----ÊÊÅäÖµÖ¡·¶Î§
-	(
-		str = cptools.testListAni.selected
-		if str != undefined then 
+		--è¿­ä»£è‡³æœ€åº•å±‚
+		if obj.numSubs > 0 then ( for i = 1 to obj.numSubs do ( getAnimProp_yunEdit obj[i] ) )
+		---æœ€åº•å±‚
+		else
 		(
-			buffer = filterString str "("
-			rangeA =  filterString  buffer[2] ")"
-			rangeB =   filterString   rangeA[1] "-"
-			animationRange=interval (rangeB[1] as time)  (rangeB[2] as time )
+			if (obj.controller != undefined) do
+			(	
+				keytest = obj.keys	
+				if keyTest!= undefined and keyTest.count > 0 do
+				(	for k in 1 to keyTest.count  do ( appendIfUnique  selKeyArray keytest[k].time )) 
+			)
 		)
-	)
-	-----maxscript natural numeric sort×ÔÈ»Êı×ÖÅÅĞò
-	fn getSHLWAPI = 
-	(
-		source =  "using System;\n"
-		source += "using System.Runtime.InteropServices;\n"
-		source += "class SHLWAPI\n"
-		source += "{\n"
-		source += "	[DllImport(\"shlwapi.dll\", CharSet = CharSet.Auto)]\n"
-		source += "	public static extern int StrCmpLogicalW(string lpszStr, string lpszComp);\n"
-		source += "}\n"
-	
-		csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
-		compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
-					
-		compilerParams.GenerateInMemory = on
-		compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
-		compilerResults.CompiledAssembly.CreateInstance "SHLWAPI"
-	)
-	struct myCoolDialogs
-	(
-		 labelStr,
-	 
-		 stringQuery = rollout stringQuery "ÊäÈëÃüÃû"
-		 (
-			 local returnStr
-		 
-			 label lblHeader
-			 editText etInput text:"_pose"
-	 
-			 fn launch label: =
-			 (
-				 destroyDialog myCoolDialogs.stringQuery
-				 if label != unsupplied then
-					 myCoolDialogs.labelStr = label
-				 else myCoolDialogs.labelStr = "Enter some text:"
-				 createDialog myCoolDialogs.stringQuery modal:true
-				 returnStr -- only put it here if the dialog is modal
-			 )
-	 
-			 on stringQuery open do
-			 (
-				 lblHeader.text = myCoolDialogs.labelStr
-				 setFocus etInput
-			 )
-	 
-			 on etInput entered str do
-			 (
-				 destroyDialog myCoolDialogs.stringQuery
-				 returnStr = str
-				 --cptools.rloading.pressed()
-				
-				)
-			 
-			on stringQuery close do 
-			(
-				destroyDialog myCoolDialogs.stringQuery
-				 
-				returnStr = "Î´ÃüÃû_pose"
-				--cptools.rloading.pressed()
-			
-			 )	
-		 )
 	)	
-	fn MakeThumbnail_copy =(
-		grab_bmp = gw.getViewportDib()
-		croppedScreenGrab = bitmap grab_bmp.height grab_bmp.height 
-		pasteBitmap grab_bmp croppedScreenGrab [((grab_bmp.width - grab_bmp.height)/2)+1,1] [0,0]  -- paste the orginal image to the tempImage, this results in a cropped image widh same height as width
-		outputMap  = bitmap 170 170
-		copy croppedScreenGrab outputMap 	
-		close grab_bmp
-		close croppedScreenGrab
 	
-		gc light:true
-		if cptools.testList.visible  then   ---poseÄ£Ê½
-		(	if cptools.testList.selected!=undefined then (outputMap.filename =((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp"))
-		else 
-		(	if cptools.testListAni.selected!=undefined then (outputMap.filename =((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp"))
-		save outputMap quiet:true--Save it to file
-		outputMap
-	)
-	struct vpSave_copy (
-		tmMatrix,
-		screenGrab,
-		vpType,
-		
-		fn saveTM =(
-			try(
-				vpType = viewport.getType()
-				tmMatrix = getViewTM()
-			)catch()
-		),
-		fn getTM =(
-			try(
-				viewport.setType vpType
-				viewport.setTM tmMatrix
-			)catch()
-		),
-		fn setScreenGrab =(
-			try (screenGrab = (MakeThumbnail_copy();))catch()
-		)
-	)
-	cptools_P1	
-	(
-		global stime           = animationrange.start
-		global etime           = animationrange.end
-		global start_frame     = animationrange.start
-		global end_frame       = animationrange.end
-		global selectundefined = 0
-	
-		global name_lag             
-		global removeFromList_lag  
-		global rloading_lag         
-		global rb_sel_a_lag        
-		global rb_sel_b_lag         
-		global ac_lag              
-		global addToList_lag       
-		global pastepose_lag        
-		global ABbutton_lag        
-		global  obj_r_lag          
-		global  obj_xyz_lag        
-		global  obj_tcb_lag        
-		global  paste_offset_lag    
-		global paste_offset_b_lag   
-		global lnk1_lag             
-		global wayneCheckBox_lag    
-		global ac_tooltip_a_lag     
-		global ac_tooltip_b_lag    
-		global ABbutton_tooltip_a_lag 
-		global ABbutton_tooltip_b_lag
-		global messagebox_a_lag   
-		global messagebox_b_lag    
-		global messagebox_c_lag     
-		global messagebox_d_lag     
-		global messagebox_e_lag     
-		global messagebox_f_lag     
-		global messagebox_a_title_lag
-		global format_a_lag         
-		global format_b_lag       
-		global format_c_lag        
-		global Accuracy_offset_lag 
-		global Accuracy_offset_b_lag 
-		global obj_r_b_lag           
-		global wcb_lag            
-		global rfl_lag             
-		global language_a_lag     
-		global language_b_lag      
-	)
-	--global frame_options   = false
-	fn china = (
-		name_lag             = "±©Á¦Ö¡¿½±´Õ³ÌùV1.19" 
-		removeFromList_lag   = "°´×¡ctrlÉ¾³ıËùÓĞpose£»µ¥»÷´òÉ¾³ıµ±Ç°¼¯"
-		rloading_lag         = "¸üĞÂÁĞ±í£º½«ÁĞ±íÄÚÈİ¸üĞÂÖÁ×îĞÂ"
-		rb_sel_a_lag         ="×ËÌ¬"
-		rb_sel_b_lag         ="¶¯×÷"
-		ac_lag               ="Ö¡Êı·¶Î§£º¿ªÊ¼µ½½áÊø"
-		addToList_lag        = "¿½±´Ö¡"
-		pastepose_lag        =  "Õ³ÌùÖ¡" 
-		ABbutton_lag         = "ÖğÖ¡¿½±´£ºÔÚ´ËÄ£Ê½ÏÂ¿½±´Ö¡½«ÒÔÖğÖ¡·½Ê½½øĞĞ¿½±´²Ù×÷"
-		obj_r_lag           = "ÖØÖÃ±ä»»£º°Ñ±ä»»ÖØÖÃÎªXYZÊôĞÔ£¬ÖØÖÃºó½«ÎŞ·¨±£ÁôÔ­Ê¼¶¯»­ĞÅÏ¢"
-		obj_xyz_lag         ="×ª»»XYZ£º°ÑÑ¡Ôñ¶ÔÏó×ª»»ÎªXYZÊôĞÔ"
-		obj_tcb_lag         ="×ª»»TCB£º°ÑÑ¡Ôñ¶ÔÏó×ª»»ÎªTCBÊôĞÔ"
-		paste_offset_lag    =  "Æ«ÒÆ " 
-		paste_offset_b_lag   ="Æ«ÒÆÕ³Ìù£ºÊäÈëÖ¡Êı£¬Õ³ÌùÖ¡½«ÓÚ£¨¿ªÊ¼Ö¡Êı+Æ«ÒÆÖ¡Êı£©ÍùÏÂÕ³Ìù¶¯×÷"
-		lnk1_lag             = " " 
-		wayneCheckBox_lag    = "±£Áô¿½±´£º¹´Ñ¡¸ÃÏî£¬ÏÂ´Î¿ªÆô½«±£Áô±¾´Î¿½±´µÄ×ËÌ¬ºÍ¶¯×÷"
-		ac_tooltip_a_lag     = "Ö¡Êı·¶Î§£º¿ªÊ¼µ½½áÊø"
-		ac_tooltip_b_lag     = "Ö¡Êı·¶Î§£º×Ô¶¨Òå¿ªÊ¼½áÊø"
-		ABbutton_tooltip_a_lag ="¹Ø¼üÖ¡¿½±´£ºÔÚ´ËÄ£Ê½ÏÂ¿½±´Ö¡½«ÒÔÑ¡ÖĞËùÓĞ¶ÔÏóÔÚÊ±¼äÌõÖĞÓĞÖ¡µÄÎ»ÖÃ½øĞĞ¿½±´²Ù×÷"
-		ABbutton_tooltip_b_lag ="ÖğÖ¡¿½±´£ºÔÚ´ËÄ£Ê½ÏÂ¿½±´Ö¡½«ÒÔÖğÖ¡·½Ê½½øĞĞ¿½±´²Ù×÷" 
-		messagebox_a_lag     = "ÇëÑ¡ÔñÖÁÉÙÒ»¸öÎïÌå"
-		messagebox_b_lag     = "Ê±¼ä·¶Î§´íÎó"
-		messagebox_c_lag     ="Î´ÕÒµ½Ñ¡ÔñPose£¬Çë¸üĞÂÁĞ±í"
-		messagebox_d_lag     = "Î´ÕÒµ½Ñ¡ÔñAnimation£¬Çë¸üĞÂÁĞ±í"
-		messagebox_e_lag     = "³¡¾°ÖĞÎŞÎïÌåÔÚ×ËÌ¬¼¯ÖĞ"
-		messagebox_f_lag     = "Ñ¡ÔñÖĞÓĞ²¿·ÖÎ´±»¼ÇÂ¼×ËÌ¬"
-		messagebox_a_title_lag = "ÌáÊ¾"
-		format_a_lag         = "ÒÑÈ¡Ïû\n"
-		format_b_lag         = "Íê³É\n"
-		format_c_lag         = "½ø¶È"
-		Accuracy_offset_lag  = "¾«¶È"
-		Accuracy_offset_b_lag  = "¾«¶È£ºÍ¨¹ı¾«¶ÈÊıÖµ½øĞĞÖØ¸´Õ³ÌùÒÔ´ïµ½×î×¼È·µÄĞ§¹û£¨ÊıÖµÔ½´óÓÃÊ±Ô½³¤£©"
-		obj_r_b_lag            = "§±"
-		wcb_lag              = "¨¹"
-		rfl_lag              = "¡Á"
-		language_a_lag       = "ÖĞ"
-		language_b_lag       = "ÓïÑÔ:µ±Ç°ÊÇÖĞÎÄ"
-	)
-	fn english = (
-		name_lag             = "CopyPasteKey V1.19" 
-		removeFromList_lag   = "Delete the selection sets: click to delete the current selection in the list of collection"
-		rloading_lag         = "Update list: update to the latest list"
-		rb_sel_a_lag         = "Pose"
-		rb_sel_b_lag         = "Motion"
-		ac_lag               = "Range of frames: start to finish"
-		addToList_lag        = "Copy"
-		pastepose_lag        = "Paste" 
-		ABbutton_lag         = "Frame by frame copy: in this mode copy frame will copy operation on the basis of frame by frame"
-		obj_r_lag           = "Reset to reset the transformation: the transformation XYZ properties, after the reset will not be able to retain the original animation information"
-		obj_xyz_lag         = "Convert XYZ: convert a selection object to XYZ properties"
-		obj_tcb_lag         = "Convert TCB: convert a selection object to TCB properties"
-		paste_offset_lag    = "Offset " 
-		paste_offset_b_lag   = "Offset paste: input frames, paste the frame will be (start frames + offset frames) to paste action"
-		lnk1_lag             = "" 
-		wayneCheckBox_lag    = "Keep a copy: check the, the next time will keep the copy of gestures and movements"
-		ac_tooltip_a_lag     = "Range of frames: start to end"
-		ac_tooltip_b_lag     = "Range of frames: custom start end"
-		ABbutton_tooltip_a_lag ="key by key copy: in this mode will copy the frame to select all objects in the time of the frame position for copy operation"
-		ABbutton_tooltip_b_lag ="Frame by frame copy: in this mode copy frame will copy operation on the basis of frame by frame" 
-		messagebox_a_lag     = "Please select at least one object"
-		messagebox_b_lag     = "Time range error"
-		messagebox_c_lag     = "Choose the Pose is not found, please update the list"
-		messagebox_d_lag     = "Choose the Animation is not found, please update the list"
-		messagebox_e_lag     = "Concentration in attitude no object in the scene"
-		messagebox_f_lag     = "Choose some have not been recorded in posture"
-		messagebox_a_title_lag = "Prompt"
-		format_a_lag         = "cancel\n"
-		format_b_lag         = "finish\n"
-		format_c_lag         = "Schedule"
-		Accuracy_offset_lag  = " Acc "
-		Accuracy_offset_b_lag  = "Accuracy: through repeated precision numerical paste in order to achieve the most accurate results (the larger the value when the long)"
-		obj_r_b_lag          = "Res"
-		wcb_lag              = "U"
-		rfl_lag              = "X"
-		language_a_lag       = "En"
-		language_b_lag       = "Language: the current is in English"
-	)
-	---------------------------------------------------------------------------------------------´ò¿ªÎÄ¼ş¼ÓÔØ
-	
-	makeDir  ((GetDir #export)+ "\\cptools_data\\")------´´½¨Â·¾¶
-	makeDir  ((GetDir #export)+ "\\cptools_data\\localMode\\")------´´½¨Â·¾¶
-	tempdata = ((GetDir #export)+"\\cptools_data\\"+"temp.ini")-----Ö¸¶¨ÎÄ¼ş
-	testPath = doesFileExist tempdata------¼ì²âÎÄ¼şÊÇ·ñ´æÔÚ
-	if testPath == true then (
-	open_tempdata   = openFile tempdata------´ò¿ªtempÎÄ¼ş
-	skip_tmepdata   = skiptostring open_tempdata "Language = "
-	if skip_tmepdata ==ok then (
-		read_tempdata = readLine open_tempdata 
-		en_ch = read_tempdata as booleanClass
-		if en_ch  == true then (english()) else (china())
-		) else (china())
-	close open_tempdata
-	)else (china())
-	-----------------------------------------------------------------------------------------------------------------
-	
-	rollout cpToolsPicWin "ËõÂÔÍ¼"(
-		button yunCopyImgBtn "--------" width:180 height:170 offset:[0,0]
-		button yunCopyImgBtnGet "¸üĞÂ"  offset:[0,0]
-		on cpToolsPicWin open do(
-		cptools_P1 = vpSave_copy()
-		)	
-		on yunCopyImgBtnGet pressed do (cptools_P1.saveTM() ; cptools_P1.setScreenGrab() ; yunCopyImgBtn.images = #(cptools_P1.screengrab, undefined, 1,1,1,1,1) )
-	)
-	rollout cpToolsMaster "cpToolsMaster" height:220 width: 230	(
-	  subrollout cpToolsParent1 "cpToolsParent1"
-	  subrollout cpToolsParent2 "cpToolsParent2"	
-	)
-	rollout cptools name_lag  (
-		Group   "Main"  (
-			dropdownlist testList items:#() tooltip:"select pose"  across: 3 width:135 enabled:true visible:true
-			button removeFromList ""  height:20 width:20 offset:[59,0] toolTip:removeFromList_lag
-			button rloading       " R" height:20 width:20 offset:[22,0] toolTip:rloading_lag
-	
-	
-				
-				
-			radioButtons rb_sel "" width:88 height:15 labels:#(rb_sel_a_lag ,rb_sel_b_lag ) offset:[-45,0]  
-			button ac "A" width:18 height:16 offset:[18,-20] enabled:false toolTip:ac_lag
-			spinner Accuracy_offset "         " range:[1,10, 3] type:#integer  width:40 offset:[40,-19]  toolTip: Accuracy_offset_b_lag enabled:true
-			spinner spn_start  "" range:[-99999,99999, stime]     fieldwidth:37 across: 2 offset:[-40,0] type:#integer  enabled:false
-			spinner spn_end "To " range:[-99999,99999, etime]  fieldwidth:37	 offset:[-60,0] type:#integer  enabled:false
-			button addToList "" width:92 offset:[-19,0]  toolTip:"°´ctrlµ¥»÷¿É×ÔÓÉÃüÃû;°´altµ¥»÷¿É¸²¸Ç"
-			button pastepose "" width:58 height:42 offset:[61,-47] toolTip:"Èç¹û×ó¼ü¼ÓËÙ°æÕ³Ìù±¨´í\n¿ÉÒÔÊ¹ÓÃÓÒ¼ü¾É°æÂıËÙÕ³Ìù\nlocalÄ£Ê½µÄÕ³ÌùÒ²ĞèÒªÓÃÓÒ¼ü"
-			button ABbutton   "S" width:20   offset:[-77,-26] toolTip:ABbutton_lag  enabled:false
-	
-		)
-	
-		Group "Setting" (
-			button obj_r   ""    width:32 height:18 offset:[-4,0] across:4  toolTip:obj_r_lag
-			button obj_xyz "XYZ"  width:32 height:18 offset:[-9,0]   toolTip:obj_xyz_lag
-			button obj_tcb "TCB"  width:32 height:18 offset:[-21,0] toolTip:obj_tcb_lag
-	
-			spinner paste_offset  "           " range:[-99999,99999, 0] type:#integer  width:90 offset:[-18,1]  toolTip:paste_offset_b_lag  enabled:false align:#center
-		)	
-	
-		HyperLink lnk1 "                        " align:#center color:(color 150 150 150) hovercolor:(color 100 100 100)  width:1 visitedcolor:(color 150 150 150) address:"http://www.cgwayne.com/" 
-		dropdownlist testListAni items:#() tooltip:"select pose" width:135 enabled:true visible:false offset:[0,-171] 
-		checkbox wayneCheckBox "" offset:[-5,127] toolTip:wayneCheckBox_lag
-		checkbox localModeCheckBox "local" offset:[35,-20] toolTip:"±¾µØÖáÏòÄ£Ê½"
-		checkbox timeRangeCheckBox "Ö¡" offset:[85,-20] toolTip:"×Ô¶¯µ½Ö¡Êı·¶Î§"
-	
-		button language_btn ""  offset:[85,-18]  width:20 height:15 toolTip:language_b_lag
-		button picShow "Í¼"  offset:[60,-19]  width:20 height:15 toolTip:"´ò¿ª»ò¹Ø±ÕËõÂÔÍ¼"
-		progressbar    doit_prog  offset:[-9,0]    width:190 height:8    color:red 
-	
-		on localModeCheckBox  changed theState do (	cptools.rloading.pressed ()	)
-		on timeRangeCheckBox  changed theState do 	(	
-			if theState do (try(cptoolsSetAnimRange ()) catch()	)	)
-	
-	
-	
-		on language_btn pressed  do (
-			if language_btn.text =="En"  then 
-			(
-				china()
-				language_btn.text = language_a_lag
-				----------------------------------------------¼ÇÂ¼×´Ì¬
-				hold_CB = wayneCheckBox.checked
-				hold_RB = rb_sel.state
-				hold_ST = spn_start.value
-				hold_ED = spn_end.value
-				hold_AC = ac.text
-				hold_AO = Accuracy_offset.value
-				hold_AB = ABbutton.text
-				hold_PO = paste_offset.value
-				hold_SE = spn_start.enabled    
-				hold_EE = spn_end.enabled       	
-				hold_AE = ac.enabled
-				hold_BE = ABbutton.enabled
-				hold_PA = paste_offset.enabled
-				hold_TP = testList.visible
-				hold_TA = testListAni.visible 
-				
-				wayneCheckBox.checked = true
-				postest = getDialogpos cptools
-				destroyDialog cptools
-				createDialog cptools  200 210 pos:postest
-				-----------------------------------------------»Ö¸´×´Ì¬		
-				wayneCheckBox.checked  = hold_CB
-				rb_sel.state           = hold_RB
-				spn_start.value        = hold_ST
-				spn_end.value          = hold_ED
-				ac.text                = hold_AC
-				Accuracy_offset.value  = hold_AO 
-				ABbutton.text          = hold_AB
-				paste_offset.value	   = hold_PO
-				spn_start.enabled      = hold_SE 
-				spn_end.enabled        = hold_EE
-				ac.enabled 		       = hold_AE
-				ABbutton.enabled   	   = hold_BE
-				paste_offset.enabled   = hold_PA 
-				testList.visible       = hold_TP
-				testListAni.visible    = hold_TA 
-				
-			)else(
-				english()
-				language_btn.text = language_a_lag
-				----------------------------------------------¼ÇÂ¼×´Ì¬
-				hold_CB = wayneCheckBox.checked
-				hold_RB = rb_sel.state
-				hold_ST = spn_start.value
-				hold_ED = spn_end.value
-				hold_AC = ac.text
-				hold_AO = Accuracy_offset.value
-				hold_AB = ABbutton.text
-				hold_PO = paste_offset.value			
-				hold_SE = spn_start.enabled    
-				hold_EE = spn_end.enabled       	
-				hold_AE = ac.enabled
-				hold_BE = ABbutton.enabled
-				hold_PA = paste_offset.enabled
-				hold_TP = testList.visible
-				hold_TA = testListAni.visible 
-				
-				wayneCheckBox.checked = true
-				postest = getDialogpos cptools
-				destroyDialog cptools
-				createDialog cptools  200 210 pos:postest
-				-----------------------------------------------»Ö¸´×´Ì¬		
-				wayneCheckBox.checked  = hold_CB
-				rb_sel.state           = hold_RB
-				spn_start.value        = hold_ST
-				spn_end.value          = hold_ED
-				ac.text                = hold_AC
-				Accuracy_offset.value  = hold_AO 
-				ABbutton.text          = hold_AB
-				paste_offset.value	   = hold_PO
-				spn_start.enabled      = hold_SE 
-				spn_end.enabled        = hold_EE
-				ac.enabled 		       = hold_AE
-				ABbutton.enabled   	   = hold_BE
-				paste_offset.enabled   = hold_PA 
-				testList.visible       = hold_TP
-				testListAni.visible    = hold_TA 
-			)	
-		)
-		on cptools open do 
-		(
-			removeFromList.text  = rfl_lag
-			Accuracy_offset.text = Accuracy_offset_lag
-			addToList.text       = addToList_lag
-			pastepose.text       = pastepose_lag
-			obj_r.text           = obj_r_b_lag
-			paste_offset.text    = paste_offset_lag
-			wayneCheckBox.text   = wcb_lag
-			language_btn.text    = language_a_lag
-			lnk1.text            = lnk1_lag
-			---------------------------------------------------------------------------------------------´ò¿ªÎÄ¼ş¼ÓÔØ
-			makeDir  ((GetDir #export)+ "\\cptools_data\\")------´´½¨Â·¾¶
-			tempdata_another = ((GetDir #export)+"\\cptools_data\\"+"temp.ini")-----Ö¸¶¨ÎÄ¼ş
-			testPath_another = doesFileExist tempdata_another------¼ì²âÎÄ¼şÊÇ·ñ´æÔÚ
-			if testPath_another == true do (
-			open_tempdata_another   = openFile tempdata_another------´ò¿ªtempÎÄ¼ş
-			skiptostring open_tempdata_another "wayneCheckBox.checked ="
-			readChar open_tempdata_another
-			read_tmepdata_another   = readLine open_tempdata_another 
-			if read_tmepdata_another != undefined do wayneCheckBox.checked = read_tmepdata_another as booleanClass
-			close open_tempdata_another
-			)
-			----------------------------------------------------------------------------------------------------------
-			---------------------------------------»ñµÃÎÄ¼şÁĞ±í
-			file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\"+"*Pose*.bps")
-	
-			for Fe in file_name_array do
-			(
-			Bip_FilesName=getFilenameFile Fe
-			testList.items = append testList.items (Bip_FilesName as string)
-			)
-	
-			file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\"+"Animation*.bps")
-	
-			for Fe in file_name_array do
-			(
-			Bip_FilesName=getFilenameFile Fe
-			testListAni.items = append testListAni.items (Bip_FilesName as string)
-			)
-			rloading.pressed()
-	
-	
-		)	
-		on rloading pressed do (
-			---ÏÈÇå³ıÁĞ±í
-			if cptools.testList.items.count > 0 and cptools.testList.selection > 0 then 
-			(
-			cptools.testList.items = #() 
-			)
-				
-			if cptools.testListAni.items.count > 0 and cptools.testListAni.selection > 0 then
-			(
-			cptools.testListAni.items = #()
-			)
-			
-			----ÊÇ·ñ¿ªÆô±¾µØÄ£Ê½ poseÄ£Ê½
-			if cptools.localModeCheckBox.checked==false then(
-				file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\"+"*Pose*.bps")
-				
-			) else (
-				file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\localMode\\"+"*Pose*.bps")	
-			)
-	
-			----ÊÕ¼¯iniÎÄ¼şµ½ÏÂÀ­ÁĞ±íÀï POSE
-			itemArray = #()
-			for Fe in file_name_array do
-			(
-			Bip_FilesName=getFilenameFile Fe	
-			append itemArray (Bip_FilesName as string)	
-			)
-			
-			---×ÔÈ»Êı×ÖÅÅĞò
-			if ::SHLWAPI == undefined do SHLWAPI = getSHLWAPI()
-			qsort itemArray SHLWAPI.StrCmpLogicalW 
-			
-			cptools.testList.items = itemArray
-			cptools.testList.selection = cptools.testList.items.count
-			
-			----ÊÇ·ñ¿ªÆô±¾µØÄ£Ê½  ¶¯»­Ä£Ê½
-			if cptools.localModeCheckBox.checked==false then(
-			file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\"+"Animation*.bps")
-			) else (
-				file_name_array = getFiles ((GetDir #export)+"\\cptools_data\\localMode\\"+"*Animation*.bps")	
-			)
-			
-			----ÊÕ¼¯iniÎÄ¼şµ½ÏÂÀ­ÁĞ±íÀï ANIM
-			itemArray_ani = #()
-			for Fe in file_name_array do
-			(
-			Bip_FilesName=getFilenameFile Fe
-			append itemArray_ani (Bip_FilesName as string)	
-	
-			)	
-				---×ÔÈ»Êı×ÖÅÅĞò
-			if ::SHLWAPI == undefined do SHLWAPI = getSHLWAPI()
-			qsort itemArray_ani SHLWAPI.StrCmpLogicalW 
-			
-			cptools.testListAni.items  = itemArray_ani
-			cptools.testListAni.selection = cptools.testListAni.items.count
-		)
-		on cptools close do (
-			--if wayneCheckBox.checked == false then(for f in getFiles ((GetDir #export)+ "\\cptools_data\\"+"*.bps") do deleteFile f)
-			---------------------------------------------------------------------------------------------ÍË³öÎÄ¼ş¼ÓÔØ
-			
-			makeDir  ((GetDir #export)+ "\\cptools_data\\")------´´½¨Â·¾¶
-			tempdata_another = ((GetDir #export)+"\\cptools_data\\"+"temp.ini")-----Ö¸¶¨ÎÄ¼ş
-			create_tempdata_another = createfile tempdata_another
-			if wayneCheckBox.checked == true then formatdata = "wayneCheckBox.checked = true" else formatdata = "wayneCheckBox.checked = false"
-			if language_btn.text  == "En" then forlagdata = "Language = true" else  forlagdata = "Language = false" 
-			format  "%\n" formatdata to:create_tempdata_another 
-			format  "%\n" forlagdata to:create_tempdata_another 
-			close create_tempdata_another
-			----------------------------------------------------------------------------------------------------------
-		)	
-		on ac pressed do (
-			if ac.text =="C"  then 
-			(
-				ac.text = "A"
-				spn_start.enabled       = false
-				spn_end.enabled         = false
-				ac.tooltip              = ac_tooltip_a_lag
-			)else(
-				ac.text                 = "C"
-				spn_start.enabled       = true
-				spn_end.enabled         = true
-				ac.tooltip              = ac_tooltip_b_lag
-			)	
-		)
-		on rb_sel changed stat do(
-			case stat of	(
-				1:
-				(
-					testList.visible        = true
-					testListAni.visible     = false
-					----------------------------------
-					ac.enabled              = false
-					spn_start.enabled       = false
-					spn_end.enabled         = false
-					paste_offset.enabled    = false
-					ABbutton.enabled        = false
-					----------------------------------
-				)
-				2:
-				(
-					testList.visible        = false
-					testListAni.visible     = true
-					----------------------------------
-					ac.enabled              = true
-					paste_offset.enabled    = true
-					----------------------------------
-					ABbutton.enabled        = true
-					----------------------------------
-					if ac.text =="C" then ( spn_start.enabled = true; spn_end.enabled = true)else (spn_start.enabled = false; spn_end.enabled = false)
-				)
-			)
-			
-		)
-		on ABbutton pressed do (
-			if ABbutton.text =="S"  then (ABbutton.text = "K" ;ABbutton.tooltip = ABbutton_tooltip_a_lag )else(ABbutton.text = "S" ;ABbutton.tooltip =ABbutton_tooltip_b_lag)	
-		)
-		-----###¼ÇÂ¼
-		on addToList pressed do (
-			with undo "addList" on 		(
-				if(rb_sel.state==1)then			----##pose¼ÇÂ¼
-				(
-					if(selection.count == 0 )then(messagebox messagebox_a_lag   title:messagebox_a_title_lag beep:false )
-					else(	
-						-----------------------------------------ÊÖ¶¯ÊäÈë----------------------------------------------
-						struct myCoolDialogs (
-							labelStr,				
-							stringQuery = rollout stringQuery "ÊäÈëÃüÃû"
-							(
-								local returnStr						
-								label lblHeader
-								editText etInput text:"_pose"					
-								fn launch label: =
-								(
-									destroyDialog myCoolDialogs.stringQuery
-									if label != unsupplied then
-										myCoolDialogs.labelStr = label
-									else myCoolDialogs.labelStr = "Enter some text:"
-									createDialog myCoolDialogs.stringQuery modal:true
-									returnStr -- only put it here if the dialog is modal
-								)					
-								on stringQuery open do
-								(
-									lblHeader.text = myCoolDialogs.labelStr
-									setFocus etInput
-								)					
-								on etInput entered str do
-								(
-									destroyDialog myCoolDialogs.stringQuery
-									returnStr = str
-									--cptools.rloading.pressed()
-									
-									)
-								
-								on stringQuery close do 
-								(
-									destroyDialog myCoolDialogs.stringQuery
-									
-									returnStr = "Î´ÃüÃû_pose"
-									--cptools.rloading.pressed()
-								
-								)							
-							)
-						)					
-						if keyboard.controlPressed then (
-							myCoolDialogs = myCoolDialogs() -- as there are variables, an instance is needed
-							result = myCoolDialogs.stringQuery.launch label:"»Ø³µÈ·ÈÏÃüÃû"
-							-----------------------------------------ÊÖ¶¯ÊäÈë--------------------------------------							
-							testList.items = append testList.items (result+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
-							testList.selection = testList.items.count
-							---------------------------------------------------------------------------------------
-							tabtxt   = testList.selection
-							if cptools.localModeCheckBox.checked==false then(	
-								out_name = ((GetDir #export)+"\\cptools_data\\"+ result +tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")
-							) else (
-								out_name = ((GetDir #export)+"\\cptools_data\\localMode\\"+ result +tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")	
-							)
-							
-							out_file = createfile out_name
-						)
-						else if keyboard.altPressed then (						
-							--testList.items = append testList.items ("Pose "+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
-							--testList.selection = testList.items.count
-						
-							tabtxt   = testList.selected						
-							if cptools.localModeCheckBox.checked==false then(	
-								out_name = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-							)  else (
-								out_name = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")	
-							)
-								try(deleteFile out_name)catch()
-								out_file = createfile out_name
-								print "¸²¸ÇÃüÃû\n"
-						)                  
-						else (
-							
-							testList.items = append testList.items ("Pose "+ (testList.items.count+1) as string +" ("+ ((currentTime as integer)/TicksPerFrame)  as string +")")
-							testList.selection = testList.items.count
-							tabtxt   = testList.selection	
-							
-							if cptools.localModeCheckBox.checked==false then(	
-								out_name = ((GetDir #export)+"\\cptools_data\\Pose "+ tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")
-							)  else (
-								out_name = ((GetDir #export)+"\\cptools_data\\localMode\\Pose "+ tabtxt as string +" ("+ ((currentTime as integer)/TicksPerFrame) as string +")"+".bps")	
-							)
-								out_file = createfile out_name
-						)
-						-------------------------------------½«Ñ¡ÔñÖØĞÂÅÅĞò
-						sort_array =#()
-						temp_sort_file = selection as array
-						sort_file = sort(for i in temp_sort_file collect i.name)
-	
-						for i=1 to sort_file.count do 
-						(
-						format "%|" sort_file[i] to: out_file -- Ìí¼ÓÒ»¸öÑ¡Ôñ¼¯
-						)
-						format "\n"  to:out_file
-	
-						for i =1 to sort_file.count do 
-						(
-						obj =getnodebyname sort_file[i] 
-						append sort_array obj
-						)
-						select sort_array
-						-----------------------------------------
-						k=1
-						for o in selection do
-						(
-							if keyboard.escPressed do 
-							(
-								format format_a_lag
-								exit
-							)
-						doit_prog.value = 100.*k/selection.count
-						if selection.count !=0 then 	(
-							if cptools.localModeCheckBox.checked then(	
-								if 	o.parent==undefined then (messageBox "local×ø±êÄ£Ê½Çë²»ÒªÑ¡Ôñ¸ù¹Ç½Ú      .")
-								else (
-									theCoords=o.transform * (inverse o.parent.transform)
-									format "$'%'.transform = %\n" o.name theCoords to:out_file
-								)
-							) else (
-								format "$'%'.transform = %\n"  o.name o.transform to:out_file
-							)
-						)
-						k=k+1
-						--format (format_c_lag + ":(%/100)  \n")  doit_prog.value
-						if doit_prog.value == 100 do (format format_b_lag )
-						)
-						doit_prog.value = 0
-	
-						close out_file
-	
-						--format "You selected '%'!\n" testList.selection
-					)	
-				)
-				----####¶¯»­¼ÇÂ¼
-				else
-				(
-					if(selection.count == 0 )then(messagebox messagebox_a_lag title:messagebox_a_title_lag beep:false )
-					else
-					(
-						if (end_frame<=start_frame)then(messagebox messagebox_b_lag title:messagebox_a_title_lag beep:false )
-						else
-						(	
-							if ac.text =="C" then ( start_frame = spn_start.value;end_frame = spn_end.value)
-							else (start_frame = animationrange.start;end_frame = animationrange.end)	
-								
-							testListAni.items = append testListAni.items ("Animation "+ (testListAni.items.count+1) as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")" )
-							testListAni.selection = testListAni.items.count
-							tabtxt   = testListAni.selection
-							----È·¶¨±£´æÎÄ¼ş±¾µØini
-							if cptools.localModeCheckBox.checked==false then
-							(
-								out_name = ((GetDir #export)+"\\cptools_data\\Animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
-							) 
-							else 
-							(		
-								out_name = ((GetDir #export)+"\\cptools_data\\localMode\\Animation "+ tabtxt as string +"-"+(ABbutton.text) as string +" ("+ (start_frame) as string + "-" + (end_frame) as string+")"+".bps")
-							)
-							out_file = createfile out_name
-							tempstime = animationrange.start
-							tempetime = animationrange.end
-							--ÊÊÅäÁËÊ±¼äÖá£¬·½±ãºó±ßÅĞ¶ÏÓÃ
-							animationRange = interval start_frame end_frame--time
-							-------------------------------------½«Ñ¡ÔñÖØĞÂÅÅĞò
-							sort_array =#()
-							temp_sort_file = selection as array
-							sort_file = sort(for i in temp_sort_file collect i.name)
-							for i=1 to sort_file.count do 
-							(	format "%|" sort_file[i] to: out_file	)  -- Ìí¼ÓÒ»¸öÑ¡Ôñ¼¯			
-							format "\n"  to:out_file
-							for i =1 to sort_file.count do 
-							(
-								obj =getnodebyname sort_file[i] 
-								append sort_array obj
-							)
-							select sort_array
-							oriTime = sliderTime
-							----------------------------------------
-							if ABbutton.text =="S" then   -----###ÖğÖ¡Ä£Ê½
-							(
-								for i=animationrange.start to animationrange.end do
-								(
-									if keyboard.escPressed do 
-									(
-										format format_a_lag
-										exit
-									)
-									doit_prog.value = 100.*i/animationrange.end
-									--slidertime = i
-									at time i
-									(
-										for o in selection do
-										(
-											if selection.count !=0 then 	(
-												-----±¾µØÄ£Ê½
-												if cptools.localModeCheckBox.checked then
-												(
-													if 	o.parent==undefined then (messageBox "local×ø±êÄ£Ê½Çë²»ÒªÑ¡Ôñ¸ù¹Ç½Ú      .")
-													else 
-													(
-														theCoords=o.transform * (inverse o.parent.transform)
-														format  "<%>|%| = %\n" i o.name theCoords to:out_file
-													)
-												) 
-												else 
-												(	format  "<%>|%| = %\n" i o.name o.transform to:out_file	)
-											)
-										)
-										--format  (format_c_lag + ":(%/100)  \n")   doit_prog.value
-										if doit_prog.value == 100 do (format format_b_lag)
-									)
-								)
-								doit_prog.value = 0
-								--»Ö¸´timeº¯Êı·ÀÖ¹biped¹Ç÷ÀÒìÑùbug
-								sliderTime =  animationrange.start
-								at time animationrange.start()
-							)
-							else			---###¹Ø¼üÖ¡Ä£Ê½
-							(
-								slidertime = animationrange.start
-								a = slidertime
-								frame_data = #()
-								seek out_file #eof
-								orgFilePos = filePos out_file
-								format "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"  to:out_file
-								---------------------------------------------------------------¹Ø¼üÖ¡¶ÔÏóÎ»ÖÃĞÅÏ¢Ğ´Èë
-								disableSceneRedraw()		----¹Ø±ÕÊÓÍ¼Ë¢ĞÂ¼ÓËÙ
-								suspendEditing()
-								do
-								(							
-									if keyboard.escPressed do 
-									(
-										format format_a_lag
-										exit
-									)
-									append frame_data a		
-									a_lost = a	
-									---Ñ¡ÔñµÄÎïÌåÀïÖ´ĞĞ		
-									for o in selection do
-									(
-										if selection.count !=0 then    
-										(
-											---±¾µØÄ£Ê½
-											if cptools.localModeCheckBox.checked then
-											(
-												if 	o.parent==undefined then (messageBox "local×ø±êÄ£Ê½Çë²»ÒªÑ¡Ôñ¸ù¹Ç½Ú      .")
-												else 
-												(											
-													theCoords=o.transform * (inverse o.parent.transform)
-													format  "<%>|%| = %\n" a o.name theCoords to:out_file			---a ÊÇ¹Ø¼üÖ¡Êı£¬ÔÚdowhereÑ­»·ÀïµÃ
-												)
-											) 
-											else 
-											( format  "<%>|%| = %\n" a o.name o.transform to:out_file	)	---a ÊÇ¹Ø¼üÖ¡Êı£¬ÔÚdowhereÑ­»·ÀïµÃ
-											
-									)
-									)
-									a = trackbar.getnextkeytime()
-									doit_prog.value = 100.*a_lost/(animationrange.end-animationrange.start)
-									if a!=undefined and a > animationrange.start and  a <= animationrange.end  then 
-									(slidertime = a	)
-									else (  Exit  )							
-									--format  (format_c_lag + ":(%/100)  \n")   doit_prog.value							
-									if doit_prog.value == 100 do (format format_b_lag)	
-								
-								)
-								while a > animationrange.start	and a > a_lost 
-								resumeEditing()	
-								enableSceneRedraw()	
-								----------------------------------------------------------------¹Ø¼üÖ¡¶ÔÏóÎ»ÖÃĞÅÏ¢Ğ´Èë  End
-								doit_prog.value = 100
-								format format_b_lag
-								doit_prog.value = 0
-								seek out_file orgFilePos 
-								--------------------------------------------------------------¹Ø¼üÖ¡Ğ´ÈëÎÄ¼ş
-								format "frame:" to: out_file
-								for i=1 to frame_data.count do (  format "%|" frame_data[i] to: out_file) 
-								format "\n"  to:out_file
-								--------------------------------------------------------------¹Ø¼üÖ¡Ğ´ÈëÎÄ¼ş End
-							)
-							close out_file
-							sliderTime = oriTime 
-							animationRange = interval tempstime tempetime
-						)
-	
-					)
-				)
-	
-	
-				cptools_P1.saveTM() ;
-				cptools_P1.setScreenGrab() ;
-				try( cpToolsPicWin.yunCopyImgBtn.images = #(cptools_P1.screengrab, undefined, 1,1,1,1,1) )catch()
-			)
-		)
-	
-		on addToList  rightClick do (
-			
-			exprotFbxforMayaToXdic()
-		)
-		on removeFromList pressed do (
-	
-			if keyboard.controlPressed then (	
-				if cptools.localModeCheckBox.checked==false then(	
-					folderPath  = ((GetDir #export)+"\\cptools_data\\")
-				)else (
-					folderPath  = ((GetDir #export)+"\\cptools_data\\localMode\\")
-				)
-				
-				-- ÒªÉ¾³ıµÄÎÄ¼şÀàĞÍ
-				fileType = ".bps";
-				filesToDelete = getFiles (folderPath + "*" + fileType);
-				for file in filesToDelete do (try (deleteFile file);catch())
-				fileType = ".bmp";
-				filesToDelete = getFiles (folderPath + "*" + fileType);
-				for file in filesToDelete do (try (deleteFile file);catch())
-			)	
-			else if (rb_sel.state==1) then (   --ÅĞ¶ÏÊÇposeÄ£Ê½»¹ÊÇ¶¯»­Ä£Ê½
-				if testList.items.count > 0 and testList.selection > 0 then (				
-					tabtxt  = testList.selected
-					
-					if cptools.localModeCheckBox.checked==false then(	
-						delete_name  = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-					)else (
-						delete_name  = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")
-					)
-					delete_file  = deleteFile delete_name 
-					if delete_file == undefined do ( messagebox messagebox_c_lag  beep:false Title:messagebox_a_title_lag  Return 0 )
-					testList.items = deleteItem testList.items testList.selection
-					testList.selection = testList.items.count
-				)
-			)else(
-				if testListAni.items.count > 0 and testListAni.selection > 0 then(
-					tabtxt  = testListAni.selected
-					--print tabtxt	
-					if cptools.localModeCheckBox.checked==false then(	
-						delete_name = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-					)else (
-						delete_name  = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")
-					)	
-						
-					delete_file = deletefile delete_name
-					if delete_file == undefined do ( messagebox messagebox_d_lag  beep:false Title:messagebox_a_title_lag Return 0 )
-					--print delete_name 
-					--print delete_file 
-					testListAni.items = deleteItem testListAni.items testListAni.selection
-					testListAni.selection = testListAni.items.count
-				)
-			)
-			rloading.pressed()
-	
-		)
-		----------------------------------------------Ñ¡ÔñposeÖĞÌí¼ÓÎïÌå
-		on testList selected i do 
-		(
-			tabtxt = testList.items[i]
-			if cptools.localModeCheckBox.checked==false then(	
-				in_sel = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-			) else (
-				in_sel = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")
-			)
-	
-			in_file = openFile in_sel
-			if in_file == undefined do  ( messagebox messagebox_c_lag beep:false Title:messagebox_a_title_lag Return 0 )
-	
-			seek in_file 0
-			ss = readLine in_file
-			tokens = filterString ss "|"
-			arrayl=#()
-	
-			for i =1 to tokens.count do 	(
-				obj =getnodebyname tokens[i] 
-				if obj != undefined do append arrayl obj
-			)
-			if arrayl.count !=0 then select arrayl else  ( messagebox messagebox_e_lag beep:false Title:messagebox_a_title_lag )
-			close in_file
-			
-			-- Ë¢Í¼
-			if cptools.testList.visible  then   ---poseÄ£Ê½
-			(
-				if cptools.testList.selected!=undefined then
-				(
-					picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")
-					if picSelName!=undefined then
-					(
-					versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
-					)
-					else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
-				)
-			)
-			else(         --¶¯»­Ä£Ê½
-				if cptools.testListAni.selected!=undefined then
-				(
-					picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp")
-					if picSelName!=undefined then
-					(
-					versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
-					)
-					else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
-				)
-			)
-		)
-		------------------
-		on testListAni selected i do  
-		(
-			tabtxt = testListAni.items[i]			
-			if cptools.localModeCheckBox.checked==false then(	
-					in_sel = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-			)else (
-				in_sel = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")	
-			)
-	
-			in_file = openFile in_sel
-			if in_file == undefined do ( messagebox messagebox_d_lag beep:false Title:messagebox_a_title_lag Return 0 )
-	
-			seek in_file 0
-			ss = readLine in_file
-			tokens = filterString ss "|"
-			arrayl=#()
-			for i =1 to tokens.count do 
-			(
-			obj =getnodebyname tokens[i] 
-			if obj != undefined do append arrayl obj
-			)
-			if arrayl.count !=0 then select arrayl else  ( messagebox messagebox_e_lag beep:false Title:messagebox_a_title_lag )
-			close in_file
-	
-			---Ë¢Í¼
-			if cptools.testList.visible  then   ---poseÄ£Ê½
-				(
-					if cptools.testList.selected!=undefined then
-					(
-						picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")
-						if picSelName!=undefined then
-						(
-						versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
-						)
-						else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
-					)
-				)
-				else
-				(         --¶¯»­Ä£Ê½
-					if cptools.testListAni.selected!=undefined then
-					(
-						picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp")
-						if picSelName!=undefined then
-						(
-						versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
-						)
-						else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
-					)
-				)
-			if cptools.timeRangeCheckBox.state do (try(cptoolsSetAnimRange ())	catch())
-	
-		)
-		-----------------------±©Á¦Õ³Ìù-------------------------------------------------------------------------------------------------------------------------------------------------------
-		on pastepose rightclick  do 
-		(
-			cptools.pastepose_rightclicked()
-		)
+		sort selKeyArray
+		makeUniqueArray  selKeyArray
+)
+catch()
 
-		fn pastepose_rightclicked  =
-		(	
-			start_time = timeStamp()
-			-------------------------------------½«Ñ¡ÔñÖØĞÂÅÅĞò
-			sort_array =#()
-			temp_sort_file = selection as array
-			sort_file = sort(for i in temp_sort_file collect i.name)
-			for i =1 to sort_file.count do 		
-			(
-				obj =getnodebyname sort_file[i] 
-				append sort_array obj
-			)
-			select sort_array
-			selectundefined = 0
-			with undo "pasteList" on         
-			(
-				for sec = 1 to Accuracy_offset.value do  --¾«¶È£¬Ñ­»·´ÎÊı¡£3´Î
-				(	
-					---######poseÕ³Ìù	
-					if(cptools.rb_sel.state==1)then
-					(
-						---ÓĞ±£´æµÄ×ËÊÆÇÒÑ¡ÔñÁË
-						if cptools.testList.items.count > 0 and testList.selection > 0 then
-						(	
-							tabtxt  = cptools.testList.selected	  	--Ñ¡ÔñµÄÎïÌå		
-							if cptools.localModeCheckBox.checked==false then	---·Ç±¾µØÄ£Ê½	
-							(	in_name =  ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")	) 
-							---±¾µØÄ£Ê½
-							else   (in_name =  ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")	) 
-							
-							in_file = openFile in_name
-							---Èç¹ûÃ»ÓĞÔõÌáÊ¾Ñ¡Ôñpose
-							if in_file == undefined  do  ( messagebox messagebox_c_lag  beep:false Title:messagebox_a_title_lag  Return 0 )
-							--with animate on
-							--( 	
-							seek in_file 0
-							skipToNextLine in_file
-							orgFilePos = filePos in_file
-							---µ±Ç°Ñ¡ÔñÑ­»·
-							for i=1 to selection.count do  
-							(--takes every selected object and...			
-								--print i
-								if keyboard.escPressed do	(format format_a_lag;exit)		---escÍË³ö
-								doit_prog.value = 100.*i/selection.count	
-								o=selection[i]
-								seek in_file orgFilePos 
-								a= skiptostring in_file ((o.name)+"'.transform")			---¶¨Î»µ½ÎïÌåÃû×ÖµÄµØ·½		
-								
-								if a==undefined then ( selectundefined =selectundefined+1 ) 		---ÊÇ·ñ¶¨Î»³É¹¦£¨ÊÇ·ñ¼ÇÂ¼¹ıÊı¾İ£©£¬È»ºó¼Ó1£¬selectundefinedÊÇ´æ·ÅÓĞ¶àÉÙ¸öÎ´¼ÇÂ¼ÎïÌå
-								else(
-									skiptostring in_file "="   ----ÔÙ´Î¶¨Î»µ½=ºÅÖ®ºó
-									ss = readLine in_file ---as stringStream 	¼ÇÂ¼ÏÂ¾ØÕóÊı¾İ
-																
-									--ÅĞ¶ÏÊÇmaya»¹ÊÇmax×ËÊÆ							
-									checkTM = filterString ss "#"
-									if checkTM.count > 1 then	( 																
-										---maya¼ÇÂ¼µÄ¾ØÕó×ª»¯³Émax¾ØÕó
-										mayaTM = execute checkTM[2]								
-										ss = (mayaTM *(matrix3 [1,0,0] [0,0,1] [0,-1,0] [0,0,0]))	as string															
-									)
-									ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss			---´¦Àí³É½Å±¾				
-									-----Ğ´Èë±¾µØ×ËÊÆpose			
-									if cptools.localModeCheckBox.checked then 		---±¾µØÄ£Ê½Õ³Ìù
-									(
-										--×Ö·û×ª³É¾ØÕó
-										fn deserializeMatrix3 str =
-										(
-											local p = filterString str ","
-											local row1 = [p[1] as float, p[2] as float, p[3] as float]
-											local row2 = [p[4] as float, p[5] as float, p[6] as float]
-											local row3 = [p[7] as float, p[8] as float, p[9] as float]
-											local row4 = [p[10] as float, p[11] as float, p[12] as float]
-											return matrix3 row1 row2 row3 row4
-										)
-										str =ss
-										str=substituteString   str "(matrix3" ""
-										str=substituteString   str ")" ""
-										str=substituteString   str "] [" ","
-										str=substituteString   str "]" ""
-										str=substituteString   str "[" ""
-										theCoords_str2Mat = deserializeMatrix3 str
-										----Ğ´ÈëĞı×ªºÍÎ»ÒÆ
-										if classof o != Biped_Object then		---·Çbip±¾µØ
-										(
-											rotLocal = theCoords_str2Mat.rotationPart
-											rotLocal.w=0-rotLocal.w
-											in coordsys  parent  o.scale = theCoords_str2Mat.scalePart 	----¾Ö²¿Ëõ·ÅÖ§³Ö
-											in coordsys  parent  o.rotation = rotLocal 
-											in coordsys  parent  o.pos = theCoords_str2Mat[4]
-										)
-										else	---bip±¾µØ								
-										(									
-											back2WorldTM = theCoords_str2Mat*( o.parent.transform)									
-											Biped.setTransform o #rotation  back2WorldTM.rotationPart	 true
-											--	Biped.setTransform o #pos back2WorldTM[4] true	
-										)
-									)						
-									else (	execute ex_tran	 )		---·Ç±¾µØÄ£Ê½Õ³Ìù
-									--------------------------------------------------------Ğ´Èë½áÊø									
-									--format (format_c_lag + ":(%/100)  \n")   doit_prog.value
-									if doit_prog.value == 100 do (format format_b_lag)	
-								)
-							)
-							doit_prog.value = 0
-							--)
-							close in_file
-						)
-						if selectundefined != 0 then
-						(
-							strmessage = "Ñ¡ÔñÖĞÓĞ"+ selectundefined as string +"¸ö¶ÔÏóÎ´¼ÇÂ¼Pose" 
-							--strmessage = messagebox_f_lag
-							messagebox strmessage   title:messagebox_a_title_lag beep:false
-						)
-					)
-					---¶¯»­Õ³Ìù
-					else
-					(
-						if testListAni.items.count > 0 and testListAni.selection > 0 then			---ÊÇ·ñÏÔÊ¾ÁËÎïÌå
-						(	
-							if(selection.count == 0 )then(messagebox messagebox_a_lag  title:messagebox_a_title_lag beep:false )			---ÊÇ·ñÓĞÑ¡Ôñ
-							else
-							(	
-								---Ö¡Êı·¶Î§ÊÇµ±Ç°»¹ÊÇ×Ô¶¨ÒåµÄ	  C×Ô¶¨£¬A×Ô¶¯	
-								if ac.text =="C" then ( start_frame = spn_start.value+ paste_offset.value;end_frame = spn_end.value+ paste_offset.value)
-								else (start_frame = animationrange.start+ paste_offset.value;end_frame = animationrange.end+ paste_offset.value)
-								
-								if (start_frame>=end_frame)then(messagebox messagebox_b_lag title:messagebox_a_title_lag beep:false )
-								else		---Ê±¼ä·¶Î§Ã»´í
-								(    
-									tabtxt  = testListAni.selected
-									---»ñÈ¡ÎÄ±¾£¬±¾µØ·Ç±¾µØ
-									if cptools.localModeCheckBox.checked==false then
-									(	in_name =  ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")	) 
-									else (	in_name =  ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps") )				
-							
-									in_file = openFile in_name			---ÊÇ·ñÑ¡Ôñ
-									if in_file == undefined do (messagebox messagebox_d_lag beep:false Title:messagebox_a_title_lag Return 0 )
-	
-									tempstime = animationrange.start
-									tempetime = animationrange.end
-									animationRange = interval (start_frame) (end_frame)--time ¼ÇÂ¼ÏÂÊ±¼ä·¶Î§ÒÔºó·½±ã»Ö¸´
-									------------ÅĞ¶ÏS»¹ÊÇK£¬Òª¿ªÊ¼Õ³ÌùÁË
-									s_or_k =  filterstring tabtxt "S"
-									oriTime = sliderTime
-									with animate on
-									( 
-										if s_or_k.count != 1 then 	----###ÖğÖ¡Ä£Ê½
-										(	
-											for m=animationrange.start to animationrange.end do   ---Ö¡
-											(
-												if keyboard.escPressed do 		---escÍË³ö
-												(
-													format format_a_lag
-													exit
-												)
-												
-												doit_prog.value = 100.*m/animationrange.end	---½ø¶ÈÌõ
-												
-												--sliderTime = m
-												at time m
-												(
-													seek in_file 0 
-													
-													skipToNextLine in_file	
-													
-													skiptostring in_file ("<"+((m-paste_offset.value) as String)+">")   ----¶¨Î»µ½Ö¡Êı±êÇ© £¬ÕâÀïÓĞ¼ÆËãÖ¡ÊıÆ«ÒÆ
-													
-													orgFilePos = filePos in_file
-													for i=1 to selection.count do --takes every selected object and...mÃ¿¸öÑ¡ÔñµÄÎïÌå
-													(
-														if keyboard.escPressed do 
-														(
-															format format_a_lag
-															exit
-														)
-														o=selection[i]
-														seek in_file orgFilePos 			
-														a = skiptostring in_file ("|"+(o.name)+"|") ---¶¨Î»µ½×Ö·ûÁ÷	
-														if a==undefined then ( selectundefined =selectundefined+1 )		---¼ÇÂ¼Î´¼ÇÂ¼ÎïÌå
-														else
-														(	
-															skiptostring in_file "="			---¶¨Î»µ½=ºÅºó
-															ss = readLine in_file ---as stringStream	¶ÁÈ¡µ½¾ØÕó
-															
-															--ÅĞ¶ÏÊÇmaya»¹ÊÇmax×ËÊÆ							
-															checkTM = filterString ss "#"
-															if checkTM.count > 1 then	( 																
-																---maya¼ÇÂ¼µÄ¾ØÕó×ª»¯³Émax¾ØÕó
-																mayaTM = execute checkTM[2]								
-																ss = (mayaTM *(matrix3 [1,0,0] [0,0,1] [0,-1,0] [0,0,0]))	as string                                                        
-															)
-															ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss			--×ª³É½Å±¾				
-															if cptools.localModeCheckBox.checked then 
-															(
-																-----Ğ´Èë±¾µØ×ËÊÆpose
-																--×Ö·û×ª³É¾ØÕó
-																fn deserializeMatrix3 str =
-																(
-																	local p = filterString str ","
-																	local row1 = [p[1] as float, p[2] as float, p[3] as float]
-																	local row2 = [p[4] as float, p[5] as float, p[6] as float]
-																	local row3 = [p[7] as float, p[8] as float, p[9] as float]
-																	local row4 = [p[10] as float, p[11] as float, p[12] as float]
-																	return matrix3 row1 row2 row3 row4
-																)
-																str =ss
-																str=substituteString   str "(matrix3" ""
-																str=substituteString   str ")" ""
-																str=substituteString   str "] [" ","
-																str=substituteString   str "]" ""
-																str=substituteString   str "[" ""
-																theCoords_str2Mat = deserializeMatrix3 str
-																----Ğ´ÈëĞı×ªºÍÎ»ÒÆ
-																if classof o != Biped_Object then		---·Çbip±¾µØ
-																(
-																	rotLocal = theCoords_str2Mat.rotationPart
-																	rotLocal.w=0-rotLocal.w
-																	in coordsys  parent  o.scale = theCoords_str2Mat.scalePart 	----¾Ö²¿Ëõ·ÅÖ§³Ö
-																	in coordsys  parent  o.rotation = rotLocal 
-																	in coordsys  parent  o.pos = theCoords_str2Mat[4]
-																)
-																else	---bip±¾µØ								
-																(									
-																	back2WorldTM = theCoords_str2Mat*( o.parent.transform)									
-																	Biped.setTransform o #rotation  back2WorldTM.rotationPart	 true
-																-- 	Biped.setTransform o #pos back2WorldTM[4] true	
-																)
-															)											
-															else (	execute ex_tran	)
-															--readDelimitedString in_file "end"
-															--------------------------------------------------------Ğ´Èë½áÊø	
-														)	
-													)
-													--format (format_c_lag + ":(%/100)  \n")  doit_prog.value
-													if doit_prog.value == 100 do (format format_b_lag )
-												)	---end at time
-											)
-											doit_prog.value = 0
-										)
-										---###¹Ø¼üÖ¡Ä£Ê½
-										else
-										(
-											seek in_file 0
-											skipToNextLine in_file
-											skiptostring in_file "frame:"
-											ss  = readLine in_file
-											frame_array_filter = filterString ss "|"
-											frame_arrayl =#()
-											-----¼ÓÉÏÆ«ÒÆµÄÊ±¼äÊı×éºó±ßÒª¼ÓËùÒÔÕâÀïÒª¼õ
-											for k =1 to frame_array_filter.count do 
-											(
-												if frame_array_filter[k] as time >= animationrange.start-paste_offset.value and  frame_array_filter[k] as time <= animationrange.end-paste_offset.value do
-												(
-													append frame_arrayl frame_array_filter[k] 
-													--sort frame_arrayl
-												)
-											)
-											--macros.run "Animation Tools" "DeleteSelectedAnimation"
-											---ÖğÖ¡µÄÑ­»·
-											for m=1 to frame_arrayl.count do
-											(
-												if keyboard.escPressed do 	(format format_a_lag;exit)
-												doit_prog.value = 100.*m/frame_arrayl.count
-												--sliderTime = frame_arrayl[m] as time + paste_offset.value
-												at time (frame_arrayl[m] as time + paste_offset.value)		
-												(
-													seek in_file 0															
-													skipToNextLine in_file						
-													skiptostring in_file ("<"+( frame_arrayl[m] as String)+">")		
-													orgFilePos = filePos in_file
-													--ËùÓĞÑ¡ÔñÎïÌåµÄÑ­»·
-													for i=1 to selection.count do 
-													(--takes every selected object and...				
-														if keyboard.escPressed do 	(format format_a_lag;exit)
-														o=selection[i]
-														seek in_file orgFilePos 					
-														a = skiptostring in_file ("|"+(o.name)+"|")
-														if a==undefined then ( selectundefined =selectundefined+1 )else
-														(	
-															skiptostring in_file "="
-															ss = readLine in_file ---as stringStream
-	
-															--ÅĞ¶ÏÊÇmaya»¹ÊÇmax×ËÊÆ							
-															checkTM = filterString ss "#"
-															if checkTM.count > 1 then	( 																
-																---maya¼ÇÂ¼µÄ¾ØÕó×ª»¯³Émax¾ØÕó
-																mayaTM = execute checkTM[2]								
-																ss = (mayaTM *(matrix3 [1,0,0] [0,0,1] [0,-1,0] [0,0,0]))	as string                                                        
-															)
-	
-															ex_tran = "$"+"'"+o.name+"'"+".transform="+ ss					
-															if cptools.localModeCheckBox.checked then 
-															(				
-																-----Ğ´Èë±¾µØ×ËÊÆpose
-																--×Ö·û×ª³É¾ØÕó
-																fn deserializeMatrix3 str =	
-																(
-																	local p = filterString str ","
-																	local row1 = [p[1] as float, p[2] as float, p[3] as float]
-																	local row2 = [p[4] as float, p[5] as float, p[6] as float]
-																	local row3 = [p[7] as float, p[8] as float, p[9] as float]
-																	local row4 = [p[10] as float, p[11] as float, p[12] as float]
-																	return matrix3 row1 row2 row3 row4
-																)
-																str =ss
-																str=substituteString   str "(matrix3" ""
-																str=substituteString   str ")" ""
-																str=substituteString   str "] [" ","
-																str=substituteString   str "]" ""
-																str=substituteString   str "[" ""
-																theCoords_str2Mat = deserializeMatrix3 str
-																----Ğ´ÈëĞı×ªºÍÎ»ÒÆ
-																if classof o != Biped_Object then		---·Çbip±¾µØ
-																(
-																	rotLocal = theCoords_str2Mat.rotationPart
-																	rotLocal.w=0-rotLocal.w
-																	in coordsys  parent  o.scale = theCoords_str2Mat.scalePart 	----¾Ö²¿Ëõ·ÅÖ§³Ö
-																	in coordsys  parent  o.rotation = rotLocal 
-																	in coordsys  parent  o.pos = theCoords_str2Mat[4]
-																)
-																else	---bip±¾µØ								
-																(									
-																	back2WorldTM = theCoords_str2Mat*( o.parent.transform)									
-																	Biped.setTransform o #rotation  back2WorldTM.rotationPart	 true
-																--Biped.setTransform o #pos back2WorldTM[4] true	
-																)
-															)													
-															else(execute ex_tran)
-															--------------------------------------------------------Ğ´Èë½áÊø
-															--readDelimitedString in_file "end"
-														)
-													)
-													--format (format_c_lag + ":(%/100)  \n")   doit_prog.value
-													if doit_prog.value == 100 do (format format_b_lag)
-												)
-											)
-											doit_prog.value = 0
-										)
-										
-										sliderTime =  animationrange.start
-										at time animationrange.start()
-									)
-									
-									close in_file
-									sliderTime = oriTime 
-									
-									animationRange = interval tempstime tempetime
-								)	
-							)
-						)	
-					)
-					sec = sec + 1
-					sec = sec + 1
-				)---end of ´ÎÊı3´Î
-				----±¨´í
-				if selectundefined != 0 then
-				(
-					selectundefined = selectundefined/(spn_end.value-spn_start.value)
-					--strmessage = "Ñ¡ÔñÖĞÓĞ"+ selectundefined as string +"¸ö¶ÔÏóÎ´¼ÇÂ¼Pose" 
-					strmessage = messagebox_f_lag
-					messagebox strmessage   title:messagebox_a_title_lag beep:false
-					selectundefined = 0
-				)
-			)
-			end_time = timeStamp()
-			run_time = end_time - start_time
-			print ("Õ³ÌùºÄÊ±£º" + (run_time * 3) as string )
+	return selKeyArray	
+)
+
+
+----åœºæ™¯å†…ç‰©ä½“æ˜¯å¦å­˜åœ¨æ£€æŸ¥å‡½æ•°
+function yunTrajEdit_CheckExsitError  = 
+(
+	for i in  yunTrajEdit_DTrajs do 
+	(	
+		if (isvalidnode i)==false do 
+		(
+			yunTrajEdit_DTrajs = #()
+			yunTrajEdit_DTrajs_dot = #()
+			yunTrajEdit_DTrajs_vis = #()
+			yunTrajEdit_DTrajs_timeLong = #()
+			yunTrajEdit_DTrajs_play = #()
+			yunTrajEdit_DTrajs_keyVis = #()
+			yunTrajEdit_DTrajs_colStart = #()
+			yunTrajEdit_DTrajs_colEnd = #()
+			yunTrajEdit_DTrajs_isGradual = #()
+
 		)
-		
-		--C#¼ÓËÙÕ³Ìù
-		on pastepose  pressed do 
+	)
+)
+yunTrajEdit_CheckExsitError()
+
+---å¦‚æœæœ‰ä¸ç›¸ç­‰å°±éƒ½å½’é›¶
+if yunTrajEdit_DTrajs.count!=yunTrajEdit_DTrajs_dot.count or
+yunTrajEdit_DTrajs_dot.count!=yunTrajEdit_DTrajs_vis.count or 
+yunTrajEdit_DTrajs_vis.count!=yunTrajEdit_DTrajs_timeLong.count or 
+yunTrajEdit_DTrajs_timeLong.count!=yunTrajEdit_DTrajs_play.count or 
+yunTrajEdit_DTrajs_play.count!=yunTrajEdit_DTrajs_keyVis.count or 
+yunTrajEdit_DTrajs_keyVis.count!=yunTrajEdit_DTrajs_colStart.count or 
+yunTrajEdit_DTrajs_colStart.count!=yunTrajEdit_DTrajs_colEnd.count or 
+yunTrajEdit_DTrajs_colEnd.count!=yunTrajEdit_DTrajs_isGradual.count do
+
+(
+	yunTrajEdit_DTrajs = #()
+	yunTrajEdit_DTrajs_dot = #()
+	yunTrajEdit_DTrajs_vis = #()
+	yunTrajEdit_DTrajs_timeLong = #()
+	yunTrajEdit_DTrajs_play =  #()
+	yunTrajEdit_DTrajs_keyVis = #()
+	yunTrajEdit_DTrajs_colStart = #()
+	yunTrajEdit_DTrajs_colEnd = #()
+	yunTrajEdit_DTrajs_isGradual = #()
+
+)
+
+------å®æ—¶æ”¹å˜å‡½æ•°
+Fn yun_refreshDT_byTime_new_fn  = 
+(	
+	if yunTrajEdit_DTrajs_timeLong.count > 0 then
+	(
+		for i = yunTrajEdit_DTrajs_timeLong.count to 1 by -1 do
 		(	
-			if cptools.testList.visible  then   ---poseÄ£Ê½
+			if yunTrajEdit_DTrajs_timeLong[i] do
 			(
-				cptools.pastepose_rightclicked()
+				execute ("yunTrajEdit_Rollout.spn_Start"+ (i as string)+".value=(currentTime as integer)/TicksPerFrame - yunTrajEdit_Rollout.time_FB"+ (i as string)+".value")
+				execute ("yunTrajEdit_Rollout.spn_End"+ (i as string)+".value=(currentTime as integer)/TicksPerFrame + yunTrajEdit_Rollout.time_FB"+ (i as string)+".value")	
+			)
+		)
+	)
+			
+)
+
+
+
+-----ç‚¹æ ‡æ€§çŠ¶æ§åˆ¶
+KeyP_shape = #("hollowBox","plusSign","asterisk","xMarker","bigBox","circle","triangle","diamond","smallHollowBox","smallCircle","smallTriangle")
+global dotShape = "smallDiamond"
+---å®ä¾‹å˜é‡
+global yunTrajEdit_Globals	
+-- å›¾æ ‡ä½ç½®
+global pathIcons = ((getDir #scripts) + "\\BulletScripts\\Res")
+
+-----å°è£…å¤„
+(
+----å®ä¾‹ç»“æ„
+struct yunTrajEdit_Globals_Struct
+(
+	bmp_Background = openbitmap (pathIcons + "\DTools\DTrajEdit\BackGround.bmp"),
+	bmp_Title = openbitmap (pathIcons + "\DTools\DTrajEdit\Title.bmp"),
+	bmp_New = openbitmap (pathIcons + "\DTools\DTrajEdit\New_Poly.bmp"),
+	bmp_New_Pivot = openbitmap (pathIcons + "\DTools\DTrajEdit\New_Pivot.bmp"),
+	bmp_About = openbitmap (pathIcons + "\DTools\DTrajEdit\About.bmp"),
+	bmp_Exit = openbitmap (pathIcons + "\DTools\DTrajEdit\Exit.bmp"),
+	bmp_Display = openbitmap (pathIcons + "\DTools\DTrajEdit\Display.bmp"),
+	bmp_DisplayAll = openbitmap (pathIcons + "\DTools\DTrajEdit\DisplayAll.bmp"),
+	bmp_Display_ON = openbitmap (pathIcons + "\DTools\DTrajEdit\Display_ON.bmp"),
+	bmp_DisplayAll_ON = openbitmap (pathIcons + "\DTools\DTrajEdit\DisplayAll_ON.bmp"),
+	bmp_Delete = openbitmap (pathIcons + "\DTools\DTrajEdit\Delete.bmp"),
+	bmp_Range= openbitmap (pathIcons + "\DTools\DTrajEdit\Range.bmp"),
+	bmp_Dot = openbitmap (pathIcons + "\DTools\DTrajEdit\Dot.bmp"),
+	bmp_Dot_ON = openbitmap (pathIcons + "\DTools\DTrajEdit\Dot_ON.bmp"),
+	bmp_Move = openbitmap (pathIcons + "\DTools\DTrajEdit\Move.bmp"),
+	
+	WindowToCursorOffset = [0,0],
+	
+	function MoveWindow _rlWindow =
+	(
+		if WindowToCursorOffset != [0,0] then
+		(
+			SetDialogPos _rlWindow (mouse.pos + WindowToCursorOffset)
+		)
+	),
+
+	function IsReadyToMove _rlWindow _pPos =
+	(
+		WindowToCursorOffset = ((GetDialogPos _rlWindow) - mouse.pos )
+		setSysCur #move
+	),
+
+	function LetGoTheWindow =
+	(
+		WindowToCursorOffset = [0,0]
+	),
+	
+	
+	
+	---åˆ‡å¤§å°ç•Œé¢ å›¾æ ‡
+	bDisplayAll = false,
+	function ToggleDisplayAll =
+	(
+		bDisplayAll = not(bDisplayAll)		
+		yunTrajEdit_Globals.UpdateBitmaps()
+	),
+	---åˆ‡å¤§å°ç•Œé¢  + åˆ·æ–°å›¾æ ‡
+	function UpdateBitmaps =
+	(
+		--bDisplayAll = not(bDisplayAll)
+		try
+		(
+			if not(bDisplayAll) then
+			(
+				execute ("yunTrajedit_rollout.btn_DisplayAll.images = #(yunTrajEdit_Globals.bmp_DisplayAll, undefined, 1, 1, 1, 1, 1)")
+				yunTrajedit_rollout.width = 254
+				if yunTrajEdit_DTrajs.count > 0 do
+				(yunTrajedit_rollout.height = 43+34*(yunTrajEdit_DTrajs.count))
+			--yunTrajedit_rollout.height = 40
 			)
 			else
-			(		
-				max create mode                
-				start_time = timeStamp()
-				tabtxt  = cptools.testListAni.selected
-				in_name = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
-				if  cptools.ac.text =="C" then ( start_frame =  cptools.spn_start.value+  cptools.paste_offset.value;end_frame =  cptools.spn_end.value+  cptools.paste_offset.value)
-				else (start_frame = animationrange.start+  cptools.paste_offset.value;end_frame = animationrange.end+  cptools.paste_offset.value)
-				animationRange = interval (start_frame) (end_frame)
-				s_or_k =  filterstring tabtxt "S"
-				frame_arrayl =#()
+			(
+				execute ("yunTrajedit_rollout.btn_DisplayAll.images = #(yunTrajEdit_Globals.bmp_DisplayAll_ON, undefined, 1, 1, 1, 1, 1)")
+				yunTrajedit_rollout.width = 37+40
+				yunTrajedit_rollout.height = 40
+			)
+		)
+		catch()
+	),
+	----æ–°å»ºè½¨è¿¹
+	function NewTraj _bPivot =
+	(			
+		local nParent	
+		----åˆ†ç±»å‹ç”¨çš„æš‚æ—¶æ— ç”¨
+		if _bPivot do
+		(
+			---æ£€æŸ¥æ˜¯å¦é€‰æ‹©äº†ä¸€ä¸ªç‰©ä½“
+			if selection.count == 1 then   
+			(
+				nParent = selection[1]
+			)				
+		)			
+		setWaitCursor()				
+		
+		
+		-----çœŸæ­£åˆ›å»ºè½¨è¿¹
+		if IsValidNode nParent then
+		(
+			
+			if (findItem yunTrajEdit_DTrajs nParent)== 0 do
+			(
+			appendIfUnique yunTrajEdit_DTrajs nParent
+			append yunTrajEdit_DTrajs_dot true
+			append yunTrajEdit_DTrajs_vis true
+			append yunTrajEdit_DTrajs_timeLong true
+			append yunTrajEdit_DTrajs_play false
+			append yunTrajEdit_DTrajs_keyVis true				
+			append yunTrajEdit_DTrajs_colStart red
+			append yunTrajEdit_DTrajs_colEnd green				
+			append yunTrajEdit_DTrajs_isGradual false
+			)
+			
+		)
+		else
+		(
+		messagebox "æ¥é€‰ä¸€ä¸ªå˜›...  ." title:"yunTrajEdit"				
+		)
+		----ç•Œé¢é‡ç”Ÿ
+		yunTrajEdit_UpdateRollout()
+	),
+	---åˆ é™¤è½¨è¿¹
+	function DeleteTraj _i =
+	(
+		if IsValidNode yunTrajEdit_DTrajs[_i] do 
+		(	
+			deleteitem yunTrajEdit_DTrajs _i
+			deleteItem yunTrajEdit_DTrajs_dot  _i
+			deleteItem yunTrajEdit_DTrajs_vis  _i
+			deleteItem yunTrajEdit_DTrajs_timeLong  _i 
+			deleteItem yunTrajEdit_DTrajs_play  _i 
+			deleteItem yunTrajEdit_DTrajs_keyVis  _i 
+			deleteItem yunTrajEdit_DTrajs_colStart  _i 
+			deleteItem yunTrajEdit_DTrajs_colEnd  _i 
+			deleteItem yunTrajEdit_DTrajs_isGradual  _i 
+		)		
+		yunTrajEdit_UpdateRollout()
+	),
+	---åˆ‡æ¢ç‚¹æ ‡æ˜¾éš
+	function ToggleDot  _i =
+	(
+		try
+		(					
+			if (not yunTrajEdit_DTrajs_dot[_i]) then
+			(
+				execute ("yunTrajEdit_Rollout.btn_Dot" + _i as string + ".images = #(yunTrajEdit_Globals.bmp_Dot, undefined, 1, 1, 1, 1, 1)")
+				yunTrajEdit_DTrajs_dot[_i] = true
+			)
+			else
+			(
+				execute ("yunTrajEdit_Rollout.btn_Dot" + _i as string + ".images = #(yunTrajEdit_Globals.bmp_Dot_ON, undefined, 1, 1, 1, 1, 1)")
+				yunTrajEdit_DTrajs_dot[_i] = false
+			)
+		)			
+		catch()
+	),
+	---åˆ‡æ¢è½¨è¿¹æ˜¾éš
+	function ToggleDisplay _i=
+	(
+		try
+		(					
+			if (not yunTrajEdit_DTrajs_vis[_i]) then
+			(
+				execute ("yunTrajEdit_Rollout.btn_Display" + _i as string + ".images = #(yunTrajEdit_Globals.bmp_Display, undefined, 1, 1, 1, 1, 1)")
+				yunTrajEdit_DTrajs_vis[_i] = true
+			)
+			else
+			(
+				execute ("yunTrajEdit_Rollout.btn_Display" + _i as string + ".images = #(yunTrajEdit_Globals.bmp_Display_ON, undefined, 1, 1, 1, 1, 1)")
+				yunTrajEdit_DTrajs_vis[_i] = false
+			)
+		)			
+		catch()
+	),
+	---åˆ‡æ¢å…³é”®å¸§æ˜¾éš
+	function ToggleKeyVis  _i =
+	(
+		try
+		(					
+			if (not yunTrajEdit_DTrajs_keyVis[_i]) then
+			(
+				execute ("yunTrajEdit_Rollout.btn_Move" + _i as string + ".images = #(yunTrajEdit_Globals.bmp_Move, undefined, 1, 1, 1, 1, 1)")
+				yunTrajEdit_DTrajs_keyVis[_i] = true
+			)
+			else
+			(
+				execute ("yunTrajEdit_Rollout.btn_Move" + _i as string + ".images = #(yunTrajEdit_Globals.bmp_Move, undefined, 4, 1, 1, 1, 1)")
+				yunTrajEdit_DTrajs_keyVis[_i] = false
+			)
+		)			
+		catch()
+	)	
+)
+
+
+------ç”Ÿæˆè½¨è¿¹å‡½æ•°  ç‰©ä½“ æ˜¾ç¤º å¼€ç‚¹ å¼€å§‹è‰² ç»“æŸè‰² å¼€å§‹å¸§æ•° ç»“æŸå¸§æ•° ç‚¹å½¢çŠ¶ æ’­æ”¾æ˜¯å¦æ˜¾ç¤º å…³é”®å¸§å¼€å…³ æ˜¯å¦é¢œè‰²æ¸å˜
+fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShape isPlay keyVis isGradual =
+(
+	--æ˜¯å¦æ’­æ”¾
+	playCheck = true  --é»˜è®¤ç”»æ›²çº¿
+	if isPlay and isAnimPlaying() then (playCheck = false )  ---éšè—è¢«å‹¾é€‰åˆ‡åœ¨æ’­æ”¾å°±ä¸ç”»äº†
 	
-				if s_or_k.count != 1 then 	----###ÖğÖ¡Ä£Ê½
+	--if vis and  not isAnimPlaying()  do
+	---ç”»è½¨è¿¹
+	if vis and   playCheck  do
+	if vis   do
+	(	
+	
+		---è·å–æ•°æ® 
+			
+		if  ((currentTime as string) as integer) > tStart and
+		((currentTime as string) as integer)  < tEnd then
+		(tNow = (currentTime as string) as integer)			
+		else (tNow = tStart+1 )
+		
+		framesA = #()
+		for i = tStart to tNow do append framesA i
+		framesB = #()
+		for i = tNow to tEnd do append framesB i
+			
+		----------------------------------------------------
+		arrA = #()  --å¸§æ•°
+		arrColorA = #()   --é¢œè‰²
+		arrColorA_reverse = #()
+		
+		camGet = getActiveCamera()	
+		
+		--ç›¸æœºè·¯å¾„	
+		if  yunTrajEdit_DTrajs_camRef and  camGet != undefined then	(
+			nowCamTM = camGet.transform
+			for vT = 1 to  framesA.count do (
+				at time  framesA[vt] (
+					localPos = obj.transform.pos * inverse camGet.transform
+					append arrA  (localPos * nowCamTM)
+				)			
+			)	
+		)
+		else(
+			for vT = 1 to  framesA.count do (at time  framesA[vT] (append arrA  obj.transform.pos))
+		)
+		
+		--æ¸å˜é¢œè‰²
+		if isGradual then		(
+			rd = col_Start.red/framesA.count  
+			gd = col_Start.green /framesA.count
+			bd = col_Start.blue /framesA.count
+			ad = 255/framesA.count
+			
+			for vT = 1 to  framesA.count do (
+				col = (color (col_Start.red - rd*vT ) (col_Start.green - gd*vT ) (col_Start.blue - bd*vT ) )				
+				col.alpha = (col_Start.alpha - ad*vT )
+				col.alpha = 255
+				append arrColorA   col			
+			)	
+			arrColorA_reverse = for i = arrColorA.count to 1 by -1 collect arrColorA[i]
+		)
+		else(for vT in framesA do (append arrColorA_reverse col_Start)	)		 
+		
+			
+
+
+		
+		----------------------------------------------------
+		arrB = #()
+		arrColorB = #()
+		
+		--ç›¸æœºè·¯å¾„	
+		if  yunTrajEdit_DTrajs_camRef and  camGet != undefined then	(
+			nowCamTM = camGet.transform
+			for vT = 1 to  framesB.count do (
+				at time  framesB[vt] (
+					localPos = obj.transform.pos * inverse camGet.transform
+					append arrB  (localPos * nowCamTM)
+				)			
+			)	
+		)
+		else(
+			for vT = 1 to  framesB.count do (at time  framesB[vT] (append arrB  obj.transform.pos))
+		)
+		
+		
+		--æ¸å˜
+		if isGradual then		(
+			rd = col_End.red/framesB.count  
+			gd = col_End.green /framesB.count
+			bd = col_End.blue /framesB.count
+			
+			for vT = 1 to  framesB.count do 
+			(append arrColorB  (color (col_End.red - rd*vT ) (col_End.green - gd*vT ) (col_End.blue - bd*vT ))	)
+		)
+		else	(for vT in framesB do (	append arrColorB col_End )	)
+		
+		
+		-- reset
+		gw.setTransform(Matrix3 1)	
+		
+
+		
+		--ç”Ÿæˆå‰åŠæ®µ
+		for i = 1 to arrA.count do
+		(			
+			arrA[i] = gw.wTransPoint arrA[i] 
+			if isdot then 
+			( 
+				case of
 				(
-					for i = start_frame-cptools.paste_offset.value to end_frame-cptools.paste_offset.value do
-					( 
-						append frame_arrayl (i.frame as integer)
-						sort frame_arrayl
+					(dotShape=="hollowBox"): gw.wMarker arrA[i] #hollowBox color:arrColorA_reverse[i]
+					(dotShape=="plusSign"): gw.wMarker arrA[i] #plusSign color:arrColorA_reverse[i]
+					(dotShape=="asterisk"): gw.wMarker arrA[i] #asterisk color:arrColorA_reverse[i]
+					(dotShape=="xMarker"): gw.wMarker arrA[i] #xMarker color:arrColorA_reverse[i]
+					(dotShape=="bigBox"): gw.wMarker arrA[i] #bigBox color:arrColorA_reverse[i]
+					(dotShape=="circle"): gw.wMarker arrA[i] #circle color:arrColorA_reverse[i]
+					(dotShape=="triangle"): gw.wMarker arrA[i] #triangle color:arrColorA_reverse[i]
+					(dotShape=="diamond"): gw.wMarker arrA[i] #diamond color:arrColorA_reverse[i]
+					(dotShape=="smallHollowBox"): gw.wMarker arrA[i] #smallHollowBox color:arrColorA_reverse[i]
+					(dotShape=="smallCircle"): gw.wMarker arrA[i] #smallCircle color:arrColorA_reverse[i]
+					(dotShape=="smallTriangle"): gw.wMarker arrA[i] #smallTriangle color:arrColorA_reverse[i]
+					default: gw.wMarker arrA[i] #smallDiamond       color:arrColorA_reverse[i]
+				)
+			)
+			else (gw.wMarker arrA[i] #point  color:arrColorA_reverse[i])
+		)
+		gw.wPolyline arrA false  rgb:arrColorA_reverse	
+		
+		----ç”ŸæˆååŠæ®µ
+		for i = 1 to arrB.count do
+		(
+			arrB[i] = gw.wTransPoint arrB[i] 
+			if isdot then 
+			( 
+				case of
+				(
+					(dotShape=="hollowBox"): gw.wMarker arrB[i] #hollowBox  color:arrColorB[i] 
+					(dotShape=="plusSign"): gw.wMarker arrB[i] #plusSign color:arrColorB[i] 
+					(dotShape=="asterisk"): gw.wMarker arrB[i] #asterisk color:arrColorB[i] 
+					(dotShape=="xMarker"): gw.wMarker arrB[i] #xMarker color:arrColorB[i] 
+					(dotShape=="bigBox"): gw.wMarker arrB[i] #bigBox 	color:arrColorB[i] 
+					(dotShape=="circle"): gw.wMarker arrB[i] #circle color:arrColorB[i] 
+					(dotShape=="triangle"): gw.wMarker arrB[i] #triangle color:arrColorB[i] 
+					(dotShape=="diamond"): gw.wMarker arrB[i] #diamond color:arrColorB[i] 
+					(dotShape=="smallHollowBox"): gw.wMarker arrB[i] #smallHollowBox color:arrColorB[i] 
+					(dotShape=="smallCircle"): gw.wMarker arrB[i] #smallCircle color:arrColorB[i] 
+					(dotShape=="smallTriangle"): gw.wMarker arrB[i] #smallTriangle color:arrColorB[i] 
+					default: gw.wMarker arrB[i] #smallDiamond       color:arrColorB[i] 
+				)
+				--gw.wMarker arrB[i]  #hollowBox       color:col_End
+			)	
+			else(  	gw.wMarker arrB[i]  #point  color:arrColorB[i] )
+		)
+		gw.wPolyline arrB false  rgb:arrColorB
+		
+			
+		---å…³é”®å¸§æ˜¾ç¤º   obj = $
+		if keyVis then	
+		(
+			keyArray = getAnimProp_yunEdit  obj			
+			keyA_num = for i in keyArray where 
+				( 
+				((i as string )as integer )> tStart and 	((i as string )as integer )< tend 				
+				)collect ((i as string )as integer)
+			arrK = #()
+			arrColorK = #()
+			camGet = getActiveCamera()	
+			--ç›¸æœºè·¯å¾„	
+			if  yunTrajEdit_DTrajs_camRef and  camGet != undefined then	(
+				nowCamTM = camGet.transform
+				for vT = 1 to  keyA_num.count do (
+					at time  keyA_num[vt] (
+						localPos = obj.transform.pos * inverse camGet.transform
+						append arrK  (localPos * nowCamTM)
+					)			
+				)	
+			)
+			else (
+				for vT in keyA_num do (
+					at time  vT (				
+						append arrK  obj.transform.pos
 					)
+				)
+			)
+			
+			for vT in keyA_num do (	append arrColorK white		)
+
+			
+			gw.setTransform (matrix3 1)	
+			for i = 1 to arrK.count do
+			(
+				arrK[i] = gw.wTransPoint arrK[i] 
+				( 	
+				gw.wtext  arrK[i] (keyA_num[i] as string) color:yellow		
+				gw.wMarker arrK[i] #xMarker  color:white
+				)	
+				
+			)
+			--camGet = getActiveCamera()
+			/*
+			--ç›¸æœºè·¯å¾„	
+			if  yunTrajEdit_DTrajs_camRef and  camGet != undefined then	(
+				nowCamTM = camGet.transform
+				for vT = 1 to  keyA_num.count do (
+					at time  keyA_num[vt] (
+						localPos = obj.transform.pos * inverse camGet.transform
+						append arrK  (localPos * nowCamTM)
+					)			
+				)	
+			)
+			else(
+				
+			)
+			*/
+		
+		)
+		
+		at time (currentTime) (posRescue=  obj.transform.pos)
+		gw.wMarker posRescue #smallDiamond color:col_End
+
+
+		
+		-- Update the viewports	 
+		gw.enlargeUpdateRect #whole 
+		gw.updateScreen()
+	)
+)
+function yunMotionPathCallBackFn_exc =
+(
+	----æ”¾æŠ¥é”™åˆ¤æ–­
+	if yunTrajEdit_DTrajs.count > 0 do
+	(
+		----å…¨å±€å˜é‡æ•´ç†
+		yunTrajEdit_CheckExsitError()
+		
+
+		-----æ£€æŸ¥ç»“æŸå¼€å¯è½¨è¿¹   i = 1
+		for i = yunTrajEdit_DTrajs.count to 1 by -1 do
+		(			
+			col_start = Execute ("yunTrajedit_rollout.col_Dot" + (i as string) + ".color")
+			col_end = Execute ("yunTrajedit_rollout.col_Spline" + (i as string) + ".color")
+			
+			tStart = Execute ("yunTrajedit_rollout.spn_Start" + (i as string) + ".value")
+			tEnd = Execute ("yunTrajedit_rollout.spn_End" + (i as string) + ".value")
+			if yunTrajEdit_DTrajs_dot.count > 0 do ( isdot = yunTrajEdit_DTrajs_dot[i] )			
+			if yunTrajEdit_DTrajs_vis.count > 0 do ( vis = yunTrajEdit_DTrajs_vis[i] )
+			if yunTrajEdit_DTrajs_Play.count > 0 do ( isPlay = yunTrajEdit_DTrajs_Play[i] )
+			if yunTrajEdit_DTrajs_keyVis.count> 0 do ( keyVis = yunTrajEdit_DTrajs_keyVis[i] )			
+			if yunTrajEdit_DTrajs_isGradual.count> 0 do ( isGradual = yunTrajEdit_DTrajs_isGradual[i] )
+			
+
+			if yunTrajEdit_DTrajs[i] != undefined and
+			col_start != undefined	and
+			col_end != undefined and 
+			tStart != undefined and 
+			tEnd != undefined and
+			vis != undefined and
+			dotShape != undefined and
+			isPlay != undefined and
+			keyVis != undefined and
+			isGradual != undefined and
+			isdot != undefined do			
+			(	
+				----æ ¸å¿ƒç”»è½¨è¿¹ä»£ç 
+				try ((yunMotionPathCallBackFn   yunTrajEdit_DTrajs[i] vis  isdot col_start col_end tStart tEnd dotShape isPlay keyVis isGradual)) catch()
+			)
+		)
+	)
+)
+------ç”Ÿæˆè½¨è¿¹å‡½æ•°ç»“æŸe
+
+
+------å®æ—¶æ”¹å˜å‡½æ•°
+Fn yun_refreshDT_byTime_new_fn  = 
+(	
+	if yunTrajEdit_DTrajs_timeLong.count > 0 then
+	(
+		for i = yunTrajEdit_DTrajs_timeLong.count to 1 by -1 do
+		(	
+			if yunTrajEdit_DTrajs_timeLong[i] do
+			(
+				execute ("yunTrajEdit_Rollout.spn_Start"+ (i as string)+".value=(currentTime as integer)/TicksPerFrame - yunTrajEdit_Rollout.time_FB"+ (i as string)+".value")
+				execute ("yunTrajEdit_Rollout.spn_End"+ (i as string)+".value=(currentTime as integer)/TicksPerFrame + yunTrajEdit_Rollout.time_FB"+ (i as string)+".value")	
+			)
+		)
+	)
+			
+)
+
+
+
+
+---å®ä¾‹åŒ–
+(yunTrajEdit_Globals = yunTrajEdit_Globals_Struct())
+
+-----ç•Œé¢å‡ºç”Ÿå‡½æ•°
+global yunTrajEdit_Rollout
+function yunTrajEdit_UpdateRollout =
+(
+
+
+	
+	
+	
+	local szExecute = "
+	rollout yunTrajedit_rollout \"\" width:254 height:40
+	(\n
+	--bDisplayAll = false
+	---å¼€å…³æŒ‰é’®
+	button btn_DisplayAll \"\" pos:[1,4] width:34 height:34 tooltip:\"1ï¼Œå·¦é”®å¤§å°å¦‚æ„\n2ï¼Œå³é”®å¼€å…³è½¨è¿¹æ˜¾ç¤º\n3ï¼Œshift+å·¦é”®å¼€å…³å®æ—¶æ›´æ–°è½¨è¿¹é•¿åº¦\nï¼ˆå…³é—­åˆ™æŒ‰æ—¶é—´è½´é•¿åº¦æ˜¾ç¤ºï¼‰\n4ï¼Œctrl+å·¦é”®å¼€å…³æ˜¾ç¤ºå…³é”®å¸§æ•°\n5,alt+å·¦é”®å¼€å…³é¢œè‰²æ¸å˜\"
+	---logoå›¾æ ‡
+	bitmap bmp_Titlebmp pos:[35,1] width:255 height:40 bitmap:yunTrajEdit_Globals.bmp_Title
+	---å…³äºæŒ‰é’®
+	button btn_About \"\" pos:[152,4] width:34 height:34 images:#(yunTrajEdit_Globals.bmp_About, undefined, 1, 1, 1, 1, 1) tooltip:\"å·¦é”®å…³äºä¿¡æ¯ï¼Œå³é”®éšæœºè½¨è¿¹é¢œè‰²\"
+
+	
+	---æ–°å»ºè½¨è¿¹
+	button btn_New \"\" pos:[186,4] width:34 height:17 images:#(yunTrajEdit_Globals.bmp_New, undefined, 1, 1, 1, 1, 1) tooltip:\"å·¦é”®æ”¹å˜ç‚¹æ ‡å½¢çŠ¶ï¼Œå³é”®æ¢å¤é»˜è®¤\"
+	button btn_New_Pivot \"\" pos:[186,21] width:34 height:17 images:#(yunTrajEdit_Globals.bmp_New_Pivot, undefined, 1, 1, 1, 1, 1) tooltip:\"æ–°å»ºè½¨è¿¹\"
+	
+	---é€€å‡ºæŒ‰é’®
+	button btn_Exit \"\" pos:[220,4] width:34 height:34 images:#(yunTrajEdit_Globals.bmp_Exit, undefined, 1, 1, 1, 1, 1) tooltip:\"EXIT\"
+	-- çª—å£ç§»åŠ¨åŠŸèƒ½
+	on yunTrajedit_rollout mousemove pos do yunTrajEdit_Globals.MoveWindow yunTrajedit_rollout
+	on yunTrajedit_rollout lbuttondown pos do yunTrajEdit_Globals.IsReadyToMove yunTrajedit_rollout pos
+	on yunTrajedit_rollout lbuttonup pos do yunTrajEdit_Globals.LetGoTheWindow()	
+	
+	----æ”¹å˜ç‚¹æ ‡å½¢çŠ¶åŠŸèƒ½
+	on btn_New pressed do
+	(
+		if dotShape == \"smallDiamond\" do (dotShape = \"hollowBox\")
+		if (findItem KeyP_shape dotShape)!= 0 do 
+		(	
+			if (findItem KeyP_shape dotShape)==KeyP_shape.count then 
+			(
+				dotShape=KeyP_shape[1]
+				
+			)
+			else 
+			(
+				index = (findItem KeyP_shape dotShape) +1
+				dotShape = KeyP_shape[index]
+			)
+		)
+	)
+	on btn_New rightClick  do
+	(
+		dotShape = \"smallDiamond\"
+	)
+	----æ‰“å¼€ç•Œé¢æ˜¯åˆ·æ–°å›¾æ ‡
+	on yunTrajedit_rollout open do 
+	(
+		yunTrajEdit_Globals.UpdateBitmaps()
+		try unregisterRedrawViewsCallback yunMotionPathCallBackFn_exc catch()
+		registerRedrawViewsCallback yunMotionPathCallBackFn_exc
+
+		try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()		
+		try (registerTimeCallback yun_refreshDT_byTime_new_fn) catch ()
+		try (yun_refreshDT_byTime_new_fn())	 catch ()
+		
+	)
+	--é€€å‡ºçª—å£åŠŸèƒ½
+	on btn_Exit pressed do
+	(
+		try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()
+		try unregisterRedrawViewsCallback yunMotionPathCallBackFn_exc catch()
+		yunTrajEdit_Globals.UpdateBitmaps()
+		yunTrajEdit_Globals = undefined
+
+		DestroyDialog yunTrajedit_rollout
+		gc()  ---å†…å­˜ç®¡ç†	
+		
+	)
+	on btn_Exit rightClick do
+	(
+		if yunTrajEdit_DTrajs_camRef  then 
+		(	
+			yunTrajEdit_DTrajs_camRef = false
+			print \"ç”»é¢è·¯å¾„å…³é—­<â€”â€”~\"
+			yunTrajEdit_Rollout.btn_Exit.images = #(yunTrajEdit_Globals.bmp_About, undefined, 1, 1, 1, 1, 1)
+			
+		)
+		else (
+			yunTrajEdit_DTrajs_camRef = true
+			cc = getActiveCamera()
+			if cc!=undefined then
+			(print cc.name +\"ç”»é¢è·¯å¾„å¼€å¯ï¼Œç›¸æœºâ€”â€”>~\")
+			else (print	(\"ç”»é¢è·¯å¾„å¼€å¯ï¼Œæ— ç›¸æœºâ€”â€”>~\"))	
+			yunTrajEdit_Rollout.btn_Exit.images = #(yunTrajEdit_Globals.bmp_About, undefined, 2, 1, 1, 1, 1)	
+		)		
+		gc()  ---å†…å­˜ç®¡ç†
+		
+	)
+	
+	
+	---å…³äºæŒ‰é’®åŠŸèƒ½
+	on btn_About pressed do
+	(d
+		messagebox \"DtraijEdit 2.07    è½¨è¿¹æ’ä»¶é‡å†™ç‰ˆ\nEricDLegare.com\nProgramming:Eric D Legare   /   ä¸œè§äº‘\nIconsï¼šSimon Dubuc\n---------è”ç³»æ–¹å¼-----------\nyun7928903@163.com
+		\"
+
+	)
+	on btn_About rightClick do
+	(
+		--print \"éšæœºé¢œè‰²\"
+		fn HSV_to_RGB hsv = 
+		(
+			hsv /= 255
+			h = hsv.x*6
+			i = h as integer
+			k = if (mod i 2) == 1 then (h-i) else (1-h+i)
+			m = hsv.z*(1-hsv.y)
+			n = hsv.z*(1-hsv.y*k)
+			case i of
+			(
+					1: [n, hsv.z, m]*255
+					2: [m, hsv.z, n]*255
+					3: [m, n, hsv.z]*255
+					4: [n, m, hsv.z]*255
+					5: [hsv.z, m, n]*255
+			  default: [hsv.z, n, m]*255
+			)
+		)	
+		try(
+		yunTrajEdit_UpdateRollout()
+		for i=1 to yunTrajEdit_DTrajs_colEnd.count do
+		(
+				bufferColorA =  HSV_to_RGB [(random 0 255),(random 90 255),255]  as color
+				bufferColorB =  HSV_to_RGB [(random 0 255),(random 90 255),255]  as color
+				execute (\"yunTrajedit_rollout.col_Dot\"+i as string+\".color = bufferColorA\")
+				execute (\"yunTrajedit_rollout.col_Spline\"+i as string+\".color = bufferColorB\")
+				
+				yunTrajEdit_DTrajs_colStart[i] = color 255 0 0
+				yunTrajEdit_DTrajs_colEnd[i]   = color 0 255 0
+
+				yunTrajEdit_DTrajs_colStart[i] = bufferColorA
+				yunTrajEdit_DTrajs_colEnd[i] = bufferColorB
+		)
+		
+		)catch()		
+	)
+	------åˆ‡æ¢ç•Œé¢å¤§å°
+	on btn_DisplayAll pressed do
+	(
+		if keyboard.shiftPressed then
+		(
+		    i=1
+			for i = 1 to 	yunTrajEdit_DTrajs_timeLong.count do 
+			(
+				yunTrajEdit_DTrajs_timeLong[i] = not yunTrajEdit_DTrajs_timeLong[i]
+				execute (\"yunTrajedit_rollout.time_FBONOff\"+(i as string)+\".state = yunTrajEdit_DTrajs_timeLong[i]\")
+				if not yunTrajEdit_DTrajs_timeLong[i] then
+				(execute (\"yunTrajedit_rollout.btn_Range\"+(i as string)+\".pressed()\"))
+				try (yun_refreshDT_byTime_new_fn())	 catch ()
+			)
+		
+		)
+		else if  keyboard.controlPressed then
+		(
+			for i = 1 to 	yunTrajEdit_DTrajs_timeLong.count do 
+			(
+				(execute (\"yunTrajedit_rollout.btn_Move\"+(i as string)+\".pressed()\"))
+				try (yun_refreshDT_byTime_new_fn())	 catch ()
+			)
+		)
+		else if  keyboard.altPressed then
+		(
+			for i = 1 to 	yunTrajEdit_DTrajs_timeLong.count do 
+			(
+				
+				execute (\"yunTrajedit_rollout.isGradual\"+(i as string)+\".checked = not yunTrajedit_rollout.isGradual\"+(i as string)+\".checked\")
+				execute (\"yunTrajEdit_DTrajs_isGradual[\"+(i as string)+\"] = yunTrajedit_rollout.isGradual\"+(i as string)+\".checked\")
+				try (yun_refreshDT_byTime_new_fn())	 catch ()
+			)
+		)
+		else (yunTrajEdit_Globals.ToggleDisplayAll())
+	)
+	
+	on btn_DisplayAll rightClick do
+	(
+		for i = 1 to 	yunTrajEdit_DTrajs_vis.count do (yunTrajEdit_Globals.ToggleDisplay  i)
+	)
+	
+	
+	on btn_New_Pivot pressed do (yunTrajEdit_Globals.NewTraj true;yun_refreshDT_byTime_new_fn())
+	
+	
+	
+	"
+	----åŠ è½¨è¿¹åæ–°å»ºçš„ç•Œé¢
+	local vSpacing = 34
+
+	if yunTrajEdit_DTrajs.count > 0 do
+	(
+		yunTrajEdit_CheckExsitError()
+		for i = yunTrajEdit_DTrajs.count to 1 by -1 do
+		(
+			if IsValidNode yunTrajEdit_DTrajs[i] do   ----çœŸå®å­˜åœ¨
+			(
+				
+				---å¸§èŒƒä½ç½®æ§åˆ¶
+				local vStartPos = ([202,44+(vSpacing*(i-1))] as string) 
+				local vEndPos = ([202,61+(vSpacing*(i-1))] as string)  	
+			
+				local vDotCol = ([89,61+(vSpacing*(i-1))] as string) 
+					
+				--ä¿®æ”¹ï¼ï¼ï¼ï¼ï¼ï¼
+				local vtimeFB = ([52,61+(vSpacing*(i-1))] as string) 	
+				local vtimeFBOnOff = ([2,61+(vSpacing*(i-1))] as string)
+				---æ’­æ”¾å¤é€‰æ¡†ä½ç½®
+				local vplayFBOnOff = ([19,61+(vSpacing*(i-1))] as string)
+
+				
+				-----------------
+				local vColGradual = ([36,61+(vSpacing*(i-1))] as string) 
+				local vSplineCol = ([104,61+(vSpacing*(i-1))] as string) 
+				local vMovePos = ([124,61+(vSpacing*(i-1))] as string) 
+				local vDotPos = ([140,61+(vSpacing*(i-1))] as string) 
+				local vDisplayPos = ([156,61+(vSpacing*(i-1))] as string) 
+				local vDeletePos = ([172,61+(vSpacing*(i-1))] as string) 
+				local vRangePos = ([188,61+(vSpacing*(i-1))] as string) 
+											
+						
+					
+				---æ ‡å¤´
+				local vNamePos = ([-3,44+(vSpacing*(i-1))] as string)				
+				szExecute += ("edittext edt_Name" + (i as string) + " \"\" pos:" + vNamePos + " width:206 height:16 text:\"" + yunTrajEdit_DTrajs[i].name + "\"\n")						
+				szExecute += ("on edt_Name" + (i as string) + " entered val do yunTrajEdit_DTrajs[" + (i as string) + "].name val\n")	
+				szExecute += "\n"	
+				---è½¨è¿¹é•¿åº¦èŒƒå›´	
+				szExecute += ("spinner spn_Start" + (i as string) + " \"\" pos:" + vStartPos + " width:52 height:16 type:#integer range:[-99999,99999," + (((animationRange.start as string) as integer) as string) +"]\n")
+				szExecute += ("spinner spn_End" +   (i as string) + " \"\" pos:" + vEndPos +   " width:52 height:16 type:#integer range:[-99999,99999," + (((animationRange.end   as string) as integer) as string) +"]\n")
+				szExecute += ("on spn_Start" + (i as string) + " changed val do 
+				(
+					if (spn_End" + (i as string) + ".value - 1) <= val then spn_End" + (i as string) + ".value = (val + 2)
+					yunTrajEdit_Rollout.time_FBONOff"+ (i as string)+".checked = false
+					yunTrajEdit_DTrajs_timeLong["+ (i as string)+"] = false
+				)\n")
+				
+				szExecute += ("on spn_End" + (i as string) + " changed val do 
+				(
+					if (spn_Start" + (i as string) + ".value + 1) >= val then spn_Start" + (i as string) + ".value = (val - 2)
+					yunTrajEdit_Rollout.time_FBONOff"+ (i as string)+".checked = false
+					yunTrajEdit_DTrajs_timeLong["+ (i as string)+"] = false
+				)\n")
+				szExecute += "\n"
+				
+				----å¡«å……å½“å‰æ—¶é—´åˆ°å¸§èŒƒå›´
+				szExecute += ("button btn_Range" + (i as string) + " \"\" pos:" + vRangePos + " width:16 height:16 images:#(yunTrajEdit_Globals.bmp_Range, undefined, 1, 1, 1, 1, 1)  tooltip:\"Reset the RANGE to the Active Time Segment\"\n")
+				szExecute += ("on btn_Range" + (i as string) + " pressed do ( spn_Start" + (i as string)+".value=((animationRange.start as string) as integer);spn_End" + (i as string)+".value=((animationRange.end as string) as integer))\n")
+
+				----åˆ é™¤è½¨è¿¹
+				szExecute += ("button btn_Delete" + (i as string) + " \"\" pos:" + vDeletePos + " width:16 height:16 images:#(yunTrajEdit_Globals.bmp_Delete, undefined, 1, 1, 1, 1, 1)  tooltip:\"DELETE Trajectory\" \n")
+				szExecute += ("on btn_Delete" + (i as string) + " pressed do yunTrajEdit_Globals.DeleteTraj " + (i as string) + " \n")
+				szExecute += "\n"
+
+				----éšè—è½¨è¿¹
+				szExecute += ("button btn_Display" + (i as string) + " \"\" pos:" + vDisplayPos + " width:16 height:16  tooltip:\"éšè—è½¨è¿¹\" \n")
+				szExecute += ("on btn_Display" + (i as string) + " pressed do yunTrajEdit_Globals.ToggleDisplay " + (i as string)+"  \n")
+				szExecute += "\n"
+				
+				----éšè—ç‚¹æ ‡
+				szExecute += ("button btn_Dot" + (i as string) + " \"\" pos:" + vDotPos + " width:16 height:16 tooltip:\"éšè—ç‚¹æ ‡è®°\" \n")
+				szExecute += ("on btn_Dot" + (i as string) + " pressed do yunTrajEdit_Globals.ToggleDot " + (i as string)+"  \n")
+				szExecute += "\n"
+				
+				----ç»è¿‡åé¢œè‰²
+				szExecute += ("colorpicker col_Spline" + (i as string) + " \"\" pos:" + vSplineCol + " width:20 height:16 color:" + "yunTrajEdit_DTrajs_colStart[" + (i as string)+"]" +" title:\"Trajectory\" \n")
+				szExecute += ("on col_Spline" + (i as string) + " changed new_col do (yunTrajEdit_DTrajs_colStart[" + (i as string)+"] =  new_col)")				
+				szExecute += "\n"
+				
+				----ç»è¿‡å‰é¢œè‰²	
+				szExecute += ("colorpicker col_Dot" + (i as string) + " \"\" pos:" + vDotCol + " width:20 height:16 color:" + "yunTrajEdit_DTrajs_colEnd[" + (i as string)+"]" + " title:\"Spacing Dots\" \n")
+				szExecute += ("on col_Dot" + (i as string) + " changed new_col do (yunTrajEdit_DTrajs_colEnd[" + (i as string)+"] =  new_col)")	
+				szExecute += "\n"
+				
+				----æ˜¯å¦å¯ç”¨é¢œè‰²æ¸å˜  i =1 
+				szExecute += ("checkbox isGradual" + (i as string) + " \"\" pos:" + vColGradual + " width:16 height:16 checked:" + (yunTrajEdit_DTrajs_isGradual[i] as string)+ "  tooltip:\"å¼€å…³é¢œè‰²æ¸å˜\" \n")
+
+				szExecute +=  ("on isGradual" + (i as string) + " changed theState do (				
+				yunTrajEdit_DTrajs_isGradual["+ (i as string)+"] = theState
+				if theState do 
+				(	try (yun_refreshDT_byTime_new_fn())	 catch ())
+				)\n")
+				
+				szExecute += "\n"
+				
+				-- ä¿®æ”¹æ·»åŠ å¸§èŒƒå›´é€‰é¡¹
+				szExecute += ("spinner time_FB" + (i as string) + " \"\" pos:" + vtimeFB + " width:42 height:16 type:#integer range:[1,999,20]\n")					
+				szExecute += ("on time_FB" + (i as string) + " changed val do (
+				yunTrajEdit_Rollout.time_FBONOff"+ (i as string)+".checked = true
+				yunTrajEdit_DTrajs_timeLong["+ (i as string)+"] = yunTrajEdit_Rollout.time_FBONOff"+ (i as string)+".checked 
+				yun_refreshDT_byTime_new_fn()
+				) \n")					
+					
+				szExecute += ("checkbox time_FBONOff" + (i as string) + " \"\" pos:" + vtimeFBOnOff + " width:16 height:16 checked:" + (yunTrajEdit_DTrajs_timeLong[i] as string)+ "  tooltip:\"å¼€å…³å®æ—¶åˆ·æ–°è½¨è¿¹é•¿åº¦\" \n")
+				szExecute += ("on time_FBONOff" + (i as string) + " changed theState do (				
+				yunTrajEdit_DTrajs_timeLong["+ (i as string)+"] = theState
+				if theState do 
+				(	try (yun_refreshDT_byTime_new_fn())	 catch ())
+				)\n")
+				
+				----æ˜¯å¦åœ¨æ’­æ”¾æ˜¯éšè—  i =1 
+				szExecute += ("checkbox play_FBONOff" + (i as string) + " \"\" pos:" + vplayFBOnOff + " width:16 height:16 checked:" + (yunTrajEdit_DTrajs_play[i] as string)+ "  tooltip:\"å¼€å…³åœ¨æ’­æ”¾æ—¶éšè—å·²ä¿è¯å¸§ç‡\" \n")
+				szExecute += ("on play_FBONOff" + (i as string) + " changed theState do (				
+				yunTrajEdit_DTrajs_play["+ (i as string)+"] = theState			
+				)\n")
+				szExecute += "\n"
+				----------
+				
+				----ä¿®æ”¹ä¸ºå…³é”®å¸§å¼€å…³ (åŸå…ˆç§»åŠ¨ç§»åŠ¨è½¨è¿¹)
+				szExecute += ("button btn_Move" + (i as string) + " \"\" pos:" + vMovePos + " width:16 height:16 images:#(yunTrajEdit_Globals.bmp_Move, undefined, 1, 1, 1, 1, 1)  tooltip:\"æ˜¯å¦æ˜¾ç¤ºå…³é”®å¸§æ•°\" \n")
+				
+				szExecute += ("on btn_Move" + (i as string) + " pressed do yunTrajEdit_Globals.ToggleKeyVis " + (i as string)+"  \n")
+				szExecute += "\n"
+				
+				-------æ ¹æ®å½“å‰å¸§å®æ—¶åˆ·æ–°å¸§èŒƒå›´
+
+				
+				szExecute += "\n"
+				
+				
+			)
+		)
+		
+	)
+	szExecute += ")"
+
+
+	local vOriginalPos = if yunTrajedit_rollout != undefined  then (GetDialogPos yunTrajedit_rollout) else [0,0]
+	
+	
+	----å°è¯•å…³é—­ç•Œé¢
+	try DestroyDialog  yunTrajedit_rollout catch ()
+	
+	
+	Execute szExecute
+	
+	
+	if vOriginalPos != [0,0] then
+		(	createDialog  yunTrajedit_rollout 205 (43 + (yunTrajEdit_DTrajs.count * vSpacing)) pos:vOriginalPos style:#(#style_border) bitmap:yunTrajEdit_Globals.bmp_Background bmpstyle:#bmp_tile fgcolor:green	)
+	else
+		(	createDialog  yunTrajedit_rollout 205 (43 + (yunTrajEdit_DTrajs.count * vSpacing)) style:#(#style_border) bitmap:yunTrajEdit_Globals.bmp_Background bmpstyle:#bmp_tile fgcolor:green )
+	
+			
+	----è½¨è¿¹å’Œç‚¹æ ‡å¤„ç†
+	if yunTrajEdit_DTrajs.count > 0 do
+	(		
+		for i = yunTrajEdit_DTrajs.count to 1 by -1 do
+		(
+			try
+			(					
+				if  yunTrajEdit_DTrajs_dot[i]  then
+				(
+					execute ("yunTrajEdit_Rollout.btn_Dot" + i as string + ".images = #(yunTrajEdit_Globals.bmp_Dot, undefined, 1, 1, 1, 1, 1)")
+					
 				)
 				else
 				(
-					if keyboard.shiftPressed do
-					(
-						gc()
-						gc()
-						CSharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
-						CompilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
-	
-						CompilerParams.ReferencedAssemblies.Add("System.dll")
-						CompilerParams.ReferencedAssemblies.Add("System.Windows.Forms.dll")
-						CompilerParams.ReferencedAssemblies.Add("System.IO.dll")
-						CompilerParams.ReferencedAssemblies.Add("System.Threading.Tasks.dll")
-						compilerParams.ReferencedAssemblies.Add((getdir #maxroot) + @"Autodesk.Max.dll");	
-						CompilerParams.GenerateExecutable = false
-						CompilerParams.GenerateInMemory = false
-	
-						global CompilerResults = CSharpProvider.CompileAssemblyFromSource CompilerParams #(CSharpCodeSourceBipFast)
-						WinAssembly = CompilerResults.CompiledAssembly
-						BipFastAssembly = undefined
-						BipFastAssembly =  WinAssembly.CreateInstance "bipedSetTM.SetTM_test"	
-						print "ÖØĞÂ±àÒëÒ»´Î~"					
-					)
-					in_file = openFile in_name	
-					seek in_file 0
-					skipToNextLine in_file
-					skiptostring in_file "frame:"
-					ss  = readLine in_file
-					frame_array_filter = filterString ss "|"
-					-----¼ÓÉÏÆ«ÒÆµÄÊ±¼äÊı×éºó±ßÒª¼ÓËùÒÔÕâÀïÒª¼õ
-					for k =1 to frame_array_filter.count do 
-					(
-						if frame_array_filter[k] as time >= animationrange.start-cptools.paste_offset.value and 
-							frame_array_filter[k] as time <= animationrange.end-cptools.paste_offset.value do
-						(
-							append frame_arrayl ((frame_array_filter[k]as time ).frame as integer )
-							sort frame_arrayl
-						)
-					)
+					execute ("yunTrajEdit_Rollout.btn_Dot" + i as string + ".images = #(yunTrajEdit_Globals.bmp_Dot_ON, undefined, 1, 1, 1, 1, 1)")
 				)
-				frame_array = ""
-				for i in frame_arrayl do (frame_array += i as string + "|")
-				pasteOffset = cptools.paste_offset.value
-				-- print "----->"
-				-- print in_name; ;print pasteOffset;; print frame_array; print cptools.Accuracy_offset.value;
-				-- print BipFastAssembly;
-				-- showMethods BipFastAssembly;
-				try
+			)			
+			catch()			
+			try
+			(					
+				if yunTrajEdit_DTrajs_vis[i]  then
 				(
-					with undo "pasteList" on     
-					(
-						animate on
-						(
-							if BipFastAssembly!= undefined and selection.count > 0 do
-							(BipFastAssembly.pastAnimationEveryFrame in_name pasteOffset frame_array cptools.Accuracy_offset.value)                   
-						)            
-					)
+					execute ("yunTrajEdit_Rollout.btn_Display" + i as string + ".images = #(yunTrajEdit_Globals.bmp_Display, undefined, 1, 1, 1, 1, 1)")
 				)
-				catch
+				else
 				(
-					print "¼ÓËÙÊ§°Ü!!!"
-					messageBox "ÊÔÏÂ°´shift+µ¥»÷\n\nshift+µ¥»÷ÎŞĞ§¿É³¢ÊÔÖØĞÂ´ò¿ª²å¼ş\nÈ·±£³¡¾°ÖĞÓĞÎïÌåÔÚ×ËÌ¬¼¯ÖĞ\n\nÔÙ²»ĞĞ¡£¡£¡£\n¿ÉÒÔÓÒ¼üµ¥»÷ÓÃÔ­°æµÄ¹¦ÄÜÕ³Ìù¶¯»­"
+					execute ("yunTrajEdit_Rollout.btn_Display" + i as string + ".images = #(yunTrajEdit_Globals.bmp_Display_ON, undefined, 1, 1, 1, 1, 1)")
 				)
-				
-				end_time = timeStamp()
-				run_time = end_time - start_time
-				print ("Õ³ÌùºÄÊ±£º" + (run_time * 3) as string )
-			)
-			at time sliderTime
-			ForceCompleteRedraw()
+			)			
+			catch()
+		)
+	)
+	----------å›¾æ ‡å¤„ç†ç»“æŸ-----
+	
+
+-- 	setDialogPos yunTrajedit_rollout [247,225]
 			
-		)
-		---------------------------------------------------------------------------------------
-		on obj_r pressed do (
-			for o in selection do
-			(
-			o.controller = transform_script ()   
-			o.controller = prs()
-			)
-		)
-		on obj_xyz pressed do (
-			for o in selection do
-			(
-			o.position.controller =Position_XYZ()
-			o.rotation.controller =Euler_XYZ()
-			)
-		)
-		on obj_tcb pressed do (
-			for o in selection do
-			(
-			o.position.controller =TCB_Position()
-			o.rotation.controller =TCB_Rotation()
-			)
-		)
-	
-		on picShow pressed do (
-			if cpToolsMaster.width<300 then  ( cpToolsMaster.width =410	)
-			else ( cpToolsMaster.width =200	)
-	
-		)
-		-- on picShow rightClick do  (cpToolsMaster.width =  200 )
-	) 
-	-- createDialog cptools  200 330
-	-- bgcolor:[0,0,0] 
-	createdialog cpToolsMaster	
-	fn MakeThumbnail_copy =	(
-		grab_bmp = gw.getViewportDib()
-		croppedScreenGrab = bitmap grab_bmp.height grab_bmp.height 
-		pasteBitmap grab_bmp croppedScreenGrab [((grab_bmp.width - grab_bmp.height)/2)+1,1] [0,0]  -- paste the orginal image to the tempImage, this results in a cropped image widh same height as width
-		outputMap  = bitmap 170 170
-		copy croppedScreenGrab outputMap 	
-		close grab_bmp
-		close croppedScreenGrab
-		
-		gc light:true
-		if cptools.testList.visible  then   ---poseÄ£Ê½
-		(	if cptools.testList.selected!=undefined then (outputMap.filename =((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp"))
-		else 
-		(	if cptools.testListAni.selected!=undefined then (outputMap.filename =((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp"))
-		save outputMap quiet:true --Save it to file
-		outputMap
-	)
-	AddSubRollout cpToolsMaster.cpToolsParent1 cptools
-	AddSubRollout cpToolsMaster.cpToolsParent2 cpToolsPicWin
-	cpToolsMaster.cpToolsParent1.pos = [0,0]
-	cpToolsMaster.cpToolsParent1.height = 240
-	cpToolsMaster.cpToolsParent1.width = 200
-	cpToolsMaster.cpToolsParent2.pos = [210,0]
-	cpToolsMaster.cpToolsParent2.height = 240
-	-- cpToolsMaster.width =  410
-	cpToolsMaster.height = 240
-	cpToolsMaster.width =  200
-	
-	-- Ë¢Í¼
-	if cptools.testList.visible  then  ( ---poseÄ£Ê½
-	
-		if cptools.testList.selected!=undefined then
-		(
-			picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")
-			if picSelName!=undefined then
-			(
-			versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
-			)
-			else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
-		)
-	)
-	else(         --¶¯»­Ä£Ê½
-		if cptools.testListAni.selected!=undefined then
-		(
-			picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testListAni.selected+".bmp")
-			if picSelName!=undefined then
-			(
-			versionCheck = maxVersion();if versionCheck[1]<17000 then (freeSceneBitmaps() ; gc light:on;free  picSelName;picSelName =openBitmap  (((GetDir #export)+ "\\cptools_data\\")+cptools.testList.selected+".bmp")) else (forceReloadBitmapFile  picSelName);cpToolsPicWin.yunCopyImgBtn.images = #(picSelName, undefined, 1,1,1,1,1)
-			)
-			else (cpToolsPicWin.yunCopyImgBtn.images =#("enss_tools_16i.bmp", undefined,13, 3, 3,3,3, true))
-		)
-	)
-	)
-	
-	
+-- 	return szExecute
+)
+
+yunTrajEdit_UpdateRollout()
+
+)

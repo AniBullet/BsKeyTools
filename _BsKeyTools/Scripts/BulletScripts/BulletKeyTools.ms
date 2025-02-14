@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-14 00:52:08
+ * @LastEditTime: 2025-02-14 18:52:54
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -19,7 +19,7 @@ try (callbacks.removeScripts #filePostOpen id:#BsUpdatePlaySpeed) catch ()
 try (callbacks.removeScripts #timeunitsChange id:#BsUpdatePlaySpeed) catch ()
 try (callbacks.removeScripts #filePostOpen id:#BsRefreshRecentFiles) catch ()
 
-global curVerBsKeyTools  = "1.0"
+global curVerBsKeyTools  = "1.0.1"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
@@ -758,7 +758,7 @@ rcmenu menuConfig
 								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,725];btnsArr[b].width = 130)
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,140])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,430])
-								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,930])
+								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,880])
 								else
 								(
 									btnsArr[b].visible = false
@@ -853,7 +853,7 @@ rcmenu menuConfig
 								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,725];btnsArr[b].width = 130)
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,140])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,430])
-								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,930])
+								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,880])
 								else
 								(
 									btnsArr[b].visible = false
@@ -1138,7 +1138,7 @@ rcmenu menuConfig
 								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,610])
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,100])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,310])
-								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,815])
+								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,765])
 								else
 								(
 									btnsArr[b].visible = false
@@ -1228,7 +1228,7 @@ rcmenu menuConfig
 								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,610])
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,100])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,310])
-								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,815])
+								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,765])
 								else
 								(
 									btnsArr[b].visible = false
@@ -2048,7 +2048,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnCSTools "CS选择" pos:[110,165] width:50 height:25 \
 	toolTip:"快速选择CS骨骼和调Biped等\r\n左键BsBipedTools\r\n右键老版CSTools精简版" 
 	button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
-	toolTip:"动画暴力粘贴东见云优化版\r\n(有时间我也会优化或新写)" 
+	toolTip:"左键动画暴力粘贴东见云优化版\r\n右键原版未修改版\r\n(有时间我也会优化或新写)" 
 	checkButton ckbIsoSelection "独显" pos:[10,190] width:40 height:25 highlightcolor:myCheckedColor \
 	toolTip:"隐藏当前显示的未选中物体\r\n再次点击可重新显示\r\n利用 IsolateSelection\r\n但是不改变镜头缩进"
 	button btnLayerManager "层" pos:[50,190] width:20 height:25 \
@@ -2183,7 +2183,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	timer timerTickTock interval:200 active:true
 
-	dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:200 width:160 pos:[0,585]
+	dotNetControl dotLVFilesList "system.windows.forms.listView" selection:0 height:150 width:160 pos:[0,585]
 	-- checkbutton ckbOpenConfigFilePath "打开配置文件目录" width:120 height:20 pos:btnPos  border:false checked:true highlightColor:myCheckedColor
 
 	progressBar pgbLine01 "" pos:[0,-9999] width:160 height:9 color:white value:100
@@ -4395,6 +4395,12 @@ rollout rolBsKeyTools "" width:355 height:250
 	)
 
 	on btnAnimCopyPaste pressed do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\CPTools_New.ms"))
+		catch(messagebox "打开 CPTools_New.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnAnimCopyPaste rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\CPTools.ms"))
 		catch(messagebox "打开 CPTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
