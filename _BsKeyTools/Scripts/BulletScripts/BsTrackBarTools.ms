@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-08 17:18:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-06-08 11:28:15
+ * @LastEditTime: 2025-01-06 11:01:46
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -324,10 +324,10 @@ rcmenu menuBsTrackBarTools
 (
 	submenu "停靠位置"
 	(
-		menuItem mItemTop "上" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) == "cui_dock_top" then true else false)
-		menuItem mItemBottom "下" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) == "cui_dock_bottom" then true else false)
-		menuItem mItemLeft "左" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) == "cui_dock_left" then true else false)
-		menuItem mItemRight "右" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) == "cui_dock_right" then true else false)
+		menuItem mItemTop "上" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) as string == "cui_dock_top" then true else false)
+		menuItem mItemBottom "下" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) as string == "cui_dock_bottom" then true else false)
+		menuItem mItemLeft "左" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) as string == "cui_dock_left" then true else false)
+		menuItem mItemRight "右" checked:(if rolBsTrackBarTools.dialogBar and (cui.getDockState rolBsTrackBarTools) as string == "cui_dock_right" then true else false)
 		separator menuSepDock
 		menuItem mItemFloat "浮" checked:(if not rolBsTrackBarTools.dialogBar then true else false)
 	)
@@ -863,6 +863,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.1"
 		-- print iniDockPos
 		callbacks.removeScripts #filePostOpen id:#UpdateBsBackup
 		callbacks.removeScripts #filePostSave id:#UpdateBsBackup
+		callbacks.removeScripts #systemPostReset id:#UpdateBsBackup
 		stSetConfigAll.fnSetConfigTrackBarTools()
 		callbacks.removeScripts id:#SaveButtonCallback
 		callbacks.removeScripts id:#SaveButtonResetCallback

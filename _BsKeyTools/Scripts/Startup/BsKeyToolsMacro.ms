@@ -3,13 +3,16 @@
 	category:"_[BulletTools]"
 	buttonText:"BsKeyTools"
 	toolTip:"BsKeyTools"
-	-- icon:#("VCRControls", 25)
+	icon:#("BsBipTools", 1)
 	(
-		on execute do
-		(
-			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
+		-- on execute do
+		-- (
+			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");fnCheckRolloutPos rolBsKeyTools)
 			catch(messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
-		)
+			local str = "BsKeyTools 启动, 如果失败请查看帮助。（https://space.bilibili.com/2031113/lists/560782）\r\n"
+			format str
+			-- colorman.reInitIcons()
+		-- )
 	)
 
 	macroScript BsKeyToolsPosReset
@@ -93,7 +96,7 @@
 	(
 		on execute do
 		(
-			shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" ""
+			shellLaunch "https://space.bilibili.com/2031113/lists/560782" ""
 		)
 	)
 
@@ -185,24 +188,30 @@
 					iniAddToolbars = 0
 					SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
 				)
-				if ((menuMan.findMenu "🎮 BsKeyTools") != undefined) then 
+				curMaxVersion = ((maxVersion())[1] / 1000)
+				if curMaxVersion < 27 then
 				(
-					menuMan.unRegisterMenu (menuMan.findMenu "🎮 BsKeyTools")
-					menuMan.updateMenuBar()
-				)
-				if ((menuMan.findMenu "BsKeyTools") != undefined) then 
-				(
-					menuMan.unRegisterMenu (menuMan.findMenu "BsKeyTools")
-					menuMan.updateMenuBar()
+					if ((menuMan.findMenu "🎮 BsKeyTools") != undefined) then 
+					(
+						menuMan.unRegisterMenu (menuMan.findMenu "🎮 BsKeyTools")
+						menuMan.updateMenuBar()
+					)
+					if ((menuMan.findMenu "BsKeyTools") != undefined) then 
+					(
+						menuMan.unRegisterMenu (menuMan.findMenu "BsKeyTools")
+						menuMan.updateMenuBar()
+					)
 				)
 				arrDelPath = #(((getDir #Scripts)+ "\\BulletScripts"),((getDir #maxroot) + "\\UI_ln\\Icons\\cstoolIcons"))
 				arrDelMs = #(((getDir #StartupScripts)+ "\\BulletKeyTools.ms"),\
 				((getDir #StartupScripts)+ "\\BsKeyToolsMacro.ms"),\
 				((getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"),\
 				((getDir #StartupScripts)+ "\\BsTrackBarToolsStartup.ms"),\
-				((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"))
+				((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"),\
+				((getDir #StartupScripts)+ "\\EXTimelineStartup.ms"))
 				for d in arrDelPath do (fnDelDir d)
 				for f in arrDelMs do (fnDelFileDir f)
+				try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
 				try(destroydialog rolBsKeyTools)catch()
 				try(destroydialog rolFnKeys)catch()
 				try(destroydialog rolAddMyScripts)catch()

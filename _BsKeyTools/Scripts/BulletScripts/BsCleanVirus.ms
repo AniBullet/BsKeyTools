@@ -326,7 +326,7 @@ rollout rolBsCleanVirus  "BsCleanVirus_v1.1"
         pos:[15,250] address:"http://3dground.net/manual/prune-scene#virus-active-protecton"
 
         HyperLink lnkBsNotion "解析修改：Bullet.S" color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor 
-        pos:[205,250] address:"https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782"
+        pos:[205,250] address:"https://space.bilibili.com/2031113/lists/560782"
     )
 
     fn fnRefreshVirusLib =

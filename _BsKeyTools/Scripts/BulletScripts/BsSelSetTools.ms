@@ -134,6 +134,8 @@ rollout rolCreateSelSet "创建选择集"
 (
 	edittext edtCreateName "命名:" width:190 pos:[5,5]
 	button btnDoCreate "以选中物体创建选择集" width:190 pos:[5,30]
+	
+	on edtCreateName entered c do (rolCreateSelSet.btnDoCreate.pressed())
 
 	on btnDoCreate pressed do 
 	(
@@ -293,7 +295,7 @@ rollout rolSelSetTools ""
 	on btnCloseRol pressed do (try (destroydialog rolSelSetTools) catch ())
 
 	on btnHelp pressed do 
-	(shellLaunch "https://space.bilibili.com/2031113/channel/collectiondetail?sid=560782" "")
+	(shellLaunch "https://space.bilibili.com/2031113/lists/560782" "")
 
 	on rolSelSetTools mbuttondown pos do (try (destroydialog rolSelSetTools) catch ())
 
@@ -453,6 +455,7 @@ rollout rolSelSetTools ""
 		(
 			iniPosSelSetTools   = (GetDialogPos rolSelSetTools)
 			createdialog rolCreateSelSet pos:[iniPosSelSetTools.x - 210,iniPosSelSetTools.y] width:200 height:55 parent:rolSelSetTools.hwnd
+			setfocus rolCreateSelSet.edtCreateName 
 		)
 	)
 

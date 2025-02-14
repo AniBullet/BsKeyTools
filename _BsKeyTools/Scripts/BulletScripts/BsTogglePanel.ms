@@ -215,8 +215,8 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
                     -- catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
                     rolTogglePanel.timerTickTock.active = false
                     rolTogglePanel.height = 0
-                    rolBsKeyTools.height = 250
-                    rolBsKeyTools.timerTickTock.active = true
+                    if not rolBsKeyTools.dialogBar then rolBsKeyTools.height = 250
+                    if not rolBsKeyTools.dialogBar then rolBsKeyTools.timerTickTock.active = true
                     -- isMouseInBsToolPanel = false
                     -- print (rolTogglePanel.height as string)
                     -- print (dialogBox as string + " // " + mouse.screenPos as string)

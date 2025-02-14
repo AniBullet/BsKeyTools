@@ -2,9 +2,14 @@
 -- By Bullet.S 自用修改版,功能大集合,完全开源免费仅供学习使用,请勿用于商业用途,否则后果自负    
 Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
 Since 2023.03
+
+2024.04 update v1.4
+1. 修复复制pose和加层功能回退导致的闪退
+2。稍微拓展手指选择功能
+3。IK帧切换面板功能优化，会保持之前面板
 **************************************************************************************************************************/
 
-global rolBsBipedTools		-- 롤아웃명을 글로벌 변수로 인식하기 위해 초기에 한 번 사용
+global rolBsBipedTools
 global posBsBipedTools
 global dragBsBipedTools = false
 global arrAllBipedCom
@@ -15,24 +20,19 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
-global verBsBipedTools = "v1.1"
+global verBsBipedTools = "v1.4"
 
-try(destroydialog rolBsBipedTools) catch()		-- 혹시 열려있는 창이 있으면 강제 종료
+try(destroydialog rolBsBipedTools) catch()
 try(destroyDialog rolBSLeftHandPivots)catch()
 try(destroyDialog rolBSRightHandPivots)catch()
 try(destroyDialog rolBSLeftFootPivots)catch()
 try(destroyDialog rolBSRightFootPivots)catch()
-try(rolBsAboutPanel.close())catch()
+try(destroyDialog rolBsBipToolsHelp)catch()
 
-fn fnCloseBsAboutForm dotObject evnt =
+rollout rolBsBipToolsHelp ("BsBipTools" + verBsBipedTools + " 帮助说明") width:340 height:340
 (
-	try(rolBsAboutPanel.close())catch()
-)
-
-fn fnOpenAboutPanel =
-(
-	strHelp = \
-"“减少卡顿，便捷K帧”
+	local strHelpText = \
+	("“减少卡顿，便捷K帧”
 
 小圆点：Motion 面板开关，极大减少骨骼选取卡顿
 左键禁用，右键启用，未显示请右键慢速点击直到显示
@@ -51,114 +51,15 @@ Ctrl + Alt + 左击：骨骼旋转归零
 
 【辅助功能】
 Copy paste Tools，Layer Tools (Biped)，
-Loop Key Tools，Others Tools"
-    rolBsAboutPanel = dotNetObject "MaxCustomControls.MaxForm"
-    dotBtnClose = dotNetObject "System.Windows.Forms.Button"
-	fontTitle = dotNetObject "System.Drawing.Font" "comic sans ms" 11 (dotNetClass "System.Drawing.FontStyle").Bold
-	fontHelp = dotNetObject "System.Drawing.Font" "comic sans ms" 9 (dotNetClass "System.Drawing.FontStyle").Regular
-    -- dotBtnClose
-    dotBtnClose.BackColor = (dotNetClass "System.Drawing.Color").Black
-    dotBtnClose.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
-    dotBtnClose.ForeColor = (dotNetClass "System.Drawing.Color").AliceBlue
-    dotBtnClose.Location = dotNetObject "System.Drawing.Point" 335 400
-    dotBtnClose.Name = "dotBtnClose"
-    dotBtnClose.Size = dotNetObject "System.Drawing.Size" 60 45
-    dotBtnClose.TabIndex = 0
-    dotBtnClose.Text = "Close"
-    dotBtnClose.UseVisualStyleBackColor = False
-	dotBtnClose.font = fontTitle
-	-- label
-	dotLabel = dotnetobject "System.Windows.Forms.label"
-	dotLabel.autosize = true
-	dotLabel.ForeColor = (dotNetClass "System.Drawing.Color").black
-	dotLabel.text = "BsBipedTools_" + verBsBipedTools
-	dotLabel.font = fontTitle
-	dotLabel.Location = dotNetObject "System.Drawing.Point" 5 5
-	dotHelpLabel = dotnetobject "System.Windows.Forms.label"
-	dotHelpLabel.autosize = true
-	dotHelpLabel.text = strHelp
-	dotHelpLabel.font = fontHelp
-	dotHelpLabel.Location = dotNetObject "System.Drawing.Point" 5 40
-	-- link1
-	dotLinkLabel1 = dotnetobject "System.Windows.Forms.LinkLabel"
-	dotLinkLabel1.autosize = true
-	dotLinkLabel1.text = "Bullet.S: Help Docs || aniBullet Homepage"
-	dotLinkLabel1.font = fontTitle
-	dotLinkLabel1.Location = dotNetObject "System.Drawing.Point" 0 50
-	dotLinkLabel1.links.add 10 9 "https://anibullet.github.io/"
-	dotLinkLabel1.links.add 23 18 "https://www.anibullet.com/"
-	dotLinkLabel1.Dock = dotLinkLabel1.Dock.bottom
-	dotLinkLabel2 = dotnetobject "System.Windows.Forms.LinkLabel"
-	dotLinkLabel2.autosize = true
-	dotLinkLabel2.text = "References: SoxBipedAssist || BipedHelper"
-	dotLinkLabel2.font = fontTitle
-	dotLinkLabel2.Location = dotNetObject "System.Drawing.Point" 0 50
-	dotLinkLabel2.links.add 12 14 "http://cafe.naver.com/pinksox/6131"
-	dotLinkLabel2.links.add 30 11 "https://sites.google.com/view/lbtools-guide/home/biped-helper"
-	dotLinkLabel2.Dock = dotLinkLabel2.Dock.bottom
-    -- rolBsAboutPanel
-    rolBsAboutPanel.BackColor = (dotNetClass "System.Drawing.Color").LightPink
-    rolBsAboutPanel.ClientSize = dotNetObject "System.Drawing.Size" 400 450
-    rolBsAboutPanel.Controls.Add(dotBtnClose)
-	rolBsAboutPanel.Controls.Add(dotLabel)
-	rolBsAboutPanel.Controls.Add(dotHelpLabel)
-	rolBsAboutPanel.Controls.Add(dotLinkLabel1)
-	rolBsAboutPanel.Controls.Add(dotLinkLabel2)
-    rolBsAboutPanel.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderStyle").SizableToolWindow
-    rolBsAboutPanel.Name = "rolBsAboutPanel"
-    rolBsAboutPanel.Opacity = 0.75
-    rolBsAboutPanel.ShowIcon = False
-    rolBsAboutPanel.StartPosition = (dotNetClass "System.Windows.Forms.FormStartPosition").Manual
-	rolBsAboutPanel.Location = dotNetObject "System.Drawing.Point" (iniBsBTPos[1] as integer - rolBsAboutPanel.width) (iniBsBTPos[2] as integer)
-    rolBsAboutPanel.Text = "rolBsAboutPanel"
-    rolBsAboutPanel.TransparencyKey = (dotNetClass "System.Drawing.Color").LightPink
-    rolBsAboutPanel.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderStyle").None
-	rolBsAboutPanel.font = Font
-	thePtr = DotNetObject "System.IntPtr" (windows.getMAXHWND())
-	theHwnd = DotNetObject "MaxCustomControls.Win32HandleWrapper" thePtr
-	rolBsAboutPanel.Show(theHwnd)
+Loop Key Tools，Others Tools. \r\n\r\n")
 
-    fn fnMouseDown dotObject evnt =
-    (
-        offsetBsAboutPanel[1] = mouse.screenPos.x - rolBsAboutPanel.left
-        offsetBsAboutPanel[2] = mouse.screenPos.y - rolBsAboutPanel.top
-        global stateBsAboutPanel=1
-    )
-    dotnet.addEventHandler rolBsAboutPanel "MouseDown" fnMouseDown
-
-    fn fnMouseMove dotObject evnt =
-    (
-        if stateBsAboutPanel==1 then
-        (
-            local FormPos = #()
-            local NewPos = #()  
-            FormPos[1] = rolBsAboutPanel.left
-            FormPos[2] = rolBsAboutPanel.top
-                
-            NewPos[1] = mouse.screenpos.x - offsetBsAboutPanel[1]
-            NewPos[2] = mouse.screenpos.y - offsetBsAboutPanel[2]
-            
-            rolBsAboutPanel.left = NewPos[1]
-            rolBsAboutPanel.top = NewPos[2]
-        )
-    )
-    dotnet.addEventHandler rolBsAboutPanel "MouseMove" fnMouseMove
-
-    fn fnMouseUp dotObject evnt =
-    (
-        global stateBsAboutPanel=0
-    )
-    dotnet.addEventHandler rolBsAboutPanel "MouseUp" fnMouseUp
-
-    dotnet.addEventHandler dotBtnClose "MouseDown" fnCloseBsAboutForm
-
-	fn fnSoxBipedAssistLink s e = 
-	(
-		s.links.item[s.links.IndexOf e.link].Visited = on
-		(dotnetclass "System.Diagnostics.Process").Start e.link.LinkData		
-	)
-	dotnet.addEventHandler dotLinkLabel1 "LinkClicked" fnSoxBipedAssistLink
-	dotnet.addEventHandler dotLinkLabel2 "LinkClicked" fnSoxBipedAssistLink
+	label lblHelp strHelpText width:320 height:280 pos:[5,5]
+	label lblMe "Bullet.S Link: " align:#left across:3
+	hyperLink hplHelpDocs "Help Docs" address:"https://anibullet.github.io/" align:#right
+	hyperLink hplHome "aniBullet" address:"https://www.anibullet.com/" align:#right
+	label lblRef "References Link: " align:#left across:3
+	hyperLink hplSox "SoxBipedAssist" address:"http://cafe.naver.com/pinksox/6131" align:#right
+	hyperLink hplBH "BipedHelper" address:"https://sites.google.com/view/lbtools-guide/home/biped-helper" align:#right
 )
 
 fn f_getPivotIndex ctrl =
@@ -627,63 +528,76 @@ rollout rolBSRightFootPivots "R-Foot" width:90
 	on chkbtn_frontRight changed state do (f_updateButton state chkbtn_frontRight 7)
 ) --// end rollout
 
-rollout rolBSFingers "Fingers" width:220 height:160
+rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 (
-	checkbutton chbRFingers "Right" pos:[32,130] highlightColor:rolBsBipedTools.mcRight checked:true
-	checkbutton chbLFingers "Left" pos:[148,130] highlightColor:rolBsBipedTools.mcLeft checked:true
+	checkbutton chbTips "暂不支持4节手指" pos:[77,5] height:20 highlightColor:rolBsBipedTools.mcScanBiped checked:true
+
+	checkbutton chbRFingers "Right Fingers" pos:[20,160] width:100 highlightColor:rolBsBipedTools.mcRightFinger checked:true
+	checkbutton chbLFingers "Left Fingers" pos:[142,160] width:100 highlightColor:rolBsBipedTools.mcLeftFinger checked:true
 	
 	--R Index Finger
-	button select_rhand1_btn "RHand"	enabled:true pos:[20,80] width:60 height:40 images:#(Bitmap 60 40 color:(color 5 173 5 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有右手手指"
-	button select_rfing11_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+45,(select_rhand1_btn.pos.y)-22]		width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing12_btn "RHand"	enabled:true pos:[(select_rfing11_btn.pos.x)+0,(select_rfing11_btn.pos.y)-21]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing13_btn "RHand"	enabled:true pos:[(select_rfing12_btn.pos.x)+0,(select_rfing12_btn.pos.y)-18]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_rhand1_btn "R Hand"	enabled:true pos:[20,30] width:80 height:30 highlightColor:rolBsBipedTools.mcRight checked:true toolTip:""
+	checkbutton select_rfing11_btn ""	enabled:true pos:[80,85] width:20 height:22 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing12_btn ""	enabled:true pos:[80,107] width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing13_btn ""	enabled:true pos:[80,127] width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
 
 	--R Middle Finger
-	button select_rfing21_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+30,(select_rhand1_btn.pos.y)-23]		width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing22_btn "RHand"	enabled:true pos:[(select_rfing21_btn.pos.x)+0,(select_rfing21_btn.pos.y)-23]	width:15 height:23 images:#(Bitmap 15 23 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing23_btn "RHand"	enabled:true pos:[(select_rfing22_btn.pos.x)+0,(select_rfing22_btn.pos.y)-20]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) ttoolTip:""
+	checkbutton select_rfing21_btn ""	enabled:true pos:[60,85]	width:20 height:23 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing22_btn ""	enabled:true pos:[60,108]	width:20 height:23 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing23_btn ""	enabled:true pos:[60,131]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true ttoolTip:""
 	
 	--R Ring Finger
-	button select_rfing31_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+15,(select_rhand1_btn.pos.y)-22]		width:15 height:22 images:#(Bitmap 15 22 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing32_btn "RHand"	enabled:true pos:[(select_rfing31_btn.pos.x)+0,(select_rfing31_btn.pos.y)-21]	width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing33_btn "RHand"	enabled:true pos:[(select_rfing32_btn.pos.x)+0,(select_rfing32_btn.pos.y)-18]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_rfing31_btn ""	enabled:true pos:[40,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing32_btn ""	enabled:true pos:[40,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing33_btn ""	enabled:true pos:[40,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
 	
 	--R Pinkie Finger
-	button select_rfing41_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+0,(select_rhand1_btn.pos.y)-20]		width:15 height:20 images:#(Bitmap 15 20 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing42_btn "RHand"	enabled:true pos:[(select_rfing41_btn.pos.x)+0,(select_rfing41_btn.pos.y)-18]	width:15 height:17 images:#(Bitmap 15 17 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rfing43_btn "RHand"	enabled:true pos:[(select_rfing42_btn.pos.x)+0,(select_rfing42_btn.pos.y)-16]	width:15 height:16 images:#(Bitmap 15 16 color:(color 135 160 8 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_rfing41_btn ""	enabled:true pos:[20,85]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing42_btn ""	enabled:true pos:[20,105]	width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing43_btn ""	enabled:true pos:[20,122]	width:20 height:16 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
 	
 	--R Thumb
-	button select_rthumb1_btn "RHand"	enabled:true pos:[(select_rhand1_btn.pos.x)+60,(select_rhand1_btn.pos.y)]		width:20 height:30 images:#(Bitmap 20 30 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rthumb2_btn "RHand"	enabled:true pos:[(select_rthumb1_btn.pos.x)+2,(select_rthumb1_btn.pos.y)-20]		width:18 height:19 images:#(Bitmap 18 19 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_rthumb3_btn "RHand"	enabled:true pos:[(select_rthumb2_btn.pos.x)+2,(select_rthumb2_btn.pos.y)-18]		width:16 height:18 images:#(Bitmap 16 18 color:(color 224 198 87 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_rthumb1_btn ""	enabled:true pos:[100,69]	width:20 height:30 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
+	checkbutton select_rthumb2_btn ""	enabled:true pos:[100,99]	width:18 height:19 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
+	checkbutton select_rthumb3_btn ""	enabled:true pos:[100,118]	width:16 height:18 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
 
 	--LEFT HAND
 	--L Index Finger
-	button select_lhand1_btn "LHand"	enabled:true pos:[140,80] width:60 height:40 images:#(Bitmap 60 40 color:(color 18 18 167 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:"选择所有左手手指"
-	button select_lfing11_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+0,(select_lhand1_btn.pos.y)-22]		width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing12_btn "LHand"	enabled:true pos:[(select_lfing11_btn.pos.x)+0,(select_lfing11_btn.pos.y)-21]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing13_btn "LHand"	enabled:true pos:[(select_lfing12_btn.pos.x)+0,(select_lfing12_btn.pos.y)-18]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_lhand1_btn "L Hand"	enabled:true pos:[160,30]	width:80 height:30 highlightColor:rolBsBipedTools.mcLeft checked:true toolTip:""
+	checkbutton select_lfing11_btn ""	enabled:true pos:[160,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing12_btn ""	enabled:true pos:[160,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing13_btn ""	enabled:true pos:[160,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 	
 	--L Middle Finger
-	button select_lfing21_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+15,(select_lhand1_btn.pos.y)-23]		width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing22_btn "LHand"	enabled:true pos:[(select_lfing21_btn.pos.x)+0,(select_lfing21_btn.pos.y)-23]	width:15 height:23 images:#(Bitmap 15 23 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing23_btn "LHand"	enabled:true pos:[(select_lfing22_btn.pos.x)+0,(select_lfing22_btn.pos.y)-20]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_lfing21_btn ""	enabled:true pos:[180,85]	width:20 height:23 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing22_btn ""	enabled:true pos:[180,108]	width:20 height:23 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing23_btn ""	enabled:true pos:[180,131]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 	
 	--L Ring Finger
-	button select_lfing31_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+30,(select_lhand1_btn.pos.y)-22]		width:15 height:22 images:#(Bitmap 15 22 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing32_btn "LHand"	enabled:true pos:[(select_lfing31_btn.pos.x)+0,(select_lfing31_btn.pos.y)-21]	width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing33_btn "LHand"	enabled:true pos:[(select_lfing32_btn.pos.x)+0,(select_lfing32_btn.pos.y)-18]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_lfing31_btn ""	enabled:true pos:[200,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing32_btn ""	enabled:true pos:[200,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing33_btn ""	enabled:true pos:[200,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 
 	--L Pinkie Finger
-	button select_lfing41_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)+45,(select_lhand1_btn.pos.y)-20]		width:15 height:20 images:#(Bitmap 15 20 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing42_btn "LHand"	enabled:true pos:[(select_lfing41_btn.pos.x)+0,(select_lfing41_btn.pos.y)-18]	width:15 height:17 images:#(Bitmap 15 17 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lfing43_btn "LHand"	enabled:true pos:[(select_lfing42_btn.pos.x)+0,(select_lfing42_btn.pos.y)-16]	width:15 height:16 images:#(Bitmap 15 16 color:(color 187 9 208 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_lfing41_btn ""	enabled:true pos:[220,85]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing42_btn ""	enabled:true pos:[220,105]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing43_btn ""	enabled:true pos:[220,122]	width:20 height:16 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 
 	--L Thumb
-	button select_lthumb1_btn "LHand"	enabled:true pos:[(select_lhand1_btn.pos.x)-20,(select_lhand1_btn.pos.y)]		width:20 height:30 images:#(Bitmap 20 30 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lthumb2_btn "LHand"	enabled:true pos:[(select_lthumb1_btn.pos.x)+0,(select_lthumb1_btn.pos.y)-20]	width:18 height:19 images:#(Bitmap 18 19 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
-	button select_lthumb3_btn "LHand"	enabled:true pos:[(select_lthumb2_btn.pos.x)+0,(select_lthumb2_btn.pos.y)-18]	width:16 height:18 images:#(Bitmap 16 18 color:(color 119 7 38 1)gamma:0.45, undefined, 1, 1, 1, 1, 1) toolTip:""
+	checkbutton select_lthumb1_btn ""	enabled:true pos:[140,69]	width:20 height:30 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
+	checkbutton select_lthumb2_btn ""	enabled:true pos:[142,99]	width:18 height:19 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
+	checkbutton select_lthumb3_btn ""	enabled:true pos:[144,118]	width:16 height:18 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
+
+	checkbutton btnFingerLineR1 "0" enabled:true pos:[100,44] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR2 "1" enabled:true pos:[80,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR3 "2" enabled:true pos:[60,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR4 "3" enabled:true pos:[40,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR5 "4" enabled:true pos:[20,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL1 "0" enabled:true pos:[140,44] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL2 "1" enabled:true pos:[160,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL3 "2" enabled:true pos:[180,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL4 "3" enabled:true pos:[200,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL5 "4" enabled:true pos:[220,60] width:20 height:25 checked:true toolTip:"选择单条手指"
 
 	fn GetFinger side index =
 	(
@@ -706,27 +620,81 @@ rollout rolBSFingers "Fingers" width:220 height:160
 		)
 	)
 
-	on chbLFingers changed state do
+	on select_lhand1_btn changed state do (
+		select_lhand1_btn.state = true
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
+		if keyboard.controlPressed and keyboard.altpressed do (
+			-- Shift 를 누르면 똑바로 펴는 기능
+			rolBsBipedTools.Straighten rolBsBipedTools.m_LHand ((eulerangles -90 0 0) as quat)
+			return ()
+		)
+		
+		selBackup = selection as array
+
+		try(rolBsBipedTools.CompSelect selBackup rolBsBipedTools.m_LHand) catch (
+			rolBsBipedTools.m_LHand = rolBsBipedTools.GetLHand()
+			select rolBsBipedTools.m_LHand
+		)
+	)
+
+	on select_lhand1_btn rightclick do 
 	(
-		chbLFingers.state = true
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
+		rolBsBipedTools.m_RHand = rolBsBipedTools.GetRHand()
+		select rolBsBipedTools.m_RHand
+	)
+
+	
+	on select_rhand1_btn changed state do (
+		select_rhand1_btn.state = true
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
+		if keyboard.controlPressed and keyboard.altpressed do (
+			-- Shift 를 누르면 똑바로 펴는 기능
+			rolBsBipedTools.Straighten rolBsBipedTools.m_RHand ((eulerangles 90 0 0) as quat)
+			return ()
+		)
+
+		selBackup = selection as array
+
+		try(rolBsBipedTools.CompSelect selBackup rolBsBipedTools.m_RHand) catch (
+			rolBsBipedTools.m_RHand = rolBsBipedTools.GetRHand()
+			select rolBsBipedTools.m_RHand
+			
+		)
+	)
+
+	on select_rhand1_btn rightclick do 
+	(
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
+		rolBsBipedTools.m_LHand = rolBsBipedTools.GetLHand()
+		select rolBsBipedTools.m_LHand
+	)
+
+	on chbTips changed state do
+	(
+		chbTips.state = true
 	)
 
 	on chbRFingers changed state do
 	(
 		chbRFingers.state = true
-	)
-
-	on select_rhand1_btn pressed do
-	(
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or rolBsBipedTools.m_RHand == undefined ) do (return ())
+		chbRFingers.state = true
 		rolBsBipedTools.fnSelAllChildrens rolBsBipedTools.m_RHand
 		deselect rolBsBipedTools.m_RHand
 	)
 
-	on select_rthumb1_btn pressed do (
+	on select_rthumb1_btn changed state do (
+		select_rthumb1_btn.state = true
 		m_RThumb1 = (GetFinger "R" 1)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RThumb1 == undefined ) do (return ())
 
 		selBackup = selection as array
+
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RThumb1 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
 
 		try(rolBsBipedTools.CompSelect selBackup m_RThumb1) catch (
 			m_RThumb1 = (GetFinger "R" 1)
@@ -734,11 +702,17 @@ rollout rolBSFingers "Fingers" width:220 height:160
 		)
 	)
 
-	on select_rthumb2_btn pressed do (
+	on select_rthumb2_btn changed state do (
+		select_rthumb2_btn.state = true
 		m_RThumb2 = (GetFinger "R" 2)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RThumb2 == undefined ) do (return ())
 
 		selBackup = selection as array
+
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RThumb2 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
 
 		try(rolBsBipedTools.CompSelect selBackup m_RThumb2) catch (
 			m_RThumb2 = (GetFinger "R" 2)
@@ -746,346 +720,720 @@ rollout rolBSFingers "Fingers" width:220 height:160
 		)
 	)
 
-	on select_rthumb3_btn pressed do (
+	on select_rthumb3_btn changed state do (
+		select_rthumb3_btn.state = true
 		m_RThumb3 = (GetFinger "R" 3)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RThumb3 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RThumb3 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RThumb3) catch (
 			m_RThumb3 = (GetFinger "R" 3)
 			select m_RThumb3
 		)
 	)
 
-	on select_rfing11_btn pressed do (
+	on select_rfing11_btn changed state do (
+		select_rfing11_btn.state = true
 		m_RFing11 = (GetFinger "R" 4)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing11 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing11 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing11) catch (
 			m_RFing11 = (GetFinger "R" 4)
 			select m_RFing11
 		)
 	)
 
-	on select_rfing12_btn pressed do (
+	on select_rfing12_btn changed state do (
+		select_rfing12_btn.state = true
 		m_RFing12 = (GetFinger "R" 5)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing12 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing12 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing12) catch (
 			m_RFing12 = (GetFinger "R" 5)
 			select m_RFing12
 		)
 	)
 
-	on select_rfing13_btn pressed do (
+	on select_rfing13_btn changed state do (
+		select_rfing13_btn.state = true
 		m_RFing13 = (GetFinger "R" 6)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing13 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing13 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing13) catch (
 			m_RFing13 = (GetFinger "R" 6)
 			select m_RFing13
 		)
 	)
 
-	on select_rfing21_btn pressed do (
+	on select_rfing21_btn changed state do (
+		select_rfing21_btn.state = true
 		m_RFing21 = (GetFinger "R" 7)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing21 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing21 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing21) catch (
 			m_RFing21 = (GetFinger "R" 7)
 			select m_RFing21
 		)
 	)
 
-	on select_rfing22_btn pressed do (
+	on select_rfing22_btn changed state do (
+		select_rfing22_btn.state = true
 		m_RFing22 = (GetFinger "R" 8)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing22 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing22 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing22) catch (
 			m_RFing22 = (GetFinger "R" 8)
 			select m_RFing22
 		)
 	)
 
-	on select_rfing23_btn pressed do (
+	on select_rfing23_btn changed state do (
+		select_rfing23_btn.state = true
 		m_RFing23 = (GetFinger "R" 9)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing23 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing23 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing23) catch (
 			m_RFing23 = (GetFinger "R" 9)
 			select m_RFing23
 		)
 	)
 
-	on select_rfing31_btn pressed do (
+	on select_rfing31_btn changed state do (
+		select_rfing31_btn.state = true
 		m_RFing31 = (GetFinger "R" 10)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing31 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing31 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing31) catch (
 			m_RFing31 = (GetFinger "R" 10)
 			select m_RFing31
 		)
 	)
 
-	on select_rfing32_btn pressed do (
+	on select_rfing32_btn changed state do (
+		select_rfing32_btn.state = true
 		m_RFing32 = (GetFinger "R" 11)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing32 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing32 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing32) catch (
 			m_RFing32 = (GetFinger "R" 11)
 			select m_RFing32
 		)
 	)
 
-	on select_rfing33_btn pressed do (
+	on select_rfing33_btn changed state do (
+		select_rfing33_btn.state = true
 		m_RFing33 = (GetFinger "R" 12)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing33 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing33 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing33) catch (
 			m_RFing33 = (GetFinger "R" 12)
 			select m_RFing33
 		)
 	)
 
-	on select_rfing41_btn pressed do (
+	on select_rfing41_btn changed state do (
+		select_rfing41_btn.state = true
 		m_RFing41 = (GetFinger "R" 13)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing41 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing41 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing41) catch (
 			m_RFing41 = (GetFinger "R" 13)
 			select m_RFing41
 		)
 	)
 
-	on select_rfing42_btn pressed do (
+	on select_rfing42_btn changed state do (
+		select_rfing42_btn.state = true
 		m_RFing42 = (GetFinger "R" 14)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing42 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing42 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing42) catch (
 			m_RFing42 = (GetFinger "R" 14)
 			select m_RFing42
 		)
 	)
 
-	on select_rfing43_btn pressed do (
+	on select_rfing43_btn changed state do (
+		select_rfing43_btn.state = true
 		m_RFing43 = (GetFinger "R" 15)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing43 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_RFing43 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_RFing43) catch (
 			m_RFing43 = (GetFinger "R" 15)
 			select m_RFing43
 		)
 	)
 
-	on select_Lhand1_btn pressed do
+	on chbLFingers changed state do
 	(
+		chbLFingers.state = true
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or rolBsBipedTools.m_LHand == undefined ) do (return ())
+		chbLFingers.state = true
 		rolBsBipedTools.fnSelAllChildrens rolBsBipedTools.m_LHand
 		deselect rolBsBipedTools.m_LHand
 	)
 
-	on select_Lthumb1_btn pressed do (
+	on select_Lthumb1_btn changed state do (
+		select_Lthumb1_btn.state = true
 		m_LThumb1 = (GetFinger "L" 1)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LThumb1 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LThumb1 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LThumb1) catch (
 			m_LThumb1 = (GetFinger "L" 1)
 			select m_LThumb1
 		)
 	)
 
-	on select_Lthumb2_btn pressed do (
+	on select_Lthumb2_btn changed state do (
+		select_Lthumb2_btn.state = true
 		m_LThumb2 = (GetFinger "L" 2)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LThumb2 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LThumb2 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LThumb2) catch (
 			m_LThumb2 = (GetFinger "L" 2)
 			select m_LThumb2
 		)
 	)
 
-	on select_Lthumb3_btn pressed do (
+	on select_Lthumb3_btn changed state do (
+		select_Lthumb3_btn.state = true
 		m_LThumb3 = (GetFinger "L" 3)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LThumb3 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LThumb3 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LThumb3) catch (
 			m_LThumb3 = (GetFinger "L" 3)
 			select m_LThumb3
 		)
 	)
 
-	on select_Lfing11_btn pressed do (
+	on select_Lfing11_btn changed state do (
+		select_Lfing11_btn.state = true
 		m_LFing11 = (GetFinger "L" 4)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing11 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing11 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing11) catch (
 			m_LFing11 = (GetFinger "L" 4)
 			select m_LFing11
 		)
 	)
 
-	on select_Lfing12_btn pressed do (
+	on select_Lfing12_btn changed state do (
+		select_Lfing12_btn.state = true
 		m_LFing12 = (GetFinger "L" 5)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing12 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing12 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing12) catch (
 			m_LFing12 = (GetFinger "L" 5)
 			select m_LFing12
 		)
 	)
 
-	on select_Lfing13_btn pressed do (
+	on select_Lfing13_btn changed state do (
+		select_Lfing13_btn.state = true
 		m_LFing13 = (GetFinger "L" 6)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing13 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing13 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing13) catch (
 			m_LFing13 = (GetFinger "L" 6)
 			select m_LFing13
 		)
 	)
 
-	on select_Lfing21_btn pressed do (
+	on select_Lfing21_btn changed state do (
+		select_Lfing21_btn.state = true
 		m_LFing21 = (GetFinger "L" 7)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing21 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing21 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing21) catch (
 			m_LFing21 = (GetFinger "L" 7)
 			select m_LFing21
 		)
 	)
 
-	on select_Lfing22_btn pressed do (
+	on select_Lfing22_btn changed state do (
+		select_Lfing22_btn.state = true
 		m_LFing22 = (GetFinger "L" 8)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing22 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing22 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing22) catch (
 			m_LFing22 = (GetFinger "L" 8)
 			select m_LFing22
 		)
 	)
 
-	on select_Lfing23_btn pressed do (
+	on select_Lfing23_btn changed state do (
+		select_Lfing23_btn.state = true
 		m_LFing23 = (GetFinger "L" 9)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing23 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing23 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing23) catch (
 			m_LFing23 = (GetFinger "L" 9)
 			select m_LFing23
 		)
 	)
 
-	on select_Lfing31_btn pressed do (
+	on select_Lfing31_btn changed state do (
+		select_Lfing31_btn.state = true
 		m_LFing31 = (GetFinger "L" 10)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing31 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing31 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing31) catch (
 			m_LFing31 = (GetFinger "L" 10)
 			select m_LFing31
 		)
 	)
 
-	on select_Lfing32_btn pressed do (
+	on select_Lfing32_btn changed state do (
+		select_Lfing32_btn.state = true
 		m_LFing32 = (GetFinger "L" 11)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing32 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing32 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing32) catch (
 			m_LFing32 = (GetFinger "L" 11)
 			select m_LFing32
 		)
 	)
 
-	on select_Lfing33_btn pressed do (
+	on select_Lfing33_btn changed state do (
+		select_Lfing33_btn.state = true
 		m_LFing33 = (GetFinger "L" 12)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing33 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing33 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing33) catch (
 			m_LFing33 = (GetFinger "L" 12)
 			select m_LFing33
 		)
 	)
 
-	on select_Lfing41_btn pressed do (
+	on select_Lfing41_btn changed state do (
+		select_Lfing41_btn.state = true
 		m_LFing41 = (GetFinger "L" 13)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing41 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing41 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing41) catch (
 			m_LFing41 = (GetFinger "L" 13)
 			select m_LFing41
 		)
 	)
 
-	on select_Lfing42_btn pressed do (
+	on select_Lfing42_btn changed state do (
+		select_Lfing42_btn.state = true
 		m_LFing42 = (GetFinger "L" 14)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing42 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing42 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing42) catch (
 			m_LFing42 = (GetFinger "L" 14)
 			select m_LFing42
 		)
 	)
 
-	on select_Lfing43_btn pressed do (
+	on select_Lfing43_btn changed state do (
+		select_Lfing43_btn.state = true
 		m_LFing43 = (GetFinger "L" 15)
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing43 == undefined ) do (return ())
 
 		selBackup = selection as array
 
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten m_LFing43 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
 		try(rolBsBipedTools.CompSelect selBackup m_LFing43) catch (
 			m_LFing43 = (GetFinger "L" 15)
 			select m_LFing43
 		)
+	)
+
+	on btnFingerLineR1 changed state do (
+		btnFingerLineR1.state = true
+		local arrFingerLine = #()
+		for i = 1 to 3 do (
+			tempFinger = ((GetFinger "R" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		select arrFingerLine
+	)
+	on btnFingerLineR2 changed state do (
+		btnFingerLineR2.state = true
+		local arrFingerLine = #()
+		for i = 4 to 6 do (
+			tempFinger = ((GetFinger "R" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		select arrFingerLine
+	)
+	on btnFingerLineR3 changed state do (
+		btnFingerLineR3.state = true
+		local arrFingerLine = #()
+		for i = 7 to 9 do (
+			tempFinger = ((GetFinger "R" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		select arrFingerLine
+	)
+	on btnFingerLineR4 changed state do (
+		btnFingerLineR4.state = true
+		local arrFingerLine = #()
+		for i = 10 to 12 do (
+			tempFinger = ((GetFinger "R" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		select arrFingerLine
+	)
+	on btnFingerLineR5 changed state do (
+		btnFingerLineR5.state = true
+		local arrFingerLine = #()
+		for i = 13 to 15 do (
+			tempFinger = ((GetFinger "R" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		select arrFingerLine
+	)
+
+	
+	on btnFingerLineL1 changed state do (
+		btnFingerLineL1.state = true
+		local arrFingerLine = #()
+		for i = 1 to 3 do (
+			tempFinger = ((GetFinger "L" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		select arrFingerLine
+	)
+	on btnFingerLineL2 changed state do (
+		btnFingerLineL2.state = true
+		local arrFingerLine = #()
+		for i = 4 to 6 do (
+			tempFinger = ((GetFinger "L" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		select arrFingerLine
+	)
+	on btnFingerLineL3 changed state do (
+		btnFingerLineL3.state = true
+		local arrFingerLine = #()
+		for i = 7 to 9 do (
+			tempFinger = ((GetFinger "L" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		select arrFingerLine
+	)
+	on btnFingerLineL4 changed state do (
+		btnFingerLineL4.state = true
+		local arrFingerLine = #()
+		for i = 10 to 12 do (
+			tempFinger = ((GetFinger "L" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		select arrFingerLine
+	)
+	on btnFingerLineL5 changed state do (
+		btnFingerLineL5.state = true
+		local arrFingerLine = #()
+		for i = 13 to 15 do (
+			tempFinger = ((GetFinger "L" i)[1])
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			(
+				print "请先确认手指骨骼!"
+				return ()
+			)
+			append arrFingerLine tempFinger
+		)
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		select arrFingerLine
 	)
 )
 
@@ -1251,10 +1599,15 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local mcMotionPanel  = fnChangeThemeColor (color 223 225 200)
 	local mcSelTools     = fnChangeThemeColor (color 20 180 180)
 	local mcInPlace      = fnChangeThemeColor (color 192 192 255)
+	local mcLeftFinger   = fnChangeThemeColor (color 163 61 180)
+	local mcRightFinger  = fnChangeThemeColor (color 176 191 46)
+	local mcLeftThumb    = fnChangeThemeColor (color 191 46 46)
+	local mcRightThumb   = fnChangeThemeColor (color 241 228 157)
 
-	button uiAbout "?" offset:[-15, -5] height:15 width:20 border:false align:#left across:3
-	button btnMini "☐" offset:[45, -5] height:15 width:20 border:false align:#right
-	button btnClose "X" offset:[15, -5] height:15 width:20 border:false align:#right
+	label lblVersion verBsBipedTools height:15 width:30 align:#left pos:[3,0]
+	button btnMini "☐" offset:[45, -5] height:15 width:20 border:false align:#right pos:[120,0]
+	button uiAbout "?" offset:[-15, -5] height:15 width:20 border:false align:#left pos:[140,0]
+	button btnClose "X" offset:[15, -5] height:15 width:20 border:false align:#right pos:[160,0]
 	
 	dropdownlist ddlAllBipedCom items:#() selection:1 \
 	tooltip:"选择biped骨架" width:70 pos:[10, 20] across:2
@@ -1275,29 +1628,30 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	checkBox uiChkSelHiddenObj "Select hidden biped" checked:true pos:[-99, -99]
 	
-	checkButton uiHead "Head" width: 50 height:33 checked:true highlightColor:mcHead pos:[65, 50]
+	checkButton uiHead "｡◕ᴗ◕｡" width: 50 height:33 checked:true highlightColor:mcHead pos:[65, 50]  --表情从Sox工具得到灵感~~
 	checkButton uiNecks "Necks" width: 40 height:23 checked:true highlightColor:mc_spineColor align:#center pos:[70, 85]
 	
 	checkButton uiRArms "" checked:true highlightColor:mcRight width:25 align:#left pos:[15, 85] across:2
 	checkButton uiLArms "" checked:true highlightColor:mcLeft width:25 align:#right pos:[140, 85]
 	
-	checkButton uiRClavicle "Clavicle" width:55 height:22 checked:true highlightColor:mcRight across:2 pos:[25, 110]
-	checkButton uiLClavicle "Clavicle" width:55 height:22 checked:true highlightColor:mcLeft pos:[100, 110]
+	checkButton uiRClavicle "Clavicle" width:55 height:18 checked:true highlightColor:mcRight across:2 pos:[25, 110]
+	checkButton uiLClavicle "Clavicle" width:55 height:18 checked:true highlightColor:mcLeft pos:[100, 110]
 	
-	checkButton uiAllSpine height:58 width:26 checked:true highlightColor:mc_spineColor pos:[60, 135] align:#center
-	checkButton uiSpine2 "2" width:30 height:18 checked:true highlightColor:mc_spineColor align:#center pos:[90, 135]
-	checkButton uiSpine1 "1" width:30 height:18 checked:true highlightColor:mc_spineColor align:#center pos:[90, 155]
-	checkButton uiSpine0 "0" width:30 height:18 checked:true highlightColor:mc_spineColor align:#center pos:[90, 175]
+	checkButton uiAllSpine height:64 width:26 checked:true highlightColor:mc_spineColor pos:[60, 130] align:#center
+	checkButton uiSpine3 "3" width:30 height:16 checked:true highlightColor:mc_spineColor align:#center pos:[90, 130]
+	checkButton uiSpine2 "2" width:30 height:16 checked:true highlightColor:mc_spineColor align:#center pos:[90, 146]
+	checkButton uiSpine1 "1" width:30 height:16 checked:true highlightColor:mc_spineColor align:#center pos:[90, 162]
+	checkButton uiSpine0 "0" width:30 height:16 checked:true highlightColor:mc_spineColor align:#center pos:[90, 178]
 	
 	checkButton uiCOM "COM" checked:true width:50 height:30 highlightColor:mcHead pos:[65, 195]
 	checkButton uiPelvis "Pelvis" checked:true highlightColor:mcPevils width:60 height:18 pos:[60, 225]
 	
-	checkButton uiRUpArm "R" width:25  height:30 pos:[20, 135] checked:true highlightColor:mcRight across:2
-	checkButton uiLUpArm "L" width:25  height:30 pos:[135, 135] checked:true highlightColor:mcLeft
-	checkButton uiRForArm "R" width:25  height:30 pos:[20, 165] checked:true highlightColor:mcRight across:2
-	checkButton uiLForArm "L" width:25  height:30 pos:[135, 165] checked:true highlightColor:mcLeft
-	checkButton uiRHand "Hand" pos:[10, 195] height:25 checked:true highlightColor:mcRight across:2
-	checkButton uiLHand "Hand" pos:[130, 195] height:25 checked:true highlightColor:mcLeft
+	checkButton uiRUpArm "R" width:25  height:30 pos:[20, 131] checked:true highlightColor:mcRight across:2
+	checkButton uiLUpArm "L" width:25  height:30 pos:[135, 131] checked:true highlightColor:mcLeft
+	checkButton uiRForArm "R" width:25  height:30 pos:[20, 161] checked:true highlightColor:mcRight across:2
+	checkButton uiLForArm "L" width:25  height:30 pos:[135, 161] checked:true highlightColor:mcLeft
+	checkButton uiRHand "Hand" pos:[10, 191] height:25 checked:true highlightColor:mcRight across:2
+	checkButton uiLHand "Hand" pos:[130, 191] height:25 checked:true highlightColor:mcLeft
 	
 	checkButton uiPropR "Prop" width:35 height:18 checked:true highlightColor:mcSelTools pos:[13, 223]
 	checkButton uiPropL "Prop" width:35 height:18 checked:true highlightColor:mcSelTools pos:[133, 223]
@@ -1335,11 +1689,11 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	tooltip:"左键选择K帧,\r\n右键Biped全帧." checked:true highlightColor:mcFK
 	checkButton uiBtnDeleteKey "" width:25 height:25 tooltip:"左键删除所选Biped当前滑条帧\r\n右键清除Biped所有帧" \
 	pos:[37, 400] border:false checked:true highlightColor:mcFK
-	checkButton uiBtnLimbPK "" width:25 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
+	checkButton uiBtnLimbPK "" width:25 height:25 tooltip:"Shift + 单击 - 应用于所有帧，\r\nCtrl + 单击 - 应用于选定帧。\r\n（会卡一下因为必须要Motion面板）" \
 	pos:[65, 400] border:false checked:true highlightColor:mcFK
-	checkButton uiBtnLimbIK "" width:25 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
+	checkButton uiBtnLimbIK "" width:25 height:25 tooltip:"Shift + 单击 - 应用于所有帧，\r\nCtrl + 单击 - 应用于选定帧。\r\n（会卡一下因为必须要Motion面板）" \
 	pos:[90, 400] border:false checked:true highlightColor:mcFK
-	checkButton uiBtnLimbFK "" width:25 height:25 tooltip:"Shift + 单击 -应用于所有帧，\r\nCtrl + 单击 -应用于选定帧。" \
+	checkButton uiBtnLimbFK "" width:25 height:25 tooltip:"Shift + 单击 - 应用于所有帧，\r\nCtrl + 单击 - 应用于选定帧。\r\n（会卡一下因为必须要Motion面板）" \
 	pos:[115, 400] border:false checked:true highlightColor:mcFK
 	checkButton uiBtnTraj "" width:25 height:25
 	pos:[145, 400] border:false checked:true highlightColor:mcFK
@@ -1357,12 +1711,12 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	checkbutton uiCbtCopy "" pos:[50,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"复制Poseture"
 	checkbutton uiCbtPaste "" pos:[80,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"粘贴Poseture"
 	checkbutton uiCbtPasteOpposite "" pos:[110,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"镜像粘贴Poseture"
-	checkbutton uiCbtSelBones "选择" pos:[140,465] width:35 height:25 visible:false checked:true highlightColor:mcFK tooltip:"选择复制pose的Biped骨骼"
+	checkbutton uiCbtDeleteAllCopy "" pos:[140,465] width:35 height:25 visible:false checked:true highlightColor:mcFK tooltip:"清除所有CopyCollection"
 	checkbutton uiCbtMirrorRArm "右→左臂" pos:[50,495] width:60 height:25 visible:false checked:true highlightColor:mcRight
 	checkbutton uiCbtMirrorLArm "左→右臂" pos:[115,495] width:60 height:25 visible:false checked:true highlightColor:mcLeft
 	checkbutton uiCbtMirrorRLeg "右→左腿" pos:[50,523] width:60 height:25 visible:false checked:true highlightColor:mcRight
 	checkbutton uiCbtMirrorLLeg "左→右腿" pos:[115,523] width:60 height:25 visible:false checked:true highlightColor:mcLeft
-	checkbutton uiCbtGrabPose "暂存Pose" pos:[50,550] width:60 height:25 visible:false checked:true highlightColor:mcFK
+	checkbutton uiCbtGrabPose "速存Pose" pos:[50,550] width:60 height:25 visible:false checked:true highlightColor:mcFK
 	checkbutton uiCbtLoadPose "加载Pose" pos:[115,550] width:60 height:25 visible:false checked:true highlightColor:mcFK
 
 	--layers tools
@@ -1397,6 +1751,17 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	checkButton uiBtnLoopSel "选择帧" height:20 width:57 pos:[95, 465] checked:true highlightColor:mcAllBiped align:#left \
 	tooltip:"选择循环内的所有帧\r\nSelect keys in the looping range." visible:false
 
+	-- groupbox grpKeyList "关键帧书签" pos:[50, 535] width:140 height:45
+	button btnKey1 "Key" width:30 height:20 pos:[50, 540] border:true
+	button btnKey2 "Key" width:30 height:20 pos:[82, 540] border:true
+	button btnKey3 "Key" width:30 height:20 pos:[114, 540] border:true
+	button btnKey4 "Key" width:30 height:20 pos:[146, 540] border:true
+	button btnKey5 "Key" width:30 height:20 pos:[50, 560] border:true
+	button btnKey6 "Key" width:30 height:20 pos:[82, 560] border:true
+	button btnKey7 "Key" width:30 height:20 pos:[114, 560] border:true
+	button btnKey8 "Key" width:30 height:20 pos:[146, 560] border:true
+
+
 	--other tools
 	checkButton uiBtn0 "0" pos:[50,465] width:30 height:25 tooltip:"曲柄打直 Continuity (TCB)\r\nCtrl/Shift 可批处理\r\nESC可中断" border:true visible:false checked:true highlightColor:mcInPlace
 	checkButton uiBtn25 "25" pos:[82,465] width:30 height:25 tooltip:"曲柄默认 Continuity (TCB)\r\nCtrl/Shift 可批处理\r\nESC可中断" border:true visible:false checked:true highlightColor:mcInPlace
@@ -1406,13 +1771,16 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	-- label uiLblTitle "BsBipedTools_v1.0" height:16 width:rolBsBipedTools.width pos:[5, 585]
 	timer clock "PlayClock" interval:1 active:false -- 가장 빠른 인터벌로
 
-	local arrLoopTools = #("LoopK",#(uiBtnLoopGet,uiSpnLoopStart,uiSpnLoopEnd,uiCkbClearUserDef,uiBtnLoopSel,uiBtnGotoMirror))
-	local arrOtherTools = #("Other",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip)) 
-	local arrLayerTools = #("Layer",#(uiCbtRefreshLayer,uiCbtDown,uiCbtUp,uiLblLayerID,uiLblActive,uiChkActive,uiCbtAddLayer,\
+	local arrLoopTools = #("循环",#(uiBtnLoopGet,uiSpnLoopStart,uiSpnLoopEnd,uiCkbClearUserDef,uiBtnLoopSel,uiBtnGotoMirror,\
+		btnKey1,btnKey2,btnKey3,btnKey4,btnKey5,btnKey6,btnKey7,btnKey8))
+	local arrOtherTools = #("其他",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip)) 
+	local arrLayerTools = #("层层",#(uiCbtRefreshLayer,uiCbtDown,uiCbtUp,uiLblLayerID,uiLblActive,uiChkActive,uiCbtAddLayer,\
 		uiCbtDelLayer,uiCbtDownLayer,uiCbtSnapKeys,uiCbtLeftArm,uiCbtRightArm,uiCbtLeftLeg,uiCbtRightLeg,uiCbtUpdate,uiChkIKonly,ddlLayers))
-	local arrCopyTools = #("CopyP",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtSelBones,uiCbtMirrorLArm,uiCbtMirrorRArm,\
+	local arrCopyTools = #("复制",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtDeleteAllCopy,uiCbtMirrorLArm,uiCbtMirrorRArm,\
 		uiCbtMirrorLLeg,uiCbtMirrorRLeg,uiCbtGrabPose,uiCbtLoadPose))
 	local arrAllToolsTab = #(arrCopyTools,arrLayerTools,arrLoopTools,arrOtherTools)
+
+	local m_goto1; local m_goto2; local m_goto3; local m_goto4; local m_goto5; local m_goto6; local m_goto7; local m_goto8
 
 	fn fnChangeToolsVisble id =
 	(
@@ -1506,6 +1874,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiFigureMode.images        = #("bip_modes_i.bmp","bip_modes_i.bmp",8,1,1,1,1,true,true)
 		uiWorkbench.images         = #("bip_workbench_i.bmp","bip_workbench_i.bmp",10,7,7,7,7,true,true)
 		uiCbtCopy.images           = #("bip_keyframe_i.bmp","bip_keyframe_i.bmp",46,9,9,9,9,true,true)
+		uiCbtDeleteAllCopy.images  = #("bip_mflscript_i.bmp","bip_mflscript_i.bmp",22,5,5,5,5,true,true)
 		uiCbtPaste.images          = #("bip_keyframe_i.bmp","bip_keyframe_i.bmp",46,17,17,17,17,true,true)
 		uiCbtPasteOpposite.images  = #("bip_keyframe_i.bmp","bip_keyframe_i.bmp",46,19,19,19,19,true,true)
 		uiCbtUp.images             = #("bip_layer_i.bmp","bip_layer_i.bmp",24,1,1,1,1,true,true)
@@ -1618,6 +1987,93 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 			uiSpnLoopStart.value = getUserProp m_workingBipRoot "BsBT_RangeLoopStart"
 			uiSpnLoopEnd.value = getUserProp m_workingBipRoot "BsBT_RangeLoopEnd"
 		) catch ()
+	)
+
+	function LoadGoto = (
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do return ()
+		try (
+			m_goto1 = getUserProp m_workingBipRoot "BsBT_Goto1"
+			if (m_goto1 == "undefined") do (m_goto1 = undefined)
+			m_goto2 = getUserProp m_workingBipRoot "BsBT_Goto2"
+			if (m_goto2 == "undefined") do (m_goto2 = undefined)
+			m_goto3 = getUserProp m_workingBipRoot "BsBT_Goto3"
+			if (m_goto3 == "undefined") do (m_goto3 = undefined)
+			m_goto4 = getUserProp m_workingBipRoot "BsBT_Goto4"
+			if (m_goto4 == "undefined") do (m_goto4 = undefined)
+			m_goto5 = getUserProp m_workingBipRoot "BsBT_Goto5"
+			if (m_goto5 == "undefined") do (m_goto5 = undefined)
+			m_goto6 = getUserProp m_workingBipRoot "BsBT_Goto6"
+			if (m_goto6 == "undefined") do (m_goto6 = undefined)
+			m_goto7 = getUserProp m_workingBipRoot "BsBT_Goto7"
+			if (m_goto7 == "undefined") do (m_goto7 = undefined)
+			m_goto8 = getUserProp m_workingBipRoot "BsBT_Goto8"
+			if (m_goto8 == "undefined") do (m_goto8 = undefined)
+		) catch ()
+	)
+
+    function SaveGoto ui val index = (
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do return ()
+		local pString = "BsBT_Goto" + (index as string)
+		try (
+			setUserProp m_workingBipRoot pString val
+		) catch ()
+	)
+
+	function SetGotoBtnTextSub ui val = (
+		local tString
+		if (val == undefined) then (tString = "Key") else (tString = (val as string))
+		ui.text = tString
+		ui.tooltip = tString
+	)
+
+	function SetGotoBtnText = (
+		SetGotoBtnTextSub btnKey1 m_goto1
+		SetGotoBtnTextSub btnKey2 m_goto2
+		SetGotoBtnTextSub btnKey3 m_goto3
+		SetGotoBtnTextSub btnKey4 m_goto4
+		SetGotoBtnTextSub btnKey5 m_goto5
+		SetGotoBtnTextSub btnKey6 m_goto6
+		SetGotoBtnTextSub btnKey7 m_goto7
+		SetGotoBtnTextSub btnKey8 m_goto8
+	)
+
+	-- m_goto1 등의 변수를 참조 형식으로 &val 매개변수에 전달
+	function GotoFrame ui &val index setKey:false = (
+		if (setKey) then (
+			if (ui.text == "Key") then 
+			(
+				val = int sliderTime
+				SetGotoBtnText()
+				SaveGoto ui val index
+			)
+			else
+			(
+				if (queryBox "当前已设定跳转帧,是否清除？                   " beep:false) then
+				(
+					val = undefined
+					SetGotoBtnText()
+					SaveGoto ui val index
+				)
+			)
+			return ()
+		)
+		else 
+		(
+			if (ui.text == "Key") then 
+			(
+				val = int sliderTime
+				SetGotoBtnText()
+				SaveGoto ui val index
+			)
+			else
+			(
+				if (val != undefined) do (
+					try (
+						sliderTime = val
+					) catch ()
+				)
+			)
+		)
 	)
 	
 		-- 리턴 스트럭쳐의 멤버 : limbName, linkIndex
@@ -1797,7 +2253,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		
 		local tAllChildren = #()
 		if ( obj.children.count != 0 ) do (
-			for o in obj.children do (
+			for o in obj.children where not isDeleted o and (classof o.baseobject == Biped_Object or (classof o.controller == Vertical_Horizontal_Turn)) do (
 				append tAllChildren o
 				if ( o.children.count != 0 ) do (
 					tAllChildren = tAllChildren +  (fnGetAllChildren o)		-- recursive
@@ -1835,6 +2291,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
         uiLClavicle.state = state
         uiRUpArm.state = state
 		uiAllSpine.state = state
+		uiSpine3.state = state
 		uiSpine2.state = state
 		uiSpine1.state = state
 		uiSpine0.state = state
@@ -2642,6 +3099,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		m_RUpArm = GetRUpArm()
 		if (m_RUpArm.count == 0) then (uiRUpArm.enabled = false; uiRUpArm.state = false) else (uiRUpArm.enabled = true; uiRUpArm.state = true)
 		m_AllSpine = GetAllSpine()
+		m_Spine3 = GetSpine 3
+		if (m_Spine3.count == 0) then (uiSpine3.enabled = false; uiSpine3.state = false) else (uiSpine3.enabled = true; uiSpine3.state = true)
 		m_Spine2 = GetSpine 2
 		if (m_Spine2.count == 0) then (uiSpine2.enabled = false; uiSpine2.state = false) else (uiSpine2.enabled = true; uiSpine2.state = true)
 		m_Spine1 = GetSpine 1
@@ -2680,8 +3139,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		LoadRangeLoop()
 		-- LoadRangeA()
 		-- LoadRangeB()
-		-- LoadGoto()
-		-- SetGotoBtnText()
+		LoadGoto()
+		SetGotoBtnText()
 
 		uiDropPlaySpeed.selection = timeConfiguration.playbackSpeed
 
@@ -2758,17 +3217,24 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 		(
-			local bRootCtrl = m_workingBipRoot.controller
-			biped.createCopyCollection bRootCtrl "MirrorTemp"
-			local colIndex = biped.numCopyCollections bRootCtrl
-			local copyCol = biped.getCopyCollection bRootCtrl colIndex
-			biped.copyBipPosture bRootCtrl copyCol a_bipObjs #snapAuto
-			local mirroreBH_pose = getCopy copyCol #posture 1
-			with Animate on
+			try
 			(
-				biped.pasteBipPosture bRootCtrl mirroreBH_pose true #pstdefault false false false false
+				local bRootCtrl = m_workingBipRoot.controller
+				biped.createCopyCollection bRootCtrl "MirrorTemp"
+				local colIndex = biped.numCopyCollections bRootCtrl
+				local copyCol = biped.getCopyCollection bRootCtrl colIndex
+				biped.copyBipPosture bRootCtrl copyCol a_bipObjs #snapAuto
+				local mirroreBH_pose = getCopy copyCol #posture 1
+				with Animate on
+				(
+					undo "MirrorPosture" on
+					(
+						biped.pasteBipPosture bRootCtrl mirroreBH_pose true #pstdefault true true true false
+					)
+				)
+				biped.deleteCopyCollection bRootCtrl colIndex
 			)
-			biped.deleteCopyCollection bRootCtrl colIndex
+			catch(messageBox "错误：镜像失败，请重新尝试。                       " title:"BsBipedTools")
 		)
 	)
 	
@@ -2814,97 +3280,133 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	on uiCbtCopy changed state do
 	(
 		uiCbtCopy.state = true
-		if selection.count > 0 then
+		try
 		(
-			local a_objs = selection as array
-			--// Make sure only Biped parts are selected for copying by filtering out non-Biped parts
-			a_objs = fnFilterBipedParts a_objs
-			if a_objs.count > 0 then
+			if selection.count > 0 then
 			(
-				fnStorePostureObjs a_objs
-				if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+				local a_objs = selection as array
+				--// Make sure only Biped parts are selected for copying by filtering out non-Biped parts
+				a_objs = fnFilterBipedParts a_objs
+				if a_objs.count > 0 then
 				(
-					local bRootCtrl = m_workingBipRoot.controller
-					biped.createCopyCollection bRootCtrl "CopyPosture"
-					local colIndex = biped.numCopyCollections bRootCtrl
-					local copyCol = biped.getCopyCollection bRootCtrl colIndex
-					biped.copyBipPosture bRootCtrl copyCol a_objs #snapAuto
-					biped.saveCopyPasteFile bRootCtrl (getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy")
-					biped.deleteCopyCollection bRootCtrl colIndex
+					fnStorePostureObjs a_objs
+					if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+					(
+						local bRootCtrl = m_workingBipRoot.controller
+						biped.createCopyCollection bRootCtrl "CopyPosture"
+						local colIndex = biped.numCopyCollections bRootCtrl
+						local copyCol = biped.getCopyCollection bRootCtrl colIndex
+						biped.copyBipPosture bRootCtrl copyCol a_objs #snapAuto
+						biped.saveCopyPasteFile bRootCtrl (getDir #plugcfg + "\BsBipedTools_PoseGrabbed.cpy")
+						biped.deleteCopyCollection bRootCtrl colIndex
+					)
+				)
+				else
+				(
+					messageBox "错误：没有选择 Biped 对象。                       " title:"BsBipedTools"
 				)
 			)
 			else
 			(
-				messageBox "错误：没有选择 Biped 对象。                       " title:"BsBipedTools"
+				messageBox "错误：请选择一些要复制的 Biped 对象。                            " title:"BsBipedTools"
 			)
 		)
-		else
-		(
-			messageBox "错误：请选择一些要复制的 Biped 对象。                            " title:"BsBipedTools"
-		)
+		catch(messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
 	)
 	
 	on uiCbtPaste changed state do
 	(
 		uiCbtPaste.state = true
-		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+		try
 		(
-			local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
+			local postureFile = getDir #plugcfg + "\BsBipedTools_PoseGrabbed.cpy"
 			if doesFileExist postureFile then
 			(
-				local bRootCtrl = m_workingBipRoot.controller
-				biped.loadCopyPasteFile bRootCtrl postureFile
-				local colIndex = biped.numCopyCollections bRootCtrl
-				local copyCol = biped.getCopyCollection bRootCtrl colIndex
-				local copieBH_posture = getCopy copyCol #posture 1
-				with Animate on
+				if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 				(
-					biped.pasteBipPosture bRootCtrl copieBH_posture false #pstdefault false false false false
+					local bRootCtrl = m_workingBipRoot.controller
+					biped.loadCopyPasteFile bRootCtrl postureFile
+					local colIndex = biped.numCopyCollections bRootCtrl
+					local copyCol = biped.getCopyCollection bRootCtrl colIndex
+					local copyBH_posture = getCopy copyCol #posture 1
+					if copyBH_posture != false then
+					(
+						with Animate on
+						(
+							undo "PastePosture" on
+							(
+								biped.pasteBipPosture bRootCtrl copyBH_posture false #pstdefault true true true false
+							)
+						)
+					)
+					else
+					(
+						messagebox "错误：确保 Copy/Paste Posture 不包含名为“CopyPosture”的集合。                            " title:"BsBipedTools"
+					)
+					local colIndex = biped.numCopyCollections bRootCtrl
+					biped.deleteCopyCollection bRootCtrl colIndex
 				)
-				local colIndex = biped.numCopyCollections bRootCtrl
-				biped.deleteCopyCollection bRootCtrl colIndex
 			)
 			else
 			(
-				messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
+				messageBox "错误：请先复制一个 Pose。                          " title:"BsBipedTools"
 			)
 		)
+		catch (messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
 	)
 
 	on uiCbtPasteOpposite changed state do
 	(
 		uiCbtPasteOpposite.state = true
-		if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+		try
 		(
-			local postureFile = getDir #plugcfg + "\BsBipedTools_CopyPosture.cpy"
+			local postureFile = getDir #plugcfg + "\BsBipedTools_PoseGrabbed.cpy"
 			if doesFileExist postureFile then
 			(
-				local bRootCtrl = m_workingBipRoot.controller
-				biped.loadCopyPasteFile bRootCtrl postureFile
-				local colIndex = biped.numCopyCollections bRootCtrl
-				local copyCol = biped.getCopyCollection bRootCtrl colIndex
-				local copieBH_posture = getCopy copyCol #posture 1
-				with Animate on
+				if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
 				(
-					biped.pasteBipPosture bRootCtrl copieBH_posture true #pstdefault false false false false
+					local bRootCtrl = m_workingBipRoot.controller
+					biped.loadCopyPasteFile bRootCtrl postureFile
+					local colIndex = biped.numCopyCollections bRootCtrl
+					local copyCol = biped.getCopyCollection bRootCtrl colIndex
+					local copyBH_posture = getCopy copyCol #posture 1
+					if copyBH_posture != false then
+					(
+						with Animate on
+						(
+							undo "PastePosture" on
+							(
+								biped.pasteBipPosture bRootCtrl copyBH_posture true #pstdefault true true true false
+							)
+						)
+					)
+					else
+					(
+						messagebox "错误：确保 Copy/Paste Posture 不包含名为“CopyPosture”的集合。                            " title:"BsBipedTools"
+					)
+					local colIndex = biped.numCopyCollections bRootCtrl
+					biped.deleteCopyCollection bRootCtrl colIndex
 				)
-				local colIndex = biped.numCopyCollections bRootCtrl
-				biped.deleteCopyCollection bRootCtrl colIndex
 			)
 			else
 			(
-				messageBox "错误: 临时 Pose 文件不存在，请先暂存Pose！                              " title:"BsBipedTools"
+				messageBox "错误：请先复制一个 Pose。                          " title:"BsBipedTools"
 			)
 		)
+		catch (messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
 	)
 	
-	on uiCbtSelBones changed state do
+	on uiCbtDeleteAllCopy changed state do
 	(
-		uiCbtSelBones.state = true
-		local a_objs = fnRetrievePostureObjs()
-		if a_objs != undefined do
+		uiCbtDeleteAllCopy.state = true
+		if (queryBox ("是否清除所有 CopyCollection ？                        ") title:"BsBipedTools") do
 		(
-			try (select a_objs)catch(messageBox "错误：无法选择用于复制姿势的 Biped 部件。                                            " title:"BsBipedTools")
+			if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+			(
+				local bRootCtrl = m_workingBipRoot.controller
+				with undo on (try(biped.deleteAllCopyCollections bRootCtrl)catch())
+			)
+			messageBox "清除 CopyCollection 成功。                       " title:"BsBipedTools"
 		)
 	)
 	
@@ -3000,6 +3502,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	on uiBtnLimbPK changed state do (
 		uiBtnLimbPK.state = on -- 어떤 상태에서도 버튼 스테이트는 눌려있도록
+		local tempPanel = getCommandPanelTaskMode()
 		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 등의 기능은 Motion판넬에서만 정상 작동한다. 다른 곳에서 하면 엉뚱한 자세가 덮어써짐
 		local timeBefore = sliderTime
 		disableSceneRedraw()
@@ -3032,12 +3535,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 			) -- for
 		) -- Undo
+		if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
 		enableSceneRedraw()
 		sliderTime = timeBefore
 	)
 
 	on uiBtnLimbIK changed state do (
 		uiBtnLimbIK.state = on -- 어떤 상태에서도 버튼 스테이트는 눌려있도록
+		local tempPanel = getCommandPanelTaskMode()
 		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 등의 기능은 Motion판넬에서만 정상 작동한다. 다른 곳에서 하면 엉뚱한 자세가 덮어써짐
 		local timeBefore = sliderTime
 		disableSceneRedraw()
@@ -3070,12 +3575,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 			) -- for
 		) -- Undo
+		if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
 		enableSceneRedraw()
 		sliderTime = timeBefore
 	)
 
 	on uiBtnLimbFK changed state do (
 		uiBtnLimbFK.state = on -- 어떤 상태에서도 버튼 스테이트는 눌려있도록
+		local tempPanel = getCommandPanelTaskMode()
 		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 등의 기능은 Motion판넬에서만 정상 작동한다. 다른 곳에서 하면 엉뚱한 자세가 덮어써짐
 		local timeBefore = sliderTime
 		disableSceneRedraw()
@@ -3108,6 +3615,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 			) -- for
 		) -- Undo
+		if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
 		enableSceneRedraw()
 		sliderTime = timeBefore
 	)
@@ -3286,6 +3794,25 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 			m_AllSpine = GetAllSpine()
 			select m_AllSpine
 			
+		)
+	)
+
+	on uiSpine3 changed state do (
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
+		uiSpine3.state = on -- 어떤 상태에서도 버튼 스테이트는 눌려있도록
+		
+		if keyboard.controlPressed and keyboard.altpressed do (
+			-- Shift 를 누르면 똑바로 펴는 기능
+			Straighten m_Spine3 ((eulerangles 0 0 0) as quat)
+			return ()
+		)
+		
+		selBackup = selection as array
+
+		-- 기존 selection 백업과 이번에 선택할 selArr 을 입력받아 키보드 조합으로 적절하게 선택한다. 부수적으로 모션패널로의 변경도 같이 수행
+		try(CompSelect selBackup m_Spine3) catch (
+			m_Spine3 = GetSpine 3
+			select m_Spine3
 		)
 	)
 
@@ -4018,8 +4545,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	on uiAbout pressed do (
 		-- shellLaunch "http://cafe.naver.com/pinksox/6131" ""
 		-- rolBsAboutPanel.Show()
-		try(rolBsAboutPanel.close())catch()
-		fnOpenAboutPanel()
+		try(destroyDialog rolBsBipToolsHelp)catch()
+		Createdialog rolBsBipToolsHelp style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228))
 	)
 	
 	on rolBsBipedTools open do (
@@ -4049,6 +4576,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		callbacks.addScript #systemPostNew "rolBsBipedTools.InitLocalVars ()" id:#BsBTCallbackNew
 		callbacks.addScript #systemPostReset "rolBsBipedTools.InitLocalVars ()" id:#BsBTCallbackReset
 		callbacks.addScript #selectionSetChanged "rolBsBipedTools.InitLocalVars ()" id:#BsBTSelChange
+		callbacks.addScript #sceneUndo "rolBsBipedTools.InitLocalVars()" id:#BsBTUpdateLayers
 		
 		fnSetBsBTConfig()
 
@@ -4059,6 +4587,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		callbacks.removeScripts id:#BsBTCallbackNew
 		callbacks.removeScripts id:#BsBTCallbackReset
 		callbacks.removeScripts id:#BsBTSelChange
+		callbacks.removeScripts id:#BsBTUpdateLayers
 		fnSetBsBTConfig()
 	)
 
@@ -4330,6 +4859,16 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				(
 					fnDeleteUserProp i "BsBT_RangeLoopStart"
 					fnDeleteUserProp i "BsBT_RangeLoopEnd"
+					fnDeleteUserProp i "BsBT_Goto1"
+					fnDeleteUserProp i "BsBT_Goto2"
+					fnDeleteUserProp i "BsBT_Goto3"
+					fnDeleteUserProp i "BsBT_Goto4"
+					fnDeleteUserProp i "BsBT_Goto5"
+					fnDeleteUserProp i "BsBT_Goto6"
+					fnDeleteUserProp i "BsBT_Goto7"
+					fnDeleteUserProp i "BsBT_Goto8"
+					btnKey1.text = btnKey2.text = btnKey3.text = btnKey4.text = btnKey5.text = btnKey6.text = btnKey7.text = btnKey8.text = "Key"
+					m_goto1 = m_goto2 = m_goto3 = m_goto4 = m_goto5 = m_goto6 = m_goto7 = m_goto8 = undefined
 				)
 				catch()
 			)
@@ -4481,7 +5020,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if fnIsValidBiped() then 
 		(
-			if m_LHand[1] != undefined then biped.setLimbRetargetState m_LHand[1] state
+			if m_LHand[1] != undefined then (with undo on (biped.setLimbRetargetState m_LHand[1] state))
 		)
 	)
 	
@@ -4489,7 +5028,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if fnIsValidBiped() then 
 		(
-			if m_RHand[1] != undefined then biped.setLimbRetargetState m_RHand[1] state
+			if m_RHand[1] != undefined then (with undo on (biped.setLimbRetargetState m_RHand[1] state))
 		)
 	)
 	
@@ -4497,7 +5036,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if fnIsValidBiped() then 
 		(
-			if m_LFoot[1] != undefined then biped.setLimbRetargetState m_LFoot[1] state
+			if m_LFoot[1] != undefined then (with undo on (biped.setLimbRetargetState m_LFoot[1] state))
 		)
 	)
 	
@@ -4505,7 +5044,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if fnIsValidBiped() then 
 		(
-			if m_RFoot[1] != undefined then biped.setLimbRetargetState m_RFoot[1] state
+			if m_RFoot[1] != undefined then (with undo on (biped.setLimbRetargetState m_RFoot[1] state))
 		)
 	)
 		
@@ -4513,7 +5052,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	(
 		if fnIsValidBiped() then
 		(
-			biped.retargetToBaseLayer ctrl uiChkIKonly.state
+			with undo on (biped.retargetToBaseLayer ctrl uiChkIKonly.state)
 			redrawViews()
 		)
 	)
@@ -4598,57 +5137,66 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 		try(destroyDialog rolBSFingers)catch()
 
-		Createdialog rolBSFingers pos:(mouse.screenPos - [270,100]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)) style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
+		Createdialog rolBSFingers pos:(mouse.screenPos - [310,100]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)) style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 	)
 
 	on uiBtnLoadBip changed state do
 	(
-		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		uiBtnLoadBip.state = true
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ((messageBox "请先确认存在Biped骨骼!                            " title:"BsBipedTools");return ())
 		biped.loadBipFileDlg m_workingBipRoot.controller
 	)
 
 	on uiBtnSaveBip changed state do
 	(
-		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ( SetButtonState false; return ())
 		uiBtnSaveBip.state = true
+		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do ((messageBox "请先确认存在Biped骨骼!                            " title:"BsBipedTools");return ())
 		biped.saveBipFileDlg m_workingBipRoot.controller
 	)
 
 	on uiCbtAddLayer pressed do
 	(
-		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
-		fnBSUpdateLayers()
-		ctrlCom = m_workingBipRoot.controller
-		numCurLayer = biped.getCurrentLayer ctrlCom
-		countAllLayers = biped.numLayers ctrlCom
-		numNewLayerIndex = numCurLayer + 1
-		numNewLayerName = (countAllLayers + 1) as string
-		biped.createLayer ctrlCom numNewLayerIndex ("Layer " + numNewLayerName )
+		with undo on
+		(
+			if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+			fnBSUpdateLayers()
+			ctrlCom = m_workingBipRoot.controller
+			numCurLayer = biped.getCurrentLayer ctrlCom
+			countAllLayers = biped.numLayers ctrlCom
+			numNewLayerIndex = numCurLayer + 1
+			numNewLayerName = (countAllLayers + 1) as string
+			biped.createLayer ctrlCom numNewLayerIndex ("Layer " + numNewLayerName )
+		)
 		fnBSUpdateLayers()
 	)
 
 	on uiCbtDelLayer pressed do
 	(
-		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
-		fnBSUpdateLayers()
-		ctrlCom = m_workingBipRoot.controller
-		numCurLayer = biped.getCurrentLayer ctrlCom
-		biped.deleteLayer ctrlCom numCurLayer
+		with undo on
+		(
+			if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+			fnBSUpdateLayers()
+			ctrlCom = m_workingBipRoot.controller
+			numCurLayer = biped.getCurrentLayer ctrlCom
+			biped.deleteLayer ctrlCom numCurLayer
+		)
 		fnBSUpdateLayers()
 	)
 
 	on uiCbtDownLayer pressed do
 	(
-		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
-		fnBSUpdateLayers()
-		ctrlCom = m_workingBipRoot.controller
-		numCurLayer = biped.getCurrentLayer ctrlCom
-		biped.collapseAtLayer ctrlCom (numCurLayer - 1)
+		with undo on
+		(
+			if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
+			fnBSUpdateLayers()
+			ctrlCom = m_workingBipRoot.controller
+			numCurLayer = biped.getCurrentLayer ctrlCom
+			biped.collapseAtLayer ctrlCom (numCurLayer - 1)
+		)
 		fnBSUpdateLayers()
 	)
 
-	on uiCbtSnapKeys pressed do 
+	on uiCbtSnapKeys pressed do
 	(
 		if (m_workingBipRoot == undefined or (isDeleted m_workingBipRoot)) do (return ())
 		fnBSUpdateLayers()
@@ -4765,6 +5313,24 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiBtn25.state = true
 		fnEvaluateTCB 25.0
 	)
+
+	on btnKey1 pressed do (GotoFrame btnKey1 &m_goto1 1)
+	on btnKey2 pressed do (GotoFrame btnKey2 &m_goto2 2)
+	on btnKey3 pressed do (GotoFrame btnKey3 &m_goto3 3)
+	on btnKey4 pressed do (GotoFrame btnKey4 &m_goto4 4)
+	on btnKey5 pressed do (GotoFrame btnKey5 &m_goto5 5)
+	on btnKey6 pressed do (GotoFrame btnKey6 &m_goto6 6)
+	on btnKey7 pressed do (GotoFrame btnKey7 &m_goto7 7)
+	on btnKey8 pressed do (GotoFrame btnKey8 &m_goto8 8)
+
+	on btnKey1 rightclick do (GotoFrame btnKey1 &m_goto1 1 setKey:true)
+	on btnKey2 rightclick do (GotoFrame btnKey2 &m_goto2 2 setKey:true)
+	on btnKey3 rightclick do (GotoFrame btnKey3 &m_goto3 3 setKey:true)
+	on btnKey4 rightclick do (GotoFrame btnKey4 &m_goto4 4 setKey:true)
+	on btnKey5 rightclick do (GotoFrame btnKey5 &m_goto5 5 setKey:true)
+	on btnKey6 rightclick do (GotoFrame btnKey6 &m_goto6 6 setKey:true)
+	on btnKey7 rightclick do (GotoFrame btnKey7 &m_goto7 7 setKey:true)
+	on btnKey8 rightclick do (GotoFrame btnKey8 &m_goto8 8 setKey:true)
 )
 if (iniBsBTPos != 0) then 
 (Createdialog rolBsBipedTools pos:iniBsBTPos style:#() fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
