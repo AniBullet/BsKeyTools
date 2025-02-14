@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-13 02:08:33
+ * @LastEditTime: 2025-02-14 11:05:22
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -75,7 +75,7 @@ global dragStateBsADT = off
 		groupbox gpbSkyBox "天空球" pos:[5,55] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
 		dropdownlist ddlSkyBoxTex "" pos:[15,75] width:120 height:20 items:#("") visible:false
 		button btnCreateSkyBox "创建" pos:[140,75] width:40 height:20 visible:false
-		button btnOpenSkyBox "打开" pos:[185,75] width:40 height:20 visible:false
+		button btnOpenSkyBox "打开" pos:[185,75] width:40 height:20 visible:false tooltip:"左键打开图片，右键打开文件夹，图片打开失败可能是没有安装支持的查看器"
 		button btnDeleteSkyBox "清除" pos:[230,75] width:25 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
 		groupbox gbpLight "灯光箱" pos:[5,110] width:(rolBsAnimDemoTools.width - 80) height:75 visible:false
 		button btnOmniLight "点光源" pos:[10,130] width:55 height:20 visible:false
@@ -1192,6 +1192,10 @@ global dragStateBsADT = off
 		on btnOpenSkyBox pressed do 
 		(
 			try(shellLaunch selSkyBoxTex "")catch(messageBox "打开失败,请检查路径是否存在...                        " title:"BsAnimDemoTools")
+		)
+		on btnOpenSkyBox rightclick do 
+		(
+			try(shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") "")catch(messageBox "打开失败,请检查路径是否存在...                        " title:"BsAnimDemoTools")
 		)
 
 		on btnCreateSkyBox pressed do 
