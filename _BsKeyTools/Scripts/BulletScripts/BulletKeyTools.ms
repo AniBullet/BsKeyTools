@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-14 18:52:54
+ * @LastEditTime: 2025-02-17 21:55:07
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -19,7 +19,7 @@ try (callbacks.removeScripts #filePostOpen id:#BsUpdatePlaySpeed) catch ()
 try (callbacks.removeScripts #timeunitsChange id:#BsUpdatePlaySpeed) catch ()
 try (callbacks.removeScripts #filePostOpen id:#BsRefreshRecentFiles) catch ()
 
-global curVerBsKeyTools  = "1.0.1"
+global curVerBsKeyTools  = "1.0.2"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
@@ -424,6 +424,31 @@ fn fnSwitchIconStyle =
 	rolBsKeyTools.btnQuicksave.images         = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,1,1,1,1,true,false)
 )
 
+
+---获取max所在屏幕的分辨率, 如果太小则嵌入模式隐藏一些ui
+fn fnJudgeScreenResolution = 
+(
+	dotNet.loadAssembly "System.Windows.Forms"
+	screenType = dotNetClass "System.Windows.Forms.Screen"
+	
+	hwnd = windows.getMAXHWND()
+	if hwnd == undefined do return undefined
+	
+	-- 将窗口句柄转换为 .NET 的 IntPtr 类型
+	hwndIntPtr = dotNetObject "System.IntPtr" hwnd
+	
+	-- 直接获取窗口所在的屏幕
+	screen = screenType.FromHandle(hwndIntPtr)
+	
+	if screen != undefined then
+	(
+		bounds = screen.Bounds
+		[bounds.Width, bounds.Height]
+		if bounds.height <= 1080 then false else true
+	)
+	else false
+)
+
 rcmenu menuConfig
 (
 	subMenu "帮助  /  Help"
@@ -458,8 +483,8 @@ rcmenu menuConfig
 	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
 	subMenu "自定义功能配置"
 	(
+		menuItem mItemCustomScripts "自定义脚本集自启"
 		menuItem mItemCustomSortBtn "自定义功能按钮位置"
-		-- menuItem mItemCustomScripts "自定义脚本配置管理"
 		menuItem mItemCollapse "自动收缩面板 [精简]"
 		menuItem mItemCollapseFull "自动收缩面板 [浮夸]"
 		menuItem mItemResetCount "面板计时重置 [浮夸]"
@@ -755,18 +780,18 @@ rcmenu menuConfig
 									btnsArr[b].width = 100
 									btnsArr[b].height = 16
 								)
-								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,725];btnsArr[b].width = 130)
+								else if b == 95 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,725];btnsArr[b].width = 130)
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,140])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,430])
-								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,880])
+								else if b == 98 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,880])
 								else
 								(
 									btnsArr[b].visible = false
 									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
 								)
 							)
-							rolTarget.height = 940
-							rolTarget.width = 130
+							rolTarget.height = if (fnJudgeScreenResolution()) then 890 else 740
+							rolTarget.width  = 130
 							--
 							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_vert)
 							cui.DockDialogBar rolTarget #cui_dock_left
@@ -850,18 +875,18 @@ rcmenu menuConfig
 									btnsArr[b].width = 100
 									btnsArr[b].height = 16
 								)
-								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,725];btnsArr[b].width = 130)
+								else if b == 95 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,725];btnsArr[b].width = 130)
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,140])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,430])
-								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,880])
+								else if b == 98 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,880])
 								else
 								(
 									btnsArr[b].visible = false
 									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
 								)
 							)
-							rolTarget.height = 940
-							rolTarget.width = 130
+							rolTarget.height = if (fnJudgeScreenResolution()) then 890 else 740
+							rolTarget.width  = 130
 							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_vert)
 							cui.DockDialogBar rolTarget #cui_dock_right
 							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_right as string))catch()
@@ -1135,18 +1160,18 @@ rcmenu menuConfig
 									btnsArr[b].text = "设置"
 									btnsArr[b].pos = btnsArr[36].pos + [60,3]
 								)
-								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,610])
+								else if b == 95 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,610])
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,100])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,310])
-								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,765])
+								else if b == 98 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,765])
 								else
 								(
 									btnsArr[b].visible = false
 									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
 								)
 							)
-							rolTarget.height = 915
-							rolTarget.width = 160
+							rolTarget.height = if (fnJudgeScreenResolution()) then 780 else 630
+							rolTarget.width  = 160
 							--
 							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_vert)
 							cui.DockDialogBar rolTarget #cui_dock_left
@@ -1225,18 +1250,18 @@ rcmenu menuConfig
 									btnsArr[b].text = "设置"
 									btnsArr[b].pos = btnsArr[36].pos + [60,3]
 								)
-								else if b == 95 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,610])
+								else if b == 95 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,610])
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,100])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,310])
-								else if b == 98 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,765])
+								else if b == 98 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,765])
 								else
 								(
 									btnsArr[b].visible = false
 									-- btnsArr[b].pos = [0,btnsArr[b - 1].pos.y + btnsArr[b - 1].height]
 								)
 							)
-							rolTarget.height = 915
-							rolTarget.width = 160
+							rolTarget.height = if (fnJudgeScreenResolution()) then 780 else 630
+							rolTarget.width  = 160
 							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_vert)
 							cui.DockDialogBar rolTarget #cui_dock_right
 							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_right as string))catch()
@@ -1271,8 +1296,11 @@ rcmenu menuConfig
 		)
 	)
 
-	local startupEXTimelineMS = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\EXTimelineStartup.ms"
+	local startupEXTimelineMS   = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\EXTimelineStartup.ms"
 	local startupEXTimelinePath = (getDir #StartupScripts)+ "\\EXTimelineStartup.ms"
+	
+	local startupCustomScripts     = (getDir #Scripts) + "\\BulletScripts\\StartupMS\\BsCustomScriptsStartup.ms"
+	local startupCustomScriptsPath = (getDir #StartupScripts)+ "\\BsCustomScriptsStartup.ms"
 
 	on menuConfig open do
 	(
@@ -1282,6 +1310,8 @@ rcmenu menuConfig
 		else (mItemIsStartup.checked = false)
 		if(SIOFile.Exists startupEXTimelinePath) then (mItemTimeline.checked = true)
 		else (mItemTimeline.checked = false)
+		if(SIOFile.Exists startupCustomScriptsPath) then (mItemCustomScripts.checked = true)
+		else (mItemCustomScripts.checked = false)
 		if (iniAddToolbars == 1) then (mItemAddToolBarBtn.checked = true)
 		else (mItemAddToolBarBtn.checked = false)
 		mItemAutoCheckUpdate.checked = iniBsAutoCheckUpdate
@@ -1582,7 +1612,8 @@ rcmenu menuConfig
 			((getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"),\
 			((getDir #StartupScripts)+ "\\BsTrackBarToolsStartup.ms"),\
 			((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"),\
-			((getDir #StartupScripts)+ "\\EXTimelineStartup.ms"))
+			((getDir #StartupScripts)+ "\\EXTimelineStartup.ms"), \
+			((getDir #StartupScripts)+ "\\BsCustomScriptsStartup.ms"))
 			for d in arrDelPath do (fnDelDir d)
 			for f in arrDelMs do (fnDelFileDir f)
 			try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -1603,9 +1634,28 @@ rcmenu menuConfig
 
 	on mItemCustomScripts picked do 
 	(
-		try(destroydialog rolAddMyScripts)catch()
-		createDialog rolAddMyScripts fgcolor:myFgColor \
-		pos:[mouse.screenpos.x - 150,mouse.screenpos.y +20]
+		if (mItemCustomScripts.checked == true) then 
+		(
+			fnDelFileDir startupCustomScriptsPath
+			mItemCustomScripts.checked = false
+			messagebox ("已解除 BsScriptsSet.ms 自启！                  ")  title:"自启设置"
+		)
+		else 
+		(
+			if (not (SIOFile.Exists startupCustomScriptsPath)) do
+			(
+				try 
+				(
+					FileIO.Copyfile startupCustomScripts startupCustomScriptsPath UIOption
+					messagebox ("已打开 BsScriptsSet.ms 自启！                  ")  title:"自启设置"
+					mItemCustomScripts.checked = true
+					try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsScriptsSet.ms"))
+					catch(messagebox "打开 BsScriptsSet.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+					setFileAttribute startupCustomScriptsPath #readOnly true
+				)
+				catch()
+			)
+		)
 	)
 
 	on mItemIsIcon picked do 
@@ -2195,6 +2245,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	local m_PBStartTime
 	local m_PBPointer
 ----------------------------------UI及作者ID------------------------------------------------
+
 	fn fnInitDotNetListView =
 	(	
 		local align = dotNetClass "HorizontalAlignment"
@@ -2207,7 +2258,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		dotLVFilesList.MultiSelect = false
 		dotLVFilesList.CheckBoxes = false
 		dotLVFilesList.HideSelection = false
-		dotLVFilesList.Columns.Add "打开最近文件" 150
+		dotLVFilesList.Columns.Add "打开最近文件" 135
 		dotLVFilesList.ForeColor = BsDotForeColor
 		dotLVFilesList.BackColor = BsDotBackColor
 		if dotLVFilesList.SelectedItems.Count > 0 then
@@ -3482,6 +3533,7 @@ rollout rolBsKeyTools "" width:355 height:250
 			catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 		)
 		-- print ("iniBsAutoCheckUpdate: " + iniBsAutoCheckUpdate as string)
+		dotLVFilesList.visible = pgbLine03.visible = (fnJudgeScreenResolution())
 	)
 	
 	on rolBsKeyTools close do -- 关闭记忆浮动窗口位置

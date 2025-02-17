@@ -208,7 +208,8 @@
 				((getDir #StartupScripts)+ "\\BsKeyToolsMenuBar.ms"),\
 				((getDir #StartupScripts)+ "\\BsTrackBarToolsStartup.ms"),\
 				((getDir #StartupScripts)+ "\\BsCleanVirusStartup.ms"),\
-				((getDir #StartupScripts)+ "\\EXTimelineStartup.ms"))
+				((getDir #StartupScripts)+ "\\EXTimelineStartup.ms"),\
+				((getDir #StartupScripts)+ "\\BsCustomScriptsStartup.ms"))
 				for d in arrDelPath do (fnDelDir d)
 				for f in arrDelMs do (fnDelFileDir f)
 				try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
