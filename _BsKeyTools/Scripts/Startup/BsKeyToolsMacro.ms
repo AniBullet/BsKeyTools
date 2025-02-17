@@ -7,7 +7,7 @@
 	(
 		-- on execute do
 		-- (
-			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");fnCheckRolloutPos rolBsKeyTools)
+			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");isRolloutOffScreen rolBsKeyTools)
 			catch(messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
 			local str = "BsKeyTools 启动, 如果失败请查看帮助。（https://space.bilibili.com/2031113/lists/560782）\r\n"
 			format str
@@ -36,7 +36,7 @@
 		on execute do
 		(
 			global rolBsScriptsSet
-            try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsScriptsSet.ms");SetDialogPos rolBsScriptsSet (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
+            try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsScriptsSet.ms");isRolloutOffScreen rolBsScriptsSet;SetDialogPos rolBsScriptsSet (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
             catch(messagebox "打开 BsScriptsSet.ms 失败,\r\n建议重启Max或重新安装...          ")
 		)
 	)

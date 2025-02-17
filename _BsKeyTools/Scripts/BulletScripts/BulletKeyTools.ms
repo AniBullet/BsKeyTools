@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-17 21:55:07
+ * @LastEditTime: 2025-02-18 01:21:37
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -1382,7 +1382,7 @@ rcmenu menuConfig
 			stSetConfigAll.fnSetConfigBsKeyTools ()
 			fnLoadDockPos rolBsKeyTools rolBsKeyTools.widthBsSize rolBsKeyTools.heightBsSize
 			setdialogpos rolBsKeyTools iniPos
-			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");fnCheckRolloutPos rolBsKeyTools)
+			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");isRolloutOffScreen rolBsKeyTools)
 			catch(messagebox "打开 BulletKeyTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 		)
 	)
@@ -1649,7 +1649,7 @@ rcmenu menuConfig
 					FileIO.Copyfile startupCustomScripts startupCustomScriptsPath UIOption
 					messagebox ("已打开 BsScriptsSet.ms 自启！                  ")  title:"自启设置"
 					mItemCustomScripts.checked = true
-					try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsScriptsSet.ms"))
+					try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsScriptsSet.ms");isRolloutOffScreen rolBsScriptsSet)
 					catch(messagebox "打开 BsScriptsSet.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 					setFileAttribute startupCustomScriptsPath #readOnly true
 				)
@@ -3773,7 +3773,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnCSTools pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsBipedTools.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsBipedTools.ms");isRolloutOffScreen rolBsBipedTools)
 		catch(messagebox "打开 BsBipedTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
@@ -3784,7 +3784,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	)
 	on btnSpringMagic pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\SpringMagic_Enhanced.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\SpringMagic_Enhanced.ms");isRolloutOffScreen rolloutSpringMagic)
 		catch(messagebox "打开 SpringMagic_Enhanced.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 	on btnSpringMagic rightclick do 
@@ -3795,7 +3795,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnFileOpen pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsOpenTools.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsOpenTools.ms");isRolloutOffScreen rolBsOpenTools)
 		catch(messagebox "打开 BsOpenTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
@@ -4759,7 +4759,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnPrimogem mouseDown senderArg arg do
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsScriptsSet.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsScriptsSet.ms");isRolloutOffScreen rolBsScriptsSet)
 		catch(messagebox "打开 BsScriptsSet.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 

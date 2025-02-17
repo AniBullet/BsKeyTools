@@ -1,26 +1,41 @@
-
-fn fnCheckRolloutPos tarRol =
-(
-    if (tarRol.open) then
+fn isRolloutOffScreen tarRol = (
+    if not iskindof tarRol RolloutClass do return false
+    
+    local allScreens = (dotNetClass "System.Windows.Forms.Screen").AllScreens
+    
+    -- 获取窗口位置和尺寸（包含多显示器虚拟坐标）
+    local dialogPos = getDialogPos tarRol
+    local dialogSize = getDialogSize tarRol
+    local winBounds = #(
+        dialogPos.x, 
+        dialogPos.y, 
+        dialogPos.x + dialogSize.x, 
+        dialogPos.y + dialogSize.y
+    )
+    
+    -- 遍历所有显示器边界
+    for screen in allScreens do 
     (
-        posTarRol  = getdialogpos tarRol
-        posMaxWin  = getMAXWindowPos() --max窗口位置
-        sizeMaxWin = getMaxWindowSize() --max窗口大小
-
-        posTemp = dotNetObject "System.Drawing.Point" posTarRol.x posTarRol.y
-        scrBounds = ((dotNetClass "System.Windows.Forms.Screen").GetBounds posTemp)  --边界位置坐标
-        posBounds = [scrBounds.x,scrBounds.y]
-
-        if posTarRol.X > (posMaxWin.X + sizeMaxWin.X - 100) or posTarRol.X < (posMaxWin.X - tarRol.width + 100) \
-        or posTarRol.y < (posMaxWin.y - tarRol.height) or posTarRol.y > (posMaxWin.y + sizeMaxWin.y - 100) then
-        (
-            if (queryBox ("疑似脚本界面不在3dsMax窗口内 ( " + tarRol.name + " )          \r\n\r\n是否重置脚本窗口位置？                               ") \
-			title:"BsKeyRools - 疑似窗口位置错误") then
-            (
-                SetDialogPos tarRol (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0])
-                (messageBox "重置位置成功, 请重新打开插件!                                    \r\n" title: "BsKeyTools")
-            )
+        local screenBounds = screen.Bounds
+        local monitorRect = #(
+            screenBounds.X,
+            screenBounds.Y,
+            screenBounds.X + screenBounds.Width,
+            screenBounds.Y + screenBounds.Height
         )
+        
+        -- 检查窗口与显示器是否有交集
+        if (winBounds[3] > monitorRect[1] and 
+            winBounds[1] < monitorRect[3] and 
+            winBounds[4] > monitorRect[2] and 
+            winBounds[2] < monitorRect[4]) do return false
+    )
+    
+    if (queryBox ("疑似脚本界面不在显示器可见区域内 ( " + tarRol.name + " )                                 \r\n\r\n是否重置脚本窗口位置？                                                     ") \
+    title:"BsKeyRools - 疑似窗口位置错误") then
+    (
+        SetDialogPos tarRol (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0])
+        (messageBox "重置位置成功, 请重新打开插件!                                                 \r\n" title: "BsKeyTools")
     )
 )
 
