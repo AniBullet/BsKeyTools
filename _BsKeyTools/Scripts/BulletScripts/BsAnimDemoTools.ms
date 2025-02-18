@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-18 19:02:53
+ * @LastEditTime: 2025-02-19 00:47:26
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -1286,7 +1286,7 @@ global dragStateBsADT = off
 			-- 材质高级设置
 			-- floor_mat.superSample = on          -- 启用超级采样
 			floor_mat.twoSided = off           -- 单面显示
-			floor_mat.falloffType = 1          -- 衰减类型：垂直
+			-- floor_mat.falloffType = 1          -- 衰减类型：垂直
 			floor_mat.opacityFalloff = 50      -- 边缘透明度衰减
 
 			-- 应用材质到平面
