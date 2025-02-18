@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-14 11:05:22
+ * @LastEditTime: 2025-02-18 19:02:53
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -30,19 +30,19 @@ global dragStateBsADT = off
 		button btnRegister "免费注册刀光" pos:[rolBsAnimDemoTools.width - 120,0] width:80 height:16 border:false
 		button btnAbout "?" pos:[rolBsAnimDemoTools.width - 40,0] height:16 width:20
 		button btnClose "X" pos:[rolBsAnimDemoTools.width - 20,0] height:16 width:20
-		label lblTitle "BsAnimDemo_v1.0" pos:[5,3]
+		label lblTitle "BsAnimDemo_v1.1" pos:[5,3]
 		dotNetControl tabBsADT "System.Windows.Forms.TabControl" height:30 width:rolBsAnimDemoTools.width pos:[0,20] align:#center
 		------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbTrail "" pos:[5,50] width:(rolBsAnimDemoTools.width - 10) height:70
 		spinner spnRadian "弧度 " pos:[30,65] width:60 height:20 type:#float range:[-20,20,0] scale:0.1
 		checkbutton chkCreateLine "1.创建线" pos:[100,65] width:75 height:20 checked:true
 		checkbutton chkCreateTrail "2.创建刀光" pos:[180,65] width:75 height:20 checked:true
-		button btnSelectTrail "选中" pos:[10,90] width:40 height:24 tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true,false)
-		button btnUnfreezeTrail "解冻" pos:[55,90] width:40 height:24 tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true,false)
-		button btnFreezeTrail "冻结" pos:[100,90] width:40 height:24 tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true,false)
-		button btnHideTrail "隐藏" pos:[145,90] width:35 height:24 tooltip:"隐藏" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,6,6,6,6,true,false)
-		button btnShowTrail "显示" pos:[185,90] width:35 height:24 tooltip:"显示" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,5,5,5,5,true,false)
-		button btnDeleteTrail "清除" pos:[225,90] width:30 height:24 images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
+		button btnSelectTrail "选中" pos:[10,90] width:40 height:24 tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true)
+		button btnUnfreezeTrail "解冻" pos:[55,90] width:40 height:24 tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true)
+		button btnFreezeTrail "冻结" pos:[100,90] width:40 height:24 tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true)
+		button btnHideTrail "隐藏" pos:[145,90] width:35 height:24 tooltip:"隐藏" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,6,6,6,6,true)
+		button btnShowTrail "显示" pos:[185,90] width:35 height:24 tooltip:"显示" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,5,5,5,5,true)
+		button btnDeleteTrail "清除" pos:[225,90] width:30 height:24 images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,true)
 		-------------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbPreset "" pos:[5,120] width:(rolBsAnimDemoTools.width - 10) height:65
 		radiobuttons rdoTrailType "类型:" labels:#("移动","固定") columns:2 pos:[15,135] offsets:#([40,-16],[0,-16])
@@ -76,7 +76,7 @@ global dragStateBsADT = off
 		dropdownlist ddlSkyBoxTex "" pos:[15,75] width:120 height:20 items:#("") visible:false
 		button btnCreateSkyBox "创建" pos:[140,75] width:40 height:20 visible:false
 		button btnOpenSkyBox "打开" pos:[185,75] width:40 height:20 visible:false tooltip:"左键打开图片，右键打开文件夹，图片打开失败可能是没有安装支持的查看器"
-		button btnDeleteSkyBox "清除" pos:[230,75] width:25 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
+		button btnDeleteSkyBox "清除" pos:[230,75] width:25 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,true)
 		groupbox gbpLight "灯光箱" pos:[5,110] width:(rolBsAnimDemoTools.width - 80) height:75 visible:false
 		button btnOmniLight "点光源" pos:[10,130] width:55 height:20 visible:false
 		button btnSpotLight "聚光灯" pos:[70,130] width:55 height:20 visible:false
@@ -84,18 +84,18 @@ global dragStateBsADT = off
 		button btnSkyLight "环境光" pos:[70,155] width:55 height:20 visible:false
 		-- button btnSelectLastLight "选↑灯" pos:[135,130] width:55 height:20 visible:false
 		-- button btnSelectNextLight "选↓灯" pos:[135,155] width:55 height:20 visible:false
-		button btnLightOn "灯光开" pos:[130,130] width:25 height:20 visible:false tooltip:"灯光开 (影响几乎所有灯光)" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,15,15,15,15,true,false)
-		button btnLightOff "灯光关" pos:[159,130] width:25 height:20 visible:false tooltip:"灯光关 (影响几乎所有灯光)" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,13,13,13,13,true,false)
+		button btnLightOn "灯光开" pos:[130,130] width:25 height:20 visible:false tooltip:"灯光开 (影响几乎所有灯光)" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,15,15,15,15,true)
+		button btnLightOff "灯光关" pos:[159,130] width:25 height:20 visible:false tooltip:"灯光关 (影响几乎所有灯光)" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,13,13,13,13,true)
 		button btnDeleteLight "清除灯光" pos:[130,155] width:55 height:20 visible:false tooltip:"清除灯光 (仅影响此工具创建的灯光)"
 		button btnCameraPlane "添加背景" pos:[195,115] width:65 height:35 visible:false tooltip:"添加相机背景参考图"
-		button btnRefCam "相机" pos:[195,155] width:30 height:30 visible:false tooltip:"选择相机（需要先创建参考背景）" images:#("Cameras_24i.bmp","Cameras_24i.bmp",3,3,3,3,3,false,false)
-		button btnSelectCameraPlane "背景" pos:[230,155] width:30 height:30 visible:false tooltip:"选择背景面片（需要先创建参考背景）" images:#("Standard_24i.bmp","Standard_24i.bmp",11,10,10,10,10,false,false)
+		button btnRefCam "相机" pos:[195,155] width:30 height:30 visible:false tooltip:"选择相机（需要先创建参考背景）" images:#("Cameras_24i.bmp","Cameras_24i.bmp",3,3,3,3,3,false)
+		button btnSelectCameraPlane "背景" pos:[230,155] width:30 height:30 visible:false tooltip:"选择背景面片（需要先创建参考背景）" images:#("NURBSSurface_24i.bmp","NURBSSurface_24i.bmp",2,1,1,1,1,true)
 		groupbox gbpFloor "地板片" pos:[5,190] width:(rolBsAnimDemoTools.width - 10) height:50 visible:false
 		button btnCreateFloor "一键创建" pos:[15,210] width:75 height:20 visible:false
-		button btnUnfreezeFloor "解冻" pos:[95,210] width:40 height:20 visible:false tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true,false)
-		button btnFreezeFloor "冻结" pos:[140,210] width:40 height:20 visible:false tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true,false)
-		button btnReflection "镜面" pos:[185,210] width:35 height:20 visible:false tooltip:"地面反射开关" images:#("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,1,1,1,1,true,true)
-		button btnDeleteFloor "清除" pos:[225,210] width:30 height:20 visible:false tooltip:"删除地板" images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
+		button btnUnfreezeFloor "解冻" pos:[95,210] width:40 height:20 visible:false tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true)
+		button btnFreezeFloor "冻结" pos:[140,210] width:40 height:20 visible:false tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true)
+		button btnReflection "镜面" pos:[185,210] width:35 height:20 visible:false tooltip:"地面反射开关" images:#("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,1,1,1,1,false)
+		button btnDeleteFloor "清除" pos:[225,210] width:30 height:20 visible:false tooltip:"删除地板" images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,true)
 		button btnMakePreview "快速拍屏" pos:[5,250] width:60 height:25 visible:false tooltip:"快速预览视窗效果,可能跟实际渲染有差别"
 		button btnOpenPrevPath "拍屏目录" pos:[70,250] width:60 height:25 visible:false tooltip:"打开拍屏目录"
 		button btnMakeRenderer "渲染一帧" pos:[135,250] width:60 height:25 visible:false tooltip:"快速预览场景整体效果,注意先设置好渲染设置"
@@ -104,16 +104,16 @@ global dragStateBsADT = off
 		dotNetControl dotFlowMatList "system.windows.forms.listView" selection:0 height:100 width:(rolBsAnimDemoTools.width - 100) pos:[5,-500]
 		checkbox ckbOpacityMat "开启透明" checked:false pos:[180,65] width:80 visible:false
 		checkbutton ckbApplyEffMat "应用材质" pos:[175,85] width:80 height:30 visible:false checked:true
-		button btnOpenEffPath "仓库" pos:[175,120] width:40 height:25 visible:false tooltip:"由于安装包大小，没有添加太多材质贴图，建议自行添加" images: #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
+		button btnOpenEffPath "仓库" pos:[175,120] width:40 height:25 visible:false tooltip:"由于安装包大小，没有添加太多材质贴图，建议自行添加" images: #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,true)
 		button btnClearMat "清除" pos:[220,120] width:35 height:25 visible:false tooltip:"恢复初始材质球"
 		groupbox gpbLineMat "卡通描边" pos:[5,155] width:(rolBsAnimDemoTools.width - 140) height:95 visible:false
 		radiobuttons rdoNormalFlip "" labels:#("法线翻转","不变") columns:2 pos:[12,175] width:100 visible:false
 		colorpicker cpLineColor "" pos:[8,199] width:25 height:20 visible:false color:(color 10 10 10)
 		checkbutton ckbApplyLineMat "添加描边" pos:[40,199] width:85 height:20 visible:false checked:true
-		button btnSelLineMesh "选" pos:[10,225] width:25 height:20 visible:false tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true,false)
-		button btnUnFreezeLineMesh "解" pos:[40,225] width:25 height:20 visible:false tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true,false)
-		button btnFreezeLineMesh "冻" pos:[70,225] width:25 height:20 visible:false tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true,false)
-		button btnDeleteLine "清除" pos:[100,225] width:25 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
+		button btnSelLineMesh "选" pos:[10,225] width:25 height:20 visible:false tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true)
+		button btnUnFreezeLineMesh "解" pos:[40,225] width:25 height:20 visible:false tooltip:"解冻" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,19,19,19,19,true)
+		button btnFreezeLineMesh "冻" pos:[70,225] width:25 height:20 visible:false tooltip:"冻结" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,17,17,17,true)
+		button btnDeleteLine "清除" pos:[100,225] width:25 height:20 visible:false images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,true)
 		groupbox gpbToonMat "简易卡通材质" pos:[140,155] width:(rolBsAnimDemoTools.width - 145) height:95 visible:false
 		colorpicker cpPureToonColor "" pos:[140,175] width:25 height:20 visible:false color:(color 255 60 60)
 		button btnApplyPureToonMat "应用纯色材质" pos:[170,175] width:85 height:20 visible:false
@@ -121,9 +121,9 @@ global dragStateBsADT = off
 		button btnTint "环境" pos:[215,200] width:40 height:20 visible:false
 		button btnRenderSet "渲染设置" pos:[205,225] width:50 height:20 visible:false
 		edittext edtWatermarkText "水印" pos:[5,257] width:125 height:16 visible:false
-		button btnAddWaterMark "生成" pos:[135,255] width:50 height:20 visible:false tooltip:"简陋水印, 默认创建在右下角，字体很小，跟随文件" images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false,true)
-		button btnSelWM "选中" pos:[190,255] width:35 height:20 visible:false tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true,false)
-		button btnDelWM "清除" pos:[230,255] width:30 height:20 visible:false tooltip:"清除" images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
+		button btnAddWaterMark "生成" pos:[135,255] width:50 height:20 visible:false tooltip:"简陋水印, 默认创建在右下角，字体很小，跟随文件" images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,true)
+		button btnSelWM "选中" pos:[190,255] width:35 height:20 visible:false tooltip:"选中" images:#("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,1,1,1,true)
+		button btnDelWM "清除" pos:[230,255] width:30 height:20 visible:false tooltip:"清除" images:#("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,true)
 		-------------------------------------------------------------------------------------------------------------------------------------------
 		dotnetcontrol lblTips "Label" text:"2024.4 [ Bullet.S ] ✨        动画师 Demo 简易环境" pos:[0,283] width:rolBsAnimDemoTools.width height:16
 

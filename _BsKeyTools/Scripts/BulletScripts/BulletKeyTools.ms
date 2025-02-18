@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-18 01:21:37
+ * @LastEditTime: 2025-02-18 19:39:58
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -19,7 +19,7 @@ try (callbacks.removeScripts #filePostOpen id:#BsUpdatePlaySpeed) catch ()
 try (callbacks.removeScripts #timeunitsChange id:#BsUpdatePlaySpeed) catch ()
 try (callbacks.removeScripts #filePostOpen id:#BsRefreshRecentFiles) catch ()
 
-global curVerBsKeyTools  = "1.0.2"
+global curVerBsKeyTools  = "1.0.3"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
@@ -400,28 +400,31 @@ rollout rolCustomBtn "自定义功能按钮位置" width:490 height:210
 --------------------------------------------------------------------------------------------------------
 fn fnSwitchIconStyle = 
 (
-	rolBsKeyTools.ckbFnBoxDisplay.images      = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,9,10,9,10,true,false)
-	rolBsKeyTools.ckbIsoSelection.images      = #("IsolateSelection_16i.bmp","IsolateSelection_16i.bmp",1,1,1,1,1,true,true)
-	-- rolBsKeyTools.chkJudgeLinkKey.images      = #("Maintoolbar_24i.bmp","Maintoolbar_24i.bmp",103,6,5,6,5,true,true)
-	rolBsKeyTools.ckbShadowCut.images         = #("Radiosity_16i.bmp","Radiosity_16i.bmp",6,3,4,3,4,true,true)
-	rolBsKeyTools.ckbFreezeMesh.images        = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,19,17,19,true,false)
-	rolBsKeyTools.btnCutFrameDisplay.images   = #("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,2,2,2,2,true,true)
-	rolBsKeyTools.btnAllFrameDisplay.images   = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16a.bmp",28,11,12,11,12,true,false)
-	-- rolBsKeyTools.btnTrackBarTools.images     = #("PFSubObjectIcons_24i.bmp","PFSubObjectIcons_24i.bmp",2,2,2,2,2,true,true)
-	rolBsKeyTools.ckbHideBones.images         = #("Systems_16i.bmp","Systems_16i.bmp",3,3,1,3,1,true,true)
-	rolBsKeyTools.ckbHideBiped.images         = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,18,17,18,17,true,false)
-	rolBsKeyTools.btnImageComp.images         = #("FileLinkActionItems_16i.bmp","FileLinkActionItems_16i.bmp",9,5,6,5,6,true,true)
-	rolBsKeyTools.btnTrajedit.images          = #("bip_curve_16i.bmp","bip_curve_16i.bmp",20,7,7,7,7,true,true)
-	rolBsKeyTools.btnFileOpen.images          = #("UVWUnwrapOption_16i.bmp","UVWUnwrapOption_16a.bmp",30,6,6,6,6,true,false)
-	rolBsKeyTools.btnLightTable.images        = #("SW_PartDyn_16i.bmp","SW_PartDyn_16i.bmp",5,1,1,1,1,true,true)
-	rolBsKeyTools.ckbPlayBlocking.images      = #("bip_mfltrans_i.bmp","bip_mfltrans_i.bmp",26,21,21,21,21,true,true)
-	rolBsKeyTools.btnSpringMagic.images       = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,32,32,32,32,true,false)
-	rolBsKeyTools.btnCSTools.images           = #("bip_layer_i.bmp","bip_layer_i.bmp",24,17,17,17,17,true,true)
-	rolBsKeyTools.btnAnimCopyPaste.images     = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,2,1,2,true,false)
-	rolBsKeyTools.btnLayerManager.images      = #("AnimLayerToolbar_16i.bmp","AnimLayerToolbar_16i.bmp",12,1,1,1,1,true,true)
-	rolBsKeyTools.btnSelectionsetTools.images = #("enss_tools_16i.bmp","enss_tools_16i.bmp",13,1,1,1,1,true,true)
-	rolBsKeyTools.btnPoseTool.images          = #("bip_modes_i.bmp","bip_modes_i.bmp",8,1,1,1,1,true,true)
-	rolBsKeyTools.btnQuicksave.images         = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,1,1,1,1,true,false)
+	try(
+		rolBsKeyTools.ckbFnBoxDisplay.images      = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,9,10,9,10,true,false)
+		rolBsKeyTools.ckbIsoSelection.images      = #("IsolateSelection_16i.bmp","IsolateSelection_16i.bmp",1,1,1,1,1,true,true)
+		-- rolBsKeyTools.chkJudgeLinkKey.images      = #("Maintoolbar_24i.bmp","Maintoolbar_24i.bmp",103,6,5,6,5,true,true)
+		rolBsKeyTools.ckbShadowCut.images         = #("Radiosity_16i.bmp","Radiosity_16i.bmp",6,3,4,3,4,true,true)
+		rolBsKeyTools.ckbFreezeMesh.images        = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,19,17,19,true,false)
+		rolBsKeyTools.btnCutFrameDisplay.images   = #("AutoGrid_16i.bmp","AutoGrid_16i.bmp",2,2,2,2,2,true,true)
+		rolBsKeyTools.btnAllFrameDisplay.images   = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16a.bmp",28,11,12,11,12,true,false)
+		-- rolBsKeyTools.btnTrackBarTools.images     = #("PFSubObjectIcons_24i.bmp","PFSubObjectIcons_24i.bmp",2,2,2,2,2,true,true)
+		rolBsKeyTools.ckbHideBones.images         = #("Systems_16i.bmp","Systems_16i.bmp",3,3,1,3,1,true,true)
+		rolBsKeyTools.ckbHideBiped.images         = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,18,17,18,17,true,false)
+		rolBsKeyTools.btnImageComp.images         = #("FileLinkActionItems_16i.bmp","FileLinkActionItems_16i.bmp",9,5,6,5,6,true,true)
+		rolBsKeyTools.btnTrajedit.images          = #("bip_curve_16i.bmp","bip_curve_16i.bmp",20,7,7,7,7,true,true)
+		rolBsKeyTools.btnFileOpen.images          = #("UVWUnwrapOption_16i.bmp","UVWUnwrapOption_16a.bmp",30,6,6,6,6,true,false)
+		rolBsKeyTools.btnLightTable.images        = #("SW_PartDyn_16i.bmp","SW_PartDyn_16i.bmp",5,1,1,1,1,true,true)
+		rolBsKeyTools.ckbPlayBlocking.images      = #("bip_mfltrans_i.bmp","bip_mfltrans_i.bmp",26,21,21,21,21,true,true)
+		rolBsKeyTools.btnSpringMagic.images       = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,32,32,32,32,true,false)
+		rolBsKeyTools.btnCSTools.images           = #("bip_layer_i.bmp","bip_layer_i.bmp",24,17,17,17,17,true,true)
+		rolBsKeyTools.btnAnimCopyPaste.images     = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,1,2,1,2,true,false)
+		rolBsKeyTools.btnLayerManager.images      = #("AnimLayerToolbar_16i.bmp","AnimLayerToolbar_16i.bmp",12,1,1,1,1,true,true)
+		rolBsKeyTools.btnSelectionsetTools.images = #("enss_tools_16i.bmp","enss_tools_16i.bmp",13,1,1,1,1,true,true)
+		rolBsKeyTools.btnPoseTool.images          = #("bip_modes_i.bmp","bip_modes_i.bmp",8,1,1,1,1,true,true)
+		rolBsKeyTools.btnQuicksave.images         = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,1,1,1,1,true,false)
+	)
+	catch(messagebox "切换图标失败,可能低版本3dsmax不支持!                                               " beep:false title:"BsKeyTools")
 )
 
 
@@ -3492,11 +3495,11 @@ rollout rolBsKeyTools "" width:355 height:250
 		fnSwitchToolBtnName()
 		fnSetBtnPrimogem()
 		------刷新图标, 图标是max自带的,主要是懒得做
-		btnSelBeforeKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,3,3,3,3,true,true) 
-		btnSelAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,11,11,11,11,true,true) 
-		btnSelAllKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,26,26,26,26,true,true)
-		-- btnMoveKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,21,21,21,21,true,true)
-		-- btnMoveAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,13,13,13,13,true,true)
+		btnSelBeforeKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,3,3,3,3,true) 
+		btnSelAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,11,11,11,11,true) 
+		btnSelAllKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,26,26,26,26,true)
+		-- btnMoveKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,21,21,21,21,true)
+		-- btnMoveAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,13,13,13,13,true)
 		-- dotnet.AddEventHandler myTimer #elapsed fnRefreshHelpText
 		-- myTimer.Start()
 		-- timeDIsTemp      = timeDisplayMode  ----小数帧还是整数帧

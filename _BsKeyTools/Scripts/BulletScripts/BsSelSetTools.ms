@@ -189,7 +189,7 @@ rollout rolLoadSelSet "加载选择集"
 
 rollout rolSelSetTools ""
 (
-	groupbox grpMain "BsSelSetTools_v1.0--MoveMe" width:180 height:277 pos:[5,0]
+	groupbox grpMain "BsSelSetTools_v1.1--MoveMe" width:180 height:277 pos:[5,0]
 
 	MultiListBox mlbSelSet "" width:170 height:15 pos:[10,55]
 	label lblCount "" width:170 height:15 pos:[10,40]
@@ -315,11 +315,11 @@ rollout rolSelSetTools ""
 		
 		stLoadConfigAll.fnLoadConfigSelSetTools()  ---------------脚本位置等赋值
 		stSetConfigAll.fnSetConfigSelSetTools()  ----------------保存位置信息到ini文件
-		btnCreateSelSet.images     = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,1,1,2,2,false,true)
-		btnDeleteSelSet.images     = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
-		btnAddToSelSet.images      = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false,true)
-		btnRemoveFromSelSet.images = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,7,7,8,8,false,true)
-		btnHighlightSelObj.images  = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,12,12,13,13,false,true)
+		btnCreateSelSet.images     = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,1,1,2,2,false)
+		btnDeleteSelSet.images     = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false)
+		btnAddToSelSet.images      = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false)
+		btnRemoveFromSelSet.images = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,7,7,8,8,false)
+		btnHighlightSelObj.images  = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,12,12,13,13,false)
 		fnUpdateMoreToolsState()
 		fnRefreshBtnEnabled()
 		fnUpdateSelSetList()
