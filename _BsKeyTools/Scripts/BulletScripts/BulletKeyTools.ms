@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-18 19:39:58
+ * @LastEditTime: 2025-02-18 20:52:00
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -18,6 +18,9 @@ try (callbacks.removeScripts #timeunitsChange id:#BsUpdateFps) catch ()
 try (callbacks.removeScripts #filePostOpen id:#BsUpdatePlaySpeed) catch ()
 try (callbacks.removeScripts #timeunitsChange id:#BsUpdatePlaySpeed) catch ()
 try (callbacks.removeScripts #filePostOpen id:#BsRefreshRecentFiles) catch ()
+try (callbacks.removeScripts #filePostSave id:#BsRefreshRecentFilesSave) catch ()
+try (callbacks.removeScripts #systemPostNew id:#BsRefreshRecentFilesNew) catch ()
+try (callbacks.removeScripts #systemPostReset id:#BsRefreshRecentFilesReset) catch ()
 
 global curVerBsKeyTools  = "1.0.3"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
@@ -427,10 +430,37 @@ fn fnSwitchIconStyle =
 	catch(messagebox "切换图标失败,可能低版本3dsmax不支持!                                               " beep:false title:"BsKeyTools")
 )
 
+-------获取max所在屏幕的文字显示大小比
+fn fnGetTextDisplay =
+(
+    scalePercentage = undefined
+    try(
+        dotNet.loadAssembly "System.Windows.Forms"
+        dotNet.loadAssembly "System.Drawing"
+    
+        -- 获取3ds Max主窗口句柄（显式转换为IntPtr）
+        hwnd = ((dotNetClass "System.Diagnostics.Process").GetCurrentProcess()).MainWindowHandle
+        hwnd_ptr = dotNetObject "System.IntPtr" hwnd  -- 关键修复：显式转换为IntPtr
+    
+        -- 创建Graphics对象时使用转换后的句柄
+        graphics = (dotNetClass "System.Drawing.Graphics").FromHwnd(hwnd_ptr)
+    
+        -- 获取DPI并释放资源
+        dpiX = graphics.DpiX
+        graphics.Dispose()  -- 重要：显式释放资源
+    
+        -- 计算缩放百分比
+        scalePercentage = (dpiX / 96.0) * 100
+        scalePercentage = (scalePercentage + 0.5) as integer -- 四舍五入到整数
+    )
+    catch()
+    return scalePercentage
+)
 
 ---获取max所在屏幕的分辨率, 如果太小则嵌入模式隐藏一些ui
 fn fnJudgeScreenResolution = 
 (
+	local noNeedZoomIn = true
 	dotNet.loadAssembly "System.Windows.Forms"
 	screenType = dotNetClass "System.Windows.Forms.Screen"
 	
@@ -447,9 +477,13 @@ fn fnJudgeScreenResolution =
 	(
 		bounds = screen.Bounds
 		[bounds.Width, bounds.Height]
-		if bounds.height <= 1080 then false else true
+		if bounds.height <= 1080 then noNeedZoomIn = false
 	)
-	else false
+	else noNeedZoomIn = false
+
+	if ((fnGetTextDisplay()) == undefined) or ((fnGetTextDisplay()) >= 125) then noNeedZoomIn = false
+
+	return noNeedZoomIn
 )
 
 rcmenu menuConfig
@@ -2262,7 +2296,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		dotLVFilesList.CheckBoxes = false
 		dotLVFilesList.HideSelection = false
 		dotLVFilesList.Columns.Add "打开最近文件" 135
-		dotLVFilesList.ForeColor = BsDotForeColor
+		-- dotLVFilesList.ForeColor = BsDotForeColor
 		dotLVFilesList.BackColor = BsDotBackColor
 		if dotLVFilesList.SelectedItems.Count > 0 then
 		(
@@ -3495,11 +3529,11 @@ rollout rolBsKeyTools "" width:355 height:250
 		fnSwitchToolBtnName()
 		fnSetBtnPrimogem()
 		------刷新图标, 图标是max自带的,主要是懒得做
-		btnSelBeforeKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,3,3,3,3,true) 
-		btnSelAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,11,11,11,11,true) 
-		btnSelAllKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,26,26,26,26,true)
-		-- btnMoveKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,21,21,21,21,true)
-		-- btnMoveAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,13,13,13,13,true)
+		btnSelBeforeKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,3,3,3,3,true,true) 
+		btnSelAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,11,11,11,11,true,true) 
+		btnSelAllKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,26,26,26,26,true,true)
+		-- btnMoveKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,21,21,21,21,true,true)
+		-- btnMoveAfterKeys.images = #("VCRControls_24i.bmp","VCRControls_24i.bmp",28,13,13,13,13,true,true)
 		-- dotnet.AddEventHandler myTimer #elapsed fnRefreshHelpText
 		-- myTimer.Start()
 		-- timeDIsTemp      = timeDisplayMode  ----小数帧还是整数帧
@@ -3549,6 +3583,9 @@ rollout rolBsKeyTools "" width:355 height:250
 		try (callbacks.removeScripts #filePostOpen id:#BsUpdatePlaySpeed) catch ()
 		try (callbacks.removeScripts #timeunitsChange id:#BsUpdatePlaySpeed) catch ()
 		try (callbacks.removeScripts #filePostOpen id:#BsRefreshRecentFiles) catch ()
+		try (callbacks.removeScripts #filePostSave id:#BsRefreshRecentFilesSave) catch ()
+		try (callbacks.removeScripts #systemPostNew id:#BsRefreshRecentFilesNew) catch ()
+		try (callbacks.removeScripts #systemPostReset id:#BsRefreshRecentFilesReset) catch ()
 		try(destroydialog rolTogglePanel)catch()
 		unRegisterRedrawViewsCallback fnOrthoToPersp
 		tooglePersp = false
@@ -4831,5 +4868,8 @@ callbacks.addScript #timeunitsChange "fnBsRefFps()" id:#BsUpdateFps
 callbacks.addScript #filePostOpen "fnRefPlaySpeedValue()" id:#BsUpdatePlaySpeed
 callbacks.addScript #timeunitsChange "fnRefPlaySpeedValue()" id:#BsUpdatePlaySpeed
 callbacks.addScript #filePostOpen "rolBsKeyTools.fnRefreshRecentFileList()" id:#BsRefreshRecentFiles
+callbacks.addScript #filePostSave "rolBsKeyTools.fnRefreshRecentFileList()" id:#BsRefreshRecentFilesSave
+callbacks.addScript #systemPostNew "rolBsKeyTools.fnRefreshRecentFileList()" id:#BsRefreshRecentFilesNew
+callbacks.addScript #systemPostReset "rolBsKeyTools.fnRefreshRecentFileList()" id:#BsRefreshRecentFilesReset
 -- gc()
 clearListener()  ---------清除侦听器

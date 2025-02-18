@@ -18,7 +18,7 @@ if (rol_RescaleWorldUnits != undefined and rol_RescaleWorldUnits.open == true) d
 )
 --  <Start Script>
 --  Variables  --
-Global RescaleWU_ver = "1.30";
+Global RescaleWU_ver = "1.40";
 
 Global rescaleWU_sign = 0;
 Global rescaleWU_temp = 1;
@@ -62,6 +62,14 @@ function fn_RWUselChangedObj size sel = /* Sent after the selection set has chan
 
 function fn_RWUspnSetChanged size sel = /* Sent after the spinner:Scale Factor's value has changed */
 (
+	local tempBiped001 = undefined
+	for obj in objects where classof obj.controller == Vertical_Horizontal_Turn do
+	(
+		local posCom = (biped.getTransform obj #pos)
+		local posUp = posCom.z
+		tempBiped001 = obj
+		-- print posUp
+	)
 	if sel.state == 1 then 
 	(
 		rescaleWorldUnits (1/rescaleWU_temp);
@@ -74,13 +82,25 @@ function fn_RWUspnSetChanged size sel = /* Sent after the spinner:Scale Factor's
 	)
 	rescaleWU_temp = size.value;
 	rescaleWU_selObj = selection as array;
-	
+	if tempBiped001 != undefined then (
+		currentPos = (biped.getTransform tempBiped001 #pos)
+		biped.setTransform tempBiped001 #pos [currentPos.x,currentPos.y,posUp] false
+		forceCompleteRedraw()
+	)
 )
 
 function fn_RWUrdoSetChanged size sel = /* Sent after the radioButton has changed to Scene or Selection */
 (
 	if sel.state != rescaleWU_sign do 
 	(
+		local tempBiped001 = undefined
+		for obj in objects where classof obj.controller == Vertical_Horizontal_Turn do
+		(
+			local posCom = (biped.getTransform obj #pos)
+			local posUp = posCom.z
+			tempBiped001 = obj
+			-- print posUp
+		)
 		if sel.state == 1 then 
 		(
 			rescaleWorldUnits (1/rescaleWU_temp) #selOnly;
@@ -101,11 +121,24 @@ function fn_RWUrdoSetChanged size sel = /* Sent after the radioButton has change
 		rescaleWU_temp = size.value;
 		rescaleWU_sign = sel.state;
 		rescaleWU_selObj = selection as array;
+		if tempBiped001 != undefined then (
+			currentPos = (biped.getTransform tempBiped001 #pos)
+			biped.setTransform tempBiped001 #pos [currentPos.x,currentPos.y,posUp] false
+			forceCompleteRedraw()
+		)
 	)
 )
 
 function fn_RWUcancelSetChanged size sel dia = /* Sent after click the button:Cancel,RescaleWU exit. */
 (
+	local tempBiped001 = undefined
+	for obj in objects where classof obj.controller == Vertical_Horizontal_Turn do
+	(
+		local posCom = (biped.getTransform obj #pos)
+		local posUp = posCom.z
+		tempBiped001 = obj
+		-- print posUp
+	)
 	if sel.state == 1 then 
 	(
 		rescaleWorldUnits (1/rescaleWU_temp);
@@ -119,6 +152,11 @@ function fn_RWUcancelSetChanged size sel dia = /* Sent after click the button:Ca
 	rescaleWU_selObj = #();
 	callbacks.removescripts id:#RWU_selection;
 	DestroyDialog dia;
+	if tempBiped001 != undefined then (
+		currentPos = (biped.getTransform tempBiped001 #pos)
+		biped.setTransform tempBiped001 #pos [currentPos.x,currentPos.y,posUp] false
+		forceCompleteRedraw()
+	)
 )
 
 function fn_RWUdone size sel dia = /* Sent after click button:OK,RescaleWU done with all parameters reset.*/
