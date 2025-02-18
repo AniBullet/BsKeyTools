@@ -1,3 +1,6 @@
+Global SIOFile = dotNetClass "System.IO.File"
+Global SIODir = dotNetClass "System.IO.Directory"
+
 fn isRolloutOffScreen tarRol = (
     if not iskindof tarRol RolloutClass do return false
     
