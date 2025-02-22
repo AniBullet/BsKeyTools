@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2019-10-08 12:39:08
  * @LastEditors: Bullet.S
- * @LastEditTime: 2019-11-04 12:48:03
+ * @LastEditTime: 2025-02-22 14:07:12
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -35,8 +35,9 @@ rollout rolCustomFps ""
     (
         framerate = valueFps
         labTips.text = "当前帧率: " + framerate as string + " FPS"
-        slidertime -= 1
-		slidertime += 1
+        -- slidertime -= 1
+		-- slidertime += 1
+        sliderTime = sliderTime
     )
 )
 
@@ -45,6 +46,7 @@ fn fnSetFps numFps =
     framerate = numFps
     valueFps = numFps
     strCurrentFps = "当前帧率: " + framerate as string + " FPS"
-    slidertime -= 1
-    slidertime += 1
+    -- slidertime -= 1
+    -- slidertime += 1
+    sliderTime = sliderTime
 )
