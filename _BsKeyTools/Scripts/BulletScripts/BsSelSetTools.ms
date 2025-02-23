@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-07 12:33:36
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-08-20 22:44:44
+ * @LastEditTime: 2025-02-24 00:41:48
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -315,11 +315,11 @@ rollout rolSelSetTools ""
 		
 		stLoadConfigAll.fnLoadConfigSelSetTools()  ---------------脚本位置等赋值
 		stSetConfigAll.fnSetConfigSelSetTools()  ----------------保存位置信息到ini文件
-		btnCreateSelSet.images     = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,1,1,2,2,false)
-		btnDeleteSelSet.images     = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false)
-		btnAddToSelSet.images      = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false)
-		btnRemoveFromSelSet.images = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,7,7,8,8,false)
-		btnHighlightSelObj.images  = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,12,12,13,13,false)
+		btnCreateSelSet.images     = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,1,1,2,2,false,true)
+		btnDeleteSelSet.images     = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,3,3,4,4,false,true)
+		btnAddToSelSet.images      = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false,true)
+		btnRemoveFromSelSet.images = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,7,7,8,8,false,true)
+		btnHighlightSelObj.images  = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,12,12,13,13,false,true)
 		fnUpdateMoreToolsState()
 		fnRefreshBtnEnabled()
 		fnUpdateSelSetList()
