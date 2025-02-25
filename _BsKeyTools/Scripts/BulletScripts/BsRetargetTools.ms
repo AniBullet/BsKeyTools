@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-05-18 20:28:37
+ * @LastEditTime: 2025-02-25 11:24:11
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -558,7 +558,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向 ）"
+rollout biped_align_test "BsRetargetTools_v2.8 （ FBX 转 BIP + 动画重定向 ）"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Bip 节点 1 - 35" align:#left across:4 height:35 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -929,15 +929,16 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
 			FbxImporterSetParam "BakeAnimationLayers" false
 			FbxImporterSetParam "PointCache" false
 
-			-- if (getnodebyname "Root") != undefined then
-			-- (
-			-- 	local dummyRootMotionTemp = point name:"RootTemp" wirecolor:red
-			-- 	-- in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0)
-			-- 	if biped_align_test.ddlUpAxis.selection == 1 then (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0))
-			-- 	else (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 0 0 0))
-			-- 	(GetBipedNode 1).parent = dummyRootMotionTemp
-			-- 	dummyRootMotionTemp.constantscreensize = false
-			-- )
+			if (getnodebyname "Root") != undefined then
+			(
+				local dummyRootMotionTemp = point name:"RootTemp" wirecolor:red
+				-- in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0)
+				if biped_align_test.ddlUpAxis.selection == 1 then (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0))
+				else (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 0 0 0))
+				(GetBipedNode 1).parent = dummyRootMotionTemp
+				dummyRootMotionTemp.constantscreensize = false
+			)
+
 			(GetBipedNode 1).parent = undefined
 			importFile tarNewAnim #noPrompt using:FBXIMP
 			DeleteFile tarNewAnim
@@ -946,33 +947,33 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
 			(
 				local rootBone            = (GetBipedNode 1)
 				local dummyRootMotion     = (getnodebyname "Root")
-				-- local dummyRootMotionTemp = (getnodebyname "RootTemp")
+				local dummyRootMotionTemp = (getnodebyname "RootTemp")
 
 				-- 每一帧的Pos与Rot
 				local bipPosList = #()
 				local bipRotList = #()
 
 				-- 第一次遍历，记录原始的bip在世界空间的位置与旋转信息
-				-- for t = (animationRange.start) to (animationRange.end) do
-				-- (
-				-- 	at time t
-				-- 	(
-				-- 		append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
-				-- 		append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
-				-- 	)
-				-- )
+				for t = (animationRange.start) to (animationRange.end) do
+				(
+					at time t
+					(
+						append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
+						append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
+					)
+				)
 
 				-- 第二次遍历，动画 Root 匹配 RootLeader
 				for t = (animationRange.start) to (animationRange.end) do
 				(
 					at time t with animate on 
 					(
-						append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
-						append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
-						-- dummyRootMotionTemp.transform = dummyRootMotion.transform
+						-- append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
+						-- append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
+						dummyRootMotionTemp.transform = dummyRootMotion.transform
 					)  
 				)
-				rootBone.parent = dummyRootMotion
+				-- rootBone.parent = dummyRootMotion
 				-- 第三次遍历，创建新的Bip层，还原bip的位置以及旋转信息
 				biped.createLayer rootBone.controller 1 "layerRootMotionOffset"
 				biped.setcurrentlayer rootBone.controller 1
@@ -993,9 +994,9 @@ rollout biped_align_test "BsRetargetTools_v2.7 （ FBX 转 BIP + 动画重定向
 						-- biped.addNewKey rootBone.transform.controller.vertical.controller t
 					)
 				)
-				-- dummyRootMotion.children.parent = dummyRootMotionTemp
-				-- delete dummyRootMotionTemp
-				-- dummyRootMotionTemp.name = "Root"
+				dummyRootMotion.children.parent = dummyRootMotionTemp
+				delete dummyRootMotion
+				dummyRootMotionTemp.name = "Root"
 				biped.collapseAtLayer rootBone.controller 0
 				-- dummyRootMotionTemp.size = 0.4
 			)
