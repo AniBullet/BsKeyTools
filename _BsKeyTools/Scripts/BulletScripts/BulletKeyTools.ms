@@ -1835,8 +1835,9 @@ fn fnSetFps numFps =
 	framerate = numFps
 	valueFps = numFps
 	fnBsRefFps ()
-	slidertime -= 1
-	slidertime += 1
+	-- slidertime -= 1
+	-- slidertime += 1
+	sliderTime = sliderTime
 )
 
 fn fnRefPlaySpeedValue =
