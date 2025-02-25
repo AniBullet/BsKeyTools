@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-25 11:24:11
+ * @LastEditTime: 2025-02-25 20:00:35
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -929,16 +929,15 @@ rollout biped_align_test "BsRetargetTools_v2.8 （ FBX 转 BIP + 动画重定向
 			FbxImporterSetParam "BakeAnimationLayers" false
 			FbxImporterSetParam "PointCache" false
 
-			if (getnodebyname "Root") != undefined then
-			(
-				local dummyRootMotionTemp = point name:"RootTemp" wirecolor:red
-				-- in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0)
-				if biped_align_test.ddlUpAxis.selection == 1 then (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0))
-				else (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 0 0 0))
-				(GetBipedNode 1).parent = dummyRootMotionTemp
-				dummyRootMotionTemp.constantscreensize = false
-			)
-
+			-- if (getnodebyname "Root") != undefined then
+			-- (
+			-- 	local dummyRootMotionTemp = point name:"RootTemp" wirecolor:red
+			-- 	-- in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0)
+			-- 	if biped_align_test.ddlUpAxis.selection == 1 then (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 90 0 0))
+			-- 	else (in coordsys gimbal dummyRootMotionTemp.rotation = (eulerAngles 0 0 0))
+			-- 	(GetBipedNode 1).parent = dummyRootMotionTemp
+			-- 	dummyRootMotionTemp.constantscreensize = false
+			-- )
 			(GetBipedNode 1).parent = undefined
 			importFile tarNewAnim #noPrompt using:FBXIMP
 			DeleteFile tarNewAnim
@@ -947,56 +946,60 @@ rollout biped_align_test "BsRetargetTools_v2.8 （ FBX 转 BIP + 动画重定向
 			(
 				local rootBone            = (GetBipedNode 1)
 				local dummyRootMotion     = (getnodebyname "Root")
-				local dummyRootMotionTemp = (getnodebyname "RootTemp")
+				-- local dummyRootMotionTemp = (getnodebyname "RootTemp")
 
 				-- 每一帧的Pos与Rot
 				local bipPosList = #()
 				local bipRotList = #()
 
 				-- 第一次遍历，记录原始的bip在世界空间的位置与旋转信息
-				for t = (animationRange.start) to (animationRange.end) do
-				(
-					at time t
-					(
-						append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
-						append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
-					)
-				)
+				-- for t = (animationRange.start) to (animationRange.end) do
+				-- (
+				-- 	at time t
+				-- 	(
+				-- 		append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
+				-- 		append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
+				-- 	)
+				-- )
 
 				-- 第二次遍历，动画 Root 匹配 RootLeader
 				for t = (animationRange.start) to (animationRange.end) do
 				(
 					at time t with animate on 
 					(
-						-- append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
-						-- append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
-						dummyRootMotionTemp.transform = dummyRootMotion.transform
+						append bipPosList (in coordsys world Biped.getTransform rootBone #pos)
+						append bipRotList (in coordsys world Biped.getTransform rootBone #rotation)
+						-- dummyRootMotionTemp.transform = dummyRootMotion.transform
 					)  
 				)
-				-- rootBone.parent = dummyRootMotion
+				rootBone.parent = dummyRootMotion
 				-- 第三次遍历，创建新的Bip层，还原bip的位置以及旋转信息
 				biped.createLayer rootBone.controller 1 "layerRootMotionOffset"
 				biped.setcurrentlayer rootBone.controller 1
 				local f = 1
 				for t = (animationRange.start) to (animationRange.end) do
 				(
-					slidertime = t
-					with animate on
+					at time t with animate on
 					(
 						-- Pos
-						local bipPos = bipPosList[f]
+						bipPos = bipPosList[f]
 						in coordsys world Biped.setTransform rootBone #pos bipPos true
 						-- Rot
-						local bipRot = bipRotList[f]
-						in coordsys world Biped.setTransform rootBone #rotation bipRot true
+						rootRot = dummyRootMotion.controller.rotation
+						bipRot = bipRotList[f]
+						localRot = bipRot * (inverse rootRot)
+						Biped.setTransform rootBone #rotation localRot true
 
 						f += 1
-						-- biped.addNewKey rootBone.transform.controller.vertical.controller t
 					)
 				)
-				dummyRootMotion.children.parent = dummyRootMotionTemp
-				delete dummyRootMotion
-				dummyRootMotionTemp.name = "Root"
+				-- dummyRootMotion.children.parent = dummyRootMotionTemp
+				-- delete dummyRootMotionTemp
+				-- dummyRootMotionTemp.name = "Root"
+				biped.createLayer rootBone.controller 2 "layerRootMotionReverse"
+				biped.setcurrentlayer rootBone.controller 2
+				at time (animationRange.start) with animate on Biped.setTransform rootBone #rotation bipRotList[1] true
+				biped.collapseAtLayer rootBone.controller 1
 				biped.collapseAtLayer rootBone.controller 0
 				-- dummyRootMotionTemp.size = 0.4
 			)
