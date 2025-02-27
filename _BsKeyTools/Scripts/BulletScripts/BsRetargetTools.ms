@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-25 20:00:35
+ * @LastEditTime: 2025-02-27 20:00:14
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -558,7 +558,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout biped_align_test "BsRetargetTools_v2.8 （ FBX 转 BIP + 动画重定向 ）"
+rollout biped_align_test "BsRetargetTools_v2.9 （ FBX 转 BIP + 动画重定向 ）"
 (
 	-- Contains the names of the first 35 biped bones for reference
 	listbox bipedBones "Bip 节点 1 - 35" align:#left across:4 height:35 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -914,6 +914,7 @@ rollout biped_align_test "BsRetargetTools_v2.8 （ FBX 转 BIP + 动画重定向
 			FBXExporterSetParam "FileVersion" "FBX201200"
 
 			select arrExport
+			completeredraw()
 			exportFile tarFileExportPath #noPrompt selectedOnly:true using:FBXEXP
 
 			-- print ("正在导入新 Skin 动画：" + tarNewAnim)
@@ -1004,10 +1005,10 @@ rollout biped_align_test "BsRetargetTools_v2.8 （ FBX 转 BIP + 动画重定向
 				-- dummyRootMotionTemp.size = 0.4
 			)
 
-			(GetBipedNode 1).transform.controller.figureMode = true
-			(GetBipedNode 1).controller.trianglePelvis = false
-			(GetBipedNode 1).controller.triangleNeck = true
-			(GetBipedNode 1).transform.controller.figureMode = false
+			-- (GetBipedNode 1).transform.controller.figureMode = true
+			-- (GetBipedNode 1).controller.trianglePelvis = false
+			-- (GetBipedNode 1).controller.triangleNeck = true
+			-- (GetBipedNode 1).transform.controller.figureMode = false
 
 			saveMaxFile tarMaxFile saveAsVersion:((biped_align_test.ddlSaveVersion.selected) as integer) clearNeedSaveFlag:true quiet:true
 			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
