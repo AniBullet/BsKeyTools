@@ -3,6 +3,9 @@
 Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
 Since 2023.03
 
+2025.03 update v1.5
+1.重新改回复制pose的选择被复制biped骨骼功能，去掉清除posture的按钮
+
 2024.04 update v1.4
 1. 修复复制pose和加层功能回退导致的闪退
 2。稍微拓展手指选择功能
@@ -20,7 +23,7 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
-global verBsBipedTools = "v1.4"
+global verBsBipedTools = "v1.5"
 
 try(destroydialog rolBsBipedTools) catch()
 try(destroyDialog rolBSLeftHandPivots)catch()
@@ -1711,7 +1714,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	checkbutton uiCbtCopy "" pos:[50,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"复制Poseture"
 	checkbutton uiCbtPaste "" pos:[80,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"粘贴Poseture"
 	checkbutton uiCbtPasteOpposite "" pos:[110,465] width:30 height:25 visible:false checked:true highlightColor:mcFK tooltip:"镜像粘贴Poseture"
-	checkbutton uiCbtDeleteAllCopy "" pos:[140,465] width:35 height:25 visible:false checked:true highlightColor:mcFK tooltip:"清除所有CopyCollection"
+	checkbutton uiCbtSelPostureObjs "" pos:[140,465] width:35 height:25 visible:false checked:true highlightColor:mcFK tooltip:"选择复制pose的Biped骨骼"
 	checkbutton uiCbtMirrorRArm "右→左臂" pos:[50,495] width:60 height:25 visible:false checked:true highlightColor:mcRight
 	checkbutton uiCbtMirrorLArm "左→右臂" pos:[115,495] width:60 height:25 visible:false checked:true highlightColor:mcLeft
 	checkbutton uiCbtMirrorRLeg "右→左腿" pos:[50,523] width:60 height:25 visible:false checked:true highlightColor:mcRight
@@ -1776,7 +1779,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local arrOtherTools = #("其他",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip)) 
 	local arrLayerTools = #("层层",#(uiCbtRefreshLayer,uiCbtDown,uiCbtUp,uiLblLayerID,uiLblActive,uiChkActive,uiCbtAddLayer,\
 		uiCbtDelLayer,uiCbtDownLayer,uiCbtSnapKeys,uiCbtLeftArm,uiCbtRightArm,uiCbtLeftLeg,uiCbtRightLeg,uiCbtUpdate,uiChkIKonly,ddlLayers))
-	local arrCopyTools = #("复制",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtDeleteAllCopy,uiCbtMirrorLArm,uiCbtMirrorRArm,\
+	local arrCopyTools = #("复制",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtSelPostureObjs,uiCbtMirrorLArm,uiCbtMirrorRArm,\
 		uiCbtMirrorLLeg,uiCbtMirrorRLeg,uiCbtGrabPose,uiCbtLoadPose))
 	local arrAllToolsTab = #(arrCopyTools,arrLayerTools,arrLoopTools,arrOtherTools)
 
@@ -1874,7 +1877,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		uiFigureMode.images        = #("bip_modes_i.bmp","bip_modes_i.bmp",8,1,1,1,1,true,true)
 		uiWorkbench.images         = #("bip_workbench_i.bmp","bip_workbench_i.bmp",10,7,7,7,7,true,true)
 		uiCbtCopy.images           = #("bip_keyframe_i.bmp","bip_keyframe_i.bmp",46,9,9,9,9,true,true)
-		uiCbtDeleteAllCopy.images  = #("bip_mflscript_i.bmp","bip_mflscript_i.bmp",22,5,5,5,5,true,true)
+		uiCbtSelPostureObjs.images = #("bip_mflshare_i.bmp","bip_mflshare_i.bmp",2,2,2,2,2,true,true)
 		uiCbtPaste.images          = #("bip_keyframe_i.bmp","bip_keyframe_i.bmp",46,17,17,17,17,true,true)
 		uiCbtPasteOpposite.images  = #("bip_keyframe_i.bmp","bip_keyframe_i.bmp",46,19,19,19,19,true,true)
 		uiCbtUp.images             = #("bip_layer_i.bmp","bip_layer_i.bmp",24,1,1,1,1,true,true)
@@ -3396,18 +3399,20 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		catch (messageBox "错误：请重新尝试复制粘贴Pose。                       " title:"BsBipedTools")
 	)
 	
-	on uiCbtDeleteAllCopy changed state do
+	on uiCbtSelPostureObjs changed state do
 	(
-		uiCbtDeleteAllCopy.state = true
-		if (queryBox ("是否清除所有 CopyCollection ？                        ") title:"BsBipedTools") do
-		(
-			if isValidNode m_workingBipRoot AND NOT isDeleted m_workingBipRoot then
+		uiCbtSelPostureObjs.state = true
+		try
 			(
-				local bRootCtrl = m_workingBipRoot.controller
-				with undo on (try(biped.deleteAllCopyCollections bRootCtrl)catch())
-			)
-			messageBox "清除 CopyCollection 成功。                       " title:"BsBipedTools"
-		)
+				local a_objs = fnRetrievePostureObjs()
+				if a_objs != undefined then
+				(
+					try
+					(
+						select a_objs
+					)catch(messageBox "错误: 无法选择用于复制姿势的Biped骨骼。                                " title:"BsBipedTools")
+				)
+			)catch()
 	)
 	
 	on uiCbtMirrorLArm changed state do
