@@ -152,13 +152,7 @@ for i in used_channels do
 (
 v_counter += 1
 
-target_name = ms_work_node.morpher[i] as string
-
-start_name = findstring target_name "__"
-
-end_name = findstring target_name "___"
-
-final_name = substring target_name (start_name+2) (end_name-start_name-2)
+final_name = ms_work_node.morpher[i].name
 
 txt +="spinner mspinner_"+i as string+ " range:["+spin_min as string+","+spin_max as string+","+ms_work_node.morpher[i].value as string+"] fieldwidth:40 across:4 pos:[1,("+v_counter as string+"*25+10)]  \n"
 
