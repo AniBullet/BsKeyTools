@@ -62,11 +62,13 @@ function fn_RWUselChangedObj size sel = /* Sent after the selection set has chan
 
 function fn_RWUspnSetChanged size sel = /* Sent after the spinner:Scale Factor's value has changed */
 (
+	local posCom
+	local posUp
 	local tempBiped001 = undefined
 	for obj in objects where classof obj.controller == Vertical_Horizontal_Turn do
 	(
-		local posCom = (biped.getTransform obj #pos)
-		local posUp = posCom.z
+		posCom = (biped.getTransform obj #pos)
+		posUp = posCom.z
 		tempBiped001 = obj
 		-- print posUp
 	)
@@ -93,11 +95,13 @@ function fn_RWUrdoSetChanged size sel = /* Sent after the radioButton has change
 (
 	if sel.state != rescaleWU_sign do 
 	(
+		local posCom
+		local posUp
 		local tempBiped001 = undefined
 		for obj in objects where classof obj.controller == Vertical_Horizontal_Turn do
 		(
-			local posCom = (biped.getTransform obj #pos)
-			local posUp = posCom.z
+			posCom = (biped.getTransform obj #pos)
+			posUp = posCom.z
 			tempBiped001 = obj
 			-- print posUp
 		)
@@ -131,11 +135,13 @@ function fn_RWUrdoSetChanged size sel = /* Sent after the radioButton has change
 
 function fn_RWUcancelSetChanged size sel dia = /* Sent after click the button:Cancel,RescaleWU exit. */
 (
+	local posCom
+	local posUp
 	local tempBiped001 = undefined
 	for obj in objects where classof obj.controller == Vertical_Horizontal_Turn do
 	(
-		local posCom = (biped.getTransform obj #pos)
-		local posUp = posCom.z
+		posCom = (biped.getTransform obj #pos)
+		posUp = posCom.z
 		tempBiped001 = obj
 		-- print posUp
 	)
