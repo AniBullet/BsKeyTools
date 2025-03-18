@@ -86,6 +86,7 @@ function fn_RWUspnSetChanged size sel = /* Sent after the spinner:Scale Factor's
 	rescaleWU_selObj = selection as array;
 	if tempBiped001 != undefined then (
 		currentPos = (biped.getTransform tempBiped001 #pos)
+		posUp = currentPos.z
 		biped.setTransform tempBiped001 #pos [currentPos.x,currentPos.y,posUp] false
 		forceCompleteRedraw()
 	)
@@ -127,6 +128,7 @@ function fn_RWUrdoSetChanged size sel = /* Sent after the radioButton has change
 		rescaleWU_selObj = selection as array;
 		if tempBiped001 != undefined then (
 			currentPos = (biped.getTransform tempBiped001 #pos)
+			posUp = currentPos.z
 			biped.setTransform tempBiped001 #pos [currentPos.x,currentPos.y,posUp] false
 			forceCompleteRedraw()
 		)
@@ -160,6 +162,7 @@ function fn_RWUcancelSetChanged size sel dia = /* Sent after click the button:Ca
 	DestroyDialog dia;
 	if tempBiped001 != undefined then (
 		currentPos = (biped.getTransform tempBiped001 #pos)
+		posUp = currentPos.z
 		biped.setTransform tempBiped001 #pos [currentPos.x,currentPos.y,posUp] false
 		forceCompleteRedraw()
 	)
