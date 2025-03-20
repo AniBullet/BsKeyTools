@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-03-20 16:43:07
+ * @LastEditTime: 2025-03-20 20:11:16
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -1237,7 +1237,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.1 （ FBX 转 BIP + 动画重定向 �
 			arrThumbIndex = #(24,25,26,27)
 			arrThumbIndex2 = #(48,49,50,51)
 
-			if parentIndex > 47 then (axis = axis2;axisThumb = axisThumb2)
+			if parentIndex >= 47 then (axis = axis2;axisThumb = axisThumb2)
 			if finditem arrThumbIndex parentIndex != 0 then (axis = axisThumb)
 			if finditem arrThumbIndex2 parentIndex != 0 then (axis = axisThumb2)
 
