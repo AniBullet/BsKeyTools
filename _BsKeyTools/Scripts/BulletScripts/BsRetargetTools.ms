@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-03-04 22:36:40
+ * @LastEditTime: 2025-03-20 16:43:07
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -558,7 +558,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v3.0 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v3.1 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
@@ -669,7 +669,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.0 （ FBX 转 BIP + 动画重定向 �
 	button btnCount "待处理原始动画 FBX 数：0 个" pos:[15,600] width:215 height:30 visible:false border:true tooltip:"打开原始动画 FBX 文件夹"
 
     progressbar pgbBar "" pos:[10,635] width:590 height:16 color:white
-	label lblBarValue "" pos:[620,635] width:60
+	label lblBarValue "" pos:[610,635] width:60
 
 	local arrFBXtoBIPED   = #(">> 【 FBX 转 Biped 】 <<",#(bipedBones,characterBones,bipedBones_B,characterBones_B,grpRetargetList,loadDialogue,saveDialogue,\
 											btnAutoMapping,btnQuickTools,validateButton,grpBiped,spnObjSize,btnResetSize,lblThumbAxis,ddlThumbAxis,\
@@ -1187,7 +1187,32 @@ rollout rolBsRetarget "BsRetargetTools_v3.0 （ FBX 转 BIP + 动画重定向 �
 			-- local cro = cross (normalize diff) axis
 			-- axis = normalize cro
 			-- print axis
-			case biped_align_test.ddlHandAxis2.selected of
+			local axis2
+			local axisThumb2
+
+			case rolBsRetarget.ddlHandAxis.selected of 
+			(
+				("X"):(axis = foundParent.transform.row1)
+				("Y"):(axis = foundParent.transform.row2)
+				("Z"):(axis = foundParent.transform.row3)
+				("-X"):(axis = -foundParent.transform.row1)
+				("-Y"):(axis = -foundParent.transform.row2)
+				("-Z"):(axis = -foundParent.transform.row3;axisThumb = foundParent.transform.row2)
+				default:(axis = -foundParent.transform.row3;axisThumb = foundParent.transform.row2)
+			)
+
+			case rolBsRetarget.ddlThumbAxis.selected of 
+			(
+				("X"):(axisThumb = foundParent.transform.row1)
+				("Y"):(axisThumb = foundParent.transform.row2)
+				("Z"):(axisThumb = foundParent.transform.row3)
+				("-X"):(axisThumb = -foundParent.transform.row1)
+				("-Y"):(axisThumb = -foundParent.transform.row2)
+				("-Z"):(axisThumb = -foundParent.transform.row3)
+				default:(axisThumb = -foundParent.transform.row3)
+			)
+
+			case rolBsRetarget.ddlHandAxis2.selected of
 			(
 				("X"):(axis2 = foundParent.transform.row1)
 				("Y"):(axis2 = foundParent.transform.row2)
@@ -1198,7 +1223,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.0 （ FBX 转 BIP + 动画重定向 �
 				default:(axis2 = -foundParent.transform.row3;axisThumb2 = foundParent.transform.row2)
 			)
 
-			case biped_align_test.ddlThumbAxis2.selected of 
+			case rolBsRetarget.ddlThumbAxis2.selected of 
 			(
 				("X"):(axisThumb2 = foundParent.transform.row1)
 				("Y"):(axisThumb2 = foundParent.transform.row2)
@@ -1212,7 +1237,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.0 （ FBX 转 BIP + 动画重定向 �
 			arrThumbIndex = #(24,25,26,27)
 			arrThumbIndex2 = #(48,49,50,51)
 
-			if parentIndex > 47 then (axis = axis2)
+			if parentIndex > 47 then (axis = axis2;axisThumb = axisThumb2)
 			if finditem arrThumbIndex parentIndex != 0 then (axis = axisThumb)
 			if finditem arrThumbIndex2 parentIndex != 0 then (axis = axisThumb2)
 
