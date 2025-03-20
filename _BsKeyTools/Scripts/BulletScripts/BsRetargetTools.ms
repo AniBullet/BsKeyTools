@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-03-20 20:11:16
+ * @LastEditTime: 2025-03-20 21:18:10
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -558,7 +558,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v3.1 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v3.2 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
@@ -1030,7 +1030,8 @@ rollout rolBsRetarget "BsRetargetTools_v3.1 （ FBX 转 BIP + 动画重定向 �
 				local f = 1
 				for t = (animationRange.start) to (animationRange.end) do
 				(
-					at time t with animate on
+					slidertime = t
+					with animate on
 					(
 						-- Pos
 						bipPos = bipPosList[f]
