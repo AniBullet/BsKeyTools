@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-03-23 13:46:58
+ * @LastEditTime: 2025-03-23 18:21:42
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -1068,6 +1068,9 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 					slidertime = t
 					with animate on
 					(
+						-- Pos
+						bipPos = bipPosList[f]
+						in coordsys world Biped.setTransform rootBone #pos bipPos true
 						-- Rot
 						bipRot = bipRotList[f]
 						in coordsys world Biped.setTransform rootBone #rotation bipRot true
