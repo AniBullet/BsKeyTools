@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-03-20 21:18:10
+ * @LastEditTime: 2025-03-23 13:46:58
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -255,6 +255,8 @@ global hasExtraHips = false
 global fixNierFramerate = false
 -- global pickedRootMotion = undefined
 global isScale100 = false
+
+global isReloadBip = false
 
 -- wizardIndex = 1
 -- wizardArray = #()
@@ -537,28 +539,36 @@ rcmenu menuBsRetarget
 (
 	menuItem mItemNier "修复 Nier 60帧率"
 	menuItem mItemScale100 "Scale 100"
+	menuItem mItemReloadBip "重新加载 Biped"
 
 	on menuBsRetarget open do
 	(
-		mItemNier.checked = fixNierFramerate
-		mItemScale100.checked = isScale100
+		mItemNier.checked      = fixNierFramerate
+		mItemScale100.checked  = isScale100
+		mItemReloadBip.checked = isReloadBip
 	)
 	
 	on mItemNier picked do
 	(
 		mItemNier.checked = not mItemNier.checked
-		fixNierFramerate = mItemNier.checked
+		fixNierFramerate  = mItemNier.checked
 	)
 
 	on mItemScale100 picked do
 	(
 		mItemScale100.checked = not mItemScale100.checked
-		isScale100 = mItemScale100.checked
+		isScale100            = mItemScale100.checked
+	)
+
+	on mItemReloadBip picked do
+	(
+		mItemReloadBip.checked = not mItemReloadBip.checked
+		isReloadBip            = mItemReloadBip.checked
 	)
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v3.2 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
@@ -659,14 +669,15 @@ rollout rolBsRetarget "BsRetargetTools_v3.2 （ FBX 转 BIP + 动画重定向 �
 	tooltip:"重定向列表选中的动画并且打开\r\n会保存一份 .max 和 .FBX 文件"
     button btnRetargettAll ">>>   重定向列表所有动画   <<<" pos:[240,470] width:225 height:30 visible:false \
 	tooltip:"重定向列表选中的动画\r\n会保存一份 .max 和 .FBX 文件\r\n可能比较慢..."
-	checkbox chkXAxis "X" pos:[245,513] width:30 height:30 visible:false
-	checkbox chkYAxis "Y" pos:[275,513] width:30 height:30 visible:false
-	checkbox chkZAxis "Z" pos:[305,513] width:30 height:30 visible:false
-	button btnBatchAll "清零 Root 位移曲线" pos:[340,515] width:125 height:25 visible:false border:false tooltip:"自用"
 	button btnSpecial "[自用] 后处理集合" pos:[240,385] width:110 height:25 visible:false border:true
 	label lblVerTips "保存版本:" pos:[355,390] width:60 height:25 visible:false
 	dropdownList ddlSaveVersion "" pos:[410,387] width:55 items:arrSaveVer visible:false
 	button btnCount "待处理原始动画 FBX 数：0 个" pos:[15,600] width:215 height:30 visible:false border:true tooltip:"打开原始动画 FBX 文件夹"
+
+	checkbox chkXAxis "X" pos:[245,563] width:30 height:30 visible:false
+	checkbox chkYAxis "Y" pos:[275,563] width:30 height:30 visible:false
+	checkbox chkZAxis "Z" pos:[305,563] width:30 height:30 visible:false
+	button btnBatchAll "清零 Root 位移曲线" pos:[340,565] width:125 height:25 visible:false border:false tooltip:"自用"
 
     progressbar pgbBar "" pos:[10,635] width:590 height:16 color:white
 	label lblBarValue "" pos:[610,635] width:60
@@ -885,7 +896,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.2 （ FBX 转 BIP + 动画重定向 �
 
 			mappingFilePath    = edtMappingFile.text
 			sourFileImportPath = arrExportRetargetAnim[index]
-			tarFileExportPath  = edtOutputPath.text + "\FBX\\" + (getfilenamefile sourFileImportPath) + ".FBX"
+			tarFileDebug  = edtOutputPath.text + "\FBX\\" + (getfilenamefile sourFileImportPath) + "_Debug.FBX"
 			tempBip = edtOutputPath.text + "\BIP\\" + (getfilenamefile sourFileImportPath) + ".bip"
 			tarMaxFile = edtOutputPath.text + "\MAX\\" + (getfilenamefile sourFileImportPath) + ".max"
 			skinFile   = edtSkinFile.text
@@ -965,7 +976,8 @@ rollout rolBsRetarget "BsRetargetTools_v3.2 （ FBX 转 BIP + 动画重定向 �
 
 			select arrExport
 			completeredraw()
-			exportFile tarFileExportPath #noPrompt selectedOnly:true using:FBXEXP
+			exportFile tarNewAnim #noPrompt selectedOnly:true using:FBXEXP
+			-- exportFile tarFileDebug #noPrompt selectedOnly:true using:FBXEXP
 
 			-- print ("正在导入新 Skin 动画：" + tarNewAnim)
 			resetMaxFile #noPrompt
@@ -1050,7 +1062,18 @@ rollout rolBsRetarget "BsRetargetTools_v3.2 （ FBX 转 BIP + 动画重定向 �
 				-- dummyRootMotionTemp.name = "Root"
 				biped.createLayer rootBone.controller 2 "layerRootMotionReverse"
 				biped.setcurrentlayer rootBone.controller 2
-				at time (animationRange.start) with animate on Biped.setTransform rootBone #rotation bipRotList[1] true
+				f = 1
+				for t = (animationRange.start) to (animationRange.end) do
+				(
+					slidertime = t
+					with animate on
+					(
+						-- Rot
+						bipRot = bipRotList[f]
+						in coordsys world Biped.setTransform rootBone #rotation bipRot true
+						f += 1
+					)
+				)
 				biped.collapseAtLayer rootBone.controller 1
 				biped.collapseAtLayer rootBone.controller 0
 				-- dummyRootMotionTemp.size = 0.4
@@ -1064,9 +1087,61 @@ rollout rolBsRetarget "BsRetargetTools_v3.2 （ FBX 转 BIP + 动画重定向 �
 			saveMaxFile tarMaxFile saveAsVersion:((rolBsRetarget.ddlSaveVersion.selected) as integer) clearNeedSaveFlag:true quiet:true
 			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
 			select arrExport
-			exportFile tarFileExportPath #noPrompt selectedOnly:true using:FBXEXP
+			exportFile tarNewAnim #noPrompt selectedOnly:true using:FBXEXP
 			biped.saveBipFile (getnodebyname "Bip001").controller tempBip
 			-- print ("已保存新 Skin 动画：" + (substituteString tarNewAnim ".FBX" ".max"))
+		)
+	)
+
+	fn fnLoadBipAnim arrBipAnim index = 
+	(
+		if (index != 0) and (doesFileExist arrBipAnim[index]) then
+		(
+			local SIOFile = dotNetClass "System.IO.File"			---文件操作
+			local SIODir = dotNetClass "System.IO.Directory"		---文件夹操作
+
+			sourFileImportPath = arrBipAnim[index]
+			fileName = (getfilenamefile sourFileImportPath)
+			loadBip = edtOutputPath.text + "\BIP\\" + fileName + ".bip"
+			tempRootAnim = edtOutputPath.text + "\FBX_ReloadBip\\" + fileName + ".xaf"
+			loadRootAnimFile = edtOutputPath.text + "\MAX\\" + fileName + ".max"
+			tarMaxFile = edtOutputPath.text + "\MAX_ReloadBip\\" + fileName + ".max"
+			skinFile   = edtSkinFile.text
+			tarNewAnim = (edtOutputPath.text + "\FBX_ReloadBip\\" + fileName + ".FBX")
+			if (not (SIODir.Exists edtOutputPath.text)) do (SIODir.CreateDirectory edtOutputPath.text)
+			if (not (SIODir.Exists (edtOutputPath.text + "\FBX_ReloadBip\\"))) do (SIODir.CreateDirectory (edtOutputPath.text + "\FBX_ReloadBip\\"))
+			if (not (SIODir.Exists (edtOutputPath.text + "\MAX_ReloadBip\\"))) do (SIODir.CreateDirectory (edtOutputPath.text + "\MAX_ReloadBip\\"))
+
+			if chkRecoverExport.state then 
+			(
+				if (doesFileExist tarMaxFile) and (doesFileExist tarNewAnim) then (return "Exist")
+			)
+			resetMaxFile #noPrompt
+			
+			loadMaxFile loadRootAnimFile useFileUnits:true quiet:true
+			zeroFrame = animationrange.start
+			endFrame = animationrange.end
+			print endframe
+			LoadSaveAnimation.saveAnimation tempRootAnim $'Root' #("") #("")
+
+			resetMaxFile #noPrompt
+			loadMaxFile skinFile useFileUnits:true quiet:true
+			if fixNierFramerate then framerate = 60
+			(GetBipedNode 1).transform.controller.figureMode = false
+			-- (GetBipedNode 1).parent = undefined  --质心已经没动画了,不用断开父子级
+			slidertime = zeroFrame
+			LoadSaveAnimation.loadAnimation tempRootAnim $'Root' relative:false insert:false
+			biped.loadBipFile (GetBipedNode 1).controller loadBip #noRedraw 
+			
+			DeleteFile tempRootAnim
+
+			-- fnTransferRootAnim()
+
+			animationrange = (interval zeroFrame endFrame)
+			saveMaxFile tarMaxFile saveAsVersion:((rolBsRetarget.ddlSaveVersion.selected) as integer) clearNeedSaveFlag:true quiet:true
+			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
+			select arrExport
+			exportFile tarNewAnim #noPrompt selectedOnly:true using:FBXEXP
 		)
 	)
 
@@ -3146,7 +3221,8 @@ rollout rolBsRetarget "BsRetargetTools_v3.2 （ FBX 转 BIP + 动画重定向 �
 			(
 				if CheckForSave() then 
 				(
-					fnExportReTargrtedAnim arrExportRetargetAnim ltbFilesList.selection
+					if not isReloadBip then (fnExportReTargrtedAnim arrExportRetargetAnim ltbFilesList.selection)
+					else (fnLoadBipAnim arrExportRetargetAnim ltbFilesList.selection)
 					-- btnCount.text = ("已重定向动画 FBX 数：1 个")
 					btnCount.text = ("待批处理原始动画 FBX 数：0 个")
 				)
