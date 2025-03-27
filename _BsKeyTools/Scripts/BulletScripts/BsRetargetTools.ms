@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-03-23 18:21:42
+ * @LastEditTime: 2025-03-26 18:53:30
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -3548,7 +3548,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			else
 			(
-				if tarBiped.parent != undefined then
+				if tarBiped.parent != undefined and tarBone != undefined then
 				(
 					if tarBone.name != tarBiped.parent.name do
 					(
