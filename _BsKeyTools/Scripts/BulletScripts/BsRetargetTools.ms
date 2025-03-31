@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-03-26 18:53:30
+ * @LastEditTime: 2025-03-29 16:59:23
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -538,7 +538,7 @@ rcmenu menuQuickCreateNode
 rcmenu menuBsRetarget
 (
 	menuItem mItemNier "修复 Nier 60帧率"
-	menuItem mItemScale100 "Scale 100"
+	menuItem mItemScale100 "仅 Scale 100"
 	menuItem mItemReloadBip "重新加载 Biped"
 
 	on menuBsRetarget open do
@@ -924,23 +924,23 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			if fixNierFramerate then 
 			(
 				framerate = 60
-				frameStart = animationrange.start
-				frameEnd = animationrange.end
-				scaleTime objects frameStart frameEnd 0.5
-				animationrange = interval frameStart (frameEnd/2)
+				-- frameStart = animationrange.start
+				-- frameEnd = animationrange.end
+				-- scaleTime objects frameStart frameEnd 0.5
+				-- animationrange = interval frameStart (frameEnd/2)
 				rescaleWorldUnits 100
 				--修复Nier动画帧数,缩放等等
-				startFrame = animationrange.start
-				endFrame = animationrange.end
-				for i in objects where isValidNode i do
-				(
-					deselectKeys i
-					selectkeys i startFrame startFrame
-					deleteKeys i #selection
-					selectkeys i (startFrame + 1) endFrame
-					moveKeys i -1 #selection
-				)
-				animationrange = interval startFrame (endFrame - 1)
+				-- startFrame = animationrange.start
+				-- endFrame = animationrange.end
+				-- for i in objects where isValidNode i do
+				-- (
+				-- 	deselectKeys i
+				-- 	selectkeys i startFrame startFrame
+				-- 	deleteKeys i #selection
+				-- 	selectkeys i (startFrame + 1) endFrame
+				-- 	moveKeys i -1 #selection
+				-- )
+				-- animationrange = interval startFrame (endFrame - 1)
 			)
 
 			if isScale100 then (rescaleWorldUnits 100)
