@@ -10,6 +10,7 @@
 var maxVer
 var v2024
 var v2025
+var v2026
 
 SetCompressor lzma
 
@@ -74,6 +75,13 @@ OutFile "_BsKeyTools.exe"
 ; InstallDir "$INSTDIR"
 ShowInstDetails show
 ShowUnInstDetails show
+
+Section "3dsMax 2026" SEC20
+  SetOutPath "$v2026"
+  SetOverwrite on
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
+  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
+SectionEnd
 
 Section "3dsMax 2025" SEC19
   SetOutPath "$v2025"
@@ -247,6 +255,17 @@ Function .onInit
 	${EndIf}
 
 ; 扫描已安装的max版本
+
+; MAX2026:
+  setRegView 64
+  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\28.0" "Installdir"
+  ${If} $maxVer != ""
+    SectionSetFlags ${Sec20} 1
+    StrCpy $v2026 $maxVer
+  ${Else}
+  	SectionSetFlags ${Sec20} 0
+    SectionSetText ${Sec20} ""
+  ${EndIf}
 
 ; MAX2025:
   setRegView 64
@@ -480,6 +499,7 @@ FunctionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec17} $R9
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec18} $v2024
   !insertmacro MUI_DESCRIPTION_TEXT ${Sec19} $v2025
+  !insertmacro MUI_DESCRIPTION_TEXT ${Sec20} $v2026
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 /******************************

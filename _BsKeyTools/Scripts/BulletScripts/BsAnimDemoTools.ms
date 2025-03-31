@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-03 10:58:49
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-19 00:47:26
+ * @LastEditTime: 2025-03-31 16:54:08
  * @Email: animator.bullet@foxmail.com
  */
 --E8C18FB749BA820E0525422425AFBED057AD5AEB7FE98E2F17C688B869B454
@@ -30,7 +30,7 @@ global dragStateBsADT = off
 		button btnRegister "免费注册刀光" pos:[rolBsAnimDemoTools.width - 120,0] width:80 height:16 border:false
 		button btnAbout "?" pos:[rolBsAnimDemoTools.width - 40,0] height:16 width:20
 		button btnClose "X" pos:[rolBsAnimDemoTools.width - 20,0] height:16 width:20
-		label lblTitle "BsAnimDemo_v1.1" pos:[5,3]
+		label lblTitle "BsAnimDemo_v1.2" pos:[5,3]
 		dotNetControl tabBsADT "System.Windows.Forms.TabControl" height:30 width:rolBsAnimDemoTools.width pos:[0,20] align:#center
 		------------------------------------------------------------------------------------------------------------------------------
 		groupbox gpbTrail "" pos:[5,50] width:(rolBsAnimDemoTools.width - 10) height:70
@@ -291,7 +291,7 @@ global dragStateBsADT = off
 			try
 			(
 				local arrTexFiles       = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsGhostTrailsTex") ".*")
-				local arrSkyBoxTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") ".hdr")
+				local arrSkyBoxTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") ".*")
 				selGhostTex  = arrTexFiles[1]
 				selSkyBoxTex = arrSkyBoxTexFiles[1]
 				rolBsAnimDemoTools.ddlDefaultTex.items = for i in arrTexFiles collect (getFilenameFile i)
@@ -1185,7 +1185,7 @@ global dragStateBsADT = off
 
 		on ddlSkyBoxTex selected id do
 		(
-			local arrTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") ".hdr")
+			local arrTexFiles = (fnGetFilesInPath ((getDir #scripts) + "\\BulletScripts\\Res\\BsSkyBox") ".*")
 			selSkyBoxTex = arrTexFiles[id]
 		)
 
