@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-03-17 22:54:28
+ * @LastEditTime: 2025-04-05 15:31:43
 * @Email: animator.bullet@foxmail.com
 */
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
@@ -3609,11 +3609,14 @@ rollout rolBsKeyTools "" width:355 height:250
 		popupMenu menuConfig pos:(GetDialogPos rolBsKeyTools)
 	)
 
-	-- on rolBsKeyTools mbuttondown pos do 
-	-- (
-	-- 	try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
-	-- 	try (destroydialog rolBsKeyTools) catch ()
-	-- )
+	on rolBsKeyTools mbuttondown pos do 
+	(
+		if not rolBsKeyTools.dialogBar then
+		(
+			try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
+			try (destroydialog rolBsKeyTools) catch ()
+		)
+	)
 	
 	on rolBsKeyTools lbuttondown posMou do
 	(
