@@ -31,7 +31,7 @@ fn isRolloutOffScreen tarRol = (
         if (winBounds[3] > monitorRect[1] and 
             winBounds[1] < monitorRect[3] and 
             winBounds[4] > monitorRect[2] and 
-            winBounds[2] < monitorRect[4]) and (not tarRol.dialogBar) do return false
+            winBounds[2] < monitorRect[4]) do return false
     )
     
     if (queryBox ("疑似脚本界面不在显示器可见区域内 ( " + tarRol.name + " )                                 \r\n\r\n是否重置脚本窗口位置？                                                     ") \
