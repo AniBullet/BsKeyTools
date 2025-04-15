@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-03-29 16:59:23
+ * @LastEditTime: 2025-04-15 20:37:40
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -22,6 +22,8 @@ global boneNames = #(
 	"Spine", 				--3
 	"Spine1",			--4
 	"[可选]Spine2",			--5
+	"[可选]Spine3",
+	"[可选]Spine4",
 	"Neck",				--6
 	"[可选]Neck1",	--7 (NO LONGER USING)
 	"Head",				--8
@@ -43,52 +45,52 @@ global boneNames = #(
 	"L UpperArm",		--21
 	"L Forearm",		--22
 	"L Hand",			--23
-	"L Finger0",			--24
-	"L Finger01",		--25
-	"L Finger02",		--26
-	"L Finger0Nub",	--27
-	"L Finger1",			--28
-	"L Finger11",		--29
-	"L Finger12",		--30
-	"L Finger1Nub",	--31
-	"L Finger2",			--32
-	"L Finger21",		--33
-	"L Finger22",		--34
-	"L Finger2Nub",    --35
+	"[可选]L Finger0",			--24
+	"[可选]L Finger01",		--25
+	"[可选]L Finger02",		--26
+	"[可选]L Finger0Nub",	--27
+	"[可选]L Finger1",			--28
+	"[可选]L Finger11",		--29
+	"[可选]L Finger12",		--30
+	"[可选]L Finger1Nub",	--31
+	"[可选]L Finger2",			--32
+	"[可选]L Finger21",		--33
+	"[可选]L Finger22",		--34
+	"[可选]L Finger2Nub",    --35
 	
-	"L Finger3",			--36
-	"L Finger31",		--37
-	"L Finger32",		--38
-	"L Finger3Nub",	--39
-	"L Finger4",			--40
-	"L Finger41",		--41
-	"L Finger42",		--42
-	"L Finger4Nub",	--43
+	"[可选]L Finger3",			--36
+	"[可选]L Finger31",		--37
+	"[可选]L Finger32",		--38
+	"[可选]L Finger3Nub",	--39
+	"[可选]L Finger4",			--40
+	"[可选]L Finger41",		--41
+	"[可选]L Finger42",		--42
+	"[可选]L Finger4Nub",	--43
 	
 	"R Clavicle",		--44
 	"R UpperArm",		--45
 	"R Forearm",		--46
 	"R Hand",			--47
-	"R Finger0",		--48
-	"R Finger01",		--49
-	"R Finger02",		--50
-	"R Finger0Nub",	--51
-	"R Finger1",		--52
-	"R Finger11",		--53
-	"R Finger12",		--54
-	"R Finger1Nub",	--55
-	"R Finger2",		--56
-	"R Finger21",		--57
-	"R Finger22",		--58
-	"R Finger2Nub",	--59
-	"R Finger3",		--60
-	"R Finger31",		--61
-	"R Finger32",		--62
-	"R Finger3Nub",	--63
-	"R Finger4",		--64
-	"R Finger41",		--65
-	"R Finger42",		--66
-	"R Finger4Nub"		--67	
+	"[可选]R Finger0",		--48
+	"[可选]R Finger01",		--49
+	"[可选]R Finger02",		--50
+	"[可选]R Finger0Nub",	--51
+	"[可选]R Finger1",		--52
+	"[可选]R Finger11",		--53
+	"[可选]R Finger12",		--54
+	"[可选]R Finger1Nub",	--55
+	"[可选]R Finger2",		--56
+	"[可选]R Finger21",		--57
+	"[可选]R Finger22",		--58
+	"[可选]R Finger2Nub",	--59
+	"[可选]R Finger3",		--60
+	"[可选]R Finger31",		--61
+	"[可选]R Finger32",		--62
+	"[可选]R Finger3Nub",	--63
+	"[可选]R Finger4",		--64
+	"[可选]R Finger41",		--65
+	"[可选]R Finger42",		--66
+	"[可选]R Finger4Nub"		--67	
 )
 
 global pattBipedNames = #(
@@ -96,7 +98,9 @@ global pattBipedNames = #(
 	#("*Pelvis"),				--2
 	#("*Spine","*Waist","*Spine*Lower"),				--3
 	#("*Spine1","*Stomach","*Spine*Middle"),			--4
-	#("*Spine2","*Chest","*Spine*Upper"),			--5
+	#("*Spine2","*Chest","*Spine*Upper"),
+	#("*Spine3"),
+	#("*Spine4"),			--5
 	#("*Neck","*Neck*Lower"),				--6
 	#("*Neck1","*Neck?Middle"),			--7
 	#("*Head","*Neck*Upper"),				--8
@@ -241,6 +245,8 @@ global dotColor = dotnetclass "System.Drawing.Color"
 )
 
 global bipedRootName = "Bip001";
+global bsRootBoneName = "Root"
+global bsRootBone
 
 global okForceRedraw = true;
 
@@ -291,13 +297,13 @@ fn GetSkeletalNode index isFaux findCorrect:true =
 	if isFaux == false then
 	(
 		local result = undefined
-		if (index < 35 or index == 35) then
+		if (index < 37 or index == 37) then
 		(
 			result = getNodeByName rolBsRetarget.characterBones.items[index]
 		)
 		else
 		(
-			result = getNodeByName rolBsRetarget.characterBones_B.items[index-35]
+			result = getNodeByName rolBsRetarget.characterBones_B.items[index-37]
 		)
 		
 		if result == undefined and findCorrect == true then
@@ -305,59 +311,59 @@ fn GetSkeletalNode index isFaux findCorrect:true =
 			case index of
 			(
 				-- head
-				9:  
+				11:  
 				(
 					result = headNub
 				)
 				
 				-- toe nubs
-				14:
+				16:
 				(
 					result = toeNubs[1]
 				)
-				19:
+				21:
 				(
 					result = toeNubs[2]
 				)
 				
 				-- Finger nubs
-				27:
+				29:
 				(
 					result = fingerNubs[1][1]
 				)
-				31:
+				33:
 				(
 					result = fingerNubs[1][2]
 				)
-				35:
+				37:
 				(
 					result = fingerNubs[1][3]
 				)
-				39:
+				41:
 				(
 					result = fingerNubs[1][4]
 				)
-				43:
+				45:
 				(
 					result = fingerNubs[1][5]
 				)
-				51:
+				53:
 				(
 					result = fingerNubs[2][1]
 				)
-				55:
+				57:
 				(
 					result = fingerNubs[2][2]
 				)
-				59:
+				61:
 				(
 					result = fingerNubs[2][3]
 				)
-				63:
+				65:
 				(
 					result = fingerNubs[2][4]
 				)
-				67:
+				69:
 				(
 					result = fingerNubs[2][5]
 				)
@@ -387,8 +393,8 @@ rcmenu menuQuickCreateNode
     menuItem quickDuplicateFoot "快速创建 Foot Nub"
 	menuItem quickDuplicateHead "快速创建 Head Nub"
     menuItem quickCenterRoot "快速创建新的 Hips"
-	menuItem tips "根据 Bone 骨骼大腿的位置，" enabled:false
-    menuItem tips2 "创建符合 Biped 骨骼位置的质心。" enabled:false
+	menuItem tips "说明：根据 Bone 骨骼大腿的位置，" enabled:false
+    menuItem tips2 "说明：创建符合 Biped 骨骼位置的质心。" enabled:false
 
 	fn fnDuplicateNub arrID isFoot:false isHead:false =
 	(
@@ -401,13 +407,14 @@ rcmenu menuQuickCreateNode
 				local vec = parentNub.pos - parentNub.parent.pos
 				if isHead then vec = vec * 3
 				local pos = parentNub.pos + (normalize vec) * (length vec)
+				if isHead then pos.y = parentNub.pos.y
 				if isFoot then pos.z = parentNub.pos.z
 				in parentNub nB = bone pos:pos
 				nB.name = parentNub.name + " nub"
-				if i > 35 then 
+				if i > 37 then 
 				(
 					tempItems = rolBsRetarget.characterBones_B.items
-					tempItems[i - 35 + 1] = nB.name
+					tempItems[i - 37 + 1] = nB.name
 					rolBsRetarget.characterBones_B.items = tempItems
 				)
 				else 
@@ -446,68 +453,68 @@ rcmenu menuQuickCreateNode
 
 	on quickDuplicateHead picked do 
 	(
-		arrHeadID = #(8)
+		arrHeadID = #(10)
 		fnDuplicateNub arrHeadID isHead:true
 	)
 
 	on quickDuplicateFingers picked do 
 	(
-		arrFingersID = #(26,30,34,38,42,50,54,58,62,66)
+		arrFingersID = #(28,32,36,40,44,52,56,60,64,68)
 		fnDuplicateNub arrFingersID
 	)
 
 	on quickDuplicateFoot picked do
 	(
-		arrFootID = #(13,18)
+		arrFootID = #(15,20)
 		fnDuplicateNub arrFootID isFoot:true
 	)
 	on quickCenterRoot picked do
 	(
 		try
 		(
-			local leftLeg = GetSkeletalNode 10 false
-			local rightLeg = GetSkeletalNode 15 false
+			local leftLeg = GetSkeletalNode 12 false
+			local rightLeg = GetSkeletalNode 17 false
 			
-			local root = GetSkeletalNode 1 false
-			local hip = GetSkeletalNode 2 false
+			local hip = GetSkeletalNode 1 false
+			local pelvis = GetSkeletalNode 2 false
 			
-			local dummyRoot = point name:("NewHip_" + root.name)
-			local dummyPelvis = point name:("NewPelvis_" + hip.name)
+			local dummyHip = point name:("NewHip_" + hip.name)
+			local dummyPelvis = point name:("NewPelvis_" + pelvis.name)
 
-			dummyRoot.constantscreensize = false
-			dummyRoot.size = 0.01
+			dummyHip.constantscreensize = false
+			dummyHip.size = 0.01
 
 			dummyPelvis.constantscreensize = false
 			dummyPelvis.size = 0.01
 			
-			dummyRoot.transform = root.transform
-			dummyRoot.pos = 0.5 * (leftLeg.pos + rightLeg.pos)
-			dummyPelvis.transform = dummyRoot.transform
+			dummyHip.transform = hip.transform
+			dummyHip.pos = 0.5 * (leftLeg.pos + rightLeg.pos)
+			dummyPelvis.transform = dummyHip.transform
 
 			-- local pC = Position_Constraint()
-			-- pC.appendTarget root 100
-			-- dummyRoot.Position.controller = pC
+			-- pC.appendTarget hip 100
+			-- dummyHip.Position.controller = pC
 			-- pC.relative = true
 			
 			-- local oC = Orientation_Constraint()
-			-- oC.appendTarget root 100
-			-- dummyRoot.Rotation.controller = oC
+			-- oC.appendTarget hip 100
+			-- dummyHip.Rotation.controller = oC
 			-- oC.relative = true
 
-			dummyRoot.parent = root
-			dummyPelvis.parent = hip
+			dummyHip.parent = hip
+			dummyPelvis.parent = pelvis
 			
 			tempItems = rolBsRetarget.characterBones.items
-			tempItems[1] = dummyRoot.name
+			tempItems[1] = dummyHip.name
 			tempItems[2] = dummyPelvis.name
 			rolBsRetarget.characterBones.items = tempItems
 
-			-- if root.parent != undefined then
+			-- if hip.parent != undefined then
 			-- (
-			-- 	boneRootMotionTarget = root.parent
+			-- 	boneRootMotionTarget = hip.parent
 			-- 	boneRootMotion = dummy name:("Root_" + boneRootMotionTarget.name)
 			-- 	boneRootMotion.transform = boneRootMotionTarget.transform
-			-- 	-- dummyRoot.parent = boneRootMotion
+			-- 	-- dummyHip.parent = boneRootMotion
 			-- 	local pC = Position_Constraint()
 			-- 	pC.appendTarget boneRootMotionTarget 100
 			-- 	boneRootMotion.Position.controller = pC
@@ -520,12 +527,12 @@ rcmenu menuQuickCreateNode
 			-- )
 
 			messagebox "已根据大腿重新创建符合 Biped 的质心和盆骨，并且更新了映射列表！                                                          "
-			-- hip.parent = dummyRoot
+			-- pelvis.parent = dummyHip
 
 			-- print leftLeg
 			-- print rightLeg
-			-- print root
 			-- print hip
+			-- print pelvis
 			hasExtraHips = true
 		)
 		catch
@@ -568,22 +575,24 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
 	dotnetcontrol lblTitle "Label" text:"选择骨骼，左键填入列表，右键重置，除【可选】以外，暂时需要映射列表完整，按1234顺序执行即可" pos:[0,5] width:rolBsRetarget.width height:16
 	dotNetControl tabBsADT "System.Windows.Forms.TabControl" height:30 width:rolBsRetarget.width pos:[0,25] align:#center
 	-- Contains the names of the first 35 biped bones for reference
-	listbox bipedBones "Bip 节点 1 - 35" pos:[10,60] across:4 height:42 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
+	label lblRoot "[可选] 请指认原 Bone 骨骼内的根节点 【 Root 】→ ：" pos:[20,67] height:20 width:260
+	listbox lbxRoot "" pos:[290,65] height:1 width:190 items:#("~undefined~") selection:0
+	listbox bipedBones "Bip 节点 1 - 37" pos:[10,90] across:4 height:40 width:114 selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
 	-- visible:false
     -- Contains the names of the first 35 bones used from the original rig
-	listbox characterBones "Bone 骨骼 1 - 35" pos:[130,60]height:42 width:114 items:#("~undefined~")
+	listbox characterBones "Bone 骨骼 1 - 37" pos:[130,90]height:40 width:114 items:#("~undefined~") selection:0
 	
 	-- Contains the names of the reamining biped bones for reference
-	listbox bipedBones_B "Bip 节点 36 - 67" pos:[250,60] height:42 width:114 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
+	listbox bipedBones_B "Bip 节点 38 - 69" pos:[250,90] height:40 width:114 selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
 	-- Contains the names of the remaining original rig's bones.
-	listbox characterBones_B "Bone 骨骼 36 - 67" pos:[370,60] height:42 width:114 items:#("~undefined~")
+	listbox characterBones_B "Bone 骨骼 38 - 69" pos:[370,90] height:40 width:114 items:#("~undefined~") selection:0
 	
 	local switchFBXTools = false
     local btnWidth   = 145
@@ -593,11 +602,11 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 
 	-- label lblTips "" pos:[260,450] width:200 height:30
 	-- pickbutton pkbRootMption "0. 指定原 RootMotion" pos:[20,505] height:30 width:(btnWidth) message:"指定原始 FBX 的 RootMotion" autoDisplay:true tooltip:"右键清除选择"
-    button loadDialogue "加载列表" pos:[495,140] width:(btnWidth/2) height:25
-    button saveDialogue "保存列表" pos:[570,140] width:(btnWidth/2) height:25
-    button btnAutoMapping "1. 自动按命名匹配" pos:[495,100] width:btnWidth height:35 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
-	button btnQuickTools "快速创建所需节点" pos:[495,170] width:btnWidth height:35 tooltip:"快速创建 nub 骨骼或符合 Biped 的质心。"
-	button validateButton "2. 验证映射列表完整" pos:[495,210] width:btnWidth height:50 tooltip:"必须验证匹配是否完整。"
+    button loadDialogue "加载列表" pos:[495,100] width:(btnWidth/2) height:25
+    button saveDialogue "保存列表" pos:[570,100] width:(btnWidth/2) height:25
+	button btnQuickTools "【快速创建所需节点】" pos:[495,130] width:btnWidth height:35 tooltip:"快速创建 nub 骨骼或符合 Biped 的质心。"
+	button btnAutoMapping "1. 自动按命名匹配" pos:[495,170] width:btnWidth height:40 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
+	button validateButton "2. 验证映射列表完整" pos:[495,215] width:btnWidth height:50 tooltip:"必须验证匹配是否完整。"
     
     groupbox grpBiped "【可选】视情况设置" pos:[490,280] width:(btnWidth + 10) height:250
 	spinner spnObjSize "Helper Size" pos:[500,81] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:35 scale:0.01
@@ -614,16 +623,16 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 	button reAlignFingers "🤞🏼 重新对齐手指 🤞🏼" pos:[495,450] width:(btnWidth) height:25
 	-- checkbox chkRenameBiped "Biped 保持 Bone 原名" checked:false pos:[164,535] width:(btnWidth + 20) height:20
 	-- radiobuttons rdoUpAxis " 映射 RootMotion 轴向" pos:[155,500] width:154 height:46 labels:#("Y-Up (U3D)", "Z-Up (UE)") columns:2 default:2
-	label lblUpAxis "引擎 RootMotion 选择" pos:[500,300] width:120 height:25
+	label lblUpAxis "引擎 RootMotion 选择" pos:[500,300] width:120 height:20
 	dropdownList ddlUpAxis "" pos:[495,320] width:145 height:25 items:#("Y-Up (U3D) -  Unity","Z-Up (UE)   -  Unreal") selection:2
-	checkbox chkCopySubs "↓ 映射飘带骨骼动画 ↓" pos:[500,535] height:20 width:(btnWidth + 25) checked:false
+	checkbox chkCopySubs "[慎用] 映射飘带骨骼 ↓" pos:[500,535] height:20 width:(btnWidth + 25) checked:false
     button alignBipedToHelper "3. 创建重定向映射文件" pos:[495,560] width:(btnWidth) height:30
     
     -- button btnExportTPose "[可选]导出 Biped Figure Pose" pos:[305,505] width:(btnWidth + 35) height:25
 	
 	button btnReplaceToBiped "4. FBX 转 Biped ( Skin )" pos:[495,595] width:(btnWidth) height:30
     -- checkbutton ckbExportFBXTools "🎮 动画批量重定向工具" pos:[305,555] width:(btnWidth + 35) height:45
-	checkbox chkRealign "重置轴向 (解算飘带) ↓" pos:[500,477] height:20 width:(btnWidth - 15) checked:false
+	checkbox chkRealign "↓ [慎用] 重置轴向 ↓" pos:[500,477] height:20 width:(btnWidth - 15) checked:false
 	button btnConvertToBone "[慎用] Helper 转 Bone" pos:[495,500] height:25 width:(btnWidth) tooltip:"需要选中"
 	
 	button btnRefreshFolder ">>  按默认规则刷新路径和文件  <<" \
@@ -682,7 +691,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
     progressbar pgbBar "" pos:[10,635] width:590 height:16 color:white
 	label lblBarValue "" pos:[610,635] width:60
 
-	local arrFBXtoBIPED   = #(">> 【 FBX 转 Biped 】 <<",#(bipedBones,characterBones,bipedBones_B,characterBones_B,grpRetargetList,loadDialogue,saveDialogue,\
+	local arrFBXtoBIPED   = #(">> 【 FBX 转 Biped 】 <<",#(lblRoot,lbxRoot,bipedBones,characterBones,bipedBones_B,characterBones_B,grpRetargetList,loadDialogue,saveDialogue,\
 											btnAutoMapping,btnQuickTools,validateButton,grpBiped,spnObjSize,btnResetSize,lblThumbAxis,ddlThumbAxis,\
 											lblHandAxis,ddlHandAxis,lblThumbAxis2,ddlThumbAxis2,ddlHandAxis2,lblHandAxis2,reAlignFingers,lblUpAxis,ddlUpAxis,chkCopySubs,alignBipedToHelper,\
 											btnReplaceToBiped,chkRealign,btnConvertToBone))
@@ -691,6 +700,14 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 											edtSkinFile,chkRecoverExport,btnRetargetSelected,btnRetargettAll,chkXAxis,chkYAxis,chkZAxis,btnBatchAll,\
 											btnSpecial,lblVerTips,ddlSaveVersion,btnCount,edtAllTips))
 	local arrAllToolsTab  = #(arrFBXtoBIPED,arrAnimRetarget)
+
+	fn fnIsOptionalNodeIndex id = 
+	(
+		if id >= 5 and id <= 9 and id != 8 then (return true)
+		else if id >= 26 and id <= 45 then (return true)
+		else if id >= 50 and id <= 69 then (return true)
+		return false
+	)
 
 	fn fnInitDotTabs =
 	(
@@ -783,7 +800,11 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 
 	fn fnIsIgnoreBone index =
 	(
-		if characterBones.items[index] == "~undefined~" then (return true) else (return false)
+		if index <= 37 then 
+		(
+			if characterBones.items[index] == "~undefined~" then (return true) else (return false)
+		)
+		else (if characterBones_B.items[index - 37] == "~undefined~" then (return true) else (return false))
 	)
 
 	-- fn fnConfirmImportFBX =
@@ -857,7 +878,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				return targetBiped
 			)
 		)
-		else if (index <= 35) then
+		else if (index <= 37) then
 		(
             local strTargetBiped = (bipedRootName + " " + (substituteString rolBsRetarget.bipedBones.items[index] "[可选]" ""))
 			idTargetBiped = finditem arrAllBipedName strTargetBiped
@@ -870,7 +891,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 		)
 		else
 		(
-            local strTargetBiped = (bipedRootName + " " + rolBsRetarget.bipedBones_B.items[index-35])
+            local strTargetBiped =(bipedRootName + " " + (substituteString rolBsRetarget.bipedBones_B.items[index-37] "[可选]" ""))
 			idTargetBiped = finditem arrAllBipedName strTargetBiped
 			if idTargetBiped != 0 then 
 			(
@@ -1124,7 +1145,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			loadMaxFile loadRootAnimFile useFileUnits:true quiet:true
 			zeroFrame = animationrange.start
 			endFrame = animationrange.end
-			print endframe
+			-- print endframe
 			LoadSaveAnimation.saveAnimation tempRootAnim $'Root' #("") #("")
 
 			resetMaxFile #noPrompt
@@ -1165,255 +1186,254 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 	global CreateFauxBone
 	fn CreateFauxBone initialBone parentIndex childIndex axis isFoot:false isToes:false isHand:false=
 	(
-		foundParent = GetSkeletalNode parentIndex false
-		
-		foundChild = undefined 
-		if (childIndex > 0) then
+		if (not (fnIsIgnoreBone parentIndex)) then 
 		(
-			foundChild = GetSkeletalNode childIndex false
-		)
+			foundParent = GetSkeletalNode parentIndex false
 		
-		print (foundParent)
-		print (foundChild)
-		
-		if (isFoot == true) then
-		(
-			local parentPos = foundParent.pos;
-			local childPos = foundChild.pos;
-			local midPos = [parentPos.x, parentPos.y, childPos.z]
-			
-			local diffA = midPos - parentPos;
-			local croA = cross (normalize diffA) axis
-			local axisA = normalize croA
-			
-			newBone           = BoneSys.createBone parentPos midPos axisA
-			newBone.parent    = initialBone
-			newBone.name      = ("RTHelper_" + (GetBipedNode parentIndex).name);
-			newBone.boxmode   = true
-			newBone.wirecolor = black
-			fnFixSize newBone
-			-- newBone.width     = 0.01
-			-- newBone.height    = 0.01
-			
-			return newBone;
-		)
-		
-		if (isToes == true) then
-		(
-			local parentPos = foundParent.pos;
-			local childPos = foundChild.pos;
-			local midPos = [childPos.x, childPos.y, parentPos.z]
-			
-			local diffA = midPos - parentPos;
-			local croA = cross (normalize diffA) axis
-			local axisA = normalize croA
-			
-			newBone           = BoneSys.createBone parentPos midPos axisA
-			newBone.parent    = initialBone
-			newBone.name      = ("RTHelper_" + (GetBipedNode parentIndex).name);
-			newBone.boxmode   = true
-			newBone.wirecolor = green
-			fnFixSize newBone
-			-- newBone.width     = 0.01
-			-- newBone.height    = 0.01
-			
-			return newBone;
-		)
-		
-		if (isHand == true) then
-		(
-			local mid = [0,0,0]
-			if (parentIndex == 23) then
+			foundChild = undefined 
+			if (childIndex > 0) then
 			(
-				-- local fIndex = GetSkeletalNode 28 false
-				local fMiddle = GetSkeletalNode 32 false
-				local fRing = GetSkeletalNode 36 false
-				-- local fPinky = GetSkeletalNode 40 false;
-				
-				mid = (fMiddle.pos + fRing.pos) * 0.5;
+				foundChild = GetSkeletalNode childIndex false
 			)
-			else if (parentIndex == 47) then
+			
+			print (foundParent)
+			print (foundChild)
+			
+			if (isFoot == true) then
 			(
-				-- local fIndex = GetSkeletalNode 52 false
-				local fMiddle = GetSkeletalNode 56 false
-				local fRing = GetSkeletalNode 60 false
-				-- local fPinky = GetSkeletalNode 64 false;
+				local parentPos = foundParent.pos;
+				local childPos = foundChild.pos;
+				local midPos = [parentPos.x, parentPos.y, childPos.z]
 				
-				mid = (fMiddle.pos + fRing.pos) * 0.5;
+				local diffA = midPos - parentPos;
+				local croA = cross (normalize diffA) axis
+				local axisA = normalize croA
+				
+				newBone           = BoneSys.createBone parentPos midPos axisA
+				newBone.parent    = initialBone
+				newBone.name      = ("RTHelper_" + (GetBipedNode parentIndex).name);
+				newBone.boxmode   = true
+				newBone.wirecolor = black
+				fnFixSize newBone
+				-- newBone.width     = 0.01
+				-- newBone.height    = 0.01
+				
+				return newBone;
 			)
-			else 
+			
+			if (isToes == true) then
 			(
-				if (foundChild != undefined) then
+				local parentPos = foundParent.pos;
+				local childPos = foundChild.pos;
+				local midPos = [childPos.x, childPos.y, parentPos.z]
+				
+				local diffA = midPos - parentPos;
+				local croA = cross (normalize diffA) axis
+				local axisA = normalize croA
+				
+				newBone           = BoneSys.createBone parentPos midPos axisA
+				newBone.parent    = initialBone
+				newBone.name      = ("RTHelper_" + (GetBipedNode parentIndex).name);
+				newBone.boxmode   = true
+				newBone.wirecolor = green
+				fnFixSize newBone
+				-- newBone.width     = 0.01
+				-- newBone.height    = 0.01
+				
+				return newBone;
+			)
+			
+			if (isHand == true) then
+			(
+				local mid = [0,0,0]
+				if (parentIndex == 25) then
 				(
-					mid = foundChild.pos
+					-- local fIndex = GetSkeletalNode 28 false
+					local fMiddle = GetSkeletalNode 34 false
+					local fRing = GetSkeletalNode 38 false
+					-- local fPinky = GetSkeletalNode 40 false;
+					
+					mid = (fMiddle.pos + fRing.pos) * 0.5;
+				)
+				else if (parentIndex == 49) then
+				(
+					-- local fIndex = GetSkeletalNode 52 false
+					local fMiddle = GetSkeletalNode 58 false
+					local fRing = GetSkeletalNode 62 false
+					-- local fPinky = GetSkeletalNode 64 false;
+					
+					mid = (fMiddle.pos + fRing.pos) * 0.5;
 				)
 				else 
 				(
-					local diff = foundParent.pos - initialBone.pos
+					if (foundChild != undefined) then
+					(
+						mid = foundChild.pos
+					)
+					else 
+					(
+						local diff = foundParent.pos - initialBone.pos
+						
+						if initialBone != undefined then
+						(
+							mid = (foundParent.pos + (normalize diff) * 4)
+						)
+						else
+						(
+							return undefined;
+						)
+					)
+				)
+				
+				-- local diff = mid - foundParent.pos
+				-- local cro = cross (normalize diff) axis
+				-- axis = normalize cro
+				-- print axis
+				local axis2
+				local axisThumb2
+	
+				case rolBsRetarget.ddlHandAxis.selected of 
+				(
+					("X"):(axis = foundParent.transform.row1)
+					("Y"):(axis = foundParent.transform.row2)
+					("Z"):(axis = foundParent.transform.row3)
+					("-X"):(axis = -foundParent.transform.row1)
+					("-Y"):(axis = -foundParent.transform.row2)
+					("-Z"):(axis = -foundParent.transform.row3;axisThumb = foundParent.transform.row2)
+					default:(axis = -foundParent.transform.row3;axisThumb = foundParent.transform.row2)
+				)
+	
+				case rolBsRetarget.ddlThumbAxis.selected of 
+				(
+					("X"):(axisThumb = foundParent.transform.row1)
+					("Y"):(axisThumb = foundParent.transform.row2)
+					("Z"):(axisThumb = foundParent.transform.row3)
+					("-X"):(axisThumb = -foundParent.transform.row1)
+					("-Y"):(axisThumb = -foundParent.transform.row2)
+					("-Z"):(axisThumb = -foundParent.transform.row3)
+					default:(axisThumb = -foundParent.transform.row3)
+				)
+	
+				case rolBsRetarget.ddlHandAxis2.selected of
+				(
+					("X"):(axis2 = foundParent.transform.row1)
+					("Y"):(axis2 = foundParent.transform.row2)
+					("Z"):(axis2 = foundParent.transform.row3)
+					("-X"):(axis2 = -foundParent.transform.row1)
+					("-Y"):(axis2 = -foundParent.transform.row2)
+					("-Z"):(axis2 = -foundParent.transform.row3;axisThumb2 = foundParent.transform.row2)
+					default:(axis2 = -foundParent.transform.row3;axisThumb2 = foundParent.transform.row2)
+				)
+	
+				case rolBsRetarget.ddlThumbAxis2.selected of 
+				(
+					("X"):(axisThumb2 = foundParent.transform.row1)
+					("Y"):(axisThumb2 = foundParent.transform.row2)
+					("Z"):(axisThumb2 = foundParent.transform.row3)
+					("-X"):(axisThumb2 = -foundParent.transform.row1)
+					("-Y"):(axisThumb2 = -foundParent.transform.row2)
+					("-Z"):(axisThumb2 = -foundParent.transform.row3)
+					default:(axisThumb2 = -foundParent.transform.row3)
+				)
+	
+				arrThumbIndex = #(26,27,28,29)
+				arrThumbIndex2 = #(50,51,52,53)
+	
+				if parentIndex >= 49 then (axis = axis2;axisThumb = axisThumb2)
+				if finditem arrThumbIndex parentIndex != 0 then (axis = axisThumb)
+				if finditem arrThumbIndex2 parentIndex != 0 then (axis = axisThumb2)
+	
+				if initialBone != undefined then
+				(
+					newBone = BoneSys.createBone foundParent.pos mid axis
+					newBone.parent    = initialBone
+					newBone.boxmode   = true
+					newBone.wirecolor = green
+					fnFixSize newBone
+				)
+				else
+				(
+					newBone = BoneSys.createBone foundParent.pos mid axis
+					newBone.boxmode   = true
+					newBone.wirecolor = green
+					fnFixSize newBone
+				)
+				-- print parentIndex
+				newBone.name   = ("RTHelper_" + (GetBipedNode parentIndex).name);
+				-- newBone.width  = 0.01
+				-- newBone.height = 0.01
+				
+				return newBone;
+			)
+			
+			if (foundParent != undefined) then
+			(
+				if (foundChild != undefined) then
+				(
+					local diff = foundChild.pos - foundParent.pos
+					local cro = cross (normalize diff) axis
+					axis = normalize cro
+					print axis
 					
 					if initialBone != undefined then
 					(
-						mid = (foundParent.pos + (normalize diff) * 4)
+						newBone = BoneSys.createBone foundParent.pos foundChild.pos axis
+						newBone.parent    = initialBone
+						newBone.boxmode   = true
+						newBone.wirecolor = green
+						fnFixSize newBone
+					)
+					else
+					(
+						newBone = BoneSys.createBone foundParent.pos foundChild.pos axis
+						newBone.boxmode   = true
+						newBone.wirecolor = green
+						fnFixSize newBone
+					)
+					
+					newBone.name   = ("RTHelper_" + (GetBipedNode parentIndex).name)
+					-- newBone.width  = 0.01
+					-- newBone.height = 0.01
+				)
+				else
+				(
+					local diff = foundParent.pos - initialBone.pos
+					local cro = cross diff axis
+					axis = normalize cro
+					print axis
+					
+					if initialBone != undefined then
+					(
+						newBone=BoneSys.createBone foundParent.pos (foundParent.pos + (normalize diff) * 4) axis
+						newBone.parent    = initialBone
+						newBone.boxmode   = true
+						newBone.wirecolor = green
+						fnFixSize newBone
+						newBone.ishidden = true
 					)
 					else
 					(
 						return undefined;
 					)
+					
+					newBone.name   = ("RTHelper_" + (GetBipedNode parentIndex).name)
+					-- newBone.width  = 0.01
+					-- newBone.height = 0.01
 				)
-			)
-			
-			-- local diff = mid - foundParent.pos
-			-- local cro = cross (normalize diff) axis
-			-- axis = normalize cro
-			-- print axis
-			local axis2
-			local axisThumb2
-
-			case rolBsRetarget.ddlHandAxis.selected of 
-			(
-				("X"):(axis = foundParent.transform.row1)
-				("Y"):(axis = foundParent.transform.row2)
-				("Z"):(axis = foundParent.transform.row3)
-				("-X"):(axis = -foundParent.transform.row1)
-				("-Y"):(axis = -foundParent.transform.row2)
-				("-Z"):(axis = -foundParent.transform.row3;axisThumb = foundParent.transform.row2)
-				default:(axis = -foundParent.transform.row3;axisThumb = foundParent.transform.row2)
-			)
-
-			case rolBsRetarget.ddlThumbAxis.selected of 
-			(
-				("X"):(axisThumb = foundParent.transform.row1)
-				("Y"):(axisThumb = foundParent.transform.row2)
-				("Z"):(axisThumb = foundParent.transform.row3)
-				("-X"):(axisThumb = -foundParent.transform.row1)
-				("-Y"):(axisThumb = -foundParent.transform.row2)
-				("-Z"):(axisThumb = -foundParent.transform.row3)
-				default:(axisThumb = -foundParent.transform.row3)
-			)
-
-			case rolBsRetarget.ddlHandAxis2.selected of
-			(
-				("X"):(axis2 = foundParent.transform.row1)
-				("Y"):(axis2 = foundParent.transform.row2)
-				("Z"):(axis2 = foundParent.transform.row3)
-				("-X"):(axis2 = -foundParent.transform.row1)
-				("-Y"):(axis2 = -foundParent.transform.row2)
-				("-Z"):(axis2 = -foundParent.transform.row3;axisThumb2 = foundParent.transform.row2)
-				default:(axis2 = -foundParent.transform.row3;axisThumb2 = foundParent.transform.row2)
-			)
-
-			case rolBsRetarget.ddlThumbAxis2.selected of 
-			(
-				("X"):(axisThumb2 = foundParent.transform.row1)
-				("Y"):(axisThumb2 = foundParent.transform.row2)
-				("Z"):(axisThumb2 = foundParent.transform.row3)
-				("-X"):(axisThumb2 = -foundParent.transform.row1)
-				("-Y"):(axisThumb2 = -foundParent.transform.row2)
-				("-Z"):(axisThumb2 = -foundParent.transform.row3)
-				default:(axisThumb2 = -foundParent.transform.row3)
-			)
-
-			arrThumbIndex = #(24,25,26,27)
-			arrThumbIndex2 = #(48,49,50,51)
-
-			if parentIndex >= 47 then (axis = axis2;axisThumb = axisThumb2)
-			if finditem arrThumbIndex parentIndex != 0 then (axis = axisThumb)
-			if finditem arrThumbIndex2 parentIndex != 0 then (axis = axisThumb2)
-
-			if initialBone != undefined then
-			(
-				newBone = BoneSys.createBone foundParent.pos mid axis
-				newBone.parent    = initialBone
-				newBone.boxmode   = true
-				newBone.wirecolor = green
-				fnFixSize newBone
-			)
-			else
-			(
-				newBone = BoneSys.createBone foundParent.pos mid axis
-				newBone.boxmode   = true
-				newBone.wirecolor = green
-				fnFixSize newBone
-			)
-
-			newBone.name   = ("RTHelper_" + (GetBipedNode parentIndex).name);
-			-- newBone.width  = 0.01
-			-- newBone.height = 0.01
-			
-			return newBone;
+			)	
+			return newBone	
 		)
-		
-		if (foundParent != undefined) then
-		(
-			if (foundChild != undefined) then
-			(
-				local diff = foundChild.pos - foundParent.pos
-				local cro = cross (normalize diff) axis
-				axis = normalize cro
-				print axis
-				
-				if initialBone != undefined then
-				(
-					newBone = BoneSys.createBone foundParent.pos foundChild.pos axis
-					newBone.parent    = initialBone
-					newBone.boxmode   = true
-					newBone.wirecolor = green
-					fnFixSize newBone
-				)
-				else
-				(
-					newBone = BoneSys.createBone foundParent.pos foundChild.pos axis
-					newBone.boxmode   = true
-					newBone.wirecolor = green
-					fnFixSize newBone
-				)
-				
-				newBone.name   = ("RTHelper_" + (GetBipedNode parentIndex).name)
-				-- newBone.width  = 0.01
-				-- newBone.height = 0.01
-			)
-			else
-			(
-				local diff = foundParent.pos - initialBone.pos
-				local cro = cross diff axis
-				axis = normalize cro
-				print axis
-				
-				if initialBone != undefined then
-				(
-					newBone=BoneSys.createBone foundParent.pos (foundParent.pos + (normalize diff) * 4) axis
-					newBone.parent    = initialBone
-					newBone.boxmode   = true
-					newBone.wirecolor = green
-					fnFixSize newBone
-					newBone.ishidden = true
-				)
-				else
-				(
-					return undefined;
-				)
-				
-				newBone.name   = ("RTHelper_" + (GetBipedNode parentIndex).name)
-				-- newBone.width  = 0.01
-				-- newBone.height = 0.01
-			)
-		)		
-		
-		return newBone;
 	)
 
 	fn AdjustBipedScale index0 spine:false isToe:false isHand:false = 
 	(
 		local index1 = index0 + 1;
-		if (((index0 == 6) and (fnIsIgnoreBone 7)) or ((index0 == 4) and (fnIsIgnoreBone 5))) then
-		(
-			index1 = index0 + 2;
-		)
+		if fnIsIgnoreBone index0 then (return 0)
 		
 		affectedBiped = GetBipedNode index0;
 		if affectedBiped == undefined then
 		(
-			messagebox ("Biped Node -- " + index0 + " is missing. -- Not Found");
+			messagebox ("Biped Node -- " + (index0 as string) + " is missing. -- Not Found");
 			return 0;
 		)
 		
@@ -1446,30 +1466,34 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 	global CreateOrientationConstraint
 	fn CreateOrientationConstraint itemIndex fauxToBiped =
 	(
-		if fauxToBiped == false then
-		(		
-			/*local oC = Orientation_Constraint();
-			oC.appendTarget (GetSkeletalNode itemIndex true) 100;
-			
-			(GetSkeletalNode itemIndex false).Rotation.controller = oC;
-			oC.relative = true;*/
-			
-
-
-			local oC = Orientation_Constraint();
-			oC.appendTarget (GetSkeletalNode itemIndex false) 100;
-			
-			(getNodeByName ("RTHelper_" + (GetBipedNode itemIndex).name)).Rotation.controller = oC;
-			oC.relative = true;
-		)
-		else
+		if (not (fnIsIgnoreBone itemIndex)) then 
 		(
-			local oC = Orientation_Constraint();
-			oC.appendTarget (GetBipedNode itemIndex) 100;
-			
-			(getNodeByName ("RTHelper_" + (GetBipedNode itemIndex).name)).Rotation.controller = oC;
-			oC.relative = true;
+			if fauxToBiped == false then
+			(		
+				/*local oC = Orientation_Constraint();
+				oC.appendTarget (GetSkeletalNode itemIndex true) 100;
+				
+				(GetSkeletalNode itemIndex false).Rotation.controller = oC;
+				oC.relative = true;*/
+				
+	
+	
+				local oC = Orientation_Constraint();
+				oC.appendTarget (GetSkeletalNode itemIndex false) 100;
+				
+				(getNodeByName ("RTHelper_" + (GetBipedNode itemIndex).name)).Rotation.controller = oC;
+				oC.relative = true;
+			)
+			else
+			(
+				local oC = Orientation_Constraint();
+				oC.appendTarget (GetBipedNode itemIndex) 100;
+				
+				(getNodeByName ("RTHelper_" + (GetBipedNode itemIndex).name)).Rotation.controller = oC;
+				oC.relative = true;
+			)
 		)
+		else (print "ignore")
 	)
 	
 	global CreatePositionConstraint
@@ -1501,22 +1525,25 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 	
 	fn AlignOldAndNewBones itemIndex prealign:false = 
 	(
-		if prealign == true then
+		if (not (fnIsIgnoreBone itemIndex)) then 
 		(
-			biped.setTransform (GetBipedNode itemIndex) #pos (GetSkeletalNode itemIndex true).pos false
-		)
-		
-		charBone = GetSkeletalNode itemIndex true
-		bipedBone = GetBipedNode itemIndex
-		
-		if (charBone == undefined or bipedBone == undefined) then
-		(
-			messagebox (format "Character or Biped Bone % not found" itemIndex)
-		)
-		else
-		(
-			charBone.transform = bipedBone.transform
-			select charBone
+			if prealign == true then
+			(
+				biped.setTransform (GetBipedNode itemIndex) #pos (GetSkeletalNode itemIndex true).pos false
+			)
+			
+			charBone = GetSkeletalNode itemIndex true
+			bipedBone = GetBipedNode itemIndex
+			
+			if (charBone == undefined or bipedBone == undefined) then
+			(
+				messagebox (format "Character or Biped Bone % not found" itemIndex)
+			)
+			else
+			(
+				charBone.transform = bipedBone.transform
+				select charBone
+			)
 		)
 	)
 	
@@ -1559,8 +1586,8 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 		(
 			1:  
 			(
-				ll = (GetSkeletalNode 10 true)
-				rr = (GetSkeletalNode 15 true)
+				ll = (GetSkeletalNode 12 true)
+				rr = (GetSkeletalNode 17 true)
 				pp = (ll.pos + rr.pos) * 0.5
 				
 				biped.setTransform (GetBipedNode 1) #pos pp false
@@ -1590,18 +1617,6 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				if okForceRedraw == true then forceCompleteRedraw();
 			)
 			-- Neck
-			6:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			-- Head
 			8:
 			(
 				if (inFigureMode) then
@@ -1613,8 +1628,20 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
 				if okForceRedraw == true then forceCompleteRedraw();
 			)
+			-- Head
+			10:
+			(
+				if (inFigureMode) then
+				(
+					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
+					
+				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+				if okForceRedraw == true then forceCompleteRedraw();
+			)
 			-- left shoulder
-			20:
+			22:
 			(
 				if (inFigureMode) then
 				(
@@ -1626,7 +1653,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				if okForceRedraw == true then forceCompleteRedraw();
 			)
 			-- right shoulder
-			44:
+			46:
 			(
 				if (inFigureMode) then
 				(
@@ -1640,7 +1667,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			
 			-- left hand
-			23:
+			25:
 			(
 				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
 				if okForceRedraw == true then forceCompleteRedraw();
@@ -1655,7 +1682,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			
 			-- right hand
-			47:
+			49:
 			(
 				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
 				if okForceRedraw == true then forceCompleteRedraw();
@@ -1669,7 +1696,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				FixLimb 46
 			)
 			-- left foot
-			12:
+			14:
 			(
 				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
 				if okForceRedraw == true then forceCompleteRedraw();
@@ -1685,7 +1712,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				FixLimb 11
 			)
 			-- right foot
-			17:
+			19:
 			(
 				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
 				if okForceRedraw == true then forceCompleteRedraw();
@@ -1701,7 +1728,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				FixLimb 16
 			)
 			-- left thumb
-			24:
+			26:
 			(
 				if (inFigureMode) then
 				(
@@ -1713,7 +1740,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				if okForceRedraw == true then forceCompleteRedraw();
 			)
 			-- left index
-			28:
+			30:
 			(
 				if (inFigureMode) then
 				(
@@ -1725,7 +1752,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				if okForceRedraw == true then forceCompleteRedraw();
 			)
 			-- left middle
-			32:
+			34:
 			(
 				if (inFigureMode) then
 				(
@@ -1738,7 +1765,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			
 			-- left ring
-			36:
+			38:
 			(
 				if (inFigureMode) then
 				(
@@ -1751,7 +1778,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			
 			-- left pinky
-			40:
+			42:
 			(
 				if (inFigureMode) then
 				(
@@ -1764,7 +1791,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			
 			-- right thumb
-			48:
+			50:
 			(
 				if (inFigureMode) then
 				(
@@ -1776,7 +1803,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				if okForceRedraw == true then forceCompleteRedraw();
 			)
 			-- right index
-			52:
+			54:
 			(
 				if (inFigureMode) then
 				(
@@ -1788,7 +1815,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				if okForceRedraw == true then forceCompleteRedraw();
 			)
 			-- right  middle
-			56:
+			58:
 			(
 				if (inFigureMode) then
 				(
@@ -1801,7 +1828,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			
 			-- right  ring
-			60:
+			62:
 			(
 				if (inFigureMode) then
 				(
@@ -1814,7 +1841,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			
 			-- left toe
-			13:
+			15:
 			(
 				if (inFigureMode) then
 				(
@@ -1827,7 +1854,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			
 			-- right  toe
-			18:
+			20:
 			(
 				if (inFigureMode) then
 				(
@@ -1840,7 +1867,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			
 			-- right  pinky
-			64:
+			66:
 			(
 				if (inFigureMode) then
 				(
@@ -1870,12 +1897,12 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 
 			if oldFigureMode == true then
 			(
-				for i = 24 to 43 do
+				for i = 26 to 45 do
 				(
 					AlignBipToFaux i
 				)
 				
-				for i = 48 to 67 do
+				for i = 50 to 69 do
 				(
 					AlignBipToFaux i
 				)
@@ -1889,7 +1916,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
     (
         try
 		(
-			for i = 1 to 67 where (not (fnIsIgnoreBone i)) do
+			for i = 1 to 69 where (not (fnIsIgnoreBone i)) do
 			(
 				-- if (i != 7) then
 				-- (
@@ -1911,7 +1938,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 					)*/
 					
 					-- We ignore aligning to the legs and arms
-					if (i != 10 and i != 11 and i != 15 and i != 16 and i != 21 and i != 22 and i != 45 and i != 46) then
+					if (i != 12 and i != 13 and i != 17 and i != 18 and i != 23 and i != 24 and i != 47 and i != 48) then
 					(
 						AlignBipToFaux i
 					)
@@ -1924,17 +1951,17 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			return undefined
 		)
 		
-		FixLimb 22
-		biped.setTransform (GetBipedNode 23) #rotation (GetSkeletalNode 23 true).transform.rotation false
+		FixLimb 24
+		biped.setTransform (GetBipedNode 25) #rotation (GetSkeletalNode 25 true).transform.rotation false
 		
-		FixLimb 46
-		biped.setTransform (GetBipedNode 47) #rotation (GetSkeletalNode 47 true).transform.rotation false
+		FixLimb 48
+		biped.setTransform (GetBipedNode 49) #rotation (GetSkeletalNode 49 true).transform.rotation false
 		
-		FixLimb 11
-		FixLimb 16	
+		FixLimb 13
+		FixLimb 18	
 		
-        AlignBipToFaux 23
-        AlignBipToFaux 47
+        AlignBipToFaux 25
+        AlignBipToFaux 49
     )
 	
 	
@@ -1945,169 +1972,92 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 		AlignOldAndNewBones 3 prealign:true
 		AlignOldAndNewBones 4
 		AlignOldAndNewBones 5
-		AlignOldAndNewBones 6 prealign:true
-		if (not (fnIsIgnoreBone 7)) then (AlignOldAndNewBones 7)
+		AlignOldAndNewBones 6
+		AlignOldAndNewBones 7
+		AlignOldAndNewBones 8 prealign:true
+		AlignOldAndNewBones 9
 		
 		-- We then align the head bone
-		AlignOldAndNewBones 8 prealign:true
+		AlignOldAndNewBones 10 prealign:true
 		
-		AlignOldAndNewBones 10
-		AlignOldAndNewBones 11
 		AlignOldAndNewBones 12
+		AlignOldAndNewBones 13
+		AlignOldAndNewBones 14
 		
-		AlignOldAndNewBones 13 prealign:true
+		AlignOldAndNewBones 15 prealign:true
 		
-		AlignOldAndNewBones 15
-		AlignOldAndNewBones 16
 		AlignOldAndNewBones 17
-		AlignOldAndNewBones 18 prealign:true
+		AlignOldAndNewBones 18
+		AlignOldAndNewBones 19
+		AlignOldAndNewBones 20 prealign:true
 		
-		AlignOldAndNewBones 15
-		AlignOldAndNewBones 16
 		AlignOldAndNewBones 17
-		AlignOldAndNewBones 18 prealign:true
+		AlignOldAndNewBones 18
+		AlignOldAndNewBones 19
+		AlignOldAndNewBones 20 prealign:true
 		
 		-- LEFT ARM
-		AlignOldAndNewBones 20 prealign:true
-		AlignOldAndNewBones 21
-		AlignOldAndNewBones 22
+		AlignOldAndNewBones 22 prealign:true
 		AlignOldAndNewBones 23
+		AlignOldAndNewBones 24
+		AlignOldAndNewBones 25
 		
 		-- LEFT FINGERS
-		AlignOldAndNewBones 24 prealign:true
-		AlignOldAndNewBones 25
-		AlignOldAndNewBones 26
+		AlignOldAndNewBones 26 prealign:true
+		AlignOldAndNewBones 27
+		AlignOldAndNewBones 28
 		
-		AlignOldAndNewBones 28 prealign:true
-		AlignOldAndNewBones 29
-		AlignOldAndNewBones 30
+		AlignOldAndNewBones 30 prealign:true
+		AlignOldAndNewBones 31
+		AlignOldAndNewBones 32
 		
-		AlignOldAndNewBones 32 prealign:true
-		AlignOldAndNewBones 33
-		AlignOldAndNewBones 34
+		AlignOldAndNewBones 34 prealign:true
+		AlignOldAndNewBones 35
+		AlignOldAndNewBones 36
 		
-		AlignOldAndNewBones 36 prealign:true
-		AlignOldAndNewBones 37
-		AlignOldAndNewBones 38
+		AlignOldAndNewBones 38 prealign:true
+		AlignOldAndNewBones 39
+		AlignOldAndNewBones 40
 		
-		AlignOldAndNewBones 40 prealign:true
-		AlignOldAndNewBones 41
-		AlignOldAndNewBones 42
+		AlignOldAndNewBones 42 prealign:true
+		AlignOldAndNewBones 43
+		AlignOldAndNewBones 44
 		
 		-- RIGHT ARM
-		AlignOldAndNewBones 44 prealign:true
-		AlignOldAndNewBones 45
-		AlignOldAndNewBones 46
+		AlignOldAndNewBones 46 prealign:true
 		AlignOldAndNewBones 47
+		AlignOldAndNewBones 48
+		AlignOldAndNewBones 49
 		
 		-- RIGHT FINGERS
-		AlignOldAndNewBones 48 prealign:true
-		AlignOldAndNewBones 49
-		AlignOldAndNewBones 50
+		AlignOldAndNewBones 50 prealign:true
+		AlignOldAndNewBones 51
+		AlignOldAndNewBones 52
 		
-		AlignOldAndNewBones 52 prealign:true
-		AlignOldAndNewBones 53
-		AlignOldAndNewBones 54
+		AlignOldAndNewBones 54 prealign:true
+		AlignOldAndNewBones 55
+		AlignOldAndNewBones 56
 		
-		AlignOldAndNewBones 56 prealign:true
-		AlignOldAndNewBones 57
-		AlignOldAndNewBones 58
+		AlignOldAndNewBones 58 prealign:true
+		AlignOldAndNewBones 59
+		AlignOldAndNewBones 60
 		
-		AlignOldAndNewBones 60 prealign:true
-		AlignOldAndNewBones 61
-		AlignOldAndNewBones 62
+		AlignOldAndNewBones 62 prealign:true
+		AlignOldAndNewBones 63
+		AlignOldAndNewBones 64
 		
-		AlignOldAndNewBones 64 prealign:true
-		AlignOldAndNewBones 65
-		AlignOldAndNewBones 66
+		AlignOldAndNewBones 66 prealign:true
+		AlignOldAndNewBones 67
+		AlignOldAndNewBones 68
 	)
-	
-	on resetPosition pressed do
-	(
-		if (originalTransformArray.count != characterBones.items.count) then
-		(
-			for i = 1 to characterBones.items.count do
-			(
-				originalTransformArray = append originalTransformArray (GetBoneRot i)
-			)
-		)
-		else
-		(
-		
-			for i = 1 to originalTransformArray.count do
-			(
-				(getNodeByName (characterBones.items[i])).rotation = originalTransformArray[i]
-			)
-		)
-	)
-	
-	-- on constrainButton pressed do
-	-- (
-	-- 	try
-	-- 	(
-	-- 		-- Creates a dummy
-	-- 		newRoot = bone pos:[0,0,0]
-	-- 		bipedNode = GetBipedNode 1
-	-- 		newRoot.transform = bipedNode.transform
-	-- 		newRoot.name = "NEW_CHARACTER_ROOT"
-			
-	-- 		for i = 3 to characterBones.items.count do
-	-- 		(
-	-- 			if (i != 7) then
-	-- 			(
-	-- 				CreateOrientationConstraint i true
-	-- 			)
-	-- 		)
-			
-	-- 		for i = 1 to characterBones_B.items.count do
-	-- 		(
-	-- 			CreateOrientationConstraint (i + 35) true
-	-- 		)
-			
-	-- 		-- Uses a link constraint for the hips instead of putting it under a new parent.
-	-- 		lc = Link_Constraint();
-	-- 		(GetSkeletalNode 1 false).transform.controller = lc --assign the constraint to the transform controller of the teapot
-	-- 		lc.key_mode = 0 --set the key mode to 0 (it is the default anyway)
-	-- 		lc.addTarget newRoot 0
-			
-	-- 		--(GetSkeletalNode 1 false)
-	-- 		-- Sets the new root
-	-- 		--(GetSkeletalNode 1 false).parent = newRoot
-			
-	-- 		oC = Orientation_Constraint();
-	-- 		oC.appendTarget (GetBipedNode 1) 500;
-			
-	-- 		newRoot.Rotation.controller = oC;
-	-- 		oC.relative = true;
-			
-	-- 		-- Adds position constraints
-	-- 		pC = Position_Constraint();
-	-- 		pC.appendTarget (GetBipedNode 1) 500;
-			
-	-- 		newRoot.Position.controller = pC;
-	-- 		pC.relative = true;
-			
-	-- 		-- Does the position constraitns for the legs, spine, etc.
-	-- 		-- if togglePositionConstraints.checked then
-	-- 		-- (
-				
-	-- 		-- 	CreatePositionConstraint 3 true
-	-- 		-- 	CreatePositionConstraint 10 true
-	-- 		-- 	CreatePositionConstraint 15 true
-	-- 		-- )
-	-- 	)
-	-- 	catch
-	-- 	(
-	-- 		messagebox "Error when setting up constraint.  Bones, biped, and/or helper rig most likely missing."
-	-- 	)
-	-- )
+
 	
 	on saveDialogue pressed do
 	(
         local tempdir = (if (maxFilePath != "") and (doesDirectoryExist maxFilePath) then \
         maxFilePath else (@"C:\Users\" + (filterString  (getdir #userscripts) @"\")[3] + @"\Desktop\"))
 
-        f = getSaveFileName caption:"Save Skeleton" initialDir:tempdir filename:"mapping.list" types:"Mapping List (*.list)|*.list|"
+        f = getSaveFileName caption:"Save Skeleton Mapping:" initialDir:tempdir filename:"mapping.list" types:"Mapping List (*.list)|*.list|"
         
         if f != undefined then
         (
@@ -2129,6 +2079,8 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
             (
                 format "%\n" characterBones_B.items[i] to:out_file
             )
+
+			format "%\n" lbxRoot.items[1] to:out_file
             
             close out_file
             
@@ -2142,11 +2094,12 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 		lblBarValue.text = (pgbBar.value as string) + " %"
         local tempdir = (if (maxFilePath != "") and (doesDirectoryExist maxFilePath) then maxFilePath else (@"C:\Users\" + (filterString  (getdir #userscripts) @"\")[3] + @"\Desktop\"))
 
-		f = getOpenFileName caption:"Open A Test File:" filename:tempdir types:"Mapping List (*.list)|*.list|"
+		f = getOpenFileName caption:"Load Skeleton Mapping:" filename:tempdir types:"Mapping List (*.list)|*.list|"
 		
 		if f != undefined then
 		(
 			fS = openFile f mode:"r"
+
 			i = 1
 			
 			while (eof fS) == false do
@@ -2154,18 +2107,20 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				newValue = readLine fS;
 				-- print newValue
 				
-				if (i <= 35) then
+				if (i <= 37) then
 				(
 					local temp_array = characterBones.items;
 					temp_array[i] = newValue;
 					characterBones.items = temp_array;
 				)
-				else if (i <= 67) then
+				else if (i <= 69) then
 				(
 					local temp_array = characterBones_B.items;
-					temp_array[i-35] = newValue;
+					temp_array[i-37] = newValue;
 					characterBones_B.items = temp_array;
 				)
+				else if (i == 70) then (lbxRoot.items = #(newValue))
+
 				i += 1;
 			)
 			
@@ -2175,25 +2130,28 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 		)
 	)
 	
-	-- on toggleBipedMode changed theState do
-	-- (
-	-- 	local bip = (GetBipedNode 1);
-	-- 	if bip != undefined then
-	-- 	(
-	-- 		bip.transform.controller.figureMode = theState
-	-- 	)
-	-- )
+	on lbxRoot selected nameIndex do
+	(
+		if $ != undefined and (selection as array).count == 1 then
+		(
+			bsRootBone = selection[1]
+			lbxRoot.items = #(bsRootBone.name)
+			lbxRoot.selection = 0
+			print ("【Root】: " + bsRootBone.name)
+		)
+		else (messagebox "只能填入一个有效骨骼节点!                                              ")
+	)
 	
+	on lbxRoot rightclick nameIndex do
+	(
+		bsRootBone = undefined
+		lbxRoot.items = #("~undefined~")
+		lbxRoot.selection = 0
+	)
+
 	on bipedBones selected nameIndex do
 	(
-		-- print (nameIndex)
-		-- if $ != undefined and (selection as array).count == 1 then
-		-- (
-		-- 	local temp_array = characterBones.items;
-		-- 	temp_array[nameIndex] = $.name
-		-- 	characterBones.items = temp_array;
-		-- )
-		-- else (messagebox "只能填入一个有效骨骼节点!                                              ")
+		print (nameIndex)
 		try(select (GetSkeletalNode nameIndex false))catch()
 	)
 	
@@ -2227,15 +2185,8 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 	
 	on bipedBones_B selected nameIndex do
 	(
-		-- print (nameIndex)
-		-- if $ != undefined and (selection as array).count == 1 then
-		-- (
-		-- 	local temp_array = characterBones_B.items;
-		-- 	temp_array[nameIndex] = $.name
-		-- 	characterBones_B.items = temp_array;
-		-- )
-		-- else (messagebox "只能填入一个有效骨骼节点!                                              ")
-		try(select (GetSkeletalNode (nameIndex + 35) false))catch()
+		print (nameIndex + 37)
+		try(select (GetSkeletalNode (nameIndex + 37) false))catch()
 	)
 	
 	on characterBones_B selected nameIndex do
@@ -2286,7 +2237,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			local checkedNode = GetSkeletalNode i false
 			if (checkedNode == undefined) then
 			(
-				if (i != 5) and (i != 7) then
+				if not (fnIsOptionalNodeIndex i) then
 				(
 					messagebox ("缺失 " + (i as string) + ":  " + bipedBones.items[i] + "                  ");
 					mappingCheckState = false
@@ -2297,12 +2248,15 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 		
 		for i = 1 to characterBones_B.items.count do
 		(
-			local checkedNode = GetSkeletalNode (i+35) false
+			local checkedNode = GetSkeletalNode (i+37) false
 			if (checkedNode == undefined) then
 			(
-				messagebox ("缺失 " + (i as string) + ":  " + bipedBones_B.items[i] + "                   ");
-				mappingCheckState = false
-				exit
+				if not (fnIsOptionalNodeIndex i) then
+				(
+					messagebox ("缺失 " + (i as string) + ":  " + bipedBones_B.items[i] + "                   ");
+					mappingCheckState = false
+					exit
+				)
 			)
 		)
 		
@@ -2343,7 +2297,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 					)
 					nubItem.pos = pos;
 					
-					if nubIndex <= 35 then
+					if nubIndex <= 37 then
 					(
 						local temp_array = characterBones.items;
 						temp_array[nubIndex] = nubItem.name
@@ -2352,7 +2306,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 					else
 					(
 						local temp_array = characterBones_B.items;
-						temp_array[nubIndex-35] = nubItem.name
+						temp_array[nubIndex-37] = nubItem.name
 						characterBones_B.items = temp_array;
 					)
 				)
@@ -2405,7 +2359,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 					)
 					((finditem rolBsRetarget.characterBones_B.items boneFBXRoot.parent.name) != 0):
 					(
-						helperRoot = (GetSkeletalNode ((finditem rolBsRetarget.characterBones_B.items boneFBXRoot.parent.name) + 35) true)
+						helperRoot = (GetSkeletalNode ((finditem rolBsRetarget.characterBones_B.items boneFBXRoot.parent.name) + 37) true)
 					)
 					default:
 					(helperRoot = (getnodebyname ("RTHelper_" + boneFBXRoot.parent.name)))
@@ -2540,8 +2494,9 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			max Create mode
 			---断开质心防止旋转出问题，后面连上
 			hips = (GetSkeletalNode 1 false)
-			rootMotionBone = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
-			tempHips = hips.parent
+			-- rootMotionBone = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
+			bsRootBone = (getnodebyname lbxRoot.items[1])
+			rootMotionBone = bsRootBone
 			hips.parent = undefined
 
 			-- 创建 Helper
@@ -2566,27 +2521,27 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			if isValidNode footHelpers[2] == false  then footHelpers[2] = point  name: "_Helper_Foot Helper R" boxsize:[2,4,2] wirecolor:(color 128 255 255) size:0.01
 	
 			--设置 Helper
-			SetupNormalChildFN headNub 9 false;
+			SetupNormalChildFN headNub 11 false;
 			
-			SetupNormalChildFN fingerNubs[1][1] 27 false;
-			SetupNormalChildFN fingerNubs[1][2] 31 false;
-			SetupNormalChildFN fingerNubs[1][3] 35 false;
-			SetupNormalChildFN fingerNubs[1][4] 39 false;
-			SetupNormalChildFN fingerNubs[1][5] 43 false;
+			SetupNormalChildFN fingerNubs[1][1] 29 false;
+			SetupNormalChildFN fingerNubs[1][2] 33 false;
+			SetupNormalChildFN fingerNubs[1][3] 37 false;
+			SetupNormalChildFN fingerNubs[1][4] 41 false;
+			SetupNormalChildFN fingerNubs[1][5] 45 false;
 			
-			SetupNormalChildFN fingerNubs[2][1] 51 false;
-			SetupNormalChildFN fingerNubs[2][2] 55 false;
-			SetupNormalChildFN fingerNubs[2][3] 59 false;
-			SetupNormalChildFN fingerNubs[2][4] 63 false;
-			SetupNormalChildFN fingerNubs[2][5] 67 false;
+			SetupNormalChildFN fingerNubs[2][1] 53 false;
+			SetupNormalChildFN fingerNubs[2][2] 57 false;
+			SetupNormalChildFN fingerNubs[2][3] 61 false;
+			SetupNormalChildFN fingerNubs[2][4] 65 false;
+			SetupNormalChildFN fingerNubs[2][5] 69 false;
 			
 			-- Sets up the toes?
 			
-			SetupNormalChildFN toeNubs[1] 14 true;
-			SetupNormalChildFN toeNubs[2] 19 true;
+			SetupNormalChildFN toeNubs[1] 16 true;
+			SetupNormalChildFN toeNubs[2] 21 true;
 			
-			SetupNormalChildFN footHelpers[1] 12 false;
-			SetupNormalChildFN footHelpers[2] 17 false;
+			SetupNormalChildFN footHelpers[1] 14 false;
+			SetupNormalChildFN footHelpers[2] 19 false;
 	
 			tempArr = (fingerNubs + toeNubs + footHelpers)
 			for i in tempArr do 
@@ -2600,15 +2555,18 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			(
 				--print (getNodeByName (prefix + characterBones.items[9]).transform.pos.z)
 				--print 
-				headPos = GetBonePos 9
-				rootPos = 0.5 * ((GetBonePos 10) + (GetBonePos 15))
-				legLen = length ((GetBonePos 10) - (GetBonePos 15))
+				headPos = GetBonePos 11
+				rootPos = 0.5 * ((GetBonePos 12) + (GetBonePos 17))
+				legLen = length ((GetBonePos 12) - (GetBonePos 17))
 				ang = -90
 				print (height)
 				print (ang)
 				
-				numNeckLink = if (not (fnIsIgnoreBone 7)) then 2 else 1
-				numSpineLink = if (not (fnIsIgnoreBone 5)) then 3 else 2
+				numNeckLink = if (not (fnIsIgnoreBone 89)) then 2 else 1
+				if (not (fnIsIgnoreBone 5) and not (fnIsIgnoreBone 6) and not (fnIsIgnoreBone 7)) then numSpineLink = 5 
+				else if (not (fnIsIgnoreBone 5) and not (fnIsIgnoreBone 6) and (fnIsIgnoreBone 7)) then numSpineLink = 4
+				else if (not (fnIsIgnoreBone 5) and (fnIsIgnoreBone 6) and (fnIsIgnoreBone 7)) then numSpineLink = 3
+				else if ((fnIsIgnoreBone 5) and (fnIsIgnoreBone 6) and (fnIsIgnoreBone 7)) then numSpineLink = 2
 
 				newBiped = biped.createNew headPos.z ang [0,0,headPos.z] neckLinks:numNeckLink spineLinks:numSpineLink fingers:5 fingerLinks:3 toes:1 toeLinks:1 trianglePelvis:false triangleNeck:true
 				newBiped.transform.controller.figureMode = true;
@@ -2616,15 +2574,15 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				(GetBipedNode 1).controller.bodytype = 3
 				bipedRootName = newBiped.name;
 
-				rotate (GetBipedNode 45) (angleaxis 85 [0,1,0])
-				rotate (GetBipedNode 21) (angleaxis -85 [0,1,0])
+				rotate (GetBipedNode 47) (angleaxis 85 [0,1,0])
+				rotate (GetBipedNode 23) (angleaxis -85 [0,1,0])
 				
 				-- STEP 1:  Move and scale the hips
 				biped.setTransform newBiped.transform.controller.rootNode #pos rootPos false
 				biped.setTransform (GetBipedNode 2) #scale [legLen, legLen, legLen] false
 				
 				-- Step 2:  Move the spine and scale from the first spine to the head
-				neckPos = GetBonePos 6
+				neckPos = GetBonePos 8
 				waistPos = GetBonePos 3
 				biped.setTransform (GetBipedNode 3) #pos [neckPos.x, neckPos.y, waistPos.z] false
 				AdjustBipedScale 3
@@ -2633,99 +2591,101 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				AdjustBipedScale 4
 				--RotateBone 4 (getNodeByName(n + " Spine1")) 0
 					
-				if (not (fnIsIgnoreBone 5)) then (AdjustBipedScale 5)
+				AdjustBipedScale 5
+				AdjustBipedScale 6
+				AdjustBipedScale 7
 				--RotateBone 5 (getNodeByName(n + " Spine2")) 0
 				
-				AdjustBipedScale 6
+				AdjustBipedScale 8
 				--RotateBone 6 (getNodeByName(n + " Neck")) 0
 					
-				if (not (fnIsIgnoreBone 7)) then (AdjustBipedScale 7)
+				AdjustBipedScale 9
 				--RotateBone 7 (getNodeByName(n + " Neck1")) 0
 					
-				AdjustBipedScale 8
+				AdjustBipedScale 10
 				--RotateBone 8 (getNodeByName(n + " Head")) 0		
 				
-				biped.setTransform (GetBipedNode 6) #pos neckPos false
+				biped.setTransform (GetBipedNode 8) #pos neckPos false
 				--biped.setTransform (GetBipedNode 8) #pos (GetBonePos 8) false
 				
 				-- Step 3:  Scale the legs
 				-- LEFT
-				AdjustBipedScale 10
-				AdjustBipedScale 11
+				AdjustBipedScale 12
+				AdjustBipedScale 13
 				
 				-- RIGHT
-				AdjustBipedScale 15
-				AdjustBipedScale 16
+				AdjustBipedScale 17
+				AdjustBipedScale 18
 				
 				-- STEP 4:  Scale the Feet
 				-- LEFT FOOT SCALE:  0.8 is (1 - biped attachment)
-				footVector = (GetBonePos 12) - (GetBonePos 13)
-				footVector2 = (GetBonePos 14) - (GetBonePos 12)
-				biped.setTransform (GetBipedNode 12) #scale [abs footVector2.z, abs footVector.y / 0.8, abs (footVector.y + footVector.z) * 0.5] false		
-				AdjustBipedScale 13 isToe:true
+				footVector = (GetBonePos 14) - (GetBonePos 15)
+				footVector2 = (GetBonePos 16) - (GetBonePos 14)
+				biped.setTransform (GetBipedNode 14) #scale [abs footVector2.z, abs footVector.y / 0.8, abs (footVector.y + footVector.z) * 0.5] false		
+				AdjustBipedScale 15 isToe:true
 	
 				-- RIGHT FOOT SCALE			
-				footVector = (GetBonePos 17) - (GetBonePos 18)
-				footVector2 = (GetBonePos 19) - (GetBonePos 17)
-				biped.setTransform (GetBipedNode 17) #scale [abs footVector2.z, abs footVector.y / 0.8, abs (footVector.y + footVector.z) * 0.5] false		
-				AdjustBipedScale 18 isToe:true
+				footVector = (GetBonePos 19) - (GetBonePos 20)
+				footVector2 = (GetBonePos 21) - (GetBonePos 19)
+				biped.setTransform (GetBipedNode 19) #scale [abs footVector2.z, abs footVector.y / 0.8, abs (footVector.y + footVector.z) * 0.5] false		
+				AdjustBipedScale 20 isToe:true
 					
 				-- Step 5:  Scale the arms and fingers.
 				-- LEFT ARM
 				--biped.setTransform (getNodeByName(n + " L Clavicle")) #pos (GetBonePos 20) false
-				AdjustBipedScale 20
-				AdjustBipedScale 21
 				AdjustBipedScale 22
-				AdjustBipedScale 23 isHand:true
+				AdjustBipedScale 23
+				AdjustBipedScale 24
+				AdjustBipedScale 25 isHand:true
 				
 				-- RIGHT ARM
 				--biped.setTransform (getNodeByName(n + " R Clavicle")) #pos (GetBonePos 44) false
-				AdjustBipedScale 44
-				AdjustBipedScale 45
 				AdjustBipedScale 46
-				AdjustBipedScale 47 isHand:true
+				AdjustBipedScale 47
+				AdjustBipedScale 48
+				AdjustBipedScale 49 isHand:true
 					
 				-- -- LEFT FINGERS
-				AdjustBipedScale 24
-				AdjustBipedScale 25
 				AdjustBipedScale 26
-				
+				AdjustBipedScale 27
 				AdjustBipedScale 28
-				AdjustBipedScale 29
+				
 				AdjustBipedScale 30
-					
+				AdjustBipedScale 31
 				AdjustBipedScale 32
-				AdjustBipedScale 33
+					
 				AdjustBipedScale 34
-					
+				AdjustBipedScale 35
 				AdjustBipedScale 36
-				AdjustBipedScale 37
-				AdjustBipedScale 38
 					
+				AdjustBipedScale 38
+				AdjustBipedScale 39
 				AdjustBipedScale 40
-				AdjustBipedScale 41
+					
 				AdjustBipedScale 42
+				AdjustBipedScale 43
+				AdjustBipedScale 44
 					
 				-- -- RIGHT FINGERS
-				AdjustBipedScale 48
-				AdjustBipedScale 49
 				AdjustBipedScale 50
-				
+				AdjustBipedScale 51
 				AdjustBipedScale 52
-				AdjustBipedScale 53
+				
 				AdjustBipedScale 54
-					
+				AdjustBipedScale 55
 				AdjustBipedScale 56
-				AdjustBipedScale 57
+					
 				AdjustBipedScale 58
-					
+				AdjustBipedScale 59
 				AdjustBipedScale 60
-				AdjustBipedScale 61
-				AdjustBipedScale 62
 					
+				AdjustBipedScale 62
+				AdjustBipedScale 63
 				AdjustBipedScale 64
-				AdjustBipedScale 65
+					
 				AdjustBipedScale 66
+				AdjustBipedScale 67
+				AdjustBipedScale 68
 
 				newBiped.controller.trianglePelvis = true
 				newBiped.controller.trianglePelvis = false
@@ -2791,96 +2751,104 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			-- Creates the spine
 			pelvisBone = CreateFauxBone rootBone  2 3 [0,-1,0]
 			newBone = CreateFauxBone pelvisBone 3 4 [0,-1,0]
-			if (not (fnIsIgnoreBone 5)) then 
-			(
-				newBone = CreateFauxBone newBone 4 5 [0,-1,0]
-				topSpine = CreateFauxBone newBone 5 6 [0,-1,0]
-			)
-			else (topSpine = CreateFauxBone newBone 4 6 [0,-1,0])
 			if (not (fnIsIgnoreBone 7)) then 
 			(
-				newBone = CreateFauxBone topSpine 6 7 [0,-1,0]
-				newBone = CreateFauxBone newBone 7 8 [0,-1,0]
+				newBone = CreateFauxBone newBone 4 5 [0,-1,0]
+				newBone = CreateFauxBone newBone 5 6 [0,-1,0]
+				newBone = CreateFauxBone newBone 6 7 [0,-1,0]
+				topSpine = CreateFauxBone newBone 7 8 [0,-1,0]
 			)
-			else (newBone = CreateFauxBone topSpine 6 8 [0,-1,0])
-			newBone = CreateFauxBone newBone 8 9 [0,-1,0]
-			newBone = CreateFauxBone newBone 9 0 [0,-1,0]
+			else if (not (fnIsIgnoreBone 6)) then 
+			(
+				newBone = CreateFauxBone newBone 4 5 [0,-1,0]
+				newBone = CreateFauxBone newBone 5 6 [0,-1,0]
+				topSpine = CreateFauxBone newBone 6 8 [0,-1,0]
+			)
+			else if (not (fnIsIgnoreBone 5)) then 
+			(
+				newBone = CreateFauxBone newBone 4 5 [0,-1,0]
+				topSpine = CreateFauxBone newBone 5 8 [0,-1,0]
+			)
+			else (topSpine = CreateFauxBone newBone 4 8 [0,-1,0])
+			if (not (fnIsIgnoreBone 9)) then 
+			(
+				newBone = CreateFauxBone topSpine 8 9 [0,-1,0]
+				newBone = CreateFauxBone newBone 9 10 [0,-1,0]
+			)
+			else (newBone = CreateFauxBone topSpine 8 10 [0,-1,0])
+			newBone = CreateFauxBone newBone 10 11 [0,-1,0]
+			newBone = CreateFauxBone newBone 11 0 [0,-1,0]
 			
 			-- Creates the legs
-			newBone = CreateFauxBone pelvisBone 10 11 [0,-1,0]
-			newBone = CreateFauxBone newBone 11 12 [0,-1,0]
-			newBone = CreateFauxBone newBone 12 13 [0,-1,0] isFoot:true
-			newBone = CreateFauxBone newBone 13 14 [0,0,1] isToes:true
-			newBone = CreateFauxBone newBone 14 0 [0,0,1]
+			newBone = CreateFauxBone pelvisBone 12 13 [0,-1,0]
+			newBone = CreateFauxBone newBone 13 14 [0,-1,0]
+			newBone = CreateFauxBone newBone 14 15 [0,-1,0] isFoot:true
+			newBone = CreateFauxBone newBone 15 16 [0,0,1] isToes:true
+			newBone = CreateFauxBone newBone 16 0 [0,0,1]
 			
 			-- Creates the legs
-			newBone = CreateFauxBone pelvisBone 15 16 [0,-1,0]
-			newBone = CreateFauxBone newBone 16 17 [0,-1,0]
-			newBone = CreateFauxBone newBone 17 18 [0,-1,0] isFoot:true
-			newBone = CreateFauxBone newBone 18 19 [0,0,1] isToes:true
-			newBone = CreateFauxBone newBone 19 0 [0,0,1]
+			newBone = CreateFauxBone pelvisBone 17 18 [0,-1,0]
+			newBone = CreateFauxBone newBone 18 19 [0,-1,0]
+			newBone = CreateFauxBone newBone 19 20 [0,-1,0] isFoot:true
+			newBone = CreateFauxBone newBone 20 21 [0,0,1] isToes:true
+			newBone = CreateFauxBone newBone 21 0 [0,0,1]
 			
 			
 			-- Create the arms
-			newBone = CreateFauxBone topSpine 20 21 [0,1,0]
-			newBone = CreateFauxBone newBone 21 22 [0,1,0]
-			newBone = CreateFauxBone newBone 22 23 [0,1,0]
-			lHandBone = CreateFauxBone newBone 23 32 [0,0,-1] isHand:true
-			
-			newBone = CreateFauxBone topSpine 44 45 [0,1,0]
-			newBone = CreateFauxBone newBone 45 46 [0,1,0]
-			newBone = CreateFauxBone newBone 46 47 [0,1,0]
-			rHandBone = CreateFauxBone newBone 47 56 [0,0,-1] isHand:true
-			
+			newBone = CreateFauxBone topSpine 22 23 [0,1,0]
+			newBone = CreateFauxBone newBone 23 24 [0,1,0]
+			newBone = CreateFauxBone newBone 24 25 [0,1,0]
+			if (not (fnIsIgnoreBone 34)) then 
+			(
+				lHandBone = CreateFauxBone newBone 25 34 [0,0,-1] isHand:true
+			)
+			else (lHandBone = CreateFauxBone newBone 25 0 [0,0,-1] isHand:true)
+			newBone = CreateFauxBone topSpine 46 47 [0,1,0]
+			newBone = CreateFauxBone newBone 47 48 [0,1,0]
+			newBone = CreateFauxBone newBone 48 49 [0,1,0]
+			if (not (fnIsIgnoreBone 58)) then 
+			(
+				rHandBone = CreateFauxBone newBone 49 58 [0,0,-1] isHand:true
+			)
+			else (rHandBone = CreateFauxBone newBone 49 0 [0,0,-1] isHand:true)
 			pgbBar.value = 10
 			lblBarValue.text = (pgbBar.value as string) + " %"
 			-- Create the fingers
 			fn QuickFingers sI startingBone isThumbs =
 			(
-				local axis = [0,0,-1]
-				--if isThumbs == true then
-				--(
-				--	axis = [0,1,0]
-				--)
-				local tBone = CreateFauxBone startingBone sI (sI+1) axis isHand:true
-				tBone = CreateFauxBone tBone (sI+1) (sI+2) 	axis isHand:true
-				tBone = CreateFauxBone tBone (sI+2) (sI+3) axis isHand:true
-				tBone = CreateFauxBone tBone (sI+3) 0 axis isHand:true
+				if (not (fnIsIgnoreBone sI)) then 
+				(
+					local axis = [0,0,-1]
+					local tBone = CreateFauxBone startingBone sI (sI+1) axis isHand:true
+					tBone = CreateFauxBone tBone (sI+1) (sI+2) 	axis isHand:true
+					tBone = CreateFauxBone tBone (sI+2) (sI+3) axis isHand:true
+					tBone = CreateFauxBone tBone (sI+3) 0 axis isHand:true
+				)
 			)
 			
-			QuickFingers 24 lHandBone true
-			QuickFingers 28 lHandBone false
-			QuickFingers 32 lHandBone false
-			QuickFingers 36 lHandBone false
-			QuickFingers 40 lHandBone false
+			QuickFingers 26 lHandBone true
+			QuickFingers 30 lHandBone false
+			QuickFingers 34 lHandBone false
+			QuickFingers 38 lHandBone false
+			QuickFingers 42 lHandBone false
 			
-			QuickFingers 48 rHandBone true
-			QuickFingers 52 rHandBone false
-			QuickFingers 56 rHandBone false
-			QuickFingers 60 rHandBone false
-			QuickFingers 64 rHandBone false
+			QuickFingers 50  rHandBone true
+			QuickFingers 54 rHandBone false
+			QuickFingers 58 rHandBone false
+			QuickFingers 62 rHandBone false
+			QuickFingers 66 rHandBone false
 			
 			-- Creates orientation constraints for the original rig to the faux rig.
 			for i = 1 to characterBones.items.count do
 			(
 				case i of 
 				(
-					5:
-					(
-						if (fnIsIgnoreBone 5) then (print "ignore")
-						else (CreateOrientationConstraint 5 false)
-					)
-					7:
-					(
-						if (fnIsIgnoreBone 7) then (print "ignore")
-						else (CreateOrientationConstraint 7 false)
-					)
-					9:(print "ignore nub")
-					14:(print "ignore nub")
-					19:(print "ignore nub")
-					27:(print "ignore nub")
-					31:(print "ignore nub")
-					35:(print "ignore nub")
+					11:(print "ignore nub")
+					16:(print "ignore nub")
+					21:(print "ignore nub")
+					29:(print "ignore nub")
+					33:(print "ignore nub")
+					37:(print "ignore nub")
 					-- 39:(print "ignore")
 					-- 43:(print "ignore")
 					-- 51:(print "ignore")
@@ -2894,7 +2862,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			
 			for i = 1 to characterBones_B.items.count do
 			(
-				case (i+35) of 
+				case (i+37) of 
 				(
 					-- 7:(print "ignore")
 					-- 9:(print "ignore")
@@ -2903,14 +2871,14 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 					-- 27:(print "ignore")
 					-- 31:(print "ignore")
 					-- 35:(print "ignore")
-					39:(print "ignore nub")
-					43:(print "ignore nub")
-					51:(print "ignore nub")
-					55:(print "ignore nub")
-					59:(print "ignore nub")
-					63:(print "ignore nub")
-					67:(print "ignore nub")
-					default:(CreateOrientationConstraint (i+35) false)
+					41:(print "ignore nub")
+					45:(print "ignore nub")
+					53:(print "ignore nub")
+					57:(print "ignore nub")
+					61:(print "ignore nub")
+					65:(print "ignore nub")
+					69:(print "ignore nub")
+					default:(CreateOrientationConstraint (i+37) false)
 				)
 			)
 			
@@ -2940,10 +2908,9 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			-- AlignBipToFaux 47
 			fnAlignBipedFingersToHelper ()
 			-- (GetBipedNode 1).transform.controller.figureMode = false
-			-- toggleBipedMode.state = false
 			biped.deleteCopyCollection (GetBipedNode 1).controller (biped.numCopyCollections (GetBipedNode 1).controller)
-			AlignBipToFaux 10
-			AlignBipToFaux 15
+			AlignBipToFaux 12
+			AlignBipToFaux 17
 			-- (GetBipedNode 21).transform.rotation = (GetSkeletalNode 21 true).rotation
 			-- (GetBipedNode 23).transform.rotation = (GetSkeletalNode 23 true).rotation
 			-- (GetBipedNode 45).transform.rotation = (GetSkeletalNode 45 true).rotation
@@ -2996,7 +2963,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 				footHelpers[2] = undefined;
 			)
 
-			hips.parent = tempHips
+			hips.parent = rootMotionBone
 			(GetBipedNode 1).parent = bipedRetargetRM
 			rootBone.parent = boneRetargetRM
 
@@ -3195,7 +3162,7 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 						tarBonesIndex = (finditem pattBipedNames j)
 						-- print (tarBonesIndex as string)
 						-- print (tarNodeName)
-						if (tarBonesIndex <= 35) then
+						if (tarBonesIndex <= 37) then
 						(
 							characterBones.items[tarBonesIndex] = tarNodeName
 							temp_array = characterBones.items
@@ -3204,9 +3171,9 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 						)
 						else
 						(
-							characterBones_B.items[tarBonesIndex - 35] = tarNodeName
+							characterBones_B.items[tarBonesIndex - 37] = tarNodeName
 							temp_array2 = characterBones_B.items
-							temp_array2[tarBonesIndex - 35] = tarNodeName
+							temp_array2[tarBonesIndex - 37] = tarNodeName
 							characterBones_B.items = temp_array2
 						)
 					)
@@ -3525,8 +3492,8 @@ rollout rolBsRetarget "BsRetargetTools_v3.3 （ FBX 转 BIP + 动画重定向 �
 			)
 			else 
 			(
-				tarBone = GetSkeletalNode (i + 35) false
-				tarBiped = (GetBipedNode (i + 35))
+				tarBone = GetSkeletalNode (i + 37) false
+				tarBiped = (GetBipedNode (i + 37))
 			)
 
 			if matchpattern tarBone.name pattern:"NewHip_*" then 
@@ -3735,6 +3702,8 @@ rolBsRetarget.bipedBones.items = #(
 	"Spine", 				--3
 	"Spine1",			--4
 	"[可选]Spine2",			--5
+	"[可选]Spine3",
+	"[可选]Spine4",
 	"Neck",				--6
 	"[可选]Neck1",	--7 (NO LONGER USING)
 	"Head",				--8
@@ -3756,54 +3725,54 @@ rolBsRetarget.bipedBones.items = #(
 	"L UpperArm",		--21
 	"L Forearm",		--22
 	"L Hand",			--23
-	"L Finger0",			--24
-	"L Finger01",		--25
-	"L Finger02",		--26
-	"L Finger0Nub",	--27
-	"L Finger1",			--28
-	"L Finger11",		--29
-	"L Finger12",		--30
-	"L Finger1Nub",	--31
-	"L Finger2",			--32
-	"L Finger21",		--33
-	"L Finger22",		--34
-	"L Finger2Nub"	    --35
+	"[可选]L Finger0",			--24
+	"[可选]L Finger01",		--25
+	"[可选]L Finger02",		--26
+	"[可选]L Finger0Nub",	--27
+	"[可选]L Finger1",			--28
+	"[可选]L Finger11",		--29
+	"[可选]L Finger12",		--30
+	"[可选]L Finger1Nub",	--31
+	"[可选]L Finger2",			--32
+	"[可选]L Finger21",		--33
+	"[可选]L Finger22",		--34
+	"[可选]L Finger2Nub"	    --35
 )
 
 rolBsRetarget.bipedBones_B.items = #(
-	"L Finger3",			--36
-	"L Finger31",		--37
-	"L Finger32",		--38
-	"L Finger3Nub",	--39
-	"L Finger4",			--40
-	"L Finger41",		--41
-	"L Finger42",		--42
-	"L Finger4Nub",	--43
+	"[可选]L Finger3",			--36
+	"[可选]L Finger31",		--37
+	"[可选]L Finger32",		--38
+	"[可选]L Finger3Nub",	--39
+	"[可选]L Finger4",			--40
+	"[可选]L Finger41",		--41
+	"[可选]L Finger42",		--42
+	"[可选]L Finger4Nub",	--43
 	
 	"R Clavicle",		--44
 	"R UpperArm",		--45
 	"R Forearm",		--46
 	"R Hand",			--47
-	"R Finger0",		--48
-	"R Finger01",		--49
-	"R Finger02",		--50
-	"R Finger0Nub",	--51
-	"R Finger1",		--52
-	"R Finger11",		--53
-	"R Finger12",		--54
-	"R Finger1Nub",	--55
-	"R Finger2",		--56
-	"R Finger21",		--57
-	"R Finger22",		--58
-	"R Finger2Nub",	--59
-	"R Finger3",		--60
-	"R Finger31",		--61
-	"R Finger32",		--62
-	"R Finger3Nub",	--63
-	"R Finger4",		--64
-	"R Finger41",		--65
-	"R Finger42",		--66
-	"R Finger4Nub"		--67	
+	"[可选]R Finger0",		--48
+	"[可选]R Finger01",		--49
+	"[可选]R Finger02",		--50
+	"[可选]R Finger0Nub",	--51
+	"[可选]R Finger1",		--52
+	"[可选]R Finger11",		--53
+	"[可选]R Finger12",		--54
+	"[可选]R Finger1Nub",	--55
+	"[可选]R Finger2",		--56
+	"[可选]R Finger21",		--57
+	"[可选]R Finger22",		--58
+	"[可选]R Finger2Nub",	--59
+	"[可选]R Finger3",		--60
+	"[可选]R Finger31",		--61
+	"[可选]R Finger32",		--62
+	"[可选]R Finger3Nub",	--63
+	"[可选]R Finger4",		--64
+	"[可选]R Finger41",		--65
+	"[可选]R Finger42",		--66
+	"[可选]R Finger4Nub"		--67	
 )
 
 for  i=2 to rolBsRetarget.bipedBones.items.count do
