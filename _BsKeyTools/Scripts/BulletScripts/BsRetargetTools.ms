@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-15 20:37:40
+ * @LastEditTime: 2025-04-16 20:14:21
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -387,6 +387,7 @@ fn GetSkeletalNode index isFaux findCorrect:true =
 
 rcmenu menuQuickCreateNode
 (
+	menuItem fixOldList "修复旧映射列表 List"
 	menuItem quickMakeParent "快速创建父级骨骼"
     menuItem quickDuplicate "快速创建子级骨骼"
 	menuItem quickDuplicateFingers "快速创建 Hand Nub"
@@ -426,6 +427,40 @@ rcmenu menuQuickCreateNode
 			)
 			else (messageBox "请先验证并检查映射列表是否完整！                                       " title:"BsRetargetTools")
 		)
+	)
+
+	fn fnFixOldMappingList =
+	(
+		local arrListItemA = rolBsRetarget.characterBones.items
+		local arrListItemB = rolBsRetarget.characterBones_B.items
+
+		
+		for i = arrListItemB.count to 1 by -1 do 
+		(
+			arrListItemB[i+2] = arrListItemB[i]
+		)
+
+		n = 2
+		for i = arrListItemA.count to 1 by -1 do 
+		(
+			if i >= (arrListItemA.count - 1) then 
+			(
+				arrListItemB[n] = arrListItemA[i]
+				n--
+			)
+			else if i >= 6 then 
+			(
+				arrListItemA[i+2] = arrListItemA[i]
+			)
+		)
+		arrListItemA[6] = "~undefined~"
+		arrListItemA[7] = "~undefined~"
+
+		deleteitem arrListItemB arrListItemB.count 
+		deleteitem arrListItemB arrListItemB.count
+
+		rolBsRetarget.characterBones.items = arrListItemA
+		rolBsRetarget.characterBones_B.items = arrListItemB
 	)
 
 	on quickMakeParent picked do
@@ -540,6 +575,12 @@ rcmenu menuQuickCreateNode
             messagebox "请先添加骨骼映射！                 "
 		)
 	)
+
+	on fixOldList picked do 
+	(
+		if (queryBox "确认修复旧映射列表？会改变映射 list，请慎重考虑！                                                               " \
+		title:"BsRetargetTools Tips" beep:false) then (fnFixOldMappingList())
+	)
 )
 
 rcmenu menuBsRetarget
@@ -604,7 +645,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 	-- pickbutton pkbRootMption "0. 指定原 RootMotion" pos:[20,505] height:30 width:(btnWidth) message:"指定原始 FBX 的 RootMotion" autoDisplay:true tooltip:"右键清除选择"
     button loadDialogue "加载列表" pos:[495,100] width:(btnWidth/2) height:25
     button saveDialogue "保存列表" pos:[570,100] width:(btnWidth/2) height:25
-	button btnQuickTools "【快速创建所需节点】" pos:[495,130] width:btnWidth height:35 tooltip:"快速创建 nub 骨骼或符合 Biped 的质心。"
+	button btnQuickTools "【快速便捷小工具】" pos:[495,130] width:btnWidth height:35 tooltip:"快速创建 nub 骨骼或符合 Biped 的质心。"
 	button btnAutoMapping "1. 自动按命名匹配" pos:[495,170] width:btnWidth height:40 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
 	button validateButton "2. 验证映射列表完整" pos:[495,215] width:btnWidth height:50 tooltip:"必须验证匹配是否完整。"
     
@@ -1246,7 +1287,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 			if (isHand == true) then
 			(
 				local mid = [0,0,0]
-				if (parentIndex == 25) then
+				if (parentIndex == 25) and not (fnIsIgnoreBone 34) and not (fnIsIgnoreBone 38) then
 				(
 					-- local fIndex = GetSkeletalNode 28 false
 					local fMiddle = GetSkeletalNode 34 false
@@ -1255,7 +1296,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 					
 					mid = (fMiddle.pos + fRing.pos) * 0.5;
 				)
-				else if (parentIndex == 49) then
+				else if (parentIndex == 49) and not (fnIsIgnoreBone 58) and not (fnIsIgnoreBone 62) then
 				(
 					-- local fIndex = GetSkeletalNode 52 false
 					local fMiddle = GetSkeletalNode 58 false
@@ -1428,7 +1469,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 	fn AdjustBipedScale index0 spine:false isToe:false isHand:false = 
 	(
 		local index1 = index0 + 1;
-		if fnIsIgnoreBone index0 then (return 0)
+		if fnIsIgnoreBone index0 then (return true)
 		
 		affectedBiped = GetBipedNode index0;
 		if affectedBiped == undefined then
@@ -1442,7 +1483,11 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 		if isHand == true then
 		(
 			-- Gives the middle finger.
-			pos1 = GetBonePos (index0+9)
+			if not (fnIsIgnoreBone (index0+9)) then 
+			(
+				pos1 = (GetBonePos (index0+9))
+			)
+			else pos1 = (GetBonePos index1)
 		)
 		diff = (pos1 - pos0);
 		nS = length diff;
@@ -1580,309 +1625,313 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 	(
 		print v;
 		
-		inFigureMode = (GetBipedNode 1).transform.controller.figureMode
-			
-		case v of
+		if not (fnIsIgnoreBone v) then 
 		(
-			1:  
-			(
-				ll = (GetSkeletalNode 12 true)
-				rr = (GetSkeletalNode 17 true)
-				pp = (ll.pos + rr.pos) * 0.5
 				
-				biped.setTransform (GetBipedNode 1) #pos pp false
-				if okForceRedraw == true then forceCompleteRedraw();
-					
-				biped.setTransform (GetBipedNode 1) #rotation (GetSkeletalNode 1 true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			2:
+			inFigureMode = (GetBipedNode 1).transform.controller.figureMode
+				
+			case v of
 			(
-				/*biped.setTransform (GetBipedNode 1) #pos (GetSkeletalNode 2 true).transform.position false
-				if okForceRedraw == true then forceCompleteRedraw();
-					
-				biped.setTransform (GetBipedNode 1) #rotation (GetSkeletalNode 2 true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();*/
-			)
-			-- 1st Spine
-			3:
-			(
-				if (inFigureMode) then
+				1:  
 				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					ll = (GetSkeletalNode 12 true)
+					rr = (GetSkeletalNode 17 true)
+					pp = (ll.pos + rr.pos) * 0.5
+					
+					biped.setTransform (GetBipedNode 1) #pos pp false
+					if okForceRedraw == true then forceCompleteRedraw();
+						
+					biped.setTransform (GetBipedNode 1) #rotation (GetSkeletalNode 1 true).transform.rotation false
 					if okForceRedraw == true then forceCompleteRedraw();
 				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			-- Neck
-			8:
-			(
-				if (inFigureMode) then
+				2:
 				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					/*biped.setTransform (GetBipedNode 1) #pos (GetSkeletalNode 2 true).transform.position false
+					if okForceRedraw == true then forceCompleteRedraw();
+						
+					biped.setTransform (GetBipedNode 1) #rotation (GetSkeletalNode 2 true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();*/
+				)
+				-- 1st Spine
+				3:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
 					if okForceRedraw == true then forceCompleteRedraw();
 				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			-- Head
-			10:
-			(
-				if (inFigureMode) then
+				-- Neck
+				8:
 				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
 					if okForceRedraw == true then forceCompleteRedraw();
 				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			-- left shoulder
-			22:
-			(
-				if (inFigureMode) then
+				-- Head
+				10:
 				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
+				-- left shoulder
+				22:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+					
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
+				-- right shoulder
+				46:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					
 					if okForceRedraw == true then forceCompleteRedraw();
 				)
 				
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			-- right shoulder
-			46:
-			(
-				if (inFigureMode) then
+				-- left hand
+				25:
 				(
 					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
 					if okForceRedraw == true then forceCompleteRedraw();
-				)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
 					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					if okForceRedraw == true then forceCompleteRedraw();
+					
+					FixLimb 22
+				)
 				
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			
-			-- left hand
-			25:
-			(
-				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-				if okForceRedraw == true then forceCompleteRedraw();
+				-- right hand
+				49:
+				(
+					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					if okForceRedraw == true then forceCompleteRedraw();
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
 					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
+					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					if okForceRedraw == true then forceCompleteRedraw();
+					
+					FixLimb 46
+				)
+				-- left foot
+				14:
+				(
+					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					if okForceRedraw == true then forceCompleteRedraw();
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+					
+					--in coordsys local rotate (GetBipedNode v) footAdjuster.value [0,0,1]
+					
+					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					if okForceRedraw == true then forceCompleteRedraw();
+					
+					FixLimb 11
+				)
+				-- right foot
+				19:
+				(
+					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					if okForceRedraw == true then forceCompleteRedraw();
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+					
+					--in coordsys local rotate (GetBipedNode v) footAdjuster.value [0,0,1]
+					
+					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					if okForceRedraw == true then forceCompleteRedraw();
+					
+					FixLimb 16
+				)
+				-- left thumb
+				26:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
+				-- left index
+				30:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
+				-- left middle
+				34:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
 				
-				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-				if okForceRedraw == true then forceCompleteRedraw();
+				-- left ring
+				38:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
 				
-				FixLimb 22
-			)
-			
-			-- right hand
-			49:
-			(
-				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-				if okForceRedraw == true then forceCompleteRedraw();
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
+				-- left pinky
+				42:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
 				
-				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-				if okForceRedraw == true then forceCompleteRedraw();
+				-- right thumb
+				50:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
+				-- right index
+				54:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
+				-- right  middle
+				58:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
 				
-				FixLimb 46
-			)
-			-- left foot
-			14:
-			(
-				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-				if okForceRedraw == true then forceCompleteRedraw();
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
+				-- right  ring
+				62:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
 				
-				--in coordsys local rotate (GetBipedNode v) footAdjuster.value [0,0,1]
+				-- left toe
+				15:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
 				
-				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-				if okForceRedraw == true then forceCompleteRedraw();
+				-- right  toe
+				20:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
 				
-				FixLimb 11
-			)
-			-- right foot
-			19:
-			(
-				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-				if okForceRedraw == true then forceCompleteRedraw();
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
+				-- right  pinky
+				66:
+				(
+					if (inFigureMode) then
+					(
+						biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+						if okForceRedraw == true then forceCompleteRedraw();
+					)
+						
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					if okForceRedraw == true then forceCompleteRedraw();
+				)
 				
-				--in coordsys local rotate (GetBipedNode v) footAdjuster.value [0,0,1]
-				
-				biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-				if okForceRedraw == true then forceCompleteRedraw();
-				
-				FixLimb 16
-			)
-			-- left thumb
-			26:
-			(
-				if (inFigureMode) then
+				default:
 				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
 					if okForceRedraw == true then forceCompleteRedraw();
 				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			-- left index
-			30:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			-- left middle
-			34:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			
-			-- left ring
-			38:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			
-			-- left pinky
-			42:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			
-			-- right thumb
-			50:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			-- right index
-			54:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			-- right  middle
-			58:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			
-			-- right  ring
-			62:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			
-			-- left toe
-			15:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			
-			-- right  toe
-			20:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			
-			-- right  pinky
-			66:
-			(
-				if (inFigureMode) then
-				(
-					biped.setTransform (GetBipedNode v) #pos (GetSkeletalNode v true).transform.position false
-					if okForceRedraw == true then forceCompleteRedraw();
-				)
-					
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
-			)
-			
-			default:
-			(
-				biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
-				if okForceRedraw == true then forceCompleteRedraw();
 			)
 		)
 	)
@@ -2125,8 +2174,12 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 			)
 			
 			close fS
-			
-			messagebox "加载成功！                       "
+			if i < 69 then
+			(
+				if (queryBox "List文件是老版本,是否 \"修复旧映射列表\" ,注意重新保存列表！                                                                     " \
+				title:"BsRetargetTools Tips" beep:false) then (menuQuickCreateNode.fnFixOldMappingList())
+			)
+			else (messagebox "加载成功！                       ")
 		)
 	)
 	
@@ -2251,7 +2304,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 			local checkedNode = GetSkeletalNode (i+37) false
 			if (checkedNode == undefined) then
 			(
-				if not (fnIsOptionalNodeIndex i) then
+				if not (fnIsOptionalNodeIndex (i+37)) then
 				(
 					messagebox ("缺失 " + (i as string) + ":  " + bipedBones_B.items[i] + "                   ");
 					mappingCheckState = false
@@ -2568,7 +2621,13 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 				else if (not (fnIsIgnoreBone 5) and (fnIsIgnoreBone 6) and (fnIsIgnoreBone 7)) then numSpineLink = 3
 				else if ((fnIsIgnoreBone 5) and (fnIsIgnoreBone 6) and (fnIsIgnoreBone 7)) then numSpineLink = 2
 
-				newBiped = biped.createNew headPos.z ang [0,0,headPos.z] neckLinks:numNeckLink spineLinks:numSpineLink fingers:5 fingerLinks:3 toes:1 toeLinks:1 trianglePelvis:false triangleNeck:true
+				numFinger = 5
+				for i in #(26,30,34,38,42) do 
+				(
+					if (fnIsIgnoreBone i) then (numFinger = numFinger - 1)
+					-- print ("i:" + (i as string) + "  numFinger:" + (numFinger as string))
+				)
+				newBiped = biped.createNew headPos.z ang [0,0,headPos.z] neckLinks:numNeckLink spineLinks:numSpineLink fingers:numFinger fingerLinks:3 toes:1 toeLinks:1 trianglePelvis:false triangleNeck:true
 				newBiped.transform.controller.figureMode = true;
 				newBiped.controller.rootname = bipedRootName
 				(GetBipedNode 1).controller.bodytype = 3
@@ -2694,7 +2753,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 			)
 			catch
 			(
-				messagebox "创建 Biped 时出错，可能有骨骼映射缺失。                               "
+				-- messagebox "创建 Biped 时出错，可能有骨骼映射缺失。                               "
 			)
 
 			pgbBar.value = 5
@@ -2826,17 +2885,17 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 				)
 			)
 			
-			QuickFingers 26 lHandBone true
-			QuickFingers 30 lHandBone false
-			QuickFingers 34 lHandBone false
-			QuickFingers 38 lHandBone false
-			QuickFingers 42 lHandBone false
+			if (not (fnIsIgnoreBone 26)) then QuickFingers 26 lHandBone true
+			if (not (fnIsIgnoreBone 30)) then QuickFingers 30 lHandBone false
+			if (not (fnIsIgnoreBone 34)) then QuickFingers 34 lHandBone false
+			if (not (fnIsIgnoreBone 38)) then QuickFingers 38 lHandBone false
+			if (not (fnIsIgnoreBone 42)) then QuickFingers 42 lHandBone false
 			
-			QuickFingers 50  rHandBone true
-			QuickFingers 54 rHandBone false
-			QuickFingers 58 rHandBone false
-			QuickFingers 62 rHandBone false
-			QuickFingers 66 rHandBone false
+			if (not (fnIsIgnoreBone 50)) then QuickFingers 50  rHandBone true
+			if (not (fnIsIgnoreBone 54)) then QuickFingers 54 rHandBone false
+			if (not (fnIsIgnoreBone 58)) then QuickFingers 58 rHandBone false
+			if (not (fnIsIgnoreBone 62)) then QuickFingers 62 rHandBone false
+			if (not (fnIsIgnoreBone 66)) then QuickFingers 66 rHandBone false
 			
 			-- Creates orientation constraints for the original rig to the faux rig.
 			for i = 1 to characterBones.items.count do
