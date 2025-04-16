@@ -3,9 +3,14 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-05 15:31:43
+ * @LastEditTime: 2025-04-16 12:03:56
 * @Email: animator.bullet@foxmail.com
 */
+try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
+catch(messagebox "打开 BsKeyToolsMacro.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMenuBar.ms"))
+catch(messagebox "打开 BsKeyToolsMenuBar.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
 try(destroydialog rolBsKeyTools)catch()
 try(destroydialog rolFnKeys)catch()

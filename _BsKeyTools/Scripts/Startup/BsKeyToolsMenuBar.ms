@@ -1,5 +1,7 @@
 Global SIOFile = dotNetClass "System.IO.File"
 Global SIODir = dotNetClass "System.IO.Directory"
+--杀毒需要获取加载自启脚本设置状态
+global stateLoadStartupScripts = (getinisetting (getMAXIniFile()) "MAXScript" "LoadStartupScripts")
 
 fn isRolloutOffScreen tarRol = (
     if not iskindof tarRol RolloutClass do return false

@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-02-08 16:37:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-16 01:23:50
+ * @LastEditTime: 2025-04-16 18:18:40
  * @Email: animator.bullet@foxmail.com
  */
 -- --ALC betaclenaer
@@ -35,7 +35,6 @@ SITE = anibullet.com
 [SCRIPT]
 
 */
-
 struct signature_log (
 	fn getLogFile = (
 		d = execute ("@\"" + (getDir #maxData) + "\\scanlog.ini\"")
@@ -133,17 +132,36 @@ struct signature_log (
 		name = "[Worm.3dsmax.ShaDu]",
 		signature = (substituteString (getFileNameFile (getThisScriptFileName())) "." "_"),				
 		detect_events = #(#filePreOpen,#filePostOpen, #postImport, #systemPostNew, #systemPostReset, #filePostMerge),
+		remove_ca = #("shaduA", "shaduB"),
 		remove_events = #(#SHADU,#myTools),
 		remove_globals = #("shaduA","shaduB"),
 		remove_files = #(),
 		
 		slog = signature_log(),		
 
+		fn hasCallback callbackID = 
+		(
+			local result = false
+			local str = stringStream ""
+			
+			-- 将callbacks.show输出重定向到字符串流
+			callbacks.show id:callbackID to:str
+			
+			-- 将字符串流内容转换为字符串
+			local content = str as string
+			
+			-- 如果内容中没有"No callbacks found"且不为空，则回调存在
+			result = findString content "OK" == undefined and content.count > 0
+			
+			return result
+		),
+
 		fn pattern v p = (
 			return matchPattern (toLower (v as string)) pattern: (toLower (p as string))
 		),			
 			
 		fn detect = (
+			if hasCallback #SHADU then (true) else (false)
 			isA = try(globalVars.isGlobal #shaduA) catch(false)
 			isB = try(globalVars.isGlobal #shaduB) catch(false)
 			if (isA and isB) then (true) else (false)
@@ -172,6 +190,21 @@ struct signature_log (
 			try(if(persistents.isPersistent g) do persistents.remove g) catch()
 			try(globalVars.remove g) catch()
 		),
+
+		fn removeAttribs attrs: #() = (
+			for attr in attrs do (
+				for i in custattributes.getSceneDefs() where pattern i ("*" + attr + "*") do (			
+					for ii in custAttributes.getDefInstances i do ( 
+						for o in refs.dependents ii do (
+							custAttributes.delete o (custAttributes.getDef o 1)
+						)
+						try(custAttributes.deleteDef ii) catch()
+					)
+					
+					try(custAttributes.deleteDef i) catch()
+				)
+			)
+		),
 		
 		fn dispose = (
 			for i in 1 to detect_events.count do (
@@ -197,6 +230,7 @@ struct signature_log (
 				return false
 			)	
 			
+			removeAttribs attrs: remove_ca
 			for f in getInfectedFiles() do forceDelFile f
 			for ev in remove_events do try(callbacks.removeScripts id: ev) catch()
 			for g in remove_globals do removeGlobal g
@@ -212,7 +246,9 @@ struct signature_log (
 			if(verbose_level == 1 or verbose_level == 3) do (
 				msg = name + " 病毒已从下面路径移除： \"" + (maxFilePath + maxFileName) + "\""
 				slog.write msg
-			)				
+			)	
+			if stateLoadStartupScripts == undefined then stateLoadStartupScripts = 1
+			try((setinisetting (getMAXIniFile()) "MAXScript" "LoadStartupScripts" (stateLoadStartupScripts as string)))catch()
 		)
 	)
 	
