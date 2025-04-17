@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-17 17:22:36
+ * @LastEditTime: 2025-04-17 19:20:33
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -1285,17 +1285,13 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 	global GetBonePos
 	fn GetBonePos itemIndex =
 	(
-		local node = (GetSkeletalNode itemIndex false)
-		if node != undefined then return node.pos
-		else (messagebox ("无法获取pos，请检查映射列表，ID：" + (itemIndex as string)))
+		return (GetSkeletalNode itemIndex false).pos
 	)
 
 	global GetBoneRot
 	fn GetBoneRot itemIndex =
 	(
-		local node = (GetSkeletalNode itemIndex false)
-		if node != undefined then return node.rotation
-		else (messagebox ("无法获取pos，请检查映射列表，ID：" + (itemIndex as string)))
+		return (GetSkeletalNode itemIndex false).rotation
 	)
 
 	global CreateFauxBone
@@ -1542,44 +1538,48 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 
 	fn AdjustBipedScale index0 spine:false isToe:false isHand:false = 
 	(
-		local index1 = index0 + 1;
-		if fnIsIgnoreBone index0 then (return true)
-		
-		affectedBiped = GetBipedNode index0;
-		if affectedBiped == undefined then
-		(
-			messagebox ("Biped Node -- " + (index0 as string) + " is missing. -- Not Found");
-			return 0;
-		)
-		
-		pos0 = GetBonePos index0
-		pos1 = GetBonePos index1
-		if isHand == true then
-		(
-			-- Gives the middle finger.
-			if not (fnIsIgnoreBone (index0+9)) then 
+		try
+		(		
+			local index1 = index0 + 1;
+			if fnIsIgnoreBone index0 then (return true)
+			
+			affectedBiped = GetBipedNode index0;
+			if affectedBiped == undefined then
 			(
-				pos1 = (GetBonePos (index0+9))
+				messagebox ("Biped Node -- " + (index0 as string) + " is missing. -- Not Found");
+				return 0;
 			)
-			else pos1 = (GetBonePos index1)
+			
+			pos0 = GetBonePos index0
+			pos1 = GetBonePos index1
+			if isHand == true then
+			(
+				-- Gives the middle finger.
+				if not (fnIsIgnoreBone (index0+9)) then 
+				(
+					pos1 = (GetBonePos (index0+9))
+				)
+				else pos1 = (GetBonePos index1)
+			)
+			diff = (pos1 - pos0);
+			nS = length diff;
+			
+			
+			if isToe == true then
+			(
+				biped.setTransform affectedBiped #scale [nS, nS * 0.1, nS] false
+			)
+			else if spine == false or isHand == true then
+			(
+				biped.setTransform affectedBiped #scale [nS,nS,nS] false
+			)
+			else
+			(
+				print (diff.z);
+				biped.setTransform affectedBiped #scale [abs diff.z,abs diff.z,abs diff.z] false
+			)
 		)
-		diff = (pos1 - pos0);
-		nS = length diff;
-		
-		
-		if isToe == true then
-		(
-			biped.setTransform affectedBiped #scale [nS, nS * 0.1, nS] false
-		)
-		else if spine == false or isHand == true then
-		(
-			biped.setTransform affectedBiped #scale [nS,nS,nS] false
-		)
-		else
-		(
-			print (diff.z);
-			biped.setTransform affectedBiped #scale [abs diff.z,abs diff.z,abs diff.z] false
-		)
+		catch(print ("AdjustBipedScale 错误ID: " + (index0 as string)))
 	)
 	
 	global CreateOrientationConstraint
@@ -2003,7 +2003,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 				
 				default:
 				(
-					try(biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false)catch()
+					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
 					if okForceRedraw == true then forceCompleteRedraw();
 				)
 			)
@@ -2799,7 +2799,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 			)
 			catch
 			(
-				-- messagebox "创建 Biped 时出错，可能有骨骼映射缺失。                               "
+				messagebox "创建 Biped 时出错，可能有骨骼映射缺失。                               "
 			)
 
 			pgbBar.value = 5
