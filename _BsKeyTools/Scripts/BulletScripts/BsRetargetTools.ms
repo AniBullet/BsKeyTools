@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-17 19:20:33
+ * @LastEditTime: 2025-04-17 19:24:05
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -2003,7 +2003,8 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 				
 				default:
 				(
-					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					try(biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false)
+					catch(print ("AlignBipToFaux 错误ID: " + (v as string)))
 					if okForceRedraw == true then forceCompleteRedraw();
 				)
 			)
@@ -2070,7 +2071,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 		)
 		catch
 		(
-			messagebox "Error when realigning.  Most likely a missing bone."
+			print "Error when realigning.  Most likely a missing bone."
 			return undefined
 		)
 		
