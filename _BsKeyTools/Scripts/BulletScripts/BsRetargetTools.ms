@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-16 20:14:21
+ * @LastEditTime: 2025-04-17 17:22:36
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -616,24 +616,27 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
-	dotnetcontrol lblTitle "Label" text:"选择骨骼，左键填入列表，右键重置，除【可选】以外，暂时需要映射列表完整，按1234顺序执行即可" pos:[0,5] width:rolBsRetarget.width height:16
+	dotnetcontrol lblTitle "Label" text:"选择骨骼，左键填入列表，右键重置，除【可选】以外，暂时需要映射列表完整，按【1234】顺序执行即可" pos:[0,5] width:rolBsRetarget.width height:16
 	dotNetControl tabBsADT "System.Windows.Forms.TabControl" height:30 width:rolBsRetarget.width pos:[0,25] align:#center
 	-- Contains the names of the first 35 biped bones for reference
-	label lblRoot "[可选] 请指认原 Bone 骨骼内的根节点 【 Root 】→ ：" pos:[20,67] height:20 width:260
-	listbox lbxRoot "" pos:[290,65] height:1 width:190 items:#("~undefined~") selection:0
-	listbox bipedBones "Bip 节点 1 - 37" pos:[10,90] across:4 height:40 width:114 selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
+	dotnetcontrol lblPreset "Label" text:"[重要]  映射列表 和 手指轴向 配置预设 【List】→ ：" pos:[10,65] width:280 height:20
+	dropdownList ddlPreset "" pos:[300,65] width:140 height:20 items:#() selection:1
+	button btnApplyList "应用" pos:[445,65] width:35 height:20
+	dotnetcontrol lblRoot "Label" text:"[可选] 指认原 Bone 骨骼内的根节点 【 Root 】→ ：" pos:[10,95] width:280 height:20
+	listbox lbxRoot "" pos:[300,95] height:1 width:180 items:#("~undefined~") selection:0
+	listbox bipedBones "Bip 节点 1 - 37" pos:[10,120] across:4 height:37 width:114 selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
 	-- visible:false
     -- Contains the names of the first 35 bones used from the original rig
-	listbox characterBones "Bone 骨骼 1 - 37" pos:[130,90]height:40 width:114 items:#("~undefined~") selection:0
+	listbox characterBones "Bone 骨骼 1 - 37" pos:[130,120]height:37 width:114 items:#("~undefined~") selection:0
 	
 	-- Contains the names of the reamining biped bones for reference
-	listbox bipedBones_B "Bip 节点 38 - 69" pos:[250,90] height:40 width:114 selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
+	listbox bipedBones_B "Bip 节点 38 - 69" pos:[250,120] height:37 width:114 selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
 	-- Contains the names of the remaining original rig's bones.
-	listbox characterBones_B "Bone 骨骼 38 - 69" pos:[370,90] height:40 width:114 items:#("~undefined~") selection:0
+	listbox characterBones_B "Bone 骨骼 38 - 69" pos:[370,120] height:37 width:114 items:#("~undefined~") selection:0
 	
 	local switchFBXTools = false
     local btnWidth   = 145
@@ -653,14 +656,14 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 	spinner spnObjSize "Helper Size" pos:[500,81] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:35 scale:0.01
 	button btnResetSize "应用" pos:[605,80] width:35 height:18 tooltip:"重置选中辅助骨骼大小"
 
-	label lblThumbAxis "(左) 拇指 z轴" pos:[500,352] width:70 height:25
-	dropdownList ddlThumbAxis "" pos:[590,350] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:2
-	label lblHandAxis "(左) 四指 z轴" pos:[500,377] width:70 height:25
-	dropdownList ddlHandAxis "" pos:[590,375] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:6
-	label lblThumbAxis2 "(右) 拇指 z轴" pos:[500,402] width:70 height:25
-	dropdownList ddlThumbAxis2 "" pos:[590,400] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:2
-	label lblHandAxis2 "(右) 四指 z轴" pos:[500,427] width:70 height:25
-	dropdownList ddlHandAxis2 "" pos:[590,425] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:6
+	label lblThumbAxis "(左)拇指 右轴" pos:[500,352] width:70 height:25
+	dropdownList ddlThumbAxis "" pos:[590,350] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	label lblHandAxis "(左)四指 右轴" pos:[500,377] width:70 height:25
+	dropdownList ddlHandAxis "" pos:[590,375] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	label lblThumbAxis2 "(右)拇指 右轴" pos:[500,402] width:70 height:25
+	dropdownList ddlThumbAxis2 "" pos:[590,400] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	label lblHandAxis2 "(右)四指 右轴" pos:[500,427] width:70 height:25
+	dropdownList ddlHandAxis2 "" pos:[590,425] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
 	button reAlignFingers "🤞🏼 重新对齐手指 🤞🏼" pos:[495,450] width:(btnWidth) height:25
 	-- checkbox chkRenameBiped "Biped 保持 Bone 原名" checked:false pos:[164,535] width:(btnWidth + 20) height:20
 	-- radiobuttons rdoUpAxis " 映射 RootMotion 轴向" pos:[155,500] width:154 height:46 labels:#("Y-Up (U3D)", "Z-Up (UE)") columns:2 default:2
@@ -732,7 +735,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
     progressbar pgbBar "" pos:[10,635] width:590 height:16 color:white
 	label lblBarValue "" pos:[610,635] width:60
 
-	local arrFBXtoBIPED   = #(">> 【 FBX 转 Biped 】 <<",#(lblRoot,lbxRoot,bipedBones,characterBones,bipedBones_B,characterBones_B,grpRetargetList,loadDialogue,saveDialogue,\
+	local arrFBXtoBIPED   = #(">> 【 FBX 转 Biped 】 <<",#(lblPreset,ddlPreset,btnApplyList,lblRoot,lbxRoot,bipedBones,characterBones,bipedBones_B,characterBones_B,grpRetargetList,loadDialogue,saveDialogue,\
 											btnAutoMapping,btnQuickTools,validateButton,grpBiped,spnObjSize,btnResetSize,lblThumbAxis,ddlThumbAxis,\
 											lblHandAxis,ddlHandAxis,lblThumbAxis2,ddlThumbAxis2,ddlHandAxis2,lblHandAxis2,reAlignFingers,lblUpAxis,ddlUpAxis,chkCopySubs,alignBipedToHelper,\
 											btnReplaceToBiped,chkRealign,btnConvertToBone))
@@ -741,6 +744,63 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 											edtSkinFile,chkRecoverExport,btnRetargetSelected,btnRetargettAll,chkXAxis,chkYAxis,chkZAxis,btnBatchAll,\
 											btnSpecial,lblVerTips,ddlSaveVersion,btnCount,edtAllTips))
 	local arrAllToolsTab  = #(arrFBXtoBIPED,arrAnimRetarget)
+
+	local pathMappingListPreset = ((getDir #scripts) + "\\BulletScripts\\Res\\BsMappingList\\")
+	local arrMappingListFile = #()
+	local fileMappingList
+
+	fn fnRefreshMappingFile =
+	(
+		if ((pathMappingListPreset != "") and (doesDirectoryExist pathMappingListPreset)) then
+		(
+			local arrMappingFile =  (getfiles (pathMappingListPreset + "*.list"))
+			local arrMappingFileName = #()
+			arrMappingFileName = for i in arrMappingFile collect (getFilenameFile i)
+		)
+		ddlPreset.items = arrMappingFileName
+		return arrMappingFile
+	)
+
+	fn fnLoadMappingList f =
+	(
+		fS = openFile f mode:"r"
+
+		i = 1
+		
+		while (eof fS) == false do
+		(
+			newValue = readLine fS;
+			-- print newValue
+			
+			if (i <= 37) then
+			(
+				local temp_array = characterBones.items;
+				temp_array[i] = newValue;
+				characterBones.items = temp_array;
+			)
+			else if (i <= 69) then
+			(
+				local temp_array = characterBones_B.items;
+				temp_array[i-37] = newValue;
+				characterBones_B.items = temp_array;
+			)
+			else if (i == 70) then (lbxRoot.items = #(newValue))
+			else if (i == 71) then (try(ddlThumbAxis.selection = (newValue as integer))catch())
+			else if (i == 72) then (try(ddlHandAxis.selection= (newValue as integer))catch())
+			else if (i == 73) then (try(ddlThumbAxis2.selection = (newValue as integer))catch())
+			else if (i == 74) then (try(ddlHandAxis2.selection = (newValue as integer))catch())
+
+			i += 1;
+		)
+		
+		close fS
+		if i < 69 then
+		(
+			if (queryBox "List文件是老版本,是否 \"修复旧映射列表\" ,注意重新保存列表！                                                                     " \
+			title:"BsRetargetTools Tips" beep:false) then (menuQuickCreateNode.fnFixOldMappingList())
+		)
+		else (messagebox "加载成功！                       ")
+	)
 
 	fn fnIsOptionalNodeIndex id = 
 	(
@@ -752,10 +812,10 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 
 	fn fnInitDotTabs =
 	(
-		lblTitle.font      = dotnetobject "System.Drawing.Font" "Roboto" 8
-		lblTitle.TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleCenter
-		lblTitle.BackColor = (dotColor.FromArgb	200 200 200)
-		lblTitle.ForeColor = (dotColor.FromArgb 139 0 0)
+		lblTitle.font      = lblPreset.font = lblRoot.font = dotnetobject "System.Drawing.Font" "Roboto" 8
+		lblTitle.TextAlign = lblPreset.TextAlign = lblRoot.TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleCenter
+		lblTitle.BackColor = lblPreset.BackColor = lblRoot.BackColor = (dotColor.FromArgb	200 200 200)
+		lblTitle.ForeColor = lblPreset.ForeColor = lblRoot.ForeColor = (dotColor.FromArgb 139 0 0)
 		tabBsADT.sizeMode  = (dotnetclass "System.Windows.Forms.TabSizeMode").Fixed
 		tabBsADT.itemSize  = dotNetObject "System.Drawing.Size" (rolBsRetarget.width/arrAllToolsTab.count - arrAllToolsTab.count) 30
 		tabBsADT.dock      = tabBsADT.dock.Fill
@@ -776,6 +836,16 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 				for j in arrAllToolsTab[i][2] do j.visible = true
 			)
 			else (for j in arrAllToolsTab[i][2] do j.visible = false)
+
+			if id != 1 then 
+			(
+				lblPreset.pos = lblRoot.pos = [9999,9999]
+			)
+			else 
+			(
+				lblPreset.pos = [10,65]
+				lblRoot.pos = [10,95]
+			)
 		)
 		LastSubRollout = id
 	)
@@ -1215,13 +1285,17 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 	global GetBonePos
 	fn GetBonePos itemIndex =
 	(
-		return (GetSkeletalNode itemIndex false).pos;
+		local node = (GetSkeletalNode itemIndex false)
+		if node != undefined then return node.pos
+		else (messagebox ("无法获取pos，请检查映射列表，ID：" + (itemIndex as string)))
 	)
 
 	global GetBoneRot
 	fn GetBoneRot itemIndex =
 	(
-		return (GetSkeletalNode itemIndex false).rotation;
+		local node = (GetSkeletalNode itemIndex false)
+		if node != undefined then return node.rotation
+		else (messagebox ("无法获取pos，请检查映射列表，ID：" + (itemIndex as string)))
 	)
 
 	global CreateFauxBone
@@ -1929,7 +2003,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 				
 				default:
 				(
-					biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false
+					try(biped.setTransform (GetBipedNode v) #rotation (GetSkeletalNode v true).transform.rotation false)catch()
 					if okForceRedraw == true then forceCompleteRedraw();
 				)
 			)
@@ -2130,6 +2204,10 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
             )
 
 			format "%\n" lbxRoot.items[1] to:out_file
+			format "%\n" ddlThumbAxis.selection to:out_file
+			format "%\n" ddlHandAxis.selection to:out_file
+			format "%\n" ddlThumbAxis2.selection to:out_file
+			format "%\n" ddlHandAxis2.selection to:out_file
             
             close out_file
             
@@ -2139,7 +2217,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 	
 	on loadDialogue pressed do
 	(
-        pgbBar.value = 0
+		pgbBar.value = 0
 		lblBarValue.text = (pgbBar.value as string) + " %"
         local tempdir = (if (maxFilePath != "") and (doesDirectoryExist maxFilePath) then maxFilePath else (@"C:\Users\" + (filterString  (getdir #userscripts) @"\")[3] + @"\Desktop\"))
 
@@ -2147,39 +2225,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 		
 		if f != undefined then
 		(
-			fS = openFile f mode:"r"
-
-			i = 1
-			
-			while (eof fS) == false do
-			(
-				newValue = readLine fS;
-				-- print newValue
-				
-				if (i <= 37) then
-				(
-					local temp_array = characterBones.items;
-					temp_array[i] = newValue;
-					characterBones.items = temp_array;
-				)
-				else if (i <= 69) then
-				(
-					local temp_array = characterBones_B.items;
-					temp_array[i-37] = newValue;
-					characterBones_B.items = temp_array;
-				)
-				else if (i == 70) then (lbxRoot.items = #(newValue))
-
-				i += 1;
-			)
-			
-			close fS
-			if i < 69 then
-			(
-				if (queryBox "List文件是老版本,是否 \"修复旧映射列表\" ,注意重新保存列表！                                                                     " \
-				title:"BsRetargetTools Tips" beep:false) then (menuQuickCreateNode.fnFixOldMappingList())
-			)
-			else (messagebox "加载成功！                       ")
+			fnLoadMappingList f
 		)
 	)
 	
@@ -2877,11 +2923,15 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 			(
 				if (not (fnIsIgnoreBone sI)) then 
 				(
-					local axis = [0,0,-1]
-					local tBone = CreateFauxBone startingBone sI (sI+1) axis isHand:true
-					tBone = CreateFauxBone tBone (sI+1) (sI+2) 	axis isHand:true
-					tBone = CreateFauxBone tBone (sI+2) (sI+3) axis isHand:true
-					tBone = CreateFauxBone tBone (sI+3) 0 axis isHand:true
+					try
+					(
+						local axis = [0,0,-1]
+						local tBone = CreateFauxBone startingBone sI (sI+1) axis isHand:true
+						tBone = CreateFauxBone tBone (sI+1) (sI+2) 	axis isHand:true
+						tBone = CreateFauxBone tBone (sI+2) (sI+3) axis isHand:true
+						tBone = CreateFauxBone tBone (sI+3) 0 axis isHand:true
+					)
+					catch()
 				)
 			)
 			
@@ -3316,6 +3366,28 @@ rollout rolBsRetarget "BsRetargetTools_v4.0 （ FBX 转 BIP + 动画重定向 �
 		pgbBar.value = 0
 		pgbBar.color = white
 		lblBarValue.text = (pgbBar.value as string) + " %"
+
+		arrMappingListFile = fnRefreshMappingFile()
+	)
+
+	on ddlPreset selected id do 
+	(
+		arrMappingListFile = fnRefreshMappingFile()
+		fileMappingList = arrMappingListFile[id]
+		if fileMappingList != undefined then
+		(
+			fnLoadMappingList fileMappingList
+		)
+	)
+
+	on btnApplyList pressed do 
+	(
+		arrMappingListFile = fnRefreshMappingFile()
+		fileMappingList = arrMappingListFile[ddlPreset.selection]
+		if fileMappingList != undefined then
+		(
+			fnLoadMappingList fileMappingList
+		)
 	)
 
 	on btnQuickTools pressed do ( popupmenu menuQuickCreateNode )
