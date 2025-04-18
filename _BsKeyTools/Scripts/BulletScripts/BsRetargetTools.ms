@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-17 19:24:05
+ * @LastEditTime: 2025-04-18 15:30:13
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -751,10 +751,11 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 
 	fn fnRefreshMappingFile =
 	(
+		local arrMappingFile = #()
+		local arrMappingFileName = #()
 		if ((pathMappingListPreset != "") and (doesDirectoryExist pathMappingListPreset)) then
 		(
-			local arrMappingFile =  (getfiles (pathMappingListPreset + "*.list"))
-			local arrMappingFileName = #()
+			arrMappingFile =  (getfiles (pathMappingListPreset + "*.list"))
 			arrMappingFileName = for i in arrMappingFile collect (getFilenameFile i)
 		)
 		ddlPreset.items = arrMappingFileName
@@ -3384,7 +3385,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 	on btnApplyList pressed do 
 	(
 		arrMappingListFile = fnRefreshMappingFile()
-		fileMappingList = arrMappingListFile[ddlPreset.selection]
+		if arrMappingListFile.count != 0 then fileMappingList = arrMappingListFile[ddlPreset.selection]
 		if fileMappingList != undefined then
 		(
 			fnLoadMappingList fileMappingList
