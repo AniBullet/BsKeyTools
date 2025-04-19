@@ -18,7 +18,11 @@ Bullet.S KeyTools，All for Animator...
 帮助文档（建设中）：https://anibullet.github.io/  
 个人主页：https://www.anibullet.com/
 
+（Auto 自动安装）  
 ![image2](https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/SetupPrev.gif)  
+
+（Manual 手动安装）  
+![image3](https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/PreviewRes/10.png)
 
 ## 下载链接
 [![BsKeyTools](https://img.shields.io/badge/BsKeyTools-LatestReleases-success?style=flat-square&logo=github)](https://github.com/AniBullet/BsKeyTools/releases/latest)
@@ -39,6 +43,8 @@ Bullet.S KeyTools，All for Animator...
 
 ![image](https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/PreviewRes/08.png)  
 
+![image](https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/PreviewRes/09.png)  
+
 ## Link Start
 [![Q群1](https://img.shields.io/badge/交流吹水群1-993590655-blue?style=flat-square&logo=Tencent-QQ)](https://jq.qq.com/?_wv=1027&k=hmeHhTwu)&ensp;[![Q群2](https://img.shields.io/badge/交流吹水群2-907481113-blue?style=flat-square&logo=Tencent-QQ)](https://qm.qq.com/q/FZ2gBKJeYE)&ensp;[![公众号](https://img.shields.io/badge/微信公众号-@aniBullet-success?style=flat-square&logo=wechat)](https://www.anibullet.com/about/)
 [![GitHub followers](https://img.shields.io/github/followers/AniBullet?label=%E5%85%B3%E6%B3%A8&style=social)](https://github.com/AniBullet)&ensp;[![Twitter](https://img.shields.io/twitter/follow/aniBulletCom?label=BulletS&style=social)](https://twitter.com/aniBulletCom)
@@ -50,6 +56,7 @@ Crazyone
 SiChun Yuan  
 动画大白  
 哈库呐玛哒哒  
+z.ven 子墨  
 
 ---
 ##### Since 2019.11

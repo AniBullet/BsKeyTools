@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-16 22:15:40
+ * @LastEditTime: 2025-04-20 01:23:14
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -27,7 +27,7 @@ try (callbacks.removeScripts #filePostSave id:#BsRefreshRecentFilesSave) catch (
 try (callbacks.removeScripts #systemPostNew id:#BsRefreshRecentFilesNew) catch ()
 try (callbacks.removeScripts #systemPostReset id:#BsRefreshRecentFilesReset) catch ()
 
-global curVerBsKeyTools  = "2.0.0"
+global curVerBsKeyTools  = "1.1.0"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
@@ -585,7 +585,7 @@ rcmenu menuConfig
 								)
 								else if b == 2 then (btnsArr[b].pos = [50,20])
 								else if b == 3 then (btnsArr[b].pos = [115,20])
-								else if b == 4 then (btnsArr[b].pos = [351,2])
+								else if b == 4 then (btnsArr[b].pos = [351,12])
 								else if b == 7 then (btnsArr[b].pos = [135,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
 								else if b == 8 then (btnsArr[b].pos = [165,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
 								else if b == 9 then (btnsArr[b].pos = [195,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
@@ -593,8 +593,8 @@ rcmenu menuConfig
 								else if b == 12 then (btnsArr[b].pos = [230,20];btnsArr[b].width = 50)
 								else if b == 13 then (btnsArr[b].pos = [280,0];btnsArr[b].width = 60)
 								else if b == 14 then (btnsArr[b].pos = [280,20];btnsArr[b].width = 60)
-								else if b == 15 then (btnsArr[b].pos = [380,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
-								else if b == 16 then (btnsArr[b].pos = [380,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
+								else if b == 15 then (btnsArr[b].pos = [480,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [480,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
 								else if b > 16 and b < 31 then 
 								(
 									btnsArr[b].height = 20
@@ -640,11 +640,13 @@ rcmenu menuConfig
 								else if b == 93 then
 								(
 									btnsArr[b].text = "设置"
-									btnsArr[b].pos = [342,22]
+									btnsArr[b].pos = [380,22]
 									btnsArr[b].width = 35
 									btnsArr[b].height = 16
 								)
 								else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos;btnsArr[b].width = 130)
+								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [460,0])
+								else if b == 100 then (btnsArr[b].visible = true;btnsArr[b].pos = [423,20])
 								else
 								(
 									btnsArr[b].visible = false
@@ -672,7 +674,7 @@ rcmenu menuConfig
 								)
 								else if b == 2 then (btnsArr[b].pos = [50,20])
 								else if b == 3 then (btnsArr[b].pos = [115,20])
-								else if b == 4 then (btnsArr[b].pos = [351,2])
+								else if b == 4 then (btnsArr[b].pos = [351,12])
 								else if b == 7 then (btnsArr[b].pos = [135,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
 								else if b == 8 then (btnsArr[b].pos = [165,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
 								else if b == 9 then (btnsArr[b].pos = [195,0];btnsArr[b].width = 30;btnsArr[b].height = 40)
@@ -680,8 +682,8 @@ rcmenu menuConfig
 								else if b == 12 then (btnsArr[b].pos = [230,20];btnsArr[b].width = 50)
 								else if b == 13 then (btnsArr[b].pos = [280,0];btnsArr[b].width = 60)
 								else if b == 14 then (btnsArr[b].pos = [280,20];btnsArr[b].width = 60)
-								else if b == 15 then (btnsArr[b].pos = [380,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
-								else if b == 16 then (btnsArr[b].pos = [380,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
+								else if b == 15 then (btnsArr[b].pos = [480,0];btnsArr[b].width = 60;btnsArr[b].height = 20) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [480,20];btnsArr[b].width = 60;btnsArr[b].height = 20) --首尾帧
 								else if b > 16 and b < 31 then 
 								(
 									btnsArr[b].height = 20
@@ -727,11 +729,13 @@ rcmenu menuConfig
 								else if b == 93 then
 								(
 									btnsArr[b].text = "设置"
-									btnsArr[b].pos = [342,22]
+									btnsArr[b].pos = [380,22]
 									btnsArr[b].width = 35
 									btnsArr[b].height = 16
 								)
 								else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos;btnsArr[b].width = 130)
+								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [460,0])
+								else if b == 100 then (btnsArr[b].visible = true;btnsArr[b].pos = [423,20])
 								else
 								(
 									btnsArr[b].visible = false
@@ -826,6 +830,8 @@ rcmenu menuConfig
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,140])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,430])
 								else if b == 98 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,880])
+								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [84,704])
+								else if b == 101 then (btnsArr[b].visible = true;btnsArr[b].pos = [100,702])
 								else
 								(
 									btnsArr[b].visible = false
@@ -921,6 +927,8 @@ rcmenu menuConfig
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,140])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,430])
 								else if b == 98 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,880])
+								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [84,704])
+								else if b == 101 then (btnsArr[b].visible = true;btnsArr[b].pos = [100,702])
 								else
 								(
 									btnsArr[b].visible = false
@@ -937,6 +945,7 @@ rcmenu menuConfig
 						(
 							btnsArr[92].text = "2019.9 _ [ Bullet.S ]✨"
 							try(cui.UnRegisterDialogBar rolTarget)catch()
+							btnsArr[100].visible = true
 							-- for b = 1 to btnsArr.count where ((btnsArr[b]) != undefined) do
 							-- (
 							-- 	case b of
@@ -1206,6 +1215,8 @@ rcmenu menuConfig
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,100])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,310])
 								else if b == 98 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,765])
+								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [84,704])
+								else if b == 101 then (btnsArr[b].visible = true;btnsArr[b].pos = [100,702])
 								else
 								(
 									btnsArr[b].visible = false
@@ -1296,6 +1307,8 @@ rcmenu menuConfig
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,100])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,310])
 								else if b == 98 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,765])
+								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [84,704])
+								else if b == 101 then (btnsArr[b].visible = true;btnsArr[b].pos = [100,702])
 								else
 								(
 									btnsArr[b].visible = false
@@ -2066,7 +2079,7 @@ rollout rolBsKeyTools "" width:355 height:250
 (
 	local heightBsSize    = 250
 	local widthBsSize     = 355
-	local strMainRol      = ("BsKeyTools_v" + curVerBsKeyTools)
+	local strMainRol      = ("BsKeyTools_v" + curVerBsKeyTools + " - Bullet.S_2019")
 	local ui_clientOffset = undefined
 	local strBtnName      = fnSwitchBtnString()
 	local iconPath        = pathconfig.appendpath (getDir #Scripts) @"\\BulletScripts\\Res\\Element"
@@ -2074,7 +2087,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	local iconElement     = (iconPath + @"\\" + iconCurStr)
 	local iconPrimogem    = (iconPath + @"\\Primogem.png")
 	---------------------------------UI--------------------------------------
-	groupbox gbxMainUI strMainRol pos:[5,5] width:210 height:217
+	groupbox gbxMainUI strMainRol pos:[5,5] width:210 height:240
 	
 	-- label lblRangeStartText "起始帧" pos:[15,21] width:80 height:20
 	-- label lblRangeEndText "结束帧" pos:[65,21] width:80 height:20
@@ -2137,7 +2150,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	checkButton ckbPlayBlocking "跳帧播" pos:[10,165] width:50 height:25 
 	highlightcolor:myCheckedColor tooltip:"点击预览关键帧 Blocking 动画\r\n若有 Link 帧需要按下上面按钮" checked:false
 	button btnSpringMagic "飘带解" pos:[60,165] width:50 height:25 \
-	tooltip:"左点新版,右点旧版" 
+	tooltip:"左点新版，右点子墨版，ctrl+左键老版" 
 	button btnCSTools "CS选择" pos:[110,165] width:50 height:25 \
 	toolTip:"快速选择CS骨骼和调Biped等\r\n左键BsBipedTools\r\n右键老版CSTools精简版" 
 	button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
@@ -2268,11 +2281,11 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"单独显示模型预览" pos:btnPos highlightcolor:myCheckedColor 
 	pos:btnPos highlightcolor:myCheckedColor 
 
-	groupbox gbxTips "" pos:[5,215] width:210 height:30
+	groupbox gbxTips "" pos:[5,245] width:210 height:25 visible:false
 	
 	-- label lblLink "2019.9[Bullet.S]4869" pos:[12,226] width:145 height:15
-	dotnetcontrol lblLink "Label" text:"2019.9 _ [ Bullet.S ]✨" pos:[12,226] width:145 height:15
-	checkbutton btnConfig "设置" pos:[170,223] width:40 height:20 border:false checked:true highlightColor:myCheckedColor
+	dotnetcontrol lblLink "Label" text:"2019.9 _ [ Bullet.S ]✨" pos:[10,252] width:130 height:15 visible:false
+	checkbutton btnConfig "设置" pos:[165,220] width:40 height:20 border:false checked:true highlightColor:myCheckedColor
 
 	timer timerTickTock interval:200 active:true
 
@@ -2282,6 +2295,10 @@ rollout rolBsKeyTools "" width:355 height:250
 	progressBar pgbLine01 "" pos:[0,-9999] width:160 height:9 color:white value:100
 	progressBar pgbLine02 "" pos:[0,-9999] width:160 height:9 color:yellow value:100
 	progressBar pgbLine03 "" pos:[0,-9999] width:160 height:9 color:(color myCheckedColor.r myCheckedColor.g myCheckedColor.b) value:100
+
+	spinner spnRotationIncrement "旋转精度" pos:[45, 222] range:[0.001, 100, 0.500] type:#float width:60 height:20 scale:0.001
+	button btnResetIncrement "重置精度" width:50 height:20 pos:[110,220] visible:false
+	button btnResetIncrementMini "重置" width:30 height:20 pos:[110,220] visible:false
 
 	local m_PBKeyTimeArray
 	local m_PBKeyMiliSecArray
@@ -2465,14 +2482,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		if toggleID == 1 then
 		(
 			rolBsKeyTools.width        = 220
-			-- rolBsKeyTools.height       = 250
 			btnMagicBtn.text           = "(≖ ◡ ≖)✧"
 			switchToolPanel            = 0
 		)
 		else
 		(
 			rolBsKeyTools.width        = 355
-			-- rolBsKeyTools.height       = 250
 			btnMagicBtn.text           = "( = `▽`)ノ"
 			switchToolPanel            = 1
 		)
@@ -2584,22 +2599,22 @@ rollout rolBsKeyTools "" width:355 height:250
 			str += "	("
 			str += "        if " + curMaxVersion as string + " > 20 then "
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1090,0] as string + " + [(b - 1) * 30,0]" + "\r\n"
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1190,0] as string + " + [(b - 1) * 30,0]" + "\r\n"
 			str += "		)"
 			str += "		else"
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1090,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1190,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
 			str += "		)"
 			str += "	)"
 			str += "	else if (mod b 2 == 0) then"
 			str += "	("
 			str += "		if " + curMaxVersion as string + " > 20 then "
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1090,20] as string + " + [(b - 2) * 30,0]" + "\r\n"
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1190,20] as string + " + [(b - 2) * 30,0]" + "\r\n"
 			str += "		)"
 			str += "		else"
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1090,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
+			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1190,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
 			str += "		)"
 			str += "	)"
 			str += ")"
@@ -3529,6 +3544,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		-- panelMyTools.autoScroll = true
 		-- fnAddDotButton()
 		arrNewCostTime 		= iniCostTime
+		lblLink.TextAlign   = (dotnetclass "system.drawing.contentalignment").MiddleCenter
 		lblLink.font        = BsDotFont
 		lblLink.backcolor   = BsDotBackColor
 		lblLink.forecolor   = BsDotForeColor
@@ -3577,6 +3593,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
 		-- print ("iniBsAutoCheckUpdate: " + iniBsAutoCheckUpdate as string)
 		dotLVFilesList.visible = pgbLine03.visible = (fnJudgeScreenResolution())
+		spnRotationIncrement.value = tmGizmos.rotationIncrement
 	)
 	
 	on rolBsKeyTools close do -- 关闭记忆浮动窗口位置
@@ -3833,15 +3850,22 @@ rollout rolBsKeyTools "" width:355 height:250
 	)
 	on btnSpringMagic pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\SpringMagic_Enhanced.ms");isRolloutOffScreen rolloutSpringMagic)
-		catch(messagebox "打开 SpringMagic_Enhanced.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		if keyboard.controlPressed then
+		(
+			try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\SpringMagic_Old.mse"))
+			catch(messagebox "打开 SpringMagic_Old.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		)
+		else
+		(
+			try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\SpringMagic_Enhanced.ms");isRolloutOffScreen rolloutSpringMagic)
+			catch(messagebox "打开 SpringMagic_Enhanced.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		)
 	)
 	on btnSpringMagic rightclick do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\SpringMagic_Old.mse"))
-		catch(messagebox "打开 SpringMagic_Old.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\飘带解算.mse"))
+		catch(messagebox "打开 飘带解算.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
-
 	on btnFileOpen pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsOpenTools.ms");isRolloutOffScreen rolBsOpenTools)
@@ -4859,6 +4883,20 @@ rollout rolBsKeyTools "" width:355 height:250
 	-- 	if (queryBox "是否打开配置文件目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
 	-- 	title:"配置文件" beep:false) then (shellLaunch (getFilenamePath BulletConfig) "")
 	-- )
+
+	on spnRotationIncrement changed val do 
+	(
+		tmGizmos.rotationIncrement = (val as float)
+	)
+
+	on spnRotationIncrement entered do 
+	(
+		tmGizmos.rotationIncrement = spnRotationIncrement.value
+	)
+
+	on btnResetIncrement pressed do (tmGizmos.rotationIncrement = spnRotationIncrement.value = 0.5)
+
+	on btnResetIncrementMini pressed do (tmGizmos.rotationIncrement = spnRotationIncrement.value = 0.5)
 )
 if (iniPos != 0) then (Createdialog rolBsKeyTools fgcolor:myFgColor pos:iniPos style:#())
 else (Createdialog rolBsKeyTools fgcolor:myFgColor style:#())
