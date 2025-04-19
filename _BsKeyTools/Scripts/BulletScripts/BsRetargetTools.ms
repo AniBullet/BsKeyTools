@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-18 15:30:13
+ * @LastEditTime: 2025-04-20 03:36:00
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -625,7 +625,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 	-- Contains the names of the first 35 biped bones for reference
 	dotnetcontrol lblPreset "Label" text:"[重要]  映射列表 和 手指轴向 配置预设 【List】→ ：" pos:[10,65] width:280 height:20
 	dropdownList ddlPreset "" pos:[300,65] width:140 height:20 items:#() selection:1
-	button btnApplyList "应用" pos:[445,65] width:35 height:20
+	button btnApplyList "应用" pos:[445,65] width:35 height:20 tooltip:"右键可打开预设存放文件夹"
 	dotnetcontrol lblRoot "Label" text:"[可选] 指认原 Bone 骨骼内的根节点 【 Root 】→ ：" pos:[10,95] width:280 height:20
 	listbox lbxRoot "" pos:[300,95] height:1 width:180 items:#("~undefined~") selection:0
 	listbox bipedBones "Bip 节点 1 - 37" pos:[10,120] across:4 height:37 width:114 selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
@@ -3389,6 +3389,20 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 		if fileMappingList != undefined then
 		(
 			fnLoadMappingList fileMappingList
+		)
+	)
+
+	on btnApplyList rightClick do 
+	(
+		if doesDirectoryExist pathMappingListPreset then
+		(
+			shelllaunch pathMappingListPreset ""
+		)
+		else 
+		(
+			messagebox "映射列表预设文件夹不存在，已创建！                                       "
+			makedir pathMappingListPreset
+			shelllaunch pathMappingListPreset ""
 		)
 	)
 
