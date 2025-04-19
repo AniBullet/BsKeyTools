@@ -14,7 +14,7 @@ Bullet.S KeyTools，All for Animator...
 \>> 转载或修改工具请注明作者和来源 <<
 
 ## 使用帮助
-视频教程：https://space.bilibili.com/2031113/lists/560782  
+视频教程：https://space.bilibili.com/2031113/lists/560782?type=season  
 帮助文档（建设中）：https://anibullet.github.io/  
 个人主页：https://www.anibullet.com/
 
