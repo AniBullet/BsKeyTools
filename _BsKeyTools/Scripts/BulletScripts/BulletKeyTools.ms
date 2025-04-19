@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-20 01:23:14
+ * @LastEditTime: 2025-04-20 03:02:58
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -993,7 +993,7 @@ rcmenu menuConfig
 								)
 								else if b == 2 then (btnsArr[b].pos = [50,25])
 								else if b == 3 then (btnsArr[b].pos = [120,25])
-								else if b == 4 then (btnsArr[b].pos = [415,5])
+								else if b == 4 then (btnsArr[b].pos = [415,15])
 								else if b == 7 then (btnsArr[b].pos = [140,10])
 								else if b == 8 then (btnsArr[b].pos = [190,10])
 								else if b == 9 then (btnsArr[b].pos = [240,10])
@@ -1001,8 +1001,8 @@ rcmenu menuConfig
 								else if b == 12 then (btnsArr[b].visible = true;btnsArr[b].pos = [295,25])
 								else if b == 13 then (btnsArr[b].pos = [350,5])
 								else if b == 14 then (btnsArr[b].pos = [350,25])
-								else if b == 15 then (btnsArr[b].pos = [450,0]) --选定帧
-								else if b == 16 then (btnsArr[b].pos = [450,25]) --首尾帧
+								else if b == 15 then (btnsArr[b].pos = [550,0]) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [550,25]) --首尾帧
 								else if b > 16 and b < 31 then 
 								(
 									if ((mod b 2) == 1) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + 50,0])
@@ -1042,10 +1042,12 @@ rcmenu menuConfig
 								else if b == 93 then
 								(
 									btnsArr[b].text = "设置"
-									btnsArr[b].pos = [405,25]
+									btnsArr[b].pos = [445,25]
 								)
 								else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
 								-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
+								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [530,5])
+								else if b == 100 then (btnsArr[b].visible = true;btnsArr[b].pos = [492,27])
 								else
 								(
 									btnsArr[b].visible = false
@@ -1053,7 +1055,7 @@ rcmenu menuConfig
 								)
 							)
 							rolTarget.height = 50
-							rolTarget.width = 1820
+							rolTarget.width = 1920
 							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_horz)
 							cui.DockDialogBar rolTarget #cui_dock_top
 							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_top as string))catch()
@@ -1073,7 +1075,7 @@ rcmenu menuConfig
 								)
 								else if b == 2 then (btnsArr[b].pos = [50,25])
 								else if b == 3 then (btnsArr[b].pos = [120,25])
-								else if b == 4 then (btnsArr[b].pos = [415,5])
+								else if b == 4 then (btnsArr[b].pos = [415,15])
 								else if b == 7 then (btnsArr[b].pos = [140,10])
 								else if b == 8 then (btnsArr[b].pos = [190,10])
 								else if b == 9 then (btnsArr[b].pos = [240,10])
@@ -1081,8 +1083,8 @@ rcmenu menuConfig
 								else if b == 12 then (btnsArr[b].visible = true;btnsArr[b].pos = [295,25])
 								else if b == 13 then (btnsArr[b].pos = [350,5])
 								else if b == 14 then (btnsArr[b].pos = [350,25])
-								else if b == 15 then (btnsArr[b].pos = [450,0]) --选定帧
-								else if b == 16 then (btnsArr[b].pos = [450,25]) --首尾帧
+								else if b == 15 then (btnsArr[b].pos = [550,0]) --选定帧
+								else if b == 16 then (btnsArr[b].pos = [550,25]) --首尾帧
 								else if b > 16 and b < 31 then 
 								(
 									if ((mod b 2) == 1) then (btnsArr[b].pos = [btnsArr[b - 2].pos.x + 50,0])
@@ -1122,10 +1124,12 @@ rcmenu menuConfig
 								else if b == 93 then
 								(
 									btnsArr[b].text = "设置"
-									btnsArr[b].pos = [405,25]
+									btnsArr[b].pos = [445,25]
 								)
 								else if b == 95 then (btnsArr[b].visible = false;btnsArr[b].pos = rolBsKeyTools.btnPos)
 								-- else if b == 96 then (btnsArr[b].pos = [1435,20];btnsArr[b].width = 110)
+								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [530,5])
+								else if b == 100 then (btnsArr[b].visible = true;btnsArr[b].pos = [492,27])
 								else
 								(
 									btnsArr[b].visible = false
@@ -1133,7 +1137,7 @@ rcmenu menuConfig
 								)
 							)
 							rolTarget.height = 50
-							rolTarget.width = 1820
+							rolTarget.width = 1920
 							cui.RegisterDialogBar rolTarget minSize:[rolTarget.width,rolTarget.height] maxSize:[rolTarget.width,rolTarget.height] style:#(#cui_dock_horz)
 							cui.DockDialogBar rolTarget #cui_dock_bottom
 							try(setINISetting BulletConfig nameAttrClass "DockPos" (#cui_dock_bottom as string))catch()
@@ -1215,8 +1219,8 @@ rcmenu menuConfig
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,100])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,310])
 								else if b == 98 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,765])
-								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [84,704])
-								else if b == 101 then (btnsArr[b].visible = true;btnsArr[b].pos = [100,702])
+								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [96,587])
+								else if b == 101 then (btnsArr[b].visible = true;btnsArr[b].pos = [120,585])
 								else
 								(
 									btnsArr[b].visible = false
@@ -1307,8 +1311,8 @@ rcmenu menuConfig
 								else if b == 96 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,100])
 								else if b == 97 then (btnsArr[b].visible = true;btnsArr[b].pos = [0,310])
 								else if b == 98 then (btnsArr[b].visible = (fnJudgeScreenResolution());btnsArr[b].pos = [0,765])
-								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [84,704])
-								else if b == 101 then (btnsArr[b].visible = true;btnsArr[b].pos = [100,702])
+								else if b == 99 then (btnsArr[b].visible = true;btnsArr[b].pos = [96,587])
+								else if b == 101 then (btnsArr[b].visible = true;btnsArr[b].pos = [120,585])
 								else
 								(
 									btnsArr[b].visible = false
@@ -2079,7 +2083,7 @@ rollout rolBsKeyTools "" width:355 height:250
 (
 	local heightBsSize    = 250
 	local widthBsSize     = 355
-	local strMainRol      = ("BsKeyTools_v" + curVerBsKeyTools + " - Bullet.S_2019")
+	local strMainRol      = ("BsKeyTools_v" + curVerBsKeyTools + " - Bullet.S")
 	local ui_clientOffset = undefined
 	local strBtnName      = fnSwitchBtnString()
 	local iconPath        = pathconfig.appendpath (getDir #Scripts) @"\\BulletScripts\\Res\\Element"
@@ -2297,7 +2301,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	progressBar pgbLine03 "" pos:[0,-9999] width:160 height:9 color:(color myCheckedColor.r myCheckedColor.g myCheckedColor.b) value:100
 
 	spinner spnRotationIncrement "旋转精度" pos:[45, 222] range:[0.001, 100, 0.500] type:#float width:60 height:20 scale:0.001
-	button btnResetIncrement "重置精度" width:50 height:20 pos:[110,220] visible:false
+	button btnResetIncrement "重置精度" width:50 height:20 pos:[110,220] visible:true
 	button btnResetIncrementMini "重置" width:30 height:20 pos:[110,220] visible:false
 
 	local m_PBKeyTimeArray
