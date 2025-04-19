@@ -1,54 +1,154 @@
-; ¸Ã½Å±¾Ê¹ÓÃ HM VNISEdit ½Å±¾±à¼­Æ÷Ïòµ¼²úÉú
+ï»¿; æ­¤è„šæœ¬ä½¿ç”¨ HM VNISEdit è„šæœ¬ç¼–è¾‘å™¨å‘å¯¼ç”Ÿæˆ
 
-; °²×°³ÌĞò³õÊ¼¶¨Òå³£Á¿
+; æ·»åŠ Unicodeæ”¯æŒ
+Unicode true
+
+; å®‰è£…ç¨‹åºåˆå§‹å®šä¹‰å¸¸é‡
 !define PRODUCT_NAME "BsKeyTools"
 !define PRODUCT_VERSION "_v2.0.0"
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
-;!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
-;!define PRODUCT_UNINST_ROOT_KEY "HKLM"
+
+; å®šä¹‰ç‰ˆæœ¬èŒƒå›´å’Œæ•°é‡
+!define VERSION_COUNT 18  ; å½“å‰æ”¯æŒçš„æœ€å¤§ç‰ˆæœ¬æ•°é‡
+!define MIN_VERSION 9     ; æœ€å°ç‰ˆæœ¬å·(3dsMax 9)
+!define MAX_VERSION 2026  ; æœ€å¤§ç‰ˆæœ¬å·
+
+; å®šä¹‰ç‰ˆæœ¬ä¿¡æ¯
+!define VERSION_9    9    ; ä¸ºäº†ç»Ÿä¸€å‘½åæ ¼å¼
+!define VERSION_2008 2008
+!define VERSION_2009 2009
+!define VERSION_2010 2010
+!define VERSION_2011 2011
+!define VERSION_2012 2012
+!define VERSION_2013 2013
+!define VERSION_2014 2014
+!define VERSION_2015 2015
+!define VERSION_2016 2016
+!define VERSION_2017 2017
+!define VERSION_2018 2018
+!define VERSION_2019 2019
+!define VERSION_2020 2020
+!define VERSION_2021 2021
+!define VERSION_2022 2022
+!define VERSION_2023 2023
+!define VERSION_2024 2024
+!define VERSION_2025 2025
+!define VERSION_2026 2026
+
+; å®šä¹‰ç‰ˆæœ¬å¯¹åº”çš„æ³¨å†Œè¡¨ç‰ˆæœ¬å·
+!define REG_VERSION_9    "9.0"
+!define REG_VERSION_2008 "10.0"
+!define REG_VERSION_2009 "11.0"
+!define REG_VERSION_2010 "12.0"
+!define REG_VERSION_2011 "13.0"
+!define REG_VERSION_2012 "14.0"
+!define REG_VERSION_2013 "15.0"
+!define REG_VERSION_2014 "16.0"
+!define REG_VERSION_2015 "17.0"
+!define REG_VERSION_2016 "18.0"
+!define REG_VERSION_2017 "19.0"
+!define REG_VERSION_2018 "20.0"
+!define REG_VERSION_2019 "21.0"
+!define REG_VERSION_2020 "22.0"
+!define REG_VERSION_2021 "23.0"
+!define REG_VERSION_2022 "24.0"
+!define REG_VERSION_2023 "25.0"
+!define REG_VERSION_2024 "26.0"
+!define REG_VERSION_2025 "27.0"
+!define REG_VERSION_2026 "28.0"
+
+; å®šä¹‰Section ID
+!define SEC_9    "SEC01"
+!define SEC_2008 "SEC02"
+!define SEC_2009 "SEC03"
+!define SEC_2010 "SEC04"
+!define SEC_2011 "SEC05"
+!define SEC_2012 "SEC06"
+!define SEC_2013 "SEC07"
+!define SEC_2014 "SEC08"
+!define SEC_2015 "SEC09"
+!define SEC_2016 "SEC10"
+!define SEC_2017 "SEC11"
+!define SEC_2018 "SEC12"
+!define SEC_2019 "SEC13"
+!define SEC_2020 "SEC14"
+!define SEC_2021 "SEC15"
+!define SEC_2022 "SEC16"
+!define SEC_2023 "SEC17"
+!define SEC_2024 "SEC18"
+!define SEC_2025 "SEC19"
+!define SEC_2026 "SEC20"
+
+; å®šä¹‰å˜é‡
 var maxVer
-var v2024
-var v2025
-var v2026
+; ä¸ºæ¯ä¸ªç‰ˆæœ¬å®šä¹‰å®‰è£…è·¯å¾„å˜é‡
+!macro DefinePathVars
+  var INSTPATH_9
+  var INSTPATH_2008
+  var INSTPATH_2009
+  var INSTPATH_2010
+  var INSTPATH_2011
+  var INSTPATH_2012
+  var INSTPATH_2013
+  var INSTPATH_2014
+  var INSTPATH_2015
+  var INSTPATH_2016
+  var INSTPATH_2017
+  var INSTPATH_2018
+  var INSTPATH_2019
+  var INSTPATH_2020
+  var INSTPATH_2021
+  var INSTPATH_2022
+  var INSTPATH_2023
+  var INSTPATH_2024
+  var INSTPATH_2025
+  var INSTPATH_2026
+!macroend
+
+!insertmacro DefinePathVars
 
 SetCompressor lzma
 
-; ------ MUI ÏÖ´ú½çÃæ¶¨Òå (1.67 °æ±¾ÒÔÉÏ¼æÈİ) ------
+; ------ MUI ç°ä»£ç•Œé¢å®šä¹‰ (1.67 ç‰ˆæœ¬ä»¥ä¸Šå…¼å®¹) ------
 !include "MUI2.nsh"
+!include "LogicLib.nsh" ; å¼•å…¥é€»è¾‘åº“
+!include "Sections.nsh" ; å¼•å…¥Sectionsåº“
 
-; MUI Ô¤¶¨Òå³£Á¿
+; MUI é¢„å®šä¹‰å¸¸é‡
 !define MUI_ABORTWARNING
-!define MUI_ICON "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\max.ico"
-;!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall-blue-full.ico"
-!define MUI_WELCOMEFINISHPAGE_BITMAP "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\sideImg.bmp"
+!define MUI_ICON ".\max.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP ".\sideImg.bmp"
 !define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\logo.bmp"
+!define MUI_HEADERIMAGE_BITMAP ".\logo.bmp"
 
-; »¶Ó­Ò³Ãæ
+; æ¬¢è¿é¡µé¢
 !insertmacro MUI_PAGE_WELCOME
-!define MUI_TEXT_WELCOME_INFO_TITLE "»¶Ó­°²×° ${PRODUCT_NAME}${PRODUCT_VERSION}"
-!define MUI_TEXT_WELCOME_INFO_TEXT "´Ë³ÌĞò½«Òıµ¼ÄãÍê³É $(^NameDA) µÄ°²×°¡£$\r$\n$\r$\nÔÚ°²×°Ö®Ç°£¬½¨ÒéÏÈ¹Ø±ÕËùÓĞ 3dsMax ³ÌĞò¡£$\r$\n$\r$\nÕâ½«È·±£°²×°³ÌĞòÄÜ¹»¸üĞÂËùĞèµÄÎÄ¼ş£¬$\r$\n$\r$\n´Ó¶ø±ÜÃâÔÚ°²×°ºó´ò¿ª¹¤¾ßÊ§°Ü±¨´í¡£$\r$\n$\r$\n$_CLICK"
-; Ğí¿ÉĞ­ÒéÒ³Ãæ
-!define MUI_INNERTEXT_LICENSE_TOP "ÒªÔÄ¶ÁĞ­ÒéµÄÆäÓà²¿·Ö£¬Çë°´¼üÅÌ [PgDn] ¼üÏòÏÂ·­Ò³¡£"
-!define MUI_INNERTEXT_LICENSE_BOTTOM "Èç¹ûÄã½ÓÊÜĞí¿ÉÖ¤µÄÌõ¿î£¬Çëµã»÷ [ÎÒ½ÓÊÜ(I)] ¼ÌĞø°²×°¡£$\r$\n$\r$\nÄã±ØĞëÔÚÍ¬Òâºó²ÅÄÜ°²×° $(^NameDA) ¡£"
-!insertmacro MUI_PAGE_LICENSE "E:\_S\Scripts\GitHub\BsKeyTools\LICENSE"
-; ×é¼şÑ¡ÔñÒ³Ãæ
+!define MUI_TEXT_WELCOME_INFO_TITLE "æ¬¢è¿å®‰è£… ${PRODUCT_NAME}${PRODUCT_VERSION}"
+!define MUI_TEXT_WELCOME_INFO_TEXT "æ­¤ç¨‹åºå°†å¼•å¯¼ä½ å®Œæˆ $(^NameDA) çš„å®‰è£…ã€‚$\r$\n$\r$\nåœ¨å®‰è£…ä¹‹å‰ï¼Œå»ºè®®å…ˆå…³é—­æ‰€æœ‰ 3dsMax ç¨‹åºã€‚$\r$\n$\r$\nè¿™å°†ç¡®ä¿å®‰è£…ç¨‹åºèƒ½å¤Ÿæ›´æ–°æ‰€éœ€çš„æ–‡ä»¶ï¼Œ$\r$\n$\r$\nä»è€Œé¿å…åœ¨å®‰è£…åæ‰“å¼€å·¥å…·å¤±è´¥æŠ¥é”™ã€‚$\r$\n$\r$\n$_CLICK"
+; è®¸å¯åè®®é¡µ
+!define MUI_INNERTEXT_LICENSE_TOP "è¦é˜…è¯»åè®®çš„å…¶ä½™éƒ¨åˆ†ï¼Œè¯·æŒ‰é”®ç›˜ [PgDn] é”®å‘ä¸‹ç¿»é¡µã€‚"
+!define MUI_INNERTEXT_LICENSE_BOTTOM "å¦‚æœä½ æ¥å—è®¸å¯è¯çš„æ¡æ¬¾ï¼Œè¯·ç‚¹å‡» [æˆ‘æ¥å—(I)] ç»§ç»­å®‰è£…ã€‚$\r$\n$\r$\nä½ å¿…é¡»åœ¨åŒæ„åæ‰èƒ½å®‰è£… $(^NameDA) ã€‚"
+; å®šä¹‰å½“å‰è„šæœ¬æ‰€åœ¨ç›®å½•ä¸Šçº§çš„è·¯å¾„
+!define PARENT_DIR ".."
+; å®šä¹‰å½“å‰è„šæœ¬æ‰€åœ¨ç›®å½•çš„è·¯å¾„
+!define CURRENT_DIR "."
+!insertmacro MUI_PAGE_LICENSE "${PARENT_DIR}\LICENSE"
+; ç»„ä»¶é€‰æ‹©é¡µé¢
 !insertmacro MUI_PAGE_COMPONENTS
-!define MUI_TEXT_COMPONENTS_TITLE "Ñ¡Ôñ°æ±¾"
-!define MUI_TEXT_COMPONENTS_SUBTITLE "Ñ¡ÔñÄãÏë°²×° $(^NameDA) µÄ 3dsMax °æ±¾¡£"
-!define MUI_INNERTEXT_COMPONENTS_DESCRIPTION_TITLE "°²×°Â·¾¶"
-!define MUI_INNERTEXT_COMPONENTS_DESCRIPTION_INFO "½«¹â±êĞüÍ£ÔÚ°æ±¾Ãû³ÆÖ®ÉÏ£¬¼´¿ÉÏÔÊ¾ËüµÄ°²×°Â·¾¶¡£"
-ComponentText "Çë¹´Ñ¡ÄãÏë°²×°µ½µÄ°æ±¾£¬²¢È¡Ïû¹´Ñ¡Äã²»Ïë°²×°µÄ°æ±¾¡£ $\r$\n$\r$\n$_CLICK" "" "Ñ¡¶¨°²×°µÄ°æ±¾: "
-; °²×°Ä¿Â¼Ñ¡ÔñÒ³Ãæ
-; !insertmacro MUI_PAGE_DIRECTORY
-; °²×°¹ı³ÌÒ³Ãæ
+!define MUI_TEXT_COMPONENTS_TITLE "é€‰æ‹©ç‰ˆæœ¬"
+!define MUI_TEXT_COMPONENTS_SUBTITLE "é€‰æ‹©ä½ æƒ³å®‰è£… $(^NameDA) çš„ 3dsMax ç‰ˆæœ¬ã€‚"
+!define MUI_INNERTEXT_COMPONENTS_DESCRIPTION_TITLE "å®‰è£…è·¯å¾„"
+!define MUI_INNERTEXT_COMPONENTS_DESCRIPTION_INFO "å°†å…‰æ ‡æ‚¬åœåœ¨ç‰ˆæœ¬åç§°ä¹‹ä¸Šï¼Œå³å¯æ˜¾ç¤ºå®ƒçš„å®‰è£…è·¯å¾„ã€‚"
+ComponentText "è¯·å‹¾é€‰ä½ æƒ³å®‰è£…åˆ°çš„ç‰ˆæœ¬ï¼Œå¹¶å–æ¶ˆå‹¾é€‰ä½ ä¸æƒ³å®‰è£…çš„ç‰ˆæœ¬ã€‚ $\r$\n$\r$\n$_CLICK" "" "é€‰å®šå®‰è£…çš„ç‰ˆæœ¬: "
+
+; å®‰è£…è¿‡ç¨‹é¡µé¢
 !insertmacro MUI_PAGE_INSTFILES
-; °²×°Íê³ÉÒ³Ãæ
-!define MUI_TEXT_FINISH_INFO_TEXT "$(^NameDA) ÒÑ¾­³É¹¦°²×°µ½±¾»ú¡£$\r$\n$\r$\nµã»÷ [Íê³É(F)] ¹Ø±Õ°²×°³ÌĞò¡£"
+; å®‰è£…å®Œæˆé¡µé¢
+!define MUI_TEXT_FINISH_INFO_TEXT "$(^NameDA) å·²ç»æˆåŠŸå®‰è£…åˆ°æœ¬æœºã€‚$\r$\n$\r$\nç‚¹å‡» [å®Œæˆ(F)] å…³é—­å®‰è£…ç¨‹åºã€‚"
 !define MUI_FINISHPAGE_SHOWREADME
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION Info
-!define MUI_FINISHPAGE_SHOWREADME_TEXT "²é¿´°ïÖúÊÓÆµ"
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "æŸ¥çœ‹å¸®åŠ©è§†é¢‘"
 !define MUI_FINISHPAGE_LINK "Github"
 !define MUI_FINISHPAGE_LINK_LOCATION "https://github.com/AniBullet/BsKeyTools"
 !define MUI_FINISHPAGE_LINK_COLOR "872657"
@@ -58,481 +158,288 @@ Function Info
 ExecShell "open" "https://space.bilibili.com/2031113/lists/560782"
 Functionend
 
-; °²×°Ğ¶ÔØ¹ı³ÌÒ³Ãæ
-;!insertmacro MUI_UNPAGE_INSTFILES
-
-; °²×°½çÃæ°üº¬µÄÓïÑÔÉèÖÃ
+; å®‰è£…ç•Œé¢åŒ…å«çš„è¯­è¨€è®¾ç½®
 !insertmacro MUI_LANGUAGE "SimpChinese"
 ;!insertmacro MUI_LANGUAGE "English"
 
-; °²×°Ô¤ÊÍ·ÅÎÄ¼ş
-;!insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
-; ------ MUI ÏÖ´ú½çÃæ¶¨Òå½áÊø ------
+; ------ MUI ç°ä»£ç•Œé¢å®šä¹‰ç»“æŸ ------
 
 Name "${PRODUCT_NAME}${PRODUCT_VERSION}"
 OutFile "_BsKeyTools.exe"
-; InstallDir "d:\Program Files\Autodesk\3ds Max 2014"
-; InstallDir "$INSTDIR"
 ShowInstDetails show
 ShowUnInstDetails show
 
-Section "3dsMax 2026" SEC20
-  SetOutPath "$v2026"
+; å®šä¹‰å®‰è£…ç‰ˆæœ¬Sectionçš„å®ï¼Œç”¨äºç”Ÿæˆæ‰€æœ‰ç‰ˆæœ¬çš„å®‰è£…éƒ¨åˆ†
+!macro VersionSection VERSION SEC_ID VAR_NAME
+Section "3dsMax ${VERSION}" ${SEC_ID}
+  SetOutPath "$${VAR_NAME}"
   SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2026\plugins"
+  File /r "${CURRENT_DIR}\Scripts"
+  File /r "${CURRENT_DIR}\UI_ln"
+  ${If} ${VERSION} == 9
+    File /r "${CURRENT_DIR}\GhostTrails\9\plugins"
+  ${Else}
+    File /r "${CURRENT_DIR}\GhostTrails\${VERSION}\plugins"
+  ${EndIf}
 SectionEnd
+!macroend
 
-Section "3dsMax 2025" SEC19
-  SetOutPath "$v2025"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2025\plugins"
-SectionEnd
-
-Section "3dsMax 2024" SEC18
-  SetOutPath "$v2024"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2024\plugins"
-SectionEnd
-
-Section "3dsMax 2023" SEC01
-  SetOutPath "$1"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2023\plugins"
-SectionEnd
-
-Section "3dsMax 2022" SEC02
-  SetOutPath "$2"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2022\plugins"
-SectionEnd
-  
-Section "3dsMax 2021" SEC03
-  SetOutPath "$3"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2021\plugins"
-SectionEnd
-
-Section "3dsMax 2020" SEC04
-  SetOutPath "$4"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2020\plugins"
-SectionEnd
-
-Section "3dsMax 2019" SEC05
-  SetOutPath "$5"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2019\plugins"
-SectionEnd
-
-Section "3dsMax 2018" SEC06
-  SetOutPath "$6"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2018\plugins"
-SectionEnd
-
-Section "3dsMax 2017" SEC07
-  SetOutPath "$7"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2017\plugins"
-SectionEnd
-
-Section "3dsMax 2016" SEC08
-  SetOutPath "$8"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2016\plugins"
-SectionEnd
-
-Section "3dsMax 2015" SEC09
-  SetOutPath "$9"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2015\plugins"
-SectionEnd
-
-Section "3dsMax 2014" SEC10
-  SetOutPath "$R2"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2014\plugins"
-SectionEnd
-
-Section "3dsMax 2013" SEC11
-  SetOutPath "$R3"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2013\plugins"
-SectionEnd
-
-Section "3dsMax 2012" SEC12
-  SetOutPath "$R4"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2012\plugins"
-SectionEnd
-
-Section "3dsMax 2011" SEC13
-  SetOutPath "$R5"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2011\plugins"
-SectionEnd
-
-Section "3dsMax 2010" SEC14
-  SetOutPath "$R6"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2010\plugins"
-SectionEnd
-
-Section "3dsMax 2009" SEC15
-  SetOutPath "$R7"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2009\plugins"
-SectionEnd
-
-Section "3dsMax 2008" SEC16
-  SetOutPath "$R8"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\2008\plugins"
-SectionEnd
-
-Section "3dsMax 9" SEC17
-  SetOutPath "$R9"
-  SetOverwrite on
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\Scripts"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\UI_ln"
-  File /r "E:\_S\Scripts\GitHub\BsKeyTools\_BsKeyTools\GhostTrails\9\plugins"
-SectionEnd
-
-;Section -Post
-;  WriteUninstaller "$INSTDIR\uninst.exe"
-;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
-;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
-;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
-;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
-;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
-;SectionEnd
+; ä½¿ç”¨å®ç”Ÿæˆæ‰€æœ‰ç‰ˆæœ¬çš„Section
+!insertmacro VersionSection "${VERSION_2026}" "${SEC_2026}" "INSTPATH_2026"
+!insertmacro VersionSection "${VERSION_2025}" "${SEC_2025}" "INSTPATH_2025"
+!insertmacro VersionSection "${VERSION_2024}" "${SEC_2024}" "INSTPATH_2024"
+!insertmacro VersionSection "${VERSION_2023}" "${SEC_2023}" "INSTPATH_2023"
+!insertmacro VersionSection "${VERSION_2022}" "${SEC_2022}" "INSTPATH_2022"
+!insertmacro VersionSection "${VERSION_2021}" "${SEC_2021}" "INSTPATH_2021"
+!insertmacro VersionSection "${VERSION_2020}" "${SEC_2020}" "INSTPATH_2020"
+!insertmacro VersionSection "${VERSION_2019}" "${SEC_2019}" "INSTPATH_2019"
+!insertmacro VersionSection "${VERSION_2018}" "${SEC_2018}" "INSTPATH_2018"
+!insertmacro VersionSection "${VERSION_2017}" "${SEC_2017}" "INSTPATH_2017"
+!insertmacro VersionSection "${VERSION_2016}" "${SEC_2016}" "INSTPATH_2016"
+!insertmacro VersionSection "${VERSION_2015}" "${SEC_2015}" "INSTPATH_2015"
+!insertmacro VersionSection "${VERSION_2014}" "${SEC_2014}" "INSTPATH_2014"
+!insertmacro VersionSection "${VERSION_2013}" "${SEC_2013}" "INSTPATH_2013"
+!insertmacro VersionSection "${VERSION_2012}" "${SEC_2012}" "INSTPATH_2012"
+!insertmacro VersionSection "${VERSION_2011}" "${SEC_2011}" "INSTPATH_2011"
+!insertmacro VersionSection "${VERSION_2010}" "${SEC_2010}" "INSTPATH_2010"
+!insertmacro VersionSection "${VERSION_2009}" "${SEC_2009}" "INSTPATH_2009"
+!insertmacro VersionSection "${VERSION_2008}" "${SEC_2008}" "INSTPATH_2008"
+!insertmacro VersionSection "${VERSION_9}"    "${SEC_9}"    "INSTPATH_9"
 
 Function .onInit
 
 !insertmacro MUI_LANGDLL_DISPLAY
 
-;¼ì²é 3dsmax.exe ÊÇ·ñÒÑÔËĞĞ
- 	nsProcess::_FindProcess "3dsmax.exe"
-  Pop $R0
-  ${If} $R0 = 0
-		MessageBox MB_ICONEXCLAMATION|MB_OK "BsKeyTools °²×°³ÌĞò¼ì²âµ½ 3dsmax.exe ÕıÔÚÔËĞĞ£¬$\n$\n°²×°ÈÔ¿É¼ÌĞø£¬µ«½¨ÒéÖØÆô 3dsMax ºóÔÙ´ò¿ª²å¼ş£¡$\n$\n·ñÔò¿ÉÄÜÓöµ½±¨´í£¬µ«Äª¾ª»Å£¬ÖØÆô´ó·¨½â¾öÒ»ÇĞÀ§ÄÑ~"
-	${EndIf}
+;æ£€æŸ¥ 3dsmax.exe æ˜¯å¦å·²è¿è¡Œ
+nsProcess::_FindProcess "3dsmax.exe"
+Pop $R0
+${If} $R0 = 0
+  MessageBox MB_ICONEXCLAMATION|MB_OK "BsKeyTools å®‰è£…ç¨‹åºæ£€æµ‹åˆ° 3dsmax.exe æ­£åœ¨è¿è¡Œä¸­ï¼$\n$\nå®‰è£…å¯èƒ½ä¼šå¯¼è‡´ç¨‹åºå¼‚å¸¸ï¼Œè¯·å…ˆå…³é—­ 3dsMax å†æ¬¡æ‰“å¼€æœ¬å®‰è£…ç¨‹åºã€‚$\n$\nå¦‚æœä¸æ˜¯åœ¨ä½ æ‰“å¼€çš„æƒ…å†µä¸‹ï¼Œé‚£ä¹ˆå¯èƒ½æ˜¯è«åå·¥ä½œè¿›ç¨‹ï¼Œè¯·æ‰‹åŠ¨ç»“æŸä¸€ä¸‹è¿›ç¨‹~"
+${EndIf}
 
-; É¨ÃèÒÑ°²×°µÄmax°æ±¾
-
-; MAX2026:
+; å®šä¹‰æ£€æµ‹Maxç‰ˆæœ¬çš„å®
+!macro FindMaxVersion VERSION REG_VER VAR_NAME
   setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\28.0" "Installdir"
+  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\${REG_VER}" "Installdir"
   ${If} $maxVer != ""
-    SectionSetFlags ${Sec20} 1
-    StrCpy $v2026 $maxVer
+    StrCpy $${VAR_NAME} $maxVer
   ${Else}
-  	SectionSetFlags ${Sec20} 0
-    SectionSetText ${Sec20} ""
+    StrCpy $${VAR_NAME} ""
   ${EndIf}
+!macroend
 
-; MAX2025:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\27.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec19} 1
-    StrCpy $v2025 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec19} 0
-    SectionSetText ${Sec19} ""
-  ${EndIf}
+; ä½¿ç”¨å®æ¥æ£€æµ‹æ‰€æœ‰å·²å®‰è£…çš„Maxç‰ˆæœ¬
+!insertmacro FindMaxVersion "${VERSION_2026}" "${REG_VERSION_2026}" "INSTPATH_2026"
+!insertmacro FindMaxVersion "${VERSION_2025}" "${REG_VERSION_2025}" "INSTPATH_2025"
+!insertmacro FindMaxVersion "${VERSION_2024}" "${REG_VERSION_2024}" "INSTPATH_2024"
+!insertmacro FindMaxVersion "${VERSION_2023}" "${REG_VERSION_2023}" "INSTPATH_2023"
+!insertmacro FindMaxVersion "${VERSION_2022}" "${REG_VERSION_2022}" "INSTPATH_2022"
+!insertmacro FindMaxVersion "${VERSION_2021}" "${REG_VERSION_2021}" "INSTPATH_2021"
+!insertmacro FindMaxVersion "${VERSION_2020}" "${REG_VERSION_2020}" "INSTPATH_2020"
+!insertmacro FindMaxVersion "${VERSION_2019}" "${REG_VERSION_2019}" "INSTPATH_2019"
+!insertmacro FindMaxVersion "${VERSION_2018}" "${REG_VERSION_2018}" "INSTPATH_2018"
+!insertmacro FindMaxVersion "${VERSION_2017}" "${REG_VERSION_2017}" "INSTPATH_2017"
+!insertmacro FindMaxVersion "${VERSION_2016}" "${REG_VERSION_2016}" "INSTPATH_2016"
+!insertmacro FindMaxVersion "${VERSION_2015}" "${REG_VERSION_2015}" "INSTPATH_2015"
+!insertmacro FindMaxVersion "${VERSION_2014}" "${REG_VERSION_2014}" "INSTPATH_2014"
+!insertmacro FindMaxVersion "${VERSION_2013}" "${REG_VERSION_2013}" "INSTPATH_2013"
+!insertmacro FindMaxVersion "${VERSION_2012}" "${REG_VERSION_2012}" "INSTPATH_2012"
+!insertmacro FindMaxVersion "${VERSION_2011}" "${REG_VERSION_2011}" "INSTPATH_2011"
+!insertmacro FindMaxVersion "${VERSION_2010}" "${REG_VERSION_2010}" "INSTPATH_2010"
+!insertmacro FindMaxVersion "${VERSION_2009}" "${REG_VERSION_2009}" "INSTPATH_2009"
+!insertmacro FindMaxVersion "${VERSION_2008}" "${REG_VERSION_2008}" "INSTPATH_2008"
+!insertmacro FindMaxVersion "${VERSION_9}"    "${REG_VERSION_9}"    "INSTPATH_9"
 
-; MAX2024:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\26.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec18} 1
-    StrCpy $v2024 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec18} 0
-    SectionSetText ${Sec18} ""
-  ${EndIf}
+; åœ¨æ£€æµ‹å®Œå®‰è£…è·¯å¾„åè®¾ç½®ç« èŠ‚çŠ¶æ€
+; æ³¨æ„ï¼šèŠ‚ç´¢å¼•æŒ‰å®ƒä»¬åœ¨è„šæœ¬ä¸­çš„å®šä¹‰é¡ºåºä»0å¼€å§‹
 
-; MAX2023:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\25.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec01} 1
-    StrCpy $1 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec01} 0
-    SectionSetText ${Sec01} ""
-  ${EndIf}
+; 3dsMax 2026 (èŠ‚ç´¢å¼• 0)
+${If} $INSTPATH_2026 != ""
+  SectionSetFlags 0 1 ; 1 = é€‰ä¸­
+${Else}
+  SectionSetFlags 0 0 ; 0 = ä¸é€‰ä¸­
+  SectionSetText 0 ""
+${EndIf}
 
-; MAX2022:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\24.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec02} 1
-    StrCpy $2 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec02} 0
-    SectionSetText ${Sec02} ""
-  ${EndIf}
+; 3dsMax 2025 (èŠ‚ç´¢å¼• 1)
+${If} $INSTPATH_2025 != ""
+  SectionSetFlags 1 1
+${Else}
+  SectionSetFlags 1 0
+  SectionSetText 1 ""
+${EndIf}
 
-; MAX2021:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\23.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec03} 1
-    StrCpy $3 $maxVer
-  ${Else}
-    SectionSetFlags ${Sec03} 0
-    SectionSetText ${Sec03} ""
-  ${EndIf}
+; 3dsMax 2024 (èŠ‚ç´¢å¼• 2)
+${If} $INSTPATH_2024 != ""
+  SectionSetFlags 2 1
+${Else}
+  SectionSetFlags 2 0
+  SectionSetText 2 ""
+${EndIf}
 
-; MAX2020:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\22.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec04} 1
-    StrCpy $4 $maxVer
-  ${Else}
-    SectionSetFlags ${Sec04} 0
-    SectionSetText ${Sec04} ""
-  ${EndIf}
+; 3dsMax 2023 (èŠ‚ç´¢å¼• 3)
+${If} $INSTPATH_2023 != ""
+  SectionSetFlags 3 1
+${Else}
+  SectionSetFlags 3 0
+  SectionSetText 3 ""
+${EndIf}
 
-; MAX2019:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\21.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec05} 1
-    StrCpy $5 $maxVer
-  ${Else}
-    SectionSetFlags ${Sec05} 0
-    SectionSetText ${Sec05} ""
-  ${EndIf}
+; 3dsMax 2022 (èŠ‚ç´¢å¼• 4)
+${If} $INSTPATH_2022 != ""
+  SectionSetFlags 4 1
+${Else}
+  SectionSetFlags 4 0
+  SectionSetText 4 ""
+${EndIf}
 
-; MAX2018:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\20.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec06} 1
-    StrCpy $6 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec06} 0
-    SectionSetText ${Sec06} ""
-  ${EndIf}
+; 3dsMax 2021 (èŠ‚ç´¢å¼• 5)
+${If} $INSTPATH_2021 != ""
+  SectionSetFlags 5 1
+${Else}
+  SectionSetFlags 5 0
+  SectionSetText 5 ""
+${EndIf}
 
-; MAX2017:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\19.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec07} 1
-    StrCpy $7 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec07} 0
-    SectionSetText ${Sec07} ""
-  ${EndIf}
+; 3dsMax 2020 (èŠ‚ç´¢å¼• 6)
+${If} $INSTPATH_2020 != ""
+  SectionSetFlags 6 1
+${Else}
+  SectionSetFlags 6 0
+  SectionSetText 6 ""
+${EndIf}
 
-; MAX2016:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\18.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec08} 1
-    StrCpy $8 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec08} 0
-    SectionSetText ${Sec08} ""
-  ${EndIf}
+; 3dsMax 2019 (èŠ‚ç´¢å¼• 7)
+${If} $INSTPATH_2019 != ""
+  SectionSetFlags 7 1
+${Else}
+  SectionSetFlags 7 0
+  SectionSetText 7 ""
+${EndIf}
 
-; MAX2015:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\17.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec09} 1
-    StrCpy $9 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec09} 0
-    SectionSetText ${Sec09} ""
-  ${EndIf}
+; 3dsMax 2018 (èŠ‚ç´¢å¼• 8)
+${If} $INSTPATH_2018 != ""
+  SectionSetFlags 8 1
+${Else}
+  SectionSetFlags 8 0
+  SectionSetText 8 ""
+${EndIf}
 
-; MAX2014:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\16.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec10} 1
-    StrCpy $R2 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec10} 0
-    SectionSetText ${Sec10} ""
-  ${EndIf}
+; 3dsMax 2017 (èŠ‚ç´¢å¼• 9)
+${If} $INSTPATH_2017 != ""
+  SectionSetFlags 9 1
+${Else}
+  SectionSetFlags 9 0
+  SectionSetText 9 ""
+${EndIf}
 
-; MAX2013:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\15.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec11} 1
-    StrCpy $R3 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec11} 0
-    SectionSetText ${Sec11} ""
-  ${EndIf}
+; 3dsMax 2016 (èŠ‚ç´¢å¼• 10)
+${If} $INSTPATH_2016 != ""
+  SectionSetFlags 10 1
+${Else}
+  SectionSetFlags 10 0
+  SectionSetText 10 ""
+${EndIf}
 
-; MAX2012:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\14.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec12} 1
-    StrCpy $R4 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec12} 0
-    SectionSetText ${Sec12} ""
-  ${EndIf}
+; 3dsMax 2015 (èŠ‚ç´¢å¼• 11)
+${If} $INSTPATH_2015 != ""
+  SectionSetFlags 11 1
+${Else}
+  SectionSetFlags 11 0
+  SectionSetText 11 ""
+${EndIf}
 
-; MAX2011:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\13.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec13} 1
-    StrCpy $R5 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec13} 0
-    SectionSetText ${Sec13} ""
-  ${EndIf}
+; 3dsMax 2014 (èŠ‚ç´¢å¼• 12)
+${If} $INSTPATH_2014 != ""
+  SectionSetFlags 12 1
+${Else}
+  SectionSetFlags 12 0
+  SectionSetText 12 ""
+${EndIf}
 
-; MAX2010:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\12.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec14} 1
-    StrCpy $R6 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec14} 0
-    SectionSetText ${Sec14} ""
-  ${EndIf}
+; 3dsMax 2013 (èŠ‚ç´¢å¼• 13)
+${If} $INSTPATH_2013 != ""
+  SectionSetFlags 13 1
+${Else}
+  SectionSetFlags 13 0
+  SectionSetText 13 ""
+${EndIf}
 
-; MAX2009:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\11.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec15} 1
-    StrCpy $R7 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec15} 0
-    SectionSetText ${Sec15} ""
-  ${EndIf}
+; 3dsMax 2012 (èŠ‚ç´¢å¼• 14)
+${If} $INSTPATH_2012 != ""
+  SectionSetFlags 14 1
+${Else}
+  SectionSetFlags 14 0
+  SectionSetText 14 ""
+${EndIf}
 
-; MAX2008:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\10.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec16} 1
-    StrCpy $R8 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec16} 0
-    SectionSetText ${Sec16} ""
-  ${EndIf}
+; 3dsMax 2011 (èŠ‚ç´¢å¼• 15)
+${If} $INSTPATH_2011 != ""
+  SectionSetFlags 15 1
+${Else}
+  SectionSetFlags 15 0
+  SectionSetText 15 ""
+${EndIf}
 
-; MAX9.0:
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\9.0" "Installdir"
-  ${If} $maxVer != ""
-    SectionSetFlags ${Sec17} 1
-    StrCpy $R9 $maxVer
-  ${Else}
-  	SectionSetFlags ${Sec17} 0
-    SectionSetText ${Sec17} ""
-  ${EndIf}
+; 3dsMax 2010 (èŠ‚ç´¢å¼• 16)
+${If} $INSTPATH_2010 != ""
+  SectionSetFlags 16 1
+${Else}
+  SectionSetFlags 16 0
+  SectionSetText 16 ""
+${EndIf}
+
+; 3dsMax 2009 (èŠ‚ç´¢å¼• 17)
+${If} $INSTPATH_2009 != ""
+  SectionSetFlags 17 1
+${Else}
+  SectionSetFlags 17 0
+  SectionSetText 17 ""
+${EndIf}
+
+; 3dsMax 2008 (èŠ‚ç´¢å¼• 18)
+${If} $INSTPATH_2008 != ""
+  SectionSetFlags 18 1
+${Else}
+  SectionSetFlags 18 0
+  SectionSetText 18 ""
+${EndIf}
+
+; 3dsMax 9 (èŠ‚ç´¢å¼• 19)
+${If} $INSTPATH_9 != ""
+  SectionSetFlags 19 1
+${Else}
+  SectionSetFlags 19 0
+  SectionSetText 19 ""
+${EndIf}
 
 FunctionEnd
 
-; Çø¶Î×é¼şÃèÊö
+; å®šä¹‰æ˜¾ç¤ºå®‰è£…è·¯å¾„çš„å®
+!macro DescSection SEC_ID VAR_NAME
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_ID} $${VAR_NAME}
+!macroend
+
+; ç‰ˆæœ¬æè¿°
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec01} $1
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec02} $2
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec03} $3
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec04} $4
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec05} $5
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec06} $6
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec07} $7
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec08} $8
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec09} $9
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec10} $R2
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec11} $R3
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec12} $R4
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec13} $R5
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec14} $R6
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec15} $R7
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec16} $R8
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec17} $R9
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec18} $v2024
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec19} $v2025
-  !insertmacro MUI_DESCRIPTION_TEXT ${Sec20} $v2026
+  !insertmacro DescSection "${SEC_9}"    "INSTPATH_9"
+  !insertmacro DescSection "${SEC_2008}" "INSTPATH_2008"
+  !insertmacro DescSection "${SEC_2009}" "INSTPATH_2009"
+  !insertmacro DescSection "${SEC_2010}" "INSTPATH_2010"
+  !insertmacro DescSection "${SEC_2011}" "INSTPATH_2011"
+  !insertmacro DescSection "${SEC_2012}" "INSTPATH_2012"
+  !insertmacro DescSection "${SEC_2013}" "INSTPATH_2013"
+  !insertmacro DescSection "${SEC_2014}" "INSTPATH_2014"
+  !insertmacro DescSection "${SEC_2015}" "INSTPATH_2015"
+  !insertmacro DescSection "${SEC_2016}" "INSTPATH_2016"
+  !insertmacro DescSection "${SEC_2017}" "INSTPATH_2017"
+  !insertmacro DescSection "${SEC_2018}" "INSTPATH_2018"
+  !insertmacro DescSection "${SEC_2019}" "INSTPATH_2019"
+  !insertmacro DescSection "${SEC_2020}" "INSTPATH_2020"
+  !insertmacro DescSection "${SEC_2021}" "INSTPATH_2021"
+  !insertmacro DescSection "${SEC_2022}" "INSTPATH_2022"
+  !insertmacro DescSection "${SEC_2023}" "INSTPATH_2023"
+  !insertmacro DescSection "${SEC_2024}" "INSTPATH_2024"
+  !insertmacro DescSection "${SEC_2025}" "INSTPATH_2025"
+  !insertmacro DescSection "${SEC_2026}" "INSTPATH_2026"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
-
-/******************************
- *  ÒÔÏÂÊÇ°²×°³ÌĞòµÄĞ¶ÔØ²¿·Ö  *
- ******************************/
-
-;Section Uninstall
-;  Delete "$INSTDIR\uninst.exe"
-;  RMDIR "$INSTDIR\Scripts\BulletScripts"
-;  RMDIR "$INSTDIR\Scripts\BulletScripts"
-;  RMDIR "$INSTDIR\UI_ln"
-
-;  DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
-;  SetAutoClose true
-;SectionEnd
-
-;#-- ¸ù¾İ NSIS ½Å±¾±à¼­¹æÔò£¬ËùÓĞ Function Çø¶Î±ØĞë·ÅÖÃÔÚ Section Çø¶ÎÖ®ºó±àĞ´£¬ÒÔ±ÜÃâ°²×°³ÌĞò³öÏÖÎ´¿ÉÔ¤ÖªµÄÎÊÌâ¡£--#
-
-;Function un.onInit
-;MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "ÄúÈ·ÊµÒªÍêÈ«ÒÆ³ı $(^Name) £¬¼°ÆäËùÓĞµÄ×é¼ş£¿" IDYES +2
-;  Abort
-  ;¼ì²â³ÌĞòÊÇ·ñÔËĞĞ
-;  FindProcDLL::FindProc "3dsmax.exe"
-;   Pop $R0
-;   IntCmp $R0 1 0 no_run
-;   MessageBox MB_ICONSTOP "Ğ¶ÔØ³ÌĞò¼ì²âµ½ 3dsmax.exe ÕıÔÚÔËĞĞ£¬Çë¹Ø±ÕÖ®ºóÔÙĞ¶ÔØ£¡"
-;   Quit
-;   no_run:
-;FunctionEnd
-
-;Function un.onUninstSuccess
-;  HideWindow
-;  MessageBox MB_ICONINFORMATION|MB_OK "$(^Name) ÒÑ³É¹¦µØ´ÓÄúµÄ¼ÆËã»úÒÆ³ı¡£"
-;FunctionEnd
