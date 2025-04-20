@@ -178,7 +178,7 @@ Function .onInit
 nsProcess::_FindProcess "3dsmax.exe"
 Pop $R0
 ${If} $R0 = 0
-  MessageBox MB_ICONEXCLAMATION|MB_OK "BsKeyTools 安装程序检测到 3dsmax.exe 正在运行中！$\n$\n安装可能会导致程序异常，请先关闭 3dsMax 再次打开本安装程序。$\n$\n如果不是在你打开的情况下，那么可能是莫名工作进程，请手动结束一下进程~"
+  MessageBox MB_ICONEXCLAMATION|MB_OK "BsKeyTools 安装程序检测到 3dsmax.exe 正在运行中！$\n$\n安装可能会导致工具异常，请先关闭 3dsMax 再次打开本安装程序。$\n$\n如果你没有打开，可能是残留进程，建议手动关闭一下~"
 ${EndIf}
 
 ; 初始化路径变量
