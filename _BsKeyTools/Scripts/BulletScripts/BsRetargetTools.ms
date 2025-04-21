@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-20 03:36:00
+ * @LastEditTime: 2025-04-21 10:22:35
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -616,7 +616,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v4.2 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
@@ -2663,7 +2663,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.1 （ FBX 转 BIP + 动画重定向 �
 				print (height)
 				print (ang)
 				
-				numNeckLink = if (not (fnIsIgnoreBone 89)) then 2 else 1
+				numNeckLink = if (not (fnIsIgnoreBone 9)) then 2 else 1
 				if (not (fnIsIgnoreBone 5) and not (fnIsIgnoreBone 6) and not (fnIsIgnoreBone 7)) then numSpineLink = 5 
 				else if (not (fnIsIgnoreBone 5) and not (fnIsIgnoreBone 6) and (fnIsIgnoreBone 7)) then numSpineLink = 4
 				else if (not (fnIsIgnoreBone 5) and (fnIsIgnoreBone 6) and (fnIsIgnoreBone 7)) then numSpineLink = 3
