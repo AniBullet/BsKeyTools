@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-02-08 16:37:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2022-09-15 11:52:20
+ * @LastEditTime: 2025-04-23 11:47:54
  * @Email: animator.bullet@foxmail.com
  */
 -- --ALC betaclenaer
@@ -163,7 +163,24 @@ struct signature_log (
 		),
 
 		slog = signature_log(),
+		
+		fn hasCallback callbackID = 
+		(
+			local result = false
+			local str = stringStream ""
 			
+			-- 将callbacks.show输出重定向到字符串流
+			callbacks.show id:callbackID to:str
+			
+			-- 将字符串流内容转换为字符串
+			local content = str as string
+			
+			-- 如果内容中没有"No callbacks found"且不为空，则回调存在
+			result = findString content "OK" == undefined and content.count > 0
+			
+			return result
+		),
+
 		fn detect = (
 			s = "" as stringStream
 			
@@ -177,6 +194,11 @@ struct signature_log (
 			close s
 			
 			return size > 2400
+		),
+
+		fn detect2 = (
+			for i in bad_events do if hasCallback i then (return true)
+			false
 		),
 		
 		fn getInfectedFiles = (		
@@ -325,7 +347,11 @@ struct signature_log (
 			if(detect() == false) do (												
 				return false
 			)
-				
+			
+			if(detect2() == false) do (												
+				return false
+			)
+
 			for ev in bad_events do try(callbacks.removeScripts id: ev) catch()
 			
 			removeFunc bad_functions
