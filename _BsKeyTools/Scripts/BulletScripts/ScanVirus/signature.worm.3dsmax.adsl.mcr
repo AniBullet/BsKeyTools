@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-02-08 16:37:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-23 11:47:54
+ * @LastEditTime: 2025-04-23 11:59:59
  * @Email: animator.bullet@foxmail.com
  */
 -- --ALC betaclenaer
@@ -343,14 +343,14 @@ struct signature_log (
 				execute ("callbacks.removeScripts id: #" + signature + id)
 				execute ("callbacks.addScript #" + detect_events[i] as string + "  \" (fileIn @\\\"" + f + "\\\")  \" id: #" + signature + id)
 			)
-			
-			if(detect() == false) do (												
-				return false
-			)
-			
+
 			if(detect2() == false) do (												
 				return false
 			)
+			
+			-- if(detect() == false) do (												
+			-- 	return false
+			-- )
 
 			for ev in bad_events do try(callbacks.removeScripts id: ev) catch()
 			
