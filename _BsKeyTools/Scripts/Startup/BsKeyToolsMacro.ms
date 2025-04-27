@@ -345,4 +345,13 @@
 			SetINISetting BulletConfig "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
 		)
 	)
+
+	macroScript BsKeyToolsResetConfig
+	category:"_[BulletTools]"
+	buttonText:"重置配置  请先备份"
+	toolTip:"清空配置,处理异常"
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsResetConfig.ms"))
+		catch(messagebox "打开 BsResetConfig.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
 )

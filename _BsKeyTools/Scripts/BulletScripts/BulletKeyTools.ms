@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-20 03:02:58
+ * @LastEditTime: 2025-04-27 11:55:59
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -546,6 +546,7 @@ rcmenu menuConfig
 		menuItem mItemScriptsPath "脚本目录 [查错优化]"
 		menuItem mItemConfigFilePath "配置文件 [备份导入]"
 		menuItem mItemBackupConfigFile "备份配置 [到电脑桌面]"
+		menuItem mItemResetConfig "重置配置 [粗暴解决异常]"
 		menuItem mItemDarkEditor "深色编辑器 [Maxscript]"
 		menuItem mItemHelpDocs "脚本文档 [3dsMax官方]"
 		menuItem mItemFBXReview "FBX查看器 [3dsMax官方]"
@@ -1571,8 +1572,14 @@ rcmenu menuConfig
 			-- SIOFile.Copy BulletConfig fileConfigBcakup
 			FileIO.Copyfile BulletConfig fileConfigBcakup UIOption
 		)
-		if (queryBox "是否打开配置文件备份目录？（配置文件：BulletConfig.ini）\r\n\r\n【另存或替换此文件可手动处理备份或导入脚本配置】                                                     " \
+		if (queryBox "是否备份配置文件到桌面？（配置文件：BulletConfig.ini）\r\n\r\n【可在关闭插件时覆盖回去还原或迁移配置】                                                     " \
 		title:"备份配置文件" beep:false) then (shellLaunch pathDesktop "")
+	)
+
+	on mItemResetConfig picked do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsResetConfig.ms"))
+		catch(messagebox "打开 BsResetConfig.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemDarkEditor picked do 

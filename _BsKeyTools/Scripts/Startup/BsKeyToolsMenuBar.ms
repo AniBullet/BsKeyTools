@@ -149,6 +149,7 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
         local menuPosReset        = menuMan.createMenu "工具窗口  位置重置"
         local mItemMainWindow     = menuMan.createActionItem "BsKeyToolsPosReset" "_[BulletTools]"
         local mItemBsScriptsSet   = menuMan.createActionItem "BsScriptsSetPosReset" "_[BulletTools]"
+        local mItemBsResetConfig  = menuMan.createActionItem "BsKeyToolsResetConfig" "_[BulletTools]"
 
         mainMenuBar        = menuMan.getMainMenuBar()
         subMainMenuItem    = menuMan.createSubMenuItem strMenuName menuBsTool
@@ -193,6 +194,8 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
         menuPosReset.addItem mItemMainWindow -1
         menuPosReset.addItem mItemBsScriptsSet -1
         menuBsTool.addItem separatorBsKeyTools -1
+        menuBsTool.addItem mItemBsResetConfig -1
+        menuBsTool.addItem separatorBsKeyTools -1
         menuBsTool.addItem mItemTool -1
         
         menuMan.updateMenuBar()
@@ -220,7 +223,9 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
             subMenu4 = newSubMenu.CreateSubMenu "0B8CD8AE-237E-4D7F-A6D5-3BB755C23FF2" "自动启动脚本"
             subMenu5 = newSubMenu.CreateSubMenu "80F4114F-189B-4F44-8E90-7A1BBAE3CD8B" "+菜单栏按钮-"
             newSubMenu.CreateSeparator (genGUID())
-            subMenu6 = newSubMenu.CreateSubMenu "C31915DC-B962-4A86-98B2-997F1CD61C67" "工具窗口 位置重置"
+            subMenu6 = newSubMenu.CreateSubMenu "C31915DC-B962-4A86-98B2-997F1CD61C67" "工具窗口  位置重置"
+            newSubMenu.CreateSeparator (genGUID())
+            subMenu7 = newSubMenu.CreateSubMenu "F4DF591A-8FAF-4A51-A54B-CFC8E59EFFC4" "重置配置  请先备份"
 
             subMenu1.CreateAction (genGUID()) macroScriptActionTableID "UrlBsToolsVideo`_[BulletTools]"
             subMenu1.CreateAction (genGUID()) macroScriptActionTableID "UrlBsToolsDocs`_[BulletTools]"
@@ -247,6 +252,8 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
 
             subMenu6.CreateAction (genGUID()) macroScriptActionTableID "BsKeyToolsPosReset`_[BulletTools]"
             subMenu6.CreateAction (genGUID()) macroScriptActionTableID "BsScriptsSetPosReset`_[BulletTools]"
+
+            subMenu7.CreateAction (genGUID()) macroScriptActionTableID "BsKeyToolsResetConfig`_[BulletTools]"
 
             newSubMenu.CreateSeparator (genGUID())
             newSubMenu.CreateAction (genGUID()) macroScriptActionTableID "BulletKeyTools`_[BulletTools]" title:"🌟 BsKeyTools"
