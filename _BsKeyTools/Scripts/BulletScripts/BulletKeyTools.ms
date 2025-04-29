@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-27 11:55:59
+ * @LastEditTime: 2025-04-29 18:08:43
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -2259,7 +2259,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnCutSequence "动画分段" width:btnWidth height:btnHeight visible:false pos:btnPos \
 	toolTip:"为长动画分段动作区间 (修改自San_oOo)"
 	button btnSkinTools "Skin 工具" width:btnWidth height:btnHeight visible:false \
-	toolTip:"Skin工具集成 (修改自San_oOo)" pos:btnPos
+	toolTip:"Skin工具集成 (左新版，右老版)" pos:btnPos
 	button btnCombineDetachSkin "Skin 拆合" width:btnWidth height:btnHeight visible:false \
 	tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos
 	button btnBoxMan "方块超人" width:btnWidth height:btnHeight visible:false \
@@ -4794,6 +4794,12 @@ rollout rolBsKeyTools "" width:355 height:250
 	)
 
 	on btnSkinTools pressed do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\P_SkinWeightTool.ms"))
+		catch(messagebox "打开 SkinTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnSkinTools rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\SkinTools.ms"))
 		catch(messagebox "打开 SkinTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
