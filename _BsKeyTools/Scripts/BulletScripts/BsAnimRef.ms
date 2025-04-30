@@ -61,21 +61,13 @@ sequence_viewer = dotNetObject "MaxCustomControls.MaxForm"
 sequence_viewer.opacity = 1
 sequence_viewer.width = startFormSize[1]
 sequence_viewer.height = startFormSize[2]
-sequence_viewer.clientSize = dotNetObject "System.Drawing.Size" startFormSize[1] startFormSize[2]
+sequence_viewer.clientSize = dotNetObject "System.Drawing.Size" startFormSize[1] startFormSize[2]  -- 确保客户区尺寸正确
 sequence_viewer.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderStyle").none
 sequence_viewer.BackColor = BackGrey
 sequence_viewer.StartPosition = (dotNetClass "System.Windows.Forms.FormStartPosition").Manual
 sequence_viewer.ShowInTaskbar = false  -- 不在任务栏显示
 sequence_viewer.TopMost = true  -- 默认窗口置顶
 alwaysOnTop = true
-
--- 创建一个基本的自定义绘制策略
-try (
-    -- 尝试设置样式来减少闪烁
-    sequence_viewer.SetStyle (dotNetClass "System.Windows.Forms.ControlStyles").AllPaintingInWmPaint true
-    sequence_viewer.SetStyle (dotNetClass "System.Windows.Forms.ControlStyles").UserPaint true
-    sequence_viewer.SetStyle (dotNetClass "System.Windows.Forms.ControlStyles").OptimizedDoubleBuffer true
-) catch()
 
 -- 创建顶部面板
 pnlTopBar = dotNetObject "System.Windows.Forms.Panel"
@@ -864,7 +856,7 @@ fn onResizeMouseMove sender e = (
         mouseOffset[1] = mouse.screenPos.x
         mouseOffset[2] = mouse.screenPos.y
         
-        -- 每次移动都完整更新UI，使界面实时变化
+        -- 更新UI布局
         resizeUI()
     )
 )
