@@ -40,6 +40,8 @@ global SWP_SHOWWINDOW = 0x0040
 global WS_CHILD = 0x40000000 -- 子窗口样式
 global GWL_STYLE = -16
 global GWL_HWNDPARENT = -8  -- 窗口所有者
+global WS_EX_APPWINDOW = 0x00040000 -- 在任务栏显示
+global WS_EX_WINDOWEDGE = 0x00000100 -- 3D边框
 
 -- 清理可能存在的旧窗口
 try(sequence_viewer.close())catch()
@@ -67,6 +69,8 @@ sequence_viewer.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderS
 sequence_viewer.BackColor = BackGrey
 sequence_viewer.StartPosition = (dotNetClass "System.Windows.Forms.FormStartPosition").Manual
 sequence_viewer.ShowInTaskbar = false  -- 不在任务栏显示
+
+-- 删除Owner属性设置
 sequence_viewer.TopMost = false  -- 默认不置顶
 alwaysOnTop = false
 
@@ -402,6 +406,12 @@ fn initializeImages = (
 
 -- 设置状态信息
 fn setStatus message color = (
+    -- 确保状态消息不会太长
+    local maxLength = 20
+    if message.count > maxLength do (
+        message = substring message 1 (maxLength-3) + "..."
+    )
+    
     lblStatus.text = message
     lblStatus.forecolor = color
     statusMessage = message
@@ -878,147 +888,73 @@ fn onResizeMouseUp sender e = (
 dotnet.addEventHandler resizeBox "MouseUp" onResizeMouseUp
 dotnet.addEventHandler sequence_viewer "MouseUp" onResizeMouseUp
 
--- 添加新函数：保持窗口在MAX之上但非最顶层
-fn keepAboveMax = (
-    try (
-        -- 确保有有效的句柄
-        if windowHandle == undefined do (
-            windowHandle = windows.getHWNDByTitle "序列图片查看器"
-            if windowHandle == undefined do return false
-        )
-        
-        if maxHwnd == undefined do (
-            maxHwnd = windows.getMAXHWND()
-            if maxHwnd == undefined do return false
-        )
-        
-        if alwaysOnTop then (
-            -- 在置顶模式下使用HWND_TOPMOST
-            windows.setWindowPos windowHandle HWND_TOPMOST 0 0 0 0 (bit.or SWP_NOMOVE SWP_NOSIZE SWP_NOACTIVATE)
-        ) else (
-            -- 在非置顶模式下，将MAX设为窗口的所有者
-            windows.setWindowLong windowHandle GWL_HWNDPARENT maxHwnd
-            -- 确保窗口在MAX的Z序中可见
-            windows.setWindowPos windowHandle HWND_TOP 0 0 0 0 (bit.or SWP_NOMOVE SWP_NOSIZE SWP_NOACTIVATE)
-        )
-        
-        true
-    ) catch (
-        false
-    )
-)
-
--- 切换窗口置顶状态
-fn toggleTopMost = (
-    try (
-        alwaysOnTop = not alwaysOnTop
-        
-        -- 设置窗口置顶状态
-        sequence_viewer.TopMost = alwaysOnTop
-        
-        -- 调用新函数来设置正确的Z顺序
-        keepAboveMax()
-        
-        if alwaysOnTop then (
-            btn_TopMost.backcolor = GreenColor
-            setStatus "窗口已置顶" GreenColor
-        ) else (
-            btn_TopMost.backcolor = Ccolor.darkgray
-            setStatus "窗口未置顶但保持在MAX之上" YellowColor
-        )
-    ) catch (
-        -- 如果出错，重置状态
-        alwaysOnTop = true
-        sequence_viewer.TopMost = true
-        btn_TopMost.backcolor = GreenColor
-    )
-)
-
--- 置顶按钮事件
-fn onTopMostClick sender e = (
-    toggleTopMost()
-)
-dotnet.addEventHandler btn_TopMost "Click" onTopMostClick
-
--- 最小化窗口
-fn minimizeWindow = (
-    try (
-        isMinimized = true
-        -- 缩小到只显示标题栏
-        sequence_viewer.height = 30
-        btn_Minimize.text = "还原"
-    ) catch()
-)
-
--- 恢复窗口
-fn restoreWindow = (
-    try (
-        isMinimized = false
-        -- 恢复原始大小
-        sequence_viewer.width = originalWidth
-        sequence_viewer.height = originalHeight
-        btn_Minimize.text = "最小化"
-        -- 立即执行一次resizeUI确保布局正确
-        resizeUI()
-    ) catch()
-)
-
--- 切换最小化状态
-fn toggleMinimize = (
-    if isMinimized then (
-        restoreWindow()
-    ) else (
-        minimizeWindow()
-    )
-)
-
--- 最小化按钮事件
-fn onMinimizeClick sender e = (
-    toggleMinimize()
-)
-dotnet.addEventHandler btn_Minimize "Click" onMinimizeClick
-
 -- 获取窗口句柄并设置窗口样式
 try (
-    -- 获取MAX句柄
-    maxHwnd = windows.getMAXHWND()
+    -- 确保窗口显示
+    sleep 0.3
     
-    -- 获取我们窗口的句柄
-    windowHandle = windows.getHWNDByTitle "序列图片查看器"
-    if windowHandle != undefined do (
-        -- 添加工具窗口和不激活窗口样式
-        local exStyle = windows.getWindowLong windowHandle GWL_EXSTYLE
-        exStyle = bit.or exStyle WS_EX_TOOLWINDOW
-        exStyle = bit.or exStyle WS_EX_NOACTIVATE
-        windows.setWindowLong windowHandle GWL_EXSTYLE exStyle
+    -- 获取窗口句柄
+    windowHandle = windows.getHWNDByTitle "BsAnimRef_v1.0"
+    
+    -- 如果成功获取到窗口句柄，为窗口设置MAX为父窗口
+    if windowHandle != undefined and windowHandle != 0 and windows.isWindow windowHandle do (
+        try (
+            -- 获取MAX句柄
+            if maxHwnd == undefined or (not windows.isWindow maxHwnd) do (
+                maxHwnd = windows.getMAXHWND()
+            )
+            
+            -- 使用SetWindowLong API设置窗口父级为MAX
+            windows.setWindowLong windowHandle GWL_HWNDPARENT maxHwnd
+            
+            -- 设置窗口样式为工具窗口，不在Alt+Tab列表中显示
+            local exStyle = windows.getWindowLong windowHandle GWL_EXSTYLE
+            exStyle = bit.or exStyle WS_EX_TOOLWINDOW
+            exStyle = bit.or exStyle WS_EX_NOACTIVATE -- 不激活窗口
+            exStyle = bit.and exStyle (bit.not WS_EX_APPWINDOW) -- 从任务栏中移除
+            windows.setWindowLong windowHandle GWL_EXSTYLE exStyle
+        ) catch()
     )
 ) catch()
 
 -- 在创建完窗口后将其前置显示
-sequence_viewer.show()
-sequence_viewer.BringToFront()
-keepAboveMax()  -- 使用新函数设置正确的Z顺序
-
--- 强制应用初始大小
-sequence_viewer.width = startFormSize[1]
-sequence_viewer.height = startFormSize[2]
-
--- 初始调整UI布局确保所有元素正确显示
-resizeUI()
+try (
+    sequence_viewer.show()
+    
+    -- 确保窗口可见
+    try(sequence_viewer.BringToFront())catch()
+    
+    -- 强制应用初始大小
+    sequence_viewer.width = startFormSize[1]
+    sequence_viewer.height = startFormSize[2]
+    
+    -- 初始调整UI布局确保所有元素正确显示
+    resizeUI()
+) catch()
 
 -- 添加窗口关闭时的清理
 fn onFormClosed sender e = (
     try (
-        if dotNetTimer != undefined and dotNetTimer.enabled do (
-            dotNetTimer.enabled = false
-            dotNetTimer.dispose()
+        -- 注销计时器回调以防止内存泄漏或崩溃
+        if dotNetTimer != undefined do (
+            try (
+                if dotNetTimer.enabled do dotNetTimer.enabled = false
+                dotNetTimer.dispose()
+            ) catch()
+            dotNetTimer = undefined
         )
         
         -- 清理MAX焦点计时器
-        if maxFocusTimer != undefined and maxFocusTimer.enabled do (
-            maxFocusTimer.enabled = false
-            maxFocusTimer.dispose()
+        if maxFocusTimer != undefined do (
+            try (
+                if maxFocusTimer.enabled do maxFocusTimer.enabled = false
+                maxFocusTimer.dispose()
+            ) catch()
+            maxFocusTimer = undefined
         )
+        
+        -- 重置窗口句柄
+        windowHandle = undefined
     ) catch()
 )
 dotnet.addEventHandler sequence_viewer "FormClosed" onFormClosed
@@ -1027,18 +963,28 @@ dotnet.addEventHandler sequence_viewer "FormClosed" onFormClosed
 fn setupMaxFocusHandler = (
     -- 创建一个计时器来检查MAX窗口状态
     global maxFocusTimer = dotNetObject "System.Windows.Forms.Timer"
-    maxFocusTimer.interval = 500 -- 每500毫秒检查一次
+    maxFocusTimer.interval = 200 -- 检查频率
     
     fn onMaxFocusTimer sender e = (
-        -- 只在非置顶模式下处理
-        if not alwaysOnTop and windowHandle != undefined do (
+        try (
             -- 检查MAX是否在前台
             local foregroundHwnd = windows.getForegroundWindow()
-            if foregroundHwnd == maxHwnd do (
-                -- MAX获得焦点，保持我们的窗口在MAX之上
-                keepAboveMax()
+            
+            -- 如果MAX在前台，则尝试使我们的窗口保持在前
+            if foregroundHwnd == maxHwnd and windowHandle != undefined and windows.isWindow windowHandle do (
+                if not sequence_viewer.visible do sequence_viewer.show()
+                
+                -- 非置顶模式下，确保窗口在MAX之上
+                if not alwaysOnTop do (
+                    windows.setWindowPos windowHandle HWND_TOP 0 0 0 0 (bit.or SWP_NOMOVE SWP_NOSIZE SWP_NOACTIVATE)
+                )
+                
+                -- 置顶模式下, 确保窗口保持置顶
+                if alwaysOnTop do (
+                    sequence_viewer.TopMost = true
+                )
             )
-        )
+        ) catch()
     )
     
     dotnet.addEventHandler maxFocusTimer "Tick" onMaxFocusTimer
@@ -1046,7 +992,7 @@ fn setupMaxFocusHandler = (
 )
 
 -- 启动MAX焦点处理
-setupMaxFocusHandler()
+try(setupMaxFocusHandler())catch()
 
 -- 创建细边框绘制函数
 fn drawThinBorder form = (
