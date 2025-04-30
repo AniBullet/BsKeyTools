@@ -12,17 +12,17 @@ global mousePassthrough = false
 global isMinimized = false
 global isZenMode = false  -- 禅模式状态
 global originalHeight = 480  -- 默认高度
-global originalWidth = 600   -- 默认宽度
+global originalWidth = 680   -- 默认宽度，增加宽度
 global dotNetTimer = dotNetObject "System.Windows.Forms.Timer"
 global BackGrey
 global PanelGrey
 global TopbarGrey
 global windowHandle
 global isResizing = false
-global startFormSize = [600, 480]  -- 默认窗口尺寸
-global minFormSize = [600, 480]    -- 最小窗口尺寸，与默认尺寸一致
+global startFormSize = [680, 430]  -- 默认窗口尺寸，增加宽度，减少高度
+global minFormSize = [680, 430]    -- 最小窗口尺寸，与默认尺寸一致
 global resizeBoxSize = 20
-global bottomMargin = 15  -- 底部边距
+global bottomMargin = 5  -- 再次减少底部边距
 global maxHwnd = undefined -- 存储MAX窗口句柄
 
 -- Windows API常量
@@ -39,6 +39,7 @@ global SWP_NOACTIVATE = 0x0010
 global SWP_SHOWWINDOW = 0x0040
 global WS_CHILD = 0x40000000 -- 子窗口样式
 global GWL_STYLE = -16
+global GWL_HWNDPARENT = -8  -- 窗口所有者
 
 -- 清理可能存在的旧窗口
 try(sequence_viewer.close())catch()
@@ -66,13 +67,13 @@ sequence_viewer.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderS
 sequence_viewer.BackColor = BackGrey
 sequence_viewer.StartPosition = (dotNetClass "System.Windows.Forms.FormStartPosition").Manual
 sequence_viewer.ShowInTaskbar = false  -- 不在任务栏显示
-sequence_viewer.TopMost = true  -- 默认窗口置顶
-alwaysOnTop = true
+sequence_viewer.TopMost = false  -- 默认不置顶
+alwaysOnTop = false
 
 -- 创建顶部面板
 pnlTopBar = dotNetObject "System.Windows.Forms.Panel"
 pnlTopBar.width = sequence_viewer.width
-pnlTopBar.height = 30
+pnlTopBar.height = 25  -- 减小高度
 pnlTopBar.top = 0
 pnlTopBar.left = 0
 pnlTopBar.BackColor = TopbarGrey
@@ -80,20 +81,44 @@ sequence_viewer.controls.add pnlTopBar
 
 -- 创建标题栏
 lbl_Title = dotNetObject "label"
-lbl_Title.text = "序列图片查看器"
-lbl_Title.Width = 200
+lbl_Title.text = "BsAnimRef_v1.0"
+lbl_Title.Width = 120
 lbl_Title.Height = 20
-lbl_Title.left = 10
-lbl_Title.top = 5
+lbl_Title.left = 8
+lbl_Title.top = 3
 lbl_Title.forecolor = TextColor
-lbl_Title.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 10 ((dotNetClass "System.Drawing.FontStyle").bold))
+lbl_Title.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 9 ((dotNetClass "System.Drawing.FontStyle").bold))
 pnlTopBar.controls.add lbl_Title
+
+-- 透明度标签
+lbl_Opacity = dotNetObject "System.Windows.Forms.Label"
+lbl_Opacity.text = "透明度:"
+lbl_Opacity.width = 50
+lbl_Opacity.height = 20
+lbl_Opacity.top = 3
+lbl_Opacity.left = 135
+lbl_Opacity.forecolor = TextColor
+lbl_Opacity.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 8 ((dotNetClass "System.Drawing.FontStyle").regular))
+pnlTopBar.controls.add lbl_Opacity
+
+-- 透明度滑块
+sldOpacity = dotNetObject "System.Windows.Forms.TrackBar"
+sldOpacity.width = 150  -- 固定宽度，缩窄
+sldOpacity.height = 22
+sldOpacity.top = 1
+sldOpacity.left = 185
+sldOpacity.minimum = 10
+sldOpacity.maximum = 100
+sldOpacity.value = 100
+sldOpacity.TickStyle = (dotNetClass "System.Windows.Forms.TickStyle").None  -- 隐藏刻度标记
+sldOpacity.AutoSize = false
+pnlTopBar.controls.add sldOpacity
 
 -- 创建鼠标穿透按钮
 btn_Passthrough = dotnetObject "system.windows.forms.button"
-btn_Passthrough.width = 50  -- 适当调整宽度
-btn_Passthrough.height = 25
-btn_Passthrough.top = 2
+btn_Passthrough.width = 46  -- 适当调整宽度
+btn_Passthrough.height = 22  -- 减小高度
+btn_Passthrough.top = 1
 btn_Passthrough.left = (sequence_viewer.width - 160)  -- 调整位置更靠右
 btn_Passthrough.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
 btn_Passthrough.backcolor = Ccolor.darkgray
@@ -105,9 +130,9 @@ pnlTopBar.controls.add btn_Passthrough
 
 -- 创建禅模式按钮
 btn_ZenMode = dotnetObject "system.windows.forms.button"
-btn_ZenMode.width = 60  -- 增加宽度显示"普通模式"
-btn_ZenMode.height = 25
-btn_ZenMode.top = 2
+btn_ZenMode.width = 58  -- 增加宽度显示"普通模式"
+btn_ZenMode.height = 22  -- 减小高度
+btn_ZenMode.top = 1
 btn_ZenMode.left = (sequence_viewer.width - 280)  -- 调整位置
 btn_ZenMode.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
 btn_ZenMode.backcolor = Ccolor.darkgray
@@ -119,9 +144,9 @@ pnlTopBar.controls.add btn_ZenMode
 
 -- 创建最小化按钮
 btn_Minimize = dotnetObject "system.windows.forms.button"
-btn_Minimize.width = 50  -- 适当调整宽度
-btn_Minimize.height = 25
-btn_Minimize.top = 2
+btn_Minimize.width = 48  -- 适当调整宽度
+btn_Minimize.height = 22  -- 减小高度
+btn_Minimize.top = 1
 btn_Minimize.left = (sequence_viewer.width - 215)  -- 调整位置更靠右
 btn_Minimize.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
 btn_Minimize.backcolor = Ccolor.darkgray
@@ -133,12 +158,12 @@ pnlTopBar.controls.add btn_Minimize
 
 -- 创建置顶按钮
 btn_TopMost = dotnetObject "system.windows.forms.button"
-btn_TopMost.width = 50  -- 适当调整宽度
-btn_TopMost.height = 25
-btn_TopMost.top = 2
+btn_TopMost.width = 46  -- 适当调整宽度
+btn_TopMost.height = 22  -- 减小高度
+btn_TopMost.top = 1
 btn_TopMost.left = (sequence_viewer.width - 105)  -- 调整位置更靠右
 btn_TopMost.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
-btn_TopMost.backcolor = GreenColor  -- 默认置顶状态，设置绿色
+btn_TopMost.backcolor = Ccolor.darkgray  -- 默认非置顶状态
 btn_TopMost.forecolor = TextColor
 btn_TopMost.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 8 ((dotNetClass "System.Drawing.FontStyle").regular))
 btn_TopMost.text = "置顶"
@@ -147,9 +172,9 @@ pnlTopBar.controls.add btn_TopMost
 
 -- 创建关闭按钮
 btn_Close = dotnetObject "system.windows.forms.button"
-btn_Close.width = 30
-btn_Close.height = 25
-btn_Close.top = 2
+btn_Close.width = 25
+btn_Close.height = 22  -- 减小高度
+btn_Close.top = 1
 btn_Close.left = (sequence_viewer.width - 35)
 btn_Close.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
 btn_Close.backcolor = Ccolor.firebrick
@@ -161,54 +186,19 @@ pnlTopBar.controls.add btn_Close
 
 -- 创建主体内容面板
 pnlContent = dotNetObject "System.Windows.Forms.Panel"
-pnlContent.width = sequence_viewer.width - 20
-pnlContent.height = sequence_viewer.height - 40
-pnlContent.top = 35
-pnlContent.left = 10
+pnlContent.width = sequence_viewer.width - 10  -- 减小边距
+pnlContent.height = sequence_viewer.height - 30 - bottomMargin  -- 适应较小的顶部栏，增加底部边距
+pnlContent.top = 28  -- 适应较小的顶部栏
+pnlContent.left = 5  -- 减小边距
 pnlContent.backColor = BackGrey
 sequence_viewer.controls.add pnlContent
 
--- 创建透明度滑块和标签面板
-pnlOpacity = dotNetObject "System.Windows.Forms.Panel"
-pnlOpacity.width = pnlContent.width - 20
-pnlOpacity.height = 35  -- 减小高度
-pnlOpacity.top = 10
-pnlOpacity.left = 10
-pnlOpacity.BackColor = PanelGrey
-pnlOpacity.BorderStyle = (dotNetClass "System.Windows.Forms.BorderStyle").FixedSingle
-pnlContent.controls.add pnlOpacity
-
--- 透明度标签
-lbl_Opacity = dotNetObject "System.Windows.Forms.Label"
-lbl_Opacity.text = "透明度:"
-lbl_Opacity.width = 60
-lbl_Opacity.height = 20
-lbl_Opacity.top = 10
-lbl_Opacity.left = 10
-lbl_Opacity.forecolor = TextColor
-lbl_Opacity.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 9 ((dotNetClass "System.Drawing.FontStyle").regular))
-pnlOpacity.controls.add lbl_Opacity
-
--- 透明度滑块
-sldOpacity = dotNetObject "System.Windows.Forms.TrackBar"
-sldOpacity.width = pnlOpacity.width - 80
-sldOpacity.height = 25  -- 减小高度
-sldOpacity.top = 5
-sldOpacity.left = 70
-sldOpacity.minimum = 10
-sldOpacity.maximum = 100
-sldOpacity.value = 100
-sldOpacity.TickStyle = (dotNetClass "System.Windows.Forms.TickStyle").None  -- 隐藏刻度标记
--- 增强滑条外观
-sldOpacity.AutoSize = false
-pnlOpacity.controls.add sldOpacity
-
 -- 创建图片预览区域
 picBox = dotNetObject "System.Windows.Forms.PictureBox"
-picBox.width = pnlContent.width - 20
-picBox.height = 280  -- 减小高度
-picBox.top = 55  -- 调整位置
-picBox.left = 10
+picBox.width = pnlContent.width - 10  -- 减少边距
+picBox.height = pnlContent.height - 45  -- 减少底部控制面板空间
+picBox.top = 5  -- 直接放在顶部，无需透明度面板
+picBox.left = 5
 picBox.sizeMode = picBox.sizeMode.Zoom
 picBox.borderStyle = (dotNetClass "System.Windows.Forms.BorderStyle").fixedSingle
 picBox.backColor = Ccolor.white
@@ -216,10 +206,10 @@ pnlContent.controls.add picBox
 
 -- 创建控制面板
 pnlControls = dotNetObject "System.Windows.Forms.Panel"
-pnlControls.width = pnlContent.width - 20
-pnlControls.height = 40
-pnlControls.top = 345  -- 调整位置
-pnlControls.left = 10
+pnlControls.width = pnlContent.width - 10  -- 减少边距
+pnlControls.height = 38  -- 控制面板高度
+pnlControls.top = picBox.top + picBox.height + 2  -- 减少图片和控制面板间的间隔
+pnlControls.left = 5
 pnlControls.BackColor = PanelGrey
 pnlControls.BorderStyle = (dotNetClass "System.Windows.Forms.BorderStyle").fixedSingle
 pnlContent.controls.add pnlControls
@@ -229,7 +219,7 @@ btnLoad = dotNetObject "System.Windows.Forms.Button"
 btnLoad.text = "加载序列图片"
 btnLoad.width = 100
 btnLoad.height = 25
-btnLoad.top = 7
+btnLoad.top = 6
 btnLoad.left = 10
 btnLoad.BackColor = PanelGrey
 btnLoad.ForeColor = TextColor
@@ -242,7 +232,7 @@ chkLoop = dotNetObject "System.Windows.Forms.CheckBox"
 chkLoop.text = "循环播放"
 chkLoop.width = 90
 chkLoop.height = 20
-chkLoop.top = 10
+chkLoop.top = 8
 chkLoop.left = 115
 chkLoop.enabled = false
 chkLoop.forecolor = TextColor
@@ -254,8 +244,8 @@ lblTimeShift = dotNetObject "System.Windows.Forms.Label"
 lblTimeShift.text = "偏移:"
 lblTimeShift.width = 40
 lblTimeShift.height = 20
-lblTimeShift.top = 12
-lblTimeShift.left = 205  -- 恢复为原来的位置
+lblTimeShift.top = 9
+lblTimeShift.left = 205
 lblTimeShift.forecolor = TextColor
 lblTimeShift.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 8 ((dotNetClass "System.Drawing.FontStyle").regular))
 pnlControls.controls.add lblTimeShift
@@ -264,8 +254,8 @@ pnlControls.controls.add lblTimeShift
 numTimeShift = dotNetObject "System.Windows.Forms.NumericUpDown"
 numTimeShift.width = 50
 numTimeShift.height = 20
-numTimeShift.top = 10
-numTimeShift.left = 245  -- 恢复为原来的位置
+numTimeShift.top = 8
+numTimeShift.left = 245
 numTimeShift.minimum = -1000
 numTimeShift.maximum = 1000
 numTimeShift.value = 0
@@ -278,7 +268,7 @@ btnStartFrame = dotNetObject "System.Windows.Forms.Button"
 btnStartFrame.text = "⏮"
 btnStartFrame.width = 35
 btnStartFrame.height = 25
-btnStartFrame.top = 7
+btnStartFrame.top = 6
 btnStartFrame.left = 310
 btnStartFrame.enabled = false
 btnStartFrame.BackColor = PanelGrey
@@ -291,7 +281,7 @@ btnPrevFrame = dotNetObject "System.Windows.Forms.Button"
 btnPrevFrame.text = "◀"
 btnPrevFrame.width = 35
 btnPrevFrame.height = 25
-btnPrevFrame.top = 7
+btnPrevFrame.top = 6
 btnPrevFrame.left = 350
 btnPrevFrame.enabled = false
 btnPrevFrame.BackColor = PanelGrey
@@ -304,7 +294,7 @@ btnPlay = dotNetObject "System.Windows.Forms.Button"
 btnPlay.text = "▶"
 btnPlay.width = 35
 btnPlay.height = 25
-btnPlay.top = 7
+btnPlay.top = 6
 btnPlay.left = 390
 btnPlay.enabled = false
 btnPlay.BackColor = PanelGrey
@@ -317,7 +307,7 @@ btnNextFrame = dotNetObject "System.Windows.Forms.Button"
 btnNextFrame.text = "▶"
 btnNextFrame.width = 35
 btnNextFrame.height = 25
-btnNextFrame.top = 7
+btnNextFrame.top = 6
 btnNextFrame.left = 430
 btnNextFrame.enabled = false
 btnNextFrame.BackColor = PanelGrey
@@ -330,7 +320,7 @@ btnEndFrame = dotNetObject "System.Windows.Forms.Button"
 btnEndFrame.text = "⏭"
 btnEndFrame.width = 35
 btnEndFrame.height = 25
-btnEndFrame.top = 7
+btnEndFrame.top = 6
 btnEndFrame.left = 470
 btnEndFrame.enabled = false
 btnEndFrame.BackColor = PanelGrey
@@ -338,25 +328,16 @@ btnEndFrame.ForeColor = TextColor
 btnEndFrame.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
 pnlControls.controls.add btnEndFrame
 
--- 创建状态面板
-pnlStatus = dotNetObject "System.Windows.Forms.Panel"
-pnlStatus.width = pnlContent.width - 20
-pnlStatus.height = 25
-pnlStatus.top = 395  -- 调整位置
-pnlStatus.left = 10
-pnlStatus.BackColor = PanelGrey
-pnlContent.controls.add pnlStatus
-
--- 创建状态标签
+-- 状态标签直接加入控制面板右侧
 lblStatus = dotNetObject "System.Windows.Forms.Label"
 lblStatus.text = "状态: 未加载图片"
-lblStatus.width = 400
-lblStatus.height = 20
-lblStatus.top = 5
-lblStatus.left = 10
+lblStatus.width = 150
+lblStatus.height = 18
+lblStatus.top = 10
+lblStatus.left = 520  -- 放置在控制区域右侧
 lblStatus.forecolor = TextColor
-lblStatus.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 9 ((dotNetClass "System.Drawing.FontStyle").regular))
-pnlStatus.controls.add lblStatus
+lblStatus.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 8 ((dotNetClass "System.Drawing.FontStyle").regular))
+pnlControls.controls.add lblStatus
 
 -- 创建调整大小控件
 resizeBox = dotNetObject "System.Windows.Forms.Panel"
@@ -364,11 +345,38 @@ resizeBox.width = resizeBoxSize
 resizeBox.height = resizeBoxSize
 resizeBox.left = sequence_viewer.width - resizeBoxSize
 resizeBox.top = sequence_viewer.height - resizeBoxSize
-resizeBox.BackColor = Ccolor.darkgray
+resizeBox.BackColor = Ccolor.fromArgb 80 80 80  -- 稍微深一点的灰色更醒目
 resizeBox.cursor = (dotNetClass "System.Windows.Forms.Cursors").SizeNWSE
 -- 确保窗口调整控件添加在最后，位于最上层
 sequence_viewer.controls.remove resizeBox
 sequence_viewer.controls.add resizeBox
+
+-- 为resize控件添加边框
+fn onResizeBoxPaint sender e = (
+    local g = e.graphics
+    local borderColor = (dotNetClass "System.Drawing.Color").fromArgb 140 140 140
+    local borderPen = dotNetObject "System.Drawing.Pen" borderColor 1
+    -- 绘制边框
+    g.drawRectangle borderPen 0 0 (sender.width-1) (sender.height-1)
+    -- 绘制调整大小图标
+    local x1 = sender.width - 8
+    local y1 = sender.height - 4
+    local x2 = sender.width - 4
+    local y2 = sender.height - 8
+    g.drawLine borderPen x1 y1 x2 y2
+    x1 = sender.width - 12
+    y1 = sender.height - 4
+    x2 = sender.width - 4
+    y2 = sender.height - 12
+    g.drawLine borderPen x1 y1 x2 y2
+    x1 = sender.width - 16
+    y1 = sender.height - 4
+    x2 = sender.width - 4
+    y2 = sender.height - 16
+    g.drawLine borderPen x1 y1 x2 y2
+    borderPen.dispose()
+)
+dotnet.addEventHandler resizeBox "Paint" onResizeBoxPaint
 
 --------- 函数定义 ---------
 
@@ -601,52 +609,55 @@ fn resizeUI = (
     btn_TopMost.left = sequence_viewer.width - 105
     btn_Close.left = sequence_viewer.width - 35
     
-    -- 更新主体内容面板
-    pnlContent.width = sequence_viewer.width - 20
-    pnlContent.height = sequence_viewer.height - 40
+    -- 更新透明度滑块位置
+    lbl_Opacity.left = 135
+    sldOpacity.left = 185
     
-    -- 禅模式下只显示图片区域
+    -- 更新主体内容面板
+    pnlContent.width = sequence_viewer.width - 10  -- 减小边距
+    pnlContent.height = sequence_viewer.height - 30 - bottomMargin  -- 适应较小的顶部栏，增加底部边距
+    
+    -- 计算基本图片区域可用高度（禅模式和普通模式都用同样的计算）
+    local contentHeight = pnlContent.height
+    local topMargin = 5  -- 顶部边距
+    
+    -- 禅模式和普通模式的处理
     if isZenMode then (
-        picBox.width = pnlContent.width - 20
-        picBox.top = 10
-        picBox.height = pnlContent.height - 20
+        -- 禅模式下只更新宽度，高度保持一致
+        picBox.width = pnlContent.width - 10
+        picBox.top = topMargin
+        -- 禅模式下整个内容区域都用于显示图片
+        picBox.height = contentHeight - topMargin
+        picBox.left = 5
         
-        -- 隐藏控制面板和透明度面板
-        pnlOpacity.visible = false
+        -- 隐藏控制面板
         pnlControls.visible = false
-        pnlStatus.visible = false
     ) else (
         -- 常规模式
-        -- 更新透明度面板和滑块
-        pnlOpacity.width = pnlContent.width - 20
-        pnlOpacity.visible = true
-        sldOpacity.width = pnlOpacity.width - 80
+        -- 更新图片预览区域尺寸
+        picBox.width = pnlContent.width - 10
+        picBox.left = 5
         
-        -- 更新图片预览区域
-        picBox.width = pnlContent.width - 20
-        
-        -- 获取窗口实际可用高度
-        local contentHeight = pnlContent.height
-        
-        -- 固定顶部和底部控件的高度和间距
-        local topControlsHeight = 45  -- 透明度面板及边距
-        local bottomControlsHeight = 85  -- 控制面板和状态面板及边距
+        -- 固定控制面板高度
+        local bottomControlsHeight = 42  -- 控制面板及边距
         
         -- 计算图片区可用高度
-        local availableHeight = contentHeight - topControlsHeight - bottomControlsHeight
+        local availableHeight = contentHeight - topMargin - bottomControlsHeight
         picBox.height = availableHeight
-        picBox.top = topControlsHeight
+        picBox.top = topMargin
         
-        -- 显示控制面板和状态栏
+        -- 显示控制面板
         pnlControls.visible = true
-        pnlControls.top = picBox.top + picBox.height + 10
-        pnlControls.width = pnlContent.width - 20
+        pnlControls.top = picBox.top + picBox.height + 2  -- 减少间隔
+        pnlControls.width = pnlContent.width - 10
+        pnlControls.left = 5
         
-        pnlStatus.visible = true
-        pnlStatus.top = pnlControls.top + pnlControls.height + 10
-        pnlStatus.width = pnlContent.width - 20
+        -- 更新状态标签位置
+        lblStatus.left = 520
+        lblStatus.width = pnlControls.width - 530
     )
     
+    -- 确保调整大小控件始终可见且位于正确位置
     -- 移除并重新添加调整大小控件，确保其位于最上层
     sequence_viewer.controls.remove resizeBox
     
@@ -663,17 +674,13 @@ fn enableZenMode = (
     if not isZenMode do (
         isZenMode = true
         
-        -- 保存当前窗口高度
+        -- 保存当前窗口状态，但不修改高度
         if not isMinimized do (
             originalHeight = sequence_viewer.height
         )
         
-        -- 确保最小高度也适应禅模式
-        local zenHeight = 350
-        minFormSize[2] = zenHeight  -- 更新禅模式下的最小高度
-        
-        -- 调整窗口高度为禅模式高度
-        sequence_viewer.height = zenHeight
+        -- 只更改最小高度，但不强制调整窗口尺寸
+        minFormSize[2] = 280  -- 更新禅模式下的最小高度
         
         -- 更改按钮文字
         btn_ZenMode.text = "普通模式"
@@ -693,10 +700,12 @@ fn disableZenMode = (
         isZenMode = false
         
         -- 恢复最小尺寸设置
-        minFormSize[2] = 480  -- 恢复正常模式的最小高度
+        minFormSize[2] = 430  -- 恢复正常模式的最小高度
         
-        -- 恢复窗口高度
-        sequence_viewer.height = originalHeight
+        -- 不强制恢复窗口高度，除非当前高度低于最小高度
+        if sequence_viewer.height < minFormSize[2] do (
+            sequence_viewer.height = originalHeight
+        )
         
         -- 更改按钮文字
         btn_ZenMode.text = "禅模式"
@@ -869,8 +878,8 @@ fn onResizeMouseUp sender e = (
 dotnet.addEventHandler resizeBox "MouseUp" onResizeMouseUp
 dotnet.addEventHandler sequence_viewer "MouseUp" onResizeMouseUp
 
--- 尝试使用Win32 API将窗口置于最顶层
-fn forceWindowAsChild = (
+-- 添加新函数：保持窗口在MAX之上但非最顶层
+fn keepAboveMax = (
     try (
         -- 确保有有效的句柄
         if windowHandle == undefined do (
@@ -878,17 +887,21 @@ fn forceWindowAsChild = (
             if windowHandle == undefined do return false
         )
         
-        -- 检查MAX句柄
         if maxHwnd == undefined do (
             maxHwnd = windows.getMAXHWND()
             if maxHwnd == undefined do return false
         )
         
-        -- 不使用setParent，只设置窗口在最顶层
-        windows.setWindowPos windowHandle HWND_TOPMOST 0 0 0 0 (bit.or SWP_NOMOVE SWP_NOSIZE SWP_SHOWWINDOW)
+        if alwaysOnTop then (
+            -- 在置顶模式下使用HWND_TOPMOST
+            windows.setWindowPos windowHandle HWND_TOPMOST 0 0 0 0 (bit.or SWP_NOMOVE SWP_NOSIZE SWP_NOACTIVATE)
+        ) else (
+            -- 在非置顶模式下，将MAX设为窗口的所有者
+            windows.setWindowLong windowHandle GWL_HWNDPARENT maxHwnd
+            -- 确保窗口在MAX的Z序中可见
+            windows.setWindowPos windowHandle HWND_TOP 0 0 0 0 (bit.or SWP_NOMOVE SWP_NOSIZE SWP_NOACTIVATE)
+        )
         
-        -- 让窗口保持在前
-        sequence_viewer.BringToFront()
         true
     ) catch (
         false
@@ -903,12 +916,15 @@ fn toggleTopMost = (
         -- 设置窗口置顶状态
         sequence_viewer.TopMost = alwaysOnTop
         
+        -- 调用新函数来设置正确的Z顺序
+        keepAboveMax()
+        
         if alwaysOnTop then (
             btn_TopMost.backcolor = GreenColor
             setStatus "窗口已置顶" GreenColor
         ) else (
             btn_TopMost.backcolor = Ccolor.darkgray
-            setStatus "窗口已取消置顶" YellowColor
+            setStatus "窗口未置顶但保持在MAX之上" YellowColor
         )
     ) catch (
         -- 如果出错，重置状态
@@ -970,9 +986,10 @@ try (
     -- 获取我们窗口的句柄
     windowHandle = windows.getHWNDByTitle "序列图片查看器"
     if windowHandle != undefined do (
-        -- 添加工具窗口样式
+        -- 添加工具窗口和不激活窗口样式
         local exStyle = windows.getWindowLong windowHandle GWL_EXSTYLE
         exStyle = bit.or exStyle WS_EX_TOOLWINDOW
+        exStyle = bit.or exStyle WS_EX_NOACTIVATE
         windows.setWindowLong windowHandle GWL_EXSTYLE exStyle
     )
 ) catch()
@@ -980,7 +997,7 @@ try (
 -- 在创建完窗口后将其前置显示
 sequence_viewer.show()
 sequence_viewer.BringToFront()
-forceWindowAsChild()
+keepAboveMax()  -- 使用新函数设置正确的Z顺序
 
 -- 强制应用初始大小
 sequence_viewer.width = startFormSize[1]
@@ -996,6 +1013,54 @@ fn onFormClosed sender e = (
             dotNetTimer.enabled = false
             dotNetTimer.dispose()
         )
+        
+        -- 清理MAX焦点计时器
+        if maxFocusTimer != undefined and maxFocusTimer.enabled do (
+            maxFocusTimer.enabled = false
+            maxFocusTimer.dispose()
+        )
     ) catch()
 )
 dotnet.addEventHandler sequence_viewer "FormClosed" onFormClosed
+
+-- 添加一个新的计时器处理MAX焦点变化
+fn setupMaxFocusHandler = (
+    -- 创建一个计时器来检查MAX窗口状态
+    global maxFocusTimer = dotNetObject "System.Windows.Forms.Timer"
+    maxFocusTimer.interval = 500 -- 每500毫秒检查一次
+    
+    fn onMaxFocusTimer sender e = (
+        -- 只在非置顶模式下处理
+        if not alwaysOnTop and windowHandle != undefined do (
+            -- 检查MAX是否在前台
+            local foregroundHwnd = windows.getForegroundWindow()
+            if foregroundHwnd == maxHwnd do (
+                -- MAX获得焦点，保持我们的窗口在MAX之上
+                keepAboveMax()
+            )
+        )
+    )
+    
+    dotnet.addEventHandler maxFocusTimer "Tick" onMaxFocusTimer
+    maxFocusTimer.enabled = true
+)
+
+-- 启动MAX焦点处理
+setupMaxFocusHandler()
+
+-- 创建细边框绘制函数
+fn drawThinBorder form = (
+    -- 添加窗口Paint事件处理以绘制细边框
+    fn onFormPaint sender e = (
+        local g = e.graphics
+        local borderColor = (dotNetClass "System.Drawing.Color").fromArgb 100 100 100
+        local borderPen = dotNetObject "System.Drawing.Pen" borderColor 1
+        local rect = dotNetObject "System.Drawing.Rectangle" 0 0 (sender.width-1) (sender.height-1)
+        g.drawRectangle borderPen rect
+        borderPen.dispose()
+    )
+    dotnet.addEventHandler form "Paint" onFormPaint
+)
+
+-- 应用细边框
+drawThinBorder sequence_viewer
