@@ -9,15 +9,20 @@ global lastFrame = 0
 global statusMessage = ""
 global alwaysOnTop = false
 global mousePassthrough = false
+global isMinimized = false
+global isZenMode = false  -- 禅模式状态
+global originalHeight = 480  -- 默认高度
+global originalWidth = 600   -- 默认宽度
 global dotNetTimer = dotNetObject "System.Windows.Forms.Timer"
 global BackGrey
 global PanelGrey
 global TopbarGrey
 global windowHandle
 global isResizing = false
-global startFormSize = [600, 540]
+global startFormSize = [600, 480]  -- 默认窗口尺寸
+global minFormSize = [600, 480]    -- 最小窗口尺寸，与默认尺寸一致
 global resizeBoxSize = 20
-global bottomMargin = 25  -- 增加底部边距，确保resize控件有足够空间
+global bottomMargin = 15  -- 底部边距
 global maxHwnd = undefined -- 存储MAX窗口句柄
 
 -- Windows API常量
@@ -32,6 +37,8 @@ global SWP_NOSIZE = 0x0001
 global SWP_NOMOVE = 0x0002
 global SWP_NOACTIVATE = 0x0010
 global SWP_SHOWWINDOW = 0x0040
+global WS_CHILD = 0x40000000 -- 子窗口样式
+global GWL_STYLE = -16
 
 -- 清理可能存在的旧窗口
 try(sequence_viewer.close())catch()
@@ -54,10 +61,21 @@ sequence_viewer = dotNetObject "MaxCustomControls.MaxForm"
 sequence_viewer.opacity = 1
 sequence_viewer.width = startFormSize[1]
 sequence_viewer.height = startFormSize[2]
+sequence_viewer.clientSize = dotNetObject "System.Drawing.Size" startFormSize[1] startFormSize[2]
 sequence_viewer.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderStyle").none
 sequence_viewer.BackColor = BackGrey
 sequence_viewer.StartPosition = (dotNetClass "System.Windows.Forms.FormStartPosition").Manual
 sequence_viewer.ShowInTaskbar = false  -- 不在任务栏显示
+sequence_viewer.TopMost = true  -- 默认窗口置顶
+alwaysOnTop = true
+
+-- 创建一个基本的自定义绘制策略
+try (
+    -- 尝试设置样式来减少闪烁
+    sequence_viewer.SetStyle (dotNetClass "System.Windows.Forms.ControlStyles").AllPaintingInWmPaint true
+    sequence_viewer.SetStyle (dotNetClass "System.Windows.Forms.ControlStyles").UserPaint true
+    sequence_viewer.SetStyle (dotNetClass "System.Windows.Forms.ControlStyles").OptimizedDoubleBuffer true
+) catch()
 
 -- 创建顶部面板
 pnlTopBar = dotNetObject "System.Windows.Forms.Panel"
@@ -81,29 +99,57 @@ pnlTopBar.controls.add lbl_Title
 
 -- 创建鼠标穿透按钮
 btn_Passthrough = dotnetObject "system.windows.forms.button"
-btn_Passthrough.width = 30
+btn_Passthrough.width = 50  -- 适当调整宽度
 btn_Passthrough.height = 25
 btn_Passthrough.top = 2
-btn_Passthrough.left = (sequence_viewer.width - 110)
+btn_Passthrough.left = (sequence_viewer.width - 160)  -- 调整位置更靠右
 btn_Passthrough.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
 btn_Passthrough.backcolor = Ccolor.darkgray
 btn_Passthrough.forecolor = TextColor
-btn_Passthrough.font = (dotNetObject "System.Drawing.Font" "Arial" 10 ((dotNetClass "System.Drawing.FontStyle").bold))
-btn_Passthrough.text = "T"
+btn_Passthrough.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 8 ((dotNetClass "System.Drawing.FontStyle").regular))
+btn_Passthrough.text = "穿透"
 btn_Passthrough.flatappearance.bordersize = 0
 pnlTopBar.controls.add btn_Passthrough
 
+-- 创建禅模式按钮
+btn_ZenMode = dotnetObject "system.windows.forms.button"
+btn_ZenMode.width = 60  -- 增加宽度显示"普通模式"
+btn_ZenMode.height = 25
+btn_ZenMode.top = 2
+btn_ZenMode.left = (sequence_viewer.width - 280)  -- 调整位置
+btn_ZenMode.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
+btn_ZenMode.backcolor = Ccolor.darkgray
+btn_ZenMode.forecolor = TextColor
+btn_ZenMode.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 8 ((dotNetClass "System.Drawing.FontStyle").regular))
+btn_ZenMode.text = "禅模式"
+btn_ZenMode.flatappearance.bordersize = 0
+pnlTopBar.controls.add btn_ZenMode
+
+-- 创建最小化按钮
+btn_Minimize = dotnetObject "system.windows.forms.button"
+btn_Minimize.width = 50  -- 适当调整宽度
+btn_Minimize.height = 25
+btn_Minimize.top = 2
+btn_Minimize.left = (sequence_viewer.width - 215)  -- 调整位置更靠右
+btn_Minimize.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
+btn_Minimize.backcolor = Ccolor.darkgray
+btn_Minimize.forecolor = TextColor
+btn_Minimize.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 8 ((dotNetClass "System.Drawing.FontStyle").regular))
+btn_Minimize.text = "最小化"
+btn_Minimize.flatappearance.bordersize = 0
+pnlTopBar.controls.add btn_Minimize
+
 -- 创建置顶按钮
 btn_TopMost = dotnetObject "system.windows.forms.button"
-btn_TopMost.width = 30
+btn_TopMost.width = 50  -- 适当调整宽度
 btn_TopMost.height = 25
 btn_TopMost.top = 2
-btn_TopMost.left = (sequence_viewer.width - 70)
+btn_TopMost.left = (sequence_viewer.width - 105)  -- 调整位置更靠右
 btn_TopMost.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
-btn_TopMost.backcolor = Ccolor.darkgray
+btn_TopMost.backcolor = GreenColor  -- 默认置顶状态，设置绿色
 btn_TopMost.forecolor = TextColor
-btn_TopMost.font = (dotNetObject "System.Drawing.Font" "Arial" 10 ((dotNetClass "System.Drawing.FontStyle").bold))
-btn_TopMost.text = "↑"
+btn_TopMost.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 8 ((dotNetClass "System.Drawing.FontStyle").regular))
+btn_TopMost.text = "置顶"
 btn_TopMost.flatappearance.bordersize = 0
 pnlTopBar.controls.add btn_TopMost
 
@@ -133,7 +179,7 @@ sequence_viewer.controls.add pnlContent
 -- 创建透明度滑块和标签面板
 pnlOpacity = dotNetObject "System.Windows.Forms.Panel"
 pnlOpacity.width = pnlContent.width - 20
-pnlOpacity.height = 40
+pnlOpacity.height = 35  -- 减小高度
 pnlOpacity.top = 10
 pnlOpacity.left = 10
 pnlOpacity.BackColor = PanelGrey
@@ -154,20 +200,22 @@ pnlOpacity.controls.add lbl_Opacity
 -- 透明度滑块
 sldOpacity = dotNetObject "System.Windows.Forms.TrackBar"
 sldOpacity.width = pnlOpacity.width - 80
-sldOpacity.height = 30
+sldOpacity.height = 25  -- 减小高度
 sldOpacity.top = 5
 sldOpacity.left = 70
 sldOpacity.minimum = 10
 sldOpacity.maximum = 100
 sldOpacity.value = 100
-sldOpacity.tickFrequency = 10
+sldOpacity.TickStyle = (dotNetClass "System.Windows.Forms.TickStyle").None  -- 隐藏刻度标记
+-- 增强滑条外观
+sldOpacity.AutoSize = false
 pnlOpacity.controls.add sldOpacity
 
 -- 创建图片预览区域
 picBox = dotNetObject "System.Windows.Forms.PictureBox"
 picBox.width = pnlContent.width - 20
-picBox.height = 380  -- 减小高度，给底部留出更多空间
-picBox.top = 60
+picBox.height = 280  -- 减小高度
+picBox.top = 55  -- 调整位置
 picBox.left = 10
 picBox.sizeMode = picBox.sizeMode.Zoom
 picBox.borderStyle = (dotNetClass "System.Windows.Forms.BorderStyle").fixedSingle
@@ -178,7 +226,7 @@ pnlContent.controls.add picBox
 pnlControls = dotNetObject "System.Windows.Forms.Panel"
 pnlControls.width = pnlContent.width - 20
 pnlControls.height = 40
-pnlControls.top = 470
+pnlControls.top = 345  -- 调整位置
 pnlControls.left = 10
 pnlControls.BackColor = PanelGrey
 pnlControls.BorderStyle = (dotNetClass "System.Windows.Forms.BorderStyle").fixedSingle
@@ -302,7 +350,7 @@ pnlControls.controls.add btnEndFrame
 pnlStatus = dotNetObject "System.Windows.Forms.Panel"
 pnlStatus.width = pnlContent.width - 20
 pnlStatus.height = 25
-pnlStatus.top = 520
+pnlStatus.top = 395  -- 调整位置
 pnlStatus.left = 10
 pnlStatus.BackColor = PanelGrey
 pnlContent.controls.add pnlStatus
@@ -377,7 +425,7 @@ fn loadSequenceImages basePath = (
     join files pngFiles
     join files bmpFiles
     
-    if files.count == 0 do (
+    if files.count == 0 then (
         messageBox "未找到序列图片！\n请确保文件夹中包含支持的图片格式(.jpg, .jpeg, .png, .bmp)。" title:"错误"
         return false
     )
@@ -407,11 +455,11 @@ fn loadSequenceImages basePath = (
         isLoaded = true
         lastFrame = imageArray.count
         
-        true
+        return true
     ) catch (
         messageBox "加载图片失败！请检查图片格式是否正确。" title:"错误"
         setStatus "加载图片失败" RedColor
-        false
+        return false
     )
 )
 
@@ -555,47 +603,56 @@ fn resizeUI = (
     pnlTopBar.width = sequence_viewer.width
     
     -- 更新按钮位置
-    btn_Passthrough.left = sequence_viewer.width - 110
-    btn_TopMost.left = sequence_viewer.width - 70
+    btn_ZenMode.left = sequence_viewer.width - 280
+    btn_Minimize.left = sequence_viewer.width - 215
+    btn_Passthrough.left = sequence_viewer.width - 160
+    btn_TopMost.left = sequence_viewer.width - 105
     btn_Close.left = sequence_viewer.width - 35
     
     -- 更新主体内容面板
     pnlContent.width = sequence_viewer.width - 20
     pnlContent.height = sequence_viewer.height - 40
     
-    -- 更新透明度面板和滑块
-    pnlOpacity.width = pnlContent.width - 20
-    sldOpacity.width = pnlOpacity.width - 80
-    
-    -- 更新图片预览区域
-    picBox.width = pnlContent.width - 20
-    -- 动态计算图片区域高度：总高度减去其他控件所需的空间
-    local controlsHeight = 150 -- 底部控件总高度（透明度+控制面板+状态栏+底部边距）
-    picBox.height = pnlContent.height - controlsHeight
-    
-    -- 更新控制面板
-    pnlControls.width = pnlContent.width - 20
-    pnlControls.top = picBox.top + picBox.height + 10
-    
-    -- 调整播放按钮的位置
-    local controlsWidth = pnlControls.width
-    -- 确保右侧按钮组始终对齐到面板右侧
-    local rightButtonsStartPos = controlsWidth - 215 -- 5个按钮的总宽度(35*5=175)加上一些间距
-    rightButtonsStartPos = if rightButtonsStartPos < 310 then 310 else rightButtonsStartPos
-    
-    btnStartFrame.left = rightButtonsStartPos
-    btnPrevFrame.left = rightButtonsStartPos + 40
-    btnPlay.left = rightButtonsStartPos + 80
-    btnNextFrame.left = rightButtonsStartPos + 120
-    btnEndFrame.left = rightButtonsStartPos + 160
-    
-    -- 更新状态面板
-    pnlStatus.width = pnlContent.width - 20
-    pnlStatus.top = pnlControls.top + pnlControls.height + 10
-    
-    -- 确保状态面板与窗口底部保持足够距离
-    if (pnlStatus.top + pnlStatus.height + bottomMargin) > pnlContent.height do (
-        pnlContent.height = pnlStatus.top + pnlStatus.height + bottomMargin
+    -- 禅模式下只显示图片区域
+    if isZenMode then (
+        picBox.width = pnlContent.width - 20
+        picBox.top = 10
+        picBox.height = pnlContent.height - 20
+        
+        -- 隐藏控制面板和透明度面板
+        pnlOpacity.visible = false
+        pnlControls.visible = false
+        pnlStatus.visible = false
+    ) else (
+        -- 常规模式
+        -- 更新透明度面板和滑块
+        pnlOpacity.width = pnlContent.width - 20
+        pnlOpacity.visible = true
+        sldOpacity.width = pnlOpacity.width - 80
+        
+        -- 更新图片预览区域
+        picBox.width = pnlContent.width - 20
+        
+        -- 获取窗口实际可用高度
+        local contentHeight = pnlContent.height
+        
+        -- 固定顶部和底部控件的高度和间距
+        local topControlsHeight = 45  -- 透明度面板及边距
+        local bottomControlsHeight = 85  -- 控制面板和状态面板及边距
+        
+        -- 计算图片区可用高度
+        local availableHeight = contentHeight - topControlsHeight - bottomControlsHeight
+        picBox.height = availableHeight
+        picBox.top = topControlsHeight
+        
+        -- 显示控制面板和状态栏
+        pnlControls.visible = true
+        pnlControls.top = picBox.top + picBox.height + 10
+        pnlControls.width = pnlContent.width - 20
+        
+        pnlStatus.visible = true
+        pnlStatus.top = pnlControls.top + pnlControls.height + 10
+        pnlStatus.width = pnlContent.width - 20
     )
     
     -- 移除并重新添加调整大小控件，确保其位于最上层
@@ -608,6 +665,73 @@ fn resizeUI = (
     -- 重新添加到窗口，确保其位于最上层
     sequence_viewer.controls.add resizeBox
 )
+
+-- 启用禅模式
+fn enableZenMode = (
+    if not isZenMode do (
+        isZenMode = true
+        
+        -- 保存当前窗口高度
+        if not isMinimized do (
+            originalHeight = sequence_viewer.height
+        )
+        
+        -- 确保最小高度也适应禅模式
+        local zenHeight = 350
+        minFormSize[2] = zenHeight  -- 更新禅模式下的最小高度
+        
+        -- 调整窗口高度为禅模式高度
+        sequence_viewer.height = zenHeight
+        
+        -- 更改按钮文字
+        btn_ZenMode.text = "普通模式"
+        btn_ZenMode.backcolor = GreenColor
+        
+        -- 更新UI布局
+        resizeUI()
+        
+        -- 设置状态
+        setStatus "已启用禅模式" GreenColor
+    )
+)
+
+-- 禁用禅模式
+fn disableZenMode = (
+    if isZenMode do (
+        isZenMode = false
+        
+        -- 恢复最小尺寸设置
+        minFormSize[2] = 480  -- 恢复正常模式的最小高度
+        
+        -- 恢复窗口高度
+        sequence_viewer.height = originalHeight
+        
+        -- 更改按钮文字
+        btn_ZenMode.text = "禅模式"
+        btn_ZenMode.backcolor = Ccolor.darkgray
+        
+        -- 更新UI布局
+        resizeUI()
+        
+        -- 设置状态
+        setStatus "已退出禅模式" YellowColor
+    )
+)
+
+-- 切换禅模式
+fn toggleZenMode = (
+    if isZenMode then (
+        disableZenMode()
+    ) else (
+        enableZenMode()
+    )
+)
+
+-- 禅模式按钮事件
+fn onZenModeClick sender e = (
+    toggleZenMode()
+)
+dotnet.addEventHandler btn_ZenMode "Click" onZenModeClick
 
 -- 切换循环播放
 fn toggleLoop sender args = (
@@ -725,8 +849,12 @@ fn onResizeMouseMove sender e = (
         local newHeight = sequence_viewer.height + (mouse.screenPos.y - mouseOffset[2])
         
         -- 设置最小尺寸以防止窗口过小
-        if newWidth < 550 do newWidth = 550
-        if newHeight < 500 do newHeight = 500
+        if newWidth < minFormSize[1] do newWidth = minFormSize[1]
+        if newHeight < minFormSize[2] do newHeight = minFormSize[2]
+        
+        -- 保存当前尺寸作为原始值，用于恢复
+        originalWidth = newWidth
+        originalHeight = newHeight
         
         -- 应用新尺寸
         sequence_viewer.width = newWidth
@@ -736,7 +864,7 @@ fn onResizeMouseMove sender e = (
         mouseOffset[1] = mouse.screenPos.x
         mouseOffset[2] = mouse.screenPos.y
         
-        -- 更新UI布局
+        -- 每次移动都完整更新UI，使界面实时变化
         resizeUI()
     )
 )
@@ -749,19 +877,52 @@ fn onResizeMouseUp sender e = (
 dotnet.addEventHandler resizeBox "MouseUp" onResizeMouseUp
 dotnet.addEventHandler sequence_viewer "MouseUp" onResizeMouseUp
 
+-- 尝试使用Win32 API将窗口置于最顶层
+fn forceWindowAsChild = (
+    try (
+        -- 确保有有效的句柄
+        if windowHandle == undefined do (
+            windowHandle = windows.getHWNDByTitle "序列图片查看器"
+            if windowHandle == undefined do return false
+        )
+        
+        -- 检查MAX句柄
+        if maxHwnd == undefined do (
+            maxHwnd = windows.getMAXHWND()
+            if maxHwnd == undefined do return false
+        )
+        
+        -- 不使用setParent，只设置窗口在最顶层
+        windows.setWindowPos windowHandle HWND_TOPMOST 0 0 0 0 (bit.or SWP_NOMOVE SWP_NOSIZE SWP_SHOWWINDOW)
+        
+        -- 让窗口保持在前
+        sequence_viewer.BringToFront()
+        true
+    ) catch (
+        false
+    )
+)
+
 -- 切换窗口置顶状态
 fn toggleTopMost = (
-    alwaysOnTop = not alwaysOnTop
-    
-    -- 设置窗口置顶状态
-    if alwaysOnTop then (
+    try (
+        alwaysOnTop = not alwaysOnTop
+        
+        -- 设置窗口置顶状态
+        sequence_viewer.TopMost = alwaysOnTop
+        
+        if alwaysOnTop then (
+            btn_TopMost.backcolor = GreenColor
+            setStatus "窗口已置顶" GreenColor
+        ) else (
+            btn_TopMost.backcolor = Ccolor.darkgray
+            setStatus "窗口已取消置顶" YellowColor
+        )
+    ) catch (
+        -- 如果出错，重置状态
+        alwaysOnTop = true
         sequence_viewer.TopMost = true
         btn_TopMost.backcolor = GreenColor
-        setStatus "窗口已置顶" GreenColor
-    ) else (
-        sequence_viewer.TopMost = false
-        btn_TopMost.backcolor = Ccolor.darkgray
-        setStatus "窗口已取消置顶" YellowColor
     )
 )
 
@@ -771,66 +932,78 @@ fn onTopMostClick sender e = (
 )
 dotnet.addEventHandler btn_TopMost "Click" onTopMostClick
 
--- 保持窗口与MAX一起显示
-fn keepVisibleWithMax = (
+-- 最小化窗口
+fn minimizeWindow = (
     try (
-        -- 获取窗口句柄
-        if windowHandle == undefined do (
-            windowHandle = windows.getHWNDByTitle "序列图片查看器"
-        )
-        
-        -- 将窗口设置为相对于MAX的顶层窗口，但不是置顶窗口
-        if windowHandle != undefined and maxHwnd != undefined and not alwaysOnTop do (
-            -- 使用windows.setWindowPos使窗口保持在MAX之上但不是全局置顶
-            windows.setWindowPos windowHandle maxHwnd 0 0 0 0 (bit.or SWP_NOMOVE SWP_NOSIZE SWP_NOACTIVATE)
-            sequence_viewer.BringToFront()
-        )
+        isMinimized = true
+        -- 缩小到只显示标题栏
+        sequence_viewer.height = 30
+        btn_Minimize.text = "还原"
     ) catch()
 )
 
--- 注册窗口激活事件
-fn onFormActivated sender e = (
-    -- 当我们的窗口激活时，记录状态
-    sequence_viewer.tag = dotNetObject "System.Object"
-)
-
-fn onFormDeactivated sender e = (
-    -- 当我们的窗口失去焦点时，尝试保持可见
+-- 恢复窗口
+fn restoreWindow = (
     try (
-        keepVisibleWithMax()
+        isMinimized = false
+        -- 恢复原始大小
+        sequence_viewer.width = originalWidth
+        sequence_viewer.height = originalHeight
+        btn_Minimize.text = "最小化"
+        -- 立即执行一次resizeUI确保布局正确
+        resizeUI()
     ) catch()
 )
 
-dotnet.addEventHandler sequence_viewer "Activated" onFormActivated
-dotnet.addEventHandler sequence_viewer "Deactivate" onFormDeactivated
+-- 切换最小化状态
+fn toggleMinimize = (
+    if isMinimized then (
+        restoreWindow()
+    ) else (
+        minimizeWindow()
+    )
+)
 
--- 初始化
-initializeImages()
-registerTimeCallback updateCurrentImage
-
--- 初始调整UI以确保正确的初始布局
-resizeUI()
-
--- 添加额外的窗口特性
-sequence_viewer.ShowInTaskbar = false  -- 不在任务栏显示
-
--- 显示窗口并获取其句柄
-dotNet.setLifeTimeControl sequence_viewer #dotNet
-sequence_viewer.show()
+-- 最小化按钮事件
+fn onMinimizeClick sender e = (
+    toggleMinimize()
+)
+dotnet.addEventHandler btn_Minimize "Click" onMinimizeClick
 
 -- 获取窗口句柄并设置窗口样式
 try (
+    -- 获取MAX句柄
+    maxHwnd = windows.getMAXHWND()
+    
+    -- 获取我们窗口的句柄
     windowHandle = windows.getHWNDByTitle "序列图片查看器"
     if windowHandle != undefined do (
-        -- 添加工具窗口样式，使其不在任务栏显示且更容易与MAX集成
+        -- 添加工具窗口样式
         local exStyle = windows.getWindowLong windowHandle GWL_EXSTYLE
         exStyle = bit.or exStyle WS_EX_TOOLWINDOW
         windows.setWindowLong windowHandle GWL_EXSTYLE exStyle
-        
-        -- 设置窗口位置，确保它在MAX上面但不是全局置顶
-        windows.setWindowPos windowHandle maxHwnd 0 0 0 0 (bit.or SWP_NOMOVE SWP_NOSIZE SWP_SHOWWINDOW)
     )
 ) catch()
 
 -- 在创建完窗口后将其前置显示
+sequence_viewer.show()
 sequence_viewer.BringToFront()
+forceWindowAsChild()
+
+-- 强制应用初始大小
+sequence_viewer.width = startFormSize[1]
+sequence_viewer.height = startFormSize[2]
+
+-- 初始调整UI布局确保所有元素正确显示
+resizeUI()
+
+-- 添加窗口关闭时的清理
+fn onFormClosed sender e = (
+    try (
+        if dotNetTimer != undefined and dotNetTimer.enabled do (
+            dotNetTimer.enabled = false
+            dotNetTimer.dispose()
+        )
+    ) catch()
+)
+dotnet.addEventHandler sequence_viewer "FormClosed" onFormClosed
