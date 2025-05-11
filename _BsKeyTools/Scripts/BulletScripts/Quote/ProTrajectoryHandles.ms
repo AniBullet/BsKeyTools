@@ -1118,12 +1118,21 @@
 		source += " public static extern IntPtr GetActiveWindow();\n"
 		source += "}\n"
 
-		csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
-		compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
-
-		compilerParams.GenerateInMemory = on
-		compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
-		compilerResults.CompiledAssembly.CreateInstance "User32"
+		try 
+		(
+			csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
+			compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+	
+			compilerParams.GenerateInMemory = on
+			compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
+			compilerResults.CompiledAssembly.CreateInstance "User32"
+		)
+		catch
+		(
+			local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+			CSharpCompilationHelper.compile source #()
+			dotnetclass "User32"
+		)
 	)
 
 	fn debug str=

@@ -298,10 +298,14 @@
 		WinAssembly = CompilerResults.CompiledAssembly
 		BipFastAssembly =  WinAssembly.CreateInstance "bipedSetTM.SetTM_test"
 		-- showMethods  BipFastAssembly
-		-- BipFastAssembly.GetBipAll()	
-
+		-- BipFastAssembly.GetBipAll()
 	)
-	catch(print ("动态编译失败！！无法使用快速粘贴功能"))
+	catch
+	(
+		local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+		CSharpCompilationHelper.compile CSharpCodeSourceBipFast #()
+		BipFastAssembly = (dotnetclass "bipedSetTM.SetTM_test")
+	)
 
 	----获取写入选择的帧	
 	fn getAnimProp_yunEdit obj =(    ----获取选择的帧
@@ -454,12 +458,21 @@
 		source += "	public static extern int StrCmpLogicalW(string lpszStr, string lpszComp);\n"
 		source += "}\n"
 	
-		csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
-		compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
-					
-		compilerParams.GenerateInMemory = on
-		compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
-		compilerResults.CompiledAssembly.CreateInstance "SHLWAPI"
+		try
+		(
+			csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
+			compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+						
+			compilerParams.GenerateInMemory = on
+			compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
+			compilerResults.CompiledAssembly.CreateInstance "SHLWAPI"
+		)
+		catch
+		(
+			local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+			CSharpCompilationHelper.compile source #()
+			dotnetclass "SHLWAPI"
+		)
 	)
 	struct myCoolDialogs
 	(
@@ -1846,7 +1859,7 @@
 				(
 					for i = start_frame-cptools.paste_offset.value to end_frame-cptools.paste_offset.value do
 					( 
-						append frame_arrayl (i.frame as integer)
+						append frame_arrayl (i as integer)
 						sort frame_arrayl
 					)
 				)
@@ -1856,22 +1869,32 @@
 					(
 						gc()
 						gc()
-						CSharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
-						CompilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
-	
-						CompilerParams.ReferencedAssemblies.Add("System.dll")
-						CompilerParams.ReferencedAssemblies.Add("System.Windows.Forms.dll")
-						CompilerParams.ReferencedAssemblies.Add("System.IO.dll")
-						CompilerParams.ReferencedAssemblies.Add("System.Threading.Tasks.dll")
-						compilerParams.ReferencedAssemblies.Add((getdir #maxroot) + @"Autodesk.Max.dll");	
-						CompilerParams.GenerateExecutable = false
-						CompilerParams.GenerateInMemory = false
-	
-						global CompilerResults = CSharpProvider.CompileAssemblyFromSource CompilerParams #(CSharpCodeSourceBipFast)
-						WinAssembly = CompilerResults.CompiledAssembly
-						BipFastAssembly = undefined
-						BipFastAssembly =  WinAssembly.CreateInstance "bipedSetTM.SetTM_test"	
-						print "重新编译一次~"					
+
+						try
+						(
+							CSharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
+							CompilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+		
+							CompilerParams.ReferencedAssemblies.Add("System.dll")
+							CompilerParams.ReferencedAssemblies.Add("System.Windows.Forms.dll")
+							CompilerParams.ReferencedAssemblies.Add("System.IO.dll")
+							CompilerParams.ReferencedAssemblies.Add("System.Threading.Tasks.dll")
+							compilerParams.ReferencedAssemblies.Add((getdir #maxroot) + @"Autodesk.Max.dll");	
+							CompilerParams.GenerateExecutable = false
+							CompilerParams.GenerateInMemory = false
+		
+							global CompilerResults = CSharpProvider.CompileAssemblyFromSource CompilerParams #(CSharpCodeSourceBipFast)
+							WinAssembly = CompilerResults.CompiledAssembly
+							BipFastAssembly = undefined
+							BipFastAssembly =  WinAssembly.CreateInstance "bipedSetTM.SetTM_test"	
+							print "重新编译一次~"
+						)
+						catch
+						(
+							local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+							CSharpCompilationHelper.compile CSharpCodeSourceBipFast #()
+							BipFastAssembly = dotnetclass "bipedSetTM.SetTM_test"
+						)				
 					)
 					in_file = openFile in_name	
 					seek in_file 0
