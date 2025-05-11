@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2021-05-07 12:33:36
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-02-24 00:41:48
+ * @LastEditTime: 2025-05-11 23:00:00
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -11,6 +11,7 @@ try(destroydialog rolSelSetTools)catch()
 try (callbacks.removeScripts #filePostOpen id:#UpdateSelSetList) catch ()
 
 global iniPosSelSetTools
+global tempXmlPath = (getDir #temp) + "\\BsSelSetTools_Temp.xml" -- 临时XML文件路径
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
@@ -189,7 +190,7 @@ rollout rolLoadSelSet "加载选择集"
 
 rollout rolSelSetTools ""
 (
-	groupbox grpMain "BsSelSetTools_v1.1--MoveMe" width:180 height:277 pos:[5,0]
+	groupbox grpMain "BsSelSetTools_v1.2" width:180 height:277 pos:[5,0]
 
 	MultiListBox mlbSelSet "" width:170 height:15 pos:[10,55]
 	label lblCount "" width:170 height:15 pos:[10,40]
@@ -204,8 +205,8 @@ rollout rolSelSetTools ""
 	button btnRemoveFromSelSet "" width:30 height:20 pos:[285,35] enabled:false tooltip:"从选中的选择集中移除所选物体"
 	button btnHighlightSelObj "" width:30 height:20 pos:[315,35] enabled:false tooltip:"高亮选中物体及其所在选择集"
 	MultiListBox mlbSelSetNode "" width:160 height:15 pos:[190,55] enabled:false
-	button btnSaveXml "保存" width:60 height:20 pos:[190,15] enabled:false
-	button btnLoadXml "加载" width:60 height:20 pos:[250,15] enabled:false
+	button btnSaveXml "保存" width:60 height:20 pos:[190,15] enabled:false tooltip:"左键：选择保存位置\n右键：快速保存到临时文件"
+	button btnLoadXml "加载" width:60 height:20 pos:[250,15] enabled:false tooltip:"左键：从选择文件加载\n右键：快速加载临时文件"
 	button btnHelp "帮助" width:40 height:20 pos:[310,15] enabled:false
 
 	fn fnAutoSetHeight =
@@ -320,10 +321,29 @@ rollout rolSelSetTools ""
 		btnAddToSelSet.images      = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false,true)
 		btnRemoveFromSelSet.images = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,7,7,8,8,false,true)
 		btnHighlightSelObj.images  = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,12,12,13,13,false,true)
+		
+		-- 先计算窗口大小，再更新UI状态，避免窗口跳变
+		if selectionsets.count <= 5 then
+		(
+			mlbSelSet.height = 72.5
+			mlbSelSetNode.height = 72.5
+		)
+		else if selectionsets.count >= 5 and selectionsets.count <= 15 then
+		(
+			mlbSelSet.height = selectionsets.count * 14.5
+			mlbSelSetNode.height = selectionsets.count * 14.5
+		)
+		else if selectionsets.count > 15 then
+		(
+			mlbSelSet.height = 217
+			mlbSelSetNode.height = 217
+		)
+		rolSelSetTools.height = mlbSelSet.height + 65
+		grpMain.height = mlbSelSetNode.height + 60
+		
 		fnUpdateMoreToolsState()
 		fnRefreshBtnEnabled()
 		fnUpdateSelSetList()
-		fnAutoSetHeight()
 	)
 
 	on rolSelSetTools close do -- 关闭记忆浮动窗口位置
@@ -340,6 +360,12 @@ rollout rolSelSetTools ""
 			fnSaveSelSetAll save_path
 		)
 	)	
+	
+	on btnSaveXml rightclick do
+	(
+		fnSaveSelSetAll tempXmlPath
+		messageBox ("已快速保存选择集到临时文件！\n\n文件路径：\n" + tempXmlPath) title:"保存成功" beep:false
+	)
 
 	on btnLoadXml pressed do
 	(
@@ -357,6 +383,33 @@ rollout rolSelSetTools ""
 				createdialog rolLoadSelSet pos:[iniPosSelSetTools.x+rolSelSetTools.width, iniPosSelSetTools.y ] width:200 height:350 parent:rolSelSetTools.hwnd
 				rolLoadSelSet.mlbLoadSelSet.items = dataLoad[1]
 			)
+		)
+	)
+	
+	on btnLoadXml rightclick do
+	(
+		if doesFileExist tempXmlPath then
+		(
+			local dataLoad = fnLoadSelXml tempXmlPath
+			
+			if dataLoad != undefined then
+			(
+				arrSelSetNameLoaded = dataLoad[1]
+				arrSelSetObjLoaded  = dataLoad[2]
+				
+				-- 直接加载所有选择集，不显示加载窗口
+				for n = 1 to arrSelSetNameLoaded.count do
+				(
+					fnCreateSelSet arrSelSetNameLoaded arrSelSetObjLoaded n
+				)
+				fnUpdateSelSetList()
+				fnAutoSetHeight()
+				messageBox ("已快速加载临时选择集文件！\n\n文件路径：\n" + tempXmlPath) title:"加载成功" beep:false
+			)
+		)
+		else
+		(
+			messageBox ("未找到临时选择集文件！请先右键点击保存按钮创建临时文件。\n\n预期文件路径：\n" + tempXmlPath) title:"加载失败" beep:false
 		)
 	)
 
@@ -483,7 +536,38 @@ rollout rolSelSetTools ""
 
 )
 if (iniPosSelSetTools != 0) then 
-(Createdialog rolSelSetTools 360 295 fgcolor:myFgColor pos:iniPosSelSetTools style:#())
-else (Createdialog rolSelSetTools 360 295 fgcolor:myFgColor style:#())
+(
+	-- 预先计算适合的高度
+	local initHeight = 295
+	if selectionsets.count <= 5 then
+		initHeight = 72.5 + 65
+	else if selectionsets.count >= 5 and selectionsets.count <= 15 then
+		initHeight = selectionsets.count * 14.5 + 65
+	else
+		initHeight = 217 + 65
+	
+	-- 根据初始状态设置宽度
+	local initWidth = 190
+	if chkMoreTools != undefined and chkMoreTools.state then
+		initWidth = 360
+		
+	Createdialog rolSelSetTools initWidth initHeight fgcolor:myFgColor pos:iniPosSelSetTools style:#()
+)
+else 
+(
+	-- 预先计算适合的高度
+	local initHeight = 295
+	if selectionsets.count <= 5 then
+		initHeight = 72.5 + 65
+	else if selectionsets.count >= 5 and selectionsets.count <= 15 then
+		initHeight = selectionsets.count * 14.5 + 65
+	else
+		initHeight = 217 + 65
+	
+	-- 使用默认的小宽度，避免宽度跳变
+	local initWidth = 190
+		
+	Createdialog rolSelSetTools initWidth initHeight fgcolor:myFgColor style:#()
+)
 
 callbacks.addScript #filePostOpen "fnUpdateSelSetList()" id:#UpdateSelSetList
