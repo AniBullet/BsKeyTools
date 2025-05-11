@@ -279,7 +279,7 @@ ShowUnInstDetails show
 ; 定义安装版本Section的宏，用于生成所有版本的安装部分
 !macro VersionSection VERSION SEC_ID VAR_NAME
 Section "3dsMax ${VERSION}" ${SEC_ID}
-  SetOutPath "$${VAR_NAME}"
+  SetOutPath "${VAR_NAME}"
   SetOverwrite on
   File /r "${CURRENT_DIR}\Scripts"
   File /r "${CURRENT_DIR}\UI_ln"
