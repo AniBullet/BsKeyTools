@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-12-04 19:09:06
+ * @LastEditTime: 2025-05-11 23:37:12
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -62,30 +62,7 @@ rollout rolAddItem "添加常用路径" width:340 height:80
 
 	button btnAddItems "添加" width:55 height:25 pos:[275,45]
 
-	on btnOpenDir pressed do 
-	(
-		local dir = getSavePath caption:"请选择目录:" initialDir:(maxFilePath)
-		if (dir != undefined) then
-		(
-			edtDirStr.text = dir
-		)
-	)
-
-	on edtAddDir changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtAddDir.text = tempText
-		-- print edtAddDir.text
-	)
-
-	on edtPrefix changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtPrefix.text = tempText
-		-- print edtPrefix.text
-	)
-
-	on btnAddItems pressed do 
+	fn fnAddToFavorite =
 	(
 		if ((edtDirStr.text != "") and (edtAddDir.text != "") and (edtDirStr.visible == true)) then
 		(
@@ -111,25 +88,34 @@ rollout rolAddItem "添加常用路径" width:340 height:80
 			)
 			else (messagebox "----------------------------------------\r\n可能常用目录中已存在此目录~")
 		)
-		-- if ((edtPrefix.text != "") and (edtPrefix.visible == true)) then
-		-- (
-		-- 	if (findItem iniFilterPrefix edtPrefix.text) != 0 then 
-		-- 	(
-		-- 		messagebox "-------------------------------------\r\n可能过滤词缀中已存在~"
-		-- 	)
-		-- 	else
-		-- 	(
-		-- 		append iniFilterPrefix edtPrefix.text
-		-- 		arrPreItems = #()
-		-- 		for i = iniFilterPrefix.count to 1 by -1 do
-		-- 		(
-		-- 			append arrPreItems iniFilterPrefix[i]
-		-- 		)
-		-- 		rolBsOpenTools.ltbFilterPrefix.items = arrPreItems
-		-- 		rolBsOpenTools.ltbFilterPrefix.selection = 1
-		-- 		-- fnRefreshList rolBsOpenTools.edtBrowseFolder.text type:arrFileType[rolBsOpenTools.rdoFileType.state]
-		-- 	)
-		-- )
+	)
+
+	on btnOpenDir pressed do 
+	(
+		local dir = getSavePath caption:"请选择目录:" initialDir:(maxFilePath)
+		if (dir != undefined) then
+		(
+			edtDirStr.text = dir
+		)
+	)
+
+	on edtAddDir changed txt do 
+	(
+		tempText = substituteString txt "\n" ""
+		edtAddDir.text = tempText
+		-- print edtAddDir.text
+	)
+
+	on edtPrefix changed txt do 
+	(
+		tempText = substituteString txt "\n" ""
+		edtPrefix.text = tempText
+		-- print edtPrefix.text
+	)
+
+	on btnAddItems pressed do 
+	(
+		fnAddToFavorite()
 		try(destroydialog rolAddItem)catch()
 		rolBsOpenTools.fnRefreshList rolBsOpenTools.edtBrowseFolder.text type:arrFileType[rolBsOpenTools.rdoFileType.state]
 		iniSelectedID = rolBsOpenTools.ltbLikedFolder.selection
@@ -143,9 +129,11 @@ rollout rolBsOpenTools "" width:580 height:400
 	width:570 height:395 pos:[5,0]
 	button btnClose "X" pos:[rolBsOpenTools.width - 15,0] height:15 width:15 border:false
 	editText edtBrowseFolder "" text:"" labelOnTop:false align:#right \
-	height:20 fieldWidth:455 pos:[70,22] readOnly:true 
+	height:20 fieldWidth:425 pos:[70,22] readOnly:true 
 	button btnOpenAddress "..." align:#right tooltip:"选择打开目录" \
 	height:22 width:30 pos:[37,20] border:false
+	button btnAddPathToVavorite "✚" align:#left border:false \
+	height:22 width:30 pos:[505,20] tooltip:"添加当前路径至常用目录"
 	button btnOpenCurrentDir "O" tooltip:"打开当前文件夹" \
 	height:22 width:30 pos:[535,20] border:false
 	-- button btnRemoveFolder "━" align:#left \
@@ -154,28 +142,33 @@ rollout rolBsOpenTools "" width:580 height:400
 	-- height:20 width:20 pos:[35,20] tooltip:"新增常用目录"
 	button btnRefreshFolder "↻" align:#left border:false \
 	height:22 width:25 pos:[10,20] tooltip:"左：刷新当前文件目录\r\n\r\n右：重置场景"
-	button btnLikedFolder "＋＋常用目录＋＋" border:true \
-	height:18 width:105 pos:[10,50] tooltip:"左：添加常用目录\r\n\r\n右击删除选中条目"
-	-- dropdownlist ddlLikedFolder "" align:#left selection:1 \
-	-- height:15 width:105 pos:[10,70]
+	label lblLikedFolderTitle "常用目录" align:#left \
+	height:18 width:60 pos:[15,50]
+	button btnAddLikedFolder "＋" border:true \
+	height:18 width:18 pos:[75,50] tooltip:"添加常用目录"
+	button btnDelLikedFolder "－" border:true \
+	height:18 width:18 pos:[95,50] tooltip:"删除选中常用目录"
 	listbox ltbLikedFolder "" selection:0 \
 	height:22 Width:105 pos:[10,75]
 	editText edtInputFilter "" text:"" labelOnTop:false align:#left \
 	height:17 fieldWidth:100 pos:[115,75]
 	listBox ltbFilesList "" align:#right selection:0 \
 	height:22 width:340 pos:[225,75]
-	button btnAddFilterPrefix "＋＋过滤词缀＋＋" border:true \
-	height:18 width:100 pos:[120,50] tooltip:"左：添加过滤\r\n右：取消过滤\r\n\r\n右击删除选中条目"
+	label lblFilterPrefixTitle "过滤词缀" align:#left \
+	height:18 width:60 pos:[125,50]
+	button btnAddFilterPrefix "＋" border:true \
+	height:18 width:18 pos:[180,50] tooltip:"添加过滤词缀"
+	button btnDelFilterPrefix "－" border:true \
+	height:18 width:18 pos:[200,50] tooltip:"删除选中过滤词缀"
 	checkbutton ckbReverse "倒序" pos:[480,50] height:18 width:40 border:true
 	button btnPrevFolder "上层" tooltip:"返回上层目录，也可右击面板空白处" \
 	height:18 width:40 pos:[525,50] border:true
 	listBox ltbFilterPrefix "" align:#left selection:0 \
-	height:11 width:100 pos:[120,100]
+	height:10 width:100 pos:[120,100]
 	radioButtons rdoFileType "" columns:5 \
 	pos:[235,50] labels:#(".max",".fbx",".bip",".ms", ".mzp") 
 
-	-- button btnRefPicDir "图片参考" border:false \
-	-- height:25 width:70 pos:[10,182] tooltip:"左：打开参考，右：创建Plane"
+	checkbox ckbSilentOpen "静默打开Max" pos:[125,240] width:90 height:15 checked:true
 	button btnRecentFileDir "最近打开" border:true \
 	height:25 width:100 pos:[120,260] tooltip:"最近打开文件"
 	button btnDesktopDir "桌面自定" border:true \
@@ -447,6 +440,7 @@ rollout rolBsOpenTools "" width:580 height:400
 		-- rolBsOpenTools.width     = iniWidthOpenTools
 		btnRefreshFolder.images  = #("UVWUnwrapModes_16i.bmp","UVWUnwrapModes_16i.bmp",28,3,3,3,3,true,false)
 		-- ckbLockWidth.images      = #("LockButtonExt_i.bmp","LockButtonExt_i.bmp",2,1,1,2,2,true,false)
+		btnAddPathToVavorite.images = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false,true)
 		btnOpenCurrentDir.images = #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
 		-- btnPrevFolder.images     = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,1,1,1,1,false,true)
 		stLoadConfigAll.fnLoadConfigBsOpenTools ()  ---------------脚本位置等赋值
@@ -581,28 +575,42 @@ rollout rolBsOpenTools "" width:580 height:400
 		)
 	)
 	
-	on btnLikedFolder pressed do 
+	on btnAddLikedFolder pressed do 
 	(
 		try(destroydialog rolAddItem)catch()
 		createdialog rolAddItem fgcolor:myfgColor pos:mouse.screenpos
-		-- rolAddItem.gbxAddDir.visible  = true
-		-- rolAddItem.edtAddDir.visible  = true
-		-- rolAddItem.btnOpenDir.visible = true
-		-- rolAddItem.edtDirStr.visible  = true
-		-- rolAddItem.gbxAddPre.visible  = false
-		-- rolAddItem.edtPrefix.visible  = false
+	)
+
+	on btnDelLikedFolder pressed do
+	(
+		if iniLikedFolder.count > 0 and ltbLikedFolder.selection != 0 then
+		(
+			idDel = iniLikedFolder.count + 1 - ltbLikedFolder.selection
+			local delName = iniLikedFolder[idDel].name
+			local confirmResult = queryBox ("确定要删除常用目录 \"" + delName + "\" 吗?") title:"删除确认" beep:false
+			if confirmResult then
+			(
+				deleteItem iniLikedFolder idDel
+				print idDel
+				fnRefLikedFolderItems ()
+			)
+		)
+	)
+
+	on btnAddPathToVavorite pressed do 
+	(
+		try(destroydialog rolAddItem)catch()
+		createdialog rolAddItem fgcolor:myfgColor pos:mouse.screenpos
+		
+		if (edtBrowseFolder.text != "") then
+		(
+			rolAddItem.edtDirStr.text = edtBrowseFolder.text
+			rolAddItem.fnAddToFavorite()
+		)
 	)
 
 	on btnAddFilterPrefix pressed do 
 	(
-		-- try(destroydialog rolAddItem)catch()
-		-- createdialog rolAddItem fgcolor:myfgColor pos:mouse.screenpos
-		-- rolAddItem.gbxAddPre.visible  = true
-		-- rolAddItem.edtPrefix.visible  = true
-		-- rolAddItem.gbxAddDir.visible  = false
-		-- rolAddItem.edtAddDir.visible  = false
-		-- rolAddItem.btnOpenDir.visible = false
-		-- rolAddItem.edtDirStr.visible  = false
 		if (edtInputFilter.text != "") then
 		(
 			if (findItem iniFilterPrefix edtInputFilter.text) != 0 then 
@@ -619,38 +627,30 @@ rollout rolBsOpenTools "" width:580 height:400
 				)
 				rolBsOpenTools.ltbFilterPrefix.items = arrPreItems
 				rolBsOpenTools.ltbFilterPrefix.selection = 1
-				-- fnRefreshList rolBsOpenTools.edtBrowseFolder.text type:arrFileType[rolBsOpenTools.rdoFileType.state]
 			)
 			rolBsOpenTools.fnRefreshList rolBsOpenTools.edtBrowseFolder.text type:arrFileType[rolBsOpenTools.rdoFileType.state]
 		)
+		else 
+		(
+			messagebox "--------------------------------------\r\n请在按钮下方输入过滤词缀~\r\n--------------------------------------"
+		)
 	)
 
-	on btnAddFilterPrefix rightclick do 
+	on btnDelFilterPrefix pressed do 
 	(
-		ltbFilterPrefix.selection = 0
-		fnRefreshList edtBrowseFolder.text type:arrFileType[rdoFileType.state]
+		if iniFilterPrefix.count > 0 and ltbFilterPrefix.selection != 0 then
+		(
+			idDel = iniFilterPrefix.count + 1 - ltbFilterPrefix.selection
+			local delPrefix = iniFilterPrefix[idDel]
+			local confirmResult = queryBox ("确定要删除过滤词缀 \"" + delPrefix + "\" 吗?") title:"删除确认" beep:false
+			if confirmResult then
+			(
+				deleteItem iniFilterPrefix idDel
+				fnRefreshFilterItems ()
+				fnRefreshList edtBrowseFolder.text type:arrFileType[rdoFileType.state]
+			)
+		)
 	)
-
-	-- on ddlLikedFolder selected id do
-	-- (
-	-- 	if iniLikedFolder[id] != undefined then
-	-- 	(
-	-- 		ddlLikedFolder.tooltip = iniLikedFolder[iniLikedFolder.count + 1 - id].dir
-	-- 		fnRefreshList ddlLikedFolder.tooltip type:arrFileType[rdoFileType.state]
-	-- 	)
-	-- 	else ddlLikedFolder.tooltip = "请添加常用目录"
-	-- 	iniSelectedID = id
-	-- )
-
-	-- on ddlLikedFolder rightclick do
-	-- (
-	-- 	if iniLikedFolder.count > 0 then
-	-- 	(
-	-- 		idDel = iniLikedFolder.count + 1 - ddlLikedFolder.selection
-	-- 		deleteItem iniLikedFolder idDel
-	-- 		fnRefLikedFolderItems ()
-	-- 	)
-	-- )
 
 	on ltbLikedFolder selected id do
 	(
@@ -664,13 +664,7 @@ rollout rolBsOpenTools "" width:580 height:400
 	
 	on ltbLikedFolder rightclick id do
 	(
-		if iniLikedFolder.count > 0 and ltbLikedFolder.selection != 0 then
-		(
-			idDel = iniLikedFolder.count + 1 - ltbLikedFolder.selection
-			deleteItem iniLikedFolder idDel
-			print idDel
-			fnRefLikedFolderItems ()
-		)
+		btnDelLikedFolder.pressed()
 	)
 
 	on ltbFilterPrefix selected id do
@@ -680,13 +674,7 @@ rollout rolBsOpenTools "" width:580 height:400
 	
 	on ltbFilterPrefix rightclick id do
 	(
-		if iniFilterPrefix.count > 0 and ltbFilterPrefix.selection != 0 then
-		(
-			idDel = iniFilterPrefix.count + 1 - id
-			deleteItem iniFilterPrefix idDel
-			fnRefreshFilterItems ()
-			fnRefreshList edtBrowseFolder.text type:arrFileType[rdoFileType.state]
-		)
+		btnDelFilterPrefix.pressed()
 	)
 
 	on ltbFilesList rightclick id do
@@ -725,7 +713,7 @@ rollout rolBsOpenTools "" width:580 height:400
 							(
 								if CheckForSave() then 
 								(
-									loadMaxFile (arrFiles[idFile] as string) useFileUnits:true quiet:true
+									loadMaxFile (arrFiles[idFile] as string) useFileUnits:true quiet:ckbSilentOpen.state
 								)
 							)
 							(rdoFileType.state == 2):(importFile arrFiles[idFile] #noPrompt using:FBXIMP)
@@ -743,7 +731,7 @@ rollout rolBsOpenTools "" width:580 height:400
 			(
 				if doesFileExist arrRecentFiles[id] then 
 				(
-					loadMaxFile (arrRecentFiles[id]) useFileUnits:true quiet:true
+					loadMaxFile (arrRecentFiles[id]) useFileUnits:true quiet:ckbSilentOpen.state
 					local tempDir = getfilenamepath arrRecentFiles[id]
 					fnRefreshList tempDir type:arrFileType[rdoFileType.state]
 				)
