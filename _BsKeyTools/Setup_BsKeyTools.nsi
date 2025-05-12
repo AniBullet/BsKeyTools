@@ -9,54 +9,8 @@ Unicode true
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
 
-; 定义版本范围和数量
-!define VERSION_COUNT 18  ; 当前支持的最大版本数量
-!define MIN_VERSION 9     ; 最小版本号(3dsMax 9)
-!define MAX_VERSION 2026  ; 最大版本号
-
-; 定义版本信息
-!define VERSION_9    9    ; 为了统一命名格式
-!define VERSION_2008 2008
-!define VERSION_2009 2009
-!define VERSION_2010 2010
-!define VERSION_2011 2011
-!define VERSION_2012 2012
-!define VERSION_2013 2013
-!define VERSION_2014 2014
-!define VERSION_2015 2015
-!define VERSION_2016 2016
-!define VERSION_2017 2017
-!define VERSION_2018 2018
-!define VERSION_2019 2019
-!define VERSION_2020 2020
-!define VERSION_2021 2021
-!define VERSION_2022 2022
-!define VERSION_2023 2023
-!define VERSION_2024 2024
-!define VERSION_2025 2025
-!define VERSION_2026 2026
-
-; 定义版本对应的注册表版本号
-!define REG_VERSION_9    "9.0"
-!define REG_VERSION_2008 "10.0"
-!define REG_VERSION_2009 "11.0"
-!define REG_VERSION_2010 "12.0"
-!define REG_VERSION_2011 "13.0"
-!define REG_VERSION_2012 "14.0"
-!define REG_VERSION_2013 "15.0"
-!define REG_VERSION_2014 "16.0"
-!define REG_VERSION_2015 "17.0"
-!define REG_VERSION_2016 "18.0"
-!define REG_VERSION_2017 "19.0"
-!define REG_VERSION_2018 "20.0"
-!define REG_VERSION_2019 "21.0"
-!define REG_VERSION_2020 "22.0"
-!define REG_VERSION_2021 "23.0"
-!define REG_VERSION_2022 "24.0"
-!define REG_VERSION_2023 "25.0"
-!define REG_VERSION_2024 "26.0"
-!define REG_VERSION_2025 "27.0"
-!define REG_VERSION_2026 "28.0"
+; 自定义安装程序底部的文本
+BrandingText "BsKeyTools 动画师 K 帧工具"
 
 ; 定义Section ID
 !define SEC_MANUAL 0
@@ -82,35 +36,30 @@ Unicode true
 !define SEC_9 20
 
 ; 定义变量
+var v9
+var v2008
+var v2009
+var v2010
+var v2011
+var v2012
+var v2013
+var v2014
+var v2015
+var v2016
+var v2017
+var v2018
+var v2019
+var v2020
+var v2021
+var v2022
+var v2023
+var v2024
+var v2025
+var v2026
+
 var maxVer
 var InstallMode ; 安装模式: 0=自动检测, 1=手动选择
 var MAXPATH ; 手动选择的3dsMax安装路径
-
-; 为每个版本定义安装路径变量
-!macro DefinePathVars
-  var INSTPATH_9
-  var INSTPATH_2008
-  var INSTPATH_2009
-  var INSTPATH_2010
-  var INSTPATH_2011
-  var INSTPATH_2012
-  var INSTPATH_2013
-  var INSTPATH_2014
-  var INSTPATH_2015
-  var INSTPATH_2016
-  var INSTPATH_2017
-  var INSTPATH_2018
-  var INSTPATH_2019
-  var INSTPATH_2020
-  var INSTPATH_2021
-  var INSTPATH_2022
-  var INSTPATH_2023
-  var INSTPATH_2024
-  var INSTPATH_2025
-  var INSTPATH_2026
-!macroend
-
-!insertmacro DefinePathVars
 
 SetCompressor lzma
 
@@ -131,7 +80,7 @@ SetCompressor lzma
 !insertmacro MUI_PAGE_WELCOME
 !define MUI_TEXT_WELCOME_INFO_TITLE "欢迎安装 ${PRODUCT_NAME}${PRODUCT_VERSION}"
 !define MUI_TEXT_WELCOME_INFO_TEXT "此程序将引导你完成 $(^NameDA) 的安装。$\r$\n$\r$\n在安装之前，建议先关闭所有 3dsMax 程序。$\r$\n$\r$\n这将确保安装程序能够更新所需的文件，$\r$\n$\r$\n从而避免在安装后打开工具失败报错。$\r$\n$\r$\n$_CLICK"
-; 许可协议页
+; 许可协议页面
 !define MUI_INNERTEXT_LICENSE_TOP "要阅读协议的其余部分，请按键盘 [PgDn] 键向下翻页。"
 !define MUI_INNERTEXT_LICENSE_BOTTOM "如果你接受许可证的条款，请点击 [我接受(I)] 继续安装。$\r$\n$\r$\n你必须在同意后才能安装 $(^NameDA) 。"
 ; 定义当前脚本所在目录上级的路径
@@ -276,96 +225,177 @@ OutFile "_BsKeyTools.exe"
 ShowInstDetails show
 ShowUnInstDetails show
 
-; 定义安装版本Section的宏，用于生成所有版本的安装部分
-!macro VersionSection VERSION SEC_ID VAR_NAME
-Section "3dsMax ${VERSION}" ${SEC_ID}
-  SetOutPath "${VAR_NAME}"
+; 定义一个宏用于复制所有需要的文件
+!macro CopyAllFiles DESTDIR VERSION
+  ; 设置输出目录
+  SetOutPath "${DESTDIR}"
   SetOverwrite on
-  File /r "${CURRENT_DIR}\Scripts"
-  File /r "${CURRENT_DIR}\UI_ln"
-  ${If} ${VERSION} == 9
-    File /r "${CURRENT_DIR}\GhostTrails\9\plugins"
+  
+  ; 复制到Scripts目录
+  CreateDirectory "${DESTDIR}\Scripts"
+  SetOutPath "${DESTDIR}\Scripts"
+  File /r "${CURRENT_DIR}\Scripts\*.*"
+  
+  ; 复制到UI_ln目录
+  CreateDirectory "${DESTDIR}\UI_ln"
+  SetOutPath "${DESTDIR}\UI_ln"
+  File /r "${CURRENT_DIR}\UI_ln\*.*"
+  
+  ; 复制到plugins目录
+  CreateDirectory "${DESTDIR}\plugins"
+  SetOutPath "${DESTDIR}\plugins"
+  ${If} ${VERSION} == "9"
+    File /r "${CURRENT_DIR}\GhostTrails\9\plugins\*.*"
   ${Else}
-    File /r "${CURRENT_DIR}\GhostTrails\${VERSION}\plugins"
+    File /r "${CURRENT_DIR}\GhostTrails\${VERSION}\plugins\*.*"
   ${EndIf}
-SectionEnd
 !macroend
 
-; 使用宏生成所有版本的Section
-!insertmacro VersionSection "${VERSION_2026}" ${SEC_2026} "INSTPATH_2026"
-!insertmacro VersionSection "${VERSION_2025}" ${SEC_2025} "INSTPATH_2025"
-!insertmacro VersionSection "${VERSION_2024}" ${SEC_2024} "INSTPATH_2024"
-!insertmacro VersionSection "${VERSION_2023}" ${SEC_2023} "INSTPATH_2023"
-!insertmacro VersionSection "${VERSION_2022}" ${SEC_2022} "INSTPATH_2022"
-!insertmacro VersionSection "${VERSION_2021}" ${SEC_2021} "INSTPATH_2021"
-!insertmacro VersionSection "${VERSION_2020}" ${SEC_2020} "INSTPATH_2020"
-!insertmacro VersionSection "${VERSION_2019}" ${SEC_2019} "INSTPATH_2019"
-!insertmacro VersionSection "${VERSION_2018}" ${SEC_2018} "INSTPATH_2018"
-!insertmacro VersionSection "${VERSION_2017}" ${SEC_2017} "INSTPATH_2017"
-!insertmacro VersionSection "${VERSION_2016}" ${SEC_2016} "INSTPATH_2016"
-!insertmacro VersionSection "${VERSION_2015}" ${SEC_2015} "INSTPATH_2015"
-!insertmacro VersionSection "${VERSION_2014}" ${SEC_2014} "INSTPATH_2014"
-!insertmacro VersionSection "${VERSION_2013}" ${SEC_2013} "INSTPATH_2013"
-!insertmacro VersionSection "${VERSION_2012}" ${SEC_2012} "INSTPATH_2012"
-!insertmacro VersionSection "${VERSION_2011}" ${SEC_2011} "INSTPATH_2011"
-!insertmacro VersionSection "${VERSION_2010}" ${SEC_2010} "INSTPATH_2010"
-!insertmacro VersionSection "${VERSION_2009}" ${SEC_2009} "INSTPATH_2009"
-!insertmacro VersionSection "${VERSION_2008}" ${SEC_2008} "INSTPATH_2008"
-!insertmacro VersionSection "${VERSION_9}"    ${SEC_9}    "INSTPATH_9"
+Section "3dsMax 2026" ${SEC_2026}
+  !insertmacro CopyAllFiles "$v2026" "2026"
+SectionEnd
+
+Section "3dsMax 2025" ${SEC_2025}
+  !insertmacro CopyAllFiles "$v2025" "2025"
+SectionEnd
+
+Section "3dsMax 2024" ${SEC_2024}
+  !insertmacro CopyAllFiles "$v2024" "2024"
+SectionEnd
+
+Section "3dsMax 2023" ${SEC_2023}
+  !insertmacro CopyAllFiles "$v2023" "2023"
+SectionEnd
+
+Section "3dsMax 2022" ${SEC_2022}
+  !insertmacro CopyAllFiles "$v2022" "2022"
+SectionEnd
+
+Section "3dsMax 2021" ${SEC_2021}
+  !insertmacro CopyAllFiles "$v2021" "2021"
+SectionEnd
+
+Section "3dsMax 2020" ${SEC_2020}
+  !insertmacro CopyAllFiles "$v2020" "2020"
+SectionEnd
+
+Section "3dsMax 2019" ${SEC_2019}
+  !insertmacro CopyAllFiles "$v2019" "2019"
+SectionEnd
+
+Section "3dsMax 2018" ${SEC_2018}
+  !insertmacro CopyAllFiles "$v2018" "2018"
+SectionEnd
+
+Section "3dsMax 2017" ${SEC_2017}
+  !insertmacro CopyAllFiles "$v2017" "2017"
+SectionEnd
+
+Section "3dsMax 2016" ${SEC_2016}
+  !insertmacro CopyAllFiles "$v2016" "2016"
+SectionEnd
+
+Section "3dsMax 2015" ${SEC_2015}
+  !insertmacro CopyAllFiles "$v2015" "2015"
+SectionEnd
+
+Section "3dsMax 2014" ${SEC_2014}
+  !insertmacro CopyAllFiles "$v2014" "2014"
+SectionEnd
+
+Section "3dsMax 2013" ${SEC_2013}
+  !insertmacro CopyAllFiles "$v2013" "2013"
+SectionEnd
+
+Section "3dsMax 2012" ${SEC_2012}
+  !insertmacro CopyAllFiles "$v2012" "2012"
+SectionEnd
+
+Section "3dsMax 2011" ${SEC_2011}
+  !insertmacro CopyAllFiles "$v2011" "2011"
+SectionEnd
+
+Section "3dsMax 2010" ${SEC_2010}
+  !insertmacro CopyAllFiles "$v2010" "2010"
+SectionEnd
+
+Section "3dsMax 2009" ${SEC_2009}
+  !insertmacro CopyAllFiles "$v2009" "2009"
+SectionEnd
+
+Section "3dsMax 2008" ${SEC_2008}
+  !insertmacro CopyAllFiles "$v2008" "2008"
+SectionEnd
+
+Section "3dsMax 9" ${SEC_9}
+  !insertmacro CopyAllFiles "$v9" "9"
+SectionEnd
 
 ; 手动安装Section
 Section "手动安装" ${SEC_MANUAL}
-  SetOutPath "$MAXPATH"
-  SetOverwrite on
-  File /r "${CURRENT_DIR}\Scripts"
-  File /r "${CURRENT_DIR}\UI_ln"
+  ; 调试信息
+  DetailPrint "手动安装到: $MAXPATH"
+  MessageBox MB_ICONINFORMATION|MB_OK "正在安装到: $MAXPATH"
   
-  ; 检查版本号
+  ; 检查路径是否为空
+  ${If} $MAXPATH == ""
+    MessageBox MB_ICONSTOP|MB_OK "错误：手动安装路径为空，无法完成安装。"
+    Abort "手动安装路径为空"
+  ${EndIf}
+  
+  ; 确保路径以反斜杠结尾
+  StrCpy $R5 $MAXPATH "" -1
+  ${If} $R5 != "\"
+    StrCpy $MAXPATH "$MAXPATH\"
+  ${EndIf}
+  
+  ; 检查版本号并使用对应版本插件
   ${GetFileName} $MAXPATH $R0
+  
   ${If} $R0 == "3ds Max 9"
-    File /r "${CURRENT_DIR}\GhostTrails\9\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "9"
   ${ElseIf} $R0 == "3ds Max 2008"
-    File /r "${CURRENT_DIR}\GhostTrails\2008\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2008"
   ${ElseIf} $R0 == "3ds Max 2009"
-    File /r "${CURRENT_DIR}\GhostTrails\2009\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2009"
   ${ElseIf} $R0 == "3ds Max 2010"
-    File /r "${CURRENT_DIR}\GhostTrails\2010\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2010"
   ${ElseIf} $R0 == "3ds Max 2011"
-    File /r "${CURRENT_DIR}\GhostTrails\2011\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2011"
   ${ElseIf} $R0 == "3ds Max 2012"
-    File /r "${CURRENT_DIR}\GhostTrails\2012\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2012"
   ${ElseIf} $R0 == "3ds Max 2013"
-    File /r "${CURRENT_DIR}\GhostTrails\2013\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2013"
   ${ElseIf} $R0 == "3ds Max 2014"
-    File /r "${CURRENT_DIR}\GhostTrails\2014\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2014"
   ${ElseIf} $R0 == "3ds Max 2015"
-    File /r "${CURRENT_DIR}\GhostTrails\2015\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2015"
   ${ElseIf} $R0 == "3ds Max 2016"
-    File /r "${CURRENT_DIR}\GhostTrails\2016\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2016"
   ${ElseIf} $R0 == "3ds Max 2017"
-    File /r "${CURRENT_DIR}\GhostTrails\2017\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2017"
   ${ElseIf} $R0 == "3ds Max 2018"
-    File /r "${CURRENT_DIR}\GhostTrails\2018\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2018"
   ${ElseIf} $R0 == "3ds Max 2019"
-    File /r "${CURRENT_DIR}\GhostTrails\2019\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2019"
   ${ElseIf} $R0 == "3ds Max 2020"
-    File /r "${CURRENT_DIR}\GhostTrails\2020\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2020"
   ${ElseIf} $R0 == "3ds Max 2021"
-    File /r "${CURRENT_DIR}\GhostTrails\2021\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2021"
   ${ElseIf} $R0 == "3ds Max 2022"
-    File /r "${CURRENT_DIR}\GhostTrails\2022\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2022"
   ${ElseIf} $R0 == "3ds Max 2023"
-    File /r "${CURRENT_DIR}\GhostTrails\2023\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2023"
   ${ElseIf} $R0 == "3ds Max 2024"
-    File /r "${CURRENT_DIR}\GhostTrails\2024\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2024"
   ${ElseIf} $R0 == "3ds Max 2025"
-    File /r "${CURRENT_DIR}\GhostTrails\2025\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2025"
   ${ElseIf} $R0 == "3ds Max 2026"
-    File /r "${CURRENT_DIR}\GhostTrails\2026\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2026"
   ${Else}
     ; 如果无法识别版本，使用最新版本的插件
     MessageBox MB_ICONINFORMATION|MB_OK "无法自动识别3dsMax版本，将使用最新版本插件。"
-    File /r "${CURRENT_DIR}\GhostTrails\2026\plugins"
+    !insertmacro CopyAllFiles "$MAXPATH" "2026"
   ${EndIf}
 SectionEnd
 
@@ -384,44 +414,225 @@ ${EndIf}
 StrCpy $InstallMode 0  ; 默认为自动模式
 StrCpy $MAXPATH ""     ; 初始化手动路径变量
 
-; 定义检测Max版本的宏
-!macro FindMaxVersion VERSION REG_VER VAR_NAME SECTION_ID
-  setRegView 64
-  ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\${REG_VER}" "Installdir"
-  ${If} $maxVer != ""
-    StrCpy $${VAR_NAME} $maxVer
-    ; 如果检测到版本，显示Section并选中
-    SectionSetText ${SECTION_ID} "3dsMax ${VERSION}"
-    SectionSetFlags ${SECTION_ID} ${SF_SELECTED}
-  ${Else}
-    StrCpy $${VAR_NAME} ""
-    ; 如果没有检测到版本，隐藏Section
-    SectionSetText ${SECTION_ID} ""
-    SectionSetFlags ${SECTION_ID} 0
-  ${EndIf}
-!macroend
+; MAX2026:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\28.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2026} 1
+  StrCpy $v2026 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2026} 0
+  SectionSetText ${SEC_2026} ""
+${EndIf}
 
-; 使用宏来检测所有已安装的Max版本
-!insertmacro FindMaxVersion "${VERSION_2026}" "${REG_VERSION_2026}" "INSTPATH_2026" ${SEC_2026}
-!insertmacro FindMaxVersion "${VERSION_2025}" "${REG_VERSION_2025}" "INSTPATH_2025" ${SEC_2025}
-!insertmacro FindMaxVersion "${VERSION_2024}" "${REG_VERSION_2024}" "INSTPATH_2024" ${SEC_2024}
-!insertmacro FindMaxVersion "${VERSION_2023}" "${REG_VERSION_2023}" "INSTPATH_2023" ${SEC_2023}
-!insertmacro FindMaxVersion "${VERSION_2022}" "${REG_VERSION_2022}" "INSTPATH_2022" ${SEC_2022}
-!insertmacro FindMaxVersion "${VERSION_2021}" "${REG_VERSION_2021}" "INSTPATH_2021" ${SEC_2021}
-!insertmacro FindMaxVersion "${VERSION_2020}" "${REG_VERSION_2020}" "INSTPATH_2020" ${SEC_2020}
-!insertmacro FindMaxVersion "${VERSION_2019}" "${REG_VERSION_2019}" "INSTPATH_2019" ${SEC_2019}
-!insertmacro FindMaxVersion "${VERSION_2018}" "${REG_VERSION_2018}" "INSTPATH_2018" ${SEC_2018}
-!insertmacro FindMaxVersion "${VERSION_2017}" "${REG_VERSION_2017}" "INSTPATH_2017" ${SEC_2017}
-!insertmacro FindMaxVersion "${VERSION_2016}" "${REG_VERSION_2016}" "INSTPATH_2016" ${SEC_2016}
-!insertmacro FindMaxVersion "${VERSION_2015}" "${REG_VERSION_2015}" "INSTPATH_2015" ${SEC_2015}
-!insertmacro FindMaxVersion "${VERSION_2014}" "${REG_VERSION_2014}" "INSTPATH_2014" ${SEC_2014}
-!insertmacro FindMaxVersion "${VERSION_2013}" "${REG_VERSION_2013}" "INSTPATH_2013" ${SEC_2013}
-!insertmacro FindMaxVersion "${VERSION_2012}" "${REG_VERSION_2012}" "INSTPATH_2012" ${SEC_2012}
-!insertmacro FindMaxVersion "${VERSION_2011}" "${REG_VERSION_2011}" "INSTPATH_2011" ${SEC_2011}
-!insertmacro FindMaxVersion "${VERSION_2010}" "${REG_VERSION_2010}" "INSTPATH_2010" ${SEC_2010}
-!insertmacro FindMaxVersion "${VERSION_2009}" "${REG_VERSION_2009}" "INSTPATH_2009" ${SEC_2009}
-!insertmacro FindMaxVersion "${VERSION_2008}" "${REG_VERSION_2008}" "INSTPATH_2008" ${SEC_2008}
-!insertmacro FindMaxVersion "${VERSION_9}"    "${REG_VERSION_9}"    "INSTPATH_9"    ${SEC_9}
+; MAX2025:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\27.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2025} 1
+  StrCpy $v2025 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2025} 0
+  SectionSetText ${SEC_2025} ""
+${EndIf}
+
+; MAX2024:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\26.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2024} 1
+  StrCpy $v2024 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2024} 0
+  SectionSetText ${SEC_2024} ""
+${EndIf}
+
+; MAX2023:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\25.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2023} 1
+  StrCpy $v2023 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2023} 0
+  SectionSetText ${SEC_2023} ""
+${EndIf}
+
+; MAX2022:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\24.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2022} 1
+  StrCpy $v2022 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2022} 0
+  SectionSetText ${SEC_2022} ""
+${EndIf}
+
+; MAX2021:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\23.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2021} 1
+  StrCpy $v2021 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2021} 0
+  SectionSetText ${SEC_2021} ""
+${EndIf}
+
+; MAX2020:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\22.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2020} 1
+  StrCpy $v2020 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2020} 0
+  SectionSetText ${SEC_2020} ""
+${EndIf}
+
+; MAX2019:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\21.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2019} 1
+  StrCpy $v2019 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2019} 0
+  SectionSetText ${SEC_2019} ""
+${EndIf}
+
+; MAX2018:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\20.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2018} 1
+  StrCpy $v2018 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2018} 0
+  SectionSetText ${SEC_2018} ""
+${EndIf}
+
+; MAX2017:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\19.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2017} 1
+  StrCpy $v2017 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2017} 0
+  SectionSetText ${SEC_2017} ""
+${EndIf}
+
+; MAX2016:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\18.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2016} 1
+  StrCpy $v2016 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2016} 0
+  SectionSetText ${SEC_2016} ""
+${EndIf}
+
+; MAX2015:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\17.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2015} 1
+  StrCpy $v2015 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2015} 0
+  SectionSetText ${SEC_2015} ""
+${EndIf}
+
+; MAX2014:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\16.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2014} 1
+  StrCpy $v2014 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2014} 0
+  SectionSetText ${SEC_2014} ""
+${EndIf}
+
+; MAX2013:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\15.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2013} 1
+  StrCpy $v2013 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2013} 0
+  SectionSetText ${SEC_2013} ""
+${EndIf}
+
+; MAX2012:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\14.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2012} 1
+  StrCpy $v2012 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2012} 0
+  SectionSetText ${SEC_2012} ""
+${EndIf}
+
+; MAX2011:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\13.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2011} 1
+  StrCpy $v2011 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2011} 0
+  SectionSetText ${SEC_2011} ""
+${EndIf}
+
+; MAX2010:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\12.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2010} 1
+  StrCpy $v2010 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2010} 0
+  SectionSetText ${SEC_2010} ""
+${EndIf}
+
+; MAX2009:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\11.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2009} 1
+  StrCpy $v2009 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2009} 0
+  SectionSetText ${SEC_2009} ""
+${EndIf}
+
+; MAX2008:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\10.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_2008} 1
+  StrCpy $v2008 $maxVer
+${Else}
+  SectionSetFlags ${SEC_2008} 0
+  SectionSetText ${SEC_2008} ""
+${EndIf}
+
+; MAX9:
+setRegView 64
+ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\9.0" "Installdir"
+${If} $maxVer != ""
+  SectionSetFlags ${SEC_9} 1
+  StrCpy $v9 $maxVer
+${Else}
+  SectionSetFlags ${SEC_9} 0
+  SectionSetText ${SEC_9} ""
+${EndIf}
 
 ; 预先隐藏手动安装Section
 SectionSetText ${SEC_MANUAL} ""
@@ -429,99 +640,27 @@ SectionSetFlags ${SEC_MANUAL} 0
 
 FunctionEnd
 
-Function .onSelChange
-  ; 处理选择变化
-  ${If} $InstallMode == 1
-    ; 显示手动安装Section，隐藏所有自动版本
-    SectionSetText ${SEC_MANUAL} "手动安装到: $MAXPATH"
-    SectionSetFlags ${SEC_MANUAL} ${SF_SELECTED}
-    
-    ; 隐藏所有自动检测版本
-    SectionSetText ${SEC_2026} ""
-    SectionSetText ${SEC_2025} ""
-    SectionSetText ${SEC_2024} ""
-    SectionSetText ${SEC_2023} ""
-    SectionSetText ${SEC_2022} ""
-    SectionSetText ${SEC_2021} ""
-    SectionSetText ${SEC_2020} ""
-    SectionSetText ${SEC_2019} ""
-    SectionSetText ${SEC_2018} ""
-    SectionSetText ${SEC_2017} ""
-    SectionSetText ${SEC_2016} ""
-    SectionSetText ${SEC_2015} ""
-    SectionSetText ${SEC_2014} ""
-    SectionSetText ${SEC_2013} ""
-    SectionSetText ${SEC_2012} ""
-    SectionSetText ${SEC_2011} ""
-    SectionSetText ${SEC_2010} ""
-    SectionSetText ${SEC_2009} ""
-    SectionSetText ${SEC_2008} ""
-    SectionSetText ${SEC_9} ""
-  ${Else}
-    ; 隐藏手动安装Section
-    SectionSetText ${SEC_MANUAL} ""
-    SectionSetFlags ${SEC_MANUAL} 0
-    
-    ; 重新显示已安装的版本
-    !macro RefreshVersionSection VERSION REG_VER VAR_NAME SECTION_ID
-      ${If} $${VAR_NAME} != ""
-        SectionSetText ${SECTION_ID} "3dsMax ${VERSION}"
-        SectionSetFlags ${SECTION_ID} ${SF_SELECTED}
-      ${Else}
-        SectionSetText ${SECTION_ID} ""
-        SectionSetFlags ${SECTION_ID} 0
-      ${EndIf}
-    !macroend
-    
-    !insertmacro RefreshVersionSection "${VERSION_2026}" "${REG_VERSION_2026}" "INSTPATH_2026" ${SEC_2026}
-    !insertmacro RefreshVersionSection "${VERSION_2025}" "${REG_VERSION_2025}" "INSTPATH_2025" ${SEC_2025}
-    !insertmacro RefreshVersionSection "${VERSION_2024}" "${REG_VERSION_2024}" "INSTPATH_2024" ${SEC_2024}
-    !insertmacro RefreshVersionSection "${VERSION_2023}" "${REG_VERSION_2023}" "INSTPATH_2023" ${SEC_2023}
-    !insertmacro RefreshVersionSection "${VERSION_2022}" "${REG_VERSION_2022}" "INSTPATH_2022" ${SEC_2022}
-    !insertmacro RefreshVersionSection "${VERSION_2021}" "${REG_VERSION_2021}" "INSTPATH_2021" ${SEC_2021}
-    !insertmacro RefreshVersionSection "${VERSION_2020}" "${REG_VERSION_2020}" "INSTPATH_2020" ${SEC_2020}
-    !insertmacro RefreshVersionSection "${VERSION_2019}" "${REG_VERSION_2019}" "INSTPATH_2019" ${SEC_2019}
-    !insertmacro RefreshVersionSection "${VERSION_2018}" "${REG_VERSION_2018}" "INSTPATH_2018" ${SEC_2018}
-    !insertmacro RefreshVersionSection "${VERSION_2017}" "${REG_VERSION_2017}" "INSTPATH_2017" ${SEC_2017}
-    !insertmacro RefreshVersionSection "${VERSION_2016}" "${REG_VERSION_2016}" "INSTPATH_2016" ${SEC_2016}
-    !insertmacro RefreshVersionSection "${VERSION_2015}" "${REG_VERSION_2015}" "INSTPATH_2015" ${SEC_2015}
-    !insertmacro RefreshVersionSection "${VERSION_2014}" "${REG_VERSION_2014}" "INSTPATH_2014" ${SEC_2014}
-    !insertmacro RefreshVersionSection "${VERSION_2013}" "${REG_VERSION_2013}" "INSTPATH_2013" ${SEC_2013}
-    !insertmacro RefreshVersionSection "${VERSION_2012}" "${REG_VERSION_2012}" "INSTPATH_2012" ${SEC_2012}
-    !insertmacro RefreshVersionSection "${VERSION_2011}" "${REG_VERSION_2011}" "INSTPATH_2011" ${SEC_2011}
-    !insertmacro RefreshVersionSection "${VERSION_2010}" "${REG_VERSION_2010}" "INSTPATH_2010" ${SEC_2010}
-    !insertmacro RefreshVersionSection "${VERSION_2009}" "${REG_VERSION_2009}" "INSTPATH_2009" ${SEC_2009}
-    !insertmacro RefreshVersionSection "${VERSION_2008}" "${REG_VERSION_2008}" "INSTPATH_2008" ${SEC_2008}
-    !insertmacro RefreshVersionSection "${VERSION_9}"    "${REG_VERSION_9}"    "INSTPATH_9"    ${SEC_9}
-  ${EndIf}
-FunctionEnd
-
-; 定义显示安装路径的宏
-!macro DescSection SEC_ID VAR_NAME
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_ID} $${VAR_NAME}
-!macroend
-
 ; 版本描述
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2026} "$INSTPATH_2026"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2025} "$INSTPATH_2025"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2024} "$INSTPATH_2024"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2023} "$INSTPATH_2023"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2022} "$INSTPATH_2022"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2021} "$INSTPATH_2021"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2020} "$INSTPATH_2020"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2019} "$INSTPATH_2019"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2018} "$INSTPATH_2018"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2017} "$INSTPATH_2017"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2016} "$INSTPATH_2016"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2015} "$INSTPATH_2015"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2014} "$INSTPATH_2014"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2013} "$INSTPATH_2013"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2012} "$INSTPATH_2012"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2011} "$INSTPATH_2011"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2010} "$INSTPATH_2010"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2009} "$INSTPATH_2009"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2008} "$INSTPATH_2008"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_9} "$INSTPATH_9"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_MANUAL} "$MAXPATH"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2026} $v2026
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2025} $v2025
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2024} $v2024
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2023} $v2023
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2022} $v2022
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2021} $v2021
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2020} $v2020
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2019} $v2019
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2018} $v2018
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2017} $v2017
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2016} $v2016
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2015} $v2015
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2014} $v2014
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2013} $v2013
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2012} $v2012
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2011} $v2011
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2010} $v2010
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2009} $v2009
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_2008} $v2008
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_9} $v9
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC_MANUAL} $MAXPATH
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
