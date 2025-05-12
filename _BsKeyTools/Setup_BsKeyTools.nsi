@@ -152,12 +152,45 @@ Function InstallModePage
   nsDialogs::Show
 FunctionEnd
 
+; 定义显示版本Section的宏
+!macro ShowVersionSection SEC_ID VER_NAME
+  ${If} $${VER_NAME} != ""
+    SectionSetText ${SEC_ID} "3dsMax ${VER_NAME}"
+    SectionSetFlags ${SEC_ID} 1
+  ${EndIf}
+!macroend
+
 Function SetAutoMode
   StrCpy $InstallMode 0
-FunctionEnd
-
-Function SetManualMode
-  StrCpy $InstallMode 1
+  
+  ; 隐藏手动安装Section
+  SectionSetText ${SEC_MANUAL} ""
+  SectionSetFlags ${SEC_MANUAL} 0
+  
+  ; 恢复所有自动检测的版本
+  DetailPrint "恢复显示自动检测到的版本"
+  
+  ; 使用宏显示所有已检测的版本
+  !insertmacro ShowVersionSection ${SEC_2026} "2026"
+  !insertmacro ShowVersionSection ${SEC_2025} "2025"
+  !insertmacro ShowVersionSection ${SEC_2024} "2024"
+  !insertmacro ShowVersionSection ${SEC_2023} "2023"
+  !insertmacro ShowVersionSection ${SEC_2022} "2022"
+  !insertmacro ShowVersionSection ${SEC_2021} "2021"
+  !insertmacro ShowVersionSection ${SEC_2020} "2020"
+  !insertmacro ShowVersionSection ${SEC_2019} "2019"
+  !insertmacro ShowVersionSection ${SEC_2018} "2018"
+  !insertmacro ShowVersionSection ${SEC_2017} "2017"
+  !insertmacro ShowVersionSection ${SEC_2016} "2016"
+  !insertmacro ShowVersionSection ${SEC_2015} "2015"
+  !insertmacro ShowVersionSection ${SEC_2014} "2014"
+  !insertmacro ShowVersionSection ${SEC_2013} "2013"
+  !insertmacro ShowVersionSection ${SEC_2012} "2012"
+  !insertmacro ShowVersionSection ${SEC_2011} "2011"
+  !insertmacro ShowVersionSection ${SEC_2010} "2010"
+  !insertmacro ShowVersionSection ${SEC_2009} "2009"
+  !insertmacro ShowVersionSection ${SEC_2008} "2008"
+  !insertmacro ShowVersionSection ${SEC_9} "9"
 FunctionEnd
 
 Function InstallModeLeave
@@ -226,6 +259,15 @@ ShowUnInstDetails show
 
 ; 定义一个宏用于复制所有需要的文件
 !macro CopyAllFiles DESTDIR VERSION
+  ; 检查路径是否为空
+  ${If} "${DESTDIR}" == ""
+    MessageBox MB_ICONSTOP|MB_OK "错误：安装路径为空，无法复制文件到 ${VERSION} 版本。"
+    DetailPrint "安装失败: 路径为空 - ${VERSION}"
+    Abort "安装路径为空 - ${VERSION}"
+  ${EndIf}
+  
+  DetailPrint "正在复制文件到: ${DESTDIR}"
+  
   ; 设置输出目录
   SetOutPath "${DESTDIR}"
   SetOverwrite on
@@ -251,83 +293,203 @@ ShowUnInstDetails show
 !macroend
 
 Section "3dsMax 2026" ${SEC_2026}
-  !insertmacro CopyAllFiles "$v2026" "2026"
+  DetailPrint "检查安装路径: $v2026"
+  ${If} $v2026 != ""
+    !insertmacro CopyAllFiles "$v2026" "2026"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2026安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2026"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2025" ${SEC_2025}
-  !insertmacro CopyAllFiles "$v2025" "2025"
+  DetailPrint "检查安装路径: $v2025"
+  ${If} $v2025 != ""
+    !insertmacro CopyAllFiles "$v2025" "2025"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2025安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2025"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2024" ${SEC_2024}
-  !insertmacro CopyAllFiles "$v2024" "2024"
+  DetailPrint "检查安装路径: $v2024"
+  ${If} $v2024 != ""
+    !insertmacro CopyAllFiles "$v2024" "2024"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2024安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2024"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2023" ${SEC_2023}
-  !insertmacro CopyAllFiles "$v2023" "2023"
+  DetailPrint "检查安装路径: $v2023"
+  ${If} $v2023 != ""
+    !insertmacro CopyAllFiles "$v2023" "2023"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2023安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2023"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2022" ${SEC_2022}
-  !insertmacro CopyAllFiles "$v2022" "2022"
+  DetailPrint "检查安装路径: $v2022"
+  ${If} $v2022 != ""
+    !insertmacro CopyAllFiles "$v2022" "2022"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2022安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2022"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2021" ${SEC_2021}
-  !insertmacro CopyAllFiles "$v2021" "2021"
+  DetailPrint "检查安装路径: $v2021"
+  ${If} $v2021 != ""
+    !insertmacro CopyAllFiles "$v2021" "2021"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2021安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2021"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2020" ${SEC_2020}
-  !insertmacro CopyAllFiles "$v2020" "2020"
+  DetailPrint "检查安装路径: $v2020"
+  ${If} $v2020 != ""
+    !insertmacro CopyAllFiles "$v2020" "2020"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2020安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2020"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2019" ${SEC_2019}
-  !insertmacro CopyAllFiles "$v2019" "2019"
+  DetailPrint "检查安装路径: $v2019"
+  ${If} $v2019 != ""
+    !insertmacro CopyAllFiles "$v2019" "2019"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2019安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2019"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2018" ${SEC_2018}
-  !insertmacro CopyAllFiles "$v2018" "2018"
+  DetailPrint "检查安装路径: $v2018"
+  ${If} $v2018 != ""
+    !insertmacro CopyAllFiles "$v2018" "2018"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2018安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2018"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2017" ${SEC_2017}
-  !insertmacro CopyAllFiles "$v2017" "2017"
+  DetailPrint "检查安装路径: $v2017"
+  ${If} $v2017 != ""
+    !insertmacro CopyAllFiles "$v2017" "2017"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2017安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2017"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2016" ${SEC_2016}
-  !insertmacro CopyAllFiles "$v2016" "2016"
+  DetailPrint "检查安装路径: $v2016"
+  ${If} $v2016 != ""
+    !insertmacro CopyAllFiles "$v2016" "2016"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2016安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2016"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2015" ${SEC_2015}
-  !insertmacro CopyAllFiles "$v2015" "2015"
+  DetailPrint "检查安装路径: $v2015"
+  ${If} $v2015 != ""
+    !insertmacro CopyAllFiles "$v2015" "2015"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2015安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2015"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2014" ${SEC_2014}
-  !insertmacro CopyAllFiles "$v2014" "2014"
+  DetailPrint "检查安装路径: $v2014"
+  ${If} $v2014 != ""
+    !insertmacro CopyAllFiles "$v2014" "2014"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2014安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2014"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2013" ${SEC_2013}
-  !insertmacro CopyAllFiles "$v2013" "2013"
+  DetailPrint "检查安装路径: $v2013"
+  ${If} $v2013 != ""
+    !insertmacro CopyAllFiles "$v2013" "2013"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2013安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2013"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2012" ${SEC_2012}
-  !insertmacro CopyAllFiles "$v2012" "2012"
+  DetailPrint "检查安装路径: $v2012"
+  ${If} $v2012 != ""
+    !insertmacro CopyAllFiles "$v2012" "2012"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2012安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2012"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2011" ${SEC_2011}
-  !insertmacro CopyAllFiles "$v2011" "2011"
+  DetailPrint "检查安装路径: $v2011"
+  ${If} $v2011 != ""
+    !insertmacro CopyAllFiles "$v2011" "2011"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2011安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2011"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2010" ${SEC_2010}
-  !insertmacro CopyAllFiles "$v2010" "2010"
+  DetailPrint "检查安装路径: $v2010"
+  ${If} $v2010 != ""
+    !insertmacro CopyAllFiles "$v2010" "2010"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2010安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2010"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2009" ${SEC_2009}
-  !insertmacro CopyAllFiles "$v2009" "2009"
+  DetailPrint "检查安装路径: $v2009"
+  ${If} $v2009 != ""
+    !insertmacro CopyAllFiles "$v2009" "2009"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2009安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2009"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 2008" ${SEC_2008}
-  !insertmacro CopyAllFiles "$v2008" "2008"
+  DetailPrint "检查安装路径: $v2008"
+  ${If} $v2008 != ""
+    !insertmacro CopyAllFiles "$v2008" "2008"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 2008安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 2008"
+  ${EndIf}
 SectionEnd
 
 Section "3dsMax 9" ${SEC_9}
-  !insertmacro CopyAllFiles "$v9" "9"
+  DetailPrint "检查安装路径: $v9"
+  ${If} $v9 != ""
+    !insertmacro CopyAllFiles "$v9" "9"
+  ${Else}
+    MessageBox MB_ICONSTOP|MB_OK "错误：3dsMax 9安装路径为空，无法安装。"
+    DetailPrint "安装失败: 无法安装到3dsMax 9"
+  ${EndIf}
 SectionEnd
 
 ; 手动安装Section
@@ -347,8 +509,11 @@ Section "手动安装" ${SEC_MANUAL}
     StrCpy $MAXPATH "$MAXPATH\"
   ${EndIf}
   
+  DetailPrint "处理后的安装路径: $MAXPATH"
+  
   ; 检查版本号并使用对应版本插件
   ${GetFileName} $MAXPATH $R0
+  DetailPrint "检测到的3dsMax版本: $R0"
   
   ${If} $R0 == "3ds Max 9"
     !insertmacro CopyAllFiles "$MAXPATH" "9"
@@ -397,6 +562,58 @@ Section "手动安装" ${SEC_MANUAL}
   ${EndIf}
 SectionEnd
 
+; 定义隐藏版本Section的宏
+!macro HideVersionSection SEC_ID
+  SectionSetText ${SEC_ID} ""
+  SectionSetFlags ${SEC_ID} 0
+!macroend
+
+Function SetManualMode
+  StrCpy $InstallMode 1
+  
+  ; 简化：先隐藏所有自动安装Section，再显示手动安装Section
+  DetailPrint "切换到手动安装模式"
+  
+  ; 显示手动安装Section
+  SectionSetText ${SEC_MANUAL} "手动安装"
+  SectionSetFlags ${SEC_MANUAL} 1
+  
+  ; 使用宏隐藏所有自动版本项
+  !insertmacro HideVersionSection ${SEC_2026}
+  !insertmacro HideVersionSection ${SEC_2025}
+  !insertmacro HideVersionSection ${SEC_2024}
+  !insertmacro HideVersionSection ${SEC_2023}
+  !insertmacro HideVersionSection ${SEC_2022}
+  !insertmacro HideVersionSection ${SEC_2021}
+  !insertmacro HideVersionSection ${SEC_2020}
+  !insertmacro HideVersionSection ${SEC_2019}
+  !insertmacro HideVersionSection ${SEC_2018}
+  !insertmacro HideVersionSection ${SEC_2017}
+  !insertmacro HideVersionSection ${SEC_2016}
+  !insertmacro HideVersionSection ${SEC_2015}
+  !insertmacro HideVersionSection ${SEC_2014}
+  !insertmacro HideVersionSection ${SEC_2013}
+  !insertmacro HideVersionSection ${SEC_2012}
+  !insertmacro HideVersionSection ${SEC_2011}
+  !insertmacro HideVersionSection ${SEC_2010}
+  !insertmacro HideVersionSection ${SEC_2009}
+  !insertmacro HideVersionSection ${SEC_2008}
+  !insertmacro HideVersionSection ${SEC_9}
+FunctionEnd
+
+; 定义检测版本并设置变量的宏
+!macro DetectMaxVersion VER_NAME REG_PATH
+  setRegView 64
+  ReadRegStr $v${VER_NAME} HKLM "${REG_PATH}" "Installdir"
+  ${If} $v${VER_NAME} != ""
+    SectionSetFlags ${SEC_${VER_NAME}} 1
+    SectionSetText ${SEC_${VER_NAME}} "3dsMax ${VER_NAME}"
+  ${Else}
+    SectionSetFlags ${SEC_${VER_NAME}} 0
+    SectionSetText ${SEC_${VER_NAME}} ""
+  ${EndIf}
+!macroend
+
 Function .onInit
 
 !insertmacro MUI_LANGDLL_DISPLAY
@@ -412,225 +629,28 @@ ${EndIf}
 StrCpy $InstallMode 0  ; 默认为自动模式
 StrCpy $MAXPATH ""     ; 初始化手动路径变量
 
-; MAX2026:
-setRegView 64
-ReadRegStr $v2026 HKLM "SOFTWARE\Autodesk\3dsMax\28.0" "Installdir"
-${If} $v2026 != ""
-  SectionSetFlags ${SEC_2026} ${SF_SELECTED}
-  SectionSetText ${SEC_2026} "3dsMax 2026"
-${Else}
-  SectionSetFlags ${SEC_2026} ${SF_RO}
-  SectionSetText ${SEC_2026} ""
-${EndIf}
-
-; MAX2025:
-setRegView 64
-ReadRegStr $v2025 HKLM "SOFTWARE\Autodesk\3dsMax\27.0" "Installdir"
-${If} $v2025 != ""
-  SectionSetFlags ${SEC_2025} ${SF_SELECTED}
-  SectionSetText ${SEC_2025} "3dsMax 2025"
-${Else}
-  SectionSetFlags ${SEC_2025} ${SF_RO}
-  SectionSetText ${SEC_2025} ""
-${EndIf}
-
-; MAX2024:
-setRegView 64
-ReadRegStr $v2024 HKLM "SOFTWARE\Autodesk\3dsMax\26.0" "Installdir"
-${If} $v2024 != ""
-  SectionSetFlags ${SEC_2024} ${SF_SELECTED}
-  SectionSetText ${SEC_2024} "3dsMax 2024"
-${Else}
-  SectionSetFlags ${SEC_2024} ${SF_RO}
-  SectionSetText ${SEC_2024} ""
-${EndIf}
-
-; MAX2023:
-setRegView 64
-ReadRegStr $v2023 HKLM "SOFTWARE\Autodesk\3dsMax\25.0" "Installdir"
-${If} $v2023 != ""
-  SectionSetFlags ${SEC_2023} ${SF_SELECTED}
-  SectionSetText ${SEC_2023} "3dsMax 2023"
-${Else}
-  SectionSetFlags ${SEC_2023} ${SF_RO}
-  SectionSetText ${SEC_2023} ""
-${EndIf}
-
-; MAX2022:
-setRegView 64
-ReadRegStr $v2022 HKLM "SOFTWARE\Autodesk\3dsMax\24.0" "Installdir"
-${If} $v2022 != ""
-  SectionSetFlags ${SEC_2022} ${SF_SELECTED}
-  SectionSetText ${SEC_2022} "3dsMax 2022"
-${Else}
-  SectionSetFlags ${SEC_2022} ${SF_RO}
-  SectionSetText ${SEC_2022} ""
-${EndIf}
-
-; MAX2021:
-setRegView 64
-ReadRegStr $v2021 HKLM "SOFTWARE\Autodesk\3dsMax\23.0" "Installdir"
-${If} $v2021 != ""
-  SectionSetFlags ${SEC_2021} ${SF_SELECTED}
-  SectionSetText ${SEC_2021} "3dsMax 2021"
-${Else}
-  SectionSetFlags ${SEC_2021} ${SF_RO}
-  SectionSetText ${SEC_2021} ""
-${EndIf}
-
-; MAX2020:
-setRegView 64
-ReadRegStr $v2020 HKLM "SOFTWARE\Autodesk\3dsMax\22.0" "Installdir"
-${If} $v2020 != ""
-  SectionSetFlags ${SEC_2020} ${SF_SELECTED}
-  SectionSetText ${SEC_2020} "3dsMax 2020"
-${Else}
-  SectionSetFlags ${SEC_2020} ${SF_RO}
-  SectionSetText ${SEC_2020} ""
-${EndIf}
-
-; MAX2019:
-setRegView 64
-ReadRegStr $v2019 HKLM "SOFTWARE\Autodesk\3dsMax\21.0" "Installdir"
-${If} $v2019 != ""
-  SectionSetFlags ${SEC_2019} ${SF_SELECTED}
-  SectionSetText ${SEC_2019} "3dsMax 2019"
-${Else}
-  SectionSetFlags ${SEC_2019} ${SF_RO}
-  SectionSetText ${SEC_2019} ""
-${EndIf}
-
-; MAX2018:
-setRegView 64
-ReadRegStr $v2018 HKLM "SOFTWARE\Autodesk\3dsMax\20.0" "Installdir"
-${If} $v2018 != ""
-  SectionSetFlags ${SEC_2018} ${SF_SELECTED}
-  SectionSetText ${SEC_2018} "3dsMax 2018"
-${Else}
-  SectionSetFlags ${SEC_2018} ${SF_RO}
-  SectionSetText ${SEC_2018} ""
-${EndIf}
-
-; MAX2017:
-setRegView 64
-ReadRegStr $v2017 HKLM "SOFTWARE\Autodesk\3dsMax\19.0" "Installdir"
-${If} $v2017 != ""
-  SectionSetFlags ${SEC_2017} ${SF_SELECTED}
-  SectionSetText ${SEC_2017} "3dsMax 2017"
-${Else}
-  SectionSetFlags ${SEC_2017} ${SF_RO}
-  SectionSetText ${SEC_2017} ""
-${EndIf}
-
-; MAX2016:
-setRegView 64
-ReadRegStr $v2016 HKLM "SOFTWARE\Autodesk\3dsMax\18.0" "Installdir"
-${If} $v2016 != ""
-  SectionSetFlags ${SEC_2016} ${SF_SELECTED}
-  SectionSetText ${SEC_2016} "3dsMax 2016"
-${Else}
-  SectionSetFlags ${SEC_2016} ${SF_RO}
-  SectionSetText ${SEC_2016} ""
-${EndIf}
-
-; MAX2015:
-setRegView 64
-ReadRegStr $v2015 HKLM "SOFTWARE\Autodesk\3dsMax\17.0" "Installdir"
-${If} $v2015 != ""
-  SectionSetFlags ${SEC_2015} ${SF_SELECTED}
-  SectionSetText ${SEC_2015} "3dsMax 2015"
-${Else}
-  SectionSetFlags ${SEC_2015} ${SF_RO}
-  SectionSetText ${SEC_2015} ""
-${EndIf}
-
-; MAX2014:
-setRegView 64
-ReadRegStr $v2014 HKLM "SOFTWARE\Autodesk\3dsMax\16.0" "Installdir"
-${If} $v2014 != ""
-  SectionSetFlags ${SEC_2014} ${SF_SELECTED}
-  SectionSetText ${SEC_2014} "3dsMax 2014"
-${Else}
-  SectionSetFlags ${SEC_2014} ${SF_RO}
-  SectionSetText ${SEC_2014} ""
-${EndIf}
-
-; MAX2013:
-setRegView 64
-ReadRegStr $v2013 HKLM "SOFTWARE\Autodesk\3dsMax\15.0" "Installdir"
-${If} $v2013 != ""
-  SectionSetFlags ${SEC_2013} ${SF_SELECTED}
-  SectionSetText ${SEC_2013} "3dsMax 2013"
-${Else}
-  SectionSetFlags ${SEC_2013} ${SF_RO}
-  SectionSetText ${SEC_2013} ""
-${EndIf}
-
-; MAX2012:
-setRegView 64
-ReadRegStr $v2012 HKLM "SOFTWARE\Autodesk\3dsMax\14.0" "Installdir"
-${If} $v2012 != ""
-  SectionSetFlags ${SEC_2012} ${SF_SELECTED}
-  SectionSetText ${SEC_2012} "3dsMax 2012"
-${Else}
-  SectionSetFlags ${SEC_2012} ${SF_RO}
-  SectionSetText ${SEC_2012} ""
-${EndIf}
-
-; MAX2011:
-setRegView 64
-ReadRegStr $v2011 HKLM "SOFTWARE\Autodesk\3dsMax\13.0" "Installdir"
-${If} $v2011 != ""
-  SectionSetFlags ${SEC_2011} ${SF_SELECTED}
-  SectionSetText ${SEC_2011} "3dsMax 2011"
-${Else}
-  SectionSetFlags ${SEC_2011} ${SF_RO}
-  SectionSetText ${SEC_2011} ""
-${EndIf}
-
-; MAX2010:
-setRegView 64
-ReadRegStr $v2010 HKLM "SOFTWARE\Autodesk\3dsMax\12.0" "Installdir"
-${If} $v2010 != ""
-  SectionSetFlags ${SEC_2010} ${SF_SELECTED}
-  SectionSetText ${SEC_2010} "3dsMax 2010"
-${Else}
-  SectionSetFlags ${SEC_2010} ${SF_RO}
-  SectionSetText ${SEC_2010} ""
-${EndIf}
-
-; MAX2009:
-setRegView 64
-ReadRegStr $v2009 HKLM "SOFTWARE\Autodesk\3dsMax\11.0" "Installdir"
-${If} $v2009 != ""
-  SectionSetFlags ${SEC_2009} ${SF_SELECTED}
-  SectionSetText ${SEC_2009} "3dsMax 2009"
-${Else}
-  SectionSetFlags ${SEC_2009} ${SF_RO}
-  SectionSetText ${SEC_2009} ""
-${EndIf}
-
-; MAX2008:
-setRegView 64
-ReadRegStr $v2008 HKLM "SOFTWARE\Autodesk\3dsMax\10.0" "Installdir"
-${If} $v2008 != ""
-  SectionSetFlags ${SEC_2008} ${SF_SELECTED}
-  SectionSetText ${SEC_2008} "3dsMax 2008"
-${Else}
-  SectionSetFlags ${SEC_2008} ${SF_RO}
-  SectionSetText ${SEC_2008} ""
-${EndIf}
-
-; MAX9:
-setRegView 64
-ReadRegStr $v9 HKLM "SOFTWARE\Autodesk\3dsMax\9.0" "Installdir"
-${If} $v9 != ""
-  SectionSetFlags ${SEC_9} ${SF_SELECTED}
-  SectionSetText ${SEC_9} "3dsMax 9"
-${Else}
-  SectionSetFlags ${SEC_9} ${SF_RO}
-  SectionSetText ${SEC_9} ""
-${EndIf}
+; 检测所有版本的3dsMax
+DetailPrint "检测已安装的3dsMax版本..."
+!insertmacro DetectMaxVersion "2026" "SOFTWARE\Autodesk\3dsMax\28.0"
+!insertmacro DetectMaxVersion "2025" "SOFTWARE\Autodesk\3dsMax\27.0"
+!insertmacro DetectMaxVersion "2024" "SOFTWARE\Autodesk\3dsMax\26.0"
+!insertmacro DetectMaxVersion "2023" "SOFTWARE\Autodesk\3dsMax\25.0"
+!insertmacro DetectMaxVersion "2022" "SOFTWARE\Autodesk\3dsMax\24.0"
+!insertmacro DetectMaxVersion "2021" "SOFTWARE\Autodesk\3dsMax\23.0"
+!insertmacro DetectMaxVersion "2020" "SOFTWARE\Autodesk\3dsMax\22.0"
+!insertmacro DetectMaxVersion "2019" "SOFTWARE\Autodesk\3dsMax\21.0"
+!insertmacro DetectMaxVersion "2018" "SOFTWARE\Autodesk\3dsMax\20.0"
+!insertmacro DetectMaxVersion "2017" "SOFTWARE\Autodesk\3dsMax\19.0"
+!insertmacro DetectMaxVersion "2016" "SOFTWARE\Autodesk\3dsMax\18.0"
+!insertmacro DetectMaxVersion "2015" "SOFTWARE\Autodesk\3dsMax\17.0"
+!insertmacro DetectMaxVersion "2014" "SOFTWARE\Autodesk\3dsMax\16.0"
+!insertmacro DetectMaxVersion "2013" "SOFTWARE\Autodesk\3dsMax\15.0"
+!insertmacro DetectMaxVersion "2012" "SOFTWARE\Autodesk\3dsMax\14.0"
+!insertmacro DetectMaxVersion "2011" "SOFTWARE\Autodesk\3dsMax\13.0"
+!insertmacro DetectMaxVersion "2010" "SOFTWARE\Autodesk\3dsMax\12.0"
+!insertmacro DetectMaxVersion "2009" "SOFTWARE\Autodesk\3dsMax\11.0"
+!insertmacro DetectMaxVersion "2008" "SOFTWARE\Autodesk\3dsMax\10.0"
+!insertmacro DetectMaxVersion "9" "SOFTWARE\Autodesk\3dsMax\9.0"
 
 ; 预先隐藏手动安装Section
 SectionSetText ${SEC_MANUAL} ""
