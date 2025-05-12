@@ -57,7 +57,6 @@ var v2024
 var v2025
 var v2026
 
-var maxVer
 var InstallMode ; 安装模式: 0=自动检测, 1=手动选择
 var MAXPATH ; 手动选择的3dsMax安装路径
 
@@ -335,7 +334,6 @@ SectionEnd
 Section "手动安装" ${SEC_MANUAL}
   ; 调试信息
   DetailPrint "手动安装到: $MAXPATH"
-  MessageBox MB_ICONINFORMATION|MB_OK "正在安装到: $MAXPATH"
   
   ; 检查路径是否为空
   ${If} $MAXPATH == ""
@@ -416,221 +414,221 @@ StrCpy $MAXPATH ""     ; 初始化手动路径变量
 
 ; MAX2026:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\28.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2026} 1
-  StrCpy $v2026 $maxVer
+ReadRegStr $v2026 HKLM "SOFTWARE\Autodesk\3dsMax\28.0" "Installdir"
+${If} $v2026 != ""
+  SectionSetFlags ${SEC_2026} ${SF_SELECTED}
+  SectionSetText ${SEC_2026} "3dsMax 2026"
 ${Else}
-  SectionSetFlags ${SEC_2026} 0
+  SectionSetFlags ${SEC_2026} ${SF_RO}
   SectionSetText ${SEC_2026} ""
 ${EndIf}
 
 ; MAX2025:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\27.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2025} 1
-  StrCpy $v2025 $maxVer
+ReadRegStr $v2025 HKLM "SOFTWARE\Autodesk\3dsMax\27.0" "Installdir"
+${If} $v2025 != ""
+  SectionSetFlags ${SEC_2025} ${SF_SELECTED}
+  SectionSetText ${SEC_2025} "3dsMax 2025"
 ${Else}
-  SectionSetFlags ${SEC_2025} 0
+  SectionSetFlags ${SEC_2025} ${SF_RO}
   SectionSetText ${SEC_2025} ""
 ${EndIf}
 
 ; MAX2024:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\26.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2024} 1
-  StrCpy $v2024 $maxVer
+ReadRegStr $v2024 HKLM "SOFTWARE\Autodesk\3dsMax\26.0" "Installdir"
+${If} $v2024 != ""
+  SectionSetFlags ${SEC_2024} ${SF_SELECTED}
+  SectionSetText ${SEC_2024} "3dsMax 2024"
 ${Else}
-  SectionSetFlags ${SEC_2024} 0
+  SectionSetFlags ${SEC_2024} ${SF_RO}
   SectionSetText ${SEC_2024} ""
 ${EndIf}
 
 ; MAX2023:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\25.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2023} 1
-  StrCpy $v2023 $maxVer
+ReadRegStr $v2023 HKLM "SOFTWARE\Autodesk\3dsMax\25.0" "Installdir"
+${If} $v2023 != ""
+  SectionSetFlags ${SEC_2023} ${SF_SELECTED}
+  SectionSetText ${SEC_2023} "3dsMax 2023"
 ${Else}
-  SectionSetFlags ${SEC_2023} 0
+  SectionSetFlags ${SEC_2023} ${SF_RO}
   SectionSetText ${SEC_2023} ""
 ${EndIf}
 
 ; MAX2022:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\24.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2022} 1
-  StrCpy $v2022 $maxVer
+ReadRegStr $v2022 HKLM "SOFTWARE\Autodesk\3dsMax\24.0" "Installdir"
+${If} $v2022 != ""
+  SectionSetFlags ${SEC_2022} ${SF_SELECTED}
+  SectionSetText ${SEC_2022} "3dsMax 2022"
 ${Else}
-  SectionSetFlags ${SEC_2022} 0
+  SectionSetFlags ${SEC_2022} ${SF_RO}
   SectionSetText ${SEC_2022} ""
 ${EndIf}
 
 ; MAX2021:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\23.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2021} 1
-  StrCpy $v2021 $maxVer
+ReadRegStr $v2021 HKLM "SOFTWARE\Autodesk\3dsMax\23.0" "Installdir"
+${If} $v2021 != ""
+  SectionSetFlags ${SEC_2021} ${SF_SELECTED}
+  SectionSetText ${SEC_2021} "3dsMax 2021"
 ${Else}
-  SectionSetFlags ${SEC_2021} 0
+  SectionSetFlags ${SEC_2021} ${SF_RO}
   SectionSetText ${SEC_2021} ""
 ${EndIf}
 
 ; MAX2020:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\22.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2020} 1
-  StrCpy $v2020 $maxVer
+ReadRegStr $v2020 HKLM "SOFTWARE\Autodesk\3dsMax\22.0" "Installdir"
+${If} $v2020 != ""
+  SectionSetFlags ${SEC_2020} ${SF_SELECTED}
+  SectionSetText ${SEC_2020} "3dsMax 2020"
 ${Else}
-  SectionSetFlags ${SEC_2020} 0
+  SectionSetFlags ${SEC_2020} ${SF_RO}
   SectionSetText ${SEC_2020} ""
 ${EndIf}
 
 ; MAX2019:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\21.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2019} 1
-  StrCpy $v2019 $maxVer
+ReadRegStr $v2019 HKLM "SOFTWARE\Autodesk\3dsMax\21.0" "Installdir"
+${If} $v2019 != ""
+  SectionSetFlags ${SEC_2019} ${SF_SELECTED}
+  SectionSetText ${SEC_2019} "3dsMax 2019"
 ${Else}
-  SectionSetFlags ${SEC_2019} 0
+  SectionSetFlags ${SEC_2019} ${SF_RO}
   SectionSetText ${SEC_2019} ""
 ${EndIf}
 
 ; MAX2018:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\20.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2018} 1
-  StrCpy $v2018 $maxVer
+ReadRegStr $v2018 HKLM "SOFTWARE\Autodesk\3dsMax\20.0" "Installdir"
+${If} $v2018 != ""
+  SectionSetFlags ${SEC_2018} ${SF_SELECTED}
+  SectionSetText ${SEC_2018} "3dsMax 2018"
 ${Else}
-  SectionSetFlags ${SEC_2018} 0
+  SectionSetFlags ${SEC_2018} ${SF_RO}
   SectionSetText ${SEC_2018} ""
 ${EndIf}
 
 ; MAX2017:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\19.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2017} 1
-  StrCpy $v2017 $maxVer
+ReadRegStr $v2017 HKLM "SOFTWARE\Autodesk\3dsMax\19.0" "Installdir"
+${If} $v2017 != ""
+  SectionSetFlags ${SEC_2017} ${SF_SELECTED}
+  SectionSetText ${SEC_2017} "3dsMax 2017"
 ${Else}
-  SectionSetFlags ${SEC_2017} 0
+  SectionSetFlags ${SEC_2017} ${SF_RO}
   SectionSetText ${SEC_2017} ""
 ${EndIf}
 
 ; MAX2016:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\18.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2016} 1
-  StrCpy $v2016 $maxVer
+ReadRegStr $v2016 HKLM "SOFTWARE\Autodesk\3dsMax\18.0" "Installdir"
+${If} $v2016 != ""
+  SectionSetFlags ${SEC_2016} ${SF_SELECTED}
+  SectionSetText ${SEC_2016} "3dsMax 2016"
 ${Else}
-  SectionSetFlags ${SEC_2016} 0
+  SectionSetFlags ${SEC_2016} ${SF_RO}
   SectionSetText ${SEC_2016} ""
 ${EndIf}
 
 ; MAX2015:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\17.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2015} 1
-  StrCpy $v2015 $maxVer
+ReadRegStr $v2015 HKLM "SOFTWARE\Autodesk\3dsMax\17.0" "Installdir"
+${If} $v2015 != ""
+  SectionSetFlags ${SEC_2015} ${SF_SELECTED}
+  SectionSetText ${SEC_2015} "3dsMax 2015"
 ${Else}
-  SectionSetFlags ${SEC_2015} 0
+  SectionSetFlags ${SEC_2015} ${SF_RO}
   SectionSetText ${SEC_2015} ""
 ${EndIf}
 
 ; MAX2014:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\16.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2014} 1
-  StrCpy $v2014 $maxVer
+ReadRegStr $v2014 HKLM "SOFTWARE\Autodesk\3dsMax\16.0" "Installdir"
+${If} $v2014 != ""
+  SectionSetFlags ${SEC_2014} ${SF_SELECTED}
+  SectionSetText ${SEC_2014} "3dsMax 2014"
 ${Else}
-  SectionSetFlags ${SEC_2014} 0
+  SectionSetFlags ${SEC_2014} ${SF_RO}
   SectionSetText ${SEC_2014} ""
 ${EndIf}
 
 ; MAX2013:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\15.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2013} 1
-  StrCpy $v2013 $maxVer
+ReadRegStr $v2013 HKLM "SOFTWARE\Autodesk\3dsMax\15.0" "Installdir"
+${If} $v2013 != ""
+  SectionSetFlags ${SEC_2013} ${SF_SELECTED}
+  SectionSetText ${SEC_2013} "3dsMax 2013"
 ${Else}
-  SectionSetFlags ${SEC_2013} 0
+  SectionSetFlags ${SEC_2013} ${SF_RO}
   SectionSetText ${SEC_2013} ""
 ${EndIf}
 
 ; MAX2012:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\14.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2012} 1
-  StrCpy $v2012 $maxVer
+ReadRegStr $v2012 HKLM "SOFTWARE\Autodesk\3dsMax\14.0" "Installdir"
+${If} $v2012 != ""
+  SectionSetFlags ${SEC_2012} ${SF_SELECTED}
+  SectionSetText ${SEC_2012} "3dsMax 2012"
 ${Else}
-  SectionSetFlags ${SEC_2012} 0
+  SectionSetFlags ${SEC_2012} ${SF_RO}
   SectionSetText ${SEC_2012} ""
 ${EndIf}
 
 ; MAX2011:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\13.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2011} 1
-  StrCpy $v2011 $maxVer
+ReadRegStr $v2011 HKLM "SOFTWARE\Autodesk\3dsMax\13.0" "Installdir"
+${If} $v2011 != ""
+  SectionSetFlags ${SEC_2011} ${SF_SELECTED}
+  SectionSetText ${SEC_2011} "3dsMax 2011"
 ${Else}
-  SectionSetFlags ${SEC_2011} 0
+  SectionSetFlags ${SEC_2011} ${SF_RO}
   SectionSetText ${SEC_2011} ""
 ${EndIf}
 
 ; MAX2010:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\12.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2010} 1
-  StrCpy $v2010 $maxVer
+ReadRegStr $v2010 HKLM "SOFTWARE\Autodesk\3dsMax\12.0" "Installdir"
+${If} $v2010 != ""
+  SectionSetFlags ${SEC_2010} ${SF_SELECTED}
+  SectionSetText ${SEC_2010} "3dsMax 2010"
 ${Else}
-  SectionSetFlags ${SEC_2010} 0
+  SectionSetFlags ${SEC_2010} ${SF_RO}
   SectionSetText ${SEC_2010} ""
 ${EndIf}
 
 ; MAX2009:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\11.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2009} 1
-  StrCpy $v2009 $maxVer
+ReadRegStr $v2009 HKLM "SOFTWARE\Autodesk\3dsMax\11.0" "Installdir"
+${If} $v2009 != ""
+  SectionSetFlags ${SEC_2009} ${SF_SELECTED}
+  SectionSetText ${SEC_2009} "3dsMax 2009"
 ${Else}
-  SectionSetFlags ${SEC_2009} 0
+  SectionSetFlags ${SEC_2009} ${SF_RO}
   SectionSetText ${SEC_2009} ""
 ${EndIf}
 
 ; MAX2008:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\10.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_2008} 1
-  StrCpy $v2008 $maxVer
+ReadRegStr $v2008 HKLM "SOFTWARE\Autodesk\3dsMax\10.0" "Installdir"
+${If} $v2008 != ""
+  SectionSetFlags ${SEC_2008} ${SF_SELECTED}
+  SectionSetText ${SEC_2008} "3dsMax 2008"
 ${Else}
-  SectionSetFlags ${SEC_2008} 0
+  SectionSetFlags ${SEC_2008} ${SF_RO}
   SectionSetText ${SEC_2008} ""
 ${EndIf}
 
 ; MAX9:
 setRegView 64
-ReadRegStr $maxVer HKLM "SOFTWARE\Autodesk\3dsMax\9.0" "Installdir"
-${If} $maxVer != ""
-  SectionSetFlags ${SEC_9} 1
-  StrCpy $v9 $maxVer
+ReadRegStr $v9 HKLM "SOFTWARE\Autodesk\3dsMax\9.0" "Installdir"
+${If} $v9 != ""
+  SectionSetFlags ${SEC_9} ${SF_SELECTED}
+  SectionSetText ${SEC_9} "3dsMax 9"
 ${Else}
-  SectionSetFlags ${SEC_9} 0
+  SectionSetFlags ${SEC_9} ${SF_RO}
   SectionSetText ${SEC_9} ""
 ${EndIf}
 
