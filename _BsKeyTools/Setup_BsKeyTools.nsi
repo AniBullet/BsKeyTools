@@ -68,6 +68,8 @@ var v2026
 
 var InstallMode ; 安装模式: 0=自动检测, 1=手动选择
 var MAXPATH ; 手动选择的3dsMax安装路径
+var SelectedVersion ; 手动模式下选择的Max版本
+var DropListHwnd ; 下拉列表的窗口句柄，用于后续操作
 
 SetCompressor lzma
 
@@ -76,6 +78,7 @@ SetCompressor lzma
 !include "LogicLib.nsh" ; 引入逻辑库
 !include "Sections.nsh" ; 引入Sections库
 !include "FileFunc.nsh" ; 引入文件功能库
+!include "WinMessages.nsh"
 
 ; MUI 预定义常量
 !define MUI_ABORTWARNING
@@ -711,14 +714,14 @@ Function CustomPathPage
   ${EndIf}
   
   ; 显示自定义页面
-  !insertmacro MUI_HEADER_TEXT "3dsMax 路径设置" "请指定3dsMax安装路径。"
+  !insertmacro MUI_HEADER_TEXT "3dsMax 路径设置" "请指定安装路径和版本。"
   
   ; 创建一个对话框
   nsDialogs::Create 1018
   Pop $0
   
-  ; 添加标签和输入框 - 3dsMax路径
-  ${NSD_CreateLabel} 10 10 100 20 "3dsMax 安装路径:"
+  ; 添加标签和输入框 - 安装路径
+  ${NSD_CreateLabel} 10 10 100 20 "安装路径:"
   Pop $0
   ${NSD_CreateDirRequest} 120 10 250 20 $MAXPATH
   Pop $R0
@@ -726,8 +729,39 @@ Function CustomPathPage
   Pop $0
   ${NSD_OnClick} $0 BrowseMaxPath
   
+  ; 添加标签和下拉列表 - 3dsMax版本选择
+  ${NSD_CreateLabel} 10 40 100 20 "3dsMax 版本:"
+  Pop $0
+  ${NSD_CreateDropList} 120 40 180 20 ""
+  Pop $DropListHwnd
+  
+  ; 向下拉列表添加版本选项
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2026"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2025"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2024"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2023"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2022"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2021"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2020"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2019"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2018"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2017"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2016"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2015"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2014"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2013"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2012"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2011"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2010"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2009"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 2008"
+  ${NSD_CB_AddString} $DropListHwnd "3dsMax 9"
+  
+  ; 默认选择最新版本
+  ${NSD_CB_SelectString} $DropListHwnd "3dsMax 2026"
+  
   ; 添加说明标签
-  ${NSD_CreateLabel} 10 40 370 40 "请指定3dsMax安装路径。$\r$\n$\r$\n通常路径为类似：C:\Program Files\Autodesk\3ds Max 20XX"
+  ${NSD_CreateLabel} 10 70 390 60 "请指定要安装的目标文件夹（可以是任意位置，如桌面文件夹）$\r$\n$\r$\n并选择对应的3dsMax版本以安装适合该版本的插件。"
   Pop $0
   
   nsDialogs::Show
@@ -735,7 +769,7 @@ FunctionEnd
 
 Function BrowseMaxPath
   ${NSD_GetText} $R0 $0
-  nsDialogs::SelectFolderDialog "选择3dsMax安装目录" $0
+  nsDialogs::SelectFolderDialog "选择安装目录" $0
   Pop $0
   ${If} $0 != error
     ${NSD_SetText} $R0 $0
@@ -753,7 +787,27 @@ Function CustomPathLeave
   
   ; 检查路径是否有效
   ${If} $MAXPATH == ""
-    MessageBox MB_ICONEXCLAMATION|MB_OK "请指定3dsMax安装路径。"
+    MessageBox MB_ICONEXCLAMATION|MB_OK "请指定安装路径。"
+    Abort
+  ${EndIf}
+  
+  ; 获取下拉列表选择的版本 - 使用可靠的原生API方法
+  ; 1. 获取当前选中的索引
+  SendMessage $DropListHwnd ${CB_GETCURSEL} 0 0 $0
+  
+  ; 2. 检查是否有选择
+  ${If} $0 == CB_ERR
+    MessageBox MB_ICONEXCLAMATION|MB_OK "请选择3dsMax版本。"
+    Abort
+  ${EndIf}
+  
+  ; 3. 获取选择项文本
+  System::Call "user32::SendMessage(i $DropListHwnd, i ${CB_GETLBTEXT}, i r0, t .r1)"
+  StrCpy $SelectedVersion $1
+  
+  ; 确保已选择版本
+  ${If} $SelectedVersion == ""
+    MessageBox MB_ICONEXCLAMATION|MB_OK "请选择3dsMax版本。"
     Abort
   ${EndIf}
 FunctionEnd
@@ -1200,54 +1254,27 @@ Section "-手动安装" ${SEC_MANUAL}
   Call AddBackslash
   Pop $R0
   
-  ; 检查版本号并使用对应版本插件
-  ${GetFileName} "$R0" $R1
+  ; 从下拉列表选择文本中直接提取版本号
+  ${If} $SelectedVersion == ""
+    MessageBox MB_ICONSTOP|MB_OK "错误：未选择3dsMax版本，无法完成安装。"
+    SetErrors
+    Abort "安装失败：未选择3dsMax版本"
+  ${EndIf}
   
-  ; 根据版本确定插件文件夹
-  ${If} $R1 == "3ds Max 9"
-    StrCpy $R2 "9"
-  ${ElseIf} $R1 == "3ds Max 2008"
-    StrCpy $R2 "2008"
-  ${ElseIf} $R1 == "3ds Max 2009"
-    StrCpy $R2 "2009"
-  ${ElseIf} $R1 == "3ds Max 2010"
-    StrCpy $R2 "2010"
-  ${ElseIf} $R1 == "3ds Max 2011"
-    StrCpy $R2 "2011"
-  ${ElseIf} $R1 == "3ds Max 2012"
-    StrCpy $R2 "2012"
-  ${ElseIf} $R1 == "3ds Max 2013"
-    StrCpy $R2 "2013"
-  ${ElseIf} $R1 == "3ds Max 2014"
-    StrCpy $R2 "2014"
-  ${ElseIf} $R1 == "3ds Max 2015"
-    StrCpy $R2 "2015"
-  ${ElseIf} $R1 == "3ds Max 2016"
-    StrCpy $R2 "2016"
-  ${ElseIf} $R1 == "3ds Max 2017"
-    StrCpy $R2 "2017"
-  ${ElseIf} $R1 == "3ds Max 2018"
-    StrCpy $R2 "2018"
-  ${ElseIf} $R1 == "3ds Max 2019"
-    StrCpy $R2 "2019"
-  ${ElseIf} $R1 == "3ds Max 2020"
-    StrCpy $R2 "2020"
-  ${ElseIf} $R1 == "3ds Max 2021"
-    StrCpy $R2 "2021"
-  ${ElseIf} $R1 == "3ds Max 2022"
-    StrCpy $R2 "2022"
-  ${ElseIf} $R1 == "3ds Max 2023"
-    StrCpy $R2 "2023"
-  ${ElseIf} $R1 == "3ds Max 2024"
-    StrCpy $R2 "2024"
-  ${ElseIf} $R1 == "3ds Max 2025"
-    StrCpy $R2 "2025"
-  ${ElseIf} $R1 == "3ds Max 2026"
-    StrCpy $R2 "2026"
+  ; 记录选择的版本和路径（调试用）
+  DetailPrint "用户选择：$SelectedVersion"
+  DetailPrint "安装路径：$R0"
+  
+  ; 直接获取版本号（移除"3dsMax "前缀）
+  StrCpy $1 $SelectedVersion 6 0 ; 获取前6个字符
+  ${If} $1 == "3dsMax"
+    ; 如果前缀是"3dsMax "，则提取版本号部分
+    StrCpy $R2 $SelectedVersion "" 7 ; 从第7个字符开始提取
+    DetailPrint "识别的版本号: $R2"
   ${Else}
-    ; 如果无法识别版本，使用最新版本的插件
-    MessageBox MB_ICONINFORMATION|MB_OK "无法自动识别3dsMax版本，将使用最新版本插件。"
+    ; 如果格式不符合预期，使用默认版本
     StrCpy $R2 "2024"
+    DetailPrint "格式不符，使用默认版本: $R2"
   ${EndIf}
   
   ; 安装文件
