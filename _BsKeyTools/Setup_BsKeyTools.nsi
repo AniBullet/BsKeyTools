@@ -3,7 +3,7 @@ Unicode true
 
 ; 安装程序初始定义常量
 !define PRODUCT_NAME "BsKeyTools"
-!define PRODUCT_VERSION "_v1.1.0_安装包测试用"
+!define PRODUCT_VERSION "_v1.1.0_测试用"
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
 
@@ -844,7 +844,8 @@ Function InstallVersionFiles
   ; Scripts目录
   CreateDirectory "$R0Scripts"
   ClearErrors
-  CopyFiles /SILENT "${CURRENT_DIR}\Scripts\*.*" "$R0Scripts\"
+  SetOutPath "$R0Scripts"
+  File /r "Scripts\*.*"
   ${If} ${Errors}
     MessageBox MB_ICONSTOP|MB_OK "复制Scripts文件夹失败，安装中止。"
     SetErrors
@@ -854,7 +855,8 @@ Function InstallVersionFiles
   ; UI_ln目录
   CreateDirectory "$R0UI_ln"
   ClearErrors
-  CopyFiles /SILENT "${CURRENT_DIR}\UI_ln\*.*" "$R0UI_ln\"
+  SetOutPath "$R0UI_ln"
+  File /r "UI_ln\*.*"
   ${If} ${Errors}
     MessageBox MB_ICONSTOP|MB_OK "复制UI_ln文件夹失败，安装中止。"
     SetErrors
@@ -864,7 +866,51 @@ Function InstallVersionFiles
   ; plugins目录
   CreateDirectory "$R0plugins"
   ClearErrors
-  CopyFiles /SILENT "${CURRENT_DIR}\GhostTrails\$R9\plugins\*.*" "$R0plugins\"
+  SetOutPath "$R0plugins"
+  
+  ; 根据不同版本安装对应的插件文件
+  ${If} $R9 == "2026"
+    File /r "GhostTrails\2026\plugins\*.*"
+  ${ElseIf} $R9 == "2025"
+    File /r "GhostTrails\2025\plugins\*.*"
+  ${ElseIf} $R9 == "2024"
+    File /r "GhostTrails\2024\plugins\*.*"
+  ${ElseIf} $R9 == "2023"
+    File /r "GhostTrails\2023\plugins\*.*"
+  ${ElseIf} $R9 == "2022"
+    File /r "GhostTrails\2022\plugins\*.*"
+  ${ElseIf} $R9 == "2021"
+    File /r "GhostTrails\2021\plugins\*.*"
+  ${ElseIf} $R9 == "2020"
+    File /r "GhostTrails\2020\plugins\*.*"
+  ${ElseIf} $R9 == "2019"
+    File /r "GhostTrails\2019\plugins\*.*"
+  ${ElseIf} $R9 == "2018"
+    File /r "GhostTrails\2018\plugins\*.*"
+  ${ElseIf} $R9 == "2017"
+    File /r "GhostTrails\2017\plugins\*.*"
+  ${ElseIf} $R9 == "2016"
+    File /r "GhostTrails\2016\plugins\*.*"
+  ${ElseIf} $R9 == "2015"
+    File /r "GhostTrails\2015\plugins\*.*"
+  ${ElseIf} $R9 == "2014"
+    File /r "GhostTrails\2014\plugins\*.*"
+  ${ElseIf} $R9 == "2013"
+    File /r "GhostTrails\2013\plugins\*.*"
+  ${ElseIf} $R9 == "2012"
+    File /r "GhostTrails\2012\plugins\*.*"
+  ${ElseIf} $R9 == "2011"
+    File /r "GhostTrails\2011\plugins\*.*"
+  ${ElseIf} $R9 == "2010"
+    File /r "GhostTrails\2010\plugins\*.*"
+  ${ElseIf} $R9 == "2009"
+    File /r "GhostTrails\2009\plugins\*.*"
+  ${ElseIf} $R9 == "2008"
+    File /r "GhostTrails\2008\plugins\*.*"
+  ${ElseIf} $R9 == "9"
+    File /r "GhostTrails\9\plugins\*.*"
+  ${EndIf}
+  
   ${If} ${Errors}
     ; 修改错误处理，提供更明确的信息但不中止安装
     DetailPrint "注意：复制plugins文件夹时遇到问题，可能文件已存在或被占用。"
