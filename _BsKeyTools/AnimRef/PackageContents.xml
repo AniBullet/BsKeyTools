@@ -10,7 +10,11 @@
     ProductCode="{79A24A20-FE5C-45FB-8E3F-6F70DEBF5F21}"
     UpgradeCode="{21cf731f-17fb-40d2-93f9-4f78bc29acc5}">
     <CompanyDetails Email="cgcenter.org@gmail.com" Name="CGcenter" Url="https://shirzadbahrami.com/" />
-        <Components Description="post-start-up scripts parts">
+    <Components Description="post-start-up scripts parts">
+        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2026" SeriesMax="2026" />
+        <ComponentEntry AppName="AnimRef" Version="1.5.2" ModuleName="./Contents/2025.ms" />
+    </Components>
+    <Components Description="post-start-up scripts parts">
         <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2025" SeriesMax="2025" />
         <ComponentEntry AppName="AnimRef" Version="1.5.2" ModuleName="./Contents/2025.ms" />
     </Components>
