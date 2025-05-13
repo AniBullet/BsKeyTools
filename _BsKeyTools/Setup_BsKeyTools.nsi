@@ -6,6 +6,7 @@ Unicode true
 !define PRODUCT_VERSION "_v1.1.0_测试用"
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
+!define APPDATA_PLUGINS_PATH "C:\ProgramData\Autodesk\ApplicationPlugins"
 
 ; 自定义安装程序底部的文本
 BrandingText "BsKeyTools - 动画师 K 帧工具"
@@ -1315,7 +1316,25 @@ SectionEnd
 
 ; 处理自动检测模式下安装完成后的清理
 Section "-Cleanup" ${SEC_ALL}
-  ; 不需要清理临时文件，因为没有使用临时目录
+  ; 安装AnimRef文件夹到ApplicationPlugins目录
+  DetailPrint "安装AnimRef到ApplicationPlugins目录..."
+  
+  ; 确保目标文件夹存在
+  CreateDirectory "${APPDATA_PLUGINS_PATH}"
+  CreateDirectory "${APPDATA_PLUGINS_PATH}\AnimRef"
+  ClearErrors
+  
+  ; 设置输出路径并复制文件
+  SetOutPath "${APPDATA_PLUGINS_PATH}\AnimRef"
+  File /r "AnimRef\*.*"
+  
+  ${If} ${Errors}
+    DetailPrint "警告：复制AnimRef文件夹时遇到问题，可能需要管理员权限。"
+    MessageBox MB_ICONEXCLAMATION|MB_OK "AnimRef文件夹可能未成功安装。请确保您具有管理员权限，或手动复制AnimRef文件夹到：${APPDATA_PLUGINS_PATH}"
+  ${Else}
+    DetailPrint "AnimRef文件夹已成功安装"
+  ${EndIf}
+  
   DetailPrint "安装完成"
 SectionEnd
 
