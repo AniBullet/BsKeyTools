@@ -1,24 +1,14 @@
-﻿; 此脚本使用 HM VNISEdit 脚本编辑器向导生成
-; 已修复问题:
-; 1. 版本选择错位 - 确保选择版本与安装版本一致 
-; 2. 自动与手动模式混乱 - 完全分离两种安装模式
-; 3. 文件路径处理 - 直接使用复制命令，确保正确的目标路径
-; 4. 宏定义顺序 - DetectMaxVersion已移至使用前
-; 5. 代码简化 - 使用统一的安装函数减少重复代码
-; 6. 去除宏 - 直接使用函数替代宏，避免宏定义顺序问题
-; 7. 修复零代码警告 - 重新实现组件页面处理逻辑，消除ComponentsPagePre警告
-
-; 添加Unicode支持
+﻿; 添加Unicode支持
 Unicode true
 
 ; 安装程序初始定义常量
 !define PRODUCT_NAME "BsKeyTools"
-!define PRODUCT_VERSION "_v1.1.0"
+!define PRODUCT_VERSION "_v1.1.0_安装包测试用"
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
 
 ; 自定义安装程序底部的文本
-BrandingText "BsKeyTools 动画师 K 帧工具"
+BrandingText "BsKeyTools - 动画师 K 帧工具"
 
 ; 定义Section ID
 !define SEC_MANUAL 0
@@ -1261,20 +1251,14 @@ Section "-手动安装" ${SEC_MANUAL}
     Abort "安装失败：未选择3dsMax版本"
   ${EndIf}
   
-  ; 记录选择的版本和路径（调试用）
-  DetailPrint "用户选择：$SelectedVersion"
-  DetailPrint "安装路径：$R0"
-  
   ; 直接获取版本号（移除"3dsMax "前缀）
   StrCpy $1 $SelectedVersion 6 0 ; 获取前6个字符
   ${If} $1 == "3dsMax"
     ; 如果前缀是"3dsMax "，则提取版本号部分
     StrCpy $R2 $SelectedVersion "" 7 ; 从第7个字符开始提取
-    DetailPrint "识别的版本号: $R2"
   ${Else}
     ; 如果格式不符合预期，使用默认版本
     StrCpy $R2 "2024"
-    DetailPrint "格式不符，使用默认版本: $R2"
   ${EndIf}
   
   ; 安装文件
