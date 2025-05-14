@@ -157,20 +157,6 @@ btn_Minimize.text = "最小化"
 btn_Minimize.flatappearance.bordersize = 0
 pnlTopBar.controls.add btn_Minimize
 
--- 创建置顶按钮
-btn_TopMost = dotnetObject "system.windows.forms.button"
-btn_TopMost.width = 46
-btn_TopMost.height = 22
-btn_TopMost.top = 1
-btn_TopMost.left = (sequence_viewer.width - 105)
-btn_TopMost.flatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").flat
-btn_TopMost.backcolor = GreenColor  -- 默认已置顶
-btn_TopMost.forecolor = TextColor
-btn_TopMost.font = (dotNetObject "System.Drawing.Font" "微软雅黑" 8 ((dotNetClass "System.Drawing.FontStyle").regular))
-btn_TopMost.text = "置顶"
-btn_TopMost.flatappearance.bordersize = 0
-pnlTopBar.controls.add btn_TopMost
-
 -- 创建关闭按钮
 btn_Close = dotnetObject "system.windows.forms.button"
 btn_Close.width = 25
@@ -364,13 +350,8 @@ statusTimer.interval = statusTimeout
 
 -- 确保窗口关联到MAX并显示
 try(
-    sequence_viewer.show()
-    sleep 0.1
-    -- 通过Owner关系将窗口关联到MAX
-    sequence_viewer.owner = (dotNetObject "System.Windows.Forms.Form").FromHandle(maxHwnd)
-    
-    -- 获取窗口句柄
-    winHwnd = windows.getHWNDByTitle "BsAnimRef_v1.5"
+    -- 使用我们的顶层窗口创建函数
+    winHwnd = createTopLevelWindow sequence_viewer maxHwnd
     
     -- 尝试加载配置
     loadConfigData()
@@ -798,7 +779,7 @@ fn onResizeMouseDown obj e = (
 fn onResizeMouseMove obj e = (
     if isResizing do (
         local newWidth = sequence_viewer.width + (mouse.screenPos.x - mouseOffset[1])
-        local newHeight = sequence_viewer.height + (mouse.screenPos.y - mouseOffset[2])
+        local newHeight = sequence_viewer.height + (mouse.screenPos.y - mouseOffset[1])
         
         if newWidth < 680 do newWidth = 680
         if newHeight < 430 do newHeight = 430
@@ -810,8 +791,7 @@ fn onResizeMouseMove obj e = (
         pnlTopBar.width = sequence_viewer.width
         btn_ZenMode.left = sequence_viewer.width - 280
         btn_Minimize.left = sequence_viewer.width - 215
-        btn_Passthrough.left = sequence_viewer.width - 160
-        btn_TopMost.left = sequence_viewer.width - 105
+        btn_Passthrough.left = sequence_viewer.width - 105
         btn_Close.left = sequence_viewer.width - 35
         
         pnlContent.width = sequence_viewer.width - 10
@@ -894,9 +874,6 @@ fn registerEvents = (
     
     -- 鼠标穿透
     dotnet.addEventHandler btn_Passthrough "Click" onPassthroughClick
-    
-    -- 置顶控制
-    dotnet.addEventHandler btn_TopMost "Click" onTopMostClick
     
     -- 最小化
     dotnet.addEventHandler btn_Minimize "Click" onMinimizeClick
@@ -1081,8 +1058,7 @@ fn loadConfigData = (
                 pnlTopBar.width = sequence_viewer.width
                 btn_ZenMode.left = sequence_viewer.width - 280
                 btn_Minimize.left = sequence_viewer.width - 215
-                btn_Passthrough.left = sequence_viewer.width - 160
-                btn_TopMost.left = sequence_viewer.width - 105
+                btn_Passthrough.left = sequence_viewer.width - 105
                 btn_Close.left = sequence_viewer.width - 35
                 
                 pnlContent.width = sequence_viewer.width - 10
@@ -1102,4 +1078,16 @@ fn loadConfigData = (
         )
     ) catch()
     return false
+)
+
+-- 创建适合3dsMax的窗口
+fn createTopLevelWindow theForm maxHwnd = (
+    -- 使用更安全的方式获取MAX窗口并显示
+    local thePtr = DotNetObject "System.IntPtr" maxHwnd
+    local theHwnd = dotNetObject "System.Windows.Forms.Control"
+    theHwnd = theHwnd.fromHandle thePtr
+    theForm.Show(theHwnd)
+    
+    -- 返回窗口句柄
+    windows.getHWNDByTitle theForm.text
 )
