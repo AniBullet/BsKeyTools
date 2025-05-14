@@ -12,7 +12,7 @@
     <CompanyDetails Email="cgcenter.org@gmail.com" Name="CGcenter" Url="https://shirzadbahrami.com/" />
     <Components Description="post-start-up scripts parts">
         <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2026" SeriesMax="2026" />
-        <ComponentEntry AppName="AnimRef" Version="1.5.2" ModuleName="./Contents/2025.ms" />
+        <ComponentEntry AppName="AnimRef" Version="1.5.2" ModuleName="./Contents/2026.ms" />
     </Components>
     <Components Description="post-start-up scripts parts">
         <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2025" SeriesMax="2025" />

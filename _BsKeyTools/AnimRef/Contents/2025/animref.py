@@ -2,22 +2,12 @@ import os
 import subprocess
 import urllib.request
 
-from pymxs import runtime as mxs
 from PySide6 import QtCore, QtGui
 from PySide6.QtCore import QFile
-from PySide6.QtGui import QColor, QIcon
+from PySide6.QtGui import QIcon, QColor
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import (
-    QApplication,
-    QDialog,
-    QFileDialog,
-    QLabel,
-    QMessageBox,
-    QPushButton,
-    QSizePolicy,
-    QVBoxLayout,
-    QWidget,
-)
+from PySide6.QtWidgets import QMessageBox, QVBoxLayout, QSizePolicy, QFileDialog, QPushButton, QDialog, QWidget, QLabel
+from pymxs import runtime as mxs
 
 
 class AnimRef(QDialog):
@@ -29,7 +19,6 @@ class AnimRef(QDialog):
         self.setWindowFlags(QtCore.Qt.WindowType.Window)
         self.resize(720, 460)
         self.setWindowTitle("AnimRef v1.5.2")
-        self.setObjectName("AnimRefTool")
 
         self.defineVariables()
         self.defineSignals()
@@ -292,7 +281,7 @@ class AnimRef(QDialog):
 
     def wheelEvent(self, event):
         if self.isLoaded:
-            mxs.sliderTime += (event.angleDelta().y() / 120)
+            mxs.sliderTime += (event.delta() / 120)
 
     def resizeEvent(self, event):
         self.updateFrame()
@@ -344,15 +333,6 @@ class AnimRef(QDialog):
 
 
 def main():
-    # 查找并关闭所有可能存在的AnimRef窗口
-    for widget in QApplication.topLevelWidgets():
-        if widget.objectName() == "AnimRefTool" and widget.isVisible():
-            try:
-                widget.close()
-            except:
-                pass
-    
-    # 创建新实例
     dlg = AnimRef()
     dlg.show()
 
