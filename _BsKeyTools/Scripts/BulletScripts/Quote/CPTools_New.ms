@@ -302,9 +302,13 @@
 	)
 	catch
 	(
-		local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
-		CSharpCompilationHelper.compile CSharpCodeSourceBipFast #()
-		BipFastAssembly = (dotnetclass "bipedSetTM.SetTM_test")
+		try
+		(
+			local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+			CSharpCompilationHelper.compile CSharpCodeSourceBipFast #()
+			BipFastAssembly = (dotnetclass "bipedSetTM.SetTM_test")
+		)
+		catch(print ("动态编译失败！！无法使用快速粘贴功能"))
 	)
 
 	----获取写入选择的帧	
@@ -469,9 +473,13 @@
 		)
 		catch
 		(
-			local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
-			CSharpCompilationHelper.compile source #()
-			dotnetclass "SHLWAPI"
+			try
+			(
+				local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+				CSharpCompilationHelper.compile source #()
+				dotnetclass "SHLWAPI"
+			)
+			catch(print ("动态编译失败！！无法使用快速粘贴功能"))
 		)
 	)
 	struct myCoolDialogs
@@ -1891,9 +1899,13 @@
 						)
 						catch
 						(
-							local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
-							CSharpCompilationHelper.compile CSharpCodeSourceBipFast #()
-							BipFastAssembly = dotnetclass "bipedSetTM.SetTM_test"
+							try
+							(
+								local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+								CSharpCompilationHelper.compile CSharpCodeSourceBipFast #()
+								BipFastAssembly = dotnetclass "bipedSetTM.SetTM_test"
+							)
+							catch(print ("动态编译失败！！无法使用快速粘贴功能"))
 						)				
 					)
 					in_file = openFile in_name	

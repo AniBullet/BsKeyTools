@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-05-12 00:00:05
+ * @LastEditTime: 2025-05-16 17:36:08
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -27,7 +27,7 @@ try (callbacks.removeScripts #filePostSave id:#BsRefreshRecentFilesSave) catch (
 try (callbacks.removeScripts #systemPostNew id:#BsRefreshRecentFilesNew) catch ()
 try (callbacks.removeScripts #systemPostReset id:#BsRefreshRecentFilesReset) catch ()
 
-global curVerBsKeyTools  = "1.0.7"
+global curVerBsKeyTools  = "1.1.0"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
@@ -410,7 +410,7 @@ fn fnSwitchIconStyle =
 (
 	try(
 		rolBsKeyTools.ckbFnBoxDisplay.images      = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",28,9,10,9,10,true,false)
-		rolBsKeyTools.ckbIsoSelection.images      = #("IsolateSelection_16i.bmp","IsolateSelection_16i.bmp",1,1,1,1,1,true,true)
+		rolBsKeyTools.btnAnimRef.images      = #("IsolateSelection_16i.bmp","IsolateSelection_16i.bmp",1,1,1,1,1,true,true)
 		-- rolBsKeyTools.chkJudgeLinkKey.images      = #("Maintoolbar_24i.bmp","Maintoolbar_24i.bmp",103,6,5,6,5,true,true)
 		rolBsKeyTools.ckbShadowCut.images         = #("Radiosity_16i.bmp","Radiosity_16i.bmp",6,3,4,3,4,true,true)
 		rolBsKeyTools.ckbFreezeMesh.images        = #("UVWUnwrapView_16i.bmp","UVWUnwrapView_16a.bmp",27,17,19,17,19,true,false)
@@ -2166,8 +2166,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"快速选择CS骨骼和调Biped等\r\n左键BsBipedTools\r\n右键老版CSTools精简版" 
 	button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
 	toolTip:"左键动画暴力粘贴东见云优化版\r\n右键原版未修改版\r\n(有时间我也会优化或新写)" 
-	checkButton ckbIsoSelection "独显" pos:[10,190] width:40 height:25 highlightcolor:myCheckedColor \
-	toolTip:"隐藏当前显示的未选中物体\r\n再次点击可重新显示\r\n利用 IsolateSelection\r\n但是不改变镜头缩进"
+	button btnAnimRef "参考帧" pos:[10,190] width:40 height:25 \
+	toolTip:"左键AnimRef\r\n右键参考大师"
 	button btnLayerManager "层" pos:[50,190] width:20 height:25 \
 	toolTip:"模拟旧版层管理器\r\n左键可嵌套层管理器\r\n右键旧版层管理器" 
 	button btnSelectionsetTools "集" pos:[70,190] width:20 height:25 \
@@ -3582,7 +3582,6 @@ rollout rolBsKeyTools "" width:355 height:250
 		-- if (switchToolPanel == 1) then
 		-- (
 		-- )
-		ckbIsoSelection.state = IsolateSelection.IsolateSelectionModeActive()
 		ckbPlayBlocking.state = false
 		clock.active = false
 		ckbPerspLock.state = tooglePersp
@@ -4438,61 +4437,17 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(messagebox "打开 Anim_mirror.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on ckbIsoSelection changed stateIso do 
+	on btnAnimRef pressed do 
 	(
-		-- local arrTempSelObj = #()
-		-- local arrTemp = objects as array
-		-- local arrTempAllObj = for o in arrTemp where o.isHidden == false collect o
-		-- local numTempCurrentSel = selection.count
-		-- if arrTempAllObj.count > numTempCurrentSel then
-		-- (
-		-- 	if numTempCurrentSel != 0 then 
-		-- 	(
-		-- 		arrTempSelObj = selection as array
-		-- 	)
-		-- 	for i in arrTempSelObj where (arrTempSelObj.count != 0) do
-		-- 	(
-		-- 		num = finditem arrTempAllObj i
-		-- 		if num != 0 then deleteItem arrTempAllObj num
-		-- 	)
-		-- 	arrTempUnSelection = arrTempAllObj
-		-- 	actionMan.executeAction 0 "281"
-		-- )
-		if stateIso == true then
-		(
-			if selection.count != 0 then
-			(
-				if (not IsolateSelection.IsolateSelectionModeActive()) then
-				(
-					IsolateSelection.EnterIsolateSelectionMode()
-					actionMan.executeAction 0 "40104"  -- Views: Undo Viewport Operation
-				)
-				else 
-				(
-					ckbIsoSelection.state = false
-					IsolateSelection.ExitIsolateSelectionMode()
-					actionMan.executeAction 0 "40104"  -- Views: Undo Viewport Operation
-				)
-			)
-			else ckbIsoSelection.state = false
-		)
-		else
-		(
-			if (IsolateSelection.IsolateSelectionModeActive()) then 
-			(
-				IsolateSelection.ExitIsolateSelectionMode()
-				actionMan.executeAction 0 "40104"  -- Views: Undo Viewport Operation
-			)
-		)
+		try(FileIn ("C:\\ProgramData\\Autodesk\\ApplicationPlugins\\AnimRef\\Contents\\AnimRef_Open.ms"))
+		catch(messagebox "打开 AnimRef.py 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...\r\n\r\n可能当前3ds Max版本不受AnimRef支持。\r\n支持的版本范围: 2018-2026\r\n\r\n也可以右键使用参考大师~~                                                              " beep:false title:"BsKeyTools")
 	)
 
-	-- on ckbIsoSelection rightclick do
-	-- (
-	-- 	if arrTempUnSelection.count != 0 then
-	-- 	(
-	-- 		for i in arrTempUnSelection do i.isHidden = false
-	-- 	)
-	-- )
+	on btnAnimRef rightclick do
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\参考大师.mse"))
+		catch(messagebox "打开 参考大师.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
 
 	on btnQuickPrev pressed do 
 	(

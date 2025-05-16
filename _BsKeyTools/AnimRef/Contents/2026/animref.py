@@ -123,6 +123,32 @@ class AnimRef(QDialog):
         timelineLayout.setContentsMargins(5, 0, 5, 0)
         timelineLayout.setSpacing(0)
         
+        # 添加帧范围设置按钮
+        self.frameRangeButton = QPushButton("⚡", self.timelineContainer)
+        self.frameRangeButton.setToolTip("快速设置帧范围")
+        self.frameRangeButton.setFixedSize(30, 15)
+        self.frameRangeButton.setEnabled(False)  # 初始时禁用按钮
+        self.frameRangeButton.setStyleSheet('''
+            QPushButton {
+                background-color: #2A2A2A;
+                border: 1px solid #444444;
+                border-radius: 3px;
+                font-size: 10px;
+                font-weight: bold;
+                color: #FFFFFF;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #3A3A3A;
+                border: 1px solid #666666;
+            }
+            QPushButton:pressed {
+                background-color: #222222;
+            }
+        ''')
+        self.frameRangeButton.clicked.connect(self.setFrameRangeToSequence)
+        timelineLayout.addWidget(self.frameRangeButton)
+        
         # 创建滑块
         self.frameSlider = QSlider(Qt.Horizontal, self.timelineContainer)
         self.frameSlider.setMinimum(0)
@@ -905,6 +931,7 @@ class AnimRef(QDialog):
                 self.ui.btn_e_frame.setEnabled(True)
                 self.ui.sb_time_shift.setEnabled(True)
                 self.ui.btn_loop.setEnabled(True)
+                self.frameRangeButton.setEnabled(True)  # 启用帧范围按钮
                 
                 # 更新帧滑块
                 self.frameSlider.setEnabled(True)
@@ -1208,7 +1235,8 @@ class AnimRef(QDialog):
         • ⏮️ - 跳到开始<br>
         • ⏭️ - 跳到结束<br>
         • 🔄 - 循环播放<br>
-        • 时间线滑块：拖动控制当前帧<br><br>
+        • 时间线滑块：拖动控制当前帧<br>
+        • ⚡ - 快速设置MAX帧范围与序列同步<br><br>
         
         <b>其他功能：</b><br>
         • 📂 - 加载图像序列<br>
@@ -1516,6 +1544,85 @@ class AnimRef(QDialog):
                 QApplication.restoreOverrideCursor()
                 
         super().leaveEvent(event)
+
+    def setFrameRangeToSequence(self):
+        """快速设置3ds Max的动画帧范围与加载的序列一致"""
+        if not self.isLoaded or self.last_frame <= 0:
+            return
+            
+        try:
+            # 计算开始帧和结束帧
+            start_frame = self.time_shift
+            end_frame = self.time_shift + self.last_frame - 1
+            
+            # 设置3ds Max的动画范围
+            # 使用MAXScript命令来确保UI也更新
+            mxs.execute(f"animationRange = interval {start_frame} {end_frame}")
+            
+            # 更新时间滑块位置到起始帧
+            mxs.sliderTime = start_frame
+            
+            # 更新界面显示
+            self.updateTimeFromMax()  # 强制更新时间
+            
+            # 显示成功消息
+            msg = f"已设置动画范围: {start_frame} - {end_frame}"
+            self.showTemporaryMessage(msg)
+            
+            # 修改帧范围后，如果MAX不在播放状态，更新MAX的时间配置器
+            if not mxs.isAnimPlaying():
+                try:
+                    # 更新时间配置器显示范围
+                    mxs.execute("timeConfiguration.viewRange = [animationRange.start, animationRange.end]")
+                except:
+                    pass  # 忽略此步骤的错误，不影响主要功能
+            
+        except Exception as e:
+            print(f"设置帧范围时出错: {str(e)}")
+    
+    def showTemporaryMessage(self, message, duration=2000):
+        """显示临时消息，使用非模态标签"""
+        try:
+            # 创建临时标签
+            msgLabel = QLabel(message, self)
+            msgLabel.setAlignment(Qt.AlignCenter)
+            msgLabel.setStyleSheet("""
+                background-color: rgba(58, 58, 58, 220);
+                color: #FFFFFF;
+                border: 1px solid #555555;
+                border-radius: 5px;
+                padding: 10px;
+                font-size: 12px;
+            """)
+            
+            # 设置标签大小和位置
+            msgLabel.adjustSize()
+            msgLabel.move(
+                (self.width() - msgLabel.width()) // 2,
+                (self.height() - msgLabel.height()) // 2
+            )
+            
+            # 显示标签
+            msgLabel.show()
+            msgLabel.raise_()
+            
+            # 使用QTimer延迟删除标签
+            def removeLabel():
+                try:
+                    if msgLabel and msgLabel.isVisible():
+                        msgLabel.hide()
+                        msgLabel.deleteLater()
+                except:
+                    pass
+            
+            # 创建并启动定时器
+            timer = QtCore.QTimer(self)
+            timer.setSingleShot(True)
+            timer.timeout.connect(removeLabel)
+            timer.start(duration)
+            
+        except Exception as e:
+            print(f"显示临时消息出错: {str(e)}")
 
 
 def main():
