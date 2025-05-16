@@ -752,7 +752,7 @@ Function CustomPathPage
   ${NSD_CB_SelectString} $DropListHwnd "3dsMax 2026"
   
   ; 添加说明标签
-  ${NSD_CreateLabel} 10 70 390 60 "请指定要安装的目标文件夹（可以是任意位置，如桌面文件夹）$\r$\n$\r$\n并选择对应的3dsMax版本以安装适合该版本的插件。"
+  ${NSD_CreateLabel} 10 70 390 60 "请指定要安装的3dsMax根目录，$\r$\n$\r$\n并选择对应的3dsMax版本以安装适合该版本的插件。$\r$\n$\r$\n（比如：C:\Program Files\Autodesk\3ds Max 2026）"
   Pop $0
   
   nsDialogs::Show
