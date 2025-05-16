@@ -2,6 +2,7 @@ import ctypes
 import ctypes.wintypes  # 明确导入wintypes子模块
 import os
 import subprocess
+import time
 import urllib.request
 
 from pymxs import runtime as mxs
@@ -84,7 +85,7 @@ class AnimRef(QDialog):
         
         # 创建专用于时间同步的定时器，提高刷新率到60FPS
         self.timeUpdateTimer = QtCore.QTimer(self)
-        self.timeUpdateTimer.setInterval(16)  # 16ms更新间隔，约60FPS
+        self.timeUpdateTimer.setInterval(33)  # 改为33ms，约30FPS
         self.timeUpdateTimer.timeout.connect(self.updateTimeFromMax)
         self.timeUpdateTimer.start()
         
@@ -946,27 +947,24 @@ class AnimRef(QDialog):
             self.changeTime()
 
     def precacheImages(self):
-        """预缓存图像以提高播放性能"""
         try:
-            # 获取当前尺寸
-            self.viewer_width = self.ui.viewer.geometry().width()
-            self.viewer_height = self.ui.viewer.geometry().height()
+            current_frame = int(mxs.currentTime) - self.time_shift
+            # 缓存当前帧和周围的几帧
+            frames_to_cache = [max(0, current_frame-5), max(0, current_frame-2), 
+                              current_frame, 
+                              min(self.last_frame-1, current_frame+2), 
+                              min(self.last_frame-1, current_frame+5)]
             
-            # 清空旧缓存
-            self.scaled_images_cache = {}
-            
-            # 只缓存前10帧或所有帧（如果总帧数小于10）
-            frames_to_cache = min(10, self.last_frame)
-            
-            for i in range(frames_to_cache):
-                if i in self.images:
+            for i in frames_to_cache:
+                if i in self.images and i >= 0 and i < self.last_frame:
                     # 缓存缩放图像
-                    scaled_image = self.images[i].scaled(
-                        self.viewer_width, self.viewer_height,
-                        QtCore.Qt.KeepAspectRatio,
-                        QtCore.Qt.FastTransformation
-                    )
-                    self.scaled_images_cache[(i, self.viewer_width, self.viewer_height)] = scaled_image
+                    cache_key = (i, self.viewer_width, self.viewer_height)
+                    if cache_key not in self.scaled_images_cache:
+                        self.scaled_images_cache[cache_key] = self.images[i].scaled(
+                            self.viewer_width, self.viewer_height,
+                            QtCore.Qt.KeepAspectRatio,
+                            QtCore.Qt.FastTransformation
+                        )
         except Exception as e:
             print(f"预缓存图像出错: {str(e)}")
 
@@ -993,10 +991,14 @@ class AnimRef(QDialog):
                         self.pixmap = self.scaled_images_cache[cache_key]
                     else:
                         # 缩放图像并缓存
+                        if self.is_playing:
+                            scaling_method = QtCore.Qt.FastTransformation
+                        else:
+                            scaling_method = QtCore.Qt.SmoothTransformation
                         self.pixmap = self.images[ref_frame].scaled(
                             current_width, current_height,
                             QtCore.Qt.KeepAspectRatio,
-                            QtCore.Qt.FastTransformation
+                            scaling_method
                         )
                         # 仅在播放时缓存，以避免内存占用过大
                         if self.is_playing and len(self.scaled_images_cache) < 30:  # 限制缓存大小
@@ -1151,8 +1153,11 @@ class AnimRef(QDialog):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         
-        # 调整大小时清除图像缓存
-        self.scaled_images_cache = {}
+        # 只清除与新尺寸不匹配的缓存，而不是全部清空
+        new_width = self.ui.viewer.geometry().width()
+        new_height = self.ui.viewer.geometry().height()
+        self.scaled_images_cache = {k: v for k, v in self.scaled_images_cache.items() 
+                                  if k[1] == new_width and k[2] == new_height}
         
         # 调整UI布局适应小窗口
         try:
@@ -1212,7 +1217,7 @@ class AnimRef(QDialog):
                     self.viewer_width, 
                     self.viewer_height,
                     QtCore.Qt.KeepAspectRatio,
-                    QtCore.Qt.FastTransformation
+                    QtCore.Qt.SmoothTransformation
                 )
                 self.ui.viewer.setPixmap(self.pixmap)
             except Exception as e:
@@ -1281,6 +1286,13 @@ class AnimRef(QDialog):
         
         # 始终同步播放按钮状态，不依赖于时间变化
         self.syncPlayButtonState()
+
+        # 在updateTimeFromMax方法中添加帧率限制
+        self.last_update_time = getattr(self, 'last_update_time', 0)
+        current_time = time.time() * 1000  # 转为毫秒
+        if current_time - self.last_update_time < 30:  # 至少30ms间隔
+            return
+        self.last_update_time = current_time
 
     def syncPlayButtonState(self):
         """同步播放按钮状态与MAX实际播放状态"""
