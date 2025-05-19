@@ -49,7 +49,7 @@ Bullet.S KeyTools，All for Animator...
 [![Q群1](https://img.shields.io/badge/交流吹水群1-993590655-blue?style=flat-square&logo=Tencent-QQ)](https://jq.qq.com/?_wv=1027&k=hmeHhTwu)&ensp;[![Q群2](https://img.shields.io/badge/交流吹水群2-907481113-blue?style=flat-square&logo=Tencent-QQ)](https://qm.qq.com/q/FZ2gBKJeYE)&ensp;[![公众号](https://img.shields.io/badge/微信公众号-@aniBullet-success?style=flat-square&logo=wechat)](https://www.anibullet.com/about/)
 [![GitHub followers](https://img.shields.io/github/followers/AniBullet?label=%E5%85%B3%E6%B3%A8&style=social)](https://github.com/AniBullet)&ensp;[![Twitter](https://img.shields.io/twitter/follow/aniBulletCom?label=BulletS&style=social)](https://twitter.com/aniBulletCom)
 
-## 特别感谢，代码或灵感贡献
+## 特别感谢和支持，代码或灵感贡献  
 Crazyone  
 东见云  
 祥子  
@@ -57,7 +57,8 @@ SiChun Yuan
 动画大白  
 哈库呐玛哒哒  
 z.ven 子墨  
-
+[ffmpeg ](https://github.com/FFmpeg/FFmpeg)   
+[gifsicle](https://eternallybored.org/misc/gifsicle/)  
 ---
 ##### Since 2019.11
 ##### Copyright (c) 2019 Bullet.S
