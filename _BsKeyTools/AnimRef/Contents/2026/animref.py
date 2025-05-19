@@ -522,6 +522,7 @@ class AnimRef(QDialog):
         minimizeAction = QAction("最小化", self)
         maximizeAction = QAction("最大化/恢复", self)
         sizeAction = QAction("还原初始大小", self)
+        openFramesDirAction = QAction("打开序列帧文件夹", self)
         helpAction = QAction("帮助", self)
         closeAction = QAction("关闭", self)
         
@@ -534,6 +535,7 @@ class AnimRef(QDialog):
         minimizeAction.triggered.connect(self.showMinimized)
         maximizeAction.triggered.connect(self.toggleMaximized)
         sizeAction.triggered.connect(lambda: self.resize(720, 460))
+        openFramesDirAction.triggered.connect(self.openFramesDir)
         helpAction.triggered.connect(self.showHelp)
         closeAction.triggered.connect(self.close)
         borderlessModeAction.triggered.connect(self.toggleBorderlessMode)
@@ -543,6 +545,7 @@ class AnimRef(QDialog):
         menu.addAction(sizeAction)
         menu.addSeparator()
         menu.addAction(borderlessModeAction)  # 添加无边框模式菜单项
+        menu.addAction(openFramesDirAction)       
         menu.addAction(helpAction)
         menu.addSeparator()
         menu.addAction(closeAction)
@@ -561,57 +564,191 @@ class AnimRef(QDialog):
         self.activateWindow()
         self.updateSizeGripLocation()
 
-    def downloadConverter(self):
-
-        converter_path = os.path.join(self.dir, 'ApplicationPlugins', 'AnimRef', 'Contents', 'converter',
-                                      'video_to_sequence.exe')
-        download_path = "https://raw.githubusercontent.com/ShirzadBh/AnimRef/main/AnimRef/Contents/converter/video_to_sequence.exe"
-
-        try:
-            urllib.request.urlretrieve(download_path, converter_path)
-            # self.ui.state.setStyleSheet('''color : #98fc03;
-            #     font-size: 12px;
-            #     font-family:"Comic Sans MS", cursive, sans-serif;''')
-
-            # self.ui.state.setText("video_to_sequence.exe is ready!")
-            self.time_counting = True
-            self.startTime()
-        except:
-            # self.ui.state.setStyleSheet('''color : #fc5203;
-            #     font-size: 12px;
-            #     font-family:"Comic Sans MS", cursive, sans-serif;''')
-
-            # self.ui.state.setText("Download failed...")
-            self.time_counting = True
-            self.startTime()
-
     def convertedExist(self):
-
-        FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
-        path = os.path.join(self.dir, 'AnimRef', 'Contents', 'converter', 'video_to_sequence.exe')
-        converterPath = os.path.join(self.dir, 'AnimRef', 'Contents', 'converter')
-
-        if os.path.exists(path):
-            subprocess.run([FILEBROWSER_PATH, converterPath])
-        else:
-            msgBox = QMessageBox()
-            msgBox.setText("Do You Want To Download video_to_sequence.exe")
-            msgBox.setWindowTitle("Sequence Converter")
-            msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-
-            returnValue = msgBox.exec()
-            if returnValue == QMessageBox.Ok:
-                self.downloadConverter()
-
-    def startTime(self):
-        if self.time_counting:
-            self.timer.timeout.connect(self.stopTime)
-            self.timer.start(3000)
-
-    def stopTime(self):
-        # self.ui.state.clear()
-        self.timer.stop()
-        self.time_counting = False
+        """视频转序列帧功能"""
+        try:
+            # 获取3dsMax临时目录，创建AnimRef_Frame文件夹
+            temp_dir = mxs.getDir(mxs.name('temp'))
+            output_base_dir = os.path.join(temp_dir, 'AnimRef_Frame')
+            
+            # 确保输出目录存在
+            if not os.path.exists(output_base_dir):
+                os.makedirs(output_base_dir)
+            
+            # 弹出文件选择对话框，选择视频文件
+            files = list(QFileDialog.getOpenFileNames(
+                self, 
+                '选择要转换的视频文件',
+                filter="视频文件 (*.mp4 *.gif *.avi)"
+            ))
+            
+            # 如果用户选择了文件
+            if len(files[0]) > 0:
+                # 对每个文件进行处理
+                for video_file in files[0]:
+                    # 提取文件名(不含扩展名)和扩展名
+                    file_name = os.path.splitext(os.path.basename(video_file))[0]
+                    file_ext = os.path.splitext(video_file)[1].lower()
+                    
+                    # 添加时间戳以避免冲突 (使用毫秒级时间戳)
+                    import time
+                    timestamp = int(time.time() * 1000) % 10000  # 取最后4位数字作为简短时间戳
+                    
+                    # 创建输出子文件夹（添加时间戳避免重名）
+                    output_dir = os.path.join(output_base_dir, f"{file_name}_AnimRef_{timestamp}")
+                    if not os.path.exists(output_dir):
+                        os.makedirs(output_dir)
+                    
+                    # 执行转换
+                    self.convertVideoToFrames(video_file, output_dir, file_ext)
+        except Exception as e:
+            QMessageBox.warning(self, "转换错误", f"转换过程中出错: {str(e)}")
+    
+    def convertVideoToFrames(self, video_file, output_dir, file_ext=None):
+        """将视频文件转换为序列帧"""
+        try:
+            # 确保ffmpeg_lite.exe可用
+            ffmpeg_path = self.ensureFfmpegAvailable()
+            if not ffmpeg_path:
+                QMessageBox.warning(self, "转换工具缺失", "未找到ffmpeg_lite.exe，无法进行转换。")
+                return False
+            
+            # 进度对话框
+            progress_dialog = QMessageBox()
+            progress_dialog.setWindowTitle("正在转换")
+            progress_dialog.setText(f"正在将 {os.path.basename(video_file)} 转换为序列帧...")
+            progress_dialog.setStandardButtons(QMessageBox.NoButton)
+            progress_dialog.show()
+            QApplication.processEvents()
+            
+            # 构建转换命令
+            output_pattern = os.path.join(output_dir, "frame%04d.png")
+            
+            # 根据文件类型设置不同的ffmpeg参数
+            if file_ext and file_ext.lower() == '.gif':
+                # GIF专用处理参数 - 使用err_detect ignore_err，保持原帧率
+                command = f'"{ffmpeg_path}" -err_detect ignore_err -i "{video_file}" -vsync 0 -f image2 "{output_pattern}"'
+            else:
+                # 普通视频处理
+                command = f'"{ffmpeg_path}" -i "{video_file}" -f image2 "{output_pattern}"'
+            
+            # 执行命令
+            try:
+                result = subprocess.run(command, shell=True, check=False, 
+                                      stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                progress_dialog.close()
+                
+                # 检查输出目录中是否有生成的帧
+                frame_count = 0
+                try:
+                    for _ in os.listdir(output_dir):
+                        frame_count += 1
+                except:
+                    pass
+                
+                if frame_count <= 1:
+                    # 转换可能失败或只生成一帧，尝试第二种方法
+                    if file_ext and file_ext.lower() == '.gif':
+                        # 使用更宽松的错误处理尝试再次转换GIF，不改变帧率
+                        backup_cmd = f'"{ffmpeg_path}" -err_detect ignore_err -i "{video_file}" -vsync 0 -f image2 "{output_pattern}"'
+                        subprocess.run(backup_cmd, shell=True, check=False)
+                        
+                        # 重新检查帧数
+                        frame_count = 0
+                        for _ in os.listdir(output_dir):
+                            frame_count += 1
+                
+                # 转换成功后显示消息并询问是否打开文件夹
+                if frame_count > 1:
+                    reply = QMessageBox.question(
+                        self, 
+                        "转换成功", 
+                        f"视频已成功转换为{frame_count}帧序列图像，\n保存在: {output_dir}\n\n是否立即打开此文件夹？",
+                        QMessageBox.Yes | QMessageBox.No,
+                        QMessageBox.Yes
+                    )
+                    
+                    if reply == QMessageBox.Yes:
+                        # 打开文件浏览器到具体的输出文件夹
+                        FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
+                        subprocess.run([FILEBROWSER_PATH, output_dir])
+                    
+                    return True
+                else:
+                    error_output = result.stderr.decode('utf-8', errors='ignore')
+                    QMessageBox.warning(
+                        self, 
+                        "转换失败", 
+                        f"无法正确转换文件 {os.path.basename(video_file)}。\n可能是不支持的格式或编码问题。\n\n详细错误:\n{error_output[:300]}..."
+                    )
+                    return False
+            except subprocess.CalledProcessError as e:
+                progress_dialog.close()
+                QMessageBox.warning(
+                    self, 
+                    "转换失败", 
+                    f"无法转换文件 {os.path.basename(video_file)}。请确保文件格式正确。\n错误信息: {str(e)}"
+                )
+                return False
+        except Exception as e:
+            QMessageBox.warning(self, "转换错误", f"转换过程中出错: {str(e)}")
+            return False
+    
+    def ensureFfmpegAvailable(self):
+        """确保ffmpeg_lite.exe可用，返回其路径"""
+        # 检查插件目录中是否有ffmpeg_lite.exe
+        ffmpeg_path = os.path.join(self.dir, 'AnimRef', 'Contents', 'converter', 'ffmpeg_lite.exe')
+        
+        if os.path.exists(ffmpeg_path):
+            return ffmpeg_path
+        
+        # 如果不存在，提示用户手动下载
+        QMessageBox.warning(
+            self,
+            "缺少转换工具",
+            "未找到ffmpeg_lite.exe。请手动下载并放置在如下目录：\n" + 
+            os.path.join(self.dir, 'AnimRef', 'Contents', 'converter')
+        )
+        
+        return None
+    
+    def openFramesDir(self):
+        """打开序列帧输出目录"""
+        try:
+            # 获取3dsMax临时目录，确定AnimRef_Frame文件夹
+            temp_dir = mxs.getDir(mxs.name('temp'))
+            frames_dir = os.path.join(temp_dir, 'AnimRef_Frame')
+            
+            # 如果目录不存在，创建它
+            if not os.path.exists(frames_dir):
+                os.makedirs(frames_dir)
+                QMessageBox.information(self, "提示", f"已创建序列帧文件夹: {frames_dir}")
+            
+            # 检查目录中是否有内容
+            has_content = False
+            try:
+                # 检查是否存在至少一个子目录
+                for item in os.listdir(frames_dir):
+                    item_path = os.path.join(frames_dir, item)
+                    if os.path.isdir(item_path) and item.endswith("_AnimRef"):
+                        has_content = True
+                        break
+            except:
+                pass
+            
+            # 打开文件浏览器
+            FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
+            subprocess.run([FILEBROWSER_PATH, frames_dir])
+            
+            # 如果目录为空，提醒用户
+            if not has_content:
+                QMessageBox.information(
+                    self, 
+                    "提示", 
+                    "此文件夹目前没有序列帧。\n请先使用转换功能将视频转换为序列帧。"
+                )
+        except Exception as e:
+            QMessageBox.warning(self, "打开目录错误", f"无法打开序列帧目录: {str(e)}")
 
     def init(self):
         self.dir = mxs.getDir(mxs.name('publicExchangeStoreInstallPath'))
@@ -836,6 +973,9 @@ class AnimRef(QDialog):
 
     def defineSignals(self):
         self.ui.btn_converter.clicked.connect(self.convertedExist)
+        # 添加右键菜单
+        self.ui.btn_converter.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ui.btn_converter.customContextMenuRequested.connect(self.showConverterContextMenu)
         self.ui.sl_opacity.valueChanged.connect(self.changeOpacity)
         self.ui.btn_load_seq.clicked.connect(self.load_seq)
         self.ui.sb_time_shift.valueChanged.connect(self.updateTimeShift)
@@ -1078,7 +1218,7 @@ class AnimRef(QDialog):
         self.ui.btn_e_frame.setText("⏭️")    # 跳到结束
         self.ui.btn_load_seq.setText("📂")   # 文件夹
         self.ui.btn_loop.setText("🔄")       # 循环箭头
-        self.ui.btn_converter.setText("⚙️")   # 设置齿轮
+        self.ui.btn_converter.setText("♻️")   # 设置齿轮
         
         # 设置暗色主题
         darkThemeStyle = '''
@@ -1245,13 +1385,17 @@ class AnimRef(QDialog):
         
         <b>其他功能：</b><br>
         • 📂 - 加载图像序列<br>
-        • ⚙️ - 转换器设置<br>
+        • ♻️ - 视频转序列帧转换工具<br>
+        &nbsp;&nbsp;&nbsp;- 点击：选择视频文件转为序列帧<br>
+        &nbsp;&nbsp;&nbsp;- 右键：打开序列帧文件夹<br>
+        &nbsp;&nbsp;&nbsp;- 注意：需要手动下载ffmpeg_lite.exe到插件目录<br>
         • 透明度滑块：调整窗口透明度<br><br>
         
         <b>右键菜单：</b><br>
         右键点击窗口可以<br>
         • 最小化/最大化窗口<br>
         • 还原初始大小<br>
+        • 打开序列帧文件夹<br>
         • 关闭程序<br><br>
         
         <b>最小化：</b><br>
@@ -1635,6 +1779,17 @@ class AnimRef(QDialog):
             
         except Exception as e:
             print(f"显示临时消息出错: {str(e)}")
+
+    def showConverterContextMenu(self, pos):
+        """显示转换器按钮的右键菜单"""
+        menu = QMenu(self)
+        openDirAction = QAction("打开序列帧文件夹", self)
+        openDirAction.triggered.connect(self.openFramesDir)
+        menu.addAction(openDirAction)
+        
+        # 在按钮位置显示菜单
+        global_pos = self.ui.btn_converter.mapToGlobal(pos)
+        menu.exec(global_pos)
 
 
 def main():
