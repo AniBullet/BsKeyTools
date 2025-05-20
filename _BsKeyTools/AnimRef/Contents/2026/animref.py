@@ -584,6 +584,24 @@ class AnimRef(QDialog):
             
             # 如果用户选择了文件
             if len(files[0]) > 0:
+                # 检查是否有GIF文件，并确认是否安装了gifsicle
+                has_gif = any(os.path.splitext(f)[1].lower() == '.gif' for f in files[0])
+                if has_gif:
+                    gifsicle_path = os.path.join(self.dir, 'AnimRef', 'Contents', 'converter', 'gifsicle.exe')
+                    if not os.path.exists(gifsicle_path):
+                        # 提醒用户需要安装gifsicle
+                        reply = QMessageBox.warning(
+                            self,
+                            "缺少GIF处理工具",
+                            "您选择了GIF文件，但未找到gifsicle.exe。\n"
+                            "GIF文件需要使用gifsicle进行高质量转换。\n\n"
+                            "是否继续转换？",
+                            QMessageBox.Yes | QMessageBox.No,
+                            QMessageBox.No
+                        )
+                        if reply == QMessageBox.No:
+                            return
+                
                 # 对每个文件进行处理
                 for video_file in files[0]:
                     # 提取文件名(不含扩展名)和扩展名
@@ -612,8 +630,9 @@ class AnimRef(QDialog):
                 file_ext = os.path.splitext(video_file)[1].lower()
                 
             if file_ext and file_ext.lower() == '.gif':
-                # 使用gifsicle处理GIF
-                return self.convertGifToFrames(video_file, output_dir)
+                # 使用gifsicle处理GIF，只使用gifsicle，不回退到ffmpeg
+                result = self.convertGifToFrames(video_file, output_dir)
+                return result
             else:
                 # 使用ffmpeg处理其他视频
                 return self.convertVideoWithFfmpeg(video_file, output_dir)
@@ -627,8 +646,15 @@ class AnimRef(QDialog):
             # 确保gifsicle.exe可用
             gifsicle_path = self.ensureGifsicleAvailable()
             if not gifsicle_path:
-                # 如果gifsicle不可用，尝试使用ffmpeg作为备选
-                return self.convertVideoWithFfmpeg(gif_file, output_dir)
+                # 如果gifsicle不可用，直接提示错误，不尝试使用ffmpeg
+                QMessageBox.warning(
+                    self,
+                    "缺少GIF处理工具",
+                    "未找到gifsicle.exe。请手动下载并放置在如下目录：\n" + 
+                    os.path.join(self.dir, 'AnimRef', 'Contents', 'converter') + 
+                    "\n\nGIF文件需要使用gifsicle进行高质量转换。"
+                )
+                return False
             
             # 进度对话框
             progress_dialog = QMessageBox()
@@ -638,18 +664,15 @@ class AnimRef(QDialog):
             progress_dialog.show()
             QApplication.processEvents()
             
-            # 直接使用gifsicle的explode命令分解GIF为独立帧
-            # 使用--no-extensions参数减少文件大小，使用--no-conserve-memory提高处理速度
+            # 直接使用gifsicle的explode命令分解GIF为帧，并直接输出到目标文件夹
+            # --unoptimize 参数保证无损转换，提高图像质量，避免黑点和像素问题
             base_name = os.path.splitext(os.path.basename(gif_file))[0]
-            explode_output_dir = os.path.join(output_dir, "_temp_explode")
             
-            # 确保临时目录存在
-            if not os.path.exists(explode_output_dir):
-                os.makedirs(explode_output_dir)
+            # 构建gifsicle命令，直接输出到目标目录
+            # 确保输出文件名格式正确，以便正确生成序列帧
+            command = f'"{gifsicle_path}" --unoptimize --no-extensions --explode --output="{os.path.join(output_dir, "frame")}.%04d.png" "{gif_file}"'
             
-            # 构建gifsicle命令
-            command = f'"{gifsicle_path}" --no-extensions --no-conserve-memory --explode --output="{os.path.join(explode_output_dir, base_name)}.%03d" "{gif_file}"'
-            
+            # 执行命令并捕获输出
             result = subprocess.run(command, shell=True, check=False, 
                                   stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             
@@ -657,71 +680,105 @@ class AnimRef(QDialog):
             frame_count = 0
             try:
                 # 检查输出的帧文件
-                exploded_files = [f for f in os.listdir(explode_output_dir) if f.startswith(base_name) and f.endswith(".000")]
+                frame_files = [f for f in os.listdir(output_dir) if f.startswith("frame") and f.endswith(".png")]
                 
-                if not exploded_files:
-                    # 如果没有找到000后缀的文件，查找所有带数字后缀的文件
-                    exploded_files = [f for f in os.listdir(explode_output_dir) if f.startswith(base_name) and "." in f and f.split(".")[-1].isdigit()]
+                # 计算帧数
+                frame_count = len(frame_files)
                 
-                if exploded_files:
-                    # 所有explode后的文件
-                    all_files = sorted([f for f in os.listdir(explode_output_dir) 
-                                     if f.startswith(base_name) and "." in f and f.split(".")[-1].isdigit()])
-                    
-                    # 计算帧数
-                    frame_count = len(all_files)
-                    
-                    # 转换为标准帧格式
-                    for index, filename in enumerate(all_files):
-                        original_path = os.path.join(explode_output_dir, filename)
-                        target_path = os.path.join(output_dir, f"frame{index+1:04d}.png")
-                        
-                        # 使用PIL转换
-                        try:
-                            from PIL import Image
-                            img = Image.open(original_path)
-                            img.save(target_path, "PNG")
-                        except Exception as e:
-                            # 如果PIL不可用，尝试复制文件
-                            import shutil
-                            shutil.copy2(original_path, target_path)
-                            
-                    # 清理临时目录
-                    try:
-                        import shutil
-                        shutil.rmtree(explode_output_dir)
-                    except:
-                        pass
+                # 如果没有找到帧文件，尝试其他可能的输出格式
+                if frame_count == 0:
+                    # 检查是否有其他格式的输出文件
+                    other_files = [f for f in os.listdir(output_dir) if f.startswith("frame")]
+                    if other_files:
+                        # 重命名为.png格式
+                        for i, filename in enumerate(sorted(other_files)):
+                            old_path = os.path.join(output_dir, filename)
+                            new_path = os.path.join(output_dir, f"frame{i+1:04d}.png")
+                            try:
+                                os.rename(old_path, new_path)
+                                frame_count += 1
+                            except:
+                                pass
+                
             except Exception as e:
                 print(f"处理gifsicle输出文件时出错: {str(e)}")
             
             progress_dialog.close()
 
-            # 检查是否成功转换
-            if frame_count > 0:
-                reply = QMessageBox.question(
+            # 如果转换失败，显示具体错误信息
+            if frame_count == 0:
+                error_output = result.stderr.decode('utf-8', errors='ignore')
+                QMessageBox.warning(
                     self, 
-                    "转换成功", 
-                    f"GIF已成功转换为{frame_count}帧序列图像，\n保存在: {output_dir}\n\n是否立即打开此文件夹？",
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.Yes
+                    "GIF转换失败", 
+                    f"无法使用gifsicle转换GIF文件。\n\n错误信息:\n{error_output[:300]}"
                 )
-                
-                if reply == QMessageBox.Yes:
-                    # 打开文件浏览器到具体的输出文件夹
-                    FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
-                    subprocess.run([FILEBROWSER_PATH, output_dir])
+                return False
+            
+            # 转换成功
+            reply = QMessageBox.question(
+                self, 
+                "转换成功", 
+                f"GIF已成功转换为{frame_count}帧序列图像。\n是否立即加载这些序列帧？",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            
+            if reply == QMessageBox.Yes:
+                # 直接从转换后的文件夹加载序列帧
+                self.load_seq_from_dir(output_dir)
 
-                return True
-            else:
-                # 如果gifsicle失败，尝试使用ffmpeg
-                self.cleanupTempDir(explode_output_dir)  # 清理临时目录
-                return self.convertVideoWithFfmpeg(gif_file, output_dir)
+            return True
                 
         except Exception as e:
             QMessageBox.warning(self, "GIF转换错误", f"使用gifsicle转换GIF时出错: {str(e)}")
-            # 失败时尝试使用ffmpeg
-            return self.convertVideoWithFfmpeg(gif_file, output_dir)
+            return False
+    
+    def load_seq_from_dir(self, directory):
+        """从指定目录加载序列帧"""
+        if not os.path.exists(directory):
+            return
+            
+        # 获取当前窗口尺寸
+        self.viewer_width = self.ui.viewer.geometry().width()
+        self.viewer_height = self.ui.viewer.geometry().height()
+        
+        # 获取目录中的所有图像文件
+        image_files = []
+        for ext in ['.png', '.jpg', '.jpeg', '.bmp']:
+            image_files.extend(sorted([os.path.join(directory, f) for f in os.listdir(directory) 
+                                     if f.lower().endswith(ext)]))
+        
+        if image_files:
+            self.images = {}
+            self.scaled_images_cache = {}  # 清空缩放图像缓存
+            self.images_path = directory
+            
+            for i, file_path in enumerate(image_files):
+                self.images[i] = QtGui.QPixmap(file_path)
+                
+            self.last_frame = len(image_files)
+            self.isLoaded = True
+            
+            # 预缩放常用尺寸的前几帧图像
+            self.precacheImages()
+            
+            # 启用动画控制
+            self.ui.btn_play.setEnabled(True)
+            self.ui.btn_s_frame.setEnabled(True)
+            self.ui.btn_p_frame.setEnabled(True)
+            self.ui.btn_n_frame.setEnabled(True)
+            self.ui.btn_e_frame.setEnabled(True)
+            self.ui.sb_time_shift.setEnabled(True)
+            self.ui.btn_loop.setEnabled(True)
+            self.frameRangeButton.setEnabled(True)  # 启用帧范围按钮
+            
+            # 更新帧滑块
+            self.frameSlider.setEnabled(True)
+            self.frameSlider.setMaximum(self.last_frame - 1)  # 设置最大值为帧数-1
+            self.frameSlider.setValue(0)
+            
+            self.changeTime()
     
     def cleanupTempDir(self, dir_path):
         """清理临时目录"""
@@ -756,10 +813,10 @@ class AnimRef(QDialog):
             file_ext = os.path.splitext(video_file)[1].lower()
             if file_ext == '.gif':
                 # GIF专用处理参数 - 使用err_detect ignore_err，保持原帧率
-                command = f'"{ffmpeg_path}" -err_detect ignore_err -i "{video_file}" -vsync 0 -f image2 "{output_pattern}"'
+                command = f'"{ffmpeg_path}" -err_detect ignore_err -i "{video_file}" -fps_mode passthrough -f image2 "{output_pattern}"'
             else:
                 # 普通视频处理 - 保持原帧率，不指定fps
-                command = f'"{ffmpeg_path}" -i "{video_file}" -vsync 0 -f image2 "{output_pattern}"'
+                command = f'"{ffmpeg_path}" -i "{video_file}" -fps_mode passthrough -f image2 "{output_pattern}"'
             
             # 执行命令
             try:
@@ -770,20 +827,19 @@ class AnimRef(QDialog):
                 # 检查输出目录中是否有生成的帧
                 frame_count = len([f for f in os.listdir(output_dir) if f.startswith("frame") and f.endswith(".png")])
                 
-                # 转换成功后显示消息并询问是否打开文件夹
+                # 转换成功后显示消息并询问是否加载序列帧
                 if frame_count > 0:
                     reply = QMessageBox.question(
                         self, 
                         "转换成功", 
-                        f"视频已成功转换为{frame_count}帧序列图像，\n保存在: {output_dir}\n\n是否立即打开此文件夹？",
+                        f"视频已成功转换为{frame_count}帧序列图像。\n是否立即加载这些序列帧？",
                         QMessageBox.Yes | QMessageBox.No,
                         QMessageBox.Yes
                     )
                     
                     if reply == QMessageBox.Yes:
-                        # 打开文件浏览器到具体的输出文件夹
-                        FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
-                        subprocess.run([FILEBROWSER_PATH, output_dir])
+                        # 直接从转换后的文件夹加载序列帧
+                        self.load_seq_from_dir(output_dir)
                     
                     return True
                 else:
