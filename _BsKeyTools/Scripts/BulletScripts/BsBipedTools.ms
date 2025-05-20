@@ -5,6 +5,7 @@ Since 2023.03
 
 2025.05 v1.6
 1.删除biped帧添加回退
+2.添加CS缩放(感谢霍霍小猫建议)
 
 2025.03 update v1.5
 1.重新改回复制pose的选择被复制biped骨骼功能，去掉清除posture的按钮
@@ -1729,10 +1730,10 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	button uiCbtDown "" pos:[50,465] width:20 height:20 visible:false border:false
 	button uiCbtUp "" pos:[70,465] width:20 height:20 visible:false border:false
 	label uiLblLayerID "0" pos:[95,469] width:20 height:16 visible:false style_sunkenedge:true readonly:true
-	label uiLblActive "Active" pos:[123,470] width:40 height:25 visible:false
+	label uiLblActive "活动" pos:[133,470] width:40 height:25 visible:false
 	checkbox uiChkActive "" pos:[160,465] width:60 height:25 visible:false checked:true
-	dropDownList ddlLayers "" pos:[50,489] width:85 visible:false
-	checkbutton uiCbtRefreshLayer "刷新" pos:[140,490] width:35 height:20 visible:false checked:true highlightColor:mcScanBiped
+	dropDownList ddlLayers "" pos:[50,489] width:110 visible:false
+	checkbutton uiCbtRefreshLayer "R" pos:[160,490] width:15 height:20 visible:false checked:true highlightColor:mcScanBiped tooltip:"刷新"
 	button uiCbtAddLayer "" pos:[52,514] width:30 height:20 visible:false border:false
 	button uiCbtDelLayer "" pos:[82,514] width:30 height:20 visible:false border:false
 	button uiCbtDownLayer "" pos:[112,514] width:30 height:20 visible:false border:false
@@ -1741,8 +1742,8 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	checkbutton uiCbtRightArm "" pos:[82,537] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
 	checkbutton uiCbtLeftLeg "" pos:[112,537] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
 	checkbutton uiCbtRightLeg "" pos:[142,537] width:30 height:20 visible:false checked:false highlightColor:mcHead border:false
-	button uiCbtUpdate "Update" pos:[50,560] width:65 height:20 visible:false border:false
-	checkbox uiChkIKonly "IK Only" pos:[120,560] width:100 height:20 visible:false checked:false highlightColor:mcHead tooltip:"没找到获取状态的api...只能update设置"
+	button uiCbtUpdate "更新" pos:[50,560] width:65 height:20 visible:false --border:false
+	checkbox uiChkIKonly "仅IK" pos:[130,560] width:100 height:20 visible:false checked:false highlightColor:mcHead tooltip:"没找到获取状态的api...只能update设置"
 
 	--loopkey tools
 	checkButton uiBtnLoopGet "范围" tooltip:"获取当前时间轴\r\nGet current timerange" checked:true width:43 \
@@ -1776,10 +1777,14 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	-- label uiLblTitle "BsBipedTools_v1.0" height:16 width:rolBsBipedTools.width pos:[5, 585]
 	timer clock "PlayClock" interval:1 active:false -- 가장 빠른 인터벌로
+--/////////////////////////////////////////////////////////////////////////////////////////////////
+    button btnAddScale "添加缩放" pos:[50,495] width:62
 
+    button btnRemoveScale "移除缩放" pos:[114,495] width:62
+	
 	local arrLoopTools = #("循环",#(uiBtnLoopGet,uiSpnLoopStart,uiSpnLoopEnd,uiCkbClearUserDef,uiBtnLoopSel,uiBtnGotoMirror,\
 		btnKey1,btnKey2,btnKey3,btnKey4,btnKey5,btnKey6,btnKey7,btnKey8))
-	local arrOtherTools = #("其他",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip)) 
+	local arrOtherTools = #("其他",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip,btnAddScale,btnRemoveScale)) 
 	local arrLayerTools = #("层层",#(uiCbtRefreshLayer,uiCbtDown,uiCbtUp,uiLblLayerID,uiLblActive,uiChkActive,uiCbtAddLayer,\
 		uiCbtDelLayer,uiCbtDownLayer,uiCbtSnapKeys,uiCbtLeftArm,uiCbtRightArm,uiCbtLeftLeg,uiCbtRightLeg,uiCbtUpdate,uiChkIKonly,ddlLayers))
 	local arrCopyTools = #("复制",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtSelPostureObjs,uiCbtMirrorLArm,uiCbtMirrorRArm,\
@@ -4663,31 +4668,33 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	on uiBtnDeleteKey changed state do
 	(
-		uiBtnDeleteKey.state = on 
-		for b in selection as array where iskindof b.baseObject Biped_Object do with undo on
-		(
-			deselectKeys b.controller
-			selectKeys b.controller sliderTime
-			if ( classof b.controller == Vertical_Horizontal_Turn ) then
+		uiBtnDeleteKey.state = on
+		undo on (	
+			for b in selection as array where iskindof b.baseObject Biped_Object do
 			(
-				local arrComSelType = fnGetComTrackSelection b
-				ctrlTurn = (fnBipedComlocalization b.controller)
-				if arrComSelType[1] == 1 then
+				deselectKeys b.controller
+				selectKeys b.controller sliderTime
+				if ( classof b.controller == Vertical_Horizontal_Turn ) then
 				(
-					deleteKeys b.controller.horizontal.controller.keys #selection
+					local arrComSelType = fnGetComTrackSelection b
+					ctrlTurn = (fnBipedComlocalization b.controller)
+					if arrComSelType[1] == 1 then
+					(
+						deleteKeys b.controller.horizontal.controller.keys #selection
+					)
+					if arrComSelType[2] == 1 then
+					(
+						deleteKeys b.controller.vertical.controller.keys #selection
+					)
+					if arrComSelType[3] == 1 then
+					(
+						deleteKeys ctrlTurn.keys #selection
+					)
 				)
-				if arrComSelType[2] == 1 then
+				else
 				(
-					deleteKeys b.controller.vertical.controller.keys #selection
+					deleteKeys b.controller.keys #selection
 				)
-				if arrComSelType[3] == 1 then
-				(
-					deleteKeys ctrlTurn.keys #selection
-				)
-			)
-			else
-			(
-				deleteKeys b.controller.keys #selection
 			)
 		)
 	)
@@ -5339,6 +5346,62 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	on btnKey6 rightclick do (GotoFrame btnKey6 &m_goto6 6 setKey:true)
 	on btnKey7 rightclick do (GotoFrame btnKey7 &m_goto7 7 setKey:true)
 	on btnKey8 rightclick do (GotoFrame btnKey8 &m_goto8 8 setKey:true)
+	
+--///////////////////////////////////////////////////////////	
+on btnAddScale pressed do
+    (
+        if (selection.count != 0) then
+        (
+            --.transform.controller.Biped_SubAnim.controller.BipScaleList.controller.Available.controller = ScaleXYZ ()
+            for i in selection do
+            (
+                if (classOf i ==Biped_Object) and (i.transform.controller[1].name != "Vertical") do --质心不作缩放
+                (
+                    undo "bipedscale" on
+                    (try
+                        (
+                        bip_ed = i.transform.controller.rootnode
+                        bip_ed.transform.controller.enableSubAnims = true
+                        i.transform.controller[1][1][1].controller = ScaleXYZ ()
+                        )catch()
+                    )
+                )
+            )
+        )
+        else
+        (
+            messagebox "请选择一根或多根 Biped 骨骼!\n\r" beep:true title:"选择有误！"
+        )
+    )
+
+    on btnRemoveScale pressed do
+    (
+        if (selection.count != 0) then
+        (
+            for i in selection do
+            (
+                if (classOf i ==Biped_Object) and (i.transform.controller[1].name != "Vertical") do --质心不作缩放
+                (
+                    undo "bipedscale_key" on --删除缩放帧 ，
+                    (
+                        --deletekeys i.transform.controller[1][1][1].controller.keys #allKeys
+                        lstctr = i.transform.controller[1][1]
+                        try (lstctr.delete 1)catch()
+                    )
+                )
+            )
+        )
+        else
+        (
+            messagebox "请选择一根或多根 Biped 骨骼!\n\r" beep:true title:"选择有误！"
+        )
+    )
+
+	
+	
+--////////////////////////////////////////////////////////		
+	
+	
 )
 if (iniBsBTPos != 0) then 
 (Createdialog rolBsBipedTools pos:iniBsBTPos style:#() fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
