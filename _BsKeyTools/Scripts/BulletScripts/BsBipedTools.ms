@@ -3,6 +3,9 @@
 Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
 Since 2023.03
 
+2025.05 v1.6
+1.删除biped帧添加回退
+
 2025.03 update v1.5
 1.重新改回复制pose的选择被复制biped骨骼功能，去掉清除posture的按钮
 
@@ -23,7 +26,7 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
-global verBsBipedTools = "v1.5"
+global verBsBipedTools = "v1.6"
 
 try(destroydialog rolBsBipedTools) catch()
 try(destroyDialog rolBSLeftHandPivots)catch()
@@ -4661,7 +4664,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	on uiBtnDeleteKey changed state do
 	(
 		uiBtnDeleteKey.state = on 
-		for b in selection as array where iskindof b.baseObject Biped_Object do
+		for b in selection as array where iskindof b.baseObject Biped_Object do with undo on
 		(
 			deselectKeys b.controller
 			selectKeys b.controller sliderTime
