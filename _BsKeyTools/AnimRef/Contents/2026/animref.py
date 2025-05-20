@@ -638,12 +638,17 @@ class AnimRef(QDialog):
             progress_dialog.show()
             QApplication.processEvents()
             
-            # 直接使用gifsicle的explode命令分解GIF为独立帧，输出到最终目录
+            # 直接使用gifsicle的explode命令分解GIF为独立帧
+            # 使用--no-extensions参数减少文件大小，使用--no-conserve-memory提高处理速度
             base_name = os.path.splitext(os.path.basename(gif_file))[0]
+            explode_output_dir = os.path.join(output_dir, "_temp_explode")
             
-            # 构建gifsicle命令 - 直接输出到最终目录
-            # 添加--unoptimize和--careful参数以获得最高质量
-            command = f'"{gifsicle_path}" --unoptimize --careful --no-extensions --no-conserve-memory --explode --output="{os.path.join(output_dir, "frame")}.%04d" "{gif_file}"'
+            # 确保临时目录存在
+            if not os.path.exists(explode_output_dir):
+                os.makedirs(explode_output_dir)
+            
+            # 构建gifsicle命令
+            command = f'"{gifsicle_path}" --no-extensions --no-conserve-memory --explode --output="{os.path.join(explode_output_dir, base_name)}.%03d" "{gif_file}"'
             
             result = subprocess.run(command, shell=True, check=False, 
                                   stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -651,84 +656,538 @@ class AnimRef(QDialog):
             # 处理gifsicle输出
             frame_count = 0
             try:
-                # 计算输出的帧数
-                frames = [f for f in os.listdir(output_dir) if f.startswith("frame") and f.endswith(".png")]
-                frame_count = len(frames)
+                # 检查输出的帧文件
+                exploded_files = [f for f in os.listdir(explode_output_dir) if f.startswith(base_name) and f.endswith(".000")]
                 
-                # 根据输出格式，可能需要重命名文件
-                if frame_count == 0:
-                    # 如果没有找到frame*.png格式的文件，寻找其他可能的格式
-                    all_frames = [f for f in os.listdir(output_dir) 
-                                 if (f.startswith("frame") and "." in f and f.split(".")[-1].isdigit()) or
-                                    (f.startswith(base_name) and "." in f and f.split(".")[-1].isdigit())]
+                if not exploded_files:
+                    # 如果没有找到000后缀的文件，查找所有带数字后缀的文件
+                    exploded_files = [f for f in os.listdir(explode_output_dir) if f.startswith(base_name) and "." in f and f.split(".")[-1].isdigit()]
+                
+                if exploded_files:
+                    # 所有explode后的文件
+                    all_files = sorted([f for f in os.listdir(explode_output_dir) 
+                                     if f.startswith(base_name) and "." in f and f.split(".")[-1].isdigit()])
                     
-                    # 如果有帧，重命名为标准格式
-                    if all_frames:
-                        all_frames.sort()
-                        for index, filename in enumerate(all_frames):
-                            old_path = os.path.join(output_dir, filename)
-                            new_path = os.path.join(output_dir, f"frame{index+1:04d}.png")
+                    # 计算帧数
+                    frame_count = len(all_files)
+                    
+                    # 转换为标准帧格式
+                    for index, filename in enumerate(all_files):
+                        original_path = os.path.join(explode_output_dir, filename)
+                        target_path = os.path.join(output_dir, f"frame{index+1:04d}.png")
+                        
+                        # 使用PIL转换
+                        try:
+                            from PIL import Image
+                            img = Image.open(original_path)
+                            img.save(target_path, "PNG")
+                        except Exception as e:
+                            # 如果PIL不可用，尝试复制文件
+                            import shutil
+                            shutil.copy2(original_path, target_path)
                             
-                            # 使用PIL转换 - 确保最高质量
-                            try:
-                                from PIL import Image
-                                img = Image.open(old_path)
-                                # 保存为最高质量PNG (无压缩)
-                                img.save(new_path, "PNG", compress_level=0)
-                                os.remove(old_path)  # 删除原始文件
-                                frame_count += 1
-                            except Exception as e:
-                                # 如果PIL不可用，尝试重命名
-                                try:
-                                    os.rename(old_path, new_path)
-                                    frame_count += 1
-                                except:
-                                    import shutil
-                                    shutil.copy2(old_path, new_path)
-                                    os.remove(old_path)
-                                    frame_count += 1
+                    # 清理临时目录
+                    try:
+                        import shutil
+                        shutil.rmtree(explode_output_dir)
+                    except:
+                        pass
             except Exception as e:
                 print(f"处理gifsicle输出文件时出错: {str(e)}")
             
             progress_dialog.close()
-            
+
             # 检查是否成功转换
             if frame_count > 0:
-                # 转换成功，询问用户是否要加载序列帧
                 reply = QMessageBox.question(
                     self, 
                     "转换成功", 
-                    f"GIF已成功转换为{frame_count}帧序列图像，\n保存在: {output_dir}\n\n是否加载这些序列帧？",
+                    f"GIF已成功转换为{frame_count}帧序列图像，\n保存在: {output_dir}\n\n是否立即打开此文件夹？",
                     QMessageBox.Yes | QMessageBox.No,
                     QMessageBox.Yes
                 )
                 
                 if reply == QMessageBox.Yes:
-                    # 打开文件选择对话框，默认指向刚才的目录
-                    self.load_seq_from_dir(output_dir)
-                
+                    # 打开文件浏览器到具体的输出文件夹
+                    FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
+                    subprocess.run([FILEBROWSER_PATH, output_dir])
+
                 return True
             else:
                 # 如果gifsicle失败，尝试使用ffmpeg
+                self.cleanupTempDir(explode_output_dir)  # 清理临时目录
                 return self.convertVideoWithFfmpeg(gif_file, output_dir)
                 
         except Exception as e:
             QMessageBox.warning(self, "GIF转换错误", f"使用gifsicle转换GIF时出错: {str(e)}")
             # 失败时尝试使用ffmpeg
             return self.convertVideoWithFfmpeg(gif_file, output_dir)
+    
+    def cleanupTempDir(self, dir_path):
+        """清理临时目录"""
+        try:
+            if os.path.exists(dir_path):
+                import shutil
+                shutil.rmtree(dir_path)
+        except Exception as e:
+            print(f"清理临时目录出错: {str(e)}")
+    
+    def convertVideoWithFfmpeg(self, video_file, output_dir):
+        """使用ffmpeg将视频转换为序列帧"""
+        try:
+            # 确保ffmpeg_lite.exe可用
+            ffmpeg_path = self.ensureFfmpegAvailable()
+            if not ffmpeg_path:
+                QMessageBox.warning(self, "转换工具缺失", "未找到ffmpeg_lite.exe，无法进行转换。")
+                return False
             
-    def load_seq_from_dir(self, directory):
-        """从指定目录加载序列帧"""
+            # 进度对话框
+            progress_dialog = QMessageBox()
+            progress_dialog.setWindowTitle("正在转换")
+            progress_dialog.setText(f"正在将 {os.path.basename(video_file)} 转换为序列帧...")
+            progress_dialog.setStandardButtons(QMessageBox.NoButton)
+            progress_dialog.show()
+            QApplication.processEvents()
+            
+            # 构建转换命令
+            output_pattern = os.path.join(output_dir, "frame%04d.png")
+            
+            # 根据文件类型设置不同的ffmpeg参数
+            file_ext = os.path.splitext(video_file)[1].lower()
+            if file_ext == '.gif':
+                # GIF专用处理参数 - 使用err_detect ignore_err，保持原帧率
+                command = f'"{ffmpeg_path}" -err_detect ignore_err -i "{video_file}" -vsync 0 -f image2 "{output_pattern}"'
+            else:
+                # 普通视频处理 - 保持原帧率，不指定fps
+                command = f'"{ffmpeg_path}" -i "{video_file}" -vsync 0 -f image2 "{output_pattern}"'
+            
+            # 执行命令
+            try:
+                result = subprocess.run(command, shell=True, check=False, 
+                                      stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                progress_dialog.close()
+                
+                # 检查输出目录中是否有生成的帧
+                frame_count = len([f for f in os.listdir(output_dir) if f.startswith("frame") and f.endswith(".png")])
+                
+                # 转换成功后显示消息并询问是否打开文件夹
+                if frame_count > 0:
+                    reply = QMessageBox.question(
+                        self, 
+                        "转换成功", 
+                        f"视频已成功转换为{frame_count}帧序列图像，\n保存在: {output_dir}\n\n是否立即打开此文件夹？",
+                        QMessageBox.Yes | QMessageBox.No,
+                        QMessageBox.Yes
+                    )
+                    
+                    if reply == QMessageBox.Yes:
+                        # 打开文件浏览器到具体的输出文件夹
+                        FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
+                        subprocess.run([FILEBROWSER_PATH, output_dir])
+                    
+                    return True
+                else:
+                    error_output = result.stderr.decode('utf-8', errors='ignore')
+                    QMessageBox.warning(
+                        self, 
+                        "转换失败", 
+                        f"无法正确转换文件 {os.path.basename(video_file)}。\n可能是不支持的格式或编码问题。\n\n详细错误:\n{error_output[:300]}..."
+                    )
+                    return False
+            except subprocess.CalledProcessError as e:
+                progress_dialog.close()
+                QMessageBox.warning(
+                    self, 
+                    "转换失败", 
+                    f"无法转换文件 {os.path.basename(video_file)}。请确保文件格式正确。\n错误信息: {str(e)}"
+                )
+                return False
+        except Exception as e:
+            QMessageBox.warning(self, "转换错误", f"转换过程中出错: {str(e)}")
+            return False
+    
+    def ensureFfmpegAvailable(self):
+        """确保ffmpeg_lite.exe可用，返回其路径"""
+        # 检查插件目录中是否有ffmpeg_lite.exe
+        ffmpeg_path = os.path.join(self.dir, 'AnimRef', 'Contents', 'converter', 'ffmpeg_lite.exe')
+        
+        if os.path.exists(ffmpeg_path):
+            return ffmpeg_path
+        
+        # 如果不存在，提示用户手动下载
+        QMessageBox.warning(
+            self,
+            "缺少转换工具",
+            "未找到ffmpeg_lite.exe。请手动下载并放置在如下目录：\n" + 
+            os.path.join(self.dir, 'AnimRef', 'Contents', 'converter')
+        )
+        
+        return None
+        
+    def ensureGifsicleAvailable(self):
+        """确保gifsicle.exe可用，返回其路径"""
+        # 检查插件目录中是否有gifsicle.exe
+        gifsicle_path = os.path.join(self.dir, 'AnimRef', 'Contents', 'converter', 'gifsicle.exe')
+        
+        if os.path.exists(gifsicle_path):
+            return gifsicle_path
+        
+        # 如果不存在，提示用户手动下载
+        QMessageBox.warning(
+            self,
+            "缺少GIF处理工具",
+            "未找到gifsicle.exe。请手动下载并放置在如下目录：\n" + 
+            os.path.join(self.dir, 'AnimRef', 'Contents', 'converter')
+        )
+        
+        return None
+    
+    def openFramesDir(self):
+        """打开序列帧输出目录"""
+        try:
+            # 获取3dsMax临时目录，确定AnimRef_Frame文件夹
+            temp_dir = mxs.getDir(mxs.name('temp'))
+            frames_dir = os.path.join(temp_dir, 'AnimRef_Frame')
+            
+            # 如果目录不存在，创建它
+            if not os.path.exists(frames_dir):
+                os.makedirs(frames_dir)
+                QMessageBox.information(self, "提示", f"已创建序列帧文件夹: {frames_dir}")
+            
+            # 打开文件浏览器
+            FILEBROWSER_PATH = os.path.join(os.getenv('WINDIR'), 'explorer.exe')
+            subprocess.run([FILEBROWSER_PATH, frames_dir])
+            
+            # 如果目录为空，提醒用户
+            has_content = False
+            try:
+                for item in os.listdir(frames_dir):
+                    item_path = os.path.join(frames_dir, item)
+                    if os.path.isdir(item_path) and item.endswith("_AnimRef"):
+                        has_content = True
+                        break
+            except:
+                pass
+                
+            if not has_content:
+                QMessageBox.information(
+                    self, 
+                    "提示", 
+                    "此文件夹目前没有序列帧。\n请先使用转换功能将视频转换为序列帧。"
+                )
+        except Exception as e:
+            QMessageBox.warning(self, "打开目录错误", f"无法打开序列帧目录: {str(e)}")
+
+    def init(self):
+        self.dir = mxs.getDir(mxs.name('publicExchangeStoreInstallPath'))
+        
+        # 创建主UI对象
+        self.ui = QWidget()
+        
+        # 创建主布局
+        main_layout = QVBoxLayout(self.ui)
+        main_layout.setContentsMargins(1, 1, 1, 1)  # 增加底部间距
+        main_layout.setSpacing(5)  # 增加间距，防止控件挤压
+        
+        # 创建图像查看器
+        self.ui.viewer = QLabel()
+        self.ui.viewer.setObjectName("viewer")
+        self.ui.viewer.setAlignment(Qt.AlignCenter)
+        self.ui.viewer.setMinimumSize(100, 50)  # 减少图像查看器最小尺寸
+        self.ui.viewer.setStyleSheet("background-color: #303030; border: 1px solid #444444;")
+        main_layout.addWidget(self.ui.viewer, 1)  # 添加拉伸因子1，让查看器占据更多空间
+        
+        # 创建控制区域
+        control_widget = QWidget()
+        control_widget.setMinimumHeight(36)  # 确保控制区域有足够高度
+        control_layout = QHBoxLayout(control_widget)
+        control_layout.setContentsMargins(5, 5, 5, 5)  # 增加控制区域内边距
+        control_layout.setSpacing(2)  # 减少按钮间距，让按钮更紧凑
+        
+        # 创建按钮，设置固定大小
+        button_size = 28
+        
+        # 控制按钮组：首帧、上一帧、播放、下一帧、尾帧，循环
+        self.ui.btn_s_frame = QPushButton()
+        self.ui.btn_s_frame.setEnabled(False)
+        self.ui.btn_s_frame.setFixedSize(button_size, button_size)
+        control_layout.addWidget(self.ui.btn_s_frame)
+        
+        self.ui.btn_p_frame = QPushButton()
+        self.ui.btn_p_frame.setEnabled(False)
+        self.ui.btn_p_frame.setFixedSize(button_size, button_size)
+        control_layout.addWidget(self.ui.btn_p_frame)
+        
+        self.ui.btn_play = QPushButton()
+        self.ui.btn_play.setCheckable(True)
+        self.ui.btn_play.setEnabled(False)
+        self.ui.btn_play.setFixedSize(button_size, button_size)
+        control_layout.addWidget(self.ui.btn_play)
+        
+        self.ui.btn_n_frame = QPushButton()
+        self.ui.btn_n_frame.setEnabled(False)
+        self.ui.btn_n_frame.setFixedSize(button_size, button_size)
+        control_layout.addWidget(self.ui.btn_n_frame)
+        
+        self.ui.btn_e_frame = QPushButton()
+        self.ui.btn_e_frame.setEnabled(False)
+        self.ui.btn_e_frame.setFixedSize(button_size, button_size)
+        control_layout.addWidget(self.ui.btn_e_frame)
+        
+        # 循环按钮放在播放控制按钮组的末尾
+        self.ui.btn_loop = QPushButton()
+        self.ui.btn_loop.setEnabled(False)
+        self.ui.btn_loop.setCheckable(True)
+        self.ui.btn_loop.setFixedSize(button_size, button_size)
+        control_layout.addWidget(self.ui.btn_loop)
+        
+        # 添加时间偏移控制
+        shift_widget = QWidget()
+        shift_layout = QHBoxLayout(shift_widget)
+        shift_layout.setContentsMargins(10, 0, 0, 0)
+        shift_layout.setSpacing(4)
+        
+        shift_label = QLabel("帧偏移:")
+        shift_layout.addWidget(shift_label)
+                
+        self.ui.sb_time_shift = QSpinBox()
+        self.ui.sb_time_shift.setMinimum(-10000)
+        self.ui.sb_time_shift.setMaximum(10000)
+        self.ui.sb_time_shift.setValue(0)
+        self.ui.sb_time_shift.setEnabled(False)
+        self.ui.sb_time_shift.setFixedWidth(70)
+        shift_layout.addWidget(self.ui.sb_time_shift)
+        
+        control_layout.addWidget(shift_widget)
+        
+        # 添加弹性空间
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        control_layout.addWidget(spacer)
+        
+        # 创建时间轴标签区
+        time_info = QWidget()
+        time_info_layout = QHBoxLayout(time_info)
+        time_info_layout.setContentsMargins(0, 0, 0, 0)
+        time_info_layout.setSpacing(4)
+        
+        # 创建标签
+        self.ui.maxframe_label = QLabel("MAX帧:")
+        time_info_layout.addWidget(self.ui.maxframe_label)
+        
+        self.ui.maxframe = QLabel("0")
+        self.ui.maxframe.setMinimumWidth(30)
+        time_info_layout.addWidget(self.ui.maxframe)
+        
+        self.ui.refframe_label = QLabel("参考帧:")
+        time_info_layout.addWidget(self.ui.refframe_label)
+        
+        self.ui.refframe = QLabel("0")
+        self.ui.refframe.setMinimumWidth(30)
+        time_info_layout.addWidget(self.ui.refframe)
+        
+        control_layout.addWidget(time_info)
+
+        # 添加透明度控制
+        opacity_widget = QWidget()
+        opacity_layout = QHBoxLayout(opacity_widget)
+        opacity_layout.setContentsMargins(0, 0, 0, 0)
+        opacity_layout.setSpacing(4)
+        
+        opacity_label = QLabel("透明度:")
+        opacity_layout.addWidget(opacity_label)
+        
+        self.ui.sl_opacity = QSlider(Qt.Horizontal)
+        self.ui.sl_opacity.setMinimum(20)
+        self.ui.sl_opacity.setMaximum(100)
+        self.ui.sl_opacity.setValue(100)
+        self.ui.sl_opacity.setFixedWidth(80)
+        opacity_layout.addWidget(self.ui.sl_opacity)
+        
+        control_layout.addWidget(opacity_widget)
+        
+        # 调整控件排列顺序，确保重要按钮显示
+        # 将加载按钮移到前面更明显的位置
+        self.ui.btn_load_seq = QPushButton()
+        self.ui.btn_load_seq.setFixedSize(button_size, button_size)
+        control_layout.insertWidget(0, self.ui.btn_load_seq)  # 插入到最前面
+        
+        # 转换器按钮
+        self.ui.btn_converter = QPushButton()
+        self.ui.btn_converter.setFixedSize(button_size, button_size)
+        control_layout.addWidget(self.ui.btn_converter)
+        
+        # 创建帮助按钮并直接添加到布局中
+        self.helpButton = QPushButton("❓")
+        self.helpButton.setToolTip("显示帮助")
+        self.helpButton.setObjectName("helpButton")
+        self.helpButton.setFixedSize(button_size, button_size)
+        self.helpButton.setStyleSheet('''
+            QPushButton {
+                background-color: #2A2A2A;
+                border: 1px solid #444444;
+                border-radius: 3px;
+                font-size: 16px;
+                font-weight: bold;
+                color: #FFFFFF;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #3A3A3A;
+                border: 1px solid #666666;
+            }
+            QPushButton:pressed {
+                background-color: #222222;
+            }
+        ''')
+        self.helpButton.clicked.connect(self.showHelp)
+        control_layout.addWidget(self.helpButton)
+        
+        # 将控制区域添加到主布局
+        main_layout.addWidget(control_widget)
+        
+        # 设置主布局
+        layout = QVBoxLayout()
+        layout.addWidget(self.ui)
+        layout.setContentsMargins(0, 0, 0, 0)  # 增加底部边距
+        layout.setSpacing(0)  # 适当增加间距
+        self.setLayout(layout)
+
+    def start(self):
+        self.ui.viewer.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.pixmap = QtGui.QPixmap(400, 200)
+        self.pixmap.fill(QColor(48, 48, 48))
+        self.ui.viewer.setPixmap(self.pixmap)
+        
+        # 我们现在使用QTimer而不是MAX回调
+        # 初始化最后检查的MAX时间
+        self.last_max_time = int(mxs.currentTime)
+        
+        # 存储回调ID（如果注册了回调）
+        self.callback_id = None
+        
+        # 初始化滑块状态
+        self.updatingSlider = False
+        self.sliderDragging = False
+
+    def changeOpacity(self):
+        self.opacity = self.ui.sl_opacity.value() / 100
+        self.setWindowOpacity(self.opacity)
+
+    def defineVariables(self):
+        self.last_valid_frame = 0
+        self.time_counting = False
+        self.out_of_range = False
+        self.pixmap = None
+        self.isLoaded = False
+        self.current_time = int(mxs.currentTime)
+        self.time_shift = self.ui.sb_time_shift.value()
+        self.time = self.current_time + self.time_shift
+        # 避免与QWidget的width()和height()方法冲突
+        self.viewer_width = self.ui.viewer.geometry().width()
+        self.viewer_height = self.ui.viewer.geometry().height()
+        self.images_backup = {}
+        self.images = {}
+        self.opacity = 1
+        self.images_path = None
+        self.last_frame = 0
+        self.previous_frame = 0
+        
+        # 添加缩放图像缓存
+        self.scaled_images_cache = {}
+        
+        # 播放状态跟踪
+        self.is_playing = False
+
+    def defineSignals(self):
+        self.ui.btn_converter.clicked.connect(self.convertedExist)
+        # 添加右键菜单
+        self.ui.btn_converter.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ui.btn_converter.customContextMenuRequested.connect(self.showConverterContextMenu)
+        self.ui.sl_opacity.valueChanged.connect(self.changeOpacity)
+        self.ui.btn_load_seq.clicked.connect(self.load_seq)
+        self.ui.sb_time_shift.valueChanged.connect(self.updateTimeShift)
+        self.ui.btn_n_frame.clicked.connect(self.nextFrame)
+        self.ui.btn_p_frame.clicked.connect(self.previousFrame)
+        self.ui.btn_play.clicked.connect(self.playFrame)
+        self.ui.btn_s_frame.clicked.connect(self.startFrame)
+        self.ui.btn_e_frame.clicked.connect(self.endFrame)
+
+    def nextFrame(self):
+        mxs.stopAnimation()
+        self.ui.btn_play.setChecked(False)
+        mxs.sliderTime += 1
+        self.ui.sb_time_shift.setEnabled(True)
+
+    def previousFrame(self):
+        mxs.stopAnimation()
+        self.ui.btn_play.setChecked(False)
+        mxs.sliderTime -= 1
+        self.ui.sb_time_shift.setEnabled(True)
+
+    def playFrame(self):
+        """处理播放/暂停按钮点击"""
+        # 基于当前跟踪的状态直接切换，而不是检查MAX状态
+        # 这样可以确保按钮响应更直接
+        
+        if self.is_playing:
+            # 当前正在播放，需要暂停
+            mxs.stopAnimation()
+            self.is_playing = False
+            self.ui.btn_play.setText("▶️")
+            self.ui.btn_play.setChecked(False)
+            self.ui.sb_time_shift.setEnabled(True)
+        else:
+            # 当前已暂停，需要播放
+            mxs.playAnimation()
+            self.is_playing = True
+            self.ui.btn_play.setText("⏸️")
+            self.ui.btn_play.setChecked(True)
+            self.ui.sb_time_shift.setEnabled(False)
+            
+        # 强制更新按钮显示
+        self.ui.btn_play.repaint()
+
+    def startFrame(self):
+        mxs.stopAnimation()
+        mxs.sliderTime = self.time_shift
+        self.ui.btn_play.setText("▶️")
+        self.ui.btn_play.setChecked(False)
+        self.is_playing = False
+        self.ui.sb_time_shift.setEnabled(True)
+
+    def endFrame(self):
+        mxs.stopAnimation()
+        mxs.sliderTime = self.time_shift + (self.last_frame - 1)
+        self.ui.btn_play.setText("▶️")
+        self.ui.btn_play.setChecked(False)
+        self.is_playing = False
+        self.ui.sb_time_shift.setEnabled(True)
+
+    def updateTimeShift(self):
+        self.time_shift = self.ui.sb_time_shift.value()
+        self.changeTime()
+
+    def load_seq(self):
+        """加载图像序列或打开序列帧文件夹"""
         # 获取当前窗口尺寸
         self.viewer_width = self.ui.viewer.geometry().width()
         self.viewer_height = self.ui.viewer.geometry().height()
+
+        # 获取3dsMax临时目录中的AnimRef_Frame文件夹
+        temp_dir = mxs.getDir(mxs.name('temp'))
+        frames_dir = os.path.join(temp_dir, 'AnimRef_Frame')
         
-        # 打开文件选择对话框，默认定位到指定目录
+        # 如果目录不存在，创建它
+        if not os.path.exists(frames_dir):
+            os.makedirs(frames_dir)
+        
+        # 打开文件选择对话框，并默认定位到AnimRef_Frame文件夹
         try:
             fname = list(QFileDialog.getOpenFileNames(
                 self, 
                 '选择图像序列', 
-                directory,  # 默认打开指定目录
+                frames_dir,  # 默认打开AnimRef_Frame文件夹
                 filter="图像文件 (*.jpeg *.jpg *.png *.bmp)"
             ))
 
@@ -769,7 +1228,7 @@ class AnimRef(QDialog):
         except Exception as e:
             print(f"加载序列出错: {str(e)}")
             self.changeTime()
-    
+
     def precacheImages(self):
         try:
             current_frame = int(mxs.currentTime) - self.time_shift
@@ -785,10 +1244,10 @@ class AnimRef(QDialog):
                     cache_key = (i, self.viewer_width, self.viewer_height)
                     if cache_key not in self.scaled_images_cache:
                         self.scaled_images_cache[cache_key] = self.images[i].scaled(
-                            self.viewer_width, self.viewer_height,
-                            QtCore.Qt.KeepAspectRatio,
-                            QtCore.Qt.FastTransformation
-                        )
+                        self.viewer_width, self.viewer_height,
+                        QtCore.Qt.KeepAspectRatio,
+                        QtCore.Qt.FastTransformation
+                    )
         except Exception as e:
             print(f"预缓存图像出错: {str(e)}")
 
@@ -1537,81 +1996,6 @@ class AnimRef(QDialog):
         )
         
         return None
-
-    def convertVideoWithFfmpeg(self, video_file, output_dir):
-        """使用ffmpeg将视频转换为序列帧"""
-        try:
-            # 确保ffmpeg_lite.exe可用
-            ffmpeg_path = self.ensureFfmpegAvailable()
-            if not ffmpeg_path:
-                QMessageBox.warning(self, "转换工具缺失", "未找到ffmpeg_lite.exe，无法进行转换。")
-                return False
-            
-            # 进度对话框
-            progress_dialog = QMessageBox()
-            progress_dialog.setWindowTitle("正在转换")
-            progress_dialog.setText(f"正在将 {os.path.basename(video_file)} 转换为序列帧...")
-            progress_dialog.setStandardButtons(QMessageBox.NoButton)
-            progress_dialog.show()
-            QApplication.processEvents()
-            
-            # 构建转换命令
-            output_pattern = os.path.join(output_dir, "frame%04d.png")
-            
-            # 根据文件类型设置不同的ffmpeg参数
-            file_ext = os.path.splitext(video_file)[1].lower()
-            if file_ext == '.gif':
-                # GIF专用处理参数 - 使用err_detect ignore_err，保持原帧率
-                command = f'"{ffmpeg_path}" -err_detect ignore_err -i "{video_file}" -vsync 0 -f image2 "{output_pattern}"'
-            else:
-                # 普通视频处理 - 保持原帧率，不指定fps
-                command = f'"{ffmpeg_path}" -i "{video_file}" -vsync 0 -f image2 "{output_pattern}"'
-            
-            # 执行命令
-            try:
-                result = subprocess.run(command, shell=True, check=False, 
-                                      stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-                progress_dialog.close()
-                
-                # 检查输出目录中是否有生成的帧
-                frame_files = [f for f in os.listdir(output_dir) if f.startswith("frame") and f.endswith(".png")]
-                frame_count = len(frame_files)
-                
-                # 转换成功后显示消息
-                if frame_count > 0:
-                    # 转换成功，询问用户是否要加载序列帧
-                    reply = QMessageBox.question(
-                        self, 
-                        "转换成功", 
-                        f"视频已成功转换为{frame_count}帧序列图像，\n保存在: {output_dir}\n\n是否加载这些序列帧？",
-                        QMessageBox.Yes | QMessageBox.No,
-                        QMessageBox.Yes
-                    )
-                    
-                    if reply == QMessageBox.Yes:
-                        # 打开文件选择对话框，默认指向刚才的目录
-                        self.load_seq_from_dir(output_dir)
-                        
-                    return True
-                else:
-                    error_output = result.stderr.decode('utf-8', errors='ignore')
-                    QMessageBox.warning(
-                        self, 
-                        "转换失败", 
-                        f"无法正确转换文件 {os.path.basename(video_file)}。\n可能是不支持的格式或编码问题。\n\n详细错误:\n{error_output[:300]}..."
-                    )
-                    return False
-            except subprocess.CalledProcessError as e:
-                progress_dialog.close()
-                QMessageBox.warning(
-                    self, 
-                    "转换失败", 
-                    f"无法转换文件 {os.path.basename(video_file)}。请确保文件格式正确。\n错误信息: {str(e)}"
-                )
-                return False
-        except Exception as e:
-            QMessageBox.warning(self, "转换错误", f"转换过程中出错: {str(e)}")
-            return False
 
 
 def main():
