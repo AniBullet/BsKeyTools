@@ -735,10 +735,10 @@ class AnimRef(QDialog):
     def convertVideoWithFfmpeg(self, video_file, output_dir):
         """使用ffmpeg将视频转换为序列帧"""
         try:
-            # 确保ffmpeg_lite.exe可用
+            # 确保ffmpeg.exe可用
             ffmpeg_path = self.ensureFfmpegAvailable()
             if not ffmpeg_path:
-                QMessageBox.warning(self, "转换工具缺失", "未找到ffmpeg_lite.exe，无法进行转换。")
+                QMessageBox.warning(self, "转换工具缺失", "未找到ffmpeg.exe，无法进行转换。")
                 return False
             
             # 进度对话框
@@ -807,9 +807,9 @@ class AnimRef(QDialog):
             return False
     
     def ensureFfmpegAvailable(self):
-        """确保ffmpeg_lite.exe可用，返回其路径"""
-        # 检查插件目录中是否有ffmpeg_lite.exe
-        ffmpeg_path = os.path.join(self.dir, 'AnimRef', 'Contents', 'converter', 'ffmpeg_lite.exe')
+        """确保ffmpeg.exe可用，返回其路径"""
+        # 检查插件目录中是否有ffmpeg.exe
+        ffmpeg_path = os.path.join(self.dir, 'AnimRef', 'Contents', 'converter', 'ffmpeg.exe')
         
         if os.path.exists(ffmpeg_path):
             return ffmpeg_path
@@ -818,7 +818,7 @@ class AnimRef(QDialog):
         QMessageBox.warning(
             self,
             "缺少转换工具",
-            "未找到ffmpeg_lite.exe。请手动下载并放置在如下目录：\n" + 
+            "未找到ffmpeg.exe。请手动下载并放置在如下目录：\n" + 
             os.path.join(self.dir, 'AnimRef', 'Contents', 'converter')
         )
         
@@ -1535,7 +1535,7 @@ class AnimRef(QDialog):
         &nbsp;&nbsp;&nbsp;- 右键：打开序列帧文件夹或查看转换工具说明<br>
         &nbsp;&nbsp;&nbsp;- 注意：需要手动下载转换工具到插件目录<br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• gifsicle.exe - 用于GIF转换<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• ffmpeg_lite.exe - 用于MP4和AVI转换<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• ffmpeg.exe - 用于MP4和AVI转换<br>
         • 透明度滑块：调整窗口透明度<br><br>
         
         <b>右键菜单：</b><br>
@@ -1957,7 +1957,7 @@ class AnimRef(QDialog):
         • 推荐使用gifsicle 1.96或更高版本<br>
         • gifsicle提供高品质的GIF分解功能<br><br>
         
-        <b>2. ffmpeg_lite.exe</b> - 用于处理MP4和AVI等视频文件<br>
+        <b>2. ffmpeg.exe</b> - 用于处理MP4和AVI等视频文件<br>
         • 精简版可从各大软件下载站获取<br>
         • 完整版FFmpeg: <a href="https://ffmpeg.org/download.html">https://ffmpeg.org/download.html</a><br>
         • 用于保持原始帧率和质量转换视频<br><br>
