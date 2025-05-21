@@ -779,7 +779,35 @@ class AnimRef(QDialog):
             self.frameSlider.setMaximum(self.last_frame - 1)  # 设置最大值为帧数-1
             self.frameSlider.setValue(0)
             
-            self.changeTime()
+            try:
+                # 首先确保设置当前帧为0
+                ref_frame = 0
+                
+                # 获取当前尺寸
+                current_width = self.ui.viewer.geometry().width()
+                current_height = self.ui.viewer.geometry().height()
+                
+                # 直接显示第一帧
+                if ref_frame in self.images:
+                    # 缩放图像
+                    self.pixmap = self.images[ref_frame].scaled(
+                        current_width, current_height,
+                        QtCore.Qt.KeepAspectRatio,
+                        QtCore.Qt.SmoothTransformation
+                    )
+                    
+                    # 强制更新显示
+                    self.ui.viewer.setPixmap(self.pixmap)
+                    self.ui.viewer.repaint()
+                    
+                    # 强制应用处理所有挂起的事件
+                    QApplication.processEvents()
+                    
+                # 然后再调用正常的changeTime流程
+                self.changeTime()
+            except Exception as e:
+                print(f"初始化显示第一帧出错: {str(e)}")
+                self.changeTime()
     
     def cleanupTempDir(self, dir_path):
         """清理临时目录"""
@@ -1279,7 +1307,35 @@ class AnimRef(QDialog):
                 self.frameSlider.setMaximum(self.last_frame - 1)  # 设置最大值为帧数-1
                 self.frameSlider.setValue(0)
                 
-                self.changeTime()
+                try:
+                    # 首先确保设置当前帧为0
+                    ref_frame = 0
+                    
+                    # 获取当前尺寸
+                    current_width = self.ui.viewer.geometry().width()
+                    current_height = self.ui.viewer.geometry().height()
+                    
+                    # 直接显示第一帧
+                    if ref_frame in self.images:
+                        # 缩放图像
+                        self.pixmap = self.images[ref_frame].scaled(
+                            current_width, current_height,
+                            QtCore.Qt.KeepAspectRatio,
+                            QtCore.Qt.SmoothTransformation
+                        )
+                        
+                        # 强制更新显示
+                        self.ui.viewer.setPixmap(self.pixmap)
+                        self.ui.viewer.repaint()
+                        
+                        # 强制应用处理所有挂起的事件
+                        QApplication.processEvents()
+                        
+                    # 然后再调用正常的changeTime流程
+                    self.changeTime()
+                except Exception as e:
+                    print(f"初始化显示第一帧出错: {str(e)}")
+                    self.changeTime()
             else:
                 self.changeTime()
         except Exception as e:
