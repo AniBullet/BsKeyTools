@@ -298,110 +298,140 @@ class AnimRef(QDialog):
             if self.is_locked:
                 return
                 
-            self.dragging = True
+            # 存储初始点击位置和窗口位置用于拖动
             self.clickPos = event.globalPosition().toPoint()
-            self.windowPos = self.frameGeometry().topLeft()
+            self.windowPos = self.pos()
             
-            # 在无边框模式下，只允许拖动窗口，不调整大小
-            if self.borderless_mode:
-                return
-            
-            # 检查是否点击在窗口边缘进行调整大小
+            # 快速确定是否为边缘拖动调整大小
             margin = 10
             rect = self.rect()
-            if (event.position().x() <= margin or 
-                event.position().x() >= rect.width() - margin or 
-                event.position().y() <= margin or 
-                event.position().y() >= rect.height() - margin):
-                
+            pos = event.position().toPoint()
+            
+            # 检查鼠标是否在边缘，如果是则设置为调整大小模式
+            if (pos.x() <= margin or pos.x() >= rect.width() - margin or 
+                pos.y() <= margin or pos.y() >= rect.height() - margin):
+                # 设置为调整大小模式
                 self.resizing = True
-                self.resizeStartPos = event.globalPosition().toPoint()
+                self.dragging = False
+                self.resizeStartPos = self.clickPos
                 self.resizeStartSize = self.size()
                 
-                # 判断调整方向
-                if event.position().x() <= margin:
-                    if event.position().y() <= margin:
+                # 快速确定调整方向
+                if pos.x() <= margin:
+                    if pos.y() <= margin:
                         self.resizeDirection = "top-left"
-                    elif event.position().y() >= rect.height() - margin:
+                    elif pos.y() >= rect.height() - margin:
                         self.resizeDirection = "bottom-left"
                     else:
                         self.resizeDirection = "left"
-                elif event.position().x() >= rect.width() - margin:
-                    if event.position().y() <= margin:
+                elif pos.x() >= rect.width() - margin:
+                    if pos.y() <= margin:
                         self.resizeDirection = "top-right"
-                    elif event.position().y() >= rect.height() - margin:
+                    elif pos.y() >= rect.height() - margin:
                         self.resizeDirection = "bottom-right"
                     else:
                         self.resizeDirection = "right"
-                elif event.position().y() <= margin:
+                elif pos.y() <= margin:
                     self.resizeDirection = "top"
-                elif event.position().y() >= rect.height() - margin:
+                else:
                     self.resizeDirection = "bottom"
-                    
-                self.dragging = False
             else:
+                # 设置为拖动模式
+                self.dragging = True
                 self.resizing = False
+                # 禁用鼠标追踪，减少不必要的事件
+                self.setMouseTracking(False)
 
     def mouseMoveEvent(self, event):
         # 如果面板已锁定，不允许拖动或调整大小
         if self.is_locked:
             self.setCursor(Qt.ArrowCursor)
             return
-            
-        # 更改鼠标光标形状
-        margin = 10
-        rect = self.rect()
-        pos = event.position()
         
-        if not self.dragging and not self.resizing:
-            if pos.x() <= margin and pos.y() <= margin:
-                self.setCursor(Qt.SizeFDiagCursor)  # 左上角
-            elif pos.x() >= rect.width() - margin and pos.y() >= rect.height() - margin:
-                self.setCursor(Qt.SizeFDiagCursor)  # 右下角
-            elif pos.x() <= margin and pos.y() >= rect.height() - margin:
-                self.setCursor(Qt.SizeBDiagCursor)  # 左下角
-            elif pos.x() >= rect.width() - margin and pos.y() <= margin:
-                self.setCursor(Qt.SizeBDiagCursor)  # 右上角
-            elif pos.x() <= margin or pos.x() >= rect.width() - margin:
-                self.setCursor(Qt.SizeHorCursor)    # 左边或右边
-            elif pos.y() <= margin or pos.y() >= rect.height() - margin:
-                self.setCursor(Qt.SizeVerCursor)    # 上边或下边
-            else:
-                self.setCursor(Qt.ArrowCursor)      # 默认
+        # 获取全局鼠标位置和本地位置
+        globalPos = event.globalPosition().toPoint()
+        pos = event.position().toPoint()
         
-        # 处理拖动或调整大小
+        # 处理拖动窗口情况
         if self.dragging:
-            delta = event.globalPosition().toPoint() - self.clickPos
-            self.move(self.windowPos + delta)
-        elif self.resizing:
-            delta = event.globalPosition().toPoint() - self.resizeStartPos
-            newSize = QtCore.QSize(self.resizeStartSize)
-            newPos = QtCore.QPoint(self.pos())
+            # 高效计算移动增量
+            delta = globalPos - self.clickPos
             
+            # 直接设置新位置，减少计算
+            self.move(self.windowPos + delta)
+            return
+            
+        # 处理调整窗口大小情况
+        elif self.resizing:
+            delta = globalPos - self.resizeStartPos
+            newSize = QtCore.QSize(self.resizeStartSize)
+            newPos = QtCore.QPoint(self.windowPos)
+            
+            # 快速计算新尺寸和位置
             if "left" in self.resizeDirection:
-                window_width = max(150, self.resizeStartSize.width() - delta.x())  # 减小到150
-                newSize.setWidth(window_width)
-                newPos.setX(self.x() + self.resizeStartSize.width() - window_width)
+                width = max(150, self.resizeStartSize.width() - delta.x())
+                newSize.setWidth(width)
+                newPos.setX(self.windowPos.x() + self.resizeStartSize.width() - width)
             elif "right" in self.resizeDirection:
-                window_width = max(150, self.resizeStartSize.width() + delta.x())  # 减小到150
-                newSize.setWidth(window_width)
+                width = max(150, self.resizeStartSize.width() + delta.x())
+                newSize.setWidth(width)
                 
             if "top" in self.resizeDirection:
-                height = max(100, self.resizeStartSize.height() - delta.y())  # 减小到100
+                height = max(100, self.resizeStartSize.height() - delta.y())
                 newSize.setHeight(height)
-                newPos.setY(self.y() + self.resizeStartSize.height() - height)
+                newPos.setY(self.windowPos.y() + self.resizeStartSize.height() - height)
             elif "bottom" in self.resizeDirection:
-                height = max(100, self.resizeStartSize.height() + delta.y())  # 减小到100
+                height = max(100, self.resizeStartSize.height() + delta.y())
                 newSize.setHeight(height)
             
+            # 一次性设置尺寸和位置
             self.resize(newSize)
             self.move(newPos)
+            return
             
-            # 调整UI布局适应小窗口
-            try:
-                self.adjustLayoutForWindowSize()
-            except Exception as e:
-                print(f"调整布局出错: {str(e)}")
+        # 如果没有拖动或调整大小，则只更新鼠标指针形状
+        margin = 10
+        rect = self.rect()
+        
+        # 设置适当的鼠标指针形状
+        if pos.x() <= margin and pos.y() <= margin:
+            self.setCursor(Qt.SizeFDiagCursor)  # 左上角
+        elif pos.x() >= rect.width() - margin and pos.y() >= rect.height() - margin:
+            self.setCursor(Qt.SizeFDiagCursor)  # 右下角
+        elif pos.x() <= margin and pos.y() >= rect.height() - margin:
+            self.setCursor(Qt.SizeBDiagCursor)  # 左下角
+        elif pos.x() >= rect.width() - margin and pos.y() <= margin:
+            self.setCursor(Qt.SizeBDiagCursor)  # 右上角
+        elif pos.x() <= margin or pos.x() >= rect.width() - margin:
+            self.setCursor(Qt.SizeHorCursor)    # 左边或右边
+        elif pos.y() <= margin or pos.y() >= rect.height() - margin:
+            self.setCursor(Qt.SizeVerCursor)    # 上边或下边
+        else:
+            self.setCursor(Qt.ArrowCursor)      # 默认
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            # 重新启用鼠标追踪
+            self.setMouseTracking(True)
+            
+            # 重置拖动和调整大小状态
+            self.dragging = False
+            self.resizing = False
+            
+            # 强制恢复为箭头鼠标样式
+            self.unsetCursor()
+            self.setCursor(Qt.ArrowCursor)
+            
+            # 确保全局鼠标样式也被重置
+            QApplication.restoreOverrideCursor()
+            
+            # 清除所有光标覆盖
+            while QApplication.overrideCursor():
+                QApplication.restoreOverrideCursor()
+                
+            # 最后，确保显示箭头光标
+            QApplication.setOverrideCursor(Qt.ArrowCursor)
+            QApplication.restoreOverrideCursor()
 
     def wheelEvent(self, event):
         """简化的滚轮事件，避免错误"""
