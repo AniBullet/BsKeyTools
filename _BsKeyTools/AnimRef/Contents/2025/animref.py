@@ -2,11 +2,11 @@ import os
 import subprocess
 import urllib.request
 
-from PySide6 import QtCore, QtGui
-from PySide6.QtCore import QFile
-from PySide6.QtGui import QIcon, QColor
-from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QMessageBox, QVBoxLayout, QSizePolicy, QFileDialog, QPushButton, QDialog, QWidget, QLabel
+from PySide2 import QtCore, QtGui
+from PySide2.QtCore import QFile
+from PySide2.QtGui import QIcon, QColor
+from PySide2.QtUiTools import QUiLoader
+from PySide2.QtWidgets import QMessageBox, QVBoxLayout, QSizePolicy, QFileDialog, QPushButton, QDialog, QWidget, QLabel
 from pymxs import runtime as mxs
 
 
