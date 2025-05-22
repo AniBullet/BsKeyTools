@@ -2,8 +2,6 @@ import ctypes
 import ctypes.wintypes  # 明确导入wintypes子模块
 import os
 import subprocess
-import time
-import urllib.request
 
 from pymxs import runtime as mxs
 from PySide6 import QtCore, QtGui

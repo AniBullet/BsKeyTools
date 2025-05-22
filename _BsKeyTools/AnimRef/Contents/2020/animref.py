@@ -2,7 +2,6 @@ import ctypes
 import ctypes.wintypes  # 明确导入wintypes子模块
 import os
 import subprocess
-import time
 
 from pymxs import runtime as mxs
 from PySide2 import QtCore, QtGui
@@ -63,7 +62,7 @@ class AnimRef(QDialog):
         # 使用无边框窗口，但保留调整大小功能
         self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setWindowTitle("AnimRef v1.5.7")  # 更新版本号
+        self.setWindowTitle("AnimRef v1.5.2_MOD")  # 更新版本号
         self.resize(800, 500)  # 增加默认窗口尺寸，确保所有控件可见
         
         # 明确设置最小尺寸
@@ -72,11 +71,51 @@ class AnimRef(QDialog):
         # 无边框模式标志
         self.borderless_mode = False
         self.saved_ui_state = {}
+        
+        # 添加锁定和鼠标穿透标志
+        self.is_locked = False
+        self.mouse_through = False
+        
+        # 创建独立的解锁按钮窗口（顶层窗口，不受穿透影响）
+        self.unpassWindow = QDialog(None)  # 无父窗口，成为顶层窗口
+        self.unpassWindow.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint | Qt.Tool)
+        self.unpassWindow.setAttribute(Qt.WA_ShowWithoutActivating)
+        self.unpassWindow.setFixedSize(40, 40)
+        
+        # 设置窗口完全透明
+        self.unpassWindow.setAttribute(Qt.WA_TranslucentBackground)
+        
+        # 创建解锁按钮
+        unpassLayout = QVBoxLayout(self.unpassWindow)
+        unpassLayout.setContentsMargins(0, 0, 0, 0)
+        self.unpassButton = QPushButton("🔒", self.unpassWindow)
+        self.unpassButton.setToolTip("解除锁定和鼠标穿透")
+        self.unpassButton.setFixedSize(36, 36)
+        self.unpassButton.setStyleSheet('''
+            QPushButton {
+                background-color: #3A6A9A;
+                border: 2px solid #FFFFFF;
+                border-radius: 18px;
+                font-size: 16px;
+                font-weight: bold;
+                color: #FFFFFF;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #5A8ACA;
+            }
+        ''')
+        self.unpassButton.clicked.connect(self.disableLockAndMouseThrough)
+        unpassLayout.addWidget(self.unpassButton)
+        
+        # 默认隐藏解锁窗口
+        self.unpassWindow.hide()
 
         self.defineVariables()
         self.defineSignals()
         self.setupButtonText()
         self.createRestoreButton()
+        self.createTopButtons()  # 添加顶部按钮
         self.createTimelineSlider()
         self.createHelpButton()
         self.start()
@@ -99,7 +138,7 @@ class AnimRef(QDialog):
         self.resizeDirection = None
         
         # 允许通过窗口边缘调整大小
-        self.setWindowFlag(Qt.WindowType.WindowMinMaxButtonsHint, True)
+        self.setWindowFlag(Qt.WindowMinMaxButtonsHint, True)
         self.setSizeGripEnabled(True)
         
         # 创建右下角大小调整手柄
@@ -109,384 +148,299 @@ class AnimRef(QDialog):
         self.imageScrolling = False
         self.lastImageDragPos = None
 
-    def updateSizeGripLocation(self):
-        """更新右下角大小调整手柄位置"""
-        # 在PyQt中，QSizeGrip通常是由Qt自动管理的
-        # 这个方法添加这里主要用于任何需要手动调整大小手柄的操作
-        pass
-
-    def createTimelineSlider(self):
-        """创建时间轴滑块用于拖动帧"""
-        # 创建横向容器放置滑块
-        self.timelineContainer = QWidget(self)
-        self.timelineContainer.setFixedHeight(15)  # 限制整体高度
-        timelineLayout = QHBoxLayout(self.timelineContainer)
-        timelineLayout.setContentsMargins(5, 0, 5, 0)
-        timelineLayout.setSpacing(0)
+    def createTopButtons(self):
+        """创建左上角的锁定和鼠标穿透按钮"""
+        # 创建容器放置按钮
+        topButtonsContainer = QWidget(self)
+        topButtonsContainer.setStyleSheet("background-color: transparent;")
+        topButtonsLayout = QHBoxLayout(topButtonsContainer)
+        topButtonsLayout.setContentsMargins(5, 5, 5, 5)
+        topButtonsLayout.setSpacing(5)
         
-        # 添加帧范围设置按钮
-        self.frameRangeButton = QPushButton("⚡", self.timelineContainer)
-        self.frameRangeButton.setToolTip("快速设置帧范围")
-        self.frameRangeButton.setFixedSize(30, 15)
-        self.frameRangeButton.setEnabled(False)  # 初始时禁用按钮
-        self.frameRangeButton.setStyleSheet('''
+        # 定义按钮样式
+        buttonStyle = '''
             QPushButton {
-                background-color: #2A2A2A;
+                background-color: transparent;
                 border: 1px solid #444444;
                 border-radius: 3px;
-                font-size: 10px;
+                font-size: 14px;
                 font-weight: bold;
                 color: #FFFFFF;
                 padding: 0px;
+                min-width: 24px;
+                min-height: 24px;
+                max-width: 24px;
+                max-height: 24px;
             }
             QPushButton:hover {
-                background-color: #3A3A3A;
+                background-color: rgba(58, 58, 58, 100);
                 border: 1px solid #666666;
             }
             QPushButton:pressed {
-                background-color: #222222;
+                background-color: rgba(34, 34, 34, 100);
             }
-        ''')
-        self.frameRangeButton.clicked.connect(self.setFrameRangeToSequence)
-        timelineLayout.addWidget(self.frameRangeButton)
-        
-        # 创建滑块
-        self.frameSlider = QSlider(Qt.Horizontal, self.timelineContainer)
-        self.frameSlider.setMinimum(0)
-        self.frameSlider.setMaximum(100)  # 初始值，稍后会根据帧数更新
-        self.frameSlider.setValue(0)
-        self.frameSlider.setTracking(True)
-        self.frameSlider.setEnabled(False)
-        self.frameSlider.setFixedHeight(10)  # 限制滑块高度
-        
-        # 设置样式 - 使进度条更细
-        self.frameSlider.setStyleSheet('''
-            QSlider {
-                height: 10px;
-                margin: 0px;
-                background: transparent;
+            QPushButton:checked {
+                background-color: rgba(58, 106, 154, 150);
+                border: 1px solid #5A8ACA;
             }
-            QSlider::groove:horizontal {
-                border: 1px solid #444444;
-                height: 2px;
-                background: #333333;
-                margin: 0px;
-                border-radius: 1px;
-            }
-            QSlider::handle:horizontal {
-                background: #6A9AE0;
-                border: 1px solid #7AB0FF;
-                width: 8px;
-                height: 8px;
-                margin: -4px 0;
-                border-radius: 4px;
-            }
-            QSlider::handle:horizontal:hover {
-                background: #7AB0FF;
-            }
-            QSlider::sub-page:horizontal {
-                background: #41729F;
-            }
-        ''')
+        '''
         
-        # 确保滑块能够拉伸占据所有可用空间
-        self.frameSlider.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        # 创建锁定按钮 - 合并锁定和穿透功能
+        self.lockButton = QPushButton("🔓", self)
+        self.lockButton.setToolTip("锁定面板并启用鼠标穿透")
+        self.lockButton.setCheckable(True)
+        self.lockButton.setStyleSheet(buttonStyle)
+        self.lockButton.clicked.connect(self.toggleLockAndMouseThrough)
+        topButtonsLayout.addWidget(self.lockButton)
         
-        timelineLayout.addWidget(self.frameSlider)
+        # 添加弹性空间，使按钮左对齐
+        topButtonsLayout.addStretch(1)
         
-        # 将滑块容器添加到UI中
-        self.ui.layout().insertWidget(1, self.timelineContainer)  # 添加到图片下方，控件上方
+        # 设置容器位置在左上角
+        topButtonsContainer.setFixedHeight(34)
+        topButtonsContainer.setGeometry(5, 5, 100, 34)
         
-        # 连接滑块的信号
-        self.frameSlider.sliderPressed.connect(self.sliderPressed)
-        self.frameSlider.sliderReleased.connect(self.sliderReleased)
-        self.frameSlider.valueChanged.connect(self.sliderFrameChanged)
+        # 保证按钮始终在顶部
+        topButtonsContainer.raise_()
         
-        # 滑块拖动中标志
-        self.sliderDragging = False
-    
-    def sliderPressed(self):
-        """开始拖动滑块"""
-        self.sliderDragging = True
+    def toggleLockAndMouseThrough(self):
+        """切换锁定和鼠标穿透状态"""
+        self.is_locked = not self.is_locked
+        self.mouse_through = self.is_locked  # 锁定状态和穿透状态同步
         
-    def sliderReleased(self):
-        """结束拖动滑块"""
-        self.sliderDragging = False
-    
-    def sliderFrameChanged(self, value):
-        """当滑块值改变时更新帧"""
-        if self.isLoaded and not self.updatingSlider:
-            # 计算对应的帧
-            frame = self.time_shift + value
-            # 更新MAX时间滑块
-            mxs.sliderTime = frame
+        if self.is_locked:
+            # 锁定状态 - 同时启用鼠标穿透
+            self.lockButton.setText("🔒")
+            self.lockButton.setToolTip("解除锁定和鼠标穿透")
             
-            # 直接更新当前窗口的图像显示，不等待定时器
+            # 设置窗口样式为不可移动、不可缩放
+            self.setCursor(Qt.ArrowCursor)
+            
+            # 使用Windows API实现真正的鼠标穿透
             try:
-                self.changeTime()
+                # 获取窗口句柄
+                hwnd = self.winId().__int__()
+                
+                # 获取当前窗口样式
+                GWL_EXSTYLE = -20
+                WS_EX_TRANSPARENT = 0x00000020
+                WS_EX_LAYERED = 0x00080000
+                
+                # 获取当前样式
+                exStyle = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+                
+                # 设置窗口为分层透明窗口
+                ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT)
+                
+                # 设置透明度（保持当前透明度不变）
+                LWA_ALPHA = 0x00000002
+                alpha = int(self.opacity * 255)
+                ctypes.windll.user32.SetLayeredWindowAttributes(hwnd, 0, alpha, LWA_ALPHA)
+                
+                # 显示状态消息
+                self.showTemporaryMessage("已锁定并启用鼠标穿透")
+                
+                # 显示独立的解锁窗口在原窗口左上角位置
+                windowPos = self.pos()
+                self.unpassWindow.move(windowPos.x() + 5, windowPos.y() + 5)  # 放在左上角，留出5像素边距
+                self.unpassWindow.show()
+                
             except Exception as e:
-                print(f"直接更新帧时出错: {str(e)}")
+                print(f"启用锁定和鼠标穿透失败: {str(e)}")
+                # 回退到Qt的穿透方式（不完全有效）
+                self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+                self.showTemporaryMessage("已锁定（穿透功能有限）")
+        else:
+            # 解除锁定状态
+            self.disableLockAndMouseThrough()
 
-    def createHelpButton(self):
-        """创建帮助按钮 - 此方法已不再需要，帮助按钮在init方法中直接创建"""
-        pass  # 不再需要这个方法，因为帮助按钮已在init方法中创建
-
-    def createRestoreButton(self):
-        # 创建左下角的还原按钮
-        self.restoreButton = QPushButton("🔍", self)
-        self.restoreButton.setToolTip("还原窗口")
-        self.restoreButton.resize(28, 28)
-        self.restoreButton.setStyleSheet('''
-            QPushButton {
-                background-color: #2A2A2A;
-                border: 1px solid #444444;
-                border-radius: 3px;
-                font-size: 16px;
-                font-weight: bold;
-                color: #FFFFFF;
-                padding: 0px;
-            }
-            QPushButton:hover {
-                background-color: #3A3A3A;
-                border: 1px solid #666666;
-            }
-        ''')
-        self.restoreButton.clicked.connect(self.showNormalAndMove)
-        self.restoreButton.hide()  # 初始隐藏，最小化时显示
+    def disableLockAndMouseThrough(self):
+        """解除锁定和鼠标穿透状态"""
+        self.is_locked = False
+        self.mouse_through = False
         
-    def showNormalAndMove(self):
-        # 还原窗口并移动到合适位置
-        self.showNormal()
+        self.lockButton.setChecked(False)
+        self.lockButton.setText("🔓")
+        self.lockButton.setToolTip("锁定面板并启用鼠标穿透")
         
-        # 获取3ds Max所在的屏幕
+        # 恢复窗口样式
         try:
-            # 获取MAX主窗口句柄
-            maxHWND = mxs.windows.getMAXHWND()
-            if maxHWND:
-                # 直接从MaxPlus获取屏幕位置信息
-                try:
-                    # 确保ctypes.wintypes已正确导入
-                    rect = ctypes.wintypes.RECT()
-                    ctypes.windll.user32.GetWindowRect(maxHWND, ctypes.byref(rect))
-                    
-                    # 获取所有屏幕信息
-                    maxPosX = (rect.left + rect.right) // 2
-                    maxPosY = (rect.top + rect.bottom) // 2
-                    
-                    # 找到MAX所在的屏幕
-                    maxScreen = None
-                    for screen in QApplication.screens():
-                        screenGeom = screen.geometry()
-                        if screenGeom.contains(QPoint(maxPosX, maxPosY)):
-                            maxScreen = screen
-                            break
-                    
-                    if maxScreen:
-                        screenGeometry = maxScreen.availableGeometry()
-                    else:
-                        # 如果找不到，使用主屏幕
-                        screenGeometry = QApplication.primaryScreen().availableGeometry()
-                except Exception as e:
-                    print(f"获取窗口位置失败: {str(e)}")
-                    screenGeometry = QApplication.primaryScreen().availableGeometry()
-            else:
-                # 如果找不到MAX窗口，使用主屏幕
-                screenGeometry = QApplication.primaryScreen().availableGeometry()
+            # 获取窗口句柄
+            hwnd = self.winId().__int__()
+            
+            # 获取当前窗口样式
+            GWL_EXSTYLE = -20
+            WS_EX_TRANSPARENT = 0x00000020
+            WS_EX_LAYERED = 0x00080000
+            
+            # 获取当前样式
+            exStyle = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+            
+            # 移除透明样式，保留分层属性以维持透明度
+            ctypes.windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, (exStyle | WS_EX_LAYERED) & ~WS_EX_TRANSPARENT)
+            
+            # 确保取消Qt的鼠标穿透属性
+            self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+            
+            # 隐藏解锁窗口
+            self.unpassWindow.hide()
+            
+            self.showTemporaryMessage("已解锁")
         except Exception as e:
-            print(f"获取MAX屏幕失败: {str(e)}")
-            # 使用主屏幕
-            screenGeometry = QApplication.primaryScreen().availableGeometry()
-        
-        # 移动到屏幕中央
-        self.move((screenGeometry.width() - self.width()) // 2 + screenGeometry.left(), 
-                 (screenGeometry.height() - self.height()) // 2 + screenGeometry.top())
-        
-        # 隐藏恢复按钮
-        self.restoreButton.hide()
-        
-        # 激活窗口并更新大小手柄位置
-        self.activateWindow()
-        self.updateSizeGripLocation()
-
-    def showMinimized(self):
-        super().showMinimized()
-        # 显示还原按钮在3ds Max所在屏幕的左下角
-        try:
-            # 获取MAX主窗口句柄
-            maxHWND = mxs.windows.getMAXHWND()
-            if maxHWND:
-                # 直接从MaxPlus获取屏幕位置信息
-                try:
-                    # 确保ctypes.wintypes已正确导入
-                    rect = ctypes.wintypes.RECT()
-                    ctypes.windll.user32.GetWindowRect(maxHWND, ctypes.byref(rect))
-                    
-                    # 获取所有屏幕信息
-                    maxPosX = (rect.left + rect.right) // 2
-                    maxPosY = (rect.top + rect.bottom) // 2
-                    
-                    # 找到MAX所在的屏幕
-                    maxScreen = None
-                    for screen in QApplication.screens():
-                        screenGeom = screen.geometry()
-                        if screenGeom.contains(QPoint(maxPosX, maxPosY)):
-                            maxScreen = screen
-                            break
-                    
-                    if maxScreen:
-                        screenGeometry = maxScreen.availableGeometry()
-                    else:
-                        # 如果找不到，使用主屏幕
-                        screenGeometry = QApplication.primaryScreen().availableGeometry()
-                except Exception as e:
-                    print(f"获取窗口位置失败: {str(e)}")
-                    screenGeometry = QApplication.primaryScreen().availableGeometry()
-            else:
-                # 如果找不到MAX窗口，使用主屏幕
-                screenGeometry = QApplication.primaryScreen().availableGeometry()
-        except Exception as e:
-            print(f"获取MAX屏幕失败: {str(e)}")
-            # 使用主屏幕
-            screenGeometry = QApplication.primaryScreen().availableGeometry()
-        
-        # 移动到MAX所在屏幕的左下角
-        self.restoreButton.move(screenGeometry.left() + 10, screenGeometry.bottom() - 38)
-        self.restoreButton.show()
-        self.restoreButton.raise_()
+            print(f"禁用锁定和鼠标穿透失败: {str(e)}")
+            # 确保取消Qt的鼠标穿透属性
+            self.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+            self.showTemporaryMessage("已解锁")
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.dragging = True
-            self.clickPos = event.globalPos()
-            self.windowPos = self.frameGeometry().topLeft()
-            
-            # 在无边框模式下，只允许拖动窗口，不调整大小
-            if self.borderless_mode:
+            # 如果面板已锁定，不允许拖动或调整大小
+            if self.is_locked:
                 return
+                
+            # 存储初始点击位置和窗口位置用于拖动
+            self.clickPos = event.globalPos()
+            self.windowPos = self.pos()
             
-            # 检查是否点击在窗口边缘进行调整大小
+            # 快速确定是否为边缘拖动调整大小
             margin = 10
             rect = self.rect()
-            if (event.pos().x() <= margin or 
-                event.pos().x() >= rect.width() - margin or 
-                event.pos().y() <= margin or 
-                event.pos().y() >= rect.height() - margin):
-                
+            pos = event.pos()
+            
+            # 检查鼠标是否在边缘，如果是则设置为调整大小模式
+            if (pos.x() <= margin or pos.x() >= rect.width() - margin or 
+                pos.y() <= margin or pos.y() >= rect.height() - margin):
+                # 设置为调整大小模式
                 self.resizing = True
-                self.resizeStartPos = event.globalPos()
+                self.dragging = False
+                self.resizeStartPos = self.clickPos
                 self.resizeStartSize = self.size()
                 
-                # 判断调整方向
-                if event.pos().x() <= margin:
-                    if event.pos().y() <= margin:
+                # 快速确定调整方向
+                if pos.x() <= margin:
+                    if pos.y() <= margin:
                         self.resizeDirection = "top-left"
-                    elif event.pos().y() >= rect.height() - margin:
+                    elif pos.y() >= rect.height() - margin:
                         self.resizeDirection = "bottom-left"
                     else:
                         self.resizeDirection = "left"
-                elif event.pos().x() >= rect.width() - margin:
-                    if event.pos().y() <= margin:
+                elif pos.x() >= rect.width() - margin:
+                    if pos.y() <= margin:
                         self.resizeDirection = "top-right"
-                    elif event.pos().y() >= rect.height() - margin:
+                    elif pos.y() >= rect.height() - margin:
                         self.resizeDirection = "bottom-right"
                     else:
                         self.resizeDirection = "right"
-                elif event.pos().y() <= margin:
+                elif pos.y() <= margin:
                     self.resizeDirection = "top"
-                elif event.pos().y() >= rect.height() - margin:
+                else:
                     self.resizeDirection = "bottom"
-                    
-                self.dragging = False
             else:
+                # 设置为拖动模式
+                self.dragging = True
                 self.resizing = False
+                # 禁用鼠标追踪，减少不必要的事件
+                self.setMouseTracking(False)
 
     def mouseMoveEvent(self, event):
-        # 更改鼠标光标形状
-        margin = 10
-        rect = self.rect()
+        # 如果面板已锁定，不允许拖动或调整大小
+        if self.is_locked:
+            self.setCursor(Qt.ArrowCursor)
+            return
+        
+        # 获取全局鼠标位置和本地位置
+        globalPos = event.globalPos()
         pos = event.pos()
         
-        if not self.dragging and not self.resizing:
-            if pos.x() <= margin and pos.y() <= margin:
-                self.setCursor(Qt.SizeFDiagCursor)  # 左上角
-            elif pos.x() >= rect.width() - margin and pos.y() >= rect.height() - margin:
-                self.setCursor(Qt.SizeFDiagCursor)  # 右下角
-            elif pos.x() <= margin and pos.y() >= rect.height() - margin:
-                self.setCursor(Qt.SizeBDiagCursor)  # 左下角
-            elif pos.x() >= rect.width() - margin and pos.y() <= margin:
-                self.setCursor(Qt.SizeBDiagCursor)  # 右上角
-            elif pos.x() <= margin or pos.x() >= rect.width() - margin:
-                self.setCursor(Qt.SizeHorCursor)    # 左边或右边
-            elif pos.y() <= margin or pos.y() >= rect.height() - margin:
-                self.setCursor(Qt.SizeVerCursor)    # 上边或下边
-            else:
-                self.setCursor(Qt.ArrowCursor)      # 默认
-        
-        # 处理拖动或调整大小
+        # 处理拖动窗口情况
         if self.dragging:
-            delta = event.globalPos() - self.clickPos
-            self.move(self.windowPos + delta)
-        elif self.resizing:
-            delta = event.globalPos() - self.resizeStartPos
-            newSize = QtCore.QSize(self.resizeStartSize)
-            newPos = QtCore.QPoint(self.pos())
+            # 高效计算移动增量
+            delta = globalPos - self.clickPos
             
+            # 直接设置新位置，减少计算
+            self.move(self.windowPos + delta)
+            return
+            
+        # 处理调整窗口大小情况
+        elif self.resizing:
+            delta = globalPos - self.resizeStartPos
+            newSize = QtCore.QSize(self.resizeStartSize)
+            newPos = QtCore.QPoint(self.windowPos)
+            
+            # 快速计算新尺寸和位置
             if "left" in self.resizeDirection:
-                window_width = max(150, self.resizeStartSize.width() - delta.x())  # 减小到150
-                newSize.setWidth(window_width)
-                newPos.setX(self.x() + self.resizeStartSize.width() - window_width)
+                width = max(150, self.resizeStartSize.width() - delta.x())
+                newSize.setWidth(width)
+                newPos.setX(self.windowPos.x() + self.resizeStartSize.width() - width)
             elif "right" in self.resizeDirection:
-                window_width = max(150, self.resizeStartSize.width() + delta.x())  # 减小到150
-                newSize.setWidth(window_width)
+                width = max(150, self.resizeStartSize.width() + delta.x())
+                newSize.setWidth(width)
                 
             if "top" in self.resizeDirection:
-                height = max(100, self.resizeStartSize.height() - delta.y())  # 减小到100
+                height = max(100, self.resizeStartSize.height() - delta.y())
                 newSize.setHeight(height)
-                newPos.setY(self.y() + self.resizeStartSize.height() - height)
+                newPos.setY(self.windowPos.y() + self.resizeStartSize.height() - height)
             elif "bottom" in self.resizeDirection:
-                height = max(100, self.resizeStartSize.height() + delta.y())  # 减小到100
+                height = max(100, self.resizeStartSize.height() + delta.y())
                 newSize.setHeight(height)
             
+            # 一次性设置尺寸和位置
             self.resize(newSize)
             self.move(newPos)
+            return
             
-            # 调整UI布局适应小窗口
-            try:
-                self.adjustLayoutForWindowSize()
-            except Exception as e:
-                print(f"调整布局出错: {str(e)}")
+        # 如果没有拖动或调整大小，则只更新鼠标指针形状
+        margin = 10
+        rect = self.rect()
+        
+        # 设置适当的鼠标指针形状
+        if pos.x() <= margin and pos.y() <= margin:
+            self.setCursor(Qt.SizeFDiagCursor)  # 左上角
+        elif pos.x() >= rect.width() - margin and pos.y() >= rect.height() - margin:
+            self.setCursor(Qt.SizeFDiagCursor)  # 右下角
+        elif pos.x() <= margin and pos.y() >= rect.height() - margin:
+            self.setCursor(Qt.SizeBDiagCursor)  # 左下角
+        elif pos.x() >= rect.width() - margin and pos.y() <= margin:
+            self.setCursor(Qt.SizeBDiagCursor)  # 右上角
+        elif pos.x() <= margin or pos.x() >= rect.width() - margin:
+            self.setCursor(Qt.SizeHorCursor)    # 左边或右边
+        elif pos.y() <= margin or pos.y() >= rect.height() - margin:
+            self.setCursor(Qt.SizeVerCursor)    # 上边或下边
+        else:
+            self.setCursor(Qt.ArrowCursor)      # 默认
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
-            was_resizing = self.resizing  # 保存当前状态以便后续处理
-            was_dragging = self.dragging
+            # 重新启用鼠标追踪
+            self.setMouseTracking(True)
             
-            # 重置状态
+            # 重置拖动和调整大小状态
             self.dragging = False
             self.resizing = False
             
-            # 强制恢复为箭头鼠标样式，无论在什么情况下
-            self.unsetCursor()  # 首先取消任何自定义光标
-            self.setCursor(Qt.ArrowCursor)  # 然后设置箭头光标
+            # 强制恢复为箭头鼠标样式
+            self.unsetCursor()
+            self.setCursor(Qt.ArrowCursor)
             
             # 确保全局鼠标样式也被重置
             QApplication.restoreOverrideCursor()
             
-            # 彻底清除应用程序级别的光标设置
+            # 清除所有光标覆盖
             while QApplication.overrideCursor():
                 QApplication.restoreOverrideCursor()
-            
-            # 再次设置为箭头光标确保一致性
+                
+            # 最后，确保显示箭头光标
             QApplication.setOverrideCursor(Qt.ArrowCursor)
             QApplication.restoreOverrideCursor()
-            
-            # 强制更新UI，确保光标改变立即生效
-            QApplication.processEvents()
 
     def wheelEvent(self, event):
         """简化的滚轮事件，避免错误"""
+        # 如果面板已锁定，不允许缩放
+        if self.is_locked:
+            return
+            
         try:
-            delta = event.delta()
+            delta = event.angleDelta().y()
             if delta > 0:
                 # 放大窗口
                 w = self.width() + 20
@@ -532,6 +486,12 @@ class AnimRef(QDialog):
         else:
             borderlessModeAction = QAction("进入无边框模式", self)
         
+        # 添加锁定和鼠标穿透选项
+        if self.is_locked:
+            lockAction = QAction("解锁面板并禁用鼠标穿透", self)
+        else:
+            lockAction = QAction("锁定面板并启用鼠标穿透", self)
+        
         minimizeAction.triggered.connect(self.showMinimized)
         maximizeAction.triggered.connect(self.toggleMaximized)
         sizeAction.triggered.connect(lambda: self.resize(720, 460))
@@ -539,11 +499,13 @@ class AnimRef(QDialog):
         helpAction.triggered.connect(self.showHelp)
         closeAction.triggered.connect(self.close)
         borderlessModeAction.triggered.connect(self.toggleBorderlessMode)
+        lockAction.triggered.connect(self.toggleLockAndMouseThrough)
         
         menu.addAction(minimizeAction)
         menu.addAction(maximizeAction)
         menu.addAction(sizeAction)
         menu.addSeparator()
+        menu.addAction(lockAction)
         menu.addAction(borderlessModeAction)  # 添加无边框模式菜单项
         menu.addAction(openFramesDirAction)       
         menu.addAction(helpAction)
@@ -776,8 +738,22 @@ class AnimRef(QDialog):
             # 更新帧滑块
             self.frameSlider.setEnabled(True)
             self.frameSlider.setMaximum(self.last_frame - 1)  # 设置最大值为帧数-1
+            
+            # 调整time_shift使当前MAX时间能显示第一帧
+            current_time = int(mxs.currentTime)
+            self.time_shift = current_time  # 设置偏移等于当前帧，这样ref_frame=0
+            self.ui.sb_time_shift.setValue(self.time_shift)  # 更新UI显示
+            
+            # 设置滑块值为0，显示第一帧
             self.frameSlider.setValue(0)
             
+            # 显示临时消息
+            self.showTemporaryMessage(f"已加载 {self.last_frame} 帧图像")
+            
+            # 强制立即显示第0帧图像
+            self.displayFrame(0)
+        else:
+            print("未选择任何图片")
             self.changeTime()
     
     def cleanupTempDir(self, dir_path):
@@ -1154,6 +1130,10 @@ class AnimRef(QDialog):
         
         # 播放状态跟踪
         self.is_playing = False
+        
+        # 滑块更新标志
+        self.updatingSlider = False
+        self.sliderDragging = False
 
     def defineSignals(self):
         self.ui.btn_converter.clicked.connect(self.convertedExist)
@@ -1161,6 +1141,7 @@ class AnimRef(QDialog):
         self.ui.btn_converter.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.btn_converter.customContextMenuRequested.connect(self.showConverterContextMenu)
         self.ui.sl_opacity.valueChanged.connect(self.changeOpacity)
+        # 确保加载序列按钮连接到正确的函数
         self.ui.btn_load_seq.clicked.connect(self.load_seq)
         self.ui.sb_time_shift.valueChanged.connect(self.updateTimeShift)
         self.ui.btn_n_frame.clicked.connect(self.nextFrame)
@@ -1168,6 +1149,8 @@ class AnimRef(QDialog):
         self.ui.btn_play.clicked.connect(self.playFrame)
         self.ui.btn_s_frame.clicked.connect(self.startFrame)
         self.ui.btn_e_frame.clicked.connect(self.endFrame)
+        # 循环按钮连接
+        self.ui.btn_loop.clicked.connect(self.toggleLoopMode)
 
     def nextFrame(self):
         mxs.stopAnimation()
@@ -1193,13 +1176,30 @@ class AnimRef(QDialog):
             self.ui.btn_play.setText("▶️")
             self.ui.btn_play.setChecked(False)
             self.ui.sb_time_shift.setEnabled(True)
+            print("播放已暂停")
         else:
             # 当前已暂停，需要播放
+            # 检查是否需要设置循环范围
+            if self.ui.btn_loop.isChecked() and self.isLoaded:
+                # 获取当前帧和参考序列帧范围
+                current_frame = int(mxs.currentTime)
+                ref_frame = current_frame - self.time_shift
+                
+                # 如果当前不在有效范围内，调整到范围内
+                if ref_frame < 0:
+                    print("开始播放前调整：帧索引为负，调整到首帧")
+                    mxs.sliderTime = self.time_shift  # 移到首帧
+                elif ref_frame >= self.last_frame:
+                    print("开始播放前调整：帧索引超出范围，调整到首帧")
+                    mxs.sliderTime = self.time_shift  # 移到首帧
+            
+            # 开始播放
             mxs.playAnimation()
             self.is_playing = True
             self.ui.btn_play.setText("⏸️")
             self.ui.btn_play.setChecked(True)
             self.ui.sb_time_shift.setEnabled(False)
+            print("播放已开始")
             
         # 强制更新按钮显示
         self.ui.btn_play.repaint()
@@ -1221,7 +1221,13 @@ class AnimRef(QDialog):
         self.ui.sb_time_shift.setEnabled(True)
 
     def updateTimeShift(self):
+        """更新时间偏移并重新缓存图像"""
         self.time_shift = self.ui.sb_time_shift.value()
+        
+        # 清空缓存并重新预加载图像
+        self.scaled_images_cache = {}
+        self.precacheImages()
+        
         self.changeTime()
 
     def load_seq(self):
@@ -1240,25 +1246,38 @@ class AnimRef(QDialog):
         
         # 打开文件选择对话框，并默认定位到AnimRef_Frame文件夹
         try:
-            fname = list(QFileDialog.getOpenFileNames(
+            # 使用getOpenFileNames打开文件选择对话框
+            fname = QFileDialog.getOpenFileNames(
                 self, 
                 '选择图像序列', 
                 frames_dir,  # 默认打开AnimRef_Frame文件夹
                 filter="图像文件 (*.jpeg *.jpg *.png *.bmp)"
-            ))
+            )
+            
+            # 将返回值转换为list，确保我们正确处理它
+            files = list(fname[0]) if isinstance(fname, tuple) and len(fname) > 0 else []
 
-            if len(fname[0]) > 0:
+            if len(files) > 0:
                 self.images = {}
                 self.scaled_images_cache = {}  # 清空缩放图像缓存
-                self.images_path = os.path.dirname(os.path.realpath(fname[0][0]))
+                self.images_path = os.path.dirname(os.path.realpath(files[0]))
 
-                self.test = {}
-                for i in range(int(len(fname[0]))):
-                    self.images[i] = QtGui.QPixmap(fname[0][i])
-                    self.test[i] = fname[0][i]
+                # 加载所有选中的图片
+                for i in range(len(files)):
+                    try:
+                        # 创建QPixmap对象并加载图片
+                        pixmap = QtGui.QPixmap(files[i])
+                        if not pixmap.isNull():
+                            self.images[i] = pixmap
+                    except Exception as e:
+                        print(f"加载图片失败: {files[i]}, 错误: {str(e)}")
 
-                self.last_frame = len(fname[0])
+                # 设置帧数
+                self.last_frame = len(files)
                 self.isLoaded = True
+                
+                # 打印加载成功信息
+                print(f"成功加载了 {len(self.images)} 张图片，序列帧路径: {self.images_path}")
                 
                 # 预缩放常用尺寸的前几帧图像
                 self.precacheImages()
@@ -1276,37 +1295,140 @@ class AnimRef(QDialog):
                 # 更新帧滑块
                 self.frameSlider.setEnabled(True)
                 self.frameSlider.setMaximum(self.last_frame - 1)  # 设置最大值为帧数-1
+                
+                # 调整time_shift使当前MAX时间能显示第一帧
+                current_time = int(mxs.currentTime)
+                self.time_shift = current_time  # 设置偏移等于当前帧，这样ref_frame=0
+                self.ui.sb_time_shift.setValue(self.time_shift)  # 更新UI显示
+                
+                # 设置滑块值为0，显示第一帧
                 self.frameSlider.setValue(0)
                 
-                self.changeTime()
+                # 显示临时消息
+                self.showTemporaryMessage(f"已加载 {self.last_frame} 帧图像")
+                
+                # 强制立即显示第0帧图像
+                self.displayFrame(0)
             else:
+                print("未选择任何图片")
                 self.changeTime()
         except Exception as e:
             print(f"加载序列出错: {str(e)}")
+            import traceback
+            traceback.print_exc()
             self.changeTime()
+            
+    def displayFrame(self, frame_index):
+        """直接显示指定索引的帧"""
+        if not self.isLoaded or frame_index < 0 or frame_index >= self.last_frame:
+            return
+            
+        try:
+            # 获取当前尺寸
+            current_width = self.ui.viewer.geometry().width()
+            current_height = self.ui.viewer.geometry().height()
+            
+            # 检查缓存中是否已存在缩放后的图像
+            cache_key = (frame_index, current_width, current_height)
+            
+            if cache_key in self.scaled_images_cache:
+                # 使用缓存图像
+                self.pixmap = self.scaled_images_cache[cache_key]
+            else:
+                # 缩放图像
+                self.pixmap = self.images[frame_index].scaled(
+                    current_width, current_height,
+                    QtCore.Qt.KeepAspectRatio,
+                    QtCore.Qt.SmoothTransformation
+                )
+                # 缓存图像
+                self.scaled_images_cache[cache_key] = self.pixmap
+            
+            # 更新显示
+            self.ui.viewer.setPixmap(self.pixmap)
+            self.ui.viewer.repaint()
+            self.last_valid_frame = frame_index
+            
+            # 更新帧号显示
+            self.ui.maxframe.setText(str(int(mxs.currentTime)))
+            self.ui.refframe.setText(str(frame_index))
+            
+        except Exception as e:
+            print(f"显示帧出错: {str(e)}")
+            
+        # 也调用正常的changeTime函数保持其他状态同步
+        self.changeTime()
 
     def precacheImages(self):
+        """预缓存图像，提高性能，参考邻近的几帧"""
         try:
             current_frame = int(mxs.currentTime) - self.time_shift
-            # 缓存当前帧和周围的几帧
-            frames_to_cache = [max(0, current_frame-5), max(0, current_frame-2), 
-                              current_frame, 
-                              min(self.last_frame-1, current_frame+2), 
-                              min(self.last_frame-1, current_frame+5)]
             
+            # 获取当前窗口尺寸用于缩放
+            current_width = self.ui.viewer.geometry().width()
+            current_height = self.ui.viewer.geometry().height()
+            
+            # 极大增加预缓存范围，提供最丝滑的体验
+            frames_to_cache = []
+            
+            # 第1优先级：当前帧
+            if 0 <= current_frame < self.last_frame:
+                frames_to_cache.append(current_frame)
+            
+            # 第2优先级：下一帧和上一帧（立即邻近的帧）
+            if 0 <= current_frame + 1 < self.last_frame:
+                frames_to_cache.append(current_frame + 1)
+            if 0 <= current_frame - 1 < self.last_frame:
+                frames_to_cache.append(current_frame - 1)
+            
+            # 第3优先级：接下来的20帧和之前的10帧
+            # 播放方向优先：先缓存前进方向的更多帧
+            for i in range(2, 22):  # 前进方向缓存20帧
+                next_frame = current_frame + i
+                if 0 <= next_frame < self.last_frame:
+                    frames_to_cache.append(next_frame)
+            
+            for i in range(2, 12):  # 后退方向缓存10帧
+                prev_frame = current_frame - i
+                if 0 <= prev_frame < self.last_frame:
+                    frames_to_cache.append(prev_frame)
+            
+            # 第4优先级：剩余帧，如果帧数不多的话
+            if self.last_frame <= 120:  # 对于帧数较少的序列，尝试缓存所有帧
+                for i in range(self.last_frame):
+                    if i not in frames_to_cache and 0 <= i < self.last_frame:
+                        frames_to_cache.append(i)
+            
+            # 进行实际缓存操作
             for i in frames_to_cache:
-                if i in self.images and i >= 0 and i < self.last_frame:
-                    # 缓存缩放图像
-                    cache_key = (i, self.viewer_width, self.viewer_height)
-                    if cache_key not in self.scaled_images_cache:
-                        self.scaled_images_cache[cache_key] = self.images[i].scaled(
-                        self.viewer_width, self.viewer_height,
+                if i in self.images and (i, current_width, current_height) not in self.scaled_images_cache:
+                    # 使用FastTransformation来缩放图像，提高性能
+                    self.scaled_images_cache[(i, current_width, current_height)] = self.images[i].scaled(
+                        current_width, current_height,
                         QtCore.Qt.KeepAspectRatio,
                         QtCore.Qt.FastTransformation
                     )
+                    
+                    # 修改缓存大小限制，允许缓存更多帧
+                    if len(self.scaled_images_cache) > 120:  # 增加到120帧
+                        # 找出距离当前帧最远的缓存项并移除
+                        furthest_key = None
+                        furthest_dist = -1
+                        
+                        for key in list(self.scaled_images_cache.keys()):
+                            if isinstance(key, tuple) and len(key) >= 1:
+                                frame_idx = key[0]
+                                dist = abs(frame_idx - current_frame)
+                                if dist > furthest_dist:
+                                    furthest_dist = dist
+                                    furthest_key = key
+                        
+                        if furthest_key:
+                            del self.scaled_images_cache[furthest_key]
+                            
         except Exception as e:
             print(f"预缓存图像出错: {str(e)}")
-
+            
     def changeTime(self):
         if self.isLoaded:
             # 更新显示的帧号
@@ -1329,18 +1451,14 @@ class AnimRef(QDialog):
                         # 使用缓存图像
                         self.pixmap = self.scaled_images_cache[cache_key]
                     else:
-                        # 缩放图像并缓存
-                        if self.is_playing:
-                            scaling_method = QtCore.Qt.FastTransformation
-                        else:
-                            scaling_method = QtCore.Qt.SmoothTransformation
+                        # 缩放图像并缓存 - 始终使用FastTransformation提高性能
                         self.pixmap = self.images[ref_frame].scaled(
                             current_width, current_height,
                             QtCore.Qt.KeepAspectRatio,
-                            scaling_method
+                            QtCore.Qt.FastTransformation
                         )
-                        # 仅在播放时缓存，以避免内存占用过大
-                        if self.is_playing and len(self.scaled_images_cache) < 30:  # 限制缓存大小
+                        # 限制缓存大小
+                        if len(self.scaled_images_cache) < 120:  # 与precacheImages同步
                             self.scaled_images_cache[cache_key] = self.pixmap
                     
                     # 更新显示
@@ -1353,17 +1471,12 @@ class AnimRef(QDialog):
                     self.updatingSlider = True
                     self.frameSlider.setValue(ref_frame)
                     self.updatingSlider = False
-                else:
-                    # 超出范围处理
-                    self.out_of_range = True
-                    is_playing = mxs.isAnimPlaying()
                     
-                    # 循环播放逻辑
-                    if self.ui.btn_loop.isChecked():
-                        mxs.stopAnimation()
-                        mxs.sliderTime = self.time_shift
-                        if is_playing:
-                            mxs.playAnimation()
+                    # 图像加载后，立即触发预加载下一批
+                    QtCore.QTimer.singleShot(10, self.precacheImages)
+                else:
+                    # 超出范围处理 - 删除此部分，由updateTimeFromMax统一处理循环逻辑
+                    self.out_of_range = True
             except Exception as e:
                 print(f"图像显示错误: {str(e)}")
                 self.out_of_range = True
@@ -1379,7 +1492,7 @@ class AnimRef(QDialog):
                 font-size: 16px;
                 font-weight: bold;
                 color: #FFFFFF;
-                padding: 2px;
+                padding: 0px;
                 min-width: 26px;
                 min-height: 26px;
                 max-width: 28px;
@@ -1525,6 +1638,10 @@ class AnimRef(QDialog):
     def closeEvent(self, event):
         self.restoreButton.hide()
         
+        # 确保关闭独立的解锁窗口
+        if hasattr(self, 'unpassWindow') and self.unpassWindow:
+            self.unpassWindow.close()
+        
         # 先从实例列表中移除当前实例
         if self in AnimRef.instances:
             AnimRef.instances.remove(self)
@@ -1609,19 +1726,55 @@ class AnimRef(QDialog):
         # 创建自定义帮助对话框
         helpDialog = HelpDialog(self)
         helpDialog.setText(helpText)
-        helpDialog.exec()
+        helpDialog.exec_()
 
     def updateTimeFromMax(self):
         """使用定时器更新时间，代替MAX的回调函数"""
         # 确保窗口处于活动状态，并且已加载序列
         if not self.isVisible() or not self.isLoaded:
             return
-            
-        # 获取当前MAX时间
+        
+        # 获取当前MAX时间和参考帧
         current_max_time = int(mxs.currentTime)
+        ref_frame = current_max_time - self.time_shift
+        
+        # 循环模式激活时的特殊处理 - 只在播放状态下生效
+        is_playing = mxs.isAnimPlaying()
+        if self.isLoaded and self.ui.btn_loop.isChecked() and is_playing:
+            # 检查帧是否超出范围
+            out_of_range = ref_frame < 0 or ref_frame >= self.last_frame
+            
+            if out_of_range:
+                # 临时停止动画
+                mxs.stopAnimation() 
+                
+                # 计算新位置
+                if ref_frame < 0:
+                    # 如果索引为负，跳到结尾
+                    print(f"播放循环：当前帧={ref_frame}，跳转到末尾帧")
+                    new_max_time = self.time_shift + self.last_frame - 1
+                else:
+                    # 如果索引超出，跳到开头
+                    print(f"播放循环：当前帧={ref_frame}，跳转到首帧")
+                    new_max_time = self.time_shift
+                
+                # 设置新位置
+                mxs.sliderTime = new_max_time
+                
+                # 短暂延迟后再恢复播放，确保滑块已经更新
+                QtCore.QTimer.singleShot(50, mxs.playAnimation)
+                
+                # 显示临时提示
+                self.showTemporaryMessage("循环播放")
+                
+                # 更新当前MAX时间为新设置的时间
+                current_max_time = new_max_time
+                # 更新参考帧
+                ref_frame = current_max_time - self.time_shift
         
         # 如果时间变化了，更新UI
         time_changed = (not hasattr(self, 'last_max_time')) or (self.last_max_time != current_max_time)
+        
         if time_changed:
             self.last_max_time = current_max_time
             
@@ -1631,15 +1784,8 @@ class AnimRef(QDialog):
             except Exception as e:
                 print(f"更新时间时出错: {str(e)}")
         
-        # 始终同步播放按钮状态，不依赖于时间变化
+        # 同步播放按钮状态
         self.syncPlayButtonState()
-
-        # 在updateTimeFromMax方法中添加帧率限制
-        self.last_update_time = getattr(self, 'last_update_time', 0)
-        current_time = time.time() * 1000  # 转为毫秒
-        if current_time - self.last_update_time < 30:  # 至少30ms间隔
-            return
-        self.last_update_time = current_time
 
     def syncPlayButtonState(self):
         """同步播放按钮状态与MAX实际播放状态"""
@@ -1802,11 +1948,9 @@ class AnimRef(QDialog):
                 return
                 
             # 获取屏幕尺寸，确保调整后的窗口不会超出屏幕
-            screen = QApplication.primaryScreen()
-            for s in QApplication.screens():
-                if s.geometry().contains(self.mapToGlobal(QPoint(0, 0))):
-                    screen = s
-                    break
+            screen = QApplication.screenAt(self.mapToGlobal(QPoint(0, 0)))
+            if not screen:
+                screen = QApplication.primaryScreen()
                 
             screen_size = screen.availableSize()
             
@@ -2035,7 +2179,7 @@ class AnimRef(QDialog):
         # 创建自定义帮助对话框
         helpDialog = HelpDialog(self)
         helpDialog.setText(helpText)
-        helpDialog.exec()
+        helpDialog.exec_()
 
     def ensureGifsicleAvailable(self):
         """确保gifsicle.exe可用，返回其路径"""
@@ -2054,6 +2198,345 @@ class AnimRef(QDialog):
         )
         
         return None
+
+    def updateSizeGripLocation(self):
+        """更新右下角大小调整手柄位置"""
+        # 在PyQt中，QSizeGrip通常是由Qt自动管理的
+        # 这个方法添加这里主要用于任何需要手动调整大小手柄的操作
+        pass
+
+    def createRestoreButton(self):
+        # 创建左下角的还原按钮
+        self.restoreButton = QPushButton("🔍", self)
+        self.restoreButton.setToolTip("还原窗口")
+        self.restoreButton.resize(28, 28)
+        self.restoreButton.setStyleSheet('''
+            QPushButton {
+                background-color: #2A2A2A;
+                border: 1px solid #444444;
+                border-radius: 3px;
+                font-size: 16px;
+                font-weight: bold;
+                color: #FFFFFF;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #3A3A3A;
+                border: 1px solid #666666;
+            }
+        ''')
+        self.restoreButton.clicked.connect(self.showNormalAndMove)
+        self.restoreButton.hide()  # 初始隐藏，最小化时显示
+        
+    def showNormalAndMove(self):
+        # 还原窗口并移动到合适位置
+        self.showNormal()
+        
+        # 获取3ds Max所在的屏幕
+        try:
+            # 获取MAX主窗口句柄
+            maxHWND = mxs.windows.getMAXHWND()
+            if maxHWND:
+                # 直接从MaxPlus获取屏幕位置信息
+                try:
+                    # 确保ctypes.wintypes已正确导入
+                    rect = ctypes.wintypes.RECT()
+                    ctypes.windll.user32.GetWindowRect(maxHWND, ctypes.byref(rect))
+                    
+                    # 获取所有屏幕信息
+                    maxPosX = (rect.left + rect.right) // 2
+                    maxPosY = (rect.top + rect.bottom) // 2
+                    
+                    # 找到MAX所在的屏幕
+                    maxScreen = None
+                    for screen in QApplication.screens():
+                        screenGeom = screen.geometry()
+                        if screenGeom.contains(QPoint(maxPosX, maxPosY)):
+                            maxScreen = screen
+                            break
+                    
+                    if maxScreen:
+                        screenGeometry = maxScreen.availableGeometry()
+                    else:
+                        # 如果找不到，使用主屏幕
+                        screenGeometry = QApplication.primaryScreen().availableGeometry()
+                except Exception as e:
+                    print(f"获取窗口位置失败: {str(e)}")
+                    screenGeometry = QApplication.primaryScreen().availableGeometry()
+            else:
+                # 如果找不到MAX窗口，使用主屏幕
+                screenGeometry = QApplication.primaryScreen().availableGeometry()
+        except Exception as e:
+            print(f"获取MAX屏幕失败: {str(e)}")
+            # 使用主屏幕
+            screenGeometry = QApplication.primaryScreen().availableGeometry()
+        
+        # 移动到屏幕中央
+        self.move((screenGeometry.width() - self.width()) // 2 + screenGeometry.left(), 
+                 (screenGeometry.height() - self.height()) // 2 + screenGeometry.top())
+        
+        # 隐藏恢复按钮
+        self.restoreButton.hide()
+        
+        # 激活窗口并更新大小手柄位置
+        self.activateWindow()
+        self.updateSizeGripLocation()
+
+    def showMinimized(self):
+        super().showMinimized()
+        # 显示还原按钮在3ds Max所在屏幕的左下角
+        try:
+            # 获取MAX主窗口句柄
+            maxHWND = mxs.windows.getMAXHWND()
+            if maxHWND:
+                # 直接从MaxPlus获取屏幕位置信息
+                try:
+                    # 确保ctypes.wintypes已正确导入
+                    rect = ctypes.wintypes.RECT()
+                    ctypes.windll.user32.GetWindowRect(maxHWND, ctypes.byref(rect))
+                    
+                    # 获取所有屏幕信息
+                    maxPosX = (rect.left + rect.right) // 2
+                    maxPosY = (rect.top + rect.bottom) // 2
+                    
+                    # 找到MAX所在的屏幕
+                    maxScreen = None
+                    for screen in QApplication.screens():
+                        screenGeom = screen.geometry()
+                        if screenGeom.contains(QPoint(maxPosX, maxPosY)):
+                            maxScreen = screen
+                            break
+                    
+                    if maxScreen:
+                        screenGeometry = maxScreen.availableGeometry()
+                    else:
+                        # 如果找不到，使用主屏幕
+                        screenGeometry = QApplication.primaryScreen().availableGeometry()
+                except Exception as e:
+                    print(f"获取窗口位置失败: {str(e)}")
+                    screenGeometry = QApplication.primaryScreen().availableGeometry()
+            else:
+                # 如果找不到MAX窗口，使用主屏幕
+                screenGeometry = QApplication.primaryScreen().availableGeometry()
+        except Exception as e:
+            print(f"获取MAX屏幕失败: {str(e)}")
+            # 使用主屏幕
+            screenGeometry = QApplication.primaryScreen().availableGeometry()
+        
+        # 移动到MAX所在屏幕的左下角
+        self.restoreButton.move(screenGeometry.left() + 10, screenGeometry.bottom() - 38)
+        self.restoreButton.show()
+        self.restoreButton.raise_()
+
+    def createTimelineSlider(self):
+        """创建时间轴滑块用于拖动帧"""
+        # 创建横向容器放置滑块
+        self.timelineContainer = QWidget(self)
+        self.timelineContainer.setFixedHeight(15)  # 限制整体高度
+        timelineLayout = QHBoxLayout(self.timelineContainer)
+        timelineLayout.setContentsMargins(5, 0, 5, 0)
+        timelineLayout.setSpacing(0)
+        
+        # 添加帧范围设置按钮
+        self.frameRangeButton = QPushButton("⚡", self.timelineContainer)
+        self.frameRangeButton.setToolTip("快速设置帧范围")
+        self.frameRangeButton.setFixedSize(30, 15)
+        self.frameRangeButton.setEnabled(False)  # 初始时禁用按钮
+        self.frameRangeButton.setStyleSheet('''
+            QPushButton {
+                background-color: #2A2A2A;
+                border: 1px solid #444444;
+                border-radius: 3px;
+                font-size: 10px;
+                font-weight: bold;
+                color: #FFFFFF;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #3A3A3A;
+                border: 1px solid #666666;
+            }
+            QPushButton:pressed {
+                background-color: #222222;
+            }
+        ''')
+        self.frameRangeButton.clicked.connect(self.setFrameRangeToSequence)
+        timelineLayout.addWidget(self.frameRangeButton)
+        
+        # 创建滑块
+        self.frameSlider = QSlider(Qt.Horizontal, self.timelineContainer)
+        self.frameSlider.setMinimum(0)
+        self.frameSlider.setMaximum(100)  # 初始值，稍后会根据帧数更新
+        self.frameSlider.setValue(0)
+        self.frameSlider.setTracking(True)
+        self.frameSlider.setEnabled(False)
+        self.frameSlider.setFixedHeight(10)  # 限制滑块高度
+        
+        # 设置样式 - 使进度条更细
+        self.frameSlider.setStyleSheet('''
+            QSlider {
+                height: 10px;
+                margin: 0px;
+                background: transparent;
+            }
+            QSlider::groove:horizontal {
+                border: 1px solid #444444;
+                height: 2px;
+                background: #333333;
+                margin: 0px;
+                border-radius: 1px;
+            }
+            QSlider::handle:horizontal {
+                background: #6A9AE0;
+                border: 1px solid #7AB0FF;
+                width: 8px;
+                height: 8px;
+                margin: -4px 0;
+                border-radius: 4px;
+            }
+            QSlider::handle:horizontal:hover {
+                background: #7AB0FF;
+            }
+            QSlider::sub-page:horizontal {
+                background: #41729F;
+            }
+        ''')
+        
+        # 确保滑块能够拉伸占据所有可用空间
+        self.frameSlider.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        
+        timelineLayout.addWidget(self.frameSlider)
+        
+        # 将滑块容器添加到UI中
+        self.ui.layout().insertWidget(1, self.timelineContainer)  # 添加到图片下方，控件上方
+        
+        # 连接滑块的信号
+        self.frameSlider.sliderPressed.connect(self.sliderPressed)
+        self.frameSlider.sliderReleased.connect(self.sliderReleased)
+        self.frameSlider.valueChanged.connect(self.sliderFrameChanged)
+        
+        # 滑块拖动中标志
+        self.sliderDragging = False
+    
+    def sliderPressed(self):
+        """开始拖动滑块"""
+        self.sliderDragging = True
+        
+    def sliderReleased(self):
+        """结束拖动滑块"""
+        self.sliderDragging = False
+    
+    def sliderFrameChanged(self, value):
+        """当滑块值改变时更新帧"""
+        if self.isLoaded and not self.updatingSlider:
+            # 计算对应的帧
+            frame = self.time_shift + value
+            # 更新MAX时间滑块
+            mxs.sliderTime = frame
+            
+            # 直接快速显示当前帧，使用FastTransformation提高响应速度
+            try:
+                ref_frame = value  # 滑块值就是相对帧索引
+                current_width = self.ui.viewer.geometry().width()
+                current_height = self.ui.viewer.geometry().height()
+                
+                # 检查缓存中是否已存在缩放后的图像
+                cache_key = (ref_frame, current_width, current_height)
+                
+                if cache_key in self.scaled_images_cache:
+                    # 使用缓存图像
+                    self.pixmap = self.scaled_images_cache[cache_key]
+                else:
+                    # 缩放图像 - 直接使用FastTransformation提高响应速度
+                    self.pixmap = self.images[ref_frame].scaled(
+                        current_width, current_height,
+                        QtCore.Qt.KeepAspectRatio,
+                        QtCore.Qt.FastTransformation
+                    )
+                    # 添加到缓存
+                    self.scaled_images_cache[cache_key] = self.pixmap
+                
+                # 更新显示
+                self.ui.viewer.setPixmap(self.pixmap)
+                self.ui.viewer.repaint()
+                self.last_valid_frame = ref_frame
+                
+                # 更新帧号显示
+                self.ui.maxframe.setText(str(frame))
+                self.ui.refframe.setText(str(ref_frame))
+                
+                # 如果当前滑块拖动结束，预缓存周围帧
+                if not self.sliderDragging:
+                    # 延迟调用预缓存，让UI先响应
+                    QtCore.QTimer.singleShot(50, self.precacheImages)
+            except Exception as e:
+                print(f"滑块更新帧出错: {str(e)}")
+                
+            # 不再需要调用changeTime，避免重复处理造成卡顿
+
+    def createHelpButton(self):
+        """创建帮助按钮 - 此方法已不再需要，帮助按钮在init方法中直接创建"""
+        pass  # 不再需要这个方法，因为帮助按钮已在init方法中创建
+
+    def toggleLoopMode(self):
+        """切换循环模式"""
+        is_loop_enabled = self.ui.btn_loop.isChecked()
+        
+        if is_loop_enabled:
+            # 循环模式已开启，显示状态消息
+            self.showTemporaryMessage("循环模式已开启")
+            # 设置按钮样式
+            self.ui.btn_loop.setStyleSheet('''
+                QPushButton {
+                    background-color: #3A6A9A;
+                    border: 1px solid #5A8ACA;
+                    border-radius: 3px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #FFFFFF;
+                    padding: 0px;
+                    min-width: 26px;
+                    min-height: 26px;
+                    max-width: 28px;
+                    max-height: 28px;
+                }
+                QPushButton:hover {
+                    background-color: #5A8ACA;
+                    border: 1px solid #7ABAEE;
+                }
+                QPushButton:pressed {
+                    background-color: #2A4A7A;
+                }
+            ''')
+            print("循环模式已开启 - 播放将在序列帧范围内循环")
+        else:
+            # 循环模式已关闭，显示状态消息
+            self.showTemporaryMessage("循环模式已关闭")
+            # 恢复默认按钮样式
+            buttonStyle = '''
+                QPushButton {
+                    background-color: #2A2A2A;
+                    border: 1px solid #444444;
+                    border-radius: 3px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #FFFFFF;
+                    padding: 0px;
+                    min-width: 26px;
+                    min-height: 26px;
+                    max-width: 28px;
+                    max-height: 28px;
+                }
+                QPushButton:hover {
+                    background-color: #3A3A3A;
+                    border: 1px solid #666666;
+                }
+                QPushButton:pressed {
+                    background-color: #222222;
+                }
+            '''
+            self.ui.btn_loop.setStyleSheet(buttonStyle)
+            print("循环模式已关闭 - 播放将不再循环")
 
 
 def main():
