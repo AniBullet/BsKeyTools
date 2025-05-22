@@ -1739,17 +1739,15 @@ class AnimRef(QDialog):
         current_max_time = int(mxs.currentTime)
         ref_frame = current_max_time - self.time_shift
         
-        # 循环模式激活时的特殊处理 - 无论是否播放都生效
-        if self.isLoaded and self.ui.btn_loop.isChecked():
+        # 循环模式激活时的特殊处理 - 只在播放状态下生效
+        is_playing = mxs.isAnimPlaying()
+        if self.isLoaded and self.ui.btn_loop.isChecked() and is_playing:
             # 检查帧是否超出范围
             out_of_range = ref_frame < 0 or ref_frame >= self.last_frame
             
             if out_of_range:
-                # 是否正在播放
-                is_playing = mxs.isAnimPlaying()
-                if is_playing:
-                    # 临时停止动画
-                    mxs.stopAnimation() 
+                # 临时停止动画
+                mxs.stopAnimation() 
                 
                 # 计算新位置
                 if ref_frame < 0:
@@ -1764,13 +1762,11 @@ class AnimRef(QDialog):
                 # 设置新位置
                 mxs.sliderTime = new_max_time
                 
-                # 如果之前在播放，恢复播放
-                if is_playing:
-                    # 短暂延迟后再恢复播放，确保滑块已经更新
-                    QtCore.QTimer.singleShot(50, mxs.playAnimation)
+                # 短暂延迟后再恢复播放，确保滑块已经更新
+                QtCore.QTimer.singleShot(50, mxs.playAnimation)
                 
                 # 显示临时提示
-                self.showTemporaryMessage("循环播放：重置位置")
+                self.showTemporaryMessage("循环播放")
                 
                 # 更新当前MAX时间为新设置的时间
                 current_max_time = new_max_time
