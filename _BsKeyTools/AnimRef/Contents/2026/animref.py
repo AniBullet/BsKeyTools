@@ -153,6 +153,7 @@ class AnimRef(QDialog):
         """创建左上角的锁定和鼠标穿透按钮"""
         # 创建容器放置按钮
         topButtonsContainer = QWidget(self)
+        topButtonsContainer.setStyleSheet("background-color: transparent;")
         topButtonsLayout = QHBoxLayout(topButtonsContainer)
         topButtonsLayout.setContentsMargins(5, 5, 5, 5)
         topButtonsLayout.setSpacing(5)
@@ -160,7 +161,7 @@ class AnimRef(QDialog):
         # 定义按钮样式
         buttonStyle = '''
             QPushButton {
-                background-color: #2A2A2A;
+                background-color: transparent;
                 border: 1px solid #444444;
                 border-radius: 3px;
                 font-size: 14px;
@@ -173,14 +174,14 @@ class AnimRef(QDialog):
                 max-height: 24px;
             }
             QPushButton:hover {
-                background-color: #3A3A3A;
+                background-color: rgba(58, 58, 58, 100);
                 border: 1px solid #666666;
             }
             QPushButton:pressed {
-                background-color: #222222;
+                background-color: rgba(34, 34, 34, 100);
             }
             QPushButton:checked {
-                background-color: #3A6A9A;
+                background-color: rgba(58, 106, 154, 150);
                 border: 1px solid #5A8ACA;
             }
         '''
@@ -738,8 +739,22 @@ class AnimRef(QDialog):
             # 更新帧滑块
             self.frameSlider.setEnabled(True)
             self.frameSlider.setMaximum(self.last_frame - 1)  # 设置最大值为帧数-1
+            
+            # 调整time_shift使当前MAX时间能显示第一帧
+            current_time = int(mxs.currentTime)
+            self.time_shift = current_time  # 设置偏移等于当前帧，这样ref_frame=0
+            self.ui.sb_time_shift.setValue(self.time_shift)  # 更新UI显示
+            
+            # 设置滑块值为0，显示第一帧
             self.frameSlider.setValue(0)
             
+            # 显示临时消息
+            self.showTemporaryMessage(f"已加载 {self.last_frame} 帧图像")
+            
+            # 强制立即显示第0帧图像
+            self.displayFrame(0)
+        else:
+            print("未选择任何图片")
             self.changeTime()
     
     def cleanupTempDir(self, dir_path):
@@ -1127,6 +1142,7 @@ class AnimRef(QDialog):
         self.ui.btn_converter.setContextMenuPolicy(Qt.CustomContextMenu)
         self.ui.btn_converter.customContextMenuRequested.connect(self.showConverterContextMenu)
         self.ui.sl_opacity.valueChanged.connect(self.changeOpacity)
+        # 确保加载序列按钮连接到正确的函数
         self.ui.btn_load_seq.clicked.connect(self.load_seq)
         self.ui.sb_time_shift.valueChanged.connect(self.updateTimeShift)
         self.ui.btn_n_frame.clicked.connect(self.nextFrame)
@@ -1134,6 +1150,8 @@ class AnimRef(QDialog):
         self.ui.btn_play.clicked.connect(self.playFrame)
         self.ui.btn_s_frame.clicked.connect(self.startFrame)
         self.ui.btn_e_frame.clicked.connect(self.endFrame)
+        # 循环按钮连接
+        self.ui.btn_loop.clicked.connect(self.toggleLoopMode)
 
     def nextFrame(self):
         mxs.stopAnimation()
@@ -1159,13 +1177,30 @@ class AnimRef(QDialog):
             self.ui.btn_play.setText("▶️")
             self.ui.btn_play.setChecked(False)
             self.ui.sb_time_shift.setEnabled(True)
+            print("播放已暂停")
         else:
             # 当前已暂停，需要播放
+            # 检查是否需要设置循环范围
+            if self.ui.btn_loop.isChecked() and self.isLoaded:
+                # 获取当前帧和参考序列帧范围
+                current_frame = int(mxs.currentTime)
+                ref_frame = current_frame - self.time_shift
+                
+                # 如果当前不在有效范围内，调整到范围内
+                if ref_frame < 0:
+                    print("开始播放前调整：帧索引为负，调整到首帧")
+                    mxs.sliderTime = self.time_shift  # 移到首帧
+                elif ref_frame >= self.last_frame:
+                    print("开始播放前调整：帧索引超出范围，调整到首帧")
+                    mxs.sliderTime = self.time_shift  # 移到首帧
+            
+            # 开始播放
             mxs.playAnimation()
             self.is_playing = True
             self.ui.btn_play.setText("⏸️")
             self.ui.btn_play.setChecked(True)
             self.ui.sb_time_shift.setEnabled(False)
+            print("播放已开始")
             
         # 强制更新按钮显示
         self.ui.btn_play.repaint()
@@ -1187,7 +1222,13 @@ class AnimRef(QDialog):
         self.ui.sb_time_shift.setEnabled(True)
 
     def updateTimeShift(self):
+        """更新时间偏移并重新缓存图像"""
         self.time_shift = self.ui.sb_time_shift.value()
+        
+        # 清空缓存并重新预加载图像
+        self.scaled_images_cache = {}
+        self.precacheImages()
+        
         self.changeTime()
 
     def load_seq(self):
@@ -1206,25 +1247,38 @@ class AnimRef(QDialog):
         
         # 打开文件选择对话框，并默认定位到AnimRef_Frame文件夹
         try:
-            fname = list(QFileDialog.getOpenFileNames(
+            # 使用getOpenFileNames打开文件选择对话框
+            fname = QFileDialog.getOpenFileNames(
                 self, 
                 '选择图像序列', 
                 frames_dir,  # 默认打开AnimRef_Frame文件夹
                 filter="图像文件 (*.jpeg *.jpg *.png *.bmp)"
-            ))
+            )
+            
+            # 将返回值转换为list，确保我们正确处理它
+            files = list(fname[0]) if isinstance(fname, tuple) and len(fname) > 0 else []
 
-            if len(fname[0]) > 0:
+            if len(files) > 0:
                 self.images = {}
                 self.scaled_images_cache = {}  # 清空缩放图像缓存
-                self.images_path = os.path.dirname(os.path.realpath(fname[0][0]))
+                self.images_path = os.path.dirname(os.path.realpath(files[0]))
 
-                self.test = {}
-                for i in range(int(len(fname[0]))):
-                    self.images[i] = QtGui.QPixmap(fname[0][i])
-                    self.test[i] = fname[0][i]
+                # 加载所有选中的图片
+                for i in range(len(files)):
+                    try:
+                        # 创建QPixmap对象并加载图片
+                        pixmap = QtGui.QPixmap(files[i])
+                        if not pixmap.isNull():
+                            self.images[i] = pixmap
+                    except Exception as e:
+                        print(f"加载图片失败: {files[i]}, 错误: {str(e)}")
 
-                self.last_frame = len(fname[0])
+                # 设置帧数
+                self.last_frame = len(files)
                 self.isLoaded = True
+                
+                # 打印加载成功信息
+                print(f"成功加载了 {len(self.images)} 张图片，序列帧路径: {self.images_path}")
                 
                 # 预缩放常用尺寸的前几帧图像
                 self.precacheImages()
@@ -1242,37 +1296,140 @@ class AnimRef(QDialog):
                 # 更新帧滑块
                 self.frameSlider.setEnabled(True)
                 self.frameSlider.setMaximum(self.last_frame - 1)  # 设置最大值为帧数-1
+                
+                # 调整time_shift使当前MAX时间能显示第一帧
+                current_time = int(mxs.currentTime)
+                self.time_shift = current_time  # 设置偏移等于当前帧，这样ref_frame=0
+                self.ui.sb_time_shift.setValue(self.time_shift)  # 更新UI显示
+                
+                # 设置滑块值为0，显示第一帧
                 self.frameSlider.setValue(0)
                 
-                self.changeTime()
+                # 显示临时消息
+                self.showTemporaryMessage(f"已加载 {self.last_frame} 帧图像")
+                
+                # 强制立即显示第0帧图像
+                self.displayFrame(0)
             else:
+                print("未选择任何图片")
                 self.changeTime()
         except Exception as e:
             print(f"加载序列出错: {str(e)}")
+            import traceback
+            traceback.print_exc()
             self.changeTime()
+            
+    def displayFrame(self, frame_index):
+        """直接显示指定索引的帧"""
+        if not self.isLoaded or frame_index < 0 or frame_index >= self.last_frame:
+            return
+            
+        try:
+            # 获取当前尺寸
+            current_width = self.ui.viewer.geometry().width()
+            current_height = self.ui.viewer.geometry().height()
+            
+            # 检查缓存中是否已存在缩放后的图像
+            cache_key = (frame_index, current_width, current_height)
+            
+            if cache_key in self.scaled_images_cache:
+                # 使用缓存图像
+                self.pixmap = self.scaled_images_cache[cache_key]
+            else:
+                # 缩放图像
+                self.pixmap = self.images[frame_index].scaled(
+                    current_width, current_height,
+                    QtCore.Qt.KeepAspectRatio,
+                    QtCore.Qt.SmoothTransformation
+                )
+                # 缓存图像
+                self.scaled_images_cache[cache_key] = self.pixmap
+            
+            # 更新显示
+            self.ui.viewer.setPixmap(self.pixmap)
+            self.ui.viewer.repaint()
+            self.last_valid_frame = frame_index
+            
+            # 更新帧号显示
+            self.ui.maxframe.setText(str(int(mxs.currentTime)))
+            self.ui.refframe.setText(str(frame_index))
+            
+        except Exception as e:
+            print(f"显示帧出错: {str(e)}")
+            
+        # 也调用正常的changeTime函数保持其他状态同步
+        self.changeTime()
 
     def precacheImages(self):
+        """预缓存图像，提高性能，参考邻近的几帧"""
         try:
             current_frame = int(mxs.currentTime) - self.time_shift
-            # 缓存当前帧和周围的几帧
-            frames_to_cache = [max(0, current_frame-5), max(0, current_frame-2), 
-                              current_frame, 
-                              min(self.last_frame-1, current_frame+2), 
-                              min(self.last_frame-1, current_frame+5)]
             
+            # 获取当前窗口尺寸用于缩放
+            current_width = self.ui.viewer.geometry().width()
+            current_height = self.ui.viewer.geometry().height()
+            
+            # 极大增加预缓存范围，提供最丝滑的体验
+            frames_to_cache = []
+            
+            # 第1优先级：当前帧
+            if 0 <= current_frame < self.last_frame:
+                frames_to_cache.append(current_frame)
+            
+            # 第2优先级：下一帧和上一帧（立即邻近的帧）
+            if 0 <= current_frame + 1 < self.last_frame:
+                frames_to_cache.append(current_frame + 1)
+            if 0 <= current_frame - 1 < self.last_frame:
+                frames_to_cache.append(current_frame - 1)
+            
+            # 第3优先级：接下来的20帧和之前的10帧
+            # 播放方向优先：先缓存前进方向的更多帧
+            for i in range(2, 22):  # 前进方向缓存20帧
+                next_frame = current_frame + i
+                if 0 <= next_frame < self.last_frame:
+                    frames_to_cache.append(next_frame)
+            
+            for i in range(2, 12):  # 后退方向缓存10帧
+                prev_frame = current_frame - i
+                if 0 <= prev_frame < self.last_frame:
+                    frames_to_cache.append(prev_frame)
+            
+            # 第4优先级：剩余帧，如果帧数不多的话
+            if self.last_frame <= 120:  # 对于帧数较少的序列，尝试缓存所有帧
+                for i in range(self.last_frame):
+                    if i not in frames_to_cache and 0 <= i < self.last_frame:
+                        frames_to_cache.append(i)
+            
+            # 进行实际缓存操作
             for i in frames_to_cache:
-                if i in self.images and i >= 0 and i < self.last_frame:
-                    # 缓存缩放图像
-                    cache_key = (i, self.viewer_width, self.viewer_height)
-                    if cache_key not in self.scaled_images_cache:
-                        self.scaled_images_cache[cache_key] = self.images[i].scaled(
-                        self.viewer_width, self.viewer_height,
+                if i in self.images and (i, current_width, current_height) not in self.scaled_images_cache:
+                    # 使用FastTransformation来缩放图像，提高性能
+                    self.scaled_images_cache[(i, current_width, current_height)] = self.images[i].scaled(
+                        current_width, current_height,
                         QtCore.Qt.KeepAspectRatio,
                         QtCore.Qt.FastTransformation
                     )
+                    
+                    # 修改缓存大小限制，允许缓存更多帧
+                    if len(self.scaled_images_cache) > 120:  # 增加到120帧
+                        # 找出距离当前帧最远的缓存项并移除
+                        furthest_key = None
+                        furthest_dist = -1
+                        
+                        for key in list(self.scaled_images_cache.keys()):
+                            if isinstance(key, tuple) and len(key) >= 1:
+                                frame_idx = key[0]
+                                dist = abs(frame_idx - current_frame)
+                                if dist > furthest_dist:
+                                    furthest_dist = dist
+                                    furthest_key = key
+                        
+                        if furthest_key:
+                            del self.scaled_images_cache[furthest_key]
+                            
         except Exception as e:
             print(f"预缓存图像出错: {str(e)}")
-
+            
     def changeTime(self):
         if self.isLoaded:
             # 更新显示的帧号
@@ -1295,18 +1452,14 @@ class AnimRef(QDialog):
                         # 使用缓存图像
                         self.pixmap = self.scaled_images_cache[cache_key]
                     else:
-                        # 缩放图像并缓存
-                        if self.is_playing:
-                            scaling_method = QtCore.Qt.FastTransformation
-                        else:
-                            scaling_method = QtCore.Qt.SmoothTransformation
+                        # 缩放图像并缓存 - 始终使用FastTransformation提高性能
                         self.pixmap = self.images[ref_frame].scaled(
                             current_width, current_height,
                             QtCore.Qt.KeepAspectRatio,
-                            scaling_method
+                            QtCore.Qt.FastTransformation
                         )
-                        # 仅在播放时缓存，以避免内存占用过大
-                        if self.is_playing and len(self.scaled_images_cache) < 30:  # 限制缓存大小
+                        # 限制缓存大小
+                        if len(self.scaled_images_cache) < 120:  # 与precacheImages同步
                             self.scaled_images_cache[cache_key] = self.pixmap
                     
                     # 更新显示
@@ -1319,17 +1472,12 @@ class AnimRef(QDialog):
                     self.updatingSlider = True
                     self.frameSlider.setValue(ref_frame)
                     self.updatingSlider = False
-                else:
-                    # 超出范围处理
-                    self.out_of_range = True
-                    is_playing = mxs.isAnimPlaying()
                     
-                    # 循环播放逻辑
-                    if self.ui.btn_loop.isChecked():
-                        mxs.stopAnimation()
-                        mxs.sliderTime = self.time_shift
-                        if is_playing:
-                            mxs.playAnimation()
+                    # 图像加载后，立即触发预加载下一批
+                    QtCore.QTimer.singleShot(10, self.precacheImages)
+                else:
+                    # 超出范围处理 - 删除此部分，由updateTimeFromMax统一处理循环逻辑
+                    self.out_of_range = True
             except Exception as e:
                 print(f"图像显示错误: {str(e)}")
                 self.out_of_range = True
@@ -1345,7 +1493,7 @@ class AnimRef(QDialog):
                 font-size: 16px;
                 font-weight: bold;
                 color: #FFFFFF;
-                padding: 2px;
+                padding: 0px;
                 min-width: 26px;
                 min-height: 26px;
                 max-width: 28px;
@@ -1586,12 +1734,52 @@ class AnimRef(QDialog):
         # 确保窗口处于活动状态，并且已加载序列
         if not self.isVisible() or not self.isLoaded:
             return
-            
-        # 获取当前MAX时间
+        
+        # 获取当前MAX时间和参考帧
         current_max_time = int(mxs.currentTime)
+        ref_frame = current_max_time - self.time_shift
+        
+        # 循环模式激活时的特殊处理 - 无论是否播放都生效
+        if self.isLoaded and self.ui.btn_loop.isChecked():
+            # 检查帧是否超出范围
+            out_of_range = ref_frame < 0 or ref_frame >= self.last_frame
+            
+            if out_of_range:
+                # 是否正在播放
+                is_playing = mxs.isAnimPlaying()
+                if is_playing:
+                    # 临时停止动画
+                    mxs.stopAnimation() 
+                
+                # 计算新位置
+                if ref_frame < 0:
+                    # 如果索引为负，跳到结尾
+                    print(f"播放循环：当前帧={ref_frame}，跳转到末尾帧")
+                    new_max_time = self.time_shift + self.last_frame - 1
+                else:
+                    # 如果索引超出，跳到开头
+                    print(f"播放循环：当前帧={ref_frame}，跳转到首帧")
+                    new_max_time = self.time_shift
+                
+                # 设置新位置
+                mxs.sliderTime = new_max_time
+                
+                # 如果之前在播放，恢复播放
+                if is_playing:
+                    # 短暂延迟后再恢复播放，确保滑块已经更新
+                    QtCore.QTimer.singleShot(50, mxs.playAnimation)
+                
+                # 显示临时提示
+                self.showTemporaryMessage("循环播放：重置位置")
+                
+                # 更新当前MAX时间为新设置的时间
+                current_max_time = new_max_time
+                # 更新参考帧
+                ref_frame = current_max_time - self.time_shift
         
         # 如果时间变化了，更新UI
         time_changed = (not hasattr(self, 'last_max_time')) or (self.last_max_time != current_max_time)
+        
         if time_changed:
             self.last_max_time = current_max_time
             
@@ -1601,15 +1789,8 @@ class AnimRef(QDialog):
             except Exception as e:
                 print(f"更新时间时出错: {str(e)}")
         
-        # 始终同步播放按钮状态，不依赖于时间变化
+        # 同步播放按钮状态
         self.syncPlayButtonState()
-
-        # 在updateTimeFromMax方法中添加帧率限制
-        self.last_update_time = getattr(self, 'last_update_time', 0)
-        current_time = time.time() * 1000  # 转为毫秒
-        if current_time - self.last_update_time < 30:  # 至少30ms间隔
-            return
-        self.last_update_time = current_time
 
     def syncPlayButtonState(self):
         """同步播放按钮状态与MAX实际播放状态"""
@@ -2258,15 +2439,109 @@ class AnimRef(QDialog):
             # 更新MAX时间滑块
             mxs.sliderTime = frame
             
-            # 直接更新当前窗口的图像显示，不等待定时器
+            # 直接快速显示当前帧，使用FastTransformation提高响应速度
             try:
-                self.changeTime()
+                ref_frame = value  # 滑块值就是相对帧索引
+                current_width = self.ui.viewer.geometry().width()
+                current_height = self.ui.viewer.geometry().height()
+                
+                # 检查缓存中是否已存在缩放后的图像
+                cache_key = (ref_frame, current_width, current_height)
+                
+                if cache_key in self.scaled_images_cache:
+                    # 使用缓存图像
+                    self.pixmap = self.scaled_images_cache[cache_key]
+                else:
+                    # 缩放图像 - 直接使用FastTransformation提高响应速度
+                    self.pixmap = self.images[ref_frame].scaled(
+                        current_width, current_height,
+                        QtCore.Qt.KeepAspectRatio,
+                        QtCore.Qt.FastTransformation
+                    )
+                    # 添加到缓存
+                    self.scaled_images_cache[cache_key] = self.pixmap
+                
+                # 更新显示
+                self.ui.viewer.setPixmap(self.pixmap)
+                self.ui.viewer.repaint()
+                self.last_valid_frame = ref_frame
+                
+                # 更新帧号显示
+                self.ui.maxframe.setText(str(frame))
+                self.ui.refframe.setText(str(ref_frame))
+                
+                # 如果当前滑块拖动结束，预缓存周围帧
+                if not self.sliderDragging:
+                    # 延迟调用预缓存，让UI先响应
+                    QtCore.QTimer.singleShot(50, self.precacheImages)
             except Exception as e:
-                print(f"直接更新帧时出错: {str(e)}")
+                print(f"滑块更新帧出错: {str(e)}")
+                
+            # 不再需要调用changeTime，避免重复处理造成卡顿
 
     def createHelpButton(self):
         """创建帮助按钮 - 此方法已不再需要，帮助按钮在init方法中直接创建"""
         pass  # 不再需要这个方法，因为帮助按钮已在init方法中创建
+
+    def toggleLoopMode(self):
+        """切换循环模式"""
+        is_loop_enabled = self.ui.btn_loop.isChecked()
+        
+        if is_loop_enabled:
+            # 循环模式已开启，显示状态消息
+            self.showTemporaryMessage("循环模式已开启")
+            # 设置按钮样式
+            self.ui.btn_loop.setStyleSheet('''
+                QPushButton {
+                    background-color: #3A6A9A;
+                    border: 1px solid #5A8ACA;
+                    border-radius: 3px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #FFFFFF;
+                    padding: 0px;
+                    min-width: 26px;
+                    min-height: 26px;
+                    max-width: 28px;
+                    max-height: 28px;
+                }
+                QPushButton:hover {
+                    background-color: #5A8ACA;
+                    border: 1px solid #7ABAEE;
+                }
+                QPushButton:pressed {
+                    background-color: #2A4A7A;
+                }
+            ''')
+            print("循环模式已开启 - 播放将在序列帧范围内循环")
+        else:
+            # 循环模式已关闭，显示状态消息
+            self.showTemporaryMessage("循环模式已关闭")
+            # 恢复默认按钮样式
+            buttonStyle = '''
+                QPushButton {
+                    background-color: #2A2A2A;
+                    border: 1px solid #444444;
+                    border-radius: 3px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #FFFFFF;
+                    padding: 0px;
+                    min-width: 26px;
+                    min-height: 26px;
+                    max-width: 28px;
+                    max-height: 28px;
+                }
+                QPushButton:hover {
+                    background-color: #3A3A3A;
+                    border: 1px solid #666666;
+                }
+                QPushButton:pressed {
+                    background-color: #222222;
+                }
+            '''
+            self.ui.btn_loop.setStyleSheet(buttonStyle)
+            print("循环模式已关闭 - 播放将不再循环")
 
 
 def main():
