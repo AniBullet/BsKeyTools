@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-04-21 10:22:35
+ * @LastEditTime: 2025-05-23 19:25:55
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -12,8 +12,10 @@
 
 try (destroyDialog rolBsRetarget) catch()
 try (destroyDialog choose_item_rollout) catch()
+try (destroyDialog rolHelpDialog) catch()
 
 global rolBsRetarget
+global rolHelpDialog
 
 global boneNames = #(
 	
@@ -616,11 +618,12 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v4.2 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v4.3 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
-	dotnetcontrol lblTitle "Label" text:"选择骨骼，左键填入列表，右键重置，除【可选】以外，暂时需要映射列表完整，按【1234】顺序执行即可" pos:[0,5] width:rolBsRetarget.width height:16
+	dotnetcontrol lblTitle "Label" text:"选择Bone，左键填入列表，右键重置，除【可选】以外，需要映射列表完整，按【1234】顺序执行即可" pos:[0,5] width:(rolBsRetarget.width - 50) height:16
+	button btnHelp "❓" pos:[(rolBsRetarget.width - 45),3] width:40 height:20 tooltip:"点击查看使用帮助"
 	dotNetControl tabBsADT "System.Windows.Forms.TabControl" height:30 width:rolBsRetarget.width pos:[0,25] align:#center
 	-- Contains the names of the first 35 biped bones for reference
 	dotnetcontrol lblPreset "Label" text:"[重要]  映射列表 和 手指轴向 配置预设 【List】→ ：" pos:[10,65] width:280 height:20
@@ -3837,6 +3840,12 @@ rollout rolBsRetarget "BsRetargetTools_v4.2 （ FBX 转 BIP + 动画重定向 �
 			)
 		)
 	)
+
+	-- 帮助按钮事件
+	on btnHelp pressed do
+	(
+		createDialog rolHelpDialog modal:true
+	)
 )
 
 createDialog rolBsRetarget 650 660 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) lockHeight:true lockWidth:true fgcolor:myFgColor
@@ -3930,4 +3939,30 @@ for  i=2 to rolBsRetarget.bipedBones.items.count do
 for  i=2 to rolBsRetarget.bipedBones_B.items.count do
 (
 	rolBsRetarget.characterBones_B.items = append rolBsRetarget.characterBones_B.items "~undefined~"
+)
+
+-- 简洁的帮助窗口
+rollout rolHelpDialog "BsRetargetTools 使用帮助" width:450 height:520
+(
+    label lblTitle "🎯 BsRetargetTools 快速使用指南" pos:[10,10] width:430 height:20
+    
+    groupbox grpSteps "📋 使用步骤" pos:[10,40] width:430 height:200
+    label lblStep1 "1. 检查映射：选择预设 或（自动匹配） → 验证完整" pos:[20,60] width:410 height:20
+    label lblStep2 "2. 设置参数：手指轴向、引擎选择(Unity/Unreal)" pos:[20,85] width:410 height:20
+    label lblStep3 "3. 创建映射：点击【创建重定向映射文件】" pos:[20,110] width:410 height:20
+    label lblStep4 "4. 转换骨架：点击【FBX 转 Biped (Skin)】" pos:[20,135] width:410 height:20
+    label lblStep5 "5. 动画重定向：切换到第二个页签进行操作" pos:[20,160] width:410 height:20
+    
+    groupbox grpTips "💡 重要提示" pos:[10,250] width:430 height:140
+    label lblTip1 "• 除【可选】骨骼外，其他骨骼需完整映射" pos:[20,270] width:410 height:20
+    label lblTip2 "• 手指轴向设置重要，从上往下俯瞰手指，选择右边是什么轴向" pos:[20,295] width:410 height:20
+    label lblTip3 "• 工具包含两个页签：FBX转Biped 和 动画重定向" pos:[20,320] width:410 height:20
+    label lblTip4 "• 建议文件目录结构：MappingFile.max、Skin.max、AniFBX、ReOutput" pos:[20,345] width:410 height:20
+    
+    groupbox grpContact "📞 作者信息" pos:[10,400] width:430 height:100
+    label lblAuthor "作者：Bullet.S    版本：v4.3" pos:[20,420] width:410 height:20
+    hyperLink hlHomepage "🏠 个人主页：www.anibullet.com" pos:[20,440] width:410 height:20 \
+        address:"https://www.anibullet.com/" color:(color 0 100 200) hovercolor:(color 0 150 255)
+    hyperLink hlTutorial "📺 视频教程：Bilibili教程合集" pos:[20,460] width:410 height:20 \
+        address:"https://space.bilibili.com/2031113/lists/560782?type=season" color:(color 0 100 200) hovercolor:(color 0 150 255)
 )
