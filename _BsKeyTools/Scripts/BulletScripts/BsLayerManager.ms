@@ -401,7 +401,9 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
                     local preset = arrLayerPresets[i]
                     local sectionName = "Preset_" + i as string
                     setINISetting BsLayerManagerConfig sectionName "Name" preset.name
-                    setINISetting BsLayerManagerConfig sectionName "Description" preset.description
+                    -- 将换行符转换为特殊标记
+                    local safeDesc = substituteString preset.description "\r\n" "\\n"
+                    setINISetting BsLayerManagerConfig sectionName "Description" safeDesc
                     setINISetting BsLayerManagerConfig sectionName "LayerStructure" (preset.layerStructure as string)
                     setINISetting BsLayerManagerConfig sectionName "FieldNames" (preset.fieldNames as string)
                 )
@@ -621,6 +623,10 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
                             
                             if presetName != "" then
                             (
+                                -- 将特殊标记转换回换行符
+                                if presetDesc != undefined then
+                                    presetDesc = substituteString presetDesc "\\n" "\r\n"
+                                    
                                 local preset = LayerPreset name:presetName description:presetDesc layerStructure:#() fieldNames:#()
                                 try (preset.layerStructure = execute layerStructStr) catch (preset.layerStructure = #())
                                 try (preset.fieldNames = execute fieldNamesStr) catch (preset.fieldNames = #("AAA", "BBB", "CCC"))
@@ -740,7 +746,7 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
             currentPresetIndex = arrLayerPresets.count
             
             -- 设置默认字段值
-            arrFieldValues = #("Character", "Body", "Main", "0", "Default")
+            arrFieldValues = #("Character", "Body", "0", "Main", "Default")
             
             -- 完全刷新UI
             fnRefreshPresetList()
