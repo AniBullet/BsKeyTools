@@ -43,6 +43,8 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
         button btnLoadConfig "📥导入" pos:[290,30] width:50 height:20 tooltip:"从预设文件导入"
         button btnCreateDefault "📋默认预设" pos:[345,30] width:70 height:20 tooltip:"创建一份默认预设"
         button btnCreateLayers "🚀 生成 Layers" pos:[600,30] width:110 height:20 tooltip:"使用当前字段值生成Layer结构"
+        button btnExportLayers "📤导出层" pos:[460,30] width:60 height:20 tooltip:"导出当前场景的层和物体信息"
+        button btnImportLayers "📥导入层" pos:[525,30] width:60 height:20 tooltip:"导入层和物体信息"
         
         -- 左列：预设列表区域 (收窄1/3) - 调整groupBox位置向上移动
         groupBox gpbPresetList "预设列表" pos:[5,60] width:155 height:420
@@ -1204,6 +1206,161 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
         )
         
         on rolBsLayerManager close do (fnSavePresets())
+        
+        -- 添加导出层和物体信息的功能
+        fn fnExportLayersAndObjects =
+        (
+            local exportFile = getSaveFileName caption:"导出层和物体信息" types:"层信息文件(*.lay)|*.lay|所有文件(*.*)|*.*|"
+            if exportFile != undefined then
+            (
+                try
+                (
+                    -- 创建导出数据结构
+                    local exportData = #()
+                    format "-- BsLayerManager Layer Export File\n" to:exportData
+                    format "-- Export Time: %\n\n" (localTime) to:exportData
+                    
+                    -- 获取所有层
+                    local layerCount = LayerManager.count
+                    format "LayerCount=%\n" layerCount to:exportData
+                    
+                    -- 遍历所有层
+                    for i = 0 to (layerCount - 1) do
+                    (
+                        local layer = LayerManager.getLayer i
+                        if layer != undefined then
+                        (
+                            -- 获取层名称
+                            local layerName = layer.name
+                            format "Layer=%\n" layerName to:exportData
+                            
+                            -- 获取层内的所有节点
+                            local nodes = layer.nodes
+                            if nodes != undefined and nodes.count > 0 then
+                            (
+                                format "NodeCount=%\n" nodes.count to:exportData
+                                for node in nodes do
+                                (
+                                    if node != undefined then
+                                        format "Node=%\n" node.name to:exportData
+                                )
+                            )
+                            else
+                            (
+                                format "NodeCount=0\n" to:exportData
+                            )
+                            format "\n" to:exportData
+                        )
+                    )
+                    
+                    -- 写入文件
+                    local file = createFile exportFile
+                    if file != undefined then
+                    (
+                        for line in exportData do
+                            format "%" line to:file
+                        close file
+                        messageBox ("成功导出层和物体信息到:\n" + exportFile) title:"导出成功"
+                        return true
+                    )
+                )
+                catch
+                (
+                    messageBox "导出失败！请检查文件路径和权限。" title:"导出错误"
+                    return false
+                )
+            )
+            return false
+        )
+        
+        -- 添加导入层和物体信息的功能
+        fn fnImportLayersAndObjects =
+        (
+            local importFile = getOpenFileName caption:"选择层信息文件" types:"层信息文件(*.lay)|*.lay|所有文件(*.*)|*.*|"
+            if importFile != undefined then
+            (
+                if doesFileExist importFile then
+                (
+                    try
+                    (
+                        -- 读取文件
+                        local file = openFile importFile
+                        local importData = #()
+                        local currentLayer = undefined
+                        local duplicateNodes = #()
+                        
+                        -- 解析文件内容
+                        while not eof file do
+                        (
+                            local line = readLine file
+                            if line != undefined and findString line "--" != 1 then
+                            (
+                                local eqPos = findString line "="
+                                if eqPos != undefined then
+                                (
+                                    local key = substring line 1 (eqPos - 1)
+                                    local value = substring line (eqPos + 1) -1
+                                    
+                                    if key == "Layer" then
+                                    (
+                                        -- 创建新层
+                                        if LayerManager.getLayerFromName value == undefined then
+                                            LayerManager.newLayerFromName value
+                                        currentLayer = LayerManager.getLayerFromName value
+                                    )
+                                    else if key == "Node" and currentLayer != undefined then
+                                    (
+                                        -- 查找节点并添加到层
+                                        local node = getNodeByName value
+                                        if node != undefined then
+                                        (
+                                            -- 检查节点是否已经在其他层中
+                                            local nodeLayer = node.layer
+                                            if nodeLayer != currentLayer then
+                                            (
+                                                currentLayer.addNode node
+                                            )
+                                            else
+                                            (
+                                                appendIfUnique duplicateNodes value
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                        close file
+                        
+                        -- 显示重复节点提示
+                        if duplicateNodes.count > 0 then
+                        (
+                            local msg = "以下节点已在目标层中:\n\n"
+                            for node in duplicateNodes do
+                                msg += node + "\n"
+                            messageBox msg title:"重复节点提示"
+                        )
+                        
+                        messageBox "层和物体信息导入完成！" title:"导入成功"
+                        return true
+                    )
+                    catch
+                    (
+                        messageBox "导入失败！文件格式可能不正确。" title:"导入错误"
+                        return false
+                    )
+                )
+                else
+                (
+                    messageBox "文件不存在！" title:"导入错误"
+                    return false
+                )
+            )
+            return false
+        )
+        
+        -- 添加按钮事件处理
+        on btnExportLayers pressed do (fnExportLayersAndObjects())
+        on btnImportLayers pressed do (fnImportLayersAndObjects())
     )
     
     createDialog rolBsLayerManager style:#()
