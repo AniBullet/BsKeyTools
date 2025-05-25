@@ -41,6 +41,7 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
         button btnSaveConfig "💾保存" pos:[180,30] width:50 height:20 tooltip:"保存配置"
         button btnExportPresets "📤导出" pos:[235,30] width:50 height:20 tooltip:"导出所有预设到文件"
         button btnLoadConfig "📥导入" pos:[290,30] width:50 height:20 tooltip:"从预设文件导入"
+        button btnCreateDefault "📋默认预设" pos:[345,30] width:70 height:20 tooltip:"创建一份默认预设"
         button btnCreateLayers "🚀 生成 Layers" pos:[600,30] width:110 height:20 tooltip:"使用当前字段值生成Layer结构"
         
         -- 左列：预设列表区域 (收窄1/3) - 调整groupBox位置向上移动
@@ -53,7 +54,7 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
         listBox lstPresets "" pos:[15,100] width:135 height:20
         
         -- 预设描述编辑区域 - 调整位置
-        editText txtPresetDesc "" pos:[10,375] width:140 height:80 readOnly:false
+        editText txtPresetDesc "" pos:[10,375] width:140 height:80 readOnly:false multiLine:true autoTab:true
         button btnUpdateDesc "更新描述" pos:[12,460] width:140 height:16 tooltip:"更新预设描述"
         
         -- 中列：配置区域
@@ -87,7 +88,7 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
         button btnRefreshFields "🔄" pos:[425,320] width:20 height:95 tooltip:"刷新字段列表"
         
         -- 当前选中字段的编辑区域
-        editText txtFieldName "字段名:" pos:[180,430] width:160 height:16 text:""
+        editText txtFieldName "字段名:" pos:[180,430] width:160 height:16 text:"" readOnly:true
         editText txtFieldValue "字段值:" pos:[180,455] width:160 height:16 text:""
         button btnUpdateField "配置字段值" pos:[355,430] width:80 height:18 tooltip:"更新字段"
         button btnDeleteField "删除字段" pos:[355,455] width:80 height:18 tooltip:"删除字段"
@@ -373,13 +374,17 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
             )
             lstPresets.items = presetNames
             
-            if lstPresets.selection > 0 and lstPresets.selection <= arrLayerPresets.count then
+            -- 保持当前选择
+            if currentPresetIndex > 0 and currentPresetIndex <= arrLayerPresets.count then
             (
-                currentPreset = arrLayerPresets[lstPresets.selection]
-                currentPresetIndex = lstPresets.selection
+                lstPresets.selection = currentPresetIndex
+            )
+            else if arrLayerPresets.count > 0 then
+            (
+                currentPreset = arrLayerPresets[1]
+                currentPresetIndex = 1
                 arrFieldValues = #() -- 重置字段值
                 fnUpdateUI()
-                -- 强制刷新字段列表
                 fnForceUpdateFieldList()
             )
         )
@@ -699,6 +704,52 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
             return true
         )
         
+        -- 添加创建默认预设的函数
+        fn fnCreateDefaultPreset =
+        (
+            local newName = "默认预设_" + (arrLayerPresets.count + 1) as string
+            local newPreset = LayerPreset name:newName description:"游戏资产示例\r\nLayer结构" layerStructure:#() fieldNames:#("Name", "Type", "Part", "LOD", "Mat")
+            
+            -- 主层级
+            append newPreset.layerStructure #("00_{Name}_Master", 0)
+            -- 几何体层级
+            append newPreset.layerStructure #("01_{Name}_{Type}_Geo", 0)
+            -- 骨骼层级
+            append newPreset.layerStructure #("02_{Name}_{Type}_Bone", 0)
+            -- 控制器层级
+            append newPreset.layerStructure #("03_{Name}_{Type}_Ctrl", 0)
+            -- 辅助对象层级
+            append newPreset.layerStructure #("04_{Name}_{Type}_Helper", 0)
+            -- 特效层级
+            append newPreset.layerStructure #("05_{Name}_{Type}_FX", 0)
+            -- 碰撞体层级
+            append newPreset.layerStructure #("06_{Name}_{Type}_Collision", 0)
+            -- 材质层级
+            append newPreset.layerStructure #("07_{Name}_{Type}_Material", 0)
+            -- LOD层级
+            append newPreset.layerStructure #("08_{Name}_{Type}_LOD_{LOD}", 0)
+            -- 部件层级
+            append newPreset.layerStructure #("09_{Name}_{Type}_{Part}", 0)
+            -- 临时层级
+            append newPreset.layerStructure #("99_{Name}_{Type}_Temp", 0)
+            
+            append arrLayerPresets newPreset
+            
+            -- 更新当前预设和索引
+            currentPreset = newPreset
+            currentPresetIndex = arrLayerPresets.count
+            
+            -- 设置默认字段值
+            arrFieldValues = #("Character", "Body", "Main", "0", "Default")
+            
+            -- 完全刷新UI
+            fnRefreshPresetList()
+            fnUpdateUI()
+            fnForceUpdateFieldList()
+            
+            print "已创建默认预设"
+        )
+        
         -- 事件处理
         on lstPresets selected index do
         (
@@ -745,12 +796,16 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
         (
             if currentPreset != undefined then
             (
-                deleteItem arrLayerPresets currentPresetIndex
-                currentPreset = undefined
-                currentPresetIndex = 0
-                fnRefreshPresetList()
-                fnUpdateUI()
-                print "预设已删除"
+                local confirmMsg = "确定要删除预设 '" + currentPreset.name + "' 吗？\n\n此操作不可撤销！                                                          "
+                if queryBox confirmMsg title:"确认删除" then
+                (
+                    deleteItem arrLayerPresets currentPresetIndex
+                    currentPreset = undefined
+                    currentPresetIndex = 0
+                    fnRefreshPresetList()
+                    fnUpdateUI()
+                    print "预设已删除"
+                )
             )
         )
         
@@ -758,6 +813,7 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
         on btnExportPresets pressed do (fnExportPresets())
         on btnLoadConfig pressed do (fnImportPresets())
         on btnCreateLayers pressed do (fnCreateLayers())
+        on btnCreateDefault pressed do (fnCreateDefaultPreset())
         
         on btnInsertField pressed do
         (
@@ -1106,9 +1162,29 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
             -- 创建默认预设 (简化)
             if arrLayerPresets.count == 0 then
             (
-                local preset1 = LayerPreset name:"角色结构" description:"游戏角色Layer结构" layerStructure:#() fieldNames:#("Name", "Type")
+                local preset1 = LayerPreset name:"角色结构" description:"游戏角色Layer结构" layerStructure:#() fieldNames:#("Name", "Type", "Part", "LOD", "Mat")
+                -- 主层级
                 append preset1.layerStructure #("00_{Name}_Master", 0)
+                -- 几何体层级
                 append preset1.layerStructure #("01_{Name}_{Type}_Geo", 0)
+                -- 骨骼层级
+                append preset1.layerStructure #("02_{Name}_{Type}_Bone", 0)
+                -- 控制器层级
+                append preset1.layerStructure #("03_{Name}_{Type}_Ctrl", 0)
+                -- 辅助对象层级
+                append preset1.layerStructure #("04_{Name}_{Type}_Helper", 0)
+                -- 特效层级
+                append preset1.layerStructure #("05_{Name}_{Type}_FX", 0)
+                -- 碰撞体层级
+                append preset1.layerStructure #("06_{Name}_{Type}_Collision", 0)
+                -- 材质层级
+                append preset1.layerStructure #("07_{Name}_{Type}_Material", 0)
+                -- LOD层级
+                append preset1.layerStructure #("08_{Name}_{Type}_LOD_{LOD}", 0)
+                -- 部件层级
+                append preset1.layerStructure #("09_{Name}_{Type}_{Part}", 0)
+                -- 临时层级
+                append preset1.layerStructure #("99_{Name}_{Type}_Temp", 0)
                 append arrLayerPresets preset1
                 
                 fnRefreshPresetList()

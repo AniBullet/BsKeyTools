@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2020-12-29 01:12:45
  * @LastEditors: Bullet.S
- * @LastEditTime: 2023-03-01 13:22:21
+ * @LastEditTime: 2025-05-25 11:32:23
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -382,7 +382,7 @@ rcmenu RCmenuRefConfig
 	)
 
 	on menuBilibili picked do 
-	(shellLaunch "https://github.com/AniBullet/BsReferenceTools" "")
+	(shellLaunch "https://space.bilibili.com/2031113/lists/560782?type=season" "")
 )
 
 rollout rolPreviewRef ""
@@ -553,7 +553,7 @@ rollout rolRefTools ("[参考工具]-BsRefTools_v" + currentVersion)  width:340 
 	label lblCountTips "" height:15 width:80 pos:[15,307]
 	label lblDateTime "" height:15 width:130 pos:[120,307] 
 	HyperLink lnkLink "Bullet.S" color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor \
-	pos:[245,307] address:"https://www.anibullet.com/"
+	pos:[255,307] address:"https://www.anibullet.com/"
 
 -----------------------------------------------------------------------------
 	fn getFilesequenceFile f &base &digits = 
