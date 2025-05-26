@@ -651,13 +651,13 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
         (
             if currentPreset == undefined then
             (
-                print "请先选择预设"
+                messageBox "❌ 请先选择一个预设！\n\n在左侧预设列表中选择或新建一个预设后再生成Layer。" title:"生成失败" beep:false
                 return false
             )
             
             if currentPreset.layerStructure.count == 0 then
             (
-                print "预设无Layer结构"
+                messageBox "❌ 当前预设没有Layer结构！\n\n请在中间的'Layer结构编辑'区域添加Layer模板。" title:"生成失败" beep:false
                 return false
             )
             
@@ -706,6 +706,33 @@ global arrFieldOptions = #("Name", "Type", "Part", "LOD", "Mat") -- 可插入的
                 catch (errorCount += 1)
             )
             
+            -- 构建结果消息
+            local resultMsg = "✅ Layer生成完成！\n\n"
+            resultMsg += "📊 生成统计:\n"
+            resultMsg += "• 成功创建: " + createdLayers.count as string + " 个Layers\n"
+            
+            if errorCount > 0 then
+            (
+                resultMsg += "• 失败/已存在: " + errorCount as string + " 个Layers\n"
+            )
+            
+            if createdLayers.count > 0 then
+            (
+                resultMsg += "\n📋 创建的Layers:\n"
+                for i = 1 to createdLayers.count do
+                (
+                    local layer = createdLayers[i]
+                    if layer != undefined then
+                        resultMsg += "• " + layer.name + "\n"
+                )
+            )
+            
+            resultMsg += "\n预设: " + currentPreset.name + "                                                    "
+            
+            -- 显示结果弹窗
+            messageBox resultMsg title:"Layer生成结果" beep:false
+            
+            -- 同时在控制台输出简要信息
             print ("创建了 " + createdLayers.count as string + " 个Layers" + 
                    (if errorCount > 0 then (", " + errorCount as string + " 个失败或已存在") else ""))
             
