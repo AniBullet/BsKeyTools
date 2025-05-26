@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-05-16 17:36:08
+ * @LastEditTime: 2025-05-26 09:40:52
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -2169,7 +2169,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnAnimRef "参考帧" pos:[10,190] width:40 height:25 \
 	toolTip:"左键AnimRef\r\n右键参考大师"
 	button btnLayerManager "层" pos:[50,190] width:20 height:25 \
-	toolTip:"模拟旧版层管理器\r\n左键可嵌套层管理器\r\n右键旧版层管理器" 
+	toolTip:"左键创建层预设管理器\r\n右键可嵌套层管理器" 
 	button btnSelectionsetTools "集" pos:[70,190] width:20 height:25 \
 	toolTip:"选择集工具增强版" 
 	button btnPoseTool "库" pos:[90,190] width:20 height:25 \
@@ -4408,13 +4408,13 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(messagebox "打开 MorphSliders_11.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnLayerManager rightclick do 
+	on btnLayerManager pressed do 
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\LayerManagerAlternative.ms"))
+		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsLayerManager.ms"))
 		catch(messagebox "打开 ayerManagerAlternative.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnLayerManager pressed do 
+	on btnLayerManager rightclick do 
 	(
 		if keyboard.controlpressed == true then
 		(
