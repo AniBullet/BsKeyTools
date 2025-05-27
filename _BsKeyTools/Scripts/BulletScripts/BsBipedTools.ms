@@ -3,6 +3,11 @@
 Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
 Since 2023.03
 
+2025.12 v1.7
+1.头部按钮右键切换颜文字脸表情
+2.表情选择自动保存到配置文件
+3.添加表情还原按钮
+
 2025.05 v1.6
 1.删除biped帧添加回退
 2.添加CS缩放(感谢霍霍小猫建议)
@@ -27,7 +32,7 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
-global verBsBipedTools = "v1.6"
+global verBsBipedTools = "v1.7"
 
 try(destroydialog rolBsBipedTools) catch()
 try(destroyDialog rolBSLeftHandPivots)catch()
@@ -36,37 +41,40 @@ try(destroyDialog rolBSLeftFootPivots)catch()
 try(destroyDialog rolBSRightFootPivots)catch()
 try(destroyDialog rolBsBipToolsHelp)catch()
 
-rollout rolBsBipToolsHelp ("BsBipTools" + verBsBipedTools + " 帮助说明") width:340 height:340
+rollout rolBsBipToolsHelp ("BsBipTools" + verBsBipedTools + " 使用指南") width:420 height:480
 (
-	local strHelpText = \
-	("“减少卡顿，便捷K帧”
+	local strHelpText = ("🎯 BsBipedTools 使用指南" + "\r\n" + \
+	"==============================" + "\r\n\r\n" + \
+	"⚡ 【特别功能】" + "\r\n" + \
+	"• Motion面板开关 (M按钮)：左键禁用减少卡顿，右键恢复" + "\r\n" + \
+	"• 禅模式/XRay/Box：快速切换视窗显示模式" + "\r\n" + \
+	"• 头部表情：右键点击头部按钮切换颜文字脸，右上角还原" + "\r\n" + \
+	"• 手指弯曲：在手指面板中使用Bend控件调节手指弯曲" + "\r\n\r\n" + \
+	"🎯 【骨骼选择操作】" + "\r\n" + \
+	"• 左键单击：直接选取  |  右键单击：选择镜像骨骼" + "\r\n" + \
+	"• Ctrl + 左击：加选  |  Alt + 左击：减选" + "\r\n" + \
+	"• Shift + 左击：选择骨骼及其所有子级" + "\r\n" + \
+	"• Ctrl + Alt + 左击：骨骼旋转归零" + "\r\n\r\n" + \
+	"🛠️ 【辅助工具】" + "\r\n" + \
+	"• Copy Paste Tools：姿态复制粘贴和镜像" + "\r\n" + \
+	"• Layer Tools：Biped层级管理" + "\r\n" + \
+	"• Loop Key Tools：循环关键帧工具" + "\r\n" + \
+	"• Others Tools：其他实用功能集合" + "\r\n\r\n" + \
+	"💡 【使用提示】" + "\r\n" + \
+	"帧相关按钮有丰富的组合键功能，请查看悬停提示" + "\r\n" + \
+	"左击 / 右击 / Ctrl / Shift 都有不同便捷功能" + "\r\n\r\n" + \
+	"==============================" + "\r\n" + \
+	"减少卡顿，便捷K帧 | 作者：Bullet.S" + "\r\n\r\n")
 
-小圆点：Motion 面板开关，极大减少骨骼选取卡顿
-左键禁用，右键启用，未显示请右键慢速点击直到显示
-
-禅模式：切换最大化视窗，聊胜于无
-XRay/Box模式：切换XRay/Box显示，很常用
-
-【主功能】
-（Checkbutton 原因无法双击，不是不想做~）
-左键单击：直接选取   ||   右键单击：选择镜像骨骼
-Ctrl + 左击：加选   ||   Alt + 左击：减选
-Shift + 左击：选择骨骼及其所有子级
-Ctrl + Alt + 左击：骨骼旋转归零
-帧相关按钮注意悬停 Tips，比原功能更多，
-左击 / 右击 / Ctrl / Shift，都有不同便捷功能。
-
-【辅助功能】
-Copy paste Tools，Layer Tools (Biped)，
-Loop Key Tools，Others Tools. \r\n\r\n")
-
-	label lblHelp strHelpText width:320 height:280 pos:[5,5]
-	label lblMe "Bullet.S Link: " align:#left across:3
-	hyperLink hplHelpDocs "Help Docs" address:"https://anibullet.github.io/" align:#right
-	hyperLink hplHome "aniBullet" address:"https://www.anibullet.com/" align:#right
-	label lblRef "References Link: " align:#left across:3
-	hyperLink hplSox "SoxBipedAssist" address:"http://cafe.naver.com/pinksox/6131" align:#right
-	hyperLink hplBH "BipedHelper" address:"https://sites.google.com/view/lbtools-guide/home/biped-helper" align:#right
+	label lblHelp strHelpText width:400 height:400 pos:[10,10]
+	-- 链接区域
+	groupBox grpLinks "相关链接" pos:[10,420] width:400 height:50
+	label lblAuthor "作者：" pos:[20,440] width:40 height:15
+	hyperLink hplHome "Bullet.S" address:"https://www.anibullet.com/" pos:[60,440] width:60 height:15
+	hyperLink hplHelpDocs "帮助文档" address:"https://anibullet.github.io/" pos:[130,440] width:60 height:15
+	label lblRef "参考：" pos:[200,440] width:40 height:15
+	hyperLink hplSox "SoxBipedAssist" address:"http://cafe.naver.com/pinksox/6131" pos:[240,440] width:80 height:15
+	hyperLink hplBH "BipedHelper" address:"https://sites.google.com/view/lbtools-guide/home/biped-helper" pos:[330,440] width:70 height:15
 )
 
 fn f_getPivotIndex ctrl =
@@ -535,76 +543,90 @@ rollout rolBSRightFootPivots "R-Foot" width:90
 	on chkbtn_frontRight changed state do (f_updateButton state chkbtn_frontRight 7)
 ) --// end rollout
 
-rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
+rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 (
-	checkbutton chbTips "暂不支持4节手指" pos:[77,5] height:20 highlightColor:rolBsBipedTools.mcScanBiped checked:true
+	checkbutton chbTips "暂不支持4节手指" pos:[100,5] height:20 highlightColor:rolBsBipedTools.mcScanBiped checked:true
 
-	checkbutton chbRFingers "Right Fingers" pos:[20,160] width:100 highlightColor:rolBsBipedTools.mcRightFinger checked:true
-	checkbutton chbLFingers "Left Fingers" pos:[142,160] width:100 highlightColor:rolBsBipedTools.mcLeftFinger checked:true
+	checkbutton chbRFingers "R Fingers" pos:[40,160] width:100 highlightColor:rolBsBipedTools.mcRightFinger checked:true
+	checkbutton chbLFingers "L Fingers" pos:[160,160] width:100 highlightColor:rolBsBipedTools.mcLeftFinger checked:true
 	
-	--R Index Finger
-	checkbutton select_rhand1_btn "R Hand"	enabled:true pos:[20,30] width:80 height:30 highlightColor:rolBsBipedTools.mcRight checked:true toolTip:""
-	checkbutton select_rfing11_btn ""	enabled:true pos:[80,85] width:20 height:22 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
-	checkbutton select_rfing12_btn ""	enabled:true pos:[80,107] width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
-	checkbutton select_rfing13_btn ""	enabled:true pos:[80,127] width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	--R Index Finger (整体右移20像素居中)
+	checkbutton select_rhand1_btn "R Hand"	enabled:true pos:[40,30] width:80 height:30 highlightColor:rolBsBipedTools.mcRight checked:true toolTip:""
+	checkbutton select_rfing11_btn ""	enabled:true pos:[100,85] width:20 height:22 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing12_btn ""	enabled:true pos:[100,107] width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing13_btn ""	enabled:true pos:[100,127] width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
 
 	--R Middle Finger
-	checkbutton select_rfing21_btn ""	enabled:true pos:[60,85]	width:20 height:23 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
-	checkbutton select_rfing22_btn ""	enabled:true pos:[60,108]	width:20 height:23 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
-	checkbutton select_rfing23_btn ""	enabled:true pos:[60,131]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true ttoolTip:""
+	checkbutton select_rfing21_btn ""	enabled:true pos:[80,85]	width:20 height:23 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing22_btn ""	enabled:true pos:[80,108]	width:20 height:23 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing23_btn ""	enabled:true pos:[80,131]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true ttoolTip:""
 	
 	--R Ring Finger
-	checkbutton select_rfing31_btn ""	enabled:true pos:[40,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
-	checkbutton select_rfing32_btn ""	enabled:true pos:[40,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
-	checkbutton select_rfing33_btn ""	enabled:true pos:[40,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing31_btn ""	enabled:true pos:[60,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing32_btn ""	enabled:true pos:[60,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing33_btn ""	enabled:true pos:[60,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
 	
 	--R Pinkie Finger
-	checkbutton select_rfing41_btn ""	enabled:true pos:[20,85]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
-	checkbutton select_rfing42_btn ""	enabled:true pos:[20,105]	width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
-	checkbutton select_rfing43_btn ""	enabled:true pos:[20,122]	width:20 height:16 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing41_btn ""	enabled:true pos:[40,85]	width:20 height:20 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing42_btn ""	enabled:true pos:[40,105]	width:20 height:17 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
+	checkbutton select_rfing43_btn ""	enabled:true pos:[40,122]	width:20 height:16 highlightColor:rolBsBipedTools.mcRightFinger checked:true toolTip:""
 	
 	--R Thumb
-	checkbutton select_rthumb1_btn ""	enabled:true pos:[100,69]	width:20 height:30 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
-	checkbutton select_rthumb2_btn ""	enabled:true pos:[100,99]	width:18 height:19 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
-	checkbutton select_rthumb3_btn ""	enabled:true pos:[100,118]	width:16 height:18 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
+	checkbutton select_rthumb1_btn ""	enabled:true pos:[120,69]	width:20 height:30 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
+	checkbutton select_rthumb2_btn ""	enabled:true pos:[120,99]	width:18 height:19 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
+	checkbutton select_rthumb3_btn ""	enabled:true pos:[120,118]	width:16 height:18 highlightColor:rolBsBipedTools.mcRightThumb checked:true toolTip:""
 
-	--LEFT HAND
+	--LEFT HAND (右移到合适位置)
 	--L Index Finger
-	checkbutton select_lhand1_btn "L Hand"	enabled:true pos:[160,30]	width:80 height:30 highlightColor:rolBsBipedTools.mcLeft checked:true toolTip:""
-	checkbutton select_lfing11_btn ""	enabled:true pos:[160,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
-	checkbutton select_lfing12_btn ""	enabled:true pos:[160,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
-	checkbutton select_lfing13_btn ""	enabled:true pos:[160,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lhand1_btn "L Hand"	enabled:true pos:[180,30]	width:80 height:30 highlightColor:rolBsBipedTools.mcLeft checked:true toolTip:""
+	checkbutton select_lfing11_btn ""	enabled:true pos:[180,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing12_btn ""	enabled:true pos:[180,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing13_btn ""	enabled:true pos:[180,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 	
 	--L Middle Finger
-	checkbutton select_lfing21_btn ""	enabled:true pos:[180,85]	width:20 height:23 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
-	checkbutton select_lfing22_btn ""	enabled:true pos:[180,108]	width:20 height:23 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
-	checkbutton select_lfing23_btn ""	enabled:true pos:[180,131]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing21_btn ""	enabled:true pos:[200,85]	width:20 height:23 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing22_btn ""	enabled:true pos:[200,108]	width:20 height:23 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing23_btn ""	enabled:true pos:[200,131]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 	
 	--L Ring Finger
-	checkbutton select_lfing31_btn ""	enabled:true pos:[200,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
-	checkbutton select_lfing32_btn ""	enabled:true pos:[200,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
-	checkbutton select_lfing33_btn ""	enabled:true pos:[200,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing31_btn ""	enabled:true pos:[220,85]	width:20 height:22 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing32_btn ""	enabled:true pos:[220,107]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing33_btn ""	enabled:true pos:[220,127]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 
 	--L Pinkie Finger
-	checkbutton select_lfing41_btn ""	enabled:true pos:[220,85]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
-	checkbutton select_lfing42_btn ""	enabled:true pos:[220,105]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
-	checkbutton select_lfing43_btn ""	enabled:true pos:[220,122]	width:20 height:16 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing41_btn ""	enabled:true pos:[240,85]	width:20 height:20 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing42_btn ""	enabled:true pos:[240,105]	width:20 height:17 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
+	checkbutton select_lfing43_btn ""	enabled:true pos:[240,122]	width:20 height:16 highlightColor:rolBsBipedTools.mcLeftFinger checked:true toolTip:""
 
 	--L Thumb
-	checkbutton select_lthumb1_btn ""	enabled:true pos:[140,69]	width:20 height:30 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
-	checkbutton select_lthumb2_btn ""	enabled:true pos:[142,99]	width:18 height:19 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
-	checkbutton select_lthumb3_btn ""	enabled:true pos:[144,118]	width:16 height:18 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
+	checkbutton select_lthumb1_btn ""	enabled:true pos:[160,69]	width:20 height:30 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
+	checkbutton select_lthumb2_btn ""	enabled:true pos:[162,99]	width:18 height:19 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
+	checkbutton select_lthumb3_btn ""	enabled:true pos:[164,118]	width:16 height:18 highlightColor:rolBsBipedTools.mcLeftThumb checked:true toolTip:""
 
-	checkbutton btnFingerLineR1 "0" enabled:true pos:[100,44] width:20 height:25 checked:true toolTip:"选择单条手指"
-	checkbutton btnFingerLineR2 "1" enabled:true pos:[80,60] width:20 height:25 checked:true toolTip:"选择单条手指"
-	checkbutton btnFingerLineR3 "2" enabled:true pos:[60,60] width:20 height:25 checked:true toolTip:"选择单条手指"
-	checkbutton btnFingerLineR4 "3" enabled:true pos:[40,60] width:20 height:25 checked:true toolTip:"选择单条手指"
-	checkbutton btnFingerLineR5 "4" enabled:true pos:[20,60] width:20 height:25 checked:true toolTip:"选择单条手指"
-	checkbutton btnFingerLineL1 "0" enabled:true pos:[140,44] width:20 height:25 checked:true toolTip:"选择单条手指"
-	checkbutton btnFingerLineL2 "1" enabled:true pos:[160,60] width:20 height:25 checked:true toolTip:"选择单条手指"
-	checkbutton btnFingerLineL3 "2" enabled:true pos:[180,60] width:20 height:25 checked:true toolTip:"选择单条手指"
-	checkbutton btnFingerLineL4 "3" enabled:true pos:[200,60] width:20 height:25 checked:true toolTip:"选择单条手指"
-	checkbutton btnFingerLineL5 "4" enabled:true pos:[220,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR1 "0" enabled:true pos:[120,44] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR2 "1" enabled:true pos:[100,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR3 "2" enabled:true pos:[80,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR4 "3" enabled:true pos:[60,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineR5 "4" enabled:true pos:[40,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL1 "0" enabled:true pos:[160,44] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL2 "1" enabled:true pos:[180,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL3 "2" enabled:true pos:[200,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL4 "3" enabled:true pos:[220,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+	checkbutton btnFingerLineL5 "4" enabled:true pos:[240,60] width:20 height:25 checked:true toolTip:"选择单条手指"
+		
+	-- UI 控件 - 竖直手指张开滑块 (两侧对称布局，加大尺寸)
+	slider uiRSpread "" range:[1,-0.3,0] width:25 height:120 pos:[10,35] tooltip:"右手手指张开\n向下拖动张开" orient:#vertical
+	slider uiLSpread "" range:[1,-0.3,0] width:25 height:120 pos:[270,35] tooltip:"左手手指张开\n向下拖动张开" orient:#vertical
+	
+	-- 手指弯曲控件 (底部居中对齐)
+	label lblRBend "右手弯曲:" pos:[60,190] width:60 height:15
+	spinner uiRBendStart "" width:50 range:[-45,90,0] scale:1 type:#integer pos:[30,205] tooltip:"右手弯曲起始角度"
+	spinner uiRBendEnd "" width:50 range:[-45,90,0] scale:1 type:#integer pos:[85,205] tooltip:"右手弯曲结束角度"
+	
+	label lblLBend "左手弯曲:" pos:[195,190] width:60 height:15
+	spinner uiLBendStart "" width:50 range:[-45,90,0] scale:1 type:#integer pos:[165,205] tooltip:"左手弯曲起始角度"
+	spinner uiLBendEnd "" width:50 range:[-45,90,0] scale:1 type:#integer pos:[220,205] tooltip:"左手弯曲结束角度"
+	
 
 	fn GetFinger side index =
 	(
@@ -1442,6 +1464,206 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:260 height:195
 		
 		select arrFingerLine
 	)
+	
+	-- 手指张开功能 (参考 BipedAssist)
+	local mc_spreadMaxAngle = 45.0
+	
+	-- 线性插值函数
+	function LerpFloat a b bias = (
+		return a + (b - a) * bias
+	)
+
+	function MakeClosest quat1 quat2 = -- modifies quat2 and also returns quat2
+	(
+		local dot = quat1.x*quat2.x + quat1.y*quat2.y + quat1.z*quat2.z+quat1.w*quat2.w
+		if (dot < 0.0) do (quat2.x = -quat2.x; quat2.y = -quat2.y;quat2.z = -quat2.z; quat2.w = -quat2.w)
+		quat2
+	)
+	
+	-- 手指张开函数 (完全参考BipedAssist实现，6个参数)
+	function SpreadFingers fingersArr minAngle maxAngle spread bendStart bendEnd = (
+		if fingersArr == undefined or fingersArr.count == 0 then return()
+		if fingersArr[1] == undefined or fingersArr[1].count == 0 then return()
+		
+		local fingerArray = fingersArr[1] -- 获取手指数组
+		
+		for fingerIndex = 1 to fingerArray.count do (
+			local tFingerBias = ((fingerIndex - 2) as float) / ((fingerArray.count - 2) as float) -- BipedAssist的计算方式
+			if tFingerBias < 0 then tFingerBias = 0
+			if tFingerBias > 1 then tFingerBias = 1
+			local tSpreadMaxAngle = LerpFloat minAngle maxAngle tFingerBias
+			local tWeightedAngle = LerpFloat bendStart bendEnd tFingerBias -- 使用弯曲角度
+			
+			if fingerArray[fingerIndex] != undefined and not isDeleted fingerArray[fingerIndex] then (
+				try (
+					-- 使用BipedAssist的方法：Y轴旋转用于张开，使用slerp插值
+					local tSpreadMaxQuat = eulerToQuat (eulerAngles 0 tSpreadMaxAngle tWeightedAngle) order:1
+					local tSpreadMinQuat = eulerToQuat (eulerAngles 0 0 tWeightedAngle) order:1
+					MakeClosest tSpreadMinQuat tSpreadMaxQuat
+					local tRot = slerp tSpreadMinQuat tSpreadMaxQuat spread
+					tRot = tRot * fingerArray[fingerIndex].parent.transform.rotation
+					
+					-- 使用 biped.setTransform 设置旋转
+					biped.setTransform fingerArray[fingerIndex] #rotation tRot animButtonState
+				) catch (
+					print ("无法张开手指: " + fingerArray[fingerIndex].name + " - " + getCurrentException())
+				)
+			)
+		)
+	)
+	
+	-- 手指弯曲函数 (完全参考BipedAssist实现)
+	function BendFingers fingersArr bendStart bendEnd spread = (
+		if fingersArr == undefined or fingersArr.count == 0 then return()
+		if fingersArr[1] == undefined or fingersArr[1].count == 0 then return()
+		
+		local fingerArray = fingersArr[1] -- 获取手指数组
+		
+		for fingerIndex = 1 to fingerArray.count do (
+			local tFingerBias = ((fingerIndex - 2) as float) / ((fingerArray.count - 2) as float) -- BipedAssist的计算方式
+			if tFingerBias < 0 then tFingerBias = 0
+			if tFingerBias > 1 then tFingerBias = 1
+			local tWeightedAngle = LerpFloat bendStart bendEnd tFingerBias
+			
+			if fingerArray[fingerIndex] != undefined and not isDeleted fingerArray[fingerIndex] then (
+				try (
+					-- 使用BipedAssist的方法：绕Z轴旋转，使用eulerToQuat
+					local tRot = eulerToQuat (eulerAngles tWeightedAngle 0 0) order:6 -- ZYX顺序，绕Z轴旋转
+					tRot = tRot * fingerArray[fingerIndex].parent.transform.rotation
+					
+					-- 使用 biped.setTransform 设置旋转
+					biped.setTransform fingerArray[fingerIndex] #rotation tRot animButtonState
+				) catch (
+					print ("无法弯曲手指: " + fingerArray[fingerIndex].name + " - " + getCurrentException())
+				)
+			)
+		)
+	)
+	
+	-- 获取手指数组 (完全参考BipedAssist实现，支持不同手指组合)
+	function GetFingerArray side fingerType = (
+		local fingerArr = #()
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) then return fingerArr
+		
+		-- 获取手指链接总数 (参考BipedAssist的GetFingerLinkCount)
+		local firstFinger = biped.getNode rolBsBipedTools.m_workingBipRoot #rfingers link:1
+		if (firstFinger == undefined) then return fingerArr
+		
+		local tFingerLinkCount = 15 -- 默认最大手指链接数
+		for i = 1 to 15 do (
+			local compareFinger = biped.getNode rolBsBipedTools.m_workingBipRoot #rfingers link:i
+			if (compareFinger == undefined) then (
+				tFingerLinkCount = i - 1
+				exit
+			)
+		)
+		
+		-- 构建手指数组 (参考BipedAssist的SetFingersVar)
+		local tFingersArray = #()
+		local fingerLink = 1
+		
+		-- 根据fingerType选择不同的手指范围
+		local startLink = 1
+		local endLink = tFingerLinkCount
+		
+		if fingerType == "spread" then (
+			-- 滑条：影响除大拇指外的所有手指 (跳过前3个大拇指链接)
+			startLink = 4  -- 从食指开始
+			endLink = tFingerLinkCount
+		) else if fingerType == "bend1" then (
+			-- 第一个spinner：食指、中指、无名指 (链接4-12)
+			startLink = 4  -- 食指第一节
+			endLink = 12   -- 无名指第三节
+		) else if fingerType == "bend2" then (
+			-- 第二个spinner：中指、无名指、小指 (链接7-15)
+			startLink = 7  -- 中指第一节
+			endLink = 15   -- 小指第三节
+		)
+		
+		for i = startLink to endLink do (
+			if i <= tFingerLinkCount then (
+				local tFinger = undefined
+				if side == "R" then (
+					tFinger = biped.getNode rolBsBipedTools.m_workingBipRoot #rfingers link:i
+				) else if side == "L" then (
+					tFinger = biped.getNode rolBsBipedTools.m_workingBipRoot #lfingers link:i
+				)
+				
+				if tFinger != undefined then (
+					append tFingersArray tFinger
+				)
+			)
+		)
+		
+		-- 返回对应的数组
+		if tFingersArray.count > 0 then (
+			append fingerArr tFingersArray
+		)
+		
+		return fingerArr
+	)
+
+	-- 右手张开事件
+	on uiRSpread rightClick do (
+		uiRSpread.value = 0
+		uiRSpread.changed 0
+	)
+	
+	on uiRSpread changed var do (
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
+		local m_RFingers = GetFingerArray "R" "spread"
+		if m_RFingers.count > 0 then (
+			SpreadFingers m_RFingers (-mc_spreadMaxAngle) mc_spreadMaxAngle var uiRBendStart.value uiRBendEnd.value
+		)
+	)
+	
+	-- 左手张开事件
+	on uiLSpread rightClick do (
+		uiLSpread.value = 0
+		uiLSpread.changed 0
+	)
+	
+	on uiLSpread changed var do (
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
+		local m_LFingers = GetFingerArray "L" "spread"
+		if m_LFingers.count > 0 then (
+			SpreadFingers m_LFingers mc_spreadMaxAngle (-mc_spreadMaxAngle) (-var) uiLBendStart.value uiLBendEnd.value
+		)
+	)
+	
+	-- 右手弯曲事件 (食指、中指、无名指)
+	on uiRBendEnd changed var do (
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
+		local m_RFingers = GetFingerArray "R" "bend1"
+		if m_RFingers.count > 0 then (
+			BendFingers m_RFingers uiRBendStart.value uiRBendEnd.value uiRSpread.value
+		)
+	)
+	
+	on uiRBendStart changed var do (
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
+		local m_RFingers = GetFingerArray "R" "bend1"
+		if m_RFingers.count > 0 then (
+			BendFingers m_RFingers uiRBendStart.value uiRBendEnd.value uiRSpread.value
+		)
+	)
+	
+	-- 左手弯曲事件 (中指、无名指、小指)
+	on uiLBendStart changed var do (
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
+		local m_LFingers = GetFingerArray "L" "bend2"
+		if m_LFingers.count > 0 then (
+			BendFingers m_LFingers uiLBendStart.value uiLBendEnd.value (-uiLSpread.value)
+		)
+	)
+	
+	on uiLBendEnd changed var do (
+		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
+		local m_LFingers = GetFingerArray "L" "bend2"
+		if m_LFingers.count > 0 then (
+			BendFingers m_LFingers uiLBendStart.value uiLBendEnd.value (-uiLSpread.value)
+		)
+	)
 )
 
 fn fnLoadBsBTConfig =
@@ -1591,6 +1813,28 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local numLayers = 0
 	local layerIndex = 1
 	local postureObjsFile = getDir #plugcfg + "\BsBipedTools_PostureObjs.txt"
+	
+	-- 颜文字脸数组 (多样化简洁版，无脸框)
+	local headFaces = #("｡◕ᴗ◕｡", "ಠ_ಠ", "ಠ益ಠ", "◔_◔", "●_●", "◉_◉", "⊙_⊙", "◐_◑", "◕_◕", "◔◡◔", "◕‿◕", "◉‿◉", "⊙‿⊙", "◐‿◑", "●‿●", "◔ᴗ◔", "◉ᴗ◉", "⊙ᴗ⊙", "◐ᴗ◑", "●ᴗ●", "◔︵◔", "◕︵◕", "◉︵◉", "⊙︵⊙", "●︵●", "◔﹏◔", "◕﹏◕", "◉﹏◉", "⊙﹏⊙", "●﹏●")
+	local currentFaceIndex = 1
+	
+	-- 保存脸型索引到配置文件
+	fn fnSaveHeadFace =
+	(
+		SetINISetting iniBsBipedTools "BsBipedTools" "HeadFaceIndex" (currentFaceIndex as string)
+	)
+	
+	-- 还原脸型到初始状态
+	fn fnResetHeadFace =
+	(
+		if (queryBox "确定要还原头部表情到初始状态吗？" title:"还原表情确认") then
+		(
+			currentFaceIndex = 1
+			uiHead.text = headFaces[1]
+			fnSaveHeadFace()
+			messageBox "头部表情已还原到初始状态！" title:"BsBipedTools"
+		)
+	)
 
 	local mc_setKeyColor = fnChangeThemeColor (color 240 180 180)
 	local mc_spineColor  = fnChangeThemeColor (color 52 171 187)
@@ -1612,6 +1856,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local mcRightThumb   = fnChangeThemeColor (color 241 228 157)
 
 	label lblVersion verBsBipedTools height:15 width:30 align:#left pos:[3,0]
+	button btnResetFace "◕" offset:[25, -5] height:15 width:15 border:false align:#right pos:[100,0] tooltip:"还原头部表情到初始状态"
 	button btnMini "☐" offset:[45, -5] height:15 width:20 border:false align:#right pos:[120,0]
 	button uiAbout "?" offset:[-15, -5] height:15 width:20 border:false align:#left pos:[140,0]
 	button btnClose "X" offset:[15, -5] height:15 width:20 border:false align:#right pos:[160,0]
@@ -1635,7 +1880,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	checkBox uiChkSelHiddenObj "Select hidden biped" checked:true pos:[-99, -99]
 	
-	checkButton uiHead "｡◕ᴗ◕｡" width: 50 height:33 checked:true highlightColor:mcHead pos:[65, 50]  --表情从Sox工具得到灵感~~
+	checkButton uiHead "" width: 50 height:33 checked:true highlightColor:mcHead pos:[65, 50]  --表情从Sox工具得到灵感~~
 	checkButton uiNecks "Necks" width: 40 height:23 checked:true highlightColor:mc_spineColor align:#center pos:[70, 85]
 	
 	checkButton uiRArms "" checked:true highlightColor:mcRight width:25 align:#left pos:[15, 85] across:2
@@ -1663,15 +1908,15 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	checkButton uiPropR "Prop" width:35 height:18 checked:true highlightColor:mcSelTools pos:[13, 223]
 	checkButton uiPropL "Prop" width:35 height:18 checked:true highlightColor:mcSelTools pos:[133, 223]
 
-	checkButton uiRThigh "R" width:25  height:30 align:#right checked:true highlightColor:mcRight pos:[60, 245] across:2
-	checkButton uiLThigh "L" width:25 height:30 align:#left checked:true highlightColor:mcLeft pos:[95, 245]
-	checkButton uiRCalf "R" width:25  height:30 checked:true highlightColor:mcRight align:#right  pos:[60, 275] across:2
-	checkButton uiLCalf "L" width:25  height:30 checked:true highlightColor:mcLeft align:#left pos:[95, 275]
+	checkButton uiRThigh "R" width:30  height:30 align:#right checked:true highlightColor:mcRight pos:[58, 245] across:2
+	checkButton uiLThigh "L" width:30 height:30 align:#left checked:true highlightColor:mcLeft pos:[93, 245]
+	checkButton uiRCalf "R" width:30  height:30 checked:true highlightColor:mcRight align:#right  pos:[58, 275] across:2
+	checkButton uiLCalf "L" width:30  height:30 checked:true highlightColor:mcLeft align:#left pos:[93, 275]
 	checkButton uiRFoot "R Foot" checked:true highlightColor:mcRight align:#right pos:[45, 305] width:40 height:25 across:2
 	checkButton uiLFoot "L Foot" checked:true highlightColor:mcLeft align:#left pos:[95, 305] width:40 height:25
 	
-	checkButton uiRLegs "" checked:true highlightColor:mcRight width:25 align:#left pos:[25, 265] across:2
-	checkButton uiLLegs "" checked:true highlightColor:mcLeft width:25 align:#right pos:[130, 265]
+	checkButton uiRLegs "" checked:true highlightColor:mcRight width:25 align:#left pos:[23, 265] across:2
+	checkButton uiLLegs "" checked:true highlightColor:mcLeft width:25 align:#right pos:[132, 265]
 	
 	checkButton uiRToe "Toe" checked:true highlightColor:mcRight width:30 height:20 align:#left pos:[15, 310] across:2
 	checkButton uiLToe "Toe" checked:true highlightColor:mcLeft width:30 height:20 align:#right pos:[135, 310]
@@ -3352,7 +3597,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 					)
 					else
 					(
-						messagebox "错误：确保 Copy/Paste Posture 不包含名为“CopyPosture”的集合。                            " title:"BsBipedTools"
+						messagebox "错误：确保 Copy/Paste Posture 不包含名为"CopyPosture"的集合。                            " title:"BsBipedTools"
 					)
 					local colIndex = biped.numCopyCollections bRootCtrl
 					biped.deleteCopyCollection bRootCtrl colIndex
@@ -3393,7 +3638,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 					)
 					else
 					(
-						messagebox "错误：确保 Copy/Paste Posture 不包含名为“CopyPosture”的集合。                            " title:"BsBipedTools"
+						messagebox "错误：确保 Copy/Paste Posture 不包含名为"CopyPosture"的集合。                            " title:"BsBipedTools"
 					)
 					local colIndex = biped.numCopyCollections bRootCtrl
 					biped.deleteCopyCollection bRootCtrl colIndex
@@ -3648,6 +3893,30 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		try(CompSelect selBackup m_Head) catch (
 			m_Head = GetHead()
 			select m_Head
+		)
+	)
+
+	on uiHead rightclick do 
+	(
+		-- 切换颜文字脸
+		currentFaceIndex += 1
+		if currentFaceIndex > headFaces.count then currentFaceIndex = 1
+		uiHead.caption = headFaces[currentFaceIndex]
+		uiHead.state = on
+		-- 保存到配置文件
+		SetINISetting iniBsBipedTools "BsBipedTools" "HeadFaceIndex" (currentFaceIndex as string)
+	)
+
+	on btnResetFace pressed do 
+	(
+		-- 还原脸型到初始状态
+		if (queryBox "确定要还原头部表情到初始状态吗？" title:"还原表情确认") then
+		(
+			currentFaceIndex = 1
+			uiHead.caption = headFaces[currentFaceIndex]
+			uiHead.state = on
+			SetINISetting iniBsBipedTools "BsBipedTools" "HeadFaceIndex" (currentFaceIndex as string)
+			messageBox "头部表情已还原到初始状态！" title:"BsBipedTools"
 		)
 	)
 
@@ -4559,7 +4828,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		-- shellLaunch "http://cafe.naver.com/pinksox/6131" ""
 		-- rolBsAboutPanel.Show()
 		try(destroyDialog rolBsBipToolsHelp)catch()
-		Createdialog rolBsBipToolsHelp style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228))
+		Createdialog rolBsBipToolsHelp style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 	)
 	
 	on rolBsBipedTools open do (
@@ -4571,6 +4840,18 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		)
 
 		fnLoadBsBTConfig()
+		-- 加载保存的脸型
+		local savedIndex = (GetINISetting iniBsBipedTools "BsBipedTools" "HeadFaceIndex") as integer
+		if savedIndex != undefined and savedIndex > 0 and savedIndex <= headFaces.count then
+		(
+			currentFaceIndex = savedIndex
+		)
+		else
+		(
+			currentFaceIndex = 1
+		)
+		-- 设置表情（在UI创建后）
+		uiHead.caption = headFaces[currentFaceIndex]
 		fnApplyIcons()
         InitLocalVars() -- 작업용 바이패드 루트 노드라던가, 선택용 배열 변수 등을 미리 세팅
         
@@ -5152,7 +5433,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 		try(destroyDialog rolBSFingers)catch()
 
-		Createdialog rolBSFingers pos:(mouse.screenPos - [310,100]) parent:rolBsBipedTools.hwnd fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)) style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
+		Createdialog rolBSFingers pos:(mouse.screenPos - [310,100]) parent:rolBsBipedTools.hwnd style:#(#style_titlebar, #style_sysmenu, #style_toolwindow)
 	)
 
 	on uiBtnLoadBip changed state do
