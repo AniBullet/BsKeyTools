@@ -1481,60 +1481,39 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 	)
 	
 	-- 手指张开函数 (完全参考BipedAssist实现，6个参数)
-	function SpreadFingers fingersArr minAngle maxAngle spread bendStart bendEnd = (
-		if fingersArr == undefined or fingersArr.count == 0 then return()
-		if fingersArr[1] == undefined or fingersArr[1].count == 0 then return()
-		
-		local fingerArray = fingersArr[1] -- 获取手指数组
-		
-		for fingerIndex = 1 to fingerArray.count do (
-			local tFingerBias = ((fingerIndex - 2) as float) / ((fingerArray.count - 2) as float) -- BipedAssist的计算方式
-			if tFingerBias < 0 then tFingerBias = 0
-			if tFingerBias > 1 then tFingerBias = 1
+	function SpreadFingers fingersArr minAngle maxAngle spread bendStart bendEnd =
+	(
+		if fingersArr.count < 3 do return()
+		for fingerIndex = 2 to fingersArr.count do (
+			local tFingerBias = ((fingerIndex - 2) as float) / ((fingersArr.count - 2) as float)
+			local tWeightedAngle = LerpFloat bendStart bendEnd tFingerBias
 			local tSpreadMaxAngle = LerpFloat minAngle maxAngle tFingerBias
-			local tWeightedAngle = LerpFloat bendStart bendEnd tFingerBias -- 使用弯曲角度
-			
-			if fingerArray[fingerIndex] != undefined and not isDeleted fingerArray[fingerIndex] then (
-				try (
-					-- 使用BipedAssist的方法：Y轴旋转用于张开，使用slerp插值
-					local tSpreadMaxQuat = eulerToQuat (eulerAngles 0 tSpreadMaxAngle tWeightedAngle) order:1
-					local tSpreadMinQuat = eulerToQuat (eulerAngles 0 0 tWeightedAngle) order:1
-					MakeClosest tSpreadMinQuat tSpreadMaxQuat
-					local tRot = slerp tSpreadMinQuat tSpreadMaxQuat spread
-					tRot = tRot * fingerArray[fingerIndex].parent.transform.rotation
-					
-					-- 使用 biped.setTransform 设置旋转
-					biped.setTransform fingerArray[fingerIndex] #rotation tRot animButtonState
-				) catch (
-					print ("无法张开手指: " + fingerArray[fingerIndex].name + " - " + getCurrentException())
-				)
-			)
+			local tSpreadMaxQuat = eulerToQuat (eulerAngles 0 tSpreadMaxAngle tWeightedAngle) order:1
+			local tSpreadMinQuat = eulerToQuat (eulerAngles 0 0 tWeightedAngle) order:1
+			MakeClosest tSpreadMinQuat tSpreadMaxQuat
+			local tRot = slerp tSpreadMinQuat tSpreadMaxQuat spread
+			tRot = tRot * fingersArr[fingerIndex][1].parent.transform.rotation
+			biped.setTransform fingersArr[fingerIndex][1] #rotation tRot animButtonState
 		)
 	)
 	
 	-- 手指弯曲函数 (完全参考BipedAssist实现)
 	function BendFingers fingersArr bendStart bendEnd spread = (
-		if fingersArr == undefined or fingersArr.count == 0 then return()
-		if fingersArr[1] == undefined or fingersArr[1].count == 0 then return()
-		
-		local fingerArray = fingersArr[1] -- 获取手指数组
-		
-		for fingerIndex = 1 to fingerArray.count do (
-			local tFingerBias = ((fingerIndex - 2) as float) / ((fingerArray.count - 2) as float) -- BipedAssist的计算方式
-			if tFingerBias < 0 then tFingerBias = 0
-			if tFingerBias > 1 then tFingerBias = 1
+		if fingersArr.count < 2 do return()
+		for fingerIndex = 2 to fingersArr.count do (
+			local tFingerBias = ((fingerIndex - 2) as float) / ((fingersArr.count - 2) as float)
 			local tWeightedAngle = LerpFloat bendStart bendEnd tFingerBias
-			
-			if fingerArray[fingerIndex] != undefined and not isDeleted fingerArray[fingerIndex] then (
-				try (
-					-- 使用BipedAssist的方法：绕Z轴旋转，使用eulerToQuat
-					local tRot = eulerToQuat (eulerAngles tWeightedAngle 0 0) order:6 -- ZYX顺序，绕Z轴旋转
-					tRot = tRot * fingerArray[fingerIndex].parent.transform.rotation
-					
-					-- 使用 biped.setTransform 设置旋转
-					biped.setTransform fingerArray[fingerIndex] #rotation tRot animButtonState
-				) catch (
-					print ("无法弯曲手指: " + fingerArray[fingerIndex].name + " - " + getCurrentException())
+			local tSpreadSliderValue = ((tFingerBias - 0.5) * 2.0) * spread * mc_spreadMaxAngle
+			local tBendY = LerpFloat tSpreadSliderValue 0 ((tWeightedAngle as float) / 90.0)
+			local tBendX = LerpFloat 0 -tSpreadSliderValue ((tWeightedAngle as float) / 90.0)
+			local tRot = eulerToQuat (eulerAngles tWeightedAngle tBendY tBendX) order:6
+			tRot = tRot * fingersArr[fingerIndex][1].parent.transform.rotation
+			biped.setTransform fingersArr[fingerIndex][1] #rotation tRot animButtonState
+			if fingersArr[fingerIndex].count >= 2 do (
+				for i = 2 to fingersArr[fingerIndex].count do (
+					tRot = eulerToQuat (eulerAngles tWeightedAngle 0 0) order:6
+					tRot = tRot * fingersArr[fingerIndex][i].parent.transform.rotation
+					biped.setTransform fingersArr[fingerIndex][i] #rotation tRot animButtonState
 				)
 			)
 		)
@@ -1544,62 +1523,18 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 	function GetFingerArray side fingerType = (
 		local fingerArr = #()
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) then return fingerArr
-		
-		-- 获取手指链接总数 (参考BipedAssist的GetFingerLinkCount)
-		local firstFinger = biped.getNode rolBsBipedTools.m_workingBipRoot #rfingers link:1
-		if (firstFinger == undefined) then return fingerArr
-		
-		local tFingerLinkCount = 15 -- 默认最大手指链接数
-		for i = 1 to 15 do (
-			local compareFinger = biped.getNode rolBsBipedTools.m_workingBipRoot #rfingers link:i
-			if (compareFinger == undefined) then (
-				tFingerLinkCount = i - 1
-				exit
+		local fingerTypeSym = if side == "R" then #rfingers else #lfingers
+		local maxFingers = 5 -- 5根手指
+		local maxJoints = 3  -- 每根手指3节
+		for f = 1 to maxFingers do (
+			local oneFinger = #()
+			for j = 1 to maxJoints do (
+				local idx = (f - 1) * maxJoints + j
+				local tFinger = biped.getNode rolBsBipedTools.m_workingBipRoot fingerTypeSym link:idx
+				if tFinger != undefined do append oneFinger tFinger
 			)
+			if oneFinger.count > 0 do append fingerArr oneFinger
 		)
-		
-		-- 构建手指数组 (参考BipedAssist的SetFingersVar)
-		local tFingersArray = #()
-		local fingerLink = 1
-		
-		-- 根据fingerType选择不同的手指范围
-		local startLink = 1
-		local endLink = tFingerLinkCount
-		
-		if fingerType == "spread" then (
-			-- 滑条：影响除大拇指外的所有手指 (跳过前3个大拇指链接)
-			startLink = 4  -- 从食指开始
-			endLink = tFingerLinkCount
-		) else if fingerType == "bend1" then (
-			-- 第一个spinner：食指、中指、无名指 (链接4-12)
-			startLink = 4  -- 食指第一节
-			endLink = 12   -- 无名指第三节
-		) else if fingerType == "bend2" then (
-			-- 第二个spinner：中指、无名指、小指 (链接7-15)
-			startLink = 7  -- 中指第一节
-			endLink = 15   -- 小指第三节
-		)
-		
-		for i = startLink to endLink do (
-			if i <= tFingerLinkCount then (
-				local tFinger = undefined
-				if side == "R" then (
-					tFinger = biped.getNode rolBsBipedTools.m_workingBipRoot #rfingers link:i
-				) else if side == "L" then (
-					tFinger = biped.getNode rolBsBipedTools.m_workingBipRoot #lfingers link:i
-				)
-				
-				if tFinger != undefined then (
-					append tFingersArray tFinger
-				)
-			)
-		)
-		
-		-- 返回对应的数组
-		if tFingersArray.count > 0 then (
-			append fingerArr tFingersArray
-		)
-		
 		return fingerArr
 	)
 
@@ -1627,14 +1562,14 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
 		local m_LFingers = GetFingerArray "L" "spread"
 		if m_LFingers.count > 0 then (
-			SpreadFingers m_LFingers mc_spreadMaxAngle (-mc_spreadMaxAngle) (-var) uiLBendStart.value uiLBendEnd.value
+			SpreadFingers m_LFingers mc_spreadMaxAngle (-mc_spreadMaxAngle) var uiLBendEnd.value uiLBendStart.value 
 		)
 	)
 	
 	-- 右手弯曲事件 (食指、中指、无名指)
 	on uiRBendEnd changed var do (
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
-		local m_RFingers = GetFingerArray "R" "bend1"
+		local m_RFingers = GetFingerArray "R" "bend2"
 		if m_RFingers.count > 0 then (
 			BendFingers m_RFingers uiRBendStart.value uiRBendEnd.value uiRSpread.value
 		)
@@ -1651,7 +1586,7 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 	-- 左手弯曲事件 (中指、无名指、小指)
 	on uiLBendStart changed var do (
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
-		local m_LFingers = GetFingerArray "L" "bend2"
+		local m_LFingers = GetFingerArray "L" "bend1"
 		if m_LFingers.count > 0 then (
 			BendFingers m_LFingers uiLBendStart.value uiLBendEnd.value (-uiLSpread.value)
 		)
@@ -1815,8 +1750,13 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local postureObjsFile = getDir #plugcfg + "\BsBipedTools_PostureObjs.txt"
 	
 	-- 颜文字脸数组 (多样化简洁版，无脸框)
-	local headFaces = #("｡◕ᴗ◕｡", "ಠ_ಠ", "ಠ益ಠ", "◔_◔", "●_●", "◉_◉", "⊙_⊙", "◐_◑", "◕_◕", "◔◡◔", "◕‿◕", "◉‿◉", "⊙‿⊙", "◐‿◑", "●‿●", "◔ᴗ◔", "◉ᴗ◉", "⊙ᴗ⊙", "◐ᴗ◑", "●ᴗ●", "◔︵◔", "◕︵◕", "◉︵◉", "⊙︵⊙", "●︵●", "◔﹏◔", "◕﹏◕", "◉﹏◉", "⊙﹏⊙", "●﹏●")
-	local currentFaceIndex = 1
+	local headFaces = #("｡◕ᴗ◕｡", \
+		"^_^", "T_T", "O_O", "o_o", "x_x", "Q_Q", "-_-", ">_<", "<_<", ">_>",
+		"v_v", "u_u", "U_U", "o_O", "O_o", "¬_¬", "TωT", "OwO", "UwU", "TwT",
+		"owo", "uwu", "ToT", "TAT", "XD", "OvO", "oVo", "TvT", "T^T", "T.T",
+		"ಥ_ಥ", "ಥ﹏ಥ", "ಥ‿ಥ", "ಥ益ಥ", "ಥ⌣ಥ", "ಥ‸ಥ", "ಥಥ"
+	)
+		local currentFaceIndex = 1
 	
 	-- 保存脸型索引到配置文件
 	fn fnSaveHeadFace =
@@ -3700,7 +3640,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	on uiChkBtnScanBiped changed state do (
 		uiChkBtnScanBiped.state = true
-		InitLocalVars() -- 작업용 바이패드 루트 노드라던가, 선택용 배열 변수 등을 미리 세팅
+		InitLocalVars() -- 工作用 双足人形 根节点等，选择用数组变量等预设
 		if (m_workingBipRoot != undefined) do (select m_AllBip)
 	)
 
@@ -3732,11 +3672,11 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 		selBackup = selection as array
 
-		-- 미리 저장한 배열에 문제가 있으면 다시 배열을 초기화
+		-- 预存数组有问题则重新初始化数组
 		if (IfExistBips m_AllBip) == false do (
 			m_AllBip = GetAllBip()
 		)
-		if (IfExistBips m_AllBip) == false do return () -- 그래도 문제가 있으면 그냥 리턴
+		if (IfExistBips m_AllBip) == false do return () -- 还是有问题则直接返回
 		
 		undo on
 		(
@@ -3750,7 +3690,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				)
 				else
 				(
-					try ( biped.addNewKey o.controller slidertime ) catch ()		-- Footstep 오브젝트때문에 try 처리
+					try ( biped.addNewKey o.controller slidertime ) catch ()		-- Footstep 对象导致 try 处理
 				)
 			) -- for end
 		) -- undo end	
@@ -3759,9 +3699,9 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	)
 
 	on uiBtnLimbPK changed state do (
-		uiBtnLimbPK.state = on -- 어떤 상태에서도 버튼 스테이트는 눌려있도록
+		uiBtnLimbPK.state = on -- 任何状态下按钮状态都保持按下
 		local tempPanel = getCommandPanelTaskMode()
-		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 등의 기능은 Motion판넬에서만 정상 작동한다. 다른 곳에서 하면 엉뚱한 자세가 덮어써짐
+		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
 		local timeBefore = sliderTime
 		disableSceneRedraw()
 		undo on (
@@ -3769,23 +3709,23 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				if (IfLimb obj) do (
 					if (keyboard.shiftPressed OR keyboard.controlPressed) then (
 						local keys = obj.controller.keys
-						local animRangeBackup = animationRange -- 잠시 바깥에 있는 키들도 수정할 수 있도록 현재의 애니메이션 구간을 기억한다.
+						local animRangeBackup = animationRange -- 暂时可以修改外部的关键帧，记录当前的动画区间
 						animationRange = Interval keys[1].time keys[keys.count].time
 						for i = 1 to keys.count do (
 							if keyboard.shiftPressed do (
-								-- Shift가 눌려있으면 키 선택과 상관 없이 모두 변경
-								sliderTime = keys[i].time -- at time 방식으로 하면 sliderTime의 자세로 키가 생성되는 문제가 있어서 실제 sliderTime을 변경시켜서 진행
+								-- Shift 按下则不考虑关键帧选择，全部修改
+								sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
 								biped.SetPlantedKey obj
 							)
 							if keyboard.controlPressed do (
-								-- Ctrl이 눌려있으면 선택된 키듦만 변경
+								-- Ctrl 按下则只修改选中的关键帧
 								if keys[i].selected == true do (
-									sliderTime = keys[i].time -- at time 방식으로 하면 sliderTime의 자세로 키가 생성되는 문제가 있어서 실제 sliderTime을 변경시켜서 진행
+									sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
 									biped.SetPlantedKey obj
 								)
 							)
 						)
-						animationRange = animRangeBackup -- 다시 원래대로의 애니메이션 구간으로 복구
+						animationRange = animRangeBackup -- 恢复原来的动画区间
 					)
 					else (
 						biped.SetPlantedKey obj
@@ -3799,9 +3739,9 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	)
 
 	on uiBtnLimbIK changed state do (
-		uiBtnLimbIK.state = on -- 어떤 상태에서도 버튼 스테이트는 눌려있도록
+		uiBtnLimbIK.state = on -- 任何状态下按钮状态都保持按下
 		local tempPanel = getCommandPanelTaskMode()
-		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 등의 기능은 Motion판넬에서만 정상 작동한다. 다른 곳에서 하면 엉뚱한 자세가 덮어써짐
+		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
 		local timeBefore = sliderTime
 		disableSceneRedraw()
 		undo on (
@@ -3809,23 +3749,23 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				if (IfLimb obj) do (
 					if (keyboard.shiftPressed OR keyboard.controlPressed) then (
 						local keys = obj.controller.keys
-						local animRangeBackup = animationRange -- 잠시 바깥에 있는 키들도 수정할 수 있도록 현재의 애니메이션 구간을 기억한다.
+						local animRangeBackup = animationRange -- 暂时可以修改外部的关键帧，记录当前的动画区间
 						animationRange = Interval keys[1].time keys[keys.count].time
 						for i = 1 to keys.count do (
 							if keyboard.shiftPressed do (
-								-- Shift가 눌려있으면 키 선택과 상관 없이 모두 변경
-								sliderTime = keys[i].time -- at time 방식으로 하면 sliderTime의 자세로 키가 생성되는 문제가 있어서 실제 sliderTime을 변경시켜서 진행
+								-- Shift 按下则不考虑关键帧选择，全部修改
+								sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
 								biped.setSlidingKey obj
 							)
 							if keyboard.controlPressed do (
-								-- Ctrl이 눌려있으면 선택된 키듦만 변경
+								-- Ctrl 按下则只修改选中的关键帧
 								if keys[i].selected == true do (
-									sliderTime = keys[i].time -- at time 방식으로 하면 sliderTime의 자세로 키가 생성되는 문제가 있어서 실제 sliderTime을 변경시켜서 진행
+									sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
 									biped.setSlidingKey obj
 								)
 							)
 						)
-						animationRange = animRangeBackup -- 다시 원래대로의 애니메이션 구간으로 복구
+						animationRange = animRangeBackup -- 恢复原来的动画区间
 					)
 					else (
 						biped.setSlidingKey obj
@@ -3839,9 +3779,9 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	)
 
 	on uiBtnLimbFK changed state do (
-		uiBtnLimbFK.state = on -- 어떤 상태에서도 버튼 스테이트는 눌려있도록
+		uiBtnLimbFK.state = on -- 任何状态下按钮状态都保持按下
 		local tempPanel = getCommandPanelTaskMode()
-		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 등의 기능은 Motion판넬에서만 정상 작동한다. 다른 곳에서 하면 엉뚱한 자세가 덮어써짐
+		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
 		local timeBefore = sliderTime
 		disableSceneRedraw()
 		undo on (

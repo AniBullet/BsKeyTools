@@ -1,19 +1,19 @@
---¸¸µçÀÌ : ÀÌ»ó¿ø
+--ë§Œë“ ì´ : ì´ìƒì›
 global RMC_DataCA
--- ´ÙÀ½ attribID ¹øÈ£´Â ÇÃ·¯±×ÀÎÀ» ±¸ºĞÇÏ´Â Áß¿äÇÑ ¹øÈ£ÀÎµ¥, Á¦ÀÛ ÃÊ¹İ¿¡ Áß¿äÇÑ ½Ç¼ö¸¦ Çß¾ú°í Áö±İÀº ¼öÁ¤µÊ.
--- (¹®Á¦ ±â·Ï¿ë) ÄÚµå ±¸Á¶ ÆíÇÏ°Ô ¸¸µç´Ù°í attributes ¿ÜºÎ¿¡¼­ global º¯¼ö·Î RMC_ID = #(0x7b72aada, 0x1462108b) ÀÌ·± ½ÄÀ¸·Î ¸¸µé°í Ä¿½ºÅÒ ¾îÆ®¸®ºäÆ®¿¡¼­ º¯¼ö¸¦ »ç¿ëÇß´õ´Ï ´ÙÀ½¿¡ ¾ÀÀ» ·ÎµùÇÒ ¶§¿¡´Â global º¯¼ö¸¦ ÀÎ½ÄÇÒ ¼ö ¾ø¾î¼­ ¾À ÄÁ¹öÅÍ°¡ °è¼Ó missing DLL °ü·Ã ¿À·ù·Î Ã¼Å©ÇÏ°í Á¦°ÅÇÏ·Á°í ÇÔ.
--- attribID °ü·Ã ¹®¼­: https://help.autodesk.com/view/MAXDEV/2022/ENU/?guid=GUID-9F96FB7D-EB51-41FA-976D-C39DEED69CE4
--- ¿ä¾à °á·Ğ, Á¶±İ ±ÍÂú´õ¶óµµ attribID´Â ÄÚµå ³»¿¡¼­ Á÷Á¢ ¼ıÀÚ·Î »ç¿ëÇØ¾ßÇÔ.
+-- ë‹¤ìŒ attribID ë²ˆí˜¸ëŠ” í”ŒëŸ¬ê·¸ì¸ì„ êµ¬ë¶„í•˜ëŠ” ì¤‘ìš”í•œ ë²ˆí˜¸ì¸ë°, ì œì‘ ì´ˆë°˜ì— ì¤‘ìš”í•œ ì‹¤ìˆ˜ë¥¼ í–ˆì—ˆê³  ì§€ê¸ˆì€ ìˆ˜ì •ë¨.
+-- (ë¬¸ì œ ê¸°ë¡ìš©) ì½”ë“œ êµ¬ì¡° í¸í•˜ê²Œ ë§Œë“ ë‹¤ê³  attributes ì™¸ë¶€ì—ì„œ global ë³€ìˆ˜ë¡œ RMC_ID = #(0x7b72aada, 0x1462108b) ì´ëŸ° ì‹ìœ¼ë¡œ ë§Œë“¤ê³  ì»¤ìŠ¤í…€ ì–´íŠ¸ë¦¬ë·°íŠ¸ì—ì„œ ë³€ìˆ˜ë¥¼ ì‚¬ìš©í–ˆë”ë‹ˆ ë‹¤ìŒì— ì”¬ì„ ë¡œë”©í•  ë•Œì—ëŠ” global ë³€ìˆ˜ë¥¼ ì¸ì‹í•  ìˆ˜ ì—†ì–´ì„œ ì”¬ ì»¨ë²„í„°ê°€ ê³„ì† missing DLL ê´€ë ¨ ì˜¤ë¥˜ë¡œ ì²´í¬í•˜ê³  ì œê±°í•˜ë ¤ê³  í•¨.
+-- attribID ê´€ë ¨ ë¬¸ì„œ: https://help.autodesk.com/view/MAXDEV/2022/ENU/?guid=GUID-9F96FB7D-EB51-41FA-976D-C39DEED69CE4
+-- ìš”ì•½ ê²°ë¡ , ì¡°ê¸ˆ ê·€ì°®ë”ë¼ë„ attribIDëŠ” ì½”ë“œ ë‚´ì—ì„œ ì§ì ‘ ìˆ«ìë¡œ ì‚¬ìš©í•´ì•¼í•¨.
 RMC_DataCA= attributes RMC_Data attribID:#(0x7b72aada, 0x1462108b) (
 	parameters main rollout:RMCRollout (
-		--¿ÀºêÁ§Æ® ÁöÁ¤À» #node Å¸ÀÔÀ¸·Î ÇÏ¸é ·çÆ® º»°ú circular dependency °ü°è°¡ µÇ¾î¼­ expression ÄÁÆ®·Ñ·¯ÀÇ º¯¼ö ÁöÁ¤ÀÌ ºÒ°¡ÇÔ.
-		--±×·¡¼­ #node Å¸ÀÔ ´ë½Å¿¡ #integer Å¸ÀÔÀ¸·Î ÁöÁ¤ÇÏ°í inode.handle ¹æ½ÄÀ¸·Î ¿ÀºêÁ§Æ®¸¦ ±â¾ï½ÃÅ´.
-		--´ÙÀ½ #node Å¸ÀÔÀº ±â·Ï¿ëÀ¸·Î ³²°ÜµÒ.
-		--PelvisObj type:#node subAnim:false	--subAnimÀ» true·Î ÇÏ¸é ¼±ÅÃµÈ ¿ÀºêÁ§Æ®ÀÇ ¾Ö´Ï¸ŞÀÌ¼ÇÀ» Ä¿½ºÅÒ ¾îÆ®¸®ºäÆ®¿¡¼­µµ ´Ù·ê ¼ö ÀÖ°Ô µÈ´Ù. false·Î ÇÏ¸é Ä¿ºê ¿¡µğÅÍ Æ®·¢¿¡¼­ º¸ÀÌÁö ¾Ê°í ¼û°ÜÁø´Ù.
+		--ì˜¤ë¸Œì íŠ¸ ì§€ì •ì„ #node íƒ€ì…ìœ¼ë¡œ í•˜ë©´ ë£¨íŠ¸ ë³¸ê³¼ circular dependency ê´€ê³„ê°€ ë˜ì–´ì„œ expression ì»¨íŠ¸ë¡¤ëŸ¬ì˜ ë³€ìˆ˜ ì§€ì •ì´ ë¶ˆê°€í•¨.
+		--ê·¸ë˜ì„œ #node íƒ€ì… ëŒ€ì‹ ì— #integer íƒ€ì…ìœ¼ë¡œ ì§€ì •í•˜ê³  inode.handle ë°©ì‹ìœ¼ë¡œ ì˜¤ë¸Œì íŠ¸ë¥¼ ê¸°ì–µì‹œí‚´.
+		--ë‹¤ìŒ #node íƒ€ì…ì€ ê¸°ë¡ìš©ìœ¼ë¡œ ë‚¨ê²¨ë‘ .
+		--PelvisObj type:#node subAnim:false	--subAnimì„ trueë¡œ í•˜ë©´ ì„ íƒëœ ì˜¤ë¸Œì íŠ¸ì˜ ì• ë‹ˆë©”ì´ì…˜ì„ ì»¤ìŠ¤í…€ ì–´íŠ¸ë¦¬ë·°íŠ¸ì—ì„œë„ ë‹¤ë£° ìˆ˜ ìˆê²Œ ëœë‹¤. falseë¡œ í•˜ë©´ ì»¤ë¸Œ ì—ë””í„° íŠ¸ë™ì—ì„œ ë³´ì´ì§€ ì•Šê³  ìˆ¨ê²¨ì§„ë‹¤.
 		PelvisObjHandle type:#integer subAnim:false
 		RootObjHandle type:#integer subAnim:false
 
-		-- Ä¿ºê ¿¡µğÅÍ Æ®·¢¿¡¼­ ´ë¹®ÀÚ·á Ç¥½ÃµÇ±â À§ÇØ ÆÄ¶ó¹ÌÅÍ º¯¼ö´Â ´ë¹®ÀÚ·Î ½ÃÀÛÇÏ°Ô ÇÔ.
+		-- ì»¤ë¸Œ ì—ë””í„° íŠ¸ë™ì—ì„œ ëŒ€ë¬¸ìë£Œ í‘œì‹œë˜ê¸° ìœ„í•´ íŒŒë¼ë¯¸í„° ë³€ìˆ˜ëŠ” ëŒ€ë¬¸ìë¡œ ì‹œì‘í•˜ê²Œ í•¨.
 		ManualX type:#float ui:spnManualX default:0
 		ManualY type:#float ui:spnManualY default:0
 		ManualZ type:#float ui:spnManualZ default:0
@@ -28,15 +28,15 @@ RMC_DataCA= attributes RMC_Data attribID:#(0x7b72aada, 0x1462108b) (
 		TrackYaw_Offset type:#float ui:spnTrackYaw_Offset default:90
 	)
 
-	-- ·Ñ¾Æ¿ôÀÇ ui º¯¼ö´Â ÆÄ¶ó¹ÌÅÍ¸í°ú µ¿ÀÏÇÏ°Ô ÇÏÁö ¸»¾Æ¾ß ÀÌº¥Æ®¿¡¼­ º¯¼ö¸¦ »ç¿ëÇÒ ¶§ ¿À·ù°¡ ¹ß»ıÇÏÁö ¾ÊÀ½.
+	-- ë¡¤ì•„ì›ƒì˜ ui ë³€ìˆ˜ëŠ” íŒŒë¼ë¯¸í„°ëª…ê³¼ ë™ì¼í•˜ê²Œ í•˜ì§€ ë§ì•„ì•¼ ì´ë²¤íŠ¸ì—ì„œ ë³€ìˆ˜ë¥¼ ì‚¬ìš©í•  ë•Œ ì˜¤ë¥˜ê°€ ë°œìƒí•˜ì§€ ì•ŠìŒ.
 	rollout RMCRollout ("Root Motion Controller 0.93") (
-		local animStateBackup	-- OnButtonDown, OnButtonUp ÇÔ¼ö¿¡¼­ Auto Key »óÅÂ¸¦ °­Á¦·Î ºñÈ°¼ºÇÏ±â Àü ÀÌÀü »óÅÂ¸¦ ±â·ÏÇÏ±â À§ÇÑ ·ÎÄÃ º¯¼ö
+		local animStateBackup	-- OnButtonDown, OnButtonUp í•¨ìˆ˜ì—ì„œ Auto Key ìƒíƒœë¥¼ ê°•ì œë¡œ ë¹„í™œì„±í•˜ê¸° ì „ ì´ì „ ìƒíƒœë¥¼ ê¸°ë¡í•˜ê¸° ìœ„í•œ ë¡œì»¬ ë³€ìˆ˜
 
-		pickbutton pickAnimPelvisObj "Pick Animated Pelvis" width:140 tooltip:"¾Ö´Ï¸ŞÀÌ¼ÇµÈ pelvis¸¦ ¼±ÅÃÇÕ´Ï´Ù. ¹ÙÀÌÆĞµåÀÇ °æ¿ì Bip001À» ¼±ÅÃÇØÁÖ¼¼¿ä.\nSelect the animated pelvis. For the Bipad, select Bip001."
+		pickbutton pickAnimPelvisObj "Pick Animated Pelvis" width:140 tooltip:"ì• ë‹ˆë©”ì´ì…˜ëœ pelvisë¥¼ ì„ íƒí•©ë‹ˆë‹¤. ë°”ì´íŒ¨ë“œì˜ ê²½ìš° Bip001ì„ ì„ íƒí•´ì£¼ì„¸ìš”.\nSelect the animated pelvis. For the Bipad, select Bip001."
 		label labelPelvisObj "Pelvis: " align:#left offset:[0, -6]
-		pickbutton pickRootObj "Pick Root" width:140 tooltip:"·çÆ®·Î »ç¿ëÇÒ ¿ÀºêÁ§Æ®¸¦ ¼±ÅÃÇØÁÖ¼¼¿ä.\nSelect an object to use as the root."
+		pickbutton pickRootObj "Pick Root" width:140 tooltip:"ë£¨íŠ¸ë¡œ ì‚¬ìš©í•  ì˜¤ë¸Œì íŠ¸ë¥¼ ì„ íƒí•´ì£¼ì„¸ìš”.\nSelect an object to use as the root."
 		label labelRootObj "Root: " align:#left offset:[0, -6]
-		button btnLinkController "Link Controller" width:140 tooltip:"Root¿¡ ÄÁÆ®·Ñ·¯¸¦ Àû¿ëÇÏ°í Pelvis¿Í ¿¬°áÇÕ´Ï´Ù.\nApply the controller to Root and connect it with Pelvis."
+		button btnLinkController "Link Controller" width:140 tooltip:"Rootì— ì»¨íŠ¸ë¡¤ëŸ¬ë¥¼ ì ìš©í•˜ê³  Pelvisì™€ ì—°ê²°í•©ë‹ˆë‹¤.\nApply the controller to Root and connect it with Pelvis."
 		
 		group "Position Control" (
 			spinner spnManualX "ManualX" type:#float range:[-99999.0, 99999.0, 0.0] align:#left width:100
@@ -51,7 +51,7 @@ RMC_DataCA= attributes RMC_Data attribID:#(0x7b72aada, 0x1462108b) (
 			label labelTrackZ "TrackZ" align:#left width:50 offset:[0, 10] across:2
 			slider sliderTrackZ "" type:#float range:[0.0, 1.0, 0.0] width:100 align:#left offset:[-20, -4]
 			spinner spnTrackZ_Offset "TrackZ_Offset" type:#float range:[-99999.0, 99999.0, 0.0] align:#left width:136
-			button btnGetPelvisPosZ "Get Pelvis PosZ" align:#center width:140 tooltip:"Áö¸éÀ¸·ÎºÎÅÍ °ñ¹İÀÇ ³ôÀÌ °ªÀ» ÀÚµ¿À¸·Î °¡Á®¿Í TrackZ_Offset¿¡ Àû¿ëÇÕ´Ï´Ù.\nAutomatically gets the height value of the pelvis from the ground and applies it to TrackZ_Offset."
+			button btnGetPelvisPosZ "Get Pelvis PosZ" align:#center width:140 tooltip:"ì§€ë©´ìœ¼ë¡œë¶€í„° ê³¨ë°˜ì˜ ë†’ì´ ê°’ì„ ìë™ìœ¼ë¡œ ê°€ì ¸ì™€ TrackZ_Offsetì— ì ìš©í•©ë‹ˆë‹¤.\nAutomatically gets the height value of the pelvis from the ground and applies it to TrackZ_Offset."
 		)
 		
 		group "Rotation Control" (
@@ -72,7 +72,7 @@ RMC_DataCA= attributes RMC_Data attribID:#(0x7b72aada, 0x1462108b) (
 			if (rootObj != undefined) do (
 				labelRootObj.text = "Root: " + rootObj.name
 			)
-			-- ÆÄ¶ó¹ÌÅÍ¿¡ ÄÁÆ®·Ñ·¯°¡ ÁöÁ¤µÇ¾îÀÖÁö ¾ÊÀ¸¸é ÄÁÆ®·Ñ·¯ Àû¿ë
+			-- íŒŒë¼ë¯¸í„°ì— ì»¨íŠ¸ë¡¤ëŸ¬ê°€ ì§€ì •ë˜ì–´ìˆì§€ ì•Šìœ¼ë©´ ì»¨íŠ¸ë¡¤ëŸ¬ ì ìš©
 			if (ManualX.controller == undefined) do (ManualX.controller = bezier_float ())
 			if (ManualY.controller == undefined) do (ManualY.controller = bezier_float ())
 			if (ManualZ.controller == undefined) do (ManualZ.controller = bezier_float ())
@@ -100,16 +100,16 @@ RMC_DataCA= attributes RMC_Data attribID:#(0x7b72aada, 0x1462108b) (
 		)
 		
 		on btnLinkController pressed do (
-			-- ´ë»ó ¿ÀºêÁ§Æ®°¡ ÇÏ³ª¶óµµ ÁöÁ¤µÇÁö ¾ÊÀ¸¸é ±×³É ¸®ÅÏ
+			-- ëŒ€ìƒ ì˜¤ë¸Œì íŠ¸ê°€ í•˜ë‚˜ë¼ë„ ì§€ì •ë˜ì§€ ì•Šìœ¼ë©´ ê·¸ëƒ¥ ë¦¬í„´
 			local pelvisObj = maxOps.getNodeByHandle PelvisObjHandle
 			if pelvisObj == undefined do return()
 			local rootObj = maxOps.getNodeByHandle RootObjHandle
 			if rootObj == undefined do return()
-			local myRMC_Data = selection[1].baseObject.RMC_Data	-- Root Motion Controller ·Ñ¾Æ¿ô µ¥ÀÌÅÍ
+			local myRMC_Data = selection[1].baseObject.RMC_Data	-- Root Motion Controller ë¡¤ì•„ì›ƒ ë°ì´í„°
 
-			-- Æ÷Áö¼Ç ÄÁÆ®·Ñ·¯ ÁöÁ¤
+			-- í¬ì§€ì…˜ ì»¨íŠ¸ë¡¤ëŸ¬ ì§€ì •
 			rootObj.pos.controller = Position_XYZ ()
-			-- ÀÌ ºÎºĞÀÇ ÄÁÆ®·Ñ·¯¸¦ ·ÎÄÃ º¯¼öÈ­ ÇÏ¿© °¡µ¶¼ºÀ» ´Ü¼øÈ­ÇÏ·Á°í ÇßÀ¸³ª º¯¼ö¿¡¼­ AddScalarTargetÀº ÀÛµ¿ÇÏÁö ¾ÊÀ½.
+			-- ì´ ë¶€ë¶„ì˜ ì»¨íŠ¸ë¡¤ëŸ¬ë¥¼ ë¡œì»¬ ë³€ìˆ˜í™” í•˜ì—¬ ê°€ë…ì„±ì„ ë‹¨ìˆœí™”í•˜ë ¤ê³  í–ˆìœ¼ë‚˜ ë³€ìˆ˜ì—ì„œ AddScalarTargetì€ ì‘ë™í•˜ì§€ ì•ŠìŒ.
 			rootObj.pos.controller.X_Position.controller = Float_Expression ()
 			rootObj.pos.controller.Y_Position.controller = Float_Expression ()
 			rootObj.pos.controller.Z_Position.controller = Float_Expression ()
@@ -129,14 +129,14 @@ RMC_DataCA= attributes RMC_Data attribID:#(0x7b72aada, 0x1462108b) (
 			rootObj.pos.controller.Y_Position.controller.SetExpression "(TrackY_Offset + PelvisPos.y)*TrackY + ManualY*(1-TrackY)"
 			rootObj.pos.controller.Z_Position.controller.SetExpression "(TrackZ_Offset + PelvisPos.z)*TrackZ + ManualZ*(1-TrackZ)"
 			
-			-- ·ÎÅ×ÀÌ¼Ç ÄÁÆ®·Ñ·¯ ÁöÁ¤
+			-- ë¡œí…Œì´ì…˜ ì»¨íŠ¸ë¡¤ëŸ¬ ì§€ì •
 			rootObj.rotation.controller
 			rootObj.rotation.controller = Euler_XYZ ()
-			rootObj.rotation.controller.X_Rotation.controller = Float_Expression ()	-- ¹Ì »ç¿ë ·ÎÅ×ÀÌ¼Çµµ °­Á¦·Î 0À¸·Î ÃÊ±âÈ­
+			rootObj.rotation.controller.X_Rotation.controller = Float_Expression ()	-- ë¯¸ ì‚¬ìš© ë¡œí…Œì´ì…˜ë„ ê°•ì œë¡œ 0ìœ¼ë¡œ ì´ˆê¸°í™”
 			rootObj.rotation.controller.X_Rotation.controller.SetExpression "0"
-			rootObj.rotation.controller.Y_Rotation.controller = Float_Expression ()	-- ¹Ì »ç¿ë ·ÎÅ×ÀÌ¼Çµµ °­Á¦·Î 0À¸·Î ÃÊ±âÈ­
+			rootObj.rotation.controller.Y_Rotation.controller = Float_Expression ()	-- ë¯¸ ì‚¬ìš© ë¡œí…Œì´ì…˜ë„ ê°•ì œë¡œ 0ìœ¼ë¡œ ì´ˆê¸°í™”
 			rootObj.rotation.controller.Y_Rotation.controller.SetExpression "0"
-			rootObj.rotation.controller.Z_Rotation.controller = float_script ()			-- Z ·ÎÅ×ÀÌ¼ÇÀº Bip001ÀÇ È¸ÀüÀ» ¾ò¾î¿À±âÀ§ÇØ ½ºÅ©¸³Æ® ÄÁÆ®·Ñ·¯ ÁöÁ¤
+			rootObj.rotation.controller.Z_Rotation.controller = float_script ()			-- Z ë¡œí…Œì´ì…˜ì€ Bip001ì˜ íšŒì „ì„ ì–»ì–´ì˜¤ê¸°ìœ„í•´ ìŠ¤í¬ë¦½íŠ¸ ì»¨íŠ¸ë¡¤ëŸ¬ ì§€ì •
 			rootObj.rotation.controller.Z_Rotation.controller.AddTarget "ManualYaw" myRMC_Data.ManualYaw.controller
 			rootObj.rotation.controller.Z_Rotation.controller.AddTarget "TrackYaw" myRMC_Data.TrackYaw.controller
 			rootObj.rotation.controller.Z_Rotation.controller.AddTarget "TrackYaw_Offset" myRMC_Data.TrackYaw_Offset.controller
@@ -150,19 +150,19 @@ return (track + manual)"
 		on btnGetPelvisPosZ pressed do (
 			local pelvisObj = maxOps.getNodeByHandle PelvisObjHandle
 			if pelvisObj == undefined do return()
-			TrackZ_Offset = -pelvisObj.transform.pos.z	-- ¸¶ÀÌ³Ê½º Ã³¸®
+			TrackZ_Offset = -pelvisObj.transform.pos.z	-- ë§ˆì´ë„ˆìŠ¤ ì²˜ë¦¬
 		)
 
-		-- ¿ÀºêÁ§Æ®°¡ ¼±ÅÃµÉ ¶§¸¶´Ù ·Ñ¾Æ¿ôÀÌ ¿ÀÇÂµÇ°í ÀÌº¥Æ®°¡ ½ÇÇàµÈ´Ù.
+		-- ì˜¤ë¸Œì íŠ¸ê°€ ì„ íƒë  ë•Œë§ˆë‹¤ ë¡¤ì•„ì›ƒì´ ì˜¤í”ˆë˜ê³  ì´ë²¤íŠ¸ê°€ ì‹¤í–‰ëœë‹¤.
 		on RMCRollout open do (
 			Initialize()
 		)
 
-		-- ÇÃ·¹ÀÌ µµÁß ½½¶óÀÌ´õ³ª ½ºÇÇ³Ê º¯È­°¡ ÀÖÀ» ¶§ ¾Ö´Ï¸ŞÀÌ¼Ç Å°°¡ »ı¼ºµÇÁö ¾Êµµ·Ï ¸·´Â ÇÔ¼ö
+		-- í”Œë ˆì´ ë„ì¤‘ ìŠ¬ë¼ì´ë”ë‚˜ ìŠ¤í”¼ë„ˆ ë³€í™”ê°€ ìˆì„ ë•Œ ì• ë‹ˆë©”ì´ì…˜ í‚¤ê°€ ìƒì„±ë˜ì§€ ì•Šë„ë¡ ë§‰ëŠ” í•¨ìˆ˜
 		function OnButtonDown = (
 			animStateBackup = animButtonState
 			if isAnimPlaying() do (
-				animButtonState = false		-- ½½¶óÀÌ´õ³ª ½ºÇÇ³Ê º¯È­ Áß¿¡´Â °­Á¦·Î ¾Ö´Ï¸ŞÀÌ¼Ç Off
+				animButtonState = false		-- ìŠ¬ë¼ì´ë”ë‚˜ ìŠ¤í”¼ë„ˆ ë³€í™” ì¤‘ì—ëŠ” ê°•ì œë¡œ ì• ë‹ˆë©”ì´ì…˜ Off
 			)
 		)
 
@@ -197,18 +197,18 @@ return (track + manual)"
    )
 )
 
-global RootMotionTools		-- ·Ñ¾Æ¿ô¸íÀ» ±Û·Î¹ú º¯¼ö·Î ÀÎ½ÄÇÏ±â À§ÇØ ÃÊ±â¿¡ ÇÑ ¹ø »ç¿ë
-try (destroydialog RootMotionTools) catch()		-- È¤½Ã ¿­·ÁÀÖ´Â Ã¢ÀÌ ÀÖÀ¸¸é °­Á¦ Á¾·á
+global RootMotionTools		-- ë¡¤ì•„ì›ƒëª…ì„ ê¸€ë¡œë²Œ ë³€ìˆ˜ë¡œ ì¸ì‹í•˜ê¸° ìœ„í•´ ì´ˆê¸°ì— í•œ ë²ˆ ì‚¬ìš©
+try (destroydialog RootMotionTools) catch()		-- í˜¹ì‹œ ì—´ë ¤ìˆëŠ” ì°½ì´ ìˆìœ¼ë©´ ê°•ì œ ì¢…ë£Œ
 
 rollout RootMotionTools ("Root Motion Tools 0.93") width:200
 (
 	local STRING_PICK_CONTROLLER = "Pick Controller"
 	
-	pickbutton uiPickController STRING_PICK_CONTROLLER width:166 tooltip:"ÄÁÆ®·Ñ·¯ ¿ÀºêÁ§Æ®¸¦ ÁöÁ¤\n(¿ìÅ¬¸¯: µî·ÏµÈ ¿ÀºêÁ§Æ®¸¦ ¼±ÅÃÇÕ´Ï´Ù)\nPick the controller object\n(Right-click: Select the registered object)"
+	pickbutton uiPickController STRING_PICK_CONTROLLER width:166 tooltip:"ì»¨íŠ¸ë¡¤ëŸ¬ ì˜¤ë¸Œì íŠ¸ë¥¼ ì§€ì •\n(ìš°í´ë¦­: ë“±ë¡ëœ ì˜¤ë¸Œì íŠ¸ë¥¼ ì„ íƒí•©ë‹ˆë‹¤)\nPick the controller object\n(Right-click: Select the registered object)"
 	button uiAddRMC "Add RMC" width:80 tooltip:"Add Root Motion Controller"across:2
 	button uiRemoveRMC "Remove RMC" width:80 tooltip:"Remove Root Motion Controller"
 	group "Other Tools" (
-		button uiRemoveAnyCustomAttribute "Remove Any Custom Attribute" width:166 tooltip:"À§ÇèÇÑ ±â´ÉÀÌ´Ï ÁÖÀÇÇØÁÖ¼¼¿ä.\nÁ¾·ù¿Í »ó°ü ¾øÀÌ Ä¿½ºÅÒ ¾îÆ®¸®ºäÆ® ÇÏ³ª¸¦ »èÁ¦.\nThis is a dangerous feature, so be careful.\nRemove one custom attribute of any type."
+		button uiRemoveAnyCustomAttribute "Remove Any Custom Attribute" width:166 tooltip:"ìœ„í—˜í•œ ê¸°ëŠ¥ì´ë‹ˆ ì£¼ì˜í•´ì£¼ì„¸ìš”.\nì¢…ë¥˜ì™€ ìƒê´€ ì—†ì´ ì»¤ìŠ¤í…€ ì–´íŠ¸ë¦¬ë·°íŠ¸ í•˜ë‚˜ë¥¼ ì‚­ì œ.\nThis is a dangerous feature, so be careful.\nRemove one custom attribute of any type."
 	)
 	button uiBtnHelp "About"
 
@@ -218,12 +218,12 @@ rollout RootMotionTools ("Root Motion Tools 0.93") width:200
 	)
 	*/
 	
-	-- Ä¿½ºÅÒ ¾îÆ®¸®ºäÆ®ÀÇ attribID°¡ °°ÀºÁö Á¶»ç. attribID¸¦ Á÷Á¢ ºñ±³ÇÏ¸é ¹«Á¶°Ç false¿©¼­ attribID ³» ¼ıÀÚ¸¦ ºñ±³ÇÏ´Â ÇÔ¼ö.
+	-- ì»¤ìŠ¤í…€ ì–´íŠ¸ë¦¬ë·°íŠ¸ì˜ attribIDê°€ ê°™ì€ì§€ ì¡°ì‚¬. attribIDë¥¼ ì§ì ‘ ë¹„êµí•˜ë©´ ë¬´ì¡°ê±´ falseì—¬ì„œ attribID ë‚´ ìˆ«ìë¥¼ ë¹„êµí•˜ëŠ” í•¨ìˆ˜.
 	function CompareAttribID idA idB = (
 		if (idA[1] == idB[1] AND idA[2] == idB[2]) then (return true) else (return false)
 	)
 
-	-- ¿ÀºêÁ§Æ®¿¡ ·çÆ® ¸ğ¼Ç ÄÁÆ®·Ñ·¯ ¾îÆ®¸®ºäÆ® ÀÎµ¦½º¸¦ ¸®ÅÏ. ¾øÀ¸¸é 0 ¸®ÅÏ
+	-- ì˜¤ë¸Œì íŠ¸ì— ë£¨íŠ¸ ëª¨ì…˜ ì»¨íŠ¸ë¡¤ëŸ¬ ì–´íŠ¸ë¦¬ë·°íŠ¸ ì¸ë±ìŠ¤ë¥¼ ë¦¬í„´. ì—†ìœ¼ë©´ 0 ë¦¬í„´
 	function GetRootMotionControllerAttrIndex obj = (
 		local attrCount = custAttributes.count obj
 		for i = 1 to attrCount do (
@@ -233,23 +233,23 @@ rollout RootMotionTools ("Root Motion Tools 0.93") width:200
 		return 0		
 	)
 
-	-- ¾ÀÀ» µÚÁ®¼­ ·çÆ® ¸ğ¼Ç ÄÁÆ®·Ñ·¯ ¸ÕÀú ¹ß°ßµÇ´Â °ÍÀ» ¸®ÅÏ
+	-- ì”¬ì„ ë’¤ì ¸ì„œ ë£¨íŠ¸ ëª¨ì…˜ ì»¨íŠ¸ë¡¤ëŸ¬ ë¨¼ì € ë°œê²¬ë˜ëŠ” ê²ƒì„ ë¦¬í„´
 	function FindRootMotionController = (
 		for obj in objects do (
 			if (GetRootMotionControllerAttrIndex obj) != 0 do (return obj)
 		)
-		return undefined	-- ¾øÀ¸¸é undefined ¸®ÅÏ
+		return undefined	-- ì—†ìœ¼ë©´ undefined ë¦¬í„´
 	)
 
-	-- ÃÊ±âÈ­ ÇÔ¼ö
+	-- ì´ˆê¸°í™” í•¨ìˆ˜
 	function Initialize = (
-		-- ¾À ÀüÃ¼¸¦ µÚÁ®¼­ ÄÁÆ®·Ñ·¯ ¿ÀºêÁ§Æ®°¡ ÀÖ´ÂÁö °Ë»ç. Ã£´Â ±âÁØÀº RMC_DataCA Ä¿½ºÅÒ ¾îÆ®¸®ºäÆ®°¡ ÀÖ´ÂÁö.
+		-- ì”¬ ì „ì²´ë¥¼ ë’¤ì ¸ì„œ ì»¨íŠ¸ë¡¤ëŸ¬ ì˜¤ë¸Œì íŠ¸ê°€ ìˆëŠ”ì§€ ê²€ì‚¬. ì°¾ëŠ” ê¸°ì¤€ì€ RMC_DataCA ì»¤ìŠ¤í…€ ì–´íŠ¸ë¦¬ë·°íŠ¸ê°€ ìˆëŠ”ì§€.
 		local controllerObj = FindRootMotionController()
-		if (controllerObj == undefined) then (	--ÀÖÀ¸¸é ÄÁÆ®·Ñ·¯ ÇÈ¹öÆ°¿¡ µî·Ï.
+		if (controllerObj == undefined) then (	--ìˆìœ¼ë©´ ì»¨íŠ¸ë¡¤ëŸ¬ í”½ë²„íŠ¼ì— ë“±ë¡.
 			uiPickController.object = undefined
 			uiPickController.text = STRING_PICK_CONTROLLER	
 		)
-		else (	--¾øÀ¸¸é ÇÈ¹öÆ° ÃÊ±âÈ­
+		else (	--ì—†ìœ¼ë©´ í”½ë²„íŠ¼ ì´ˆê¸°í™”
 			uiPickController.object = controllerObj
 			uiPickController.text = controllerObj.name
 		)
@@ -265,26 +265,26 @@ rollout RootMotionTools ("Root Motion Tools 0.93") width:200
 		)
 	)
 
-	-- ÇÈ¹öÆ° ¿ìÅ¬¸¯ÇÏ¸é ÇØ´ç ¿ÀºêÁ§Æ® ¼±ÅÃ
+	-- í”½ë²„íŠ¼ ìš°í´ë¦­í•˜ë©´ í•´ë‹¹ ì˜¤ë¸Œì íŠ¸ ì„ íƒ
 	on uiPickController rightclick do (
 		local controllerObj = uiPickController.object
-		if (controllerObj != undefined AND	-- ºñ¾îÀÖÁö ×°í
-			(not (isdeleted controllerObj))	-- »èÁ¦µÇÁö ¾Ê¾Ò´Ù¸é
-		) do (select controllerObj)			-- ¿ÀºêÁ§Æ® ¼±ÅÃ
+		if (controllerObj != undefined AND	-- ë¹„ì–´ìˆì§€ ì•–ê³ 
+			(not (isdeleted controllerObj))	-- ì‚­ì œë˜ì§€ ì•Šì•˜ë‹¤ë©´
+		) do (select controllerObj)			-- ì˜¤ë¸Œì íŠ¸ ì„ íƒ
 	)
 	
 	on uiAddRMC pressed do (
 		local controllerObj = uiPickController.object
 		if (controllerObj == undefined OR (isdeleted controllerObj)) do (
-			messagebox "ÄÁÆ®·Ñ·¯ ¿ÀºêÁ§Æ®¸¦ ¼±ÅÃÇØÁÖ¼¼¿ä"
+			messagebox "ì»¨íŠ¸ë¡¤ëŸ¬ ì˜¤ë¸Œì íŠ¸ë¥¼ ì„ íƒí•´ì£¼ì„¸ìš”"
 			return()
 		)
 
 		select controllerObj
-		-- ±âÁ¸¿¡ RMC_DataCA°¡ ÀÖ´ÂÁö Á¶»çÇØ¼­ ¾øÀ¸¸é Ãß°¡
+		-- ê¸°ì¡´ì— RMC_DataCAê°€ ìˆëŠ”ì§€ ì¡°ì‚¬í•´ì„œ ì—†ìœ¼ë©´ ì¶”ê°€
 		local attrIndex = GetRootMotionControllerAttrIndex controllerObj
 		if attrIndex != 0 then (
-			messagebox "ÀÌ¹Ì Root Motion Controller°¡ Á¸ÀçÇÕ´Ï´Ù.\nThe Root Motion Controller already exists."
+			messagebox "ì´ë¯¸ Root Motion Controllerê°€ ì¡´ì¬í•©ë‹ˆë‹¤.\nThe Root Motion Controller already exists."
 		)
 		else (
 			custAttributes.add controllerObj RMC_DataCA
@@ -294,26 +294,26 @@ rollout RootMotionTools ("Root Motion Tools 0.93") width:200
 	on uiRemoveRMC pressed do (
 		local controllerObj = uiPickController.object
 		if (controllerObj == undefined OR (isdeleted controllerObj)) do (
-			messagebox "ÄÁÆ®·Ñ·¯ ¿ÀºêÁ§Æ®¸¦ ¼±ÅÃÇØÁÖ¼¼¿ä"
+			messagebox "ì»¨íŠ¸ë¡¤ëŸ¬ ì˜¤ë¸Œì íŠ¸ë¥¼ ì„ íƒí•´ì£¼ì„¸ìš”"
 			return()
 		)
 
 		select controllerObj
 		local attrIndex = GetRootMotionControllerAttrIndex controllerObj
 		if attrIndex != 0 do (
-			custAttributes.delete controllerObj attrIndex	-- »èÁ¦½Ã Ä¿½ºÅÒ ¾îÆ®¸®ºäÆ®ÀÇ ¾Ö´Ï¸ŞÀÌ¼Ç Å°µµ »èÁ¦µÈ´Ù.
+			custAttributes.delete controllerObj attrIndex	-- ì‚­ì œì‹œ ì»¤ìŠ¤í…€ ì–´íŠ¸ë¦¬ë·°íŠ¸ì˜ ì• ë‹ˆë©”ì´ì…˜ í‚¤ë„ ì‚­ì œëœë‹¤.
 		)
 	)
 
 	on uiRemoveAnyCustomAttribute pressed do (
 		local controllerObj = uiPickController.object
 		if (controllerObj == undefined OR (isdeleted controllerObj)) do (
-			messagebox "ÄÁÆ®·Ñ·¯ ¿ÀºêÁ§Æ®¸¦ ¼±ÅÃÇØÁÖ¼¼¿ä"
+			messagebox "ì»¨íŠ¸ë¡¤ëŸ¬ ì˜¤ë¸Œì íŠ¸ë¥¼ ì„ íƒí•´ì£¼ì„¸ìš”"
 			return()
 		)
 
 		select controllerObj
-		custAttributes.delete controllerObj 1	-- »èÁ¦½Ã Ä¿½ºÅÒ ¾îÆ®¸®ºäÆ®ÀÇ ¾Ö´Ï¸ŞÀÌ¼Ç Å°µµ »èÁ¦µÈ´Ù.
+		custAttributes.delete controllerObj 1	-- ì‚­ì œì‹œ ì»¤ìŠ¤í…€ ì–´íŠ¸ë¦¬ë·°íŠ¸ì˜ ì• ë‹ˆë©”ì´ì…˜ í‚¤ë„ ì‚­ì œëœë‹¤.
 	)
 	
 	on RootMotionTools open do (

@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-05-26 09:40:52
+ * @LastEditTime: 2025-05-27 23:30:38
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -2238,8 +2238,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"添加选择的Bone末端，可回退\r\n右键清除（注意 \"tempBoneEndAll\" 层）" pos:btnPos
 	button btnRenameTools "改名工具" width:btnWidth height:btnHeight visible:false \
 	toolTip:"超级重命名工具" pos:btnPos
-	button btnBipedScale "CS缩放" width:btnWidth height:btnHeight visible:false \
-	toolTip:"效果展示可用，导入引擎别用\r\n再次点击可解除" pos:btnPos
+	button btnRootMotionTools "Root工具" width:btnWidth height:btnHeight visible:false \
+	toolTip:"根骨骼运动工具,方便导入引擎" pos:btnPos
 	button btnSelByColor "同色选择" width:btnWidth height:btnHeight visible:false \
 	tooltip:"选择同颜色物体" pos:btnPos
 	button btnMeshToBone "破碎工具" width:btnWidth height:btnHeight visible:false \
@@ -2522,7 +2522,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnFnTCB,rolBsKeyTools.btnEulerFilter,
 						rolBsKeyTools.btnDelOutKeys,rolBsKeyTools.btnCleanOutKeys,
 						rolBsKeyTools.btnEndBone,rolBsKeyTools.btnRenameTools,
-						rolBsKeyTools.btnBipedScale,rolBsKeyTools.btnSelByColor)
+						rolBsKeyTools.btnRootMotionTools,rolBsKeyTools.btnSelByColor)
 		arrSourToolC3 = #(rolBsKeyTools.btnMeshToBone,rolBsKeyTools.btnMassFX,
 						rolBsKeyTools.btnCollider,rolBsKeyTools.btnBakeAnim,
 						rolBsKeyTools.btnHideBipedTwists,rolBsKeyTools.btnQuickPrev,
@@ -4471,7 +4471,11 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
 	)
 
-	on btnBipedScale pressed do (fnBipedScale ())
+	on btnRootMotionTools pressed do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsRootMotionTools.ms"))
+		catch(messagebox "打开 BsRootMotionTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
 
 	on btnReplaceSkinBones pressed do 
 	(
