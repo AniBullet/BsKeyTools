@@ -8,8 +8,10 @@
 -- Download: https://github.com/markulie/WireColorPro
 -- Modified：Bullet.S 2025.05
 
-global rolProColor  
 try ( destroyDialog rolProColor ) catch()   
+global rolProColor  
+global offsetProColor = [0,0]
+global dragStateProColor = off
 
 gc()   
 
@@ -389,20 +391,20 @@ rollout rolProColor "WireColor Pro v1.24" width:260 height:380
 	on rolProColor lbuttondown posMou do
 	(
 		setSysCur #move
-		offsetBsBoxMan = posMou
-		dragStateBsBoxMan = on
+		offsetProColor = posMou
+		dragStateProColor = on
 	)
 	
 	on rolProColor lbuttonup posMou do
 	(
-		dragStateBsBoxMan = off
+		dragStateProColor = off
 	)
 	
 	on rolProColor mouseMove pos do
 	(
-		if dragStateBsBoxMan == on then
+		if dragStateProColor == on then
 		(
-			SetDialogPos rolProColor (mouse.screenpos - offsetBsBoxMan)
+			SetDialogPos rolProColor (mouse.screenpos - offsetProColor)
 		)
 	)
 
