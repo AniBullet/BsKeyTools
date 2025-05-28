@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-05-27 23:30:38
+ * @LastEditTime: 2025-05-28 11:37:15
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -2262,7 +2262,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"Skin工具集成 (左新版，右老版)" pos:btnPos
 	button btnCombineDetachSkin "Skin 拆合" width:btnWidth height:btnHeight visible:false \
 	tooltip:"拆分合并 Mesh 并且保留 Skin 信息，选中 Mesh 执行" pos:btnPos
-	button btnBoxMan "方块超人" width:btnWidth height:btnHeight visible:false \
+	button btnBoxMan "BoxMan" width:btnWidth height:btnHeight visible:false \
 	tooltip:"方块练习人制作工具，半成品待完善" pos:btnPos
 	button btnTwistBones "Twist创建" width:btnWidth height:btnHeight visible:false \
 	tooltip:"用 bone 代替 Biped 自带 Twist，避免过度翻转" pos:btnPos
@@ -2288,8 +2288,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"清理冗余自定义属性，\r\n如 day1reCA 和 SimpleFaceData ？\r\n请注意备份和保存文件" pos:btnPos
 	button btnLODCreate "LOD 创建" width:btnWidth height:btnHeight visible:false \
 	tooltip:"创建 LOD，保留 Skin，方便面数多的模型做动画" pos:btnPos
-	checkbutton ckbIsoMesh "单显模型" width:btnWidth height:btnHeight visible:false \
-	toolTip:"单独显示模型预览" pos:btnPos highlightcolor:myCheckedColor 
+	button btnProColor "调色工具" width:btnWidth height:btnHeight visible:false \
+	toolTip:"方便快速调节物体颜色" pos:btnPos highlightcolor:myCheckedColor 
 	pos:btnPos highlightcolor:myCheckedColor 
 
 	groupbox gbxTips "" pos:[5,245] width:210 height:25 visible:false
@@ -2534,7 +2534,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnMirrorMoph,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnReplaceSkinBones,rolBsKeyTools.ckbFnMtlDisplay,
 						rolBsKeyTools.btnXpsConvert,rolBsKeyTools.btnCleanCustomAtts,
-						rolBsKeyTools.btnLODCreate,rolBsKeyTools.ckbIsoMesh)
+						rolBsKeyTools.btnLODCreate,rolBsKeyTools.btnProColor)
 		
 		fnLoadToolBtnConfig()
 		arrToolsAllTemp = arrSourToolC1 + arrSourToolC2 + arrSourToolC3 + arrSourToolC4
@@ -3882,29 +3882,10 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(messagebox "打开 BsOpenTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on ckbIsoMesh changed state do
+	on btnProColor pressed do
 	(
-		if state then
-		(
-			hideByCategory.geometry = false
-			hideByCategory.shapes = true
-			-- hideByCategory.lights = true
-			-- hideByCategory.cameras = true
-			hideByCategory.helpers = true
-			-- hideByCategory.spacewarps = true
-			-- hideByCategory.particles = true
-			hideByCategory.bones = true
-		)
-		else 
-		(
-			hideByCategory.shapes = false
-			-- hideByCategory.lights = false
-			-- hideByCategory.cameras = false
-			hideByCategory.helpers = false
-			-- hideByCategory.spacewarps = false
-			-- hideByCategory.particles = false
-			hideByCategory.bones = false
-		)
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\ProColor.ms"))
+		catch(messagebox "打开 ProColor.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 	on btnProTraj pressed do 
 	(
