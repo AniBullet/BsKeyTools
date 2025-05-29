@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-05-23 19:25:55
+ * @LastEditTime: 2025-05-29 19:47:08
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -618,7 +618,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v4.3 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
@@ -656,8 +656,8 @@ rollout rolBsRetarget "BsRetargetTools_v4.3 （ FBX 转 BIP + 动画重定向 �
 	button validateButton "2. 验证映射列表完整" pos:[495,215] width:btnWidth height:50 tooltip:"必须验证匹配是否完整。"
     
     groupbox grpBiped "【可选】视情况设置" pos:[490,280] width:(btnWidth + 10) height:250
-	spinner spnObjSize "Helper Size" pos:[500,81] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:35 scale:0.01
-	button btnResetSize "应用" pos:[605,80] width:35 height:18 tooltip:"重置选中辅助骨骼大小"
+	spinner spnObjSize "Size" pos:[500,81] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:35 scale:0.01
+	button btnResetSize "应用" pos:[585,80] width:55 height:18 tooltip:"重置选中辅助骨骼大小"
 
 	label lblThumbAxis "(左)拇指 右轴" pos:[500,352] width:70 height:25
 	dropdownList ddlThumbAxis "" pos:[590,350] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
@@ -2336,6 +2336,12 @@ rollout rolBsRetarget "BsRetargetTools_v4.3 （ FBX 转 BIP + 动画重定向 �
 	on validateButton pressed do
 	(
 		mappingCheckState = true
+		local missingHeadNub = false
+		local missingFootNubs = false  
+		local missingFingers = #()
+		local otherMissing = #()
+		local autoCreated = false  -- 标志变量，记录是否进行了自动创建
+		
 		for i = 1 to characterBones.items.count do
 		(
 			local checkedNode = GetSkeletalNode i false
@@ -2343,9 +2349,46 @@ rollout rolBsRetarget "BsRetargetTools_v4.3 （ FBX 转 BIP + 动画重定向 �
 			(
 				if not (fnIsOptionalNodeIndex i) then
 				(
-					messagebox ("缺失 " + (i as string) + ":  " + bipedBones.items[i] + "                  ");
-					mappingCheckState = false
-					exit
+					-- 检查是否是特定的 Nub 骨骼 (根据用户提供的正确索引)
+					case i of
+					(
+						11: missingHeadNub = true  -- HeadNub
+						16: missingFootNubs = true -- L Toe0Nub
+						21: missingFootNubs = true -- R Toe0Nub 
+						default:
+						(
+							-- 只有非 nub 的必需骨骼才加入 otherMissing
+							append otherMissing i
+						)
+					)
+				)
+				else
+				(
+					-- 检查是否是所有可选的手指骨骼，不仅仅是nub
+					case i of
+					(
+						24: append missingFingers i -- L Finger0
+						25: append missingFingers i -- L Finger01
+						26: append missingFingers i -- L Finger02
+						27: append missingFingers i -- L Finger0Nub
+						28: append missingFingers i -- L Finger1
+						29: append missingFingers i -- L Finger11
+						30: append missingFingers i -- L Finger12
+						31: append missingFingers i -- L Finger1Nub
+						32: append missingFingers i -- L Finger2
+						33: append missingFingers i -- L Finger21
+						34: append missingFingers i -- L Finger22
+						35: append missingFingers i -- L Finger2Nub
+						36: append missingFingers i -- L Finger3
+						37: append missingFingers i -- L Finger31
+						38: append missingFingers i -- L Finger32
+						39: append missingFingers i -- L Finger3Nub
+						40: append missingFingers i -- L Finger4
+						41: append missingFingers i -- L Finger41
+						42: append missingFingers i -- L Finger42
+						43: append missingFingers i -- L Finger4Nub
+						default: ()
+					)
 				)
 			)
 		)
@@ -2357,14 +2400,210 @@ rollout rolBsRetarget "BsRetargetTools_v4.3 （ FBX 转 BIP + 动画重定向 �
 			(
 				if not (fnIsOptionalNodeIndex (i+37)) then
 				(
-					messagebox ("缺失 " + (i as string) + ":  " + bipedBones_B.items[i] + "                   ");
-					mappingCheckState = false
-					exit
+					append otherMissing (i+37)
+				)
+				else
+				(
+					-- 检查是否是右手所有可选手指骨骼
+					local realIndex = i + 37
+					case realIndex of
+					(
+						48: append missingFingers realIndex -- R Finger0
+						49: append missingFingers realIndex -- R Finger01
+						50: append missingFingers realIndex -- R Finger02
+						51: append missingFingers realIndex -- R Finger0Nub
+						52: append missingFingers realIndex -- R Finger1
+						53: append missingFingers realIndex -- R Finger11
+						54: append missingFingers realIndex -- R Finger12
+						55: append missingFingers realIndex -- R Finger1Nub
+						56: append missingFingers realIndex -- R Finger2
+						57: append missingFingers realIndex -- R Finger21
+						58: append missingFingers realIndex -- R Finger22
+						59: append missingFingers realIndex -- R Finger2Nub
+						60: append missingFingers realIndex -- R Finger3
+						61: append missingFingers realIndex -- R Finger31
+						62: append missingFingers realIndex -- R Finger32
+						63: append missingFingers realIndex -- R Finger3Nub
+						64: append missingFingers realIndex -- R Finger4
+						65: append missingFingers realIndex -- R Finger41
+						66: append missingFingers realIndex -- R Finger42
+						67: append missingFingers realIndex -- R Finger4Nub
+						default: ()
+					)
 				)
 			)
 		)
 		
-		if (mappingCheckState) then
+		-- 处理其他缺失的必需骨骼 - 直接报错，不进行自动创建
+		if otherMissing.count > 0 then
+		(
+			local missingName = ""
+			for idx in otherMissing do 
+			(
+				missingName += (idx as string) + ":  " + boneNames[idx] + "\n"
+			)
+			messagebox ("缺失必需骨骼：\n\n" + missingName + "\n请手动映射这些骨骼！")
+			mappingCheckState = false
+		)
+		
+		-- 一次性处理所有可自动创建的内容
+		local needsAutoCreation = missingHeadNub or missingFootNubs or missingFingers.count > 0
+		local hasRequiredNubs = missingHeadNub or missingFootNubs  -- 区分必需的nub和可选的手指
+		
+		if needsAutoCreation and not autoCreated then
+		(
+			-- 构建询问消息
+			local message = "检测到以下缺失的骨骼，是否自动创建？\n\n"
+			local creationList = #()
+			
+			if missingHeadNub then
+			(
+				message += "• Head Nub\n"
+				append creationList "head"
+			)
+			
+			if missingFootNubs then
+			(
+				message += "• Foot Nub (脚趾末端)\n"
+				append creationList "foot"
+			)
+			
+			if missingFingers.count > 0 then
+			(
+				message += "• [可选] " + (missingFingers.count as string) + " 个手指骨骼\n"
+				append creationList "fingers"
+			)
+			
+			message += "\n一次性创建所有缺失骨骼(占位用)？                               "
+			
+			if (queryBox message title:"自动创建缺失骨骼" beep:false) then
+			(
+				local successCount = 0
+				local errorMessages = #()
+				
+				-- 创建 Head Nub
+				if missingHeadNub then
+				(
+					try
+					(
+						menuQuickCreateNode.fnDuplicateNub #(10) isHead:true
+						local headNubNode = GetSkeletalNode 11 false
+						if headNubNode != undefined then
+						(
+							successCount += 1
+						)
+						else
+						(
+							append errorMessages "Head Nub 创建失败"
+						)
+					)
+					catch
+					(
+						append errorMessages "Head Nub 创建出错"
+					)
+				)
+				
+				-- 创建 Foot Nub
+				if missingFootNubs then
+				(
+					try
+					(
+						menuQuickCreateNode.fnDuplicateNub #(15,20) isFoot:true
+						local lFootNub = GetSkeletalNode 16 false
+						local rFootNub = GetSkeletalNode 21 false
+						if lFootNub != undefined or rFootNub != undefined then
+						(
+							successCount += 1
+						)
+						else
+						(
+							append errorMessages "Foot Nub 创建失败"
+						)
+					)
+					catch
+					(
+						append errorMessages "Foot Nub 创建出错"
+					)
+				)
+				
+				-- 创建手指骨骼
+				if missingFingers.count > 0 then
+				(
+					try
+					(
+						-- 使用 quickDuplicateFingers 功能创建手指nub
+						local arrFingersID = #(28,32,36,40,44,52,56,60,64,68)
+						menuQuickCreateNode.fnDuplicateNub arrFingersID
+						
+						-- 检查是否成功创建了一些手指 Nub
+						local createdCount = 0
+						local fingerNubIndices = #(29,33,37,41,45,53,57,61,65,69)
+						for nubIdx in fingerNubIndices do
+						(
+							local createdNode = GetSkeletalNode nubIdx false
+							if createdNode != undefined then createdCount += 1
+						)
+						
+						if createdCount > 0 then
+						(
+							successCount += 1
+						)
+						else
+						(
+							append errorMessages "手指 Nub 创建失败"
+						)
+					)
+					catch
+					(
+						append errorMessages "手指 Nub 创建出错"
+					)
+				)
+				
+				-- 显示创建结果
+				if successCount > 0 then
+				(
+					local resultMessage = "自动创建完成！"
+					if errorMessages.count > 0 then
+					(
+						resultMessage += "\n\n部分创建失败：\n"
+						for errMsg in errorMessages do
+						(
+							resultMessage += "• " + errMsg + "\n"
+						)
+					)
+					resultMessage += "\n请重新验证映射列表！"
+					messagebox resultMessage title:"创建完成"
+				)
+				else
+				(
+					local errorMessage = "所有自动创建都失败了：\n\n"
+					for errMsg in errorMessages do
+					(
+						errorMessage += "• " + errMsg + "\n"
+					)
+					errorMessage += "\n请手动创建或检查骨骼结构！"
+					messagebox errorMessage title:"创建失败"
+				)
+				
+				autoCreated = true
+			)
+			else
+			(
+				-- 用户选择"否"时，只有缺失必需nub才算验证失败
+				if hasRequiredNubs then
+				(
+					mappingCheckState = false
+				)
+				-- 如果只缺失可选手指，不影响验证状态，让流程继续
+			)
+		)
+		
+		-- 如果进行了自动创建，提示重新验证
+		if autoCreated then
+		(
+			-- 已经在上面显示了详细的创建结果，这里不需要额外提示
+		)
+		else if (mappingCheckState) then
 		(
 			messagebox ("骨骼映射完整，请继续！                 ");
 		)
@@ -3946,21 +4185,23 @@ rollout rolHelpDialog "BsRetargetTools 使用帮助" width:450 height:520
 (
     label lblTitle "🎯 BsRetargetTools 快速使用指南" pos:[10,10] width:430 height:20
     
-    groupbox grpSteps "📋 使用步骤" pos:[10,40] width:430 height:200
-    label lblStep1 "1. 检查映射：选择预设 或（自动匹配） → 验证完整" pos:[20,60] width:410 height:20
-    label lblStep2 "2. 设置参数：手指轴向、引擎选择(Unity/Unreal)" pos:[20,85] width:410 height:20
-    label lblStep3 "3. 创建映射：点击【创建重定向映射文件】" pos:[20,110] width:410 height:20
-    label lblStep4 "4. 转换骨架：点击【FBX 转 Biped (Skin)】" pos:[20,135] width:410 height:20
-    label lblStep5 "5. 动画重定向：切换到第二个页签进行操作" pos:[20,160] width:410 height:20
+    groupbox grpSteps "📋 使用步骤" pos:[10,40] width:430 height:220
+    label lblStep0 "0. 骨骼映射：将原始骨骼填入对应的Biped位置，缺失的Nub可自动创建" pos:[20,60] width:410 height:20
+    label lblStep1 "1. 验证映射：选择预设模板 或 点击【自动匹配】→【验证】完整性" pos:[20,80] width:410 height:20
+    label lblStep2 "2. 调整参数：设置手指轴向、选择目标引擎(Unity/Unreal)" pos:[20,100] width:410 height:20
+    label lblStep3 "3. 创建映射：点击【创建重定向映射文件】生成中间文件" pos:[20,120] width:410 height:20
+    label lblStep4 "4. 转换骨架：点击【FBX 转 Biped (Skin)】生成目标骨架" pos:[20,140] width:410 height:20
+    label lblStep5 "5. 重定向动画：切换到【动画重定向】页签，批量处理动画" pos:[20,160] width:410 height:20
+    label lblStep6 "6. 检查结果：在ReOutput文件夹查看生成的FBX/MAX/BIP文件" pos:[20,180] width:410 height:20
     
-    groupbox grpTips "💡 重要提示" pos:[10,250] width:430 height:140
-    label lblTip1 "• 除【可选】骨骼外，其他骨骼需完整映射" pos:[20,270] width:410 height:20
-    label lblTip2 "• 手指轴向设置重要，从上往下俯瞰手指，选择右边是什么轴向" pos:[20,295] width:410 height:20
-    label lblTip3 "• 工具包含两个页签：FBX转Biped 和 动画重定向" pos:[20,320] width:410 height:20
-    label lblTip4 "• 建议文件目录结构：MappingFile.max、Skin.max、AniFBX、ReOutput" pos:[20,345] width:410 height:20
+    groupbox grpTips "💡 重要提示" pos:[10,270] width:430 height:120
+    label lblTip1 "• 必需骨骼：除标记【可选】的骨骼外，其他必须完整映射" pos:[20,290] width:410 height:20
+    label lblTip2 "• 手指轴向：俯瞰手掌，手指朝右的轴向（通常为Y或Z轴）" pos:[20,310] width:410 height:20
+    label lblTip3 "• 文件结构：建议使用 MappingFile.max、Skin.max、AniFBX、ReOutput" pos:[20,330] width:410 height:20
+    label lblTip4 "• 自动创建：HeadNub、FootNub、手指Nub等辅助骨骼可一键生成" pos:[20,350] width:410 height:20
     
     groupbox grpContact "📞 作者信息" pos:[10,400] width:430 height:100
-    label lblAuthor "作者：Bullet.S    版本：v4.3" pos:[20,420] width:410 height:20
+    label lblAuthor "作者：Bullet.S" pos:[20,420] width:410 height:20
     hyperLink hlHomepage "🏠 个人主页：www.anibullet.com" pos:[20,440] width:410 height:20 \
         address:"https://www.anibullet.com/" color:(color 0 100 200) hovercolor:(color 0 150 255)
     hyperLink hlTutorial "📺 视频教程：Bilibili教程合集" pos:[20,460] width:410 height:20 \
