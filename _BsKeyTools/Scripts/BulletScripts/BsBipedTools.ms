@@ -1266,13 +1266,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		btnFingerLineR1.state = true
 		local arrFingerLine = #()
 		for i = 1 to 3 do (
-			tempFinger = ((GetFinger "R" i)[1])
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			tempFinger = (GetFinger "R" i)
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
 			(
 				print "请先确认手指骨骼!"
 				return ()
 			)
-			append arrFingerLine tempFinger
+			append arrFingerLine tempFinger[1]
 		)
 		
 		if keyboard.controlPressed and keyboard.altpressed do (
@@ -1286,13 +1286,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		btnFingerLineR2.state = true
 		local arrFingerLine = #()
 		for i = 4 to 6 do (
-			tempFinger = ((GetFinger "R" i)[1])
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			tempFinger = (GetFinger "R" i)
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
 			(
 				print "请先确认手指骨骼!"
 				return ()
 			)
-			append arrFingerLine tempFinger
+			append arrFingerLine tempFinger[1]
 		)
 		
 		if keyboard.controlPressed and keyboard.altpressed do (
@@ -1306,13 +1306,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		btnFingerLineR3.state = true
 		local arrFingerLine = #()
 		for i = 7 to 9 do (
-			tempFinger = ((GetFinger "R" i)[1])
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			tempFinger = (GetFinger "R" i)
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
 			(
 				print "请先确认手指骨骼!"
 				return ()
 			)
-			append arrFingerLine tempFinger
+			append arrFingerLine tempFinger[1]
 		)
 		
 		if keyboard.controlPressed and keyboard.altpressed do (
@@ -1326,13 +1326,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		btnFingerLineR4.state = true
 		local arrFingerLine = #()
 		for i = 10 to 12 do (
-			tempFinger = ((GetFinger "R" i)[1])
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			tempFinger = (GetFinger "R" i)
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
 			(
 				print "请先确认手指骨骼!"
 				return ()
 			)
-			append arrFingerLine tempFinger
+			append arrFingerLine tempFinger[1]
 		)
 		
 		if keyboard.controlPressed and keyboard.altpressed do (
@@ -1346,13 +1346,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		btnFingerLineR5.state = true
 		local arrFingerLine = #()
 		for i = 13 to 15 do (
-			tempFinger = ((GetFinger "R" i)[1])
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			tempFinger = (GetFinger "R" i)
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
 			(
 				print "请先确认手指骨骼!"
 				return ()
 			)
-			append arrFingerLine tempFinger
+			append arrFingerLine tempFinger[1]
 		)
 		
 		if keyboard.controlPressed and keyboard.altpressed do (
@@ -1368,13 +1368,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		btnFingerLineL1.state = true
 		local arrFingerLine = #()
 		for i = 1 to 3 do (
-			tempFinger = ((GetFinger "L" i)[1])
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			tempFinger = (GetFinger "L" i)
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
 			(
 				print "请先确认手指骨骼!"
 				return ()
 			)
-			append arrFingerLine tempFinger
+			append arrFingerLine tempFinger[1]
 		)
 		
 		if keyboard.controlPressed and keyboard.altpressed do (
@@ -1388,13 +1388,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		btnFingerLineL2.state = true
 		local arrFingerLine = #()
 		for i = 4 to 6 do (
-			tempFinger = ((GetFinger "L" i)[1])
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			tempFinger = (GetFinger "L" i)
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
 			(
 				print "请先确认手指骨骼!"
 				return ()
 			)
-			append arrFingerLine tempFinger
+			append arrFingerLine tempFinger[1]
 		)
 		
 		if keyboard.controlPressed and keyboard.altpressed do (
@@ -1408,13 +1408,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		btnFingerLineL3.state = true
 		local arrFingerLine = #()
 		for i = 7 to 9 do (
-			tempFinger = ((GetFinger "L" i)[1])
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			tempFinger = (GetFinger "L" i)
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
 			(
 				print "请先确认手指骨骼!"
 				return ()
 			)
-			append arrFingerLine tempFinger
+			append arrFingerLine tempFinger[1]
 		)
 		
 		if keyboard.controlPressed and keyboard.altpressed do (
@@ -1428,13 +1428,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		btnFingerLineL4.state = true
 		local arrFingerLine = #()
 		for i = 10 to 12 do (
-			tempFinger = ((GetFinger "L" i)[1])
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			tempFinger = (GetFinger "L" i)
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
 			(
 				print "请先确认手指骨骼!"
 				return ()
 			)
-			append arrFingerLine tempFinger
+			append arrFingerLine tempFinger[1]
 		)
 		
 		if keyboard.controlPressed and keyboard.altpressed do (
@@ -1448,13 +1448,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		btnFingerLineL5.state = true
 		local arrFingerLine = #()
 		for i = 13 to 15 do (
-			tempFinger = ((GetFinger "L" i)[1])
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or (GetFinger "L" i) == undefined ) do 
+			tempFinger = (GetFinger "L" i)
+			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
 			(
 				print "请先确认手指骨骼!"
 				return ()
 			)
-			append arrFingerLine tempFinger
+			append arrFingerLine tempFinger[1]
 		)
 		
 		if keyboard.controlPressed and keyboard.altpressed do (
