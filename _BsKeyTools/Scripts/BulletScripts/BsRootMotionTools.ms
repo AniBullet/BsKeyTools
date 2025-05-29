@@ -1,4 +1,5 @@
 --制作者：李相元
+--修改: Bullet.S
 
 global BS_RM_DataCA
 -- 自定义属性定义，用于实现动态控制
