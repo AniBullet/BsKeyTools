@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-06-01 18:43:52
+ * @LastEditTime: 2025-06-01 20:11:13
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -645,46 +645,49 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
     local btnWidth   = 145
 	local arrSaveVer = (for i = 0 to 3 collect ("20" + (((maxversion())[1]/1000)-2-i) as string))
 
-    groupbox grpRetargetList "【必须】检查映射" pos:[490,60] width:(btnWidth + 10) height:210
+    groupbox grpRetargetList "便捷工具" pos:[490,65] width:(btnWidth + 10) height:125
 
 	-- label lblTips "" pos:[260,450] width:200 height:30
 	-- pickbutton pkbRootMption "0. 指定原 RootMotion" pos:[20,505] height:30 width:(btnWidth) message:"指定原始 FBX 的 RootMotion" autoDisplay:true tooltip:"右键清除选择"
-    button loadDialogue "加载列表" pos:[495,100] width:(btnWidth/2) height:25
-    button saveDialogue "保存列表" pos:[570,100] width:(btnWidth/2) height:25
-	button btnQuickTools "【快速便捷小工具】" pos:[495,130] width:btnWidth height:35 tooltip:"快速创建 nub 骨骼或符合 Biped 的质心。"
-	button btnAutoMapping "1. 自动按命名匹配" pos:[495,170] width:btnWidth height:40 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
-	button validateButton "2. 验证映射列表完整" pos:[495,215] width:btnWidth height:50 tooltip:"必须验证匹配是否完整。"
+    button loadDialogue "1.加载列表" pos:[100,630] width:(btnWidth/2+10) height:16
+    button saveDialogue "1.保存列表" pos:[100,650] width:(btnWidth/2+10) height:16
+	button btnQuickTools "⚡️ 快速便捷小工具 ⚡️" pos:[495,145] width:btnWidth height:35 tooltip:"快速创建 nub 骨骼或符合 Biped 的质心。"
+	button btnAutoMapping "0. 按命名匹配" pos:[10,630] width:(btnWidth-60) height:35 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
+	button validateButton "2. 验证映射列表完整" pos:[190,630] width:btnWidth height:35 tooltip:"必须验证匹配是否完整。"
     
-    groupbox grpBiped "【可选】视情况设置" pos:[490,280] width:(btnWidth + 10) height:250
-	spinner spnObjSize "Size" pos:[500,81] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:35 scale:0.01
-	button btnResetSize "应用" pos:[585,80] width:55 height:18 tooltip:"重置选中辅助骨骼大小"
-
-	label lblThumbAxis "(左)拇指 右轴" pos:[500,352] width:70 height:25
-	dropdownList ddlThumbAxis "" pos:[590,350] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	label lblHandAxis "(左)四指 右轴" pos:[500,377] width:70 height:25
-	dropdownList ddlHandAxis "" pos:[590,375] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	label lblThumbAxis2 "(右)拇指 右轴" pos:[500,402] width:70 height:25
-	dropdownList ddlThumbAxis2 "" pos:[590,400] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	label lblHandAxis2 "(右)四指 右轴" pos:[500,427] width:70 height:25
-	dropdownList ddlHandAxis2 "" pos:[590,425] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	label lblPalmAxis "(左)手掌 右轴" pos:[500,452] width:70 height:25
-	dropdownList ddlPalmAxis "" pos:[590,450] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	label lblPalmAxis2 "(右)手掌 右轴" pos:[500,477] width:70 height:25
-	dropdownList ddlPalmAxis2 "" pos:[590,475] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	button reAlignFingers "🤞🏼 重新对齐手指 🤞🏼" pos:[495,500] width:(btnWidth) height:25
+    groupbox grpBiped "【可选】轴向设置" pos:[490,200] width:(btnWidth + 10) height:300
+	spinner spnObjSize "选中物体 Size: " pos:[500,86] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:40 scale:0.01
+	button btnResetSize "重置选中物体大小" pos:[495,110] width:btnWidth height:30 tooltip:"重置选中辅助骨骼大小"
+	button btnAutoAxis "💡 检测手指轴向 💡" pos:[495,268] width:btnWidth height:30
+	label lblThumbAxis "(左)拇指 右轴" pos:[500,307] width:70 height:25
+	dropdownList ddlThumbAxis "" pos:[590,305] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	label lblHandAxis "(左)四指 右轴" pos:[500,332] width:70 height:25
+	dropdownList ddlHandAxis "" pos:[590,330] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	label lblThumbAxis2 "(右)拇指 右轴" pos:[500,357] width:70 height:25
+	dropdownList ddlThumbAxis2 "" pos:[590,355] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	label lblHandAxis2 "(右)四指 右轴" pos:[500,382] width:70 height:25
+	dropdownList ddlHandAxis2 "" pos:[590,380] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	label lblPalmAxis "(左)手掌 右轴" pos:[500,407] width:70 height:25
+	dropdownList ddlPalmAxis "" pos:[590,405] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	label lblPalmAxis2 "(右)手掌 右轴" pos:[500,432] width:70 height:25
+	dropdownList ddlPalmAxis2 "" pos:[590,430] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	button reAlignFingers "🤞🏼 重新对齐手指 🤞🏼" pos:[495,460] width:(btnWidth) height:30
 	-- checkbox chkRenameBiped "Biped 保持 Bone 原名" checked:false pos:[164,535] width:(btnWidth + 20) height:20
 	-- radiobuttons rdoUpAxis " 映射 RootMotion 轴向" pos:[155,500] width:154 height:46 labels:#("Y-Up (U3D)", "Z-Up (UE)") columns:2 default:2
-	label lblUpAxis "引擎 RootMotion 选择" pos:[500,300] width:120 height:20
-	dropdownList ddlUpAxis "" pos:[495,320] width:145 height:25 items:#("Y-Up (U3D) -  Unity","Z-Up (UE)   -  Unreal") selection:2
-	checkbox chkCopySubs "[慎用] 映射飘带骨骼 ↓" pos:[500,535] height:20 width:(btnWidth + 25) checked:false
-    button alignBipedToHelper "3. 创建重定向映射文件" pos:[495,560] width:(btnWidth) height:30
+	label lblUpAxis "引擎 RootMotion 选择" pos:[500,220] width:120 height:20
+	dropdownList ddlUpAxis "" pos:[495,240] width:145 height:25 items:#("Y-Up (U3D) -  Unity","Z-Up (UE)   -  Unreal") selection:2
+	checkbox chkCopySubs "需要重定向飘带动画" pos:[500,595] height:20 width:(btnWidth-10) checked:false
+    button alignBipedToHelper "3. 创建重定向映射文件" pos:[345,630] width:btnWidth height:35
     
     -- button btnExportTPose "[可选]导出 Biped Figure Pose" pos:[305,505] width:(btnWidth + 35) height:25
 	
-	button btnReplaceToBiped "4. FBX 转 Biped ( Skin )" pos:[495,595] width:(btnWidth) height:30
+	button btnReplaceToBiped "4. FBX 转 Biped ( Skin )" pos:[500,630] width:btnWidth height:35
     -- checkbutton ckbExportFBXTools "🎮 动画批量重定向工具" pos:[305,555] width:(btnWidth + 35) height:45
-	checkbox chkRealign "↓ [慎用] 重置轴向 ↓" pos:[500,477] height:20 width:(btnWidth - 15) checked:false
-	button btnConvertToBone "[慎用] Helper 转 Bone" pos:[495,500] height:25 width:(btnWidth) tooltip:"需要选中"
+
+	groupbox grpBoneTips "【慎用】除非你知道用途" pos:[490,508] width:(btnWidth + 10) height:115
+
+	checkbox chkRealign "是否重置 Bone 轴向" pos:[500,530] height:20 width:(btnWidth - 10) checked:false
+	button btnConvertToBone "[慎用] Helper 转 Bone" pos:[495,555] height:30 width:(btnWidth) tooltip:"需要选中"
 	
 	button btnRefreshFolder ">>  按默认规则刷新路径和文件  <<" \
 	height:40 width:225 pos:[240,65] tooltip:"刷新当前文件目录\r\n并按默认规则寻找文件\r\n映射文件为当前打开文件\r\n新 Skin 文件为同目录 Skin.max" visible:false
@@ -739,11 +742,11 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 	checkbox chkZAxis "Z" pos:[305,563] width:30 height:30 visible:false
 	button btnBatchAll "清零 Root 位移曲线" pos:[340,565] width:125 height:25 visible:false border:false tooltip:"自用"
 
-    progressbar pgbBar "" pos:[10,635] width:590 height:16 color:white
-	label lblBarValue "" pos:[610,635] width:60
+    progressbar pgbBar "" pos:[10,675] width:590 height:16 color:white
+	label lblBarValue "" pos:[610,675] width:60
 
 	local arrFBXtoBIPED   = #(">> 【 FBX 转 Biped 】 <<",#(lblPreset,ddlPreset,btnApplyList,lblRoot,lbxRoot,bipedBones,characterBones,bipedBones_B,characterBones_B,grpRetargetList,loadDialogue,saveDialogue,\
-											btnAutoMapping,btnQuickTools,validateButton,grpBiped,spnObjSize,btnResetSize,lblThumbAxis,ddlThumbAxis,\
+											btnAutoMapping,btnQuickTools,validateButton,grpBiped,spnObjSize,btnResetSize,lblThumbAxis,ddlThumbAxis,btnAutoAxis,grpBoneTips,\
 											lblHandAxis,ddlHandAxis,lblThumbAxis2,ddlThumbAxis2,ddlHandAxis2,lblHandAxis2,lblPalmAxis,ddlPalmAxis,lblPalmAxis2,ddlPalmAxis2,reAlignFingers,lblUpAxis,ddlUpAxis,chkCopySubs,alignBipedToHelper,\
 											btnReplaceToBiped,chkRealign,btnConvertToBone))
 	local arrAnimRetarget = #(">> 【 动画重定向 】<<",#(btnRefreshFolder,ltbFilesList,btnLoadAnimPath,btnRefreshAnimFiles,btnOpenCurrentPath,edtAnimFbxPath,btnOutputPath,\
@@ -4125,9 +4128,14 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 	(
 		createDialog rolHelpDialog modal:true
 	)
+
+	on btnAutoAxis pressed do
+	(
+		messagebox "还没来得及做,请等待后续更新~\r\n\r\n不明白可以点击右上角 ? 帮助~                                                     "
+	)
 )
 
-createDialog rolBsRetarget 650 660 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) lockHeight:true lockWidth:true fgcolor:myFgColor
+createDialog rolBsRetarget 650 700 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) lockHeight:true lockWidth:true fgcolor:myFgColor
 
 
 
