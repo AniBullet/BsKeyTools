@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-05-29 19:47:08
+ * @LastEditTime: 2025-06-01 18:43:52
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -667,7 +667,11 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 	dropdownList ddlThumbAxis2 "" pos:[590,400] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
 	label lblHandAxis2 "(右)四指 右轴" pos:[500,427] width:70 height:25
 	dropdownList ddlHandAxis2 "" pos:[590,425] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	button reAlignFingers "🤞🏼 重新对齐手指 🤞🏼" pos:[495,450] width:(btnWidth) height:25
+	label lblPalmAxis "(左)手掌 右轴" pos:[500,452] width:70 height:25
+	dropdownList ddlPalmAxis "" pos:[590,450] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	label lblPalmAxis2 "(右)手掌 右轴" pos:[500,477] width:70 height:25
+	dropdownList ddlPalmAxis2 "" pos:[590,475] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	button reAlignFingers "🤞🏼 重新对齐手指 🤞🏼" pos:[495,500] width:(btnWidth) height:25
 	-- checkbox chkRenameBiped "Biped 保持 Bone 原名" checked:false pos:[164,535] width:(btnWidth + 20) height:20
 	-- radiobuttons rdoUpAxis " 映射 RootMotion 轴向" pos:[155,500] width:154 height:46 labels:#("Y-Up (U3D)", "Z-Up (UE)") columns:2 default:2
 	label lblUpAxis "引擎 RootMotion 选择" pos:[500,300] width:120 height:20
@@ -740,7 +744,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 
 	local arrFBXtoBIPED   = #(">> 【 FBX 转 Biped 】 <<",#(lblPreset,ddlPreset,btnApplyList,lblRoot,lbxRoot,bipedBones,characterBones,bipedBones_B,characterBones_B,grpRetargetList,loadDialogue,saveDialogue,\
 											btnAutoMapping,btnQuickTools,validateButton,grpBiped,spnObjSize,btnResetSize,lblThumbAxis,ddlThumbAxis,\
-											lblHandAxis,ddlHandAxis,lblThumbAxis2,ddlThumbAxis2,ddlHandAxis2,lblHandAxis2,reAlignFingers,lblUpAxis,ddlUpAxis,chkCopySubs,alignBipedToHelper,\
+											lblHandAxis,ddlHandAxis,lblThumbAxis2,ddlThumbAxis2,ddlHandAxis2,lblHandAxis2,lblPalmAxis,ddlPalmAxis,lblPalmAxis2,ddlPalmAxis2,reAlignFingers,lblUpAxis,ddlUpAxis,chkCopySubs,alignBipedToHelper,\
 											btnReplaceToBiped,chkRealign,btnConvertToBone))
 	local arrAnimRetarget = #(">> 【 动画重定向 】<<",#(btnRefreshFolder,ltbFilesList,btnLoadAnimPath,btnRefreshAnimFiles,btnOpenCurrentPath,edtAnimFbxPath,btnOutputPath,\
 											btnOpedOutputPath,edtOutputPath,btnSelectMappingFile,btnOpenMappingFile,edtMappingFile,btnSelectSkinFile,btnOpenSkinFile,\
@@ -777,7 +781,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 			-- print newValue
 			
 			if (i <= 37) then
-			(
+		(
 				local temp_array = characterBones.items;
 				temp_array[i] = newValue;
 				characterBones.items = temp_array;
@@ -793,6 +797,8 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 			else if (i == 72) then (try(ddlHandAxis.selection= (newValue as integer))catch())
 			else if (i == 73) then (try(ddlThumbAxis2.selection = (newValue as integer))catch())
 			else if (i == 74) then (try(ddlHandAxis2.selection = (newValue as integer))catch())
+			else if (i == 75) then (try(ddlPalmAxis.selection = (newValue as integer))catch())
+			else if (i == 76) then (try(ddlPalmAxis2.selection = (newValue as integer))catch())
 
 			i += 1;
 		)
@@ -802,6 +808,10 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 		(
 			if (queryBox "List文件是老版本,是否 \"修复旧映射列表\" ,注意重新保存列表！                                                                     " \
 			title:"BsRetargetTools Tips" beep:false) then (menuQuickCreateNode.fnFixOldMappingList())
+		)
+		else if i < 76 then 
+		(
+			messagebox "List文件是老版本,注意另存一份新版,包括手和手指轴向设置！(当前不影响使用)                                                                     "
 		)
 		else (messagebox "加载成功！                       ")
 	)
@@ -1406,6 +1416,8 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 				-- print axis
 				local axis2
 				local axisThumb2
+				local axisPalm
+				local axisPalm2
 	
 				case rolBsRetarget.ddlHandAxis.selected of 
 				(
@@ -1450,13 +1462,39 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 					("-Z"):(axisThumb2 = -foundParent.transform.row3)
 					default:(axisThumb2 = -foundParent.transform.row3)
 				)
+
+				case rolBsRetarget.ddlPalmAxis.selected of
+				(
+					("X"):(axisPalm = foundParent.transform.row1)
+					("Y"):(axisPalm = foundParent.transform.row2)
+					("Z"):(axisPalm = foundParent.transform.row3)
+					("-X"):(axisPalm = -foundParent.transform.row1)
+					("-Y"):(axisPalm = -foundParent.transform.row2)
+					("-Z"):(axisPalm = -foundParent.transform.row3)
+					default:(axisPalm = -foundParent.transform.row3)
+				)
+
+				case rolBsRetarget.ddlPalmAxis2.selected of
+				(
+					("X"):(axisPalm2 = foundParent.transform.row1)
+					("Y"):(axisPalm2 = foundParent.transform.row2)
+					("Z"):(axisPalm2 = foundParent.transform.row3)
+					("-X"):(axisPalm2 = -foundParent.transform.row1)
+					("-Y"):(axisPalm2 = -foundParent.transform.row2)
+					("-Z"):(axisPalm2 = -foundParent.transform.row3)
+					default:(axisPalm2 = -foundParent.transform.row3)
+				)
 	
 				arrThumbIndex = #(26,27,28,29)
 				arrThumbIndex2 = #(50,51,52,53)
+				arrPalmIndex = #(25)
+				arrPalmIndex2 = #(49)
 	
-				if parentIndex >= 49 then (axis = axis2;axisThumb = axisThumb2)
+				if parentIndex >= 49 then (axis = axis2;axisThumb = axisThumb2;axisPalm = axisPalm2)
 				if finditem arrThumbIndex parentIndex != 0 then (axis = axisThumb)
 				if finditem arrThumbIndex2 parentIndex != 0 then (axis = axisThumb2)
+				if finditem arrPalmIndex parentIndex != 0 then (axis = axisPalm)
+				if finditem arrPalmIndex2 parentIndex != 0 then (axis = axisPalm2)
 	
 				if initialBone != undefined then
 				(
@@ -2213,6 +2251,8 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 			format "%\n" ddlHandAxis.selection to:out_file
 			format "%\n" ddlThumbAxis2.selection to:out_file
 			format "%\n" ddlHandAxis2.selection to:out_file
+			format "%\n" ddlPalmAxis.selection to:out_file
+			format "%\n" ddlPalmAxis2.selection to:out_file
             
             close out_file
             
