@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-06-01 20:11:13
+ * @LastEditTime: 2025-06-02 13:54:35
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -3613,7 +3613,8 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 					lblBarValue.text = (pgbBar.value as string) + " %"
 					for i = 1 to arrExportRetargetAnim.count where (doesFileExist arrExportRetargetAnim[i]) do 
 					(
-						fnExportReTargrtedAnim arrExportRetargetAnim i
+						if not isReloadBip then (fnExportReTargrtedAnim arrExportRetargetAnim i)
+						else (fnLoadBipAnim arrExportRetargetAnim i)
 						-- btnCount.text = ("已重定向动画 FBX 数：" + (i as string) + " 个")
 						btnCount.text = ("待批处理原始动画 FBX 数：" + (arrExportRetargetAnim.count - i) as string + " 个")
 						pgbBar.value = 100.*i/arrExportRetargetAnim.count
