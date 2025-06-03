@@ -1,11 +1,92 @@
 -- coding: utf-8
+
+function getDeep theNode =
+(
+	local theParent = theNode.parent
+	n = 1
+	while (theParent != undefined) do
+	(
+		n+=1
+		theNode = theParent
+		theParent = theNode.parent
+	)
+	return n
+)
+
+function compareHierarchy a b =
+(
+	if a[1] == b[1] then
+	(
+		local aPath = ""
+		local bPath = ""
+		local tempA = a[2]
+		local tempB = b[2]
+
+		while tempA.parent != undefined do
+		(
+			aPath = tempA.parent.name + "/" + aPath
+			tempA = tempA.parent
+		)
+		aPath = aPath + a[2].name
+
+		while tempB.parent != undefined do
+		(
+			bPath = tempB.parent.name + "/" + bPath
+			tempB = tempB.parent
+		)
+		bPath = bPath + b[2].name
+
+		return (stricmp aPath bPath)
+	)
+	else
+	(
+		return (a[1] - b[1])
+	)
+)
+
+function sortObjectsByHierarchy objNameArray =
+(
+	local validObjects = #()
+	local hierarchyData = #()
+
+	for objName in objNameArray do
+	(
+		local obj = getNodeByName objName
+		if obj != undefined then
+		(
+			append validObjects obj
+			append hierarchyData #((getDeep obj), obj)
+		)
+	)
+
+	qsort hierarchyData compareHierarchy
+
+	local sortedNames = #()
+	for item in hierarchyData do
+	(
+		append sortedNames item[2].name
+	)
+
+	return sortedNames
+)
+
 (
 	global BipFastAssembly = undefined
+	global useNewCompiler = false
 	--bip加速模块
 	--不同版本autodest.max.dll的适配
 	--大于max2010小于max2022、大于等于max2022，小于等于max2018  C#跑maxscript函数需要的形参不一样
 	--max2016还有FPVlalue内存回收问题，需要转存FPVlalue
-	if (maxVersion())[1] >= 21000 and  (maxVersion())[1] < 24000 then
+	--max2026开始弃用Microsoft.CSharp.CSharpCodeProvider，使用CSharpUtilities.CSharpCompilationHelper
+	if (maxVersion())[1] >= 28000 then
+	(
+		useNewCompiler = true
+		strVersionDiff = "g.ExecuteMAXScriptScript(MXS_script,0, true, v, true);"
+		strVersionDiff_deffer = "g.ExecuteMAXScriptScript(MXS_script,0, true, vv, true);"
+		strVersionDiff_communicate = "g.ExecuteMAXScriptScript(MXS_script,0, true, null, true);"
+		strVersionDiff_setNobipBones = "g.ExecuteMAXScriptScript(script,0, true, null, true);"
+	)
+	else if (maxVersion())[1] >= 21000 and  (maxVersion())[1] < 24000 then
 	(
 		strVersionDiff = "g.ExecuteMAXScriptScript(MXS_script, true, v, true);"
 		strVersionDiff_deffer = "g.ExecuteMAXScriptScript(MXS_script, true, vv, true);"
@@ -19,15 +100,15 @@
 		strVersionDiff_communicate = "g.ExecuteMAXScriptScript(MXS_script,0, true, null, true);"
 		strVersionDiff_setNobipBones = "g.ExecuteMAXScriptScript(script,0, true, null, true);"
 	)
-	else 
+	else
 	(
 		strVersionDiff = "g.ExecuteMAXScriptScript(MXS_script, true, v);"
 		strVersionDiff_deffer = "g.ExecuteMAXScriptScript(MXS_script, true, vv);"
 		strVersionDiff_communicate = "g.ExecuteMAXScriptScript(MXS_script, true, null);"
 		strVersionDiff_setNobipBones = "g.ExecuteMAXScriptScript(script, true, null);"
-	
+
 	)
-	--max2022开始弃用了 IBipMaster12改为" + bip_sdk_VarName+ " 
+	--max2022开始弃用了 IBipMaster12改为" + bip_sdk_VarName+ "
 	if (maxVersion())[1] >= 24000  then
 	(
 		bip_sdk_Varclass = "IIBipDriver12"
@@ -212,7 +293,7 @@
 						MXS_script = \"at time \" + m.ToString() + \"f ($'\" + node.NodeName + \"'.transform = \" + result + \")\";
 	
 						int frame2tick = (m * g.TicksPerFrame);
-						/////bip 骨骼                       
+						/////bip 骨骼
 						if (allBip != null && allBip.Contains(node))
 						{
 							MXS_script = result;   //重载变量，不能删
@@ -221,14 +302,22 @@
 							" + strVersionDiff + "
 							finalTM = v.M;
 							if (finalTM == null) { continue; }
-	
+
 							" + bip_sdk_Varclass + " bipMasterEach = GetBipMaster(node);
 							int id = 0;
 							int link = 0;
 							bool getBipBoneIdLink = bipMasterEach.GetIdLink(node, ref id, ref link);
 							if (getBipBoneIdLink)
 							{
-								bipMasterEach.SetBipedTM(frame2tick, finalTM, id, link);
+								if (id <= 22)
+								{
+									bipMasterEach.SetBipedTM(frame2tick, finalTM, id, link);
+								}
+								else
+								{
+									string MXS_script_bipAsNormal = \"at time \" + m.ToString() + \"f ($'\" + node.NodeName + \"'.transform = \" + result + \")\";
+									MXS_scripts_notBIP.Add(MXS_script_bipAsNormal);
+								}
 							}
 						}
 						//记录矩阵,not_BIP
@@ -281,34 +370,82 @@
 		}
 	}
 	"
-	try
-	(
-		CSharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
-		CompilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+	print ("当前3ds Max版本: " + ((maxVersion())[1] as string))
+	print ("使用编译器: " + (if useNewCompiler then "CSharpUtilities.CSharpCompilationHelper (新)" else "Microsoft.CSharp.CSharpCodeProvider (旧)"))
 
-		CompilerParams.ReferencedAssemblies.Add("System.dll")
-		CompilerParams.ReferencedAssemblies.Add("System.Windows.Forms.dll")
-		CompilerParams.ReferencedAssemblies.Add("System.IO.dll")
-		CompilerParams.ReferencedAssemblies.Add("System.Threading.Tasks.dll")
-		compilerParams.ReferencedAssemblies.Add((getdir #maxroot) + @"Autodesk.Max.dll");	
-		CompilerParams.GenerateExecutable = false
-		CompilerParams.GenerateInMemory = true
-
-		CompilerResults = CSharpProvider.CompileAssemblyFromSource CompilerParams #(CSharpCodeSourceBipFast)
-		WinAssembly = CompilerResults.CompiledAssembly
-		BipFastAssembly =  WinAssembly.CreateInstance "bipedSetTM.SetTM_test"
-		-- showMethods  BipFastAssembly
-		-- BipFastAssembly.GetBipAll()
-	)
-	catch
+	if useNewCompiler then
 	(
 		try
 		(
+			print "--->开始动态编译(使用新编译器)"
 			local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
 			CSharpCompilationHelper.compile CSharpCodeSourceBipFast #()
 			BipFastAssembly = (dotnetclass "bipedSetTM.SetTM_test")
+			print "----->动态编译成功(新编译器)"
+			print BipFastAssembly
 		)
-		catch(print ("动态编译失败！！无法使用快速粘贴功能"))
+		catch
+		(
+			print ("新编译器失败，尝试旧编译器")
+			try
+			(
+				print "--->开始动态编译(使用旧编译器)"
+				CSharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
+				CompilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+
+				CompilerParams.ReferencedAssemblies.Add("System.dll")
+				CompilerParams.ReferencedAssemblies.Add("System.Windows.Forms.dll")
+				CompilerParams.ReferencedAssemblies.Add("System.IO.dll")
+				CompilerParams.ReferencedAssemblies.Add("System.Threading.Tasks.dll")
+				compilerParams.ReferencedAssemblies.Add((getdir #maxroot) + @"Autodesk.Max.dll");
+				CompilerParams.GenerateExecutable = false
+				CompilerParams.GenerateInMemory = true
+
+				CompilerResults = CSharpProvider.CompileAssemblyFromSource CompilerParams #(CSharpCodeSourceBipFast)
+				WinAssembly = CompilerResults.CompiledAssembly
+				BipFastAssembly =  WinAssembly.CreateInstance "bipedSetTM.SetTM_test"
+				print "----->动态编译成功(旧编译器)"
+				print BipFastAssembly
+			)
+			catch(print ("动态编译失败！！无法使用快速粘贴功能"))
+		)
+	)
+	else
+	(
+		try
+		(
+			print "--->开始动态编译(使用旧编译器)"
+
+			CSharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
+			CompilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+
+			CompilerParams.ReferencedAssemblies.Add("System.dll")
+			CompilerParams.ReferencedAssemblies.Add("System.Windows.Forms.dll")
+			CompilerParams.ReferencedAssemblies.Add("System.IO.dll")
+			CompilerParams.ReferencedAssemblies.Add("System.Threading.Tasks.dll")
+			compilerParams.ReferencedAssemblies.Add((getdir #maxroot) + @"Autodesk.Max.dll");
+			CompilerParams.GenerateExecutable = false
+			CompilerParams.GenerateInMemory = true
+
+			CompilerResults = CSharpProvider.CompileAssemblyFromSource CompilerParams #(CSharpCodeSourceBipFast)
+			WinAssembly = CompilerResults.CompiledAssembly
+			BipFastAssembly =  WinAssembly.CreateInstance "bipedSetTM.SetTM_test"
+			print "----->动态编译成功(旧编译器)"
+			print BipFastAssembly
+		)
+		catch
+		(
+			try
+			(
+				print "旧编译器失败，尝试新编译器"
+				local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+				CSharpCompilationHelper.compile CSharpCodeSourceBipFast #()
+				BipFastAssembly = (dotnetclass "bipedSetTM.SetTM_test")
+				print "----->动态编译成功(新编译器)"
+				print BipFastAssembly
+			)
+			catch(print ("动态编译失败！！无法使用快速粘贴功能"))
+		)
 	)
 
 	----获取写入选择的帧	
@@ -452,7 +589,7 @@
 		)
 	)
 	-----maxscript natural numeric sort自然数字排序
-	fn getSHLWAPI = 
+	fn getSHLWAPI =
 	(
 		source =  "using System;\n"
 		source += "using System.Runtime.InteropServices;\n"
@@ -461,17 +598,8 @@
 		source += "	[DllImport(\"shlwapi.dll\", CharSet = CharSet.Auto)]\n"
 		source += "	public static extern int StrCmpLogicalW(string lpszStr, string lpszComp);\n"
 		source += "}\n"
-	
-		try
-		(
-			csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
-			compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
-						
-			compilerParams.GenerateInMemory = on
-			compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
-			compilerResults.CompiledAssembly.CreateInstance "SHLWAPI"
-		)
-		catch
+
+		if useNewCompiler then
 		(
 			try
 			(
@@ -479,7 +607,41 @@
 				CSharpCompilationHelper.compile source #()
 				dotnetclass "SHLWAPI"
 			)
-			catch(print ("动态编译失败！！无法使用快速粘贴功能"))
+			catch
+			(
+				try
+				(
+					csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
+					compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+
+					compilerParams.GenerateInMemory = on
+					compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
+					compilerResults.CompiledAssembly.CreateInstance "SHLWAPI"
+				)
+				catch(print ("SHLWAPI编译失败"))
+			)
+		)
+		else
+		(
+			try
+			(
+				csharpProvider = dotnetobject "Microsoft.CSharp.CSharpCodeProvider"
+				compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+
+				compilerParams.GenerateInMemory = on
+				compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
+				compilerResults.CompiledAssembly.CreateInstance "SHLWAPI"
+			)
+			catch
+			(
+				try
+				(
+					local CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+					CSharpCompilationHelper.compile source #()
+					dotnetclass "SHLWAPI"
+				)
+				catch(print ("SHLWAPI编译失败"))
+			)
 		)
 	)
 	struct myCoolDialogs
@@ -849,7 +1011,7 @@
 				testListAni.visible    = hold_TA 
 			)	
 		)
-		on cptools open do 
+		on cptools open do
 		(
 			removeFromList.text  = rfl_lag
 			Accuracy_offset.text = Accuracy_offset_lag
@@ -860,6 +1022,30 @@
 			wayneCheckBox.text   = wcb_lag
 			language_btn.text    = language_a_lag
 			lnk1.text            = lnk1_lag
+
+			try (
+				print "清理临时文件..."
+				tempFiles = getFiles ((GetDir #export)+"\\cptools_data\\*.tobedeleted")
+				localTempFiles = getFiles ((GetDir #export)+"\\cptools_data\\localMode\\*.tobedeleted")
+				join tempFiles localTempFiles
+
+				deletedCount = 0
+				for tempFile in tempFiles do (
+					try (
+						if deleteFile tempFile then (
+							deletedCount += 1
+							print ("已删除临时文件: " + getFilenameFile tempFile)
+						)
+					) catch (
+						print ("无法删除临时文件: " + getFilenameFile tempFile)
+					)
+				)
+				if deletedCount > 0 then (
+					print ("共清理了 " + deletedCount as string + " 个临时文件")
+				)
+			) catch (
+				print "清理临时文件时出错"
+			)
 			---------------------------------------------------------------------------------------------打开文件加载
 			makeDir  ((GetDir #export)+ "\\cptools_data\\")------创建路径
 			tempdata_another = ((GetDir #export)+"\\cptools_data\\"+"temp.ini")-----指定文件
@@ -1103,7 +1289,7 @@
 						-------------------------------------将选择重新排序
 						sort_array =#()
 						temp_sort_file = selection as array
-						sort_file = sort(for i in temp_sort_file collect i.name)
+						sort_file = sortObjectsByHierarchy (for i in temp_sort_file collect i.name)
 	
 						for i=1 to sort_file.count do 
 						(
@@ -1181,7 +1367,7 @@
 							-------------------------------------将选择重新排序
 							sort_array =#()
 							temp_sort_file = selection as array
-							sort_file = sort(for i in temp_sort_file collect i.name)
+							sort_file = sortObjectsByHierarchy (for i in temp_sort_file collect i.name)
 							for i=1 to sort_file.count do 
 							(	format "%|" sort_file[i] to: out_file	)  -- 添加一个选择集			
 							format "\n"  to:out_file
@@ -1315,56 +1501,205 @@
 			exprotFbxforMayaToXdic()
 		)
 		on removeFromList pressed do (
-	
-			if keyboard.controlPressed then (	
-				if cptools.localModeCheckBox.checked==false then(	
+			print ("删除按钮被按下，当前模式状态: " + rb_sel.state as string)
+			print ("姿势列表可见: " + testList.visible as string)
+			print ("动画列表可见: " + testListAni.visible as string)
+
+			if keyboard.controlPressed then (
+				print "执行全部删除操作"
+				if cptools.localModeCheckBox.checked==false then(
 					folderPath  = ((GetDir #export)+"\\cptools_data\\")
 				)else (
 					folderPath  = ((GetDir #export)+"\\cptools_data\\localMode\\")
 				)
-				
-				-- 要删除的文件类型
+
 				fileType = ".bps";
 				filesToDelete = getFiles (folderPath + "*" + fileType);
 				for file in filesToDelete do (try (deleteFile file);catch())
 				fileType = ".bmp";
 				filesToDelete = getFiles (folderPath + "*" + fileType);
 				for file in filesToDelete do (try (deleteFile file);catch())
-			)	
-			else if (rb_sel.state==1) then (   --判断是pose模式还是动画模式
-				if testList.items.count > 0 and testList.selection > 0 then (				
+				print ("删除了 " + filesToDelete.count as string + " 个文件")
+			)
+			else if (rb_sel.state==1) then (
+				print "执行姿势模式删除"
+				print ("姿势列表项目数: " + testList.items.count as string)
+				print ("姿势列表选择索引: " + testList.selection as string)
+
+				if testList.items.count > 0 and testList.selection > 0 then (
 					tabtxt  = testList.selected
-					
-					if cptools.localModeCheckBox.checked==false then(	
+					print ("要删除的姿势: " + tabtxt as string)
+
+					if cptools.localModeCheckBox.checked==false then(
 						delete_name  = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
 					)else (
 						delete_name  = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")
 					)
-					delete_file  = deleteFile delete_name 
-					if delete_file == undefined do ( messagebox messagebox_c_lag  beep:false Title:messagebox_a_title_lag  Return 0 )
-					testList.items = deleteItem testList.items testList.selection
-					testList.selection = testList.items.count
+
+					print ("删除文件路径: " + delete_name)
+					print ("文件路径长度: " + delete_name.count as string)
+
+					if doesFileExist delete_name then (
+						print "文件存在，尝试删除"
+
+						try (
+							delete_file = deleteFile delete_name
+							print ("删除结果: " + delete_file as string)
+
+							if delete_file == false then (
+								print "删除失败，文件可能被占用"
+
+								gc()
+								sleep 0.1
+
+								try (
+									delete_file = deleteFile delete_name
+									if delete_file == true then (
+										print "延迟删除成功"
+									) else (
+										print "文件被占用，尝试标记删除"
+										temp_name = delete_name + ".tobedeleted"
+
+										try (
+											renameFile delete_name temp_name
+											if doesFileExist temp_name then (
+												print "文件已标记为待删除，将从列表中移除"
+												delete_file = true
+
+												try (
+													deleteFile temp_name
+													if not doesFileExist temp_name then (
+														print "延迟删除成功"
+													)
+												) catch (
+													print "文件将在程序重启后删除"
+												)
+											) else (
+												print "无法重命名文件，可能权限不足"
+												delete_file = false
+											)
+										) catch (
+											print ("重命名失败: " + getCurrentException())
+											delete_file = false
+										)
+									)
+								) catch (
+									print ("二次删除异常: " + getCurrentException())
+									delete_file = false
+								)
+							)
+						) catch (
+							print ("删除操作异常: " + getCurrentException())
+							delete_file = false
+						)
+					) else (
+						print "文件不存在，可能已被删除"
+						delete_file = true
+					)
+
+					if delete_file == true then (
+						testList.items = deleteItem testList.items testList.selection
+						testList.selection = testList.items.count
+						print "列表项目已更新"
+					) else (
+						print "删除失败，显示错误消息"
+						messagebox messagebox_c_lag  beep:false Title:messagebox_a_title_lag  Return 0
+					)
+				) else (
+					print "姿势模式删除条件不满足"
 				)
 			)else(
+				print "执行动画模式删除"
+				print ("动画列表项目数: " + testListAni.items.count as string)
+				print ("动画列表选择索引: " + testListAni.selection as string)
+
 				if testListAni.items.count > 0 and testListAni.selection > 0 then(
 					tabtxt  = testListAni.selected
-					--print tabtxt	
-					if cptools.localModeCheckBox.checked==false then(	
+					print ("要删除的动画: " + tabtxt as string)
+
+					if cptools.localModeCheckBox.checked==false then(
 						delete_name = ((GetDir #export)+"\\cptools_data\\"+ tabtxt as string +".bps")
 					)else (
 						delete_name  = ((GetDir #export)+"\\cptools_data\\localMode\\"+ tabtxt as string +".bps")
-					)	
-						
-					delete_file = deletefile delete_name
-					if delete_file == undefined do ( messagebox messagebox_d_lag  beep:false Title:messagebox_a_title_lag Return 0 )
-					--print delete_name 
-					--print delete_file 
-					testListAni.items = deleteItem testListAni.items testListAni.selection
-					testListAni.selection = testListAni.items.count
+					)
+
+					print ("删除文件路径: " + delete_name)
+					print ("文件路径长度: " + delete_name.count as string)
+
+					if doesFileExist delete_name then (
+						print "文件存在，尝试删除"
+
+						try (
+							delete_file = deletefile delete_name
+							print ("删除结果: " + delete_file as string)
+
+							if delete_file == false then (
+								print "删除失败，文件可能被占用"
+
+								gc()
+								sleep 0.1
+
+								try (
+									delete_file = deleteFile delete_name
+									if delete_file == true then (
+										print "延迟删除成功"
+									) else (
+										print "文件被占用，尝试标记删除"
+										temp_name = delete_name + ".tobedeleted"
+
+										try (
+											renameFile delete_name temp_name
+											if doesFileExist temp_name then (
+												print "文件已标记为待删除，将从列表中移除"
+												delete_file = true
+
+												try (
+													deleteFile temp_name
+													if not doesFileExist temp_name then (
+														print "延迟删除成功"
+													)
+												) catch (
+													print "文件将在程序重启后删除"
+												)
+											) else (
+												print "无法重命名文件，可能权限不足"
+												delete_file = false
+											)
+										) catch (
+											print ("重命名失败: " + getCurrentException())
+											delete_file = false
+										)
+									)
+								) catch (
+									print ("二次删除异常: " + getCurrentException())
+									delete_file = false
+								)
+							)
+						) catch (
+							print ("删除操作异常: " + getCurrentException())
+							delete_file = false
+						)
+					) else (
+						print "文件不存在，可能已被删除"
+						delete_file = true
+					)
+
+					if delete_file == true then (
+						testListAni.items = deleteItem testListAni.items testListAni.selection
+						testListAni.selection = testListAni.items.count
+						print "列表项目已更新"
+					) else (
+						print "删除失败，显示错误消息"
+						messagebox messagebox_d_lag  beep:false Title:messagebox_a_title_lag Return 0
+					)
+				) else (
+					print "动画模式删除条件不满足"
+					if testListAni.items.count == 0 then print "动画列表为空"
+					if testListAni.selection == 0 then print "没有选中任何动画项目"
 				)
 			)
 			rloading.pressed()
-	
+
 		)
 		----------------------------------------------选择pose中添加物体
 		on testList selected i do 
@@ -1481,7 +1816,7 @@
 			-------------------------------------将选择重新排序
 			sort_array =#()
 			temp_sort_file = selection as array
-			sort_file = sort(for i in temp_sort_file collect i.name)
+			sort_file = sortObjectsByHierarchy (for i in temp_sort_file collect i.name)
 			for i =1 to sort_file.count do 		
 			(
 				obj =getnodebyname sort_file[i] 
@@ -1862,12 +2197,12 @@
 				animationRange = interval (start_frame) (end_frame)
 				s_or_k =  filterstring tabtxt "S"
 				frame_arrayl =#()
-	
+
 				if s_or_k.count != 1 then 	----###逐帧模式
 				(
 					for i = start_frame-cptools.paste_offset.value to end_frame-cptools.paste_offset.value do
-					( 
-						append frame_arrayl (i as integer)
+					(
+						append frame_arrayl ((i as time).frame as integer)
 						sort frame_arrayl
 					)
 				)
@@ -1908,7 +2243,8 @@
 							catch(print ("动态编译失败！！无法使用快速粘贴功能"))
 						)				
 					)
-					in_file = openFile in_name	
+					in_file = openFile in_name
+					if in_file == undefined do ( messagebox "动画文件不存在或无法打开" beep:false Title:"错误" Return 0 )
 					seek in_file 0
 					skipToNextLine in_file
 					skiptostring in_file "frame:"
@@ -1928,19 +2264,30 @@
 				frame_array = ""
 				for i in frame_arrayl do (frame_array += i as string + "|")
 				pasteOffset = cptools.paste_offset.value
-				-- print "----->"
-				-- print in_name; ;print pasteOffset;; print frame_array; print cptools.Accuracy_offset.value;
-				-- print BipFastAssembly;
-				-- showMethods BipFastAssembly;
+				print "----->"
+				print in_name; ;print pasteOffset;; print frame_array; print cptools.Accuracy_offset.value;
+				print BipFastAssembly;
+				showMethods BipFastAssembly;
 				try
 				(
-					with undo "pasteList" on     
+					with undo "pasteList" on
 					(
 						animate on
 						(
 							if BipFastAssembly!= undefined and selection.count > 0 do
-							(BipFastAssembly.pastAnimationEveryFrame in_name pasteOffset frame_array cptools.Accuracy_offset.value)                   
-						)            
+							(
+								print ("开始精度粘贴，循环次数: " + cptools.Accuracy_offset.value as string)
+								for sec = 1 to cptools.Accuracy_offset.value do
+								(
+									print ("精度循环第 " + sec as string + " 次")
+									BipFastAssembly.pastAnimationEveryFrame in_name pasteOffset frame_array cptools.Accuracy_offset.value
+									if sec < cptools.Accuracy_offset.value then (
+										sleep 0.01
+									)
+								)
+								print "精度粘贴完成"
+							)
+						)
 					)
 				)
 				catch
