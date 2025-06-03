@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-06-02 13:54:35
+ * @LastEditTime: 2025-06-03 20:29:45
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -658,7 +658,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
     groupbox grpBiped "【可选】轴向设置" pos:[490,200] width:(btnWidth + 10) height:300
 	spinner spnObjSize "选中物体 Size: " pos:[500,86] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:40 scale:0.01
 	button btnResetSize "重置选中物体大小" pos:[495,110] width:btnWidth height:30 tooltip:"重置选中辅助骨骼大小"
-	button btnAutoAxis "💡 检测手指轴向 💡" pos:[495,268] width:btnWidth height:30
+	button btnHandAxisTips "💡 手指轴向提示 💡" pos:[495,268] width:btnWidth height:30 tooltip:"试图自动检测轴向失败~"
 	label lblThumbAxis "(左)拇指 右轴" pos:[500,307] width:70 height:25
 	dropdownList ddlThumbAxis "" pos:[590,305] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
 	label lblHandAxis "(左)四指 右轴" pos:[500,332] width:70 height:25
@@ -746,7 +746,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 	label lblBarValue "" pos:[610,675] width:60
 
 	local arrFBXtoBIPED   = #(">> 【 FBX 转 Biped 】 <<",#(lblPreset,ddlPreset,btnApplyList,lblRoot,lbxRoot,bipedBones,characterBones,bipedBones_B,characterBones_B,grpRetargetList,loadDialogue,saveDialogue,\
-											btnAutoMapping,btnQuickTools,validateButton,grpBiped,spnObjSize,btnResetSize,lblThumbAxis,ddlThumbAxis,btnAutoAxis,grpBoneTips,\
+											btnAutoMapping,btnQuickTools,validateButton,grpBiped,spnObjSize,btnResetSize,lblThumbAxis,ddlThumbAxis,btnHandAxisTips,grpBoneTips,\
 											lblHandAxis,ddlHandAxis,lblThumbAxis2,ddlThumbAxis2,ddlHandAxis2,lblHandAxis2,lblPalmAxis,ddlPalmAxis,lblPalmAxis2,ddlPalmAxis2,reAlignFingers,lblUpAxis,ddlUpAxis,chkCopySubs,alignBipedToHelper,\
 											btnReplaceToBiped,chkRealign,btnConvertToBone))
 	local arrAnimRetarget = #(">> 【 动画重定向 】<<",#(btnRefreshFolder,ltbFilesList,btnLoadAnimPath,btnRefreshAnimFiles,btnOpenCurrentPath,edtAnimFbxPath,btnOutputPath,\
@@ -4130,9 +4130,10 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 		createDialog rolHelpDialog modal:true
 	)
 
-	on btnAutoAxis pressed do
+	on btnHandAxisTips pressed do
 	(
-		messagebox "还没来得及做,请等待后续更新~\r\n\r\n不明白可以点击右上角 ? 帮助~                                                     "
+		messageBox "💡 手指轴向设置指南 💡\n\n📋 操作步骤：\n1. 选择 Bone 手掌和手指骨骼\n2. 切换视图坐标为位移Local模式\n3. 观察坐标轴方向显示\n\n🎯 轴向判断：\n• 靠向身体背后的轴向 → 下拉列表选择对应轴\n• APose姿势：靠向身体两外侧的轴向\n• 通常为 Y轴 或 Z轴（根据模型而定）\n\n⚠️ 重要提醒：\n手指轴向设置影响重定向质量，\n请仔细观察Local坐标轴再进行选择！\n\n——————————————------------------——\nBullet.S  |  BsRetargetTools                                      " \
+			title:"手指轴向提示" beep:false
 	)
 )
 
@@ -4245,7 +4246,7 @@ rollout rolHelpDialog "BsRetargetTools 使用帮助" width:450 height:520
     
     groupbox grpTips "💡 重要提示" pos:[10,270] width:430 height:120
     label lblTip1 "• 必需骨骼：除标记【可选】的骨骼外，其他必须完整映射" pos:[20,290] width:410 height:20
-    label lblTip2 "• 手指轴向：俯瞰手掌，手指朝右的轴向（通常为Y或Z轴）" pos:[20,310] width:410 height:20
+    label lblTip2 "• 手指轴向：选择手掌或手指，靠身后的Local轴向（通常为Y或Z轴）" pos:[20,310] width:410 height:20
     label lblTip3 "• 文件结构：建议使用 MappingFile.max、Skin.max、AniFBX、ReOutput" pos:[20,330] width:410 height:20
     label lblTip4 "• 自动创建：HeadNub、FootNub、手指Nub等辅助骨骼可一键生成" pos:[20,350] width:410 height:20
     
