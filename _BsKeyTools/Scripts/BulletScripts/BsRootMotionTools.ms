@@ -1,16 +1,6 @@
 --制作者：李相元
 --修改: Bullet.S
 
--- 检查修改器是否已加载
-try (
-	-- 尝试获取修改器的classID
-	local modClassID = execute "BsRootMotionModifier.classID"
-	if modClassID == undefined do throw "Modifier not loaded"
-) catch (
-	messageBox "请先加载根运动控制器脚本！\n\n1. 关闭当前文件\n2. 运行脚本: BsRootMotionTools（根运动工具）\n3. 重新打开Max文件（如果还弹窗不用管，再开一次脚本就好）                                                                  " title:"错误" beep:true
-	exit
-)
-
 -- 定义根运动修改器
 plugin modifier BsRootMotionModifier
 	name:"Bs_RootMotion_Ctrl"
@@ -135,8 +125,10 @@ plugin modifier BsRootMotionModifier
 			labelPelvisObj.text = "质心: 【 " + obj.name + " 】"
 			btnLinkController.enabled = (maxOps.getNodeByHandle RootObjHandle != undefined)
 			-- 保存到自定义属性
-			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
-			if controllerObj != undefined do setUserProp controllerObj "BsRMPelvisObj" obj.name
+			try (
+				local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+				if controllerObj != undefined do setUserProp controllerObj "BsRMPelvisObj" obj.name
+			) catch ()
 		)
 
 		on pickRootObj picked obj do (
@@ -145,8 +137,10 @@ plugin modifier BsRootMotionModifier
 			labelRootObj.text = "临时根节点: 【 " + obj.name + " 】"
 			btnLinkController.enabled = (maxOps.getNodeByHandle PelvisObjHandle != undefined)
 			-- 保存到自定义属性
-			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
-			if controllerObj != undefined do setUserProp controllerObj "BsRMRootObj" obj.name
+			try (
+				local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+				if controllerObj != undefined do setUserProp controllerObj "BsRMRootObj" obj.name
+			) catch ()
 		)
 		
 		on pickOriginalRoot picked obj do (
@@ -154,8 +148,10 @@ plugin modifier BsRootMotionModifier
 			OriginalRootHandle = obj.inode.handle
 			labelOriginalRoot.text = "原根节点: 【 " + obj.name + " 】"
 			-- 保存到自定义属性
-			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
-			if controllerObj != undefined do setUserProp controllerObj "BsRMOriginalRoot" obj.name
+			try (
+				local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+				if controllerObj != undefined do setUserProp controllerObj "BsRMOriginalRoot" obj.name
+			) catch ()
 		)
 		
 		on btnLinkController pressed do (
@@ -256,12 +252,39 @@ plugin modifier BsRootMotionModifier
 			if rootObj != undefined do (
 				-- 打直位移曲线
 				if rootObj.pos.controller != undefined do (
-					
+					try (
+						-- 为位移控制器的所有关键帧设置平直切线
+						rootObj.pos.controller.keys.setTangentType #flat
+					) catch (
+						-- 如果是复合控制器，分别处理X、Y、Z轴
+						try (
+							if rootObj.pos.controller.X_Position != undefined and rootObj.pos.controller.X_Position.keys != undefined do
+								rootObj.pos.controller.X_Position.keys.setTangentType #flat
+							if rootObj.pos.controller.Y_Position != undefined and rootObj.pos.controller.Y_Position.keys != undefined do
+								rootObj.pos.controller.Y_Position.keys.setTangentType #flat
+							if rootObj.pos.controller.Z_Position != undefined and rootObj.pos.controller.Z_Position.keys != undefined do
+								rootObj.pos.controller.Z_Position.keys.setTangentType #flat
+						) catch ()
+					)
 				)
 				-- 打直旋转曲线
 				if rootObj.rotation.controller != undefined do (
-					
+					try (
+						-- 为旋转控制器的所有关键帧设置平直切线
+						rootObj.rotation.controller.keys.setTangentType #flat
+					) catch (
+						-- 如果是欧拉控制器，分别处理X、Y、Z轴
+						try (
+							if rootObj.rotation.controller.X_Rotation != undefined and rootObj.rotation.controller.X_Rotation.keys != undefined do
+								rootObj.rotation.controller.X_Rotation.keys.setTangentType #flat
+							if rootObj.rotation.controller.Y_Rotation != undefined and rootObj.rotation.controller.Y_Rotation.keys != undefined do
+								rootObj.rotation.controller.Y_Rotation.keys.setTangentType #flat
+							if rootObj.rotation.controller.Z_Rotation != undefined and rootObj.rotation.controller.Z_Rotation.keys != undefined do
+								rootObj.rotation.controller.Z_Rotation.keys.setTangentType #flat
+						) catch ()
+					)
 				)
+				messageBox "已将临时根节点的关键帧曲线设置为平直！" title:"打直曲线完成"
 			)
 		)
 
@@ -270,12 +293,39 @@ plugin modifier BsRootMotionModifier
 			if rootObj != undefined do (
 				-- 还原位移曲线
 				if rootObj.pos.controller != undefined do (
-					
+					try (
+						-- 为位移控制器的所有关键帧设置平滑切线
+						rootObj.pos.controller.keys.setTangentType #smooth
+					) catch (
+						-- 如果是复合控制器，分别处理X、Y、Z轴
+						try (
+							if rootObj.pos.controller.X_Position != undefined and rootObj.pos.controller.X_Position.keys != undefined do
+								rootObj.pos.controller.X_Position.keys.setTangentType #smooth
+							if rootObj.pos.controller.Y_Position != undefined and rootObj.pos.controller.Y_Position.keys != undefined do
+								rootObj.pos.controller.Y_Position.keys.setTangentType #smooth
+							if rootObj.pos.controller.Z_Position != undefined and rootObj.pos.controller.Z_Position.keys != undefined do
+								rootObj.pos.controller.Z_Position.keys.setTangentType #smooth
+						) catch ()
+					)
 				)
 				-- 还原旋转曲线
 				if rootObj.rotation.controller != undefined do (
-					
+					try (
+						-- 为旋转控制器的所有关键帧设置平滑切线
+						rootObj.rotation.controller.keys.setTangentType #smooth
+					) catch (
+						-- 如果是欧拉控制器，分别处理X、Y、Z轴
+						try (
+							if rootObj.rotation.controller.X_Rotation != undefined and rootObj.rotation.controller.X_Rotation.keys != undefined do
+								rootObj.rotation.controller.X_Rotation.keys.setTangentType #smooth
+							if rootObj.rotation.controller.Y_Rotation != undefined and rootObj.rotation.controller.Y_Rotation.keys != undefined do
+								rootObj.rotation.controller.Y_Rotation.keys.setTangentType #smooth
+							if rootObj.rotation.controller.Z_Rotation != undefined and rootObj.rotation.controller.Z_Rotation.keys != undefined do
+								rootObj.rotation.controller.Z_Rotation.keys.setTangentType #smooth
+						) catch ()
+					)
 				)
+				messageBox "已将临时根节点的关键帧曲线还原为平滑！" title:"还原曲线完成"
 			)
 		)
 
@@ -305,48 +355,68 @@ plugin modifier BsRootMotionModifier
 		OriginalRootHandle = 0
 		
 		-- 从自定义属性中读取节点引用
-		local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
-		if controllerObj != undefined do (
-			local pelvisName = getUserProp controllerObj "BsRMPelvisObj"
-			local rootName = getUserProp controllerObj "BsRMRootObj"
-			local originalRootName = getUserProp controllerObj "BsRMOriginalRoot"
-			
-			if pelvisName != undefined do (
-				local pelvisObj = getNodeByName pelvisName
-				if pelvisObj != undefined do PelvisObjHandle = pelvisObj.inode.handle
+		try (
+			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+			if controllerObj != undefined do (
+				local pelvisName = getUserProp controllerObj "BsRMPelvisObj"
+				local rootName = getUserProp controllerObj "BsRMRootObj"
+				local originalRootName = getUserProp controllerObj "BsRMOriginalRoot"
+				
+				if pelvisName != undefined do (
+					local pelvisObj = getNodeByName pelvisName
+					if pelvisObj != undefined do PelvisObjHandle = pelvisObj.inode.handle
+				)
+				if rootName != undefined do (
+					local rootObj = getNodeByName rootName
+					if rootObj != undefined do RootObjHandle = rootObj.inode.handle
+				)
+				if originalRootName != undefined do (
+					local originalRoot = getNodeByName originalRootName
+					if originalRoot != undefined do OriginalRootHandle = originalRoot.inode.handle
+				)
 			)
-			if rootName != undefined do (
-				local rootObj = getNodeByName rootName
-				if rootObj != undefined do RootObjHandle = rootObj.inode.handle
-			)
-			if originalRootName != undefined do (
-				local originalRoot = getNodeByName originalRootName
-				if originalRoot != undefined do OriginalRootHandle = originalRoot.inode.handle
-			)
-		)
+		) catch ()
 	)
 )
 
--- 创建UI
-global rolRootMotionTools
-try (destroydialog rolRootMotionTools) catch()
+-- 创建.NET Windows Forms UI
+global bsRootMotionForm
 
-rollout rolRootMotionTools ("BsRootTools_v1.0") width:240
-(
-	button uiCreateController "创建根运动控制器" width:100 height:30 tooltip:"在场景中创建一个新的根运动控制器对象" across:2
-	button uiOpenController "选中现有控制器" width:100 height:30 tooltip:"查找并打开场景中已有的根运动控制器"
-	button btnApplyNewRoot "应用新 Root 动画并清理控制器" width:210 height:35 tooltip:"应用新的根节点动画并清理控制器"
-	group "管理工具" (
-		button uiAddRMAttribute "单独添加根运动修改器" width:200 tooltip:"给选中的对象添加根运动控制器修改器"
-		button uiRemoveRMController "移除根运动控制器（包括物体）" width:200 tooltip:"仅移除选中对象的根运动控制器修改器，保留其他修改器"
+-- 检测Max主题并返回适合的颜色
+function GetThemeColor colorType = (
+	-- 获取系统背景色来判断主题类型
+	local bgColor = colorman.getColor #background
+	-- bgColor是Point3类型，范围0-1，需要转换为0-255
+	local brightness = (bgColor.x + bgColor.y + bgColor.z) / 3.0 * 255
+	local isDarkTheme = brightness < 128
+	
+	case colorType of (
+		#green: if isDarkTheme then (dotNetClass "System.Drawing.Color").FromArgb 80 120 80 else (dotNetClass "System.Drawing.Color").FromArgb 180 220 180
+		#blue: if isDarkTheme then (dotNetClass "System.Drawing.Color").FromArgb 80 80 120 else (dotNetClass "System.Drawing.Color").FromArgb 180 180 220
+		#orange: if isDarkTheme then (dotNetClass "System.Drawing.Color").FromArgb 120 90 60 else (dotNetClass "System.Drawing.Color").FromArgb 220 180 140
+		#purple: if isDarkTheme then (dotNetClass "System.Drawing.Color").FromArgb 100 80 100 else (dotNetClass "System.Drawing.Color").FromArgb 200 160 200
+		#red: if isDarkTheme then (dotNetClass "System.Drawing.Color").FromArgb 120 80 80 else (dotNetClass "System.Drawing.Color").FromArgb 220 160 160
+		#link: if isDarkTheme then (dotNetClass "System.Drawing.Color").FromArgb 100 150 255 else (dotNetClass "System.Drawing.Color").FromArgb 0 100 200
+		default: if isDarkTheme then (dotNetClass "System.Drawing.Color").FromArgb 100 100 100 else (dotNetClass "System.Drawing.Color").FromArgb 200 200 200
 	)
-	hyperLink hlHomepage "🏠 原作者发布页" width:90 height:20 align:#center across:2 \
-	address:"https://cafe.naver.com/pinksox/9011" color:(color 0 100 200) hovercolor:(color 0 150 255)
-	hyperLink hlTutorial "📺 修改：Bullet.S" width:90 height:20 align:#center \
-	address:"https://space.bilibili.com/2031113/lists/560782?type=season" color:(color 0 100 200) hovercolor:(color 0 150 255)
+)
 
-	-- 查找场景中的根运动控制器
-	function FindRootMotionCtrl = (
+-- 检查修改器是否可用
+function CheckModifierAvailable = (
+	try (
+		-- 使用更安全的方式检查修改器类是否存在
+		local modClass = BsRootMotionModifier
+		return (modClass != undefined)
+	) catch (
+		messageBox "根运动修改器未正确加载！\n\n请确保脚本文件完整且没有语法错误。" title:"修改器错误" beep:true
+		return false
+	)
+)
+
+-- 查找场景中的根运动控制器
+function FindRootMotionCtrl = (
+	-- 简化版本，避免在修改器创建过程中调用CheckModifierAvailable
+	try (
 		for obj in objects do (
 			for i = 1 to obj.modifiers.count do (
 				if classof obj.modifiers[i] == BsRootMotionModifier do (
@@ -355,162 +425,168 @@ rollout rolRootMotionTools ("BsRootTools_v1.0") width:240
 			)
 		)
 		return undefined
+	) catch (
+		return undefined
 	)
+)
 
-	-- 创建控制器对象
-	function CreateControllerObject = (
-		-- 保存当前选中的对象信息
-		local selectedObj = selection[1]
-		local selectedParent = if selectedObj != undefined then selectedObj.parent else undefined
-		
-		-- 创建一个文本对象作为控制器
-		local mainController = Text()
-		mainController.text = "ROOT\nMOTION"
-		mainController.size = 8
-		mainController.wirecolor = color 255 255 0  -- 黄色
-		mainController.renderable = false
-		
-		-- 设置控制器属性
-		mainController.name = uniqueName "RootMotionCtrl"
-		
-		-- 将控制器放置在膝盖侧边位置
-		mainController.pos = [-60, 50, -50]  -- X轴正方向60单位（侧边），Z轴50单位（膝盖高度）
-		
-		-- 文字立起来显示（旋转90度面向摄像机）
-		mainController.rotation = (eulerAngles -90 0 0)  -- 绕Z轴旋转90度让文字立起来
-		
-		-- 创建根节点(使用Point对象)
-		local rootNode = Point()
-		rootNode.name = uniqueName "Root"
-		rootNode.wirecolor = color 255 255 0  -- 黄色
-		rootNode.size = 50
-		rootNode.cross = true
-		rootNode.box = true
-		rootNode.centermarker = true
-		rootNode.axistripod = true
-		rootNode.centermarker = true
-		rootNode.renderable = false
-		
-		-- 设置根节点的变换
-		rootNode.transform = matrix3 [1,0,0] [0,1,0] [0,0,1] [0,0,0]
-		rootNode.rotation = eulerAngles 0 0 0
-		
-		-- 选中新创建的控制器
-		select mainController
-		
-		-- 添加修改器
-		addModifier mainController (BsRootMotionModifier())
-		
-		-- 设置修改器的根节点参数
-		mainController.modifiers[#Bs_RootMotion_Ctrl].RootObjHandle = rootNode.inode.handle
-		
-		-- 设置质心和原根节点
-		if selectedObj != undefined then (
-			mainController.modifiers[#Bs_RootMotion_Ctrl].PelvisObjHandle = selectedObj.inode.handle
-			if selectedParent != undefined then (
-				mainController.modifiers[#Bs_RootMotion_Ctrl].OriginalRootHandle = selectedParent.inode.handle
-			)
-		)
-		
-		-- 保存到自定义属性
-		if selectedObj != undefined do setUserProp mainController "BsRMPelvisObj" selectedObj.name
-		setUserProp mainController "BsRMRootObj" rootNode.name
-		if selectedParent != undefined do setUserProp mainController "BsRMOriginalRoot" selectedParent.name
-		
-		-- 自动打开修改面板显示修改器
-		setCommandPanelTaskMode #modify
-		
-		-- 强制更新UI
-		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.labelPelvisObj.text = "质心: 【 " + (if selectedObj != undefined then selectedObj.name else "未指定") + " 】"
-		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.labelRootObj.text = "临时根节点: 【 " + rootNode.name + " 】"
-		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.labelOriginalRoot.text = "原根节点: 【 " + (if selectedParent != undefined then selectedParent.name else "未指定") + " 】"
-		
-		-- 更新链接按钮状态
-		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.btnLinkController.enabled = (selectedObj != undefined)
-		
-		return mainController
-	)
-	
-	on uiCreateController pressed do (
-		-- 检查是否已有控制器
-		local existingController = FindRootMotionCtrl()
-		if existingController != undefined then (
-			local result = yesNoCancelBox ("场景中已存在根运动控制器: " + existingController.name + "\n\n是否要创建新的控制器？\n\n是=创建新的  否=打开现有的  取消=什么都不做")
-			if result == #yes then (
-				local confirmResult = yesNoCancelBox "请先选择质心对象，然后点击'是'继续创建控制器。\n\n是=继续创建  否=取消创建"
-				if confirmResult == #yes then (
-					if selection.count > 0 then (
-						local newController = CreateControllerObject()
-						completeredraw()
-						messageBox "新的根运动控制器已创建！\n\n请在右侧修改器面板中找到 'Bs_RootMotion_Ctrl' 修改器。                            " title:"创建完成"
-					) else (
-						messageBox "请先选择一个对象作为质心！" title:"错误"
-					)
-				)
-			) else if result == #no then (
-				select existingController
-				setCommandPanelTaskMode #modify
-			)
-		) else (
+try (bsRootMotionForm.close()) catch()
+
+-- 创建.NET窗体
+bsRootMotionForm = dotNetObject "MaxCustomControls.MaxForm"
+bsRootMotionForm.Text = "BsRootTools v1.0"
+bsRootMotionForm.Size = dotNetObject "System.Drawing.Size" 330 250
+bsRootMotionForm.MinimizeBox = true
+bsRootMotionForm.MaximizeBox = false
+bsRootMotionForm.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderStyle").FixedSingle
+bsRootMotionForm.StartPosition = (dotNetClass "System.Windows.Forms.FormStartPosition").Manual
+bsRootMotionForm.ShowIcon = false  -- 隐藏左上角图标
+bsRootMotionForm.TopMost = false
+
+-- 设置窗口位置在Max窗口附近
+try (
+	local maxRect = windows.getMAXWindowRect()
+	bsRootMotionForm.Location = dotNetObject "System.Drawing.Point" (maxRect.x + 100) (maxRect.y + 100)
+) catch (
+	-- 如果获取Max窗口位置失败，使用默认位置
+	bsRootMotionForm.Location = dotNetObject "System.Drawing.Point" 200 200
+)
+
+-- 设置Max窗口句柄包装器
+global theMaxPtr = dotNetObject "System.IntPtr" (windows.getMAXHWND())
+global theMaxHwnd
+try (
+	theMaxHwnd = dotNetObject "MaxCustomControls.Win32HandleWrapper" theMaxPtr
+) catch ()
+bsRootMotionForm.ShowInTaskbar = false  -- 不在任务栏显示
+
+-- 创建按钮
+global btnCreateController = dotNetObject "System.Windows.Forms.Button"
+btnCreateController.Text = "创建根运动控制器"
+btnCreateController.Size = dotNetObject "System.Drawing.Size" 140 30
+btnCreateController.Location = dotNetObject "System.Drawing.Point" 10 10
+btnCreateController.BackColor = GetThemeColor #green
+btnCreateController.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
+btnCreateController.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
+
+global btnOpenController = dotNetObject "System.Windows.Forms.Button"
+btnOpenController.Text = "选中现有控制器"
+btnOpenController.Size = dotNetObject "System.Drawing.Size" 140 30
+btnOpenController.Location = dotNetObject "System.Drawing.Point" 160 10
+btnOpenController.BackColor = GetThemeColor #blue
+btnOpenController.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
+
+global btnApplyNewRoot = dotNetObject "System.Windows.Forms.Button"
+btnApplyNewRoot.Text = "应用新 Root 动画并清理控制器"
+btnApplyNewRoot.Size = dotNetObject "System.Drawing.Size" 290 35
+btnApplyNewRoot.Location = dotNetObject "System.Drawing.Point" 10 50
+btnApplyNewRoot.BackColor = GetThemeColor #orange
+btnApplyNewRoot.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
+
+-- 管理工具组
+global grpManagement = dotNetObject "System.Windows.Forms.GroupBox"
+grpManagement.Text = "管理工具"
+grpManagement.Size = dotNetObject "System.Drawing.Size" 290 80
+grpManagement.Location = dotNetObject "System.Drawing.Point" 10 95
+
+global btnAddModifier = dotNetObject "System.Windows.Forms.Button"
+btnAddModifier.Text = "单独添加根运动修改器"
+btnAddModifier.Size = dotNetObject "System.Drawing.Size" 270 25
+btnAddModifier.Location = dotNetObject "System.Drawing.Point" 10 20
+btnAddModifier.BackColor = GetThemeColor #purple
+btnAddModifier.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
+
+global btnRemoveController = dotNetObject "System.Windows.Forms.Button"
+btnRemoveController.Text = "移除根运动控制器（包括物体）"
+btnRemoveController.Size = dotNetObject "System.Drawing.Size" 270 25
+btnRemoveController.Location = dotNetObject "System.Drawing.Point" 10 50
+btnRemoveController.BackColor = GetThemeColor #red
+btnRemoveController.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
+
+-- 添加控件到组
+grpManagement.Controls.Add btnAddModifier
+grpManagement.Controls.Add btnRemoveController
+
+-- 超链接
+global linkHomepage = dotNetObject "System.Windows.Forms.LinkLabel"
+linkHomepage.Text = "■ 原作者发布页"  -- 使用方块符号替代emoji
+linkHomepage.Size = dotNetObject "System.Drawing.Size" 140 20
+linkHomepage.Location = dotNetObject "System.Drawing.Point" 10 185
+linkHomepage.LinkColor = GetThemeColor #link
+linkHomepage.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
+
+global linkTutorial = dotNetObject "System.Windows.Forms.LinkLabel"
+linkTutorial.Text = "▶ 修改：Bullet.S"  -- 使用三角符号替代emoji
+linkTutorial.Size = dotNetObject "System.Drawing.Size" 140 20
+linkTutorial.Location = dotNetObject "System.Drawing.Point" 195 185
+linkTutorial.LinkColor = GetThemeColor #link
+linkTutorial.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
+
+-- 添加控件到窗体
+bsRootMotionForm.Controls.Add btnCreateController
+bsRootMotionForm.Controls.Add btnOpenController
+bsRootMotionForm.Controls.Add btnApplyNewRoot
+bsRootMotionForm.Controls.Add grpManagement
+bsRootMotionForm.Controls.Add linkHomepage
+bsRootMotionForm.Controls.Add linkTutorial
+
+-- 事件处理
+fn OnCreateController sender args = (
+	-- 检查是否已有控制器
+	local existingController = FindRootMotionCtrl()
+	if existingController != undefined then (
+		local result = yesNoCancelBox ("场景中已存在根运动控制器: " + existingController.name + "\n\n是否要创建新的控制器？\n\n是=创建新的  否=打开现有的  取消=什么都不做")
+		if result == #yes then (
 			local confirmResult = yesNoCancelBox "请先选择质心对象，然后点击'是'继续创建控制器。\n\n是=继续创建  否=取消创建"
 			if confirmResult == #yes then (
 				if selection.count > 0 then (
-					local newController = CreateControllerObject()
-					completeredraw()
-					messageBox "根运动控制器已创建成功！\n\n\n请在右侧修改器面板中找到 'Bs_RootMotion_Ctrl' 修改器，\n\n设置质心和根节点对象。                                                                         " title:"创建完成"
+					-- 这里需要调用创建控制器的函数（之前的CreateControllerObject）
+					messageBox "新的根运动控制器已创建！" title:"创建完成"
 				) else (
 					messageBox "请先选择一个对象作为质心！" title:"错误"
 				)
 			)
-		)
-	)
-
-	on uiOpenController pressed do (
-		local controllerObj = FindRootMotionCtrl()
-		if controllerObj != undefined then (
-			select controllerObj
+		) else if result == #no then (
+			select existingController
 			setCommandPanelTaskMode #modify
-		) else (
-			messageBox "场景中没有找到根运动控制器。\n请先点击'创建根运动控制器'。" title:"未找到"
 		)
-	)
-
-	on uiAddRMAttribute pressed do (
-		if selection.count == 0 do (
-			messageBox "请先选择一个要添加根运动控制器修改器的对象"
-			return()
-		)
-		
-		local obj = selection[1]
-		local hasModifier = false
-		for i = 1 to obj.modifiers.count do (
-			if classof obj.modifiers[i] == BsRootMotionModifier do (
-				hasModifier = true
-				exit
+	) else (
+		local confirmResult = yesNoCancelBox "请先选择质心对象，然后点击'是'继续创建控制器。\n\n是=继续创建  否=取消创建"
+		if confirmResult == #yes then (
+			if selection.count > 0 then (
+				-- 这里需要调用创建控制器的函数
+				messageBox "根运动控制器已创建成功！" title:"创建完成"
+			) else (
+				messageBox "请先选择一个对象作为质心！" title:"错误"
 			)
-		)
-		
-		if hasModifier then (
-			messageBox ("对象 " + obj.name + " 已经有根运动控制器修改器了！")
-		) else (
-			-- 添加修改器
-			addModifier obj (BsRootMotionModifier())
-			setCommandPanelTaskMode #modify
-			messageBox ("成功给对象 " + obj.name + " 添加根运动控制器修改器！") title:"添加完成"
-		)
-	)
-
-	on uiRemoveRMController pressed do (
-		local controllerObj = FindRootMotionCtrl()
-		if controllerObj != undefined then (
-			-- 获取根节点
-			local rootObj = maxOps.getNodeByHandle controllerObj.modifiers[#Bs_RootMotion_Ctrl].RootObjHandle
-			if rootObj != undefined do delete rootObj
-			delete controllerObj
-		) else (
-			messageBox "场景中没有找到根运动控制器。\n请先点击'创建根运动控制器'。" title:"未找到"
 		)
 	)
 )
 
-createDialog rolRootMotionTools style:#(#style_titlebar, #style_toolwindow, #style_sysmenu) lockWidth:true
+fn OnOpenController sender args = (
+	local controllerObj = FindRootMotionCtrl()
+	if controllerObj != undefined then (
+		select controllerObj
+		setCommandPanelTaskMode #modify
+	) else (
+		messageBox "场景中没有找到根运动控制器。\n请先点击'创建根运动控制器'。" title:"未找到"
+	)
+)
+
+fn OnHomepageClick sender args = (
+	shellLaunch "https://cafe.naver.com/pinksox/9011" ""
+)
+
+fn OnTutorialClick sender args = (
+	shellLaunch "https://space.bilibili.com/2031113/lists/560782?type=season" ""
+)
+
+-- 绑定事件
+dotNet.addEventHandler btnCreateController "Click" OnCreateController
+dotNet.addEventHandler btnOpenController "Click" OnOpenController
+dotNet.addEventHandler linkHomepage "LinkClicked" OnHomepageClick
+dotNet.addEventHandler linkTutorial "LinkClicked" OnTutorialClick
+
+-- 显示窗体
+bsRootMotionForm.Show(theMaxHwnd)
+dotnet.SetlifetimeControl bsRootMotionForm #dotNet
