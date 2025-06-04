@@ -42,7 +42,8 @@ plugin modifier BsRootMotionModifier
 		label labelRootObj "临时根节点: " align:#left pos:[5, 112]
 		pickbutton pickRootObj "选择临时根节点" width:150 pos:[5, 132] tooltip:"选择要用作临时根节点的对象。"
 		
-		button btnLinkController ">> 链接控制器 <<" width:140 height:40 pos:[10, 165] tooltip:"将控制器应用到根节点并与质心连接。" enabled:false
+		button btnAddLink "添加控制" width:68 height:30 pos:[10, 165] tooltip:"将控制器应用到根节点并与质心连接。" enabled:false
+		button btnRemoveLink "移除控制" width:68 height:30 pos:[82, 165] tooltip:"移除控制器链接，恢复为普通动画。" enabled:false
 		
 		groupbox gpbPos "位置控制" pos:[5, 217] width:150 height:280
 		
@@ -102,7 +103,17 @@ plugin modifier BsRootMotionModifier
 			)
 			
 			-- 检查是否可以启用链接按钮
-			btnLinkController.enabled = (pelvisObj != undefined and rootObj != undefined)
+			local canLink = (pelvisObj != undefined and rootObj != undefined)
+			btnAddLink.enabled = canLink
+			-- 检查是否已经链接，如果已链接则启用移除按钮
+			local isLinked = false
+			if rootObj != undefined then (
+				try (
+					isLinked = (classof rootObj.pos.controller == Position_XYZ and 
+					           classof rootObj.pos.controller.X_Position.controller == Float_Expression)
+				) catch ()
+			)
+			btnRemoveLink.enabled = isLinked
 			
 			-- 为参数设置控制器（如果还没有的话）
 			if (ManualX.controller == undefined) do (ManualX.controller = bezier_float ())
@@ -123,7 +134,18 @@ plugin modifier BsRootMotionModifier
 			if obj == undefined do return()
 			PelvisObjHandle = obj.inode.handle
 			labelPelvisObj.text = "质心: 【 " + obj.name + " 】"
-			btnLinkController.enabled = (maxOps.getNodeByHandle RootObjHandle != undefined)
+			local canLink = (maxOps.getNodeByHandle RootObjHandle != undefined)
+			btnAddLink.enabled = canLink
+			-- 更新移除按钮状态
+			local isLinked = false
+			local rootObj = maxOps.getNodeByHandle RootObjHandle
+			if rootObj != undefined then (
+				try (
+					isLinked = (classof rootObj.pos.controller == Position_XYZ and 
+					           classof rootObj.pos.controller.X_Position.controller == Float_Expression)
+				) catch ()
+			)
+			btnRemoveLink.enabled = isLinked
 			-- 保存到自定义属性
 			try (
 			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
@@ -135,7 +157,18 @@ plugin modifier BsRootMotionModifier
 			if obj == undefined do return()
 			RootObjHandle = obj.inode.handle
 			labelRootObj.text = "临时根节点: 【 " + obj.name + " 】"
-			btnLinkController.enabled = (maxOps.getNodeByHandle PelvisObjHandle != undefined)
+			local canLink = (maxOps.getNodeByHandle PelvisObjHandle != undefined)
+			btnAddLink.enabled = canLink
+			-- 更新移除按钮状态
+			local isLinked = false
+			local rootObj = maxOps.getNodeByHandle RootObjHandle  
+			if rootObj != undefined then (
+				try (
+					isLinked = (classof rootObj.pos.controller == Position_XYZ and 
+					           classof rootObj.pos.controller.X_Position.controller == Float_Expression)
+				) catch ()
+			)
+			btnRemoveLink.enabled = isLinked
 			-- 保存到自定义属性
 			try (
 			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
@@ -154,7 +187,7 @@ plugin modifier BsRootMotionModifier
 			) catch ()
 		)
 		
-		on btnLinkController pressed do (
+		on btnAddLink pressed do (
 			-- 检查对象是否已选择
 			local pelvisObj = maxOps.getNodeByHandle PelvisObjHandle
 			if pelvisObj == undefined do return()
@@ -197,6 +230,33 @@ plugin modifier BsRootMotionModifier
 				"local track = (pelvisYaw + degToRad (TrackYaw_Offset)) * TrackYaw\n" + 
 				"local manual = degToRad(ManualYaw) * (1-TrackYaw)\n" + 
 				"return (track + manual)")
+			
+			-- 更新按钮状态
+			btnAddLink.enabled = false
+			btnRemoveLink.enabled = true
+			messageBox "链接控制器已添加！\n\n临时根节点现在受到质心和修改器参数的控制。" title:"链接完成"
+		)
+		
+		on btnRemoveLink pressed do (
+			local rootObj = maxOps.getNodeByHandle RootObjHandle
+			if rootObj == undefined do return()
+			
+			local result = yesNoCancelBox "确定要移除链接控制吗？\n\n这将：\n- 移除表达式控制器\n- 恢复为普通的Position/Rotation控制器\n- 保留当前的动画数据" title:"确认移除链接"
+			if result != #yes then return()
+			
+			try (
+				-- 移除位置控制器链接
+				rootObj.pos.controller = Position_XYZ()
+				-- 移除旋转控制器链接  
+				rootObj.rotation.controller = Euler_XYZ()
+				
+				-- 更新按钮状态
+				btnAddLink.enabled = true
+				btnRemoveLink.enabled = false
+				messageBox "链接控制器已移除！\n\n临时根节点恢复为普通的动画控制器。" title:"移除完成"
+			) catch (
+				messageBox ("移除链接控制时出错: " + getCurrentException()) title:"移除错误"
+			)
 		)
 
 		on btnGetPelvisPosZ pressed do (
@@ -562,9 +622,7 @@ plugin modifier BsRootMotionModifier
 								modifier.TrackYaw_Offset = modifier.TrackYaw_Offset
 							)
 							successCount += 1
-						) catch (
-							print ("在时间 " + (t as string) + " 设置参数关键帧时出错")
-						)
+						) catch ()
 					)
 				)
 			) catch () (
@@ -646,12 +704,9 @@ plugin modifier BsRootMotionModifier
 							-- 显示进度（每10%显示一次）
 							if (successCount >= nextProgress) then (
 								local percent = (successCount as float / frameCount * 100) as integer
-								print ("烘焙进度: " + percent as string + "%")
 								nextProgress += progressStep
 							)
-						) catch (
-							print ("在第 " + f as string + " 帧设置参数关键帧时出错")
-						)
+						) catch ()
 					)
 				)
 			) catch () (
@@ -723,6 +778,9 @@ function GetThemeColor colorType = (
 		default: if isDarkTheme then (dotNetClass "System.Drawing.Color").FromArgb 100 100 100 else (dotNetClass "System.Drawing.Color").FromArgb 200 200 200
 	)
 )
+
+-- 全局变量
+global bsHelpForm = undefined
 
 -- 全局函数和工具结构体
 struct rolRootMotionTools (
@@ -837,8 +895,62 @@ struct rolRootMotionTools (
 		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.labelOriginalRoot.text = "原根节点: 【 " + (if selectedParent != undefined then selectedParent.name else "未指定") + " 】"
 		
 		-- 更新链接按钮状态
-		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.btnLinkController.enabled = (selectedObj != undefined)
+		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.btnAddLink.enabled = (selectedObj != undefined)
+		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.btnRemoveLink.enabled = false
 		) catch ()
+		
+		-- 自动建立链接（如果有质心对象）
+		if selectedObj != undefined then (
+			try (
+				local modifier = mainController.modifiers[#Bs_RootMotion_Ctrl]
+				
+				-- 设置位置控制器
+				rootNode.pos.controller = Position_XYZ ()
+				rootNode.pos.controller.X_Position.controller = Float_Expression ()
+				rootNode.pos.controller.Y_Position.controller = Float_Expression ()
+				rootNode.pos.controller.Z_Position.controller = Float_Expression ()
+				rootNode.pos.controller.X_Position.controller.AddScalarTarget "ManualX" modifier.ManualX.controller
+				rootNode.pos.controller.Y_Position.controller.AddScalarTarget "ManualY" modifier.ManualY.controller
+				rootNode.pos.controller.Z_Position.controller.AddScalarTarget "ManualZ" modifier.ManualZ.controller
+				rootNode.pos.controller.X_Position.controller.AddVectorNode "PelvisPos" selectedObj
+				rootNode.pos.controller.Y_Position.controller.AddVectorNode "PelvisPos" selectedObj
+				rootNode.pos.controller.Z_Position.controller.AddVectorNode "PelvisPos" selectedObj
+				rootNode.pos.controller.X_Position.controller.AddScalarTarget "TrackX" modifier.TrackX.controller
+				rootNode.pos.controller.X_Position.controller.AddScalarTarget "TrackX_Offset" modifier.TrackX_Offset.controller
+				rootNode.pos.controller.Y_Position.controller.AddScalarTarget "TrackY" modifier.TrackY.controller
+				rootNode.pos.controller.Y_Position.controller.AddScalarTarget "TrackY_Offset" modifier.TrackY_Offset.controller
+				rootNode.pos.controller.Z_Position.controller.AddScalarTarget "TrackZ" modifier.TrackZ.controller
+				rootNode.pos.controller.Z_Position.controller.AddScalarTarget "TrackZ_Offset" modifier.TrackZ_Offset.controller
+				rootNode.pos.controller.X_Position.controller.SetExpression "(TrackX_Offset + PelvisPos.x)*TrackX + ManualX*(1-TrackX)"
+				rootNode.pos.controller.Y_Position.controller.SetExpression "(TrackY_Offset + PelvisPos.y)*TrackY + ManualY*(1-TrackY)"
+				rootNode.pos.controller.Z_Position.controller.SetExpression "(TrackZ_Offset + PelvisPos.z)*TrackZ + ManualZ*(1-TrackZ)"
+				
+				-- 设置旋转控制器
+				rootNode.rotation.controller = Euler_XYZ ()
+				rootNode.rotation.controller.X_Rotation.controller = Float_Expression ()
+				rootNode.rotation.controller.X_Rotation.controller.SetExpression "0"
+				rootNode.rotation.controller.Y_Rotation.controller = Float_Expression ()
+				rootNode.rotation.controller.Y_Rotation.controller.SetExpression "0"
+				rootNode.rotation.controller.Z_Rotation.controller = float_script ()
+				rootNode.rotation.controller.Z_Rotation.controller.AddTarget "ManualYaw" modifier.ManualYaw.controller
+				rootNode.rotation.controller.Z_Rotation.controller.AddTarget "TrackYaw" modifier.TrackYaw.controller
+				rootNode.rotation.controller.Z_Rotation.controller.AddTarget "TrackYaw_Offset" modifier.TrackYaw_Offset.controller
+				rootNode.rotation.controller.Z_Rotation.controller.AddNode "PelvisObj" selectedObj
+				rootNode.rotation.controller.Z_Rotation.controller.SetExpression ("local pelvisYaw = degToRad (PelvisObj.transform.rotation as EulerAngles).z\n" + 
+					"local track = (pelvisYaw + degToRad (TrackYaw_Offset)) * TrackYaw\n" + 
+					"local manual = degToRad(ManualYaw) * (1-TrackYaw)\n" + 
+					"return (track + manual)")
+				
+				-- 更新按钮状态
+				try (
+					mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.btnAddLink.enabled = false
+					mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.btnRemoveLink.enabled = true
+				) catch ()
+				
+			) catch (
+				-- 如果自动链接失败，不影响控制器创建
+			)
+		)
 		
 		return true
 	)
@@ -852,11 +964,12 @@ function CheckModifierAvailable = rolRootMotionTools.CheckModifierAvailable()
 function FindRootMotionCtrl = rolRootMotionTools.FindRootMotionCtrl()
 
 try (bsRootMotionForm.close()) catch()
+try (if bsHelpForm != undefined then bsHelpForm.close()) catch()
 
 -- 创建.NET窗体
 bsRootMotionForm = dotNetObject "MaxCustomControls.MaxForm"
 bsRootMotionForm.Text = "BsRootTools v1.0"
-bsRootMotionForm.Size = dotNetObject "System.Drawing.Size" 330 250
+bsRootMotionForm.Size = dotNetObject "System.Drawing.Size" 330 290
 bsRootMotionForm.MinimizeBox = true
 bsRootMotionForm.MaximizeBox = false
 bsRootMotionForm.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderStyle").FixedSingle
@@ -932,16 +1045,25 @@ grpManagement.Controls.Add btnRemoveController
 global linkHomepage = dotNetObject "System.Windows.Forms.LinkLabel"
 linkHomepage.Text = "■ 原作者发布页"  -- 使用方块符号替代emoji
 linkHomepage.Size = dotNetObject "System.Drawing.Size" 140 20
-linkHomepage.Location = dotNetObject "System.Drawing.Point" 10 185
+linkHomepage.Location = dotNetObject "System.Drawing.Point" 10 220
 linkHomepage.LinkColor = GetThemeColor #link
 linkHomepage.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
 
 global linkTutorial = dotNetObject "System.Windows.Forms.LinkLabel"
-linkTutorial.Text = "▶ 修改：Bullet.S"  -- 使用三角符号替代emoji
+linkTutorial.Text = "▶ 大改：Bullet.S"  -- 使用三角符号替代emoji
 linkTutorial.Size = dotNetObject "System.Drawing.Size" 140 20
-linkTutorial.Location = dotNetObject "System.Drawing.Point" 195 185
+linkTutorial.Location = dotNetObject "System.Drawing.Point" 200 220
 linkTutorial.LinkColor = GetThemeColor #link
 linkTutorial.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
+
+-- 帮助按钮
+global btnHelp = dotNetObject "System.Windows.Forms.Button"
+btnHelp.Text = "❓ 使用帮助"
+btnHelp.Size = dotNetObject "System.Drawing.Size" 290 25
+btnHelp.Location = dotNetObject "System.Drawing.Point" 10 185
+btnHelp.BackColor = GetThemeColor #purple
+btnHelp.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
+btnHelp.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
 
 -- 添加控件到窗体
 bsRootMotionForm.Controls.Add btnCreateController
@@ -950,6 +1072,7 @@ bsRootMotionForm.Controls.Add btnApplyNewRoot
 bsRootMotionForm.Controls.Add grpManagement
 bsRootMotionForm.Controls.Add linkHomepage
 bsRootMotionForm.Controls.Add linkTutorial
+bsRootMotionForm.Controls.Add btnHelp
 
 -- 事件处理
 fn OnCreateController sender args = (
@@ -957,7 +1080,8 @@ fn OnCreateController sender args = (
 	if rolRootMotionTools.CheckModifierAvailable() then (
 		if rolRootMotionTools.CreateControllerObject() then (
 			CompleteRedraw()
-			messageBox "根运动控制器已创建成功！\n\n控制器包含：\n- Text对象 (主控制器 - RootCtrl)\n- Point对象 (根节点 - Root)\n- 根运动修改器 (核心功能)\n\n请在修改面板中找到 'Bs_RootMotion_Ctrl' 修改器。                          " title:"创建完成"
+			local linkStatus = if selection.count > 0 then "已自动建立链接控制" else "未建立链接（请手动选择质心后添加链接）"
+			messageBox ("根运动控制器已创建成功！\n\n控制器包含：\n- Text对象 (主控制器 - RootCtrl)\n- Point对象 (根节点 - Root)\n- 根运动修改器 (核心功能)\n\n链接状态：" + linkStatus + "\n\n请在修改面板中找到 'Bs_RootMotion_Ctrl' 修改器。") title:"创建完成"
 		)
 	)
 )
@@ -980,6 +1104,120 @@ fn OnTutorialClick sender args = (
 	shellLaunch "https://space.bilibili.com/2031113/lists/560782?type=season" ""
 )
 
+fn OnHelpClick sender args = (
+	-- 检查是否已经打开帮助窗口
+	if bsHelpForm != undefined then (
+		try (
+			-- 如果窗口已存在，激活它
+			bsHelpForm.Activate()
+			bsHelpForm.BringToFront()
+			return()
+		) catch (
+			-- 如果窗口对象无效，重置为undefined
+			bsHelpForm = undefined
+		)
+	)
+	
+	-- 创建帮助窗口
+	bsHelpForm = dotNetObject "MaxCustomControls.MaxForm"
+	bsHelpForm.Text = "BsRootTools 使用帮助"
+	bsHelpForm.Size = dotNetObject "System.Drawing.Size" 500 550
+	bsHelpForm.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderStyle").Sizable
+	bsHelpForm.MaximizeBox = true
+	bsHelpForm.MinimizeBox = true
+	bsHelpForm.StartPosition = (dotNetClass "System.Windows.Forms.FormStartPosition").Manual
+	bsHelpForm.ShowIcon = false
+	bsHelpForm.TopMost = false
+	
+	-- 设置窗口位置（主窗口右侧）
+	try (
+		local mainFormLocation = bsRootMotionForm.Location
+		local mainFormSize = bsRootMotionForm.Size
+		bsHelpForm.Location = dotNetObject "System.Drawing.Point" (mainFormLocation.X + mainFormSize.Width + 10) mainFormLocation.Y
+	) catch (
+		-- 如果获取主窗口位置失败，使用默认位置
+		bsHelpForm.Location = dotNetObject "System.Drawing.Point" 700 200
+	)
+	
+	-- 创建富文本框显示帮助内容
+	local helpText = dotNetObject "System.Windows.Forms.RichTextBox"
+	helpText.Size = dotNetObject "System.Drawing.Size" 470 485
+	helpText.Location = dotNetObject "System.Drawing.Point" 10 10
+	helpText.ReadOnly = true
+	helpText.BackColor = (dotNetClass "System.Drawing.SystemColors").Window
+	helpText.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
+	helpText.BorderStyle = (dotNetClass "System.Windows.Forms.BorderStyle").Fixed3D
+	
+	-- 设置帮助内容
+	local helpContent = ""
+	helpContent += "📋 BsRootTools 根运动工具使用指南\n\n"
+	helpContent += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+	
+	helpContent += "🚀 快速开始\n"
+	helpContent += "  1️⃣ 选择角色的质心骨骼（如 Bip001）\n"
+	helpContent += "  2️⃣ 点击「创建根运动控制器」→ 自动建立链接\n"
+	helpContent += "  3️⃣ 在修改面板调整根运动参数\n"
+	helpContent += "  4️⃣ 调整完成后记录动画到临时Root\n"
+	helpContent += "  5️⃣ 最后应用新Root动画并选择是否清理\n\n"
+	
+	helpContent += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+	
+	helpContent += "🎛️ 主要功能\n\n"
+	helpContent += "🔹 创建控制器\n"
+	helpContent += "   • 自动创建Text控制器 + Point根节点\n"
+	helpContent += "   • 自动链接质心和临时Root\n"
+	helpContent += "   • 生成完整的根运动修改器\n\n"
+	
+	helpContent += "🔹 参数调整（修改面板）\n"
+	helpContent += "   • Manual X/Y/Z: 手动位移调整\n"
+	helpContent += "   • Track X/Y/Z: 追踪质心位移（0-1混合）\n"
+	helpContent += "   • Track偏移: 设置追踪的偏移量\n"
+	helpContent += "   • Manual/Track Yaw: 旋转控制\n\n"
+	
+	helpContent += "🔹 动画记录\n"
+	helpContent += "   • 记录到临时根（关键帧）: 仅在关键帧设置\n"
+	helpContent += "   • 记录到临时根（满帧）: 每帧都设置关键帧\n\n"
+	
+	helpContent += "🔹 应用根运动\n"
+	helpContent += "   • 自动识别Biped/非Biped对象\n"
+	helpContent += "   • 智能处理父子关系\n"
+	helpContent += "   • 保留原始质心动画\n"
+	helpContent += "   • 可选择清理控制器\n\n"
+	
+	helpContent += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+	
+	helpContent += "💡 使用技巧\n\n"
+	helpContent += "🔸 质心选择: 对于Biped选择Bip001，对于普通骨骼选择质心骨骼\n"
+	helpContent += "🔸 参数调整: Track值控制跟随程度，0=完全手动，1=完全跟随\n"
+	helpContent += "🔸 偏移设置: 使用「获取质心Z位置」快速设置高度偏移\n"
+	helpContent += "🔸 曲线工具: 使用「打直关键帧曲柄」去除意外的缓动\n"
+	helpContent += "🔸 轨迹显示: 「Root轨迹」按钮可切换运动轨迹显示\n\n"
+	
+	helpContent += "⚠️  注意事项\n\n"
+	helpContent += "🔺 建议先备份场景文件\n"
+	helpContent += "🔺 应用根运动前确认参数设置正确\n"
+	helpContent += "🔺 清理控制器后无法再次编辑根运动参数\n"
+	helpContent += "🔺 对于复杂约束系统，建议谨慎使用\n\n"
+	
+	helpContent += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+	helpContent += "🏷️ 版本信息: v1.0 | 原作者: 李相元 | 修改: Bullet.S"
+	
+	helpText.Text = helpContent
+	
+	-- 添加控件到窗体
+	bsHelpForm.Controls.Add helpText
+	
+	-- 添加窗口关闭事件处理，清理全局变量
+	fn OnHelpFormClosed sender args = (
+		bsHelpForm = undefined
+	)
+	dotNet.addEventHandler bsHelpForm "FormClosed" OnHelpFormClosed
+	
+	-- 显示帮助窗口（非模态）
+	bsHelpForm.Show(theMaxHwnd)
+	dotnet.SetlifetimeControl bsHelpForm #dotNet
+)
+
 fn OnAddModifier sender args = (
 	if selection.count == 0 then (
 		messageBox "请先选择一个对象！" title:"错误"
@@ -999,35 +1237,34 @@ fn OnRemoveController sender args = (
 	if existingController != undefined then (
 		local result = yesNoCancelBox ("确定要删除根运动控制器: " + existingController.name + " 吗？\n\n这将删除控制器对象及其所有数据！")
 		if result == #yes then (
-			-- 获取临时根节点（Root对象）
-			local rootObj = undefined
-			try (
-				local rootHandle = existingController.modifiers[#Bs_RootMotion_Ctrl].RootObjHandle
-				if rootHandle != 0 then (
-					rootObj = maxOps.getNodeByHandle rootHandle
-				)
-			) catch ()
-			
-			-- 删除所有子对象
-			for child in existingController.children do (
-				delete child
-			)
-			
-			-- 删除临时根节点（Root对象）
-			if rootObj != undefined then (
+			with undo on
+			(
+				-- 获取临时根节点（Root对象）
+				local rootObj = undefined
 				try (
-					local rootName = rootObj.name  -- 先保存名字
-					delete rootObj
-					print ("已删除临时根节点: " + rootName)
-				) catch (
-					print "删除临时根节点时出错"
+					local rootHandle = existingController.modifiers[#Bs_RootMotion_Ctrl].RootObjHandle
+					if rootHandle != 0 then (
+						rootObj = maxOps.getNodeByHandle rootHandle
+					)
+				) catch ()
+				
+				-- 删除所有子对象
+				for child in existingController.children do (
+					delete child
 				)
+				
+				-- 删除临时根节点（Root对象）
+				if rootObj != undefined then (
+					try (
+						delete rootObj
+					) catch ()
+				)
+				
+				-- 删除控制器本身
+				delete existingController
+				CompleteRedraw()
+				messageBox "根运动控制器已删除！\n（包括临时根节点）" title:"删除完成"
 			)
-			
-			-- 删除控制器本身
-			delete existingController
-			CompleteRedraw()
-			messageBox "根运动控制器已删除！\n（包括临时根节点）" title:"删除完成"
 		)
 	) else (
 		messageBox "场景中没有找到根运动控制器。" title:"未找到"
@@ -1035,7 +1272,328 @@ fn OnRemoveController sender args = (
 )
 
 fn OnApplyNewRoot sender args = (
-	messageBox "此功能尚未实现。" title:"提示"
+	-- 获取相关对象
+	local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+	if controllerObj == undefined then (
+		messageBox "找不到根运动控制器！\n请先创建根运动控制器。" title:"错误"
+		return()
+	)
+	
+	local modifier = controllerObj.modifiers[#Bs_RootMotion_Ctrl]
+	if modifier == undefined then (
+		messageBox "找不到根运动修改器！" title:"错误"
+		return()
+	)
+	
+	local pelvisObj = maxOps.getNodeByHandle modifier.PelvisObjHandle
+	local tempRootObj = maxOps.getNodeByHandle modifier.RootObjHandle
+	local originalRootObj = maxOps.getNodeByHandle modifier.OriginalRootHandle
+	
+	if pelvisObj == undefined then (
+		messageBox "找不到质心对象！\n请确保已正确设置质心。" title:"错误"
+		return()
+	)
+	if tempRootObj == undefined then (
+		messageBox "找不到临时根节点！\n请确保已正确设置临时根节点。" title:"错误"
+		return()
+	)
+	
+	-- 确认操作
+	local confirmMsg = "将要应用新的Root动画到质心系统:\n\n"
+	confirmMsg += "质心: " + pelvisObj.name + "\n"
+	confirmMsg += "临时Root: " + tempRootObj.name + "\n"
+	if originalRootObj != undefined then (
+		confirmMsg += "原Root: " + originalRootObj.name + "\n"
+	) else (
+		confirmMsg += "原Root: 无\n"
+	)
+	confirmMsg += "\n这个操作会修改动画数据，确定要继续吗？"
+	
+	local result = yesNoCancelBox confirmMsg title:"确认应用Root动画"
+	if result != #yes then return()
+	
+	-- 检查质心是否是Biped对象
+	local isBiped = (classof pelvisObj == Biped_Object)
+	
+	if isBiped then (
+		-- Biped处理流程
+		try (
+			-- 记录临时Root的动画数据
+			local tempRootPosList = #()
+			local tempRootRotList = #()
+			
+			for t = animationRange.start to animationRange.end do (
+				at time t (
+					append tempRootPosList tempRootObj.transform.pos
+					append tempRootRotList tempRootObj.transform.rotation
+				)
+			)
+			
+			-- 记录原始Biped质心的世界空间位置和旋转
+			local bipedPosList = #()
+			local bipedRotList = #()
+			for t = animationRange.start to animationRange.end do (
+				at time t (
+					append bipedPosList (in coordsys world Biped.getTransform pelvisObj #pos)
+					append bipedRotList (in coordsys world Biped.getTransform pelvisObj #rotation)
+				)
+			)
+			
+			-- 处理父子关系
+			if originalRootObj != undefined then (
+				-- 有原Root的情况：将质心的父级设置为原Root，原Root应用临时Root的动画
+				
+				-- 确保质心的父级是原Root
+				if pelvisObj.parent != originalRootObj then (
+					pelvisObj.parent = originalRootObj
+				)
+				
+				-- 将临时Root的动画应用到原Root，确保设置关键帧
+				local frameIndex = 1
+				local originalAnimState = animButtonState
+				try (
+					animButtonState = true
+					for t = animationRange.start to animationRange.end do (
+						at time t (
+							with animate on (
+								originalRootObj.pos = tempRootPosList[frameIndex]
+								originalRootObj.rotation = tempRootRotList[frameIndex]
+							)
+							frameIndex += 1
+						)
+					)
+				) catch () (
+					animButtonState = originalAnimState
+				)
+				
+			) else (
+				-- 没有原Root的情况：创建新的Root并应用动画
+				
+				-- 创建新的Root对象
+				local newRoot = Point()
+				newRoot.name = "Root"
+				newRoot.wirecolor = color 0 255 0  -- 绿色
+				newRoot.size = 80
+				newRoot.cross = true
+				newRoot.box = true
+				
+				-- 将临时Root的动画应用到新Root，确保设置关键帧
+				local frameIndex = 1
+				local originalAnimState = animButtonState
+				try (
+					animButtonState = true
+					for t = animationRange.start to animationRange.end do (
+						at time t (
+							with animate on (
+								newRoot.pos = tempRootPosList[frameIndex]
+								newRoot.rotation = tempRootRotList[frameIndex]
+							)
+							frameIndex += 1
+						)
+					)
+				) catch () (
+					animButtonState = originalAnimState
+				)
+				
+				-- 设置质心的父级为新Root
+				pelvisObj.parent = newRoot
+				
+				-- 更新修改器的原Root引用
+				modifier.OriginalRootHandle = newRoot.inode.handle
+				setUserProp controllerObj "BsRMOriginalRoot" newRoot.name
+			)
+			
+			-- 创建Biped层来处理偏移
+			try (
+				-- 创建第一个偏移层
+				biped.createLayer pelvisObj.controller 1 "RootMotionOffset"
+				biped.setCurrentLayer pelvisObj.controller 1
+				
+				local frameIndex = 1
+				for t = animationRange.start to animationRange.end do (
+					slidertime = t
+					with animate on (
+						-- 恢复原始Biped位置
+						local bipedPos = bipedPosList[frameIndex]
+						in coordsys world Biped.setTransform pelvisObj #pos bipedPos true
+						
+						-- 计算并设置局部旋转
+						local currentParent = if originalRootObj != undefined then originalRootObj else undefined
+						local parentRot = if currentParent != undefined then (
+							at time t currentParent.transform.rotation
+						) else (
+							(matrix3 1).rotation
+						)
+						local bipedRot = bipedRotList[frameIndex]
+						local localRot = bipedRot * (inverse parentRot)
+						Biped.setTransform pelvisObj #rotation localRot true
+						
+						frameIndex += 1
+					)
+				)
+				
+				-- 创建第二个反向层（参考你的代码）
+				biped.createLayer pelvisObj.controller 2 "RootMotionReverse"
+				biped.setCurrentLayer pelvisObj.controller 2
+				frameIndex = 1
+				for t = animationRange.start to animationRange.end do (
+					slidertime = t
+					with animate on (
+						-- 设置原始位置和旋转
+						local bipedPos = bipedPosList[frameIndex]
+						in coordsys world Biped.setTransform pelvisObj #pos bipedPos true
+						local bipedRot = bipedRotList[frameIndex]
+						in coordsys world Biped.setTransform pelvisObj #rotation bipedRot true
+						frameIndex += 1
+					)
+				)
+				
+				-- 塌陷层（重要！）
+				biped.collapseAtLayer pelvisObj.controller 1
+				biped.collapseAtLayer pelvisObj.controller 0
+				
+			) catch (
+				-- 如果Biped层创建失败，使用基本的位置设置
+				local frameIndex = 1
+				for t = animationRange.start to animationRange.end do (
+					at time t with animate on (
+						in coordsys world pelvisObj.transform.pos = bipedPosList[frameIndex]
+						in coordsys world pelvisObj.transform.rotation = bipedRotList[frameIndex]
+						frameIndex += 1
+					)
+				)
+			)
+			CompleteRedraw()
+			messageBox "Biped根运动动画已成功应用！\n\n新的Root动画已传递给质心的父级，\n质心保持了原始的相对动画。" title:"应用完成"
+			
+			-- 询问是否清理控制器
+			local cleanupResult = yesNoCancelBox "Root动画已成功应用！\n\n是否要清理根运动控制器和临时Root？\n\n清理后将删除：\n- 根运动控制器对象\n- 临时Root节点\n- 所有相关数据\n\n注意：清理后无法再次编辑根运动参数！" title:"清理控制器"
+			if cleanupResult == #yes then (
+				try (
+					-- 获取临时根节点
+					local rootObjToDelete = tempRootObj
+					
+					-- 删除控制器对象及其所有子对象
+					for child in controllerObj.children do (
+						delete child
+					)
+					delete controllerObj
+					
+					-- 删除临时根节点
+					if rootObjToDelete != undefined then (
+						delete rootObjToDelete
+					)
+					
+					CompleteRedraw()
+					messageBox "控制器清理完成！\n\n已删除：\n- 根运动控制器\n- 临时Root节点\n\nRoot动画已永久应用到骨骼系统。" title:"清理完成"
+				) catch (
+					messageBox ("清理控制器时出错: " + getCurrentException()) title:"清理错误"
+				)
+			)
+			
+		) catch (
+			messageBox ("应用Biped根运动时出错: " + getCurrentException()) title:"错误"
+		)
+		
+	) else (
+		-- 非Biped对象的处理流程
+		try (
+			
+			-- 记录质心的原始动画（相对于当前父级）
+			local pelvisLocalPosList = #()
+			local pelvisLocalRotList = #()
+			
+			for t = animationRange.start to animationRange.end do (
+				at time t (
+					append pelvisLocalPosList pelvisObj.transform.pos
+					append pelvisLocalRotList pelvisObj.transform.rotation
+				)
+			)
+			
+			-- 处理Root应用
+			if originalRootObj != undefined then (
+				-- 有原Root：直接传递临时Root的动画
+				local originalAnimState = animButtonState
+				try (
+					animButtonState = true
+					for t = animationRange.start to animationRange.end do (
+						at time t (
+							with animate on (
+								originalRootObj.pos = tempRootObj.transform.pos
+								originalRootObj.rotation = tempRootObj.transform.rotation
+							)
+						)
+					)
+				) catch () (
+					animButtonState = originalAnimState
+				)
+			) else (
+				-- 没有原Root：创建新Root并设置父子关系
+				local newRoot = Point()
+				newRoot.name = uniqueName "AppliedRoot"
+				newRoot.wirecolor = color 0 255 0  -- 绿色
+				newRoot.size = 80
+				newRoot.cross = true
+				newRoot.box = true
+				
+				-- 应用临时Root的动画到新Root
+				local originalAnimState = animButtonState
+				try (
+					animButtonState = true
+					for t = animationRange.start to animationRange.end do (
+						at time t (
+							with animate on (
+								newRoot.pos = tempRootObj.transform.pos
+								newRoot.rotation = tempRootObj.transform.rotation
+							)
+						)
+					)
+				) catch () (
+					animButtonState = originalAnimState
+				)
+				
+				-- 设置父子关系
+				pelvisObj.parent = newRoot
+				
+				-- 更新修改器引用
+				modifier.OriginalRootHandle = newRoot.inode.handle
+				setUserProp controllerObj "BsRMOriginalRoot" newRoot.name
+			)
+			
+			messageBox "根运动动画已成功应用！\n\n临时Root的动画已传递给质心的父级。" title:"应用完成"
+			
+			-- 询问是否清理控制器
+			local cleanupResult = yesNoCancelBox "Root动画已成功应用！\n\n是否要清理根运动控制器和临时Root？\n\n清理后将删除：\n- 根运动控制器对象\n- 临时Root节点\n- 所有相关数据\n\n注意：清理后无法再次编辑根运动参数！" title:"清理控制器"
+			if cleanupResult == #yes then (
+				try (
+					with undo on
+					(
+						-- 获取临时根节点
+						local rootObjToDelete = tempRootObj
+						
+						-- 删除控制器对象及其所有子对象
+						for child in controllerObj.children do (
+							delete child
+						)
+						delete controllerObj
+						
+						-- 删除临时根节点
+						if rootObjToDelete != undefined then (
+							delete rootObjToDelete
+						)
+						
+						CompleteRedraw()
+						messageBox "控制器清理完成！\n\n已删除：\n- 根运动控制器\n- 临时Root节点\n\nRoot动画已永久应用到骨骼系统。" title:"清理完成"
+					)
+				) catch (
+					messageBox ("清理控制器时出错: " + getCurrentException()) title:"清理错误"
+				)
+			)
+			
+		) catch (
+			messageBox ("应用非Biped根运动时出错: " + getCurrentException()) title:"错误"
+		)
+	)
 )
 
 -- 绑定事件
@@ -1046,12 +1604,10 @@ dotNet.addEventHandler btnRemoveController "Click" OnRemoveController
 dotNet.addEventHandler btnApplyNewRoot "Click" OnApplyNewRoot
 dotNet.addEventHandler linkHomepage "LinkClicked" OnHomepageClick
 dotNet.addEventHandler linkTutorial "LinkClicked" OnTutorialClick
+dotNet.addEventHandler btnHelp "Click" OnHelpClick
 
 -- 显示窗体
 bsRootMotionForm.Show(theMaxHwnd)
 dotnet.SetlifetimeControl bsRootMotionForm #dotNet
 
--- 输出提示信息
-print "BsRootMotionTools 已加载完成！"
-print "- .NET窗口界面已显示"
-print "- 修改器功能完整保留"
+-- BsRootMotionTools 加载完成
