@@ -78,8 +78,8 @@ plugin modifier BsRootMotionModifier
 		-- 添加烘焙功能区域
 		groupbox gpbBakeTools "烘焙工具" pos:[5, 710] width:150 height:85
 		
-		button btnBakeToTempKey "烘焙到临时根(关键帧)" width:140 height:25 pos:[10, 730] tooltip:"将动画烘焙到临时根节点(仅关键帧)"
-		button btnBakeToTempFull "烘焙到临时根  (满帧)" width:140 height:25 pos:[10, 760] tooltip:"将动画烘焙到临时根节点  (所有帧)"
+		button btnBakeToTempKey "记录到临时根(关键帧)" width:140 height:25 pos:[10, 730] tooltip:"将动画记录到临时根节点(仅关键帧)"
+		button btnBakeToTempFull "记录到临时根  (满帧)" width:140 height:25 pos:[10, 760] tooltip:"将动画记录到临时根节点  (所有帧)"
 
 		fn Initialize = (
 			local pelvisObj = maxOps.getNodeByHandle PelvisObjHandle
@@ -126,8 +126,8 @@ plugin modifier BsRootMotionModifier
 			btnLinkController.enabled = (maxOps.getNodeByHandle RootObjHandle != undefined)
 			-- 保存到自定义属性
 			try (
-				local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
-				if controllerObj != undefined do setUserProp controllerObj "BsRMPelvisObj" obj.name
+			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+			if controllerObj != undefined do setUserProp controllerObj "BsRMPelvisObj" obj.name
 			) catch ()
 		)
 
@@ -138,8 +138,8 @@ plugin modifier BsRootMotionModifier
 			btnLinkController.enabled = (maxOps.getNodeByHandle PelvisObjHandle != undefined)
 			-- 保存到自定义属性
 			try (
-				local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
-				if controllerObj != undefined do setUserProp controllerObj "BsRMRootObj" obj.name
+			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+			if controllerObj != undefined do setUserProp controllerObj "BsRMRootObj" obj.name
 			) catch ()
 		)
 		
@@ -149,8 +149,8 @@ plugin modifier BsRootMotionModifier
 			labelOriginalRoot.text = "原根节点: 【 " + obj.name + " 】"
 			-- 保存到自定义属性
 			try (
-				local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
-				if controllerObj != undefined do setUserProp controllerObj "BsRMOriginalRoot" obj.name
+			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+			if controllerObj != undefined do setUserProp controllerObj "BsRMOriginalRoot" obj.name
 			) catch ()
 		)
 		
@@ -284,7 +284,36 @@ plugin modifier BsRootMotionModifier
 						) catch ()
 					)
 				)
-				messageBox "已将临时根节点的关键帧曲线设置为平直！" title:"打直曲线完成"
+				
+				-- 打直修改器参数的关键帧曲线
+				try (
+					if ManualX.controller != undefined and ManualX.controller.keys != undefined do
+						ManualX.controller.keys.setTangentType #flat
+					if ManualY.controller != undefined and ManualY.controller.keys != undefined do
+						ManualY.controller.keys.setTangentType #flat
+					if ManualZ.controller != undefined and ManualZ.controller.keys != undefined do
+						ManualZ.controller.keys.setTangentType #flat
+					if TrackX.controller != undefined and TrackX.controller.keys != undefined do
+						TrackX.controller.keys.setTangentType #flat
+					if TrackX_Offset.controller != undefined and TrackX_Offset.controller.keys != undefined do
+						TrackX_Offset.controller.keys.setTangentType #flat
+					if TrackY.controller != undefined and TrackY.controller.keys != undefined do
+						TrackY.controller.keys.setTangentType #flat
+					if TrackY_Offset.controller != undefined and TrackY_Offset.controller.keys != undefined do
+						TrackY_Offset.controller.keys.setTangentType #flat
+					if TrackZ.controller != undefined and TrackZ.controller.keys != undefined do
+						TrackZ.controller.keys.setTangentType #flat
+					if TrackZ_Offset.controller != undefined and TrackZ_Offset.controller.keys != undefined do
+						TrackZ_Offset.controller.keys.setTangentType #flat
+					if ManualYaw.controller != undefined and ManualYaw.controller.keys != undefined do
+						ManualYaw.controller.keys.setTangentType #flat
+					if TrackYaw.controller != undefined and TrackYaw.controller.keys != undefined do
+						TrackYaw.controller.keys.setTangentType #flat
+					if TrackYaw_Offset.controller != undefined and TrackYaw_Offset.controller.keys != undefined do
+						TrackYaw_Offset.controller.keys.setTangentType #flat
+				) catch ()
+				
+				messageBox "已将临时根节点和修改器参数的关键帧曲线设置为平直！" title:"打直曲线完成"
 			)
 		)
 
@@ -325,7 +354,36 @@ plugin modifier BsRootMotionModifier
 						) catch ()
 					)
 				)
-				messageBox "已将临时根节点的关键帧曲线还原为平滑！" title:"还原曲线完成"
+				
+				-- 还原修改器参数的关键帧曲线
+				try (
+					if ManualX.controller != undefined and ManualX.controller.keys != undefined do
+						ManualX.controller.keys.setTangentType #smooth
+					if ManualY.controller != undefined and ManualY.controller.keys != undefined do
+						ManualY.controller.keys.setTangentType #smooth
+					if ManualZ.controller != undefined and ManualZ.controller.keys != undefined do
+						ManualZ.controller.keys.setTangentType #smooth
+					if TrackX.controller != undefined and TrackX.controller.keys != undefined do
+						TrackX.controller.keys.setTangentType #smooth
+					if TrackX_Offset.controller != undefined and TrackX_Offset.controller.keys != undefined do
+						TrackX_Offset.controller.keys.setTangentType #smooth
+					if TrackY.controller != undefined and TrackY.controller.keys != undefined do
+						TrackY.controller.keys.setTangentType #smooth
+					if TrackY_Offset.controller != undefined and TrackY_Offset.controller.keys != undefined do
+						TrackY_Offset.controller.keys.setTangentType #smooth
+					if TrackZ.controller != undefined and TrackZ.controller.keys != undefined do
+						TrackZ.controller.keys.setTangentType #smooth
+					if TrackZ_Offset.controller != undefined and TrackZ_Offset.controller.keys != undefined do
+						TrackZ_Offset.controller.keys.setTangentType #smooth
+					if ManualYaw.controller != undefined and ManualYaw.controller.keys != undefined do
+						ManualYaw.controller.keys.setTangentType #smooth
+					if TrackYaw.controller != undefined and TrackYaw.controller.keys != undefined do
+						TrackYaw.controller.keys.setTangentType #smooth
+					if TrackYaw_Offset.controller != undefined and TrackYaw_Offset.controller.keys != undefined do
+						TrackYaw_Offset.controller.keys.setTangentType #smooth
+				) catch ()
+				
+				messageBox "已将临时根节点和修改器参数的关键帧曲线还原为平滑！" title:"还原曲线完成"
 			)
 		)
 
@@ -336,9 +394,273 @@ plugin modifier BsRootMotionModifier
 			)
 		)
 
-		-- 占位按钮事件
-		on btnBakeToTempKey pressed do ()
-		on btnBakeToTempFull pressed do ()
+		on btnCurvePanel pressed do (
+			-- 使用macros.run打开曲线面板
+			try (
+				macros.run "Track View" "LaunchFCurveEditor"
+			) catch (
+				-- 如果macros方法失败，尝试其他方法
+				try (
+					if trackViews.isOpen #curve_editor then (
+						trackViews.close #curve_editor
+					) else (
+						trackViews.open #curve_editor
+					)
+				) catch (
+					messageBox "无法打开曲线编辑器" title:"错误"
+				)
+			)
+		)
+
+				-- 基于BulletKeyTools的获取关键帧方法（重构为非嵌套函数）
+		fn fnGetObjectKeys obj = (
+			local arrKeysTime = #()
+			
+			-- 递归获取所有子动画的关键帧（使用循环栈代替递归避免嵌套问题）
+			fn collectAllSubKeys tempObj arrRef = (
+				local stack = #(tempObj)
+				
+				while stack.count > 0 do (
+					local currentObj = stack[stack.count]
+					deleteItem stack stack.count
+					
+					for i = 1 to currentObj.numSubs do (
+						local tempSubAnim = GetSubAnim currentObj i
+						local tempController = tempSubAnim.Controller
+						
+						if tempController != undefined do (
+							for j in tempController.Keys do (
+								appendIfUnique arrRef j.time
+							)
+						)
+						
+						-- 如果有子动画，添加到栈中继续处理
+						if tempSubAnim.numSubs > 0 do (
+							append stack tempSubAnim
+						)
+					)
+				)
+			)
+			
+			-- 处理Biped对象
+			if (classof obj == Biped_Object) then (
+				if classof obj.controller != Footsteps then (
+					if classof obj.controller != Vertical_Horizontal_Turn then (
+						-- 筛选出非质心的biped帧
+						collectAllSubKeys obj arrKeysTime
+					) else (
+						-- 处理质心(Bip001)的关键帧，中英文版本兼容
+						if classof obj.controller == Vertical_Horizontal_Turn then (
+							local bipCtrl = obj.controller
+							local vertCtrl = bipCtrl.vertical.controller
+							local horzCtrl = bipCtrl.horizontal.controller
+							local turnCtrl = undefined
+							
+							-- 处理中英文版本差异
+							try (
+								if (((sysinfo.GetMaxLanguage())[3]=="CHS") and ((maxVersion())[1] < 20000)) then (
+									turnCtrl = bipCtrl.flip.controller
+								) else (
+									turnCtrl = bipCtrl.turning.controller
+								)
+							) catch (
+								-- 如果上面的方法失败，尝试直接访问
+								try (
+									turnCtrl = bipCtrl.turning.controller
+								) catch (
+									try (
+										turnCtrl = bipCtrl.flip.controller
+									) catch ()
+								)
+							)
+							
+							local bipCtrlTemp = #(vertCtrl, horzCtrl)
+							if turnCtrl != undefined do append bipCtrlTemp turnCtrl
+							
+							for c in bipCtrlTemp do (
+								if c != undefined and c.keys != undefined and c.keys.count > 0 then (
+									for i in c.keys do (
+										appendIfUnique arrKeysTime i.time
+									)
+								)
+							)
+						)
+					)
+				)
+			) else (
+				-- 非Biped对象直接收集所有子动画关键帧
+				collectAllSubKeys obj arrKeysTime
+			)
+			
+			return arrKeysTime
+		)
+
+		-- 烘焙功能
+		on btnBakeToTempKey pressed do (
+			local pelvisObj = maxOps.getNodeByHandle PelvisObjHandle
+			local rootObj = maxOps.getNodeByHandle RootObjHandle
+			
+			if pelvisObj == undefined then (
+				messageBox "请先选择质心对象！" title:"错误"
+				return()
+			)
+			if rootObj == undefined then (
+				messageBox "请先选择临时根节点！" title:"错误" 
+				return()
+			)
+			
+			-- 使用优化的获取关键帧方法
+			local keyTimes = fnGetObjectKeys pelvisObj
+			
+			-- 去除重复时间并排序
+			if keyTimes.count > 0 then (
+				keyTimes = makeUniqueArray keyTimes
+				sort keyTimes
+			) else (
+				local objTypeStr = if (classof pelvisObj == Biped_Object) then "Biped" else "普通"
+				messageBox ("质心对象: " + pelvisObj.name + " (" + objTypeStr + "对象) 没有找到关键帧！\n请确认该对象有动画关键帧。") title:"警告"
+				return()
+			)
+			
+			-- 在这些时间点为修改器参数设置关键帧
+			local successCount = 0
+			-- 保存原始动画状态
+			local originalAnimState = animButtonState
+			
+			-- 获取修改器对象
+			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+			if controllerObj == undefined then (
+				messageBox "找不到根运动控制器！" title:"错误"
+				return()
+			)
+			
+			local modifier = controllerObj.modifiers[#Bs_RootMotion_Ctrl]
+			if modifier == undefined then (
+				messageBox "找不到根运动修改器！" title:"错误"
+				return()
+			)
+			
+			try (
+				animButtonState = true
+				for t in keyTimes do (
+					at time t (
+						try (
+							-- 为修改器参数设置关键帧，保持约束系统不变
+							with animate on (
+								-- 强制为所有参数设置关键帧，确保滑条值和偏移值被正确记录
+								modifier.ManualX = modifier.ManualX
+								modifier.ManualY = modifier.ManualY
+								modifier.ManualZ = modifier.ManualZ
+								modifier.TrackX = modifier.TrackX
+								modifier.TrackX_Offset = modifier.TrackX_Offset
+								modifier.TrackY = modifier.TrackY
+								modifier.TrackY_Offset = modifier.TrackY_Offset
+								modifier.TrackZ = modifier.TrackZ
+								modifier.TrackZ_Offset = modifier.TrackZ_Offset
+								modifier.ManualYaw = modifier.ManualYaw
+								modifier.TrackYaw = modifier.TrackYaw
+								modifier.TrackYaw_Offset = modifier.TrackYaw_Offset
+							)
+							successCount += 1
+						) catch (
+							print ("在时间 " + (t as string) + " 设置参数关键帧时出错")
+						)
+					)
+				)
+			) catch () (
+				-- 恢复原始动画状态
+				animButtonState = originalAnimState
+			)
+			
+			local objTypeStr = if (classof pelvisObj == Biped_Object) then "Biped" else "普通"
+			messageBox ("质心(" + objTypeStr + "对象)找到 " + keyTimes.count as string + " 个关键帧\n已为临时根节点成功设置 " + successCount as string + " 个关键帧！") title:"烘焙完成"
+		)
+
+		on btnBakeToTempFull pressed do (
+			local pelvisObj = maxOps.getNodeByHandle PelvisObjHandle
+			local rootObj = maxOps.getNodeByHandle RootObjHandle
+			
+			if pelvisObj == undefined then (
+				messageBox "请先选择质心对象！" title:"错误"
+				return()
+			)
+			if rootObj == undefined then (
+				messageBox "请先选择临时根节点！" title:"错误"
+				return()
+			)
+			
+			-- 获取动画范围（正确计算帧数）
+			local startTick = animationRange.start
+			local endTick = animationRange.end
+			local startFrame = (startTick / ticksPerFrame) as integer
+			local endFrame = (endTick / ticksPerFrame) as integer
+			local frameCount = endFrame - startFrame + 1
+			
+			-- 确认操作
+			local result = yesNoCancelBox ("将在第 " + startFrame as string + " 帧到第 " + endFrame as string + " 帧\n共 " + frameCount as string + " 帧设置关键帧\n\n注意：这将为每一帧都设置关键帧！\n确定要继续吗？") title:"确认满帧烘焙"
+			if result != #yes then return()
+			
+			-- 为每一帧的修改器参数设置关键帧
+			local successCount = 0
+			local progressStep = frameCount / 10  -- 用于显示进度
+			local nextProgress = progressStep
+			
+			-- 获取修改器对象
+			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+			if controllerObj == undefined then (
+				messageBox "找不到根运动控制器！" title:"错误"
+				return()
+			)
+			
+			local modifier = controllerObj.modifiers[#Bs_RootMotion_Ctrl]
+			if modifier == undefined then (
+				messageBox "找不到根运动修改器！" title:"错误"
+				return()
+			)
+			
+			-- 保存原始动画状态
+			local originalAnimState = animButtonState
+			try (
+				animButtonState = true
+				for f = startFrame to endFrame do (
+					at time (f * ticksPerFrame) (
+						try (
+							-- 为修改器参数设置关键帧，保持约束系统不变
+							with animate on (
+								-- 强制为所有参数设置关键帧，确保滑条值和偏移值被正确记录
+								modifier.ManualX = modifier.ManualX
+								modifier.ManualY = modifier.ManualY
+								modifier.ManualZ = modifier.ManualZ
+								modifier.TrackX = modifier.TrackX
+								modifier.TrackX_Offset = modifier.TrackX_Offset
+								modifier.TrackY = modifier.TrackY
+								modifier.TrackY_Offset = modifier.TrackY_Offset
+								modifier.TrackZ = modifier.TrackZ
+								modifier.TrackZ_Offset = modifier.TrackZ_Offset
+								modifier.ManualYaw = modifier.ManualYaw
+								modifier.TrackYaw = modifier.TrackYaw
+								modifier.TrackYaw_Offset = modifier.TrackYaw_Offset
+							)
+							successCount += 1
+							
+							-- 显示进度（每10%显示一次）
+							if (successCount >= nextProgress) then (
+								local percent = (successCount as float / frameCount * 100) as integer
+								print ("烘焙进度: " + percent as string + "%")
+								nextProgress += progressStep
+							)
+						) catch (
+							print ("在第 " + f as string + " 帧设置参数关键帧时出错")
+						)
+					)
+				)
+			) catch () (
+				-- 恢复原始动画状态
+				animButtonState = originalAnimState
+			)
+			
+			messageBox ("已为临时根节点在第 " + startFrame as string + " 到 " + endFrame as string + " 帧\n共成功设置 " + successCount as string + " 个关键帧！\n(总计 " + frameCount as string + " 帧)") title:"满帧烘焙完成"
+		)
 	)
 
 	-- 修改器的主要功能
@@ -356,28 +678,29 @@ plugin modifier BsRootMotionModifier
 		
 		-- 从自定义属性中读取节点引用
 		try (
-			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
-			if controllerObj != undefined do (
-				local pelvisName = getUserProp controllerObj "BsRMPelvisObj"
-				local rootName = getUserProp controllerObj "BsRMRootObj"
-				local originalRootName = getUserProp controllerObj "BsRMOriginalRoot"
-				
-				if pelvisName != undefined do (
-					local pelvisObj = getNodeByName pelvisName
-					if pelvisObj != undefined do PelvisObjHandle = pelvisObj.inode.handle
-				)
-				if rootName != undefined do (
-					local rootObj = getNodeByName rootName
-					if rootObj != undefined do RootObjHandle = rootObj.inode.handle
-				)
-				if originalRootName != undefined do (
-					local originalRoot = getNodeByName originalRootName
-					if originalRoot != undefined do OriginalRootHandle = originalRoot.inode.handle
-				)
+		local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+		if controllerObj != undefined do (
+			local pelvisName = getUserProp controllerObj "BsRMPelvisObj"
+			local rootName = getUserProp controllerObj "BsRMRootObj"
+			local originalRootName = getUserProp controllerObj "BsRMOriginalRoot"
+			
+			if pelvisName != undefined do (
+				local pelvisObj = getNodeByName pelvisName
+				if pelvisObj != undefined do PelvisObjHandle = pelvisObj.inode.handle
 			)
+			if rootName != undefined do (
+				local rootObj = getNodeByName rootName
+				if rootObj != undefined do RootObjHandle = rootObj.inode.handle
+			)
+			if originalRootName != undefined do (
+				local originalRoot = getNodeByName originalRootName
+				if originalRoot != undefined do OriginalRootHandle = originalRoot.inode.handle
+			)
+		)
 		) catch ()
 	)
 )
+
 
 -- 创建.NET Windows Forms UI
 global bsRootMotionForm
@@ -401,22 +724,22 @@ function GetThemeColor colorType = (
 	)
 )
 
--- 检查修改器是否可用
-function CheckModifierAvailable = (
-	try (
-		-- 使用更安全的方式检查修改器类是否存在
-		local modClass = BsRootMotionModifier
-		return (modClass != undefined)
-	) catch (
-		messageBox "根运动修改器未正确加载！\n\n请确保脚本文件完整且没有语法错误。" title:"修改器错误" beep:true
-		return false
-	)
-)
+-- 全局函数和工具结构体
+struct rolRootMotionTools (
+	-- 检查修改器是否可用
+	fn CheckModifierAvailable = (
+		try (
+			local modClass = BsRootMotionModifier
+			return (modClass != undefined)
+		) catch (
+			messageBox "根运动修改器未正确加载！\n\n请确保脚本文件完整且没有语法错误。" title:"修改器错误" beep:true
+			return false
+		)
+	),
 
--- 查找场景中的根运动控制器
-function FindRootMotionCtrl = (
-	-- 简化版本，避免在修改器创建过程中调用CheckModifierAvailable
-	try (
+	-- 查找场景中的根运动控制器
+	fn FindRootMotionCtrl = (
+		try (
 		for obj in objects do (
 			for i = 1 to obj.modifiers.count do (
 				if classof obj.modifiers[i] == BsRootMotionModifier do (
@@ -425,10 +748,108 @@ function FindRootMotionCtrl = (
 			)
 		)
 		return undefined
-	) catch (
+		) catch (
 		return undefined
 	)
+	),
+
+	-- 创建控制器对象（原始功能）
+	fn CreateControllerObject = (
+		-- 保存当前选中的对象信息
+		local selectedObj = if selection.count > 0 then selection[1] else undefined
+		local selectedParent = if selectedObj != undefined then selectedObj.parent else undefined
+		
+		-- 检查是否已经有控制器
+		local existingController = this.FindRootMotionCtrl()
+		if existingController != undefined then (
+			local result = yesNoCancelBox ("场景中已存在根运动控制器: " + existingController.name + "\n\n是否要创建新的控制器？\n\n是=创建新的  否=打开现有的  取消=什么都不做")
+			if result == #yes then (
+				-- 继续创建新的
+			) else if result == #no then (
+				select existingController
+				setCommandPanelTaskMode #modify
+				return true
+			) else (
+				return false
+			)
+		)
+		
+		-- 创建一个文本对象作为主控制器
+		local mainController = Text()
+		mainController.text = "RootCtrl"
+		mainController.size = 12
+		mainController.wirecolor = color 255 255 0  -- 黄色
+		mainController.renderable = false
+		
+		-- 设置控制器属性
+		mainController.name = uniqueName "RootMotionCtrl"
+		
+		-- 将控制器放置在膝盖侧边位置
+		mainController.pos = [-60, 30, 0]  -- X轴正方向60单位（侧边），Z轴50单位（膝盖高度）
+		
+		-- 文字立起来显示（旋转90度面向摄像机）
+		mainController.rotation = (eulerAngles -90 0 0)  -- 绕Z轴旋转90度让文字立起来
+		
+		-- 创建根节点(使用Point对象)
+		local rootNode = Point()
+		rootNode.name = uniqueName "Root"
+		rootNode.wirecolor = color 255 255 0  -- 黄色
+		rootNode.size = 50
+		rootNode.cross = true
+		rootNode.box = true
+		rootNode.centermarker = true
+		rootNode.axistripod = true
+		rootNode.renderable = false
+		
+		-- 设置根节点的变换
+		rootNode.transform = matrix3 [1,0,0] [0,1,0] [0,0,1] [0,0,0]
+		rootNode.rotation = eulerAngles 0 0 0
+		
+		-- 选中新创建的控制器
+		select mainController
+		
+		-- 添加修改器
+		addModifier mainController (BsRootMotionModifier())
+		
+		-- 设置修改器的根节点参数
+		mainController.modifiers[#Bs_RootMotion_Ctrl].RootObjHandle = rootNode.inode.handle
+		
+		-- 设置质心和原根节点
+		if selectedObj != undefined then (
+			mainController.modifiers[#Bs_RootMotion_Ctrl].PelvisObjHandle = selectedObj.inode.handle
+			if selectedParent != undefined then (
+				mainController.modifiers[#Bs_RootMotion_Ctrl].OriginalRootHandle = selectedParent.inode.handle
+			)
+		)
+		
+		-- 保存到自定义属性
+		if selectedObj != undefined do setUserProp mainController "BsRMPelvisObj" selectedObj.name
+		setUserProp mainController "BsRMRootObj" rootNode.name
+		if selectedParent != undefined do setUserProp mainController "BsRMOriginalRoot" selectedParent.name
+		
+		-- 自动打开修改面板显示修改器
+		setCommandPanelTaskMode #modify
+		
+		-- 强制更新UI（尝试访问修改器rollout）
+		try (
+		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.labelPelvisObj.text = "质心: 【 " + (if selectedObj != undefined then selectedObj.name else "未指定") + " 】"
+		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.labelRootObj.text = "临时根节点: 【 " + rootNode.name + " 】"
+		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.labelOriginalRoot.text = "原根节点: 【 " + (if selectedParent != undefined then selectedParent.name else "未指定") + " 】"
+		
+		-- 更新链接按钮状态
+		mainController.modifiers[#Bs_RootMotion_Ctrl].BsRMRollout.btnLinkController.enabled = (selectedObj != undefined)
+		) catch ()
+		
+		return true
+	)
 )
+
+-- 创建全局实例
+global rolRootMotionTools = rolRootMotionTools()
+
+-- 为向后兼容保留的全局函数
+function CheckModifierAvailable = rolRootMotionTools.CheckModifierAvailable()
+function FindRootMotionCtrl = rolRootMotionTools.FindRootMotionCtrl()
 
 try (bsRootMotionForm.close()) catch()
 
@@ -446,10 +867,10 @@ bsRootMotionForm.TopMost = false
 -- 设置窗口位置在Max窗口附近
 try (
 	local maxRect = windows.getMAXWindowRect()
-	bsRootMotionForm.Location = dotNetObject "System.Drawing.Point" (maxRect.x + 100) (maxRect.y + 100)
+	bsRootMotionForm.Location = dotNetObject "System.Drawing.Point" (maxRect.x + 300) (maxRect.y + 100)
 ) catch (
 	-- 如果获取Max窗口位置失败，使用默认位置
-	bsRootMotionForm.Location = dotNetObject "System.Drawing.Point" 200 200
+	bsRootMotionForm.Location = dotNetObject "System.Drawing.Point" 400 200
 )
 
 -- 设置Max窗口句柄包装器
@@ -532,46 +953,24 @@ bsRootMotionForm.Controls.Add linkTutorial
 
 -- 事件处理
 fn OnCreateController sender args = (
-	-- 检查是否已有控制器
-	local existingController = FindRootMotionCtrl()
-	if existingController != undefined then (
-		local result = yesNoCancelBox ("场景中已存在根运动控制器: " + existingController.name + "\n\n是否要创建新的控制器？\n\n是=创建新的  否=打开现有的  取消=什么都不做")
-		if result == #yes then (
-			local confirmResult = yesNoCancelBox "请先选择质心对象，然后点击'是'继续创建控制器。\n\n是=继续创建  否=取消创建"
-			if confirmResult == #yes then (
-				if selection.count > 0 then (
-					-- 这里需要调用创建控制器的函数（之前的CreateControllerObject）
-					messageBox "新的根运动控制器已创建！" title:"创建完成"
-				) else (
-					messageBox "请先选择一个对象作为质心！" title:"错误"
-				)
-			)
-		) else if result == #no then (
-			select existingController
-			setCommandPanelTaskMode #modify
-		)
-	) else (
-		local confirmResult = yesNoCancelBox "请先选择质心对象，然后点击'是'继续创建控制器。\n\n是=继续创建  否=取消创建"
-		if confirmResult == #yes then (
-			if selection.count > 0 then (
-				-- 这里需要调用创建控制器的函数
-				messageBox "根运动控制器已创建成功！" title:"创建完成"
-			) else (
-				messageBox "请先选择一个对象作为质心！" title:"错误"
-			)
+	-- 使用原始的功能逻辑
+	if rolRootMotionTools.CheckModifierAvailable() then (
+		if rolRootMotionTools.CreateControllerObject() then (
+			CompleteRedraw()
+			messageBox "根运动控制器已创建成功！\n\n控制器包含：\n- Text对象 (主控制器 - RootCtrl)\n- Point对象 (根节点 - Root)\n- 根运动修改器 (核心功能)\n\n请在修改面板中找到 'Bs_RootMotion_Ctrl' 修改器。                          " title:"创建完成"
 		)
 	)
 )
 
 fn OnOpenController sender args = (
-	local controllerObj = FindRootMotionCtrl()
-	if controllerObj != undefined then (
-		select controllerObj
-		setCommandPanelTaskMode #modify
-	) else (
-		messageBox "场景中没有找到根运动控制器。\n请先点击'创建根运动控制器'。" title:"未找到"
+	local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
+		if controllerObj != undefined then (
+			select controllerObj
+			setCommandPanelTaskMode #modify
+		) else (
+			messageBox "场景中没有找到根运动控制器。\n请先点击'创建根运动控制器'。" title:"未找到"
+		)
 	)
-)
 
 fn OnHomepageClick sender args = (
 	shellLaunch "https://cafe.naver.com/pinksox/9011" ""
@@ -581,12 +980,78 @@ fn OnTutorialClick sender args = (
 	shellLaunch "https://space.bilibili.com/2031113/lists/560782?type=season" ""
 )
 
+fn OnAddModifier sender args = (
+	if selection.count == 0 then (
+		messageBox "请先选择一个对象！" title:"错误"
+			return()
+		)
+		
+	local targetObj = selection[1]
+	local rootMotionMod = BsRootMotionModifier()
+	addModifier targetObj rootMotionMod
+	
+	setCommandPanelTaskMode #modify
+	messageBox ("已为对象 " + targetObj.name + " 添加根运动修改器！") title:"添加完成"
+)
+
+fn OnRemoveController sender args = (
+	local existingController = rolRootMotionTools.FindRootMotionCtrl()
+	if existingController != undefined then (
+		local result = yesNoCancelBox ("确定要删除根运动控制器: " + existingController.name + " 吗？\n\n这将删除控制器对象及其所有数据！")
+		if result == #yes then (
+			-- 获取临时根节点（Root对象）
+			local rootObj = undefined
+			try (
+				local rootHandle = existingController.modifiers[#Bs_RootMotion_Ctrl].RootObjHandle
+				if rootHandle != 0 then (
+					rootObj = maxOps.getNodeByHandle rootHandle
+				)
+			) catch ()
+			
+			-- 删除所有子对象
+			for child in existingController.children do (
+				delete child
+			)
+			
+			-- 删除临时根节点（Root对象）
+			if rootObj != undefined then (
+				try (
+					local rootName = rootObj.name  -- 先保存名字
+					delete rootObj
+					print ("已删除临时根节点: " + rootName)
+				) catch (
+					print "删除临时根节点时出错"
+				)
+			)
+			
+			-- 删除控制器本身
+			delete existingController
+			CompleteRedraw()
+			messageBox "根运动控制器已删除！\n（包括临时根节点）" title:"删除完成"
+		)
+	) else (
+		messageBox "场景中没有找到根运动控制器。" title:"未找到"
+	)
+)
+
+fn OnApplyNewRoot sender args = (
+	messageBox "此功能尚未实现。" title:"提示"
+)
+
 -- 绑定事件
 dotNet.addEventHandler btnCreateController "Click" OnCreateController
 dotNet.addEventHandler btnOpenController "Click" OnOpenController
+dotNet.addEventHandler btnAddModifier "Click" OnAddModifier
+dotNet.addEventHandler btnRemoveController "Click" OnRemoveController
+dotNet.addEventHandler btnApplyNewRoot "Click" OnApplyNewRoot
 dotNet.addEventHandler linkHomepage "LinkClicked" OnHomepageClick
 dotNet.addEventHandler linkTutorial "LinkClicked" OnTutorialClick
 
 -- 显示窗体
 bsRootMotionForm.Show(theMaxHwnd)
 dotnet.SetlifetimeControl bsRootMotionForm #dotNet
+
+-- 输出提示信息
+print "BsRootMotionTools 已加载完成！"
+print "- .NET窗口界面已显示"
+print "- 修改器功能完整保留"
