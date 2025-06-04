@@ -3597,7 +3597,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		(
 			tempTogglePanelPos = (getDialogPos rolBsKeyTools)
 			SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" (tempTogglePanelPos as string)
-			rolBsKeyTools.height = 0
+			try(rolBsKeyTools.height = 0)catch()
 			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
 			catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 		)
@@ -3694,7 +3694,7 @@ rollout rolBsKeyTools "" width:355 height:250
 				if rolTogglePanel == undefined or rolTogglePanel.open == false then 
 				(
 					SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" ((getDialogPos rolBsKeyTools) as string)
-					rolBsKeyTools.height = 0
+					try(rolBsKeyTools.height = 0)catch()
 					try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
 					catch(messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 				)
@@ -3714,7 +3714,7 @@ rollout rolBsKeyTools "" width:355 height:250
 					)
 					rolTogglePanel.lblOneWord.height = (rolTogglePanel.height - 4)
 					rolTogglePanel.lblOneWord.width  = (rolTogglePanel.width - 4)
-					rolBsKeyTools.height = 0
+					try(rolBsKeyTools.height = 0)catch()
 				)
 					-- isMouseInBsKeyTools = true
 				rolBsKeyTools.timerTickTock.active = false
