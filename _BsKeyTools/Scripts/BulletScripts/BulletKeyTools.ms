@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-06-04 18:52:56
+ * @LastEditTime: 2025-06-05 15:42:35
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -27,10 +27,10 @@ try (callbacks.removeScripts #filePostSave id:#BsRefreshRecentFilesSave) catch (
 try (callbacks.removeScripts #systemPostNew id:#BsRefreshRecentFilesNew) catch ()
 try (callbacks.removeScripts #systemPostReset id:#BsRefreshRecentFilesReset) catch ()
 
-global curVerBsKeyTools  = "1.1.0"
+global curVerBsKeyTools  = "1.1.1"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
-global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
-global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
+-- global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
+-- global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
 -- global dlUrlBsKeyTools   = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools.exe"
 global dlUrlBsKeyTools   = "https://anibullet.github.io/guide/"
 global dlFileBsKeyTools  = (getdir #temp) + "\\_BsKeyTools.exe"
@@ -539,7 +539,7 @@ rcmenu menuConfig
 		menuItem mItemForceUpdate "强制更新 [Beta尝鲜]"
 		menuItem mItemAutoCheckUpdate "自启检测 [建议更新]"
 		menuItem mItemUpdateLog "更新记录 [需求何在]"
-		menuItem mItemUndoVersion "回退版本 [上个版本]"
+		-- menuItem mItemUndoVersion "回退版本 [上个版本]"
 	)
 	subMenu "调试相关 [谨慎使用]"
 	(
@@ -1624,12 +1624,12 @@ rcmenu menuConfig
 	on mItemForceUpdate picked do 
 	(fnCheckUpdate curVerBsKeyTools verUrlBsKeyTools dlUrlBsKeyTools dlFileBsKeyTools isForceUpdate:true)
 
-	on mItemUndoVersion picked do 
-	(
-		local dlUrlPreviousVersion = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_PreviousVersion.exe"
-		local dlFilePreviousVersion = (getdir #temp) + "\\_PreviousVersion.exe"
-		fnCheckUpdate curVerBsKeyTools verUrlBsKeyTools dlUrlPreviousVersion dlFilePreviousVersion isForceUpdate:true
-	)
+	-- on mItemUndoVersion picked do 
+	-- (
+	-- 	local dlUrlPreviousVersion = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_PreviousVersion.exe"
+	-- 	local dlFilePreviousVersion = (getdir #temp) + "\\_PreviousVersion.exe"
+	-- 	fnCheckUpdate curVerBsKeyTools verUrlBsKeyTools dlUrlPreviousVersion dlFilePreviousVersion isForceUpdate:true
+	-- )
 
 	on mItemAutoCheckUpdate picked do 
 	(
@@ -2166,8 +2166,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"快速选择CS骨骼和调Biped等\r\n左键BsBipedTools\r\n右键老版CSTools精简版" 
 	button btnAnimCopyPaste "暴力贴"  pos:[160,165] width:50 height:25 \
 	toolTip:"左键动画暴力粘贴东见云优化版\r\n右键原版未修改版\r\n(有时间我也会优化或新写)" 
-	button btnAnimRef "参考帧" pos:[10,190] width:40 height:25 \
-	toolTip:"左键AnimRef\r\n右键参考大师"
+	checkButton ckbIsoMesh "单模型" pos:[10,190] width:40 height:25 \
+	toolTip:"单独显示模型预览\r\n右键显示全部类型" highlightcolor:myCheckedColor
 	button btnLayerManager "层" pos:[50,190] width:20 height:25 \
 	toolTip:"左键创建层预设管理器\r\n右键可嵌套层管理器" 
 	button btnSelectionsetTools "集" pos:[70,190] width:20 height:25 \
@@ -2280,8 +2280,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"删除所有小数帧" pos:btnPos
 	button btnReplaceSkinBones "蒙皮换骨" width:btnWidth height:btnHeight visible:false \
 	tooltip:"替换Skin蒙皮骨骼~\r\n（左右键点击有2个不同插件）" pos:btnPos
-	checkbutton ckbFnMtlDisplay "素模切换" width:btnWidth height:btnHeight visible:false \
-	toolTip:"左:切换显示隐藏贴图,方便白模预览\r\n右:Clay显示开关(红色模型显示)\r\n暂不支持子材质和Vray材质..."
+	button btnAnimRef "参考工具" width:btnWidth height:btnHeight visible:false \
+	toolTip:"" pos:btnPos
 	button btnXpsConvert "XPS 转换" width:btnWidth height:btnHeight visible:false \
 	tooltip:"Xnalara 导入 3dsMax" pos:btnPos
 	button btnCleanCustomAtts "清理冗余" width:btnWidth height:btnHeight visible:false \
@@ -2532,7 +2532,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		arrSourToolC4 = #(rolBsKeyTools.btnFnKeyType,rolBsKeyTools.btnRenderTools,
 						rolBsKeyTools.btnMopherSlider,rolBsKeyTools.btnMorpherCtrl,
 						rolBsKeyTools.btnMirrorMoph,rolBsKeyTools.btnDelDecimalKeys,
-						rolBsKeyTools.btnReplaceSkinBones,rolBsKeyTools.ckbFnMtlDisplay,
+						rolBsKeyTools.btnReplaceSkinBones,rolBsKeyTools.btnAnimRef,
 						rolBsKeyTools.btnXpsConvert,rolBsKeyTools.btnCleanCustomAtts,
 						rolBsKeyTools.btnLODCreate,rolBsKeyTools.btnProColor)
 		
@@ -4362,25 +4362,40 @@ rollout rolBsKeyTools "" width:355 height:250
 		)
 	)
 	
-	on ckbFnMtlDisplay changed state do 
+	on ckbIsoMesh changed state do
 	(
-		if state == off then
+		if state then
 		(
-			-- for mat in (getClassInstances vrayMtl processAllAnimatables:true) do showTextureMap mat on
-			for mat in (getClassInstances standard processAllAnimatables:true) do showTextureMap mat on
+			hideByCategory.geometry = false
+			hideByCategory.shapes = true
+			-- hideByCategory.lights = true
+			-- hideByCategory.cameras = true
+			hideByCategory.helpers = true
+			-- hideByCategory.spacewarps = true
+			-- hideByCategory.particles = true
+			hideByCategory.bones = true
 		)
-		else
+		else 
 		(
-			-- for mat in (getClassInstances vrayMtl processAllAnimatables:true) do showTextureMap mat off
-			for mat in (getClassInstances standard processAllAnimatables:true) do showTextureMap mat off
+			hideByCategory.shapes = false
+			-- hideByCategory.lights = false
+			-- hideByCategory.cameras = false
+			hideByCategory.helpers = false
+			-- hideByCategory.spacewarps = false
+			-- hideByCategory.particles = false
+			hideByCategory.bones = false
 		)
 	)
 
-	on ckbFnMtlDisplay rightclick do 
+	on ckbIsoMesh rightclick do 
 	(
-		local disp = NitrousGraphicsManager.GetActiveViewportSetting() 
-		if disp.VisualStyleMode == #clay then disp.VisualStyleMode = #Realistic
-		else disp.VisualStyleMode =  #clay
+		hideByCategory.shapes = false
+		hideByCategory.lights = false
+		hideByCategory.cameras = false
+		hideByCategory.helpers = false
+		hideByCategory.spacewarps = false
+		hideByCategory.particles = false
+		hideByCategory.bones = false
 	)
 
 	on btnMopherSlider pressed do 

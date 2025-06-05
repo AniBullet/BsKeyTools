@@ -27,7 +27,7 @@ fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false classic:fals
         if LaterVersion_installed do (messageBox  ("您已安装最新版本：" + onlineVersion + "\r\n\r\n若本地版本不对应请稍后重试~        ") title:"最新版本" beep:false;result = OK)
 
         if not LaterVersion_installed AND (queryBox ("远程最新版本为: " + onlineVersion + "\r\n本地当前版本为: " + currentVer + \
-            "\r\n\r\n是否立即下载更新并安装脚本?\r\n注意:可在设置中开关自动检测更新!\r\n\r\n(建议只更新正式版,beta仅供测试不保证稳定)\r\n(回退默认安装最新版前一版本)                                      ") title:"是否更新脚本") do 
+            "\r\n\r\n是否立即下载更新并安装脚本?\r\n注意:可在设置中开关自动检测更新!\r\n\r\n(建议只更新正式版,beta仅供测试不保证稳定)\r\n\r\n(第三位数字为小修复版本，可视情况更新)                                             ") title:"是否更新脚本") do 
         (
             -- local Root = symbolicPaths.getPathValue "$Max"  --max根目录
 
@@ -50,7 +50,7 @@ fn fnCheckUpdate currentVer verURL dlURL dlFile isForceUpdate:false classic:fals
             )
             else
             (
-                try(ShellLaunch dlURL "";messagebox "请手动下载弹出网页的 BsKeyTools 安装包自行安装！                                                      " title:"BsKeyTools")
+                try(messagebox "请手动下载弹出网页的 BsKeyTools 安装包自行安装！                                                      " title:"BsKeyTools";ShellLaunch dlURL "")
                 catch(messagebox "下载失败，建议去 GitHub 下载最新版！                                            "title:"BsKeyTools")
             )
             result = OK
