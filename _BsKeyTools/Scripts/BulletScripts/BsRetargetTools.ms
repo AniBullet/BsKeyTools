@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-06-03 20:29:45
+ * @LastEditTime: 2025-06-08 15:21:34
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -265,6 +265,8 @@ global fixNierFramerate = false
 global isScale100 = false
 
 global isReloadBip = false
+
+global isHalfAnimSpeed = false
 
 -- wizardIndex = 1
 -- wizardArray = #()
@@ -587,15 +589,17 @@ rcmenu menuQuickCreateNode
 
 rcmenu menuBsRetarget
 (
-	menuItem mItemNier "修复 Nier 60帧率"
+	menuItem mItemHalfAnimSpeed "1/2动画速率"
+	menuItem mItemNier "修复 Nier 帧率和缩放"
 	menuItem mItemScale100 "仅 Scale 100"
 	menuItem mItemReloadBip "重新加载 Biped"
 
 	on menuBsRetarget open do
 	(
-		mItemNier.checked      = fixNierFramerate
-		mItemScale100.checked  = isScale100
-		mItemReloadBip.checked = isReloadBip
+		mItemNier.checked          = fixNierFramerate
+		mItemScale100.checked      = isScale100
+		mItemReloadBip.checked     = isReloadBip
+		mItemHalfAnimSpeed.checked = isHalfAnimSpeed
 	)
 	
 	on mItemNier picked do
@@ -615,10 +619,16 @@ rcmenu menuBsRetarget
 		mItemReloadBip.checked = not mItemReloadBip.checked
 		isReloadBip            = mItemReloadBip.checked
 	)
+
+	on mItemHalfAnimSpeed picked do
+	(
+		mItemHalfAnimSpeed.checked = not mItemHalfAnimSpeed.checked
+		isHalfAnimSpeed            = mItemHalfAnimSpeed.checked
+	)
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v4.5 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
@@ -1030,6 +1040,14 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 		)
 	)
 
+	fn fnHalfAnimSpeed = 
+	(
+		endFrame = animationrange.end * 2
+		for i in objects do scaletime i.controller animationrange.start animationrange.end 2
+		animationrange = interval animationrange.start endFrame
+		true
+	)
+
 	fn fnExportReTargrtedAnim arrExportRetargetAnim index =
 	(
 		if (index != 0) and (doesFileExist arrExportRetargetAnim[index]) then
@@ -1103,6 +1121,11 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 				else (i.name = substituteString i.name "RTHelper_" "")
 			)
 			
+			if isHalfAnimSpeed do 
+			(
+				fnHalfAnimSpeed()
+			)
+			
 			FBXExporterSetParam "Animation" true
 			FBXExporterSetParam "BakeAnimation" true
 			FBXExporterSetParam "BakeResampleAnimation" false
@@ -1124,6 +1147,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.4 （ FBX 转 BIP + 动画重定向 �
 			FBXExporterSetParam "FileVersion" "FBX201200"
 
 			select arrExport
+
 			completeredraw()
 			exportFile tarNewAnim #noPrompt selectedOnly:true using:FBXEXP
 			-- exportFile tarFileDebug #noPrompt selectedOnly:true using:FBXEXP
