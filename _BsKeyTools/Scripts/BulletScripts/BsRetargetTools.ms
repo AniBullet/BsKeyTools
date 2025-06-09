@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-06-08 15:21:34
+ * @LastEditTime: 2025-06-09 22:35:49
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -3607,6 +3607,8 @@ rollout rolBsRetarget "BsRetargetTools_v4.5 （ FBX 转 BIP + 动画重定向 �
 	(
 		if edtAnimFbxPath.text != edtOutputPath.text then
 		(
+			local stateSilent = silentMode()
+			setSilentMode true
 			if (doesFileExist edtSkinFile.text) then
 			(
 				if CheckForSave() then 
@@ -3618,6 +3620,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.5 （ FBX 转 BIP + 动画重定向 �
 				)
 			)
 			else (print "Skin 文件不存在!                             ")
+			setSilentMode stateSilent
 		)
 		else (messageBox "导出路径不能和原动画 FBX 路径相同！                                                  ")
 	)
@@ -3632,6 +3635,8 @@ rollout rolBsRetarget "BsRetargetTools_v4.5 （ FBX 转 BIP + 动画重定向 �
 			(
 				if CheckForSave() then 
 				(
+					local stateSilent = silentMode()
+					setSilentMode true
 					pgbBar.color = blue
 					pgbBar.value = 0
 					lblBarValue.text = (pgbBar.value as string) + " %"
@@ -3646,6 +3651,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.5 （ FBX 转 BIP + 动画重定向 �
 					)
 					resetMaxFile #noPrompt
 					messageBox ("已重定向所有动画，一共 " + (arrExportRetargetAnim.count as string) + " 个,\r\n\r\n在导出目录有相应 .max .bip 和 .FBX 文件                                                ")
+					setSilentMode stateSilent
 				)
 			)
 		)
