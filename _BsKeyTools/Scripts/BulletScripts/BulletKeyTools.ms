@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-06-05 15:42:35
+ * @LastEditTime: 2025-06-10 01:07:49
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -27,7 +27,7 @@ try (callbacks.removeScripts #filePostSave id:#BsRefreshRecentFilesSave) catch (
 try (callbacks.removeScripts #systemPostNew id:#BsRefreshRecentFilesNew) catch ()
 try (callbacks.removeScripts #systemPostReset id:#BsRefreshRecentFilesReset) catch ()
 
-global curVerBsKeyTools  = "1.1.1"
+global curVerBsKeyTools  = "1.1.2"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 -- global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 -- global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
@@ -2282,8 +2282,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"替换Skin蒙皮骨骼~\r\n（左右键点击有2个不同插件）" pos:btnPos
 	button btnAnimRef "参考工具" width:btnWidth height:btnHeight visible:false \
 	toolTip:"" pos:btnPos
-	button btnXpsConvert "XPS 转换" width:btnWidth height:btnHeight visible:false \
-	tooltip:"Xnalara 导入 3dsMax" pos:btnPos
+	button btnMotionReverse "动作逆向" width:btnWidth height:btnHeight visible:false \
+	tooltip:"游戏动作逆向学习" pos:btnPos
 	button btnCleanCustomAtts "清理冗余" width:btnWidth height:btnHeight visible:false \
 	tooltip:"清理冗余自定义属性，\r\n如 day1reCA 和 SimpleFaceData ？\r\n请注意备份和保存文件" pos:btnPos
 	button btnLODCreate "LOD 创建" width:btnWidth height:btnHeight visible:false \
@@ -2533,7 +2533,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnMopherSlider,rolBsKeyTools.btnMorpherCtrl,
 						rolBsKeyTools.btnMirrorMoph,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnReplaceSkinBones,rolBsKeyTools.btnAnimRef,
-						rolBsKeyTools.btnXpsConvert,rolBsKeyTools.btnCleanCustomAtts,
+						rolBsKeyTools.btnMotionReverse,rolBsKeyTools.btnCleanCustomAtts,
 						rolBsKeyTools.btnLODCreate,rolBsKeyTools.btnProColor)
 		
 		fnLoadToolBtnConfig()
@@ -4641,10 +4641,10 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(messagebox "打开 BakeAnim.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnXpsConvert pressed do
+	on btnMotionReverse pressed do
 	(
-		try(messagebox "若导入报错，可尝试用高版本 3dsMax 重新导入，基本可解决！                                       " beep:false title:"BsKeyTools";FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\XnaLara Converter.ms"))
-		catch(messagebox "打开 XnaLara Converter.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\MotionReverse_Tool.ms"))
+		catch(messagebox "打开 MotionReverse_Tool.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnCleanCustomAtts pressed do
