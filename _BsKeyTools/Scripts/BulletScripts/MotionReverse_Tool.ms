@@ -30,6 +30,7 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
     local localScriptPath = ""
     local configFile = getDir #userScripts + "\\MotionReverse\\config.ini"
     local isLocalMode = false -- 添加本地调试状态变量
+    local lastConfigUpdate = 0 -- 添加最后更新时间记录
     
     -- 模式切换按钮
     global btnRemote = undefined
@@ -192,7 +193,7 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
                     if getRemoteConfig() then
                     (
                         -- 对脚本列表进行排序
-                        fn compareScripts a b = stricmp a[1] b[1]
+                        fn compareScripts a b = stricmp (toLower a[1]) (toLower b[1])
                         qsort scripts compareScripts
                         
                         for script in scripts do
@@ -212,7 +213,7 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
                 else
                 (
                     -- 对脚本列表进行排序
-                    fn compareScripts a b = stricmp a[1] b[1]
+                    fn compareScripts a b = stricmp (toLower a[1]) (toLower b[1])
                     qsort scripts compareScripts
                     
                     for script in scripts do
@@ -306,77 +307,47 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
         )
     )
     
-    -- 从GitHub获取文件内容
-    fn getGitHubFileContent path retryCount:0 = 
-    (
-        if retryCount >= maxRetries then
-        (
-            messageBox ("获取文件失败，已达到最大重试次数: " + path) title:"错误"
-            return undefined
-        )
-        
-        try
-        (
-            -- 构建正确的raw.githubusercontent.com URL
-            local repoPath = substituteString apiBaseUrl "https://api.github.com/repos/" ""
-            local rawUrl = "https://raw.githubusercontent.com/" + repoPath + "/main/" + path
-            
-            local webClient = dotNetObject "System.Net.WebClient"
-            webClient.Headers.Add "User-Agent" "MotionReverse-Tool"
-            
-            local response = webClient.DownloadString rawUrl
-            if response == undefined or response == "" then
-            (
-                messageBox ("获取文件内容为空: " + rawUrl) title:"错误"
-                undefined
-            )
-            else
-            (
-                response
-            )
-        )
-        catch
-        (
-            local errorMsg = getCurrentException()
-            if matchPattern errorMsg pattern:"*429*" then
-            (
-                messageBox "GitHub API访问受限，正在等待重试..." title:"提示"
-                wait retryDelay
-                getGitHubFileContent path retryCount:(retryCount + 1)
-            )
-            else if matchPattern errorMsg pattern:"*404*" then
-            (
-                messageBox ("文件不存在: " + path + "\n完整URL: " + rawUrl) title:"错误"
-                undefined
-            )
-            else
-            (
-                messageBox ("获取文件失败: " + errorMsg + "\n完整URL: " + rawUrl + "\n正在重试...") title:"错误"
-                wait retryDelay
-                getGitHubFileContent path retryCount:(retryCount + 1)
-            )
-        )
-    )
-    
     -- 从远程获取配置
-    fn getRemoteConfig = 
+    fn getRemoteConfig forceRefresh:false = 
     (
         try
         (
             -- 使用raw.githubusercontent.com获取配置文件内容
             local url = "https://raw.githubusercontent.com/" + repoOwner + "/" + repoName + "/main/MotionReverse_Config.ini"
+            if forceRefresh then
+            (
+                url = url + "?t=" + (timestamp() as string)
+            )
+            
+            print ("正在获取配置文件: " + url)
+            
             local webClient = dotNetObject "System.Net.WebClient"
             webClient.Headers.Add "User-Agent" "MotionReverse-Tool"
+            webClient.Headers.Add "Cache-Control" "no-cache"
+            webClient.Encoding = (dotNetClass "System.Text.Encoding").UTF8
+            
+            -- 清理旧的配置
+            scripts = #()
             
             local configContent = webClient.DownloadString url
+            print ("获取到的配置内容长度: " + (if configContent != undefined then configContent.count else 0) as string)
+            
             if configContent == undefined or configContent == "" then
             (
                 messageBox "无法获取配置文件内容" title:"错误"
                 return false
             )
             
-            scripts = #()
+            -- 记录更新时间
+            lastConfigUpdate = timestamp()
+            
+            -- 打印配置内容的前100个字符用于调试
+            print ("配置内容预览: " + (substring configContent 1 100))
+            
+            -- 解析配置内容
             local lines = filterString configContent "\n"
+            print ("配置文件行数: " + lines.count as string)
+            
             local inScriptsSection = false
             local lineNumber = 0
             
@@ -392,6 +363,7 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
                 if line == "[Scripts]" then
                 (
                     inScriptsSection = true
+                    print "找到[Scripts]部分"
                     continue
                 )
                 
@@ -399,6 +371,7 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
                 if line == "[Settings]" then
                 (
                     inScriptsSection = false
+                    print "找到[Settings]部分"
                     continue
                 )
                 
@@ -417,7 +390,7 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
                     if scriptInfo.count == 3 then
                     (
                         -- 确保脚本名称包含.ms后缀
-                        if not matchPattern scriptName pattern:"*.ms" then
+                        if not matchPattern (toLower scriptName) pattern:"*.ms" then
                         (
                             scriptName = scriptName + ".ms"
                         )
@@ -430,6 +403,7 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
                         -- 验证值的有效性
                         if description == "" or helpLink == "" or version == "" then
                         (
+                            print ("脚本信息包含空值 - 行号: " + lineNumber as string + ", 内容: " + line)
                             messageBox ("配置文件格式错误：脚本信息包含空值\n行号: " + lineNumber as string + "\n行内容: " + line) title:"错误"
                             return false
                         )
@@ -440,22 +414,28 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
                             helpLink,
                             version
                         )
+                        print ("成功添加脚本: " + scriptName)
                     )
                     else
                     (
+                        print ("脚本信息不完整 - 行号: " + lineNumber as string + ", 内容: " + line)
                         messageBox ("配置文件格式错误：脚本信息不完整\n行号: " + lineNumber as string + "\n行内容: " + line) title:"错误"
                         return false
                     )
                 )
                 else if line != "" and line[1] != ";" and line[1] != "[" then
                 (
+                    print ("无效的行格式 - 行号: " + lineNumber as string + ", 内容: " + line)
                     messageBox ("配置文件格式错误：无效的行格式\n行号: " + lineNumber as string + "\n行内容: " + line + "\n期望格式: 脚本名称 = 描述|帮助链接|版本号") title:"错误"
                     return false
                 )
             )
             
+            print ("成功解析 " + scripts.count as string + " 个脚本")
+            
             if scripts.count == 0 then
             (
+                print "没有找到有效的脚本配置"
                 messageBox "配置文件格式错误：没有找到有效的脚本配置" title:"错误"
                 return false
             )
@@ -465,7 +445,8 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
         catch
         (
             local errorMsg = getCurrentException()
-            messageBox ("获取配置文件时发生错误: " + errorMsg) title:"错误"
+            print ("获取配置文件时发生错误: " + errorMsg)
+            messageBox ("获取配置文件时发生错误:\n" + errorMsg + "\n\n请检查网络连接或稍后重试") title:"错误"
             false
         )
     )
@@ -560,13 +541,16 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
         try
         (
             -- 确保脚本名称包含.ms后缀
-            if not matchPattern scriptName pattern:"*.ms" then
+            if not matchPattern (toLower scriptName) pattern:"*.ms" then
             (
                 scriptName = scriptName + ".ms"
             )
             
             -- 构建正确的raw.githubusercontent.com URL
             local url = "https://raw.githubusercontent.com/" + repoOwner + "/" + repoName + "/refs/heads/main/ms/" + scriptName
+            
+            -- 打印下载链接
+            print ("正在下载脚本，URL: " + url)
             
             -- 检查URL是否有效
             if url == undefined or url == "" then
@@ -581,10 +565,37 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
             -- 使用目标路径
             local targetFile = targetPath + "\\" + scriptName
             
-            -- 如果文件已存在，先删除
+            -- 强制删除可能存在的文件
             if doesFileExist targetFile then
             (
-                deleteFile targetFile
+                try
+                (
+                    -- 尝试直接删除
+                    deleteFile targetFile
+                )
+                catch
+                (
+                    -- 如果直接删除失败，尝试使用dotNet方式删除
+                    try
+                    (
+                        local fileInfo = dotNetObject "System.IO.FileInfo" targetFile
+                        fileInfo.Delete()
+                    )
+                    catch
+                    (
+                        -- 如果还是失败，等待一小段时间后重试
+                        wait 100
+                        try
+                        (
+                            deleteFile targetFile
+                        )
+                        catch
+                        (
+                            messageBox ("无法删除已存在的文件: " + targetFile + "\n请确保文件未被其他程序占用") title:"错误"
+                            return undefined
+                        )
+                    )
+                )
             )
             
             -- 下载文件
@@ -653,6 +664,15 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
         )
     )
     
+    -- 确保临时目录存在
+    fn ensureTempDir = 
+    (
+        if not doesFileExist tempDir then
+        (
+            makeDir tempDir
+        )
+    )
+    
     -- 运行选中的脚本
     fn runSelectedScript = 
     (
@@ -660,10 +680,12 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
         (
             local selectedName = scriptList.SelectedItems.Item[0].Text
             -- 移除可能存在的.ms后缀
-            if matchPattern selectedName pattern:"*.ms" then
+            if matchPattern (toLower selectedName) pattern:"*.ms" then
             (
                 selectedName = substituteString selectedName ".ms" ""
             )
+            
+            print ("准备运行脚本: " + selectedName)
             
             if isLocalMode then
             (
@@ -671,6 +693,7 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
                 if localScriptPath != "" then
                 (
                     local scriptFile = localScriptPath + "\\" + selectedName + ".ms"
+                    print ("本地脚本路径: " + scriptFile)
                     if doesFileExist scriptFile then
                     (
                         try
@@ -696,18 +719,33 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
             else
             (
                 -- 远程模式
-                local scriptFile = downloadScriptToPath selectedName localScriptPath
+                print ("远程模式，准备下载脚本: " + selectedName)
+                -- 确保临时目录存在
+                ensureTempDir()
+                -- 清理临时目录中的旧文件
+                cleanupTempFiles()
+                -- 等待一小段时间确保文件被完全释放
+                wait 100
+                -- 下载到临时目录
+                local scriptFile = downloadScriptToPath selectedName tempDir
                 if scriptFile != undefined then
                 (
+                    print ("脚本下载成功，路径: " + scriptFile)
                     try
                     (
+                        -- 运行脚本
                         fileIn scriptFile
+                        -- 等待一小段时间确保脚本执行完成
+                        wait 100
+                        -- 清理临时文件
                         cleanupTempFiles()
                     )
                     catch
                     (
                         local errorMsg = getCurrentException()
                         messageBox ("运行脚本时出错: " + errorMsg) title:"错误"
+                        -- 等待一小段时间后清理
+                        wait 100
                         cleanupTempFiles()
                     )
                 )
@@ -729,7 +767,11 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
         updateProgress.visible = true
         updateProgress.value = 0
         
-        if getRemoteConfig() then
+        -- 清理临时文件
+        cleanupTempFiles()
+        
+        -- 强制重新获取配置
+        if getRemoteConfig forceRefresh:true then
         (
             updateProgress.value = 100
             updateScriptList()
@@ -750,7 +792,7 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
         (
             local selectedName = scriptList.SelectedItems.Item[0].Text
             -- 移除可能存在的.ms后缀
-            if matchPattern selectedName pattern:"*.ms" then
+            if matchPattern (toLower selectedName) pattern:"*.ms" then
             (
                 selectedName = substituteString selectedName ".ms" ""
             )
@@ -939,23 +981,24 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
     (
         initUI()
         loadConfig()
+        -- 确保临时目录存在
+        ensureTempDir()
+        
         if isLocalMode then
         (
             updateScriptList()
         )
         else
         (
-            -- 清理旧的配置
-            scripts = #()
             -- 强制重新获取配置
-            if getRemoteConfig() then
+            if getRemoteConfig forceRefresh:true then
             (
                 updateScriptList()
                 print "已更新到最新配置"
             )
             else
             (
-                messageBox "无法获取远程配置！" title:"错误"
+                messageBox "无法获取远程配置！\n请点击\"检查更新\"按钮重试" title:"错误"
             )
         )
         updateProgress.visible = false
@@ -980,7 +1023,7 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
             (
                 for script in scripts do
                 (
-                    if script[1] == scriptName then
+                    if (toLower script[1]) == (toLower scriptName) then
                     (
                         descriptionBox.Text = script[2]
                         exit
@@ -1006,7 +1049,12 @@ rollout MotionReverseTool "MotionReverse 游戏动作逆向学习工具_Bullet.S
         if not isLocalMode then
         (
             statusLabel.Text = "正在检查更新..."
-            checkForUpdates()
+            -- 添加确认对话框
+            local result = queryBox "是否强制刷新配置？\n这将清除所有缓存并重新获取最新配置。" title:"确认更新"
+            if result then
+            (
+                checkForUpdates()
+            )
         )
         else
         (
