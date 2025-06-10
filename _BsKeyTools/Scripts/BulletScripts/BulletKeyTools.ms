@@ -3862,8 +3862,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	(
 		if keyboard.controlPressed then
 		(
-			try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\SpringMagic_Old.mse"))
-			catch(massagebox (getCurrentException());messagebox "打开 SpringMagic_Old.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+			try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\springmagic_Original.mse"))
+			catch(massagebox (getCurrentException());messagebox "打开 springmagic_Original.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 		)
 		else
 		(
