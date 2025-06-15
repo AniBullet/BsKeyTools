@@ -18,7 +18,7 @@ if (rol_RescaleWorldUnits != undefined and rol_RescaleWorldUnits.open == true) d
 )
 --  <Start Script>
 --  Variables  --
-Global RescaleWU_ver = "1.40";
+Global RescaleWU_ver = "1.50";
 
 Global rescaleWU_sign = 0;
 Global rescaleWU_temp = 1;
@@ -56,22 +56,19 @@ function fn_RWUselChangedObj size sel = /* Sent after the selection set has chan
 	txt += "rdo_affect = rol_RescaleWorldUnits.rdo_affect; \n";
 	txt += "if rol_RescaleWorldUnits.open == true do \n";
 	txt += "fn_RWUselChangedObj spn_scale rdo_affect;";
-	callbacks.addscript #selectionSetChanged txt \ 
-	id:#RWU_selection persistent:false;	
+	callbacks.addscript #selectionSetChanged txt id:#RWU_selection persistent:false;	
 )
 
 function fn_RWUspnSetChanged size sel = /* Sent after the spinner:Scale Factor's value has changed */
 (
-	local posCom
-	local posUp
-	local tempBiped001 = undefined
-	for obj in objects where classof obj.controller == Vertical_Horizontal_Turn do
+	-- 处理Biped质心骨骼
+	local bipedRoots = for obj in objects where classof obj.controller == Vertical_Horizontal_Turn collect obj
+	local bipedPositions = #()
+	for bip in bipedRoots do
 	(
-		posCom = (biped.getTransform obj #pos)
-		posUp = posCom.z
-		tempBiped001 = obj
-		-- print posUp
+		append bipedPositions (biped.getTransform bip #pos)
 	)
+	
 	if sel.state == 1 then 
 	(
 		rescaleWorldUnits (1/rescaleWU_temp);
@@ -82,30 +79,34 @@ function fn_RWUspnSetChanged size sel = /* Sent after the spinner:Scale Factor's
 		rescaleWorldUnits (1/rescaleWU_temp) #selOnly;
 		rescaleWorldUnits size.value #selOnly;
 	)
+	
+	-- 设置缩放后的Biped质心骨骼位置
+	for i = 1 to bipedRoots.count do
+	(
+		-- 先恢复到原始状态
+		local originalPos = [bipedPositions[i].x / rescaleWU_temp, bipedPositions[i].y / rescaleWU_temp, bipedPositions[i].z / rescaleWU_temp]
+		biped.setTransform bipedRoots[i] #pos originalPos true
+		-- 然后应用新的缩放
+		local newPos = [originalPos.x * size.value, originalPos.y * size.value, originalPos.z * size.value]
+		biped.setTransform bipedRoots[i] #pos newPos true
+	)
+	
 	rescaleWU_temp = size.value;
 	rescaleWU_selObj = selection as array;
-	if tempBiped001 != undefined then (
-		currentPos = (biped.getTransform tempBiped001 #pos)
-		posUp = currentPos.z
-		biped.setTransform tempBiped001 #pos [currentPos.x,currentPos.y,posUp] false
-		forceCompleteRedraw()
-	)
 )
 
 function fn_RWUrdoSetChanged size sel = /* Sent after the radioButton has changed to Scene or Selection */
 (
 	if sel.state != rescaleWU_sign do 
 	(
-		local posCom
-		local posUp
-		local tempBiped001 = undefined
-		for obj in objects where classof obj.controller == Vertical_Horizontal_Turn do
+		-- 处理Biped质心骨骼
+		local bipedRoots = for obj in objects where classof obj.controller == Vertical_Horizontal_Turn collect obj
+		local bipedPositions = #()
+		for bip in bipedRoots do
 		(
-			posCom = (biped.getTransform obj #pos)
-			posUp = posCom.z
-			tempBiped001 = obj
-			-- print posUp
+			append bipedPositions (biped.getTransform bip #pos)
 		)
+		
 		if sel.state == 1 then 
 		(
 			rescaleWorldUnits (1/rescaleWU_temp) #selOnly;
@@ -123,30 +124,26 @@ function fn_RWUrdoSetChanged size sel = /* Sent after the radioButton has change
 				rescaleWorldUnits (1/rescaleWU_temp);
 			)
 		)
+		
+		-- 设置缩放后的Biped质心骨骼位置
+		for i = 1 to bipedRoots.count do
+		(
+			-- 先恢复到原始状态
+			local originalPos = [bipedPositions[i].x / rescaleWU_temp, bipedPositions[i].y / rescaleWU_temp, bipedPositions[i].z / rescaleWU_temp]
+			biped.setTransform bipedRoots[i] #pos originalPos true
+			-- 然后应用新的缩放
+			local newPos = [originalPos.x * size.value, originalPos.y * size.value, originalPos.z * size.value]
+			biped.setTransform bipedRoots[i] #pos newPos true
+		)
+		
 		rescaleWU_temp = size.value;
 		rescaleWU_sign = sel.state;
 		rescaleWU_selObj = selection as array;
-		if tempBiped001 != undefined then (
-			currentPos = (biped.getTransform tempBiped001 #pos)
-			posUp = currentPos.z
-			biped.setTransform tempBiped001 #pos [currentPos.x,currentPos.y,posUp] false
-			forceCompleteRedraw()
-		)
 	)
 )
 
 function fn_RWUcancelSetChanged size sel dia = /* Sent after click the button:Cancel,RescaleWU exit. */
 (
-	local posCom
-	local posUp
-	local tempBiped001 = undefined
-	for obj in objects where classof obj.controller == Vertical_Horizontal_Turn do
-	(
-		posCom = (biped.getTransform obj #pos)
-		posUp = posCom.z
-		tempBiped001 = obj
-		-- print posUp
-	)
 	if sel.state == 1 then 
 	(
 		rescaleWorldUnits (1/rescaleWU_temp);
@@ -155,23 +152,26 @@ function fn_RWUcancelSetChanged size sel dia = /* Sent after click the button:Ca
 	(
 		rescaleWorldUnits (1/rescaleWU_temp) #selOnly;
 	)
+	
+	-- 恢复Biped质心骨骼位置
+	local bipedRoots = for obj in objects where classof obj.controller == Vertical_Horizontal_Turn collect obj
+	for bip in bipedRoots do
+	(
+		local currentPos = biped.getTransform bip #pos
+		local newPos = [currentPos.x / rescaleWU_temp, currentPos.y / rescaleWU_temp, currentPos.z / rescaleWU_temp]
+		biped.setTransform bip #pos newPos true
+	)
+	
 	rescaleWU_temp = 1;
 	size.value = 1;
 	rescaleWU_selObj = #();
 	callbacks.removescripts id:#RWU_selection;
 	DestroyDialog dia;
-	if tempBiped001 != undefined then (
-		currentPos = (biped.getTransform tempBiped001 #pos)
-		posUp = currentPos.z
-		biped.setTransform tempBiped001 #pos [currentPos.x,currentPos.y,posUp] false
-		forceCompleteRedraw()
-	)
 )
 
 function fn_RWUdone size sel dia = /* Sent after click button:OK,RescaleWU done with all parameters reset.*/
 (
 	rescaleWU_temp = 1;
-	-- size.value = 1;
 	rescaleWU_selObj = selection as array;
 )
 --  Start Rollout --
@@ -183,7 +183,7 @@ rollout rol_RescaleWorldUnits ("蒙皮缩放_v" + RescaleWU_ver)
 	spinner spn_scale "缩放系数" pos:[40,65] width:80 height:16 fieldWidth:50 range:[0.0001,10000,1] scale:0.01
 	-- groupBox grp_affect "影响范围" pos:[90,65] width:240 height:40
 	radioButtons rdo_affect "" pos:[145,67] labels:#("场景","所选物体") default:1 columns:1 width:220
-	button btn_ok "执行" pos:[5,110] width:120 height:24
+	button btn_ok "应用缩放" pos:[5,110] width:120 height:24
 	button btn_cancel "取消" pos:[125,110] width:120 height:24
 	label lblMe "Bullet.S" pos:[20,88] width:120 height:16
 
@@ -245,10 +245,6 @@ rollout rol_RescaleWorldUnits ("蒙皮缩放_v" + RescaleWU_ver)
 	on rol_RescaleWorldUnits close do
 	(
 		fn_RWUcancelSetChanged spn_scale rdo_affect rol_RescaleWorldUnits;
-		for obj in rescaleWU_selObj where (classof obj == BoneGeometry and obj.children.count == 0) do
-		(
-			obj.length = obj.length*val;
-		)
 		rescaleWU_sign = undefined;
 		rescaleWU_temp = undefined;
 		rescaleWU_selObj = undefined;
@@ -275,6 +271,10 @@ rollout rol_RescaleWorldUnits ("蒙皮缩放_v" + RescaleWU_ver)
 		(
 			if maxFiles.count != 0 then 
 			(
+				-- 创建新的输出文件夹
+				local outputDir = edtDirPath.text + "_Rescaled"
+				if not doesFileExist outputDir do makeDir outputDir
+				
 				for i in maxFiles where doesfileexist i do
 				(
 					resetMaxFile #noPrompt
@@ -287,9 +287,12 @@ rollout rol_RescaleWorldUnits ("蒙皮缩放_v" + RescaleWU_ver)
 					(
 						obj.length = obj.length*iScale;
 					)
-					savemaxfile  (maxFilePath + maxFileName)
+					
+					-- 保存到新文件夹，保持原文件名
+					local newFileName = getFilenameFile i + ".max"
+					savemaxfile (outputDir + "\\" + newFileName)
 				)
-				messagebox "处理完成          "
+				messagebox ("处理完成\n文件已保存到: " + outputDir)
 			)
 			else (messagebox "请重新添加待处理文件目录           ")
 		)
@@ -303,7 +306,6 @@ rollout rol_RescaleWorldUnits ("蒙皮缩放_v" + RescaleWU_ver)
 			(
 				obj.length = obj.length*iScale;
 			)
-			-- messagebox "处理完成          "
 		)
 	)
 	
