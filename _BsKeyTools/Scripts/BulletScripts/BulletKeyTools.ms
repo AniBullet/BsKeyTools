@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-06-10 11:24:25
+ * @LastEditTime: 2025-07-01 01:25:22
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -4338,7 +4338,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnEulerFilter pressed do 
 	(
-		for i in selection where classof i == BoneGeometry do
+		for b in selection where classof b == BoneGeometry or classof b == dummy or classof b == point do
 		(
 			if classof i.rotation.controller == Euler_XYZ then
 			(
