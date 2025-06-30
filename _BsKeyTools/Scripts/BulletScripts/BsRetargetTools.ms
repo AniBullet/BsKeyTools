@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-06-09 22:35:49
+ * @LastEditTime: 2025-07-01 01:32:20
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -263,6 +263,7 @@ global hasExtraHips = false
 global fixNierFramerate = false
 -- global pickedRootMotion = undefined
 global isScale100 = false
+global isEulerFilter = false
 
 global isReloadBip = false
 
@@ -589,6 +590,7 @@ rcmenu menuQuickCreateNode
 
 rcmenu menuBsRetarget
 (
+	menuItem mItemEulerFilter "Euler欧拉过滤"
 	menuItem mItemHalfAnimSpeed "1/2动画速率"
 	menuItem mItemNier "修复 Nier 帧率和缩放"
 	menuItem mItemScale100 "仅 Scale 100"
@@ -600,6 +602,12 @@ rcmenu menuBsRetarget
 		mItemScale100.checked      = isScale100
 		mItemReloadBip.checked     = isReloadBip
 		mItemHalfAnimSpeed.checked = isHalfAnimSpeed
+	)
+
+	on mItemEulerFilter picked do
+	(
+		mItemEulerFilter.checked = not mItemEulerFilter.checked
+		isEulerFilter          = mItemEulerFilter.checked
 	)
 	
 	on mItemNier picked do
@@ -628,7 +636,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v4.5 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
@@ -1147,6 +1155,18 @@ rollout rolBsRetarget "BsRetargetTools_v4.5 （ FBX 转 BIP + 动画重定向 �
 			FBXExporterSetParam "FileVersion" "FBX201200"
 
 			select arrExport
+
+			if isEulerFilter then 
+			(
+				for i in selection where classof i == BoneGeometry or classof i == dummy or classof i == point do
+				(
+					if classof i.rotation.controller == Euler_XYZ then
+					(
+						i.rotation.controller = tcb_rotation ()
+						i.rotation.controller = Euler_XYZ ()
+					)
+				)
+			)
 
 			completeredraw()
 			exportFile tarNewAnim #noPrompt selectedOnly:true using:FBXEXP
