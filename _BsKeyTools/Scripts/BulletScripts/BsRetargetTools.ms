@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-01 19:11:55
+ * @LastEditTime: 2025-07-02 00:53:39
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -3287,6 +3287,14 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 					11:(print "ignore nub")
 					16:(print "ignore nub")
 					21:(print "ignore nub")
+					23:
+					(
+						local lC = LookAt_Constraint();
+						lC.appendTarget (GetSkeletalNode 24 false) 100;
+						
+						(getNodeByName ("RTHelper_" + (GetBipedNode 23).name)).Rotation.controller = lC;
+						lC.relative = true;
+					)
 					29:(print "ignore nub")
 					33:(print "ignore nub")
 					37:(print "ignore nub")
@@ -3314,6 +3322,14 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 					-- 35:(print "ignore")
 					41:(print "ignore nub")
 					45:(print "ignore nub")
+					47:
+					(
+						local lC = LookAt_Constraint();
+						lC.appendTarget (GetSkeletalNode 48 false) 100;
+						
+						(getNodeByName ("RTHelper_" + (GetBipedNode 47).name)).Rotation.controller = lC;
+						lC.relative = true;
+					)
 					53:(print "ignore nub")
 					57:(print "ignore nub")
 					61:(print "ignore nub")
@@ -3325,6 +3341,15 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 			
 			CreatePositionConstraint 1 false
 			CreatePositionConstraint 2 false
+
+			CreatePositionConstraint 22 false
+			CreatePositionConstraint 46 false
+			
+			CreatePositionConstraint 24 false
+			CreatePositionConstraint 25 false
+
+			CreatePositionConstraint 48 false
+			CreatePositionConstraint 49 false
 	
 			pgbBar.value = 25
 			lblBarValue.text = (pgbBar.value as string) + " %"
