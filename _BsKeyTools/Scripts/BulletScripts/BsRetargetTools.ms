@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-02 00:53:39
+ * @LastEditTime: 2025-07-02 02:43:36
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -4223,6 +4223,11 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 	(
 		messageBox "💡 手指轴向设置指南 💡\n\n📋 操作步骤：\n1. 选择 Bone 手掌和手指骨骼\n2. 切换视图坐标为位移Local模式\n3. 观察坐标轴方向显示\n\n🎯 轴向判断：\n• 靠向身体背后的轴向 → 下拉列表选择对应轴\n• APose姿势：靠向身体两外侧的轴向\n• 通常为 Y轴 或 Z轴（根据模型而定）\n\n⚠️ 重要提醒：\n手指轴向设置影响重定向质量，\n请仔细观察Local坐标轴再进行选择！\n\n——————————————------------------——\nBullet.S  |  BsRetargetTools                                      " \
 			title:"手指轴向提示" beep:false
+	)
+
+	on chkFbxMixBip changed state do 
+	(
+		if state do (messageBox "慎用，勾选后生成的 Skin 无法重定向动画！！！                                                " title:"警告")
 	)
 )
 
