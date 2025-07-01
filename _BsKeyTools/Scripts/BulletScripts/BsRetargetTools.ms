@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-01 01:32:20
+ * @LastEditTime: 2025-07-01 19:11:55
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -673,7 +673,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 	button btnAutoMapping "0. 按命名匹配" pos:[10,630] width:(btnWidth-60) height:35 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
 	button validateButton "2. 验证映射列表完整" pos:[190,630] width:btnWidth height:35 tooltip:"必须验证匹配是否完整。"
     
-    groupbox grpBiped "【可选】轴向设置" pos:[490,200] width:(btnWidth + 10) height:300
+    groupbox grpBiped "【可选】轴向设置" pos:[490,200] width:(btnWidth + 10) height:290
 	spinner spnObjSize "选中物体 Size: " pos:[500,86] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:40 scale:0.01
 	button btnResetSize "重置选中物体大小" pos:[495,110] width:btnWidth height:30 tooltip:"重置选中辅助骨骼大小"
 	button btnHandAxisTips "💡 手指轴向提示 💡" pos:[495,268] width:btnWidth height:30 tooltip:"试图自动检测轴向失败~"
@@ -689,23 +689,24 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 	dropdownList ddlPalmAxis "" pos:[590,405] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
 	label lblPalmAxis2 "(右)手掌 右轴" pos:[500,432] width:70 height:25
 	dropdownList ddlPalmAxis2 "" pos:[590,430] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	button reAlignFingers "🤞🏼 重新对齐手指 🤞🏼" pos:[495,460] width:(btnWidth) height:30
+	button reAlignFingers "🤞🏼 重新对齐手指 🤞🏼" pos:[495,460] width:(btnWidth) height:20
 	-- checkbox chkRenameBiped "Biped 保持 Bone 原名" checked:false pos:[164,535] width:(btnWidth + 20) height:20
 	-- radiobuttons rdoUpAxis " 映射 RootMotion 轴向" pos:[155,500] width:154 height:46 labels:#("Y-Up (U3D)", "Z-Up (UE)") columns:2 default:2
 	label lblUpAxis "引擎 RootMotion 选择" pos:[500,220] width:120 height:20
 	dropdownList ddlUpAxis "" pos:[495,240] width:145 height:25 items:#("Y-Up (U3D) -  Unity","Z-Up (UE)   -  Unreal") selection:2
-	checkbox chkCopySubs "需要重定向飘带动画" pos:[500,595] height:20 width:(btnWidth-10) checked:false
+	checkbox chkCopySubs "需要重定向飘带动画" pos:[500,570] height:20 width:(btnWidth-10) checked:false
     button alignBipedToHelper "3. 创建重定向映射文件" pos:[345,630] width:btnWidth height:35
     
     -- button btnExportTPose "[可选]导出 Biped Figure Pose" pos:[305,505] width:(btnWidth + 35) height:25
 	
-	button btnReplaceToBiped "4. FBX 转 Biped ( Skin )" pos:[500,630] width:btnWidth height:35
+	button btnReplaceToBiped "4. FBX 转 Biped (Skin)" pos:[500,630] width:btnWidth height:35
     -- checkbutton ckbExportFBXTools "🎮 动画批量重定向工具" pos:[305,555] width:(btnWidth + 35) height:45
 
-	groupbox grpBoneTips "【慎用】除非你知道用途" pos:[490,508] width:(btnWidth + 10) height:115
+	groupbox grpBoneTips "【慎用】除非你知道用途" pos:[490,498] width:(btnWidth + 10) height:125
 
-	checkbox chkRealign "是否重置 Bone 轴向" pos:[500,530] height:20 width:(btnWidth - 10) checked:false
-	button btnConvertToBone "[慎用] Helper 转 Bone" pos:[495,555] height:30 width:(btnWidth) tooltip:"需要选中"
+	checkbox chkRealign "是否重置 Bone 轴向" pos:[500,520] height:20 width:(btnWidth - 10) checked:false
+	button btnConvertToBone "[慎用] Helper 转 Bone" pos:[495,545] height:20 width:(btnWidth) tooltip:"需要选中"
+	checkbox chkFbxMixBip "FBX套接Biped当控制" pos:[500,595] height:20 width:(btnWidth - 10) checked:false
 	
 	button btnRefreshFolder ">>  按默认规则刷新路径和文件  <<" \
 	height:40 width:225 pos:[240,65] tooltip:"刷新当前文件目录\r\n并按默认规则寻找文件\r\n映射文件为当前打开文件\r\n新 Skin 文件为同目录 Skin.max" visible:false
@@ -766,7 +767,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 	local arrFBXtoBIPED   = #(">> 【 FBX 转 Biped 】 <<",#(lblPreset,ddlPreset,btnApplyList,lblRoot,lbxRoot,bipedBones,characterBones,bipedBones_B,characterBones_B,grpRetargetList,loadDialogue,saveDialogue,\
 											btnAutoMapping,btnQuickTools,validateButton,grpBiped,spnObjSize,btnResetSize,lblThumbAxis,ddlThumbAxis,btnHandAxisTips,grpBoneTips,\
 											lblHandAxis,ddlHandAxis,lblThumbAxis2,ddlThumbAxis2,ddlHandAxis2,lblHandAxis2,lblPalmAxis,ddlPalmAxis,lblPalmAxis2,ddlPalmAxis2,reAlignFingers,lblUpAxis,ddlUpAxis,chkCopySubs,alignBipedToHelper,\
-											btnReplaceToBiped,chkRealign,btnConvertToBone))
+											btnReplaceToBiped,chkRealign,btnConvertToBone,chkFbxMixBip))
 	local arrAnimRetarget = #(">> 【 动画重定向 】<<",#(btnRefreshFolder,ltbFilesList,btnLoadAnimPath,btnRefreshAnimFiles,btnOpenCurrentPath,edtAnimFbxPath,btnOutputPath,\
 											btnOpedOutputPath,edtOutputPath,btnSelectMappingFile,btnOpenMappingFile,edtMappingFile,btnSelectSkinFile,btnOpenSkinFile,\
 											edtSkinFile,chkRecoverExport,btnRetargetSelected,btnRetargettAll,chkXAxis,chkYAxis,chkZAxis,btnBatchAll,\
@@ -3804,7 +3805,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 	)
 	fn getTargetPair node = 
 	(
-		getnodebyname (substituteString node.name "ReTempNode_" "") 
+		getnodebyname (substituteString node.name "OldBone_" "") 
 	)
 	fn xchangeSkin node = if (sk = getSkin node) == undefined then 0 else
 	(
@@ -4003,12 +4004,25 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 					if tarBone.name != tarBiped.parent.name do
 					(
 						tarBiped.name = tarBone.name
-						tarBone.name = "ReTempNode_" + tarBone.name
+						tarBone.name = "OldBone_" + tarBone.name
 						
 						for i in tarBone.children where i != undefined and (finditem rolBsRetarget.characterBones.items i.name == 0) and \
 						(finditem rolBsRetarget.characterBones_B.items i.name == 0) do (i.parent = tarBiped)
 					)
 				)
+			)
+-- TODO			
+			if chkFbxMixBip.state then 
+			(
+				local pC = Position_Constraint()
+				pC.appendTarget tarBiped 100
+				tarBone.Position.controller = pC
+				pC.relative = true
+				
+				local oC = Orientation_Constraint()
+				oC.appendTarget tarBiped 100
+				tarBone.Rotation.controller = oC
+				oC.relative = true
 			)
 		)
 	)
@@ -4124,11 +4138,11 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 			-- else(if bipRootMotion != undefined then (delete bipRootMotion))
 			
 			clearselection()
-			select $'ReTempNode_*'
-			selectmore $'RTHelper_*'
+			select $'RTHelper_*'
 			selectmore $'NewHip_*'
 			selectmore $'NewPelvis_*'
 			selectmore $'NewSpine_*'
+			if not chkFbxMixBip.state then selectmore $'OldBone_*'
 			-- delete $
 			for i in selection as array where isvalidnode i do delete i
 
@@ -4291,6 +4305,7 @@ rollout rolHelpDialog "BsRetargetTools 使用帮助" width:450 height:520
     label lblStep2 "2. 调整参数：设置手指轴向、选择目标引擎(Unity/Unreal)" pos:[20,100] width:410 height:20
     label lblStep3 "3. 创建映射：点击【创建重定向映射文件】生成中间文件" pos:[20,120] width:410 height:20
     label lblStep4 "4. 转换骨架：点击【FBX 转 Biped (Skin)】生成目标骨架" pos:[20,140] width:410 height:20
+	label lblStep42 "4. 转换骨架：上面可选保留原Bone，用Biped当做一套控制器" pos:[20,140] width:410 height:20
     label lblStep5 "5. 重定向动画：切换到【动画重定向】页签，批量处理动画" pos:[20,160] width:410 height:20
     label lblStep6 "6. 检查结果：在ReOutput文件夹查看生成的FBX/MAX/BIP文件" pos:[20,180] width:410 height:20
     
@@ -4299,6 +4314,7 @@ rollout rolHelpDialog "BsRetargetTools 使用帮助" width:450 height:520
     label lblTip2 "• 手指轴向：选择手掌或手指，靠身后的Local轴向（通常为Y或Z轴）" pos:[20,310] width:410 height:20
     label lblTip3 "• 文件结构：建议使用 MappingFile.max、Skin.max、AniFBX、ReOutput" pos:[20,330] width:410 height:20
     label lblTip4 "• 自动创建：HeadNub、FootNub、手指Nub等辅助骨骼可一键生成" pos:[20,350] width:410 height:20
+	label lblTip5 "• 慎用选项：可选转换Biped时保留原来Bone骨骼，套接Biped当控制器" pos:[20,370] width:410 height:20
     
     groupbox grpContact "📞 作者信息" pos:[10,400] width:430 height:100
     label lblAuthor "作者：Bullet.S" pos:[20,420] width:410 height:20
