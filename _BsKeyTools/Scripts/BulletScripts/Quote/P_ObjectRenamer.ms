@@ -55,8 +55,22 @@ fn Dialog_modal text1 text2=
    return theobj.InstanceName 
 )
 
+fn regex_escape str =
+(
+    local specials = "\\.^$|?*+()[]{}"
+    local result = ""
+    for i = 1 to str.count do
+    (
+        if findString specials str[i] != undefined then
+            result += "\\"
+        result += str[i]
+    )
+    result
+)
+
 fn replace_with_pattern txt pattern replacetext=
 (
+   pattern = regex_escape pattern
    for i=1 to 20 do
    (
       a=findstring pattern "*"
@@ -426,7 +440,7 @@ if (doesFileExist (Dir_+"Default.txt"))==false do
    close save_file
 )
 
-rollout P_ObjectRenamer "超级重命名工具_v1.3" width:696 height:512
+rollout P_ObjectRenamer "超级重命名工具_v1.4" width:696 height:512
 (
    
    label 'Lb_sortby' "排序依据" pos:[466,56] width:80 height:16 align:#left
@@ -490,7 +504,7 @@ rollout P_ObjectRenamer "超级重命名工具_v1.3" width:696 height:512
       edt_Edit_Name.TEXT="[N]"
       Select_load()
       refresh()
-     update_ refresh_:#true
+      update_ refresh_:#true
       update_preset()
       lv.backcolor = maxBC ; lv.forecolor = maxFC
       lv.view = (dotNetClass "View").details
@@ -505,6 +519,7 @@ rollout P_ObjectRenamer "超级重命名工具_v1.3" width:696 height:512
       edt_From.forecolor=textbox_textcolor
       edt_To.backcolor=textbox_color
       edt_To.forecolor=textbox_textcolor
+      
    )
    
    
