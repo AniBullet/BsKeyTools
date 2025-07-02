@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-02 02:43:36
+ * @LastEditTime: 2025-07-02 14:43:28
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -398,7 +398,7 @@ rcmenu menuQuickCreateNode
 	menuItem quickDuplicateFingers "快速创建 Hand Nub"
     menuItem quickDuplicateFoot "快速创建 Foot Nub"
 	menuItem quickDuplicateHead "快速创建 Head Nub"
-    menuItem quickCenterRoot "快速创建新的 Hips"
+    menuItem quickCenterRoot "(弃用)快速创建新的 Hips" enabled:false
 	menuItem tips "说明：根据 Bone 骨骼大腿的位置，" enabled:false
     menuItem tips2 "说明：创建符合 Biped 骨骼位置的质心。" enabled:false
 
@@ -4005,49 +4005,55 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 				tarBiped = (GetBipedNode (i + 37))
 			)
 
-			if matchpattern tarBone.name pattern:"NewHip_*" then 
+			if chkFbxMixBip.state then 
 			(
-				tarHipBone = getnodebyname (substituteString tarBone.name "NewHip_" "")
-				tarBone = tarHipBone
-				tarBone.parent = tarBiped
-				for i in tarBone.children where i != undefined and (finditem rolBsRetarget.characterBones.items i.name == 0) and \
-					(finditem rolBsRetarget.characterBones_B.items i.name == 0) do (i.parent = tarBone)
-			)
-
-			else if matchpattern tarBone.name pattern:"NewPelvis_*" then 
-			(
-				tarPelvisBone = getnodebyname (substituteString tarBone.name "NewPelvis_" "")
-				tarBone = tarPelvisBone
-				tarBone.parent = tarBiped
-				for i in tarBone.children where i != undefined and (finditem rolBsRetarget.characterBones.items i.name == 0) and \
-					(finditem rolBsRetarget.characterBones_B.items i.name == 0) do (i.parent = tarBone)
+				if not (i == 2 and (GetSkeletalNode 1 false).name == (GetSkeletalNode 2 false).name) then
+				(
+					local pC = Position_Constraint()
+					pC.appendTarget tarBiped 100
+					tarBone.Position.controller = pC
+					pC.relative = true
+					
+					local oC = Orientation_Constraint()
+					oC.appendTarget tarBiped 100
+					tarBone.Rotation.controller = oC
+					oC.relative = true
+					tarBiped.name = "BipCtrl_" + tarBiped.name
+				)
 			)
 			else
 			(
-				if tarBiped.parent != undefined and tarBone != undefined then
+				if matchpattern tarBone.name pattern:"NewHip_*" then 
 				(
-					if tarBone.name != tarBiped.parent.name do
+					tarHipBone = getnodebyname (substituteString tarBone.name "NewHip_" "")
+					tarBone = tarHipBone
+					tarBone.parent = tarBiped
+					for i in tarBone.children where i != undefined and (finditem rolBsRetarget.characterBones.items i.name == 0) and \
+						(finditem rolBsRetarget.characterBones_B.items i.name == 0) do (i.parent = tarBone)
+				)
+	
+				else if matchpattern tarBone.name pattern:"NewPelvis_*" then 
+				(
+					tarPelvisBone = getnodebyname (substituteString tarBone.name "NewPelvis_" "")
+					tarBone = tarPelvisBone
+					tarBone.parent = tarBiped
+					for i in tarBone.children where i != undefined and (finditem rolBsRetarget.characterBones.items i.name == 0) and \
+						(finditem rolBsRetarget.characterBones_B.items i.name == 0) do (i.parent = tarBone)
+				)
+				else
+				(
+					if tarBiped.parent != undefined and tarBone != undefined then
 					(
-						tarBiped.name = tarBone.name
-						tarBone.name = "OldBone_" + tarBone.name
-						
-						for i in tarBone.children where i != undefined and (finditem rolBsRetarget.characterBones.items i.name == 0) and \
-						(finditem rolBsRetarget.characterBones_B.items i.name == 0) do (i.parent = tarBiped)
+						if tarBone.name != tarBiped.parent.name do
+						(
+							tarBiped.name = tarBone.name
+							tarBone.name = "OldBone_" + tarBone.name
+							
+							for i in tarBone.children where i != undefined and (finditem rolBsRetarget.characterBones.items i.name == 0) and \
+							(finditem rolBsRetarget.characterBones_B.items i.name == 0) do (i.parent = tarBiped)
+						)
 					)
 				)
-			)
--- TODO			
-			if chkFbxMixBip.state then 
-			(
-				local pC = Position_Constraint()
-				pC.appendTarget tarBiped 100
-				tarBone.Position.controller = pC
-				pC.relative = true
-				
-				local oC = Orientation_Constraint()
-				oC.appendTarget tarBiped 100
-				tarBone.Rotation.controller = oC
-				oC.relative = true
 			)
 		)
 	)
@@ -4099,21 +4105,24 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 			bipRootMotion = (GetBipedNode 1).parent
 			(GetBipedNode 1).transform.controller.figureMode = false
 
-			arrTarSkinMesh = #()
-			for g in objects as array where (classof g == Editable_mesh) or (classof g == PolyMeshObject) do
+			if not chkFbxMixBip.state then
 			(
-				if (getSkin g) != undefined then append arrTarSkinMesh g
-			)
-
-			for o = 1 to arrTarSkinMesh.count do
-			(
-				local meshSkin = (getSkin arrTarSkinMesh[o])
-				select arrTarSkinMesh[o]
-				max modify mode
-				modpanel.setcurrentobject meshSkin
-				skinOps.saveEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[o].name + "_TempSkin.env")
-				pgbBar.value = 30.*o/(arrTarSkinMesh.count)
-				lblBarValue.text = (pgbBar.value as string) + " %"
+				arrTarSkinMesh = #()
+				for g in objects as array where (classof g == Editable_mesh) or (classof g == PolyMeshObject) do
+				(
+					if (getSkin g) != undefined then append arrTarSkinMesh g
+				)
+	
+				for o = 1 to arrTarSkinMesh.count do
+				(
+					local meshSkin = (getSkin arrTarSkinMesh[o])
+					select arrTarSkinMesh[o]
+					max modify mode
+					modpanel.setcurrentobject meshSkin
+					skinOps.saveEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[o].name + "_TempSkin.env")
+					pgbBar.value = 30.*o/(arrTarSkinMesh.count)
+					lblBarValue.text = (pgbBar.value as string) + " %"
+				)
 			)
 
 			fnRenameBiped characterBones.items isB:false
@@ -4134,33 +4143,47 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 			-- if bipSpine != bipPelvis then bipSpine.parent = bipPelvis
 			-- else (GetBipedNode 4).parent = (GetBipedNode 3)
 
-			for g = 1 to arrTarSkinMesh.count do 
+			if not chkFbxMixBip.state then
 			(
-				-- print g.name
-				local meshSkin = (getSkin arrTarSkinMesh[g])
-				-- meshSkin.always_deform = off
-				select arrTarSkinMesh[g]
-				modpanel.setcurrentobject meshSkin
-				xchangeSkin arrTarSkinMesh[g]
-				fnLoadEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
-				fnDelFileDir ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
-				-- meshSkin.always_deform = on
-				-- meshSkin.always_deform = off
-				-- meshSkin.always_deform = on
-				pgbBar.value = 30 + (70.*g/(arrTarSkinMesh.count))
-				lblBarValue.text = (pgbBar.value as string) + " %"
+				for g = 1 to arrTarSkinMesh.count do 
+				(
+					-- print g.name
+					local meshSkin = (getSkin arrTarSkinMesh[g])
+					-- meshSkin.always_deform = off
+					select arrTarSkinMesh[g]
+					modpanel.setcurrentobject meshSkin
+					xchangeSkin arrTarSkinMesh[g]
+					fnLoadEnvelope meshSkin ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
+					fnDelFileDir ((getdir #temp) + "\\" + arrTarSkinMesh[g].name + "_TempSkin.env")
+					-- meshSkin.always_deform = on
+					-- meshSkin.always_deform = off
+					-- meshSkin.always_deform = on
+					pgbBar.value = 30 + (70.*g/(arrTarSkinMesh.count))
+					lblBarValue.text = (pgbBar.value as string) + " %"
+				)
 			)
 
-			-- if (chkRenameBiped.state == false) then 
-			-- (
+			if not chkFbxMixBip.state then
+			(
 				(GetBipedNode 1).controller.rootname = bipedRootName
 				if boneRootMotion != undefined and bipRootMotion != undefined then 
 				(
 					boneRootMotion.children.parent = bipRootMotion
 					delete boneRootMotion
 				)
-			-- )
-			-- else(if bipRootMotion != undefined then (delete bipRootMotion))
+			)
+			else
+			(
+				local pC = Position_Constraint()
+				pC.appendTarget bipRootMotion 100
+				boneRootMotion.Position.controller = pC
+				pC.relative = true
+				
+				local oC = Orientation_Constraint()
+				oC.appendTarget bipRootMotion 100
+				boneRootMotion.Rotation.controller = oC
+				oC.relative = true
+			)
 			
 			clearselection()
 			select $'RTHelper_*'
@@ -4170,7 +4193,8 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 			if not chkFbxMixBip.state then selectmore $'OldBone_*'
 			-- delete $
 			for i in selection as array where isvalidnode i do delete i
-
+			pgbBar.value = 100
+			lblBarValue.text = (pgbBar.value as string) + " %"
 			messagebox "Biped 已替换，且原 Bone 和多余 Helper 已被删除。\r\n\r\n【可能存在冗余节点未删除】，请检查骨骼链外的节点，自行清理~                                              " title:"BsRetargetTools"
 		)
 		else (messageBox "请先验证并检查映射列表是否完整！                                       " title:"BsRetargetTools")
@@ -4329,7 +4353,7 @@ rollout rolHelpDialog "BsRetargetTools 使用帮助" width:450 height:520
 (
     label lblTitle "🎯 BsRetargetTools 快速使用指南" pos:[10,10] width:430 height:20
     
-    groupbox grpSteps "📋 使用步骤" pos:[10,40] width:430 height:220
+    groupbox grpSteps "📋 使用步骤" pos:[10,40] width:430 height:200
     label lblStep0 "0. 骨骼映射：将原始骨骼填入对应的Biped位置，缺失的Nub可自动创建" pos:[20,60] width:410 height:20
     label lblStep1 "1. 验证映射：选择预设模板 或 点击【自动匹配】→【验证】完整性" pos:[20,80] width:410 height:20
     label lblStep2 "2. 调整参数：设置手指轴向、选择目标引擎(Unity/Unreal)" pos:[20,100] width:410 height:20
@@ -4339,12 +4363,12 @@ rollout rolHelpDialog "BsRetargetTools 使用帮助" width:450 height:520
     label lblStep5 "5. 重定向动画：切换到【动画重定向】页签，批量处理动画" pos:[20,160] width:410 height:20
     label lblStep6 "6. 检查结果：在ReOutput文件夹查看生成的FBX/MAX/BIP文件" pos:[20,180] width:410 height:20
     
-    groupbox grpTips "💡 重要提示" pos:[10,270] width:430 height:120
-    label lblTip1 "• 必需骨骼：除标记【可选】的骨骼外，其他必须完整映射" pos:[20,290] width:410 height:20
-    label lblTip2 "• 手指轴向：选择手掌或手指，靠身后的Local轴向（通常为Y或Z轴）" pos:[20,310] width:410 height:20
-    label lblTip3 "• 文件结构：建议使用 MappingFile.max、Skin.max、AniFBX、ReOutput" pos:[20,330] width:410 height:20
-    label lblTip4 "• 自动创建：HeadNub、FootNub、手指Nub等辅助骨骼可一键生成" pos:[20,350] width:410 height:20
-	label lblTip5 "• 慎用选项：可选转换Biped时保留原来Bone骨骼，套接Biped当控制器" pos:[20,370] width:410 height:20
+    groupbox grpTips "💡 重要提示" pos:[10,250] width:430 height:140
+    label lblTip1 "• 必需骨骼：除标记【可选】的骨骼外，其他必须完整映射" pos:[20,270] width:410 height:20
+    label lblTip2 "• 手指轴向：选择手掌或手指，靠身后的Local轴向（通常为Y或Z轴）" pos:[20,290] width:410 height:20
+    label lblTip3 "• 文件结构：建议使用 MappingFile.max、Skin.max、AniFBX、ReOutput" pos:[20,310] width:410 height:20
+    label lblTip4 "• 自动创建：HeadNub、FootNub、手指Nub等辅助骨骼可一键生成" pos:[20,330] width:410 height:20
+	label lblTip5 "• 慎用选项：可选转换Biped时保留原来Bone骨骼，套接Biped当控制器" pos:[20,350] width:410 height:20
     
     groupbox grpContact "📞 作者信息" pos:[10,400] width:430 height:100
     label lblAuthor "作者：Bullet.S" pos:[20,420] width:410 height:20
