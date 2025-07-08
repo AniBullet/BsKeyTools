@@ -207,7 +207,7 @@ rollout BsVportTools "BsVportTools_v1.1"
 			)
 			BsVportTools.fnUpdateVportList()
 		)
-		else (messagebox ("未读取到镜头配置，文件已损坏或所选文件类型不对，请检查~                                ") beep:false title:"BsVportTools")
+		else (messagebox ("提示 (不影响使用) : 未读取到镜头配置，文件已损坏或所选文件类型不对，请检查~                                    ") beep:false title:"BsVportTools")
 	)
 
 	fn fnRefreshVportSet =
@@ -510,7 +510,7 @@ rollout BsVportTools "BsVportTools_v1.1"
 
 )
 if (iniPosVportTools != 0) then 
-(Createdialog BsVportTools iniVportToolsWidth 270 fgcolor:myFgColor pos:iniPosVportTools style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+(Createdialog BsVportTools iniVportToolsWidth 270 fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
 else (Createdialog BsVportTools iniVportToolsWidth 270 fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
 
 callbacks.addScript #filePostOpen "BsVportTools.fnRefreshVportSet()" id:#UpdateBsVport

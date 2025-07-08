@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-01 01:26:42
+ * @LastEditTime: 2025-07-09 01:45:26
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -521,6 +521,7 @@ rcmenu menuConfig
 	menuItem mItemCleanVirus "杀毒工具 [推荐开启]"
 	menuItem mItemWinBack "窗口找回 [会有用的]"
 	menuItem mItemTimeline "时间轴工具 [Maya风格]"
+	menuItem mItemCleanAtt "清理冗余属性 [通常安全]"
 	menuItem mItemIsStartup "是否随3dsMax自启"
 	menuItem mItemAddToolBarBtn "添加工具栏快速启动"
 	subMenu "自定义功能配置"
@@ -1835,6 +1836,16 @@ rcmenu menuConfig
 			try(HiddenDOSCommand ("regsvr32 \"" + (getdir #maxroot) + "MaxThumbnailShellExt.dll\""))catch(massagebox (getCurrentException());messagebox "修复缩略图失败，\r\n\r\n必须先管理员运行3dsMax...                    " beep:false title:"BsKeyTools")
 		)
 	)
+
+	on mItemCleanAtt picked do
+	(
+		if (queryBox "是否清理冗余自定义属性，\r\n\r\n如 day1reCA 和 SimpleFaceData ？\r\n\r\n请注意备份和保存文件！                                               " \
+		title:"BsKeyTools" beep:false) then
+		(
+			cusAtt = rootscene.custAttributes
+			for i = 1 to cusAtt.count do deleteItem cusAtt 1
+		)
+	)
 )
 
 -------------------帧率,播放速度--------------------------------------------------------------
@@ -2284,8 +2295,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	toolTip:"" pos:btnPos
 	button btnMotionReverse "动作逆向" width:btnWidth height:btnHeight visible:false \
 	tooltip:"游戏动作逆向学习" pos:btnPos
-	button btnCleanCustomAtts "清理冗余" width:btnWidth height:btnHeight visible:false \
-	tooltip:"清理冗余自定义属性，\r\n如 day1reCA 和 SimpleFaceData ？\r\n请注意备份和保存文件" pos:btnPos
+	button btnWeightSmooth "权重平滑" width:btnWidth height:btnHeight visible:false \
+	tooltip:"权重分区平滑工具 (by一方狂三)" pos:btnPos
 	button btnLODCreate "LOD 创建" width:btnWidth height:btnHeight visible:false \
 	tooltip:"创建 LOD，保留 Skin，方便面数多的模型做动画" pos:btnPos
 	button btnProColor "调色工具" width:btnWidth height:btnHeight visible:false \
@@ -2533,7 +2544,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnMopherSlider,rolBsKeyTools.btnMorpherCtrl,
 						rolBsKeyTools.btnMirrorMoph,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnReplaceSkinBones,rolBsKeyTools.btnAnimRef,
-						rolBsKeyTools.btnMotionReverse,rolBsKeyTools.btnCleanCustomAtts,
+						rolBsKeyTools.btnMotionReverse,rolBsKeyTools.btnWeightSmooth,
 						rolBsKeyTools.btnLODCreate,rolBsKeyTools.btnProColor)
 		
 		fnLoadToolBtnConfig()
@@ -4647,14 +4658,10 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(massagebox (getCurrentException());messagebox "打开 MotionReverse_Tool.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnCleanCustomAtts pressed do
+	on btnWeightSmooth pressed do
 	(
-		if (queryBox "是否清理冗余自定义属性，\r\n\r\n如 day1reCA 和 SimpleFaceData ？\r\n\r\n请注意备份和保存文件！                                               " \
-		title:"BsKeyTools" beep:false) then
-		(
-			cusAtt = rootscene.custAttributes
-			for i =1 to cusAtt.count do deleteItem cusAtt 1
-		)
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\权重分区平滑.ms"))
+		catch(massagebox (getCurrentException());messagebox "打开 权重分区平滑.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnLODCreate pressed do
