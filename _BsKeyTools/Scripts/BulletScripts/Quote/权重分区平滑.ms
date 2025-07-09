@@ -1,42 +1,42 @@
 -------------------------------------------------------
 -------------------AnimationTool-----------------------
 ------------------Time:2025-07-03----------------------
--------------------Author:Ò»·½¿ñÈı-------------------------
+-------------------Author:ä¸€æ–¹ç‹‚ä¸‰-------------------------
 ------------------QQ:1256604813-------------------------
 -------------------------------------------------------
 
 
-rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
+rollout skinæƒé‡å¹³æ»‘ "skinæƒé‡å¹³æ»‘" width:260 height:100
 (
-	button 'btn1' "Ò»¼üÈ¨ÖØ·ÖÇø" pos:[17,17] width:85 height:32 align:#left
-	button 'btn2' "Æ½»¬È¨ÖØ" pos:[118,17] width:85 height:32 align:#left
+	button 'btn1' "ä¸€é”®æƒé‡åˆ†åŒº" pos:[17,17] width:85 height:32 align:#left
+	button 'btn2' "å¹³æ»‘æƒé‡" pos:[118,17] width:85 height:32 align:#left
 	spinner 'spn1' "" pos:[209,25] width:35 height:16 range:[1,100,1] type:#integer align:#left
 	
 	progressBar 'pb1' "" pos:[29,57] width:198 height:8 color:(color 0 0 255) align:#left
-	GroupBox 'grp1' "°ó¶¨×¨ÓÃ" pos:[10,3] width:240 height:76 align:#left
-	label 'lbl1' "by£ºÒ»·½¿ñÈı" pos:[9,81] width:68 height:15 align:#left
-	button 'btn3' "Ê¹ÓÃËµÃ÷" pos:[177,83] width:70 height:14 align:#left
+	GroupBox 'grp1' "ç»‘å®šä¸“ç”¨" pos:[10,3] width:240 height:76 align:#left
+	label 'lbl1' "byï¼šä¸€æ–¹ç‹‚ä¸‰" pos:[9,81] width:68 height:15 align:#left
+	button 'btn3' "ä½¿ç”¨è¯´æ˜" pos:[177,83] width:70 height:14 align:#left
 	
-	-- »ùÓÚÏÖÓĞÈ¨ÖØµÄ´¿·ÖÇøº¯Êı
+	-- åŸºäºç°æœ‰æƒé‡çš„çº¯åˆ†åŒºå‡½æ•°
 	fn convertToHardWeights obj skinMod =
 	(
 		local vertCount = obj.numverts
 		local boneCount = skinOps.GetNumberBones skinMod
 		
-		print ("¿ªÊ¼´¦Àí " + vertCount as string + " ¸ö¶¥µãµÄÈ¨ÖØ×ª»»")
+		print ("å¼€å§‹å¤„ç† " + vertCount as string + " ä¸ªé¡¶ç‚¹çš„æƒé‡è½¬æ¢")
 		
-		-- ÎªÃ¿¸ö¶¥µã´¦ÀíÈ¨ÖØ
+		-- ä¸ºæ¯ä¸ªé¡¶ç‚¹å¤„ç†æƒé‡
 		for v = 1 to vertCount do
 		(
-			-- ¸üĞÂ½ø¶ÈÌõ
+			-- æ›´æ–°è¿›åº¦æ¡
 			pb1.value = (v as float / vertCount) * 100
 			
-			-- »ñÈ¡µ±Ç°¶¥µãµÄÈ¨ÖØĞÅÏ¢
+			-- è·å–å½“å‰é¡¶ç‚¹çš„æƒé‡ä¿¡æ¯
 			local vertexWeightCount = skinOps.GetVertexWeightCount skinMod v
 			local maxWeight = 0.0
 			local dominantBone = 1
 			
-			-- ÕÒµ½È¨ÖØ×î´óµÄ¹Ç÷À
+			-- æ‰¾åˆ°æƒé‡æœ€å¤§çš„éª¨éª¼
 			for w = 1 to vertexWeightCount do
 			(
 				local boneID = skinOps.GetVertexWeightBoneID skinMod v w
@@ -49,7 +49,7 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 				)
 			)
 			
-			-- ½«¶¥µã100%·ÖÅä¸øÈ¨ÖØ×î´óµÄ¹Ç÷À
+			-- å°†é¡¶ç‚¹100%åˆ†é…ç»™æƒé‡æœ€å¤§çš„éª¨éª¼
 			skinOps.ReplaceVertexWeights skinMod v #(dominantBone) #(1.0)
 		)
 		
@@ -61,7 +61,7 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 	(
 		if selection.count == 0 then
 		(
-			messagebox "ÇëÑ¡ÖĞÒ»¸öÒÔÉÏµÄÎïÌå" beep:false
+			messagebox "è¯·é€‰ä¸­ä¸€ä¸ªä»¥ä¸Šçš„ç‰©ä½“" beep:false
 		)
 		else
 		(
@@ -70,25 +70,25 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 			
 			if skinMod == undefined then
 			(
-				messageBox "µ±Ç°ÎïÌåÃ»ÓĞÆ¤·ôĞŞ¸ÄÆ÷£¡" title:"´íÎó"
+				messageBox "å½“å‰ç‰©ä½“æ²¡æœ‰çš®è‚¤ä¿®æ”¹å™¨ï¼" title:"é”™è¯¯"
 			)
 			else
 			(
-				-- ÉèÖÃµ±Ç°ĞŞ¸ÄÆ÷
+				-- è®¾ç½®å½“å‰ä¿®æ”¹å™¨
 				modPanel.setCurrentObject skinMod
 				subobjectLevel = 1
 				
-				-- µÚÒ»²½£ºÉèÖÃ·âÌ×´óĞ¡
+				-- ç¬¬ä¸€æ­¥ï¼šè®¾ç½®å°å¥—å¤§å°
 				local skin_num = skinOps.GetNumberBones skinMod
-				print ("¿ªÊ¼ÉèÖÃ " + skin_num as string + " ¸ö¹Ç÷ÀµÄ·âÌ×...")
+				print ("å¼€å§‹è®¾ç½® " + skin_num as string + " ä¸ªéª¨éª¼çš„å°å¥—...")
 				
 				for i = 1 to skin_num do
 				(
-					-- »ñÈ¡¸Ã¹Ç÷ÀµÄÄÚ²¿·âÌ×°ë¾¶
+					-- è·å–è¯¥éª¨éª¼çš„å†…éƒ¨å°å¥—åŠå¾„
 					local innerRadius = skinOps.GetInnerRadius skinMod i 1
 					innerRadius = innerRadius + 1
 					
-					-- Ñ¡Ôñ½»²æ½ØÃæ²¢ÉèÖÃÍâ²¿·âÌ×µÄ°ë¾¶
+					-- é€‰æ‹©äº¤å‰æˆªé¢å¹¶è®¾ç½®å¤–éƒ¨å°å¥—çš„åŠå¾„
 					skinOps.SelectCrossSection skinMod 1 1
 					skinOps.setOuterRadius skinMod i 1 innerRadius
 					
@@ -96,20 +96,20 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 					skinOps.setOuterRadius skinMod i 2 innerRadius
 				)
 				
-				print "·âÌ×ÉèÖÃÍê³É£¬¿ªÊ¼»ùÓÚÏÖÓĞÈ¨ÖØ½øĞĞ´¿·ÖÇø..."
+				print "å°å¥—è®¾ç½®å®Œæˆï¼Œå¼€å§‹åŸºäºç°æœ‰æƒé‡è¿›è¡Œçº¯åˆ†åŒº..."
 				
-				-- µÚ¶ş²½£º»ùÓÚÏÖÓĞÈ¨ÖØ½øĞĞ´¿·ÖÇø
+				-- ç¬¬äºŒæ­¥ï¼šåŸºäºç°æœ‰æƒé‡è¿›è¡Œçº¯åˆ†åŒº
 				pb1.value = 0
 				local success = convertToHardWeights obj skinMod
 				
 				if success then
 				(
-					print "»ùÓÚÏÖÓĞÈ¨ÖØµÄ´¿·ÖÇøÍê³É£¡"
+					print "åŸºäºç°æœ‰æƒé‡çš„çº¯åˆ†åŒºå®Œæˆï¼"
 					redrawViews()
 				)
 				else
 				(
-					print "È¨ÖØ·ÖÇøÊ§°Ü"
+					print "æƒé‡åˆ†åŒºå¤±è´¥"
 				)
 			)
 		)
@@ -117,30 +117,30 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 	
 	on btn2 pressed do
 	(
-		-- ¼ì²éÑ¡Ôñ×´Ì¬
+		-- æ£€æŸ¥é€‰æ‹©çŠ¶æ€
 		if selection.count != 1 then
 		(
-			messageBox "ÇëÑ¡ÔñÒ»¸ö¶ÔÏó£¡" title:"´íÎó"
+			messageBox "è¯·é€‰æ‹©ä¸€ä¸ªå¯¹è±¡ï¼" title:"é”™è¯¯"
 			return false
 		)
 		
-		-- ¼ì²éÊÇ·ñÔÚSkinĞŞ¸ÄÆ÷Ä£Ê½ÏÂ
+		-- æ£€æŸ¥æ˜¯å¦åœ¨Skinä¿®æ”¹å™¨æ¨¡å¼ä¸‹
 		if classOf (modPanel.getCurrentObject()) != Skin then
 		(
-			messageBox "ÇëÏÈÑ¡ÔñSkinĞŞ¸ÄÆ÷£¡" title:"´íÎó"
+			messageBox "è¯·å…ˆé€‰æ‹©Skinä¿®æ”¹å™¨ï¼" title:"é”™è¯¯"
 			return false
 		)
 		
 		local obj = selection[1]
-		local skinMod = modPanel.getCurrentObject()  -- Ö±½Ó»ñÈ¡µ±Ç°µÄSkinĞŞ¸ÄÆ÷
+		local skinMod = modPanel.getCurrentObject()  -- ç›´æ¥è·å–å½“å‰çš„Skinä¿®æ”¹å™¨
 		
-		-- ÓÅ»¯ºóµÄÆ½»¬È¨ÖØº¯Êı
+		-- ä¼˜åŒ–åçš„å¹³æ»‘æƒé‡å‡½æ•°
 		fn smoothSkinWeightsOptimized obj skinMod iterations threshold =
 		(
 			local vertCount = obj.numverts
 			local boneCount = skinOps.GetNumberBones skinMod
 			
-			-- »ñÈ¡ĞèÒª´¦ÀíµÄ¶¥µã£¨Ñ¡ÖĞµÄ¶¥µã£©
+			-- è·å–éœ€è¦å¤„ç†çš„é¡¶ç‚¹ï¼ˆé€‰ä¸­çš„é¡¶ç‚¹ï¼‰
 			local vertsToProcess = #{}
 			for v = 1 to vertCount do
 			(
@@ -150,24 +150,24 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 			
 			if vertsToProcess.count == 0 then
 			(
-				-- Èç¹ûÃ»ÓĞÑ¡ÖĞ¶¥µã£¬´¦ÀíËùÓĞ¶¥µã
+				-- å¦‚æœæ²¡æœ‰é€‰ä¸­é¡¶ç‚¹ï¼Œå¤„ç†æ‰€æœ‰é¡¶ç‚¹
 				vertsToProcess = #{1..vertCount}
 			)
 			
-			print ("¿ªÊ¼Æ½»¬´¦Àí " + vertsToProcess.count as string + " ¸ö¶¥µã")
+			print ("å¼€å§‹å¹³æ»‘å¤„ç† " + vertsToProcess.count as string + " ä¸ªé¡¶ç‚¹")
 			
-			-- Ô¤½¨Á¢ÁÚ½Ó¹ØÏµ±í£¬±ÜÃâÖØ¸´¼ÆËã
+			-- é¢„å»ºç«‹é‚»æ¥å…³ç³»è¡¨ï¼Œé¿å…é‡å¤è®¡ç®—
 			local neighborMap = #()
 			neighborMap.count = vertCount + 1
 			
-			print "½¨Á¢ÁÚ½Ó¹ØÏµ±í..."
+			print "å»ºç«‹é‚»æ¥å…³ç³»è¡¨..."
 			pb1.value = 10
 			
 			for v in vertsToProcess do
 			(
 				local neighborVerts = #{}
 				
-				-- ¸ù¾İÄ£ĞÍÀàĞÍ»ñÈ¡ÏàÁÚ¶¥µã
+				-- æ ¹æ®æ¨¡å‹ç±»å‹è·å–ç›¸é‚»é¡¶ç‚¹
 				if classof obj == Editable_Poly or classof obj == PolyMeshObject then
 				(
 					local edges = polyop.GetEdgesUsingVert obj v
@@ -192,11 +192,11 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 				neighborMap[v] = neighborVerts
 			)
 			
-			-- Ô¤¶ÁÈ¡ËùÓĞ¶¥µãµÄÈ¨ÖØĞÅÏ¢£¬±ÜÃâÖØ¸´APIµ÷ÓÃ
+			-- é¢„è¯»å–æ‰€æœ‰é¡¶ç‚¹çš„æƒé‡ä¿¡æ¯ï¼Œé¿å…é‡å¤APIè°ƒç”¨
 			local vertexWeights = #()
 			vertexWeights.count = vertCount + 1
 			
-			print "Ô¤¶ÁÈ¡È¨ÖØĞÅÏ¢..."
+			print "é¢„è¯»å–æƒé‡ä¿¡æ¯..."
 			pb1.value = 20
 			
 			for v in vertsToProcess do
@@ -219,16 +219,16 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 				vertexWeights[v] = #(bones, weights)
 			)
 			
-			-- ¿ªÊ¼Æ½»¬µü´ú
+			-- å¼€å§‹å¹³æ»‘è¿­ä»£
 			for iter = 1 to iterations do
 			(
 				pb1.value = 20 + (iter as float / iterations) * 70
 				
-				-- ´æ´¢ĞÂÈ¨ÖØ£¬±ÜÃâÔÚµü´ú¹ı³ÌÖĞĞŞ¸ÄÊı¾İ
+				-- å­˜å‚¨æ–°æƒé‡ï¼Œé¿å…åœ¨è¿­ä»£è¿‡ç¨‹ä¸­ä¿®æ”¹æ•°æ®
 				local newWeights = #()
 				newWeights.count = vertCount + 1
 				
-				-- ÎªÃ¿¸ö¶¥µã¼ÆËãĞÂµÄÈ¨ÖØ
+				-- ä¸ºæ¯ä¸ªé¡¶ç‚¹è®¡ç®—æ–°çš„æƒé‡
 				for v in vertsToProcess do
 				(
 					local neighborVerts = neighborMap[v]
@@ -238,7 +238,7 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 						local currentBones = vertexWeights[v][1]
 						local currentWeights = vertexWeights[v][2]
 						
-						-- ÊÕ¼¯ÁÚ¾Ó¶¥µãµÄÈ¨ÖØĞÅÏ¢
+						-- æ”¶é›†é‚»å±…é¡¶ç‚¹çš„æƒé‡ä¿¡æ¯
 						local neighborWeightSum = #()
 						for i = 1 to boneCount do neighborWeightSum[i] = 0.0
 						
@@ -260,25 +260,25 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 							)
 						)
 						
-						-- ¼ÆËãÆ½¾ùÈ¨ÖØ²¢Óëµ±Ç°È¨ÖØ»ìºÏ
+						-- è®¡ç®—å¹³å‡æƒé‡å¹¶ä¸å½“å‰æƒé‡æ··åˆ
 						if neighborCount > 0 then
 						(
-							local blendRatio = 0.5  -- »ìºÏ±ÈÀı
+							local blendRatio = 0.5  -- æ··åˆæ¯”ä¾‹
 							local finalWeights = #()
 							local finalBones = #()
 							
-							-- ´´½¨È¨ÖØÓ³Éä±í
+							-- åˆ›å»ºæƒé‡æ˜ å°„è¡¨
 							local weightMap = #()
 							for i = 1 to boneCount do weightMap[i] = 0.0
 							
-							-- ÉèÖÃµ±Ç°È¨ÖØ
+							-- è®¾ç½®å½“å‰æƒé‡
 							for i = 1 to currentBones.count do
 							(
 								local boneID = currentBones[i]
 								weightMap[boneID] = currentWeights[i]
 							)
 							
-							-- »ìºÏÈ¨ÖØ
+							-- æ··åˆæƒé‡
 							for boneID = 1 to boneCount do
 							(
 								local currentWeight = weightMap[boneID]
@@ -292,7 +292,7 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 								)
 							)
 							
-							-- ¹éÒ»»¯È¨ÖØ
+							-- å½’ä¸€åŒ–æƒé‡
 							if finalWeights.count > 0 then
 							(
 								local weightSum = 0.0
@@ -304,20 +304,20 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 										finalWeights[i] /= weightSum
 								)
 								
-								-- ´æ´¢ĞÂÈ¨ÖØ
+								-- å­˜å‚¨æ–°æƒé‡
 								newWeights[v] = #(finalBones, finalWeights)
 							)
 						)
 					)
 				)
 				
-				-- ÅúÁ¿Ó¦ÓÃĞÂÈ¨ÖØ
+				-- æ‰¹é‡åº”ç”¨æ–°æƒé‡
 				for v in vertsToProcess do
 				(
 					if newWeights[v] != undefined then
 					(
 						skinOps.ReplaceVertexWeights skinMod v newWeights[v][1] newWeights[v][2]
-						vertexWeights[v] = newWeights[v]  -- ¸üĞÂ»º´æ
+						vertexWeights[v] = newWeights[v]  -- æ›´æ–°ç¼“å­˜
 					)
 				)
 			)
@@ -326,36 +326,36 @@ rollout skinÈ¨ÖØÆ½»¬ "skinÈ¨ÖØÆ½»¬" width:260 height:100
 			return true
 		)
 		
-		-- ¿ªÊ¼Æ½»¬´¦Àí
+		-- å¼€å§‹å¹³æ»‘å¤„ç†
 		pb1.value = 0
 		
-		-- Ê¹ÓÃspinner¿Ø¼şµÄÖµ×÷Îªµü´ú´ÎÊı£¬0.01×÷ÎªÈ¨ÖØãĞÖµ
+		-- ä½¿ç”¨spinneræ§ä»¶çš„å€¼ä½œä¸ºè¿­ä»£æ¬¡æ•°ï¼Œ0.01ä½œä¸ºæƒé‡é˜ˆå€¼
 		local success = smoothSkinWeightsOptimized obj skinMod spn1.value 0.01
 		
-		-- Ö»Ë¢ĞÂÊÓÍ¼£¬²»¸Ä±äÈÎºÎÑ¡Ôñ×´Ì¬
+		-- åªåˆ·æ–°è§†å›¾ï¼Œä¸æ”¹å˜ä»»ä½•é€‰æ‹©çŠ¶æ€
 		redrawViews()
 		
 		if success then
 		(
-			print "È¨ÖØÆ½»¬Íê³É£¡±£³ÖÔÚµ±Ç°¹Ç÷ÀÑ¡Ôñ×´Ì¬"
+			print "æƒé‡å¹³æ»‘å®Œæˆï¼ä¿æŒåœ¨å½“å‰éª¨éª¼é€‰æ‹©çŠ¶æ€"
 		)
 		else
 		(
-			print "È¨ÖØÆ½»¬Ê§°Ü"
+			print "æƒé‡å¹³æ»‘å¤±è´¥"
 		)
 	)
 	
 	on btn3 pressed do
 	(
-		helpText = "Ê¹ÓÃËµÃ÷£º\n\n"
-	    helpText += "1.Ò»¼ü·ÖÇøµÄÊ±ºòÇëÔÚ¸Õ¸ÕskinÌí¼ÓÍê¹Ç÷ÀºóÖ±½ÓÊ¹ÓÃ\n"
-	    helpText += "2.Ò»¼ü·ÖÇøÊÇ°´ÕÕ³õÊ¼·âÌ×Ğ§¹û½øĞĞÒ»¶¨µÄĞŞ¸ÄµÄ£¬ËùÒÔ²»Òª¶¯Ä¬ÈÏµÄ·âÌ×\n"
-	    helpText += "3.Ò»¼üÆ½»¬Ñ¡ÖĞµã½øĞĞÆ½»¬Ğ§¹û¼´¿Ì\n"
-		helpText += "Ê¹ÓÃµÄÊ±ºòÈç¹ûÓĞÎÊÌâ¿ÉÒÔ¼ÓÎÒQQ·´À¡\n"
+		helpText = "ä½¿ç”¨è¯´æ˜ï¼š\n\n"
+	    helpText += "1.ä¸€é”®åˆ†åŒºçš„æ—¶å€™è¯·åœ¨åˆšåˆšskinæ·»åŠ å®Œéª¨éª¼åç›´æ¥ä½¿ç”¨\n"
+	    helpText += "2.ä¸€é”®åˆ†åŒºæ˜¯æŒ‰ç…§åˆå§‹å°å¥—æ•ˆæœè¿›è¡Œä¸€å®šçš„ä¿®æ”¹çš„ï¼Œæ‰€ä»¥ä¸è¦åŠ¨é»˜è®¤çš„å°å¥—\n"
+	    helpText += "3.ä¸€é”®å¹³æ»‘é€‰ä¸­ç‚¹è¿›è¡Œå¹³æ»‘æ•ˆæœå³åˆ»\n"
+		helpText += "ä½¿ç”¨çš„æ—¶å€™å¦‚æœæœ‰é—®é¢˜å¯ä»¥åŠ æˆ‘QQåé¦ˆ\n"
 	    helpText += "QQ:1256604813\n" 
-	    messageBox helpText title:"°ïÖúĞÅÏ¢"  
+	    messageBox helpText title:"å¸®åŠ©ä¿¡æ¯"  
 	)
 )
 
--- ´´½¨¶Ô»°¿ò
-createDialog skinÈ¨ÖØÆ½»¬
+-- åˆ›å»ºå¯¹è¯æ¡†
+createDialog skinæƒé‡å¹³æ»‘
