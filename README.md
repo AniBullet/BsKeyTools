@@ -57,7 +57,8 @@ SiChun Yuan
 动画大白  
 哈库呐玛哒哒  
 z.ven 子墨  
-[ffmpeg ](https://github.com/FFmpeg/FFmpeg)   
+一方狂三  
+[ffmpeg ](https://github.com/FFmpeg/FFmpeg)  
 [gifsicle](https://eternallybored.org/misc/gifsicle/)  
 ---
 ##### Since 2019.11
