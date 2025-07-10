@@ -1,3 +1,4 @@
+# coding=utf-8
 import ctypes
 import ctypes.wintypes  # 明确导入wintypes子模块
 import os
