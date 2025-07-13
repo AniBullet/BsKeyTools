@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-02 14:43:28
+ * @LastEditTime: 2025-07-13 16:08:44
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -636,7 +636,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v4.7 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
@@ -2798,13 +2798,21 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 				tempCopyBone = (copy boneFBXRoot)
 				tempCopyBone.name = boneFBXRoot.name
 				strTempName = tempCopyBone.name
+				tempCopyBone.transform = boneFBXRoot.transform
 				tempCopyBone.name = "RTHelper_" + strTempName
 				tempCopyBone.parent = helperRoot
-				lc = Link_Constraint();
-				tempCopyBone.transform.controller = lc
-				lc.key_mode = 0
-				lc.addTarget boneFBXRoot 0
-				tempCopyBone.transform = boneFBXRoot.transform
+				-- lc = Link_Constraint();
+				local pC = Position_Constraint()
+				local oC = Orientation_Constraint()
+
+				tempCopyBone.Position.controller = pC
+				tempCopyBone.Rotation.controller = oC
+				
+				pC.appendTarget boneFBXRoot 100
+				oC.appendTarget boneFBXRoot 100
+				pC.relative = true
+				oC.relative = true
+
 				fnFixSize tempCopyBone
 			)
 			if boneFBXRoot.children != 0 then 
@@ -4050,7 +4058,14 @@ rollout rolBsRetarget "BsRetargetTools_v4.6 （ FBX 转 BIP + 动画重定向 �
 							tarBone.name = "OldBone_" + tarBone.name
 							
 							for i in tarBone.children where i != undefined and (finditem rolBsRetarget.characterBones.items i.name == 0) and \
-							(finditem rolBsRetarget.characterBones_B.items i.name == 0) do (i.parent = tarBiped)
+							(finditem rolBsRetarget.characterBones_B.items i.name == 0) do 
+							(
+								tempLoc = point()
+								tempLoc.transform = i.transform
+								i.parent = tarBiped
+								i.transform = tempLoc.transform
+								delete tempLoc
+							)
 						)
 					)
 				)
