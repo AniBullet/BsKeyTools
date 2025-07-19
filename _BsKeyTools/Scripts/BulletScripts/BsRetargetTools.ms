@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-13 16:08:44
+ * @LastEditTime: 2025-07-19 10:44:16
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -398,7 +398,7 @@ rcmenu menuQuickCreateNode
 	menuItem quickDuplicateFingers "快速创建 Hand Nub"
     menuItem quickDuplicateFoot "快速创建 Foot Nub"
 	menuItem quickDuplicateHead "快速创建 Head Nub"
-    menuItem quickCenterRoot "(弃用)快速创建新的 Hips" enabled:false
+    menuItem quickCenterRoot "快速创建新的 Hips"
 	menuItem tips "说明：根据 Bone 骨骼大腿的位置，" enabled:false
     menuItem tips2 "说明：创建符合 Biped 骨骼位置的质心。" enabled:false
 
