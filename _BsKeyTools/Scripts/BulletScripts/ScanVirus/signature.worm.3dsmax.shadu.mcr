@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-02-08 16:37:12
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-21 14:45:25
+ * @LastEditTime: 2025-07-21 15:52:20
  * @Email: animator.bullet@foxmail.com
  */
 -- --ALC betaclenaer
@@ -132,7 +132,7 @@ struct signature_log (
 		name = "[Worm.3dsmax.ShaDu]",
 		signature = (substituteString (getFileNameFile (getThisScriptFileName())) "." "_"),				
 		-- 保留原有检测事件 + 新增保护事件，形成全方位覆盖
-		detect_events = #(#filePreOpen, #filePreOpenProcess, #filePostOpen, #postImport, #systemPostNew, #systemPostReset, #filePostMerge, #cuiRegisterMenus, #preSystemShutdown, #postSystemStartup, #unitsChange, #timeunitsChange),
+		detect_events = #(#filePreOpen, #filePreOpenProcess, #filePostOpen, #postImport, #systemPostNew, #systemPostReset, #filePostMerge, #preSystemShutdown, #postSystemStartup, #unitsChange, #timeunitsChange),
 		remove_ca = #("shaduA", "shaduB"),
 		remove_events = #(#SHADU,#myTools),
 		remove_globals = #("shaduA","shaduB"),
