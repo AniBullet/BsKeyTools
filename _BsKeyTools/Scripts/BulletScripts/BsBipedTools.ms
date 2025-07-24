@@ -636,7 +636,7 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		selObj = biped.getNode rolBsBipedTools.m_workingBipRoot sideFinger link:index
 		if selObj != undefined then
 		(
-			if ( selObj.isHidden == false ) or uiChkSelHiddenObj.state then (
+			if ( selObj.isHidden == false ) or rolBsBipedTools.uiChkSelHiddenObj.state then (
 				return #(selObj)
 			)
 			else (
