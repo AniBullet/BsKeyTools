@@ -396,7 +396,7 @@ fn addToolBarButton macro cat txt remove: false =
         cui.saveConfigAs f
         --cui.loadConfig f
             
-    ) catch(massagebox (getCurrentException());messagebox "请手动处理Toolbar!             \r\n" title: "错误!")
+    ) catch(try(massagebox (getCurrentException()));catch();messagebox "请手动处理Toolbar!             \r\n" title: "错误!")
 
     colorman.reInitIcons()
 

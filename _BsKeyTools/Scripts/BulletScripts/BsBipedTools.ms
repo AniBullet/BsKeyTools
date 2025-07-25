@@ -32,7 +32,7 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
-global verBsBipedTools = "v1.7"
+global verBsBipedTools = "v1.8"
 
 try(destroydialog rolBsBipedTools) catch()
 try(destroyDialog rolBSLeftHandPivots)catch()

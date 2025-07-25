@@ -1,2 +1,2 @@
 try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\Quote\\Heavenly Pictures\\Extended Timeline\\extended_timeline.ms"))
-catch(massagebox (getCurrentException());messagebox "打开 extended_timeline.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+catch(try(massagebox (getCurrentException()));catch();messagebox "打开 extended_timeline.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")

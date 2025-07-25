@@ -3,13 +3,13 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-24 14:54:21
+ * @LastEditTime: 2025-07-25 16:47:51
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
-catch(massagebox (getCurrentException());messagebox "打开 BsKeyToolsMacro.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsKeyToolsMacro.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMenuBar.ms"))
-catch(massagebox (getCurrentException());messagebox "打开 BsKeyToolsMenuBar.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsKeyToolsMenuBar.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
 try(destroydialog rolBsKeyTools)catch()
@@ -58,14 +58,14 @@ global iniCostTime 		= #(0,0,0,0)
 global arrNewCostTime 	= iniCostTime
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
-catch(massagebox (getCurrentException());messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+catch(try(massagebox (getCurrentException()));catch();messagebox "加载配置失败，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 stLoadConfigAll.fnLoadConfigBsKeyToolsAll()
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnCheckUpdate.ms"))
-catch(massagebox (getCurrentException());messagebox "打开 fnCheckUpdate.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+catch(try(massagebox (getCurrentException()));catch();messagebox "打开 fnCheckUpdate.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
-catch(massagebox (getCurrentException());messagebox "打开 fnGetColorTheme.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+catch(try(massagebox (getCurrentException()));catch();messagebox "打开 fnGetColorTheme.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsSwitchBtnString.ms"))
-catch(massagebox (getCurrentException());messagebox "打开 BsSwitchBtnString.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsSwitchBtnString.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 
 Global arrToolC1 = #()
 Global arrToolC2 = #()
@@ -432,7 +432,7 @@ fn fnSwitchIconStyle =
 		rolBsKeyTools.btnPoseTool.images          = #("bip_modes_i.bmp","bip_modes_i.bmp",8,1,1,1,1,true,true)
 		rolBsKeyTools.btnQuicksave.images         = #("PhysX_Main_16i.bmp","PhysX_Main_16a.bmp",33,1,1,1,1,true,false)
 	)
-	catch(massagebox (getCurrentException());messagebox "切换图标失败,可能低版本3dsmax不支持!                                               " beep:false title:"BsKeyTools")
+	catch(try(massagebox (getCurrentException()));catch();messagebox "切换图标失败,可能低版本3dsmax不支持!                                               " beep:false title:"BsKeyTools")
 )
 
 -------获取max所在屏幕的文字显示大小比
@@ -1444,7 +1444,7 @@ rcmenu menuConfig
 			fnLoadDockPos rolBsKeyTools rolBsKeyTools.widthBsSize rolBsKeyTools.heightBsSize
 			setdialogpos rolBsKeyTools iniPos
 			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");isRolloutOffScreen rolBsKeyTools)
-			catch(massagebox (getCurrentException());messagebox "打开 BulletKeyTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+			catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BulletKeyTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 		)
 	)
 
@@ -1496,7 +1496,7 @@ rcmenu menuConfig
 	on mItemCleanVirus picked do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsCleanVirus.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsCleanVirus.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsCleanVirus.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemConfigFilePath picked do
@@ -1508,25 +1508,25 @@ rcmenu menuConfig
 	on mItemRolloutBuilder picked do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\RolloutBuilder.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 RolloutBuilder.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 RolloutBuilder.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemHwndViewer picked do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\simple_hwnd_viewer.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 simple_hwnd_viewer.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 simple_hwnd_viewer.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemDotNetProperty picked do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Show.NetProperty.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 Show.NetProperty.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 Show.NetProperty.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemFBXReview picked do
 	(
 		try(shelllaunch ((getDir #scripts) + "\\BulletScripts\\Res\\fbxreview.exe") "")
-		catch(massagebox (getCurrentException());messagebox "打开 FBXReview 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 FBXReview 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemIsStartup picked do 
@@ -1580,19 +1580,19 @@ rcmenu menuConfig
 	on mItemResetConfig picked do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsResetConfig.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsResetConfig.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsResetConfig.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemDarkEditor picked do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\DarkScintilla.mzp"))
-		catch(massagebox (getCurrentException());messagebox "打开 DarkScintilla.mzp 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 DarkScintilla.mzp 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemHelpDocs picked do 
 	(
 		try(shellLaunch ((getDir #scripts) + "\\BulletScripts\\Res\\MAXScript-Help_2024_ENU.chm") "")
-		catch(massagebox (getCurrentException());messagebox "打开 MAXScript-Help 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 MAXScript-Help 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemAddToolBarBtn picked do
@@ -1717,7 +1717,7 @@ rcmenu menuConfig
 					messagebox ("已打开 BsScriptsSet.ms 自启！                  ")  title:"自启设置"
 					mItemCustomScripts.checked = true
 					try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsScriptsSet.ms");isRolloutOffScreen rolBsScriptsSet)
-					catch(massagebox (getCurrentException());messagebox "打开 BsScriptsSet.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+					catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsScriptsSet.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 					setFileAttribute startupCustomScriptsPath #readOnly true
 				)
 				catch()
@@ -1740,7 +1740,7 @@ rcmenu menuConfig
 				mItemIsIcon.checked = not mItemIsIcon.checked
 				iniIsIcon = mItemIsIcon.checked
 				try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
-				catch(massagebox (getCurrentException());messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+				catch(try(massagebox (getCurrentException()));catch();messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 			)
 		-- )
 		-- else
@@ -1800,7 +1800,7 @@ rcmenu menuConfig
 	on mItemWinBack picked do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\WinBox.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 WinBox.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 WinBox.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on mItemTimeline picked do 
@@ -1814,7 +1814,7 @@ rcmenu menuConfig
 		else 
 		(
 			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\Quote\\Heavenly Pictures\\Extended Timeline\\extended_timeline.ms"))
-			catch(massagebox (getCurrentException());messagebox "打开 extended_timeline.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+			catch(try(massagebox (getCurrentException()));catch();messagebox "打开 extended_timeline.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 			if (not (SIOFile.Exists startupEXTimelinePath)) do
 			(
 				try 
@@ -1833,7 +1833,7 @@ rcmenu menuConfig
 	(
 		if (queryBox "尝试修复缩略图，若失败请注意先用管理员运行3dsMax...                          " title:"BsKeyTools") then
 		(
-			try(HiddenDOSCommand ("regsvr32 \"" + (getdir #maxroot) + "MaxThumbnailShellExt.dll\""))catch(massagebox (getCurrentException());messagebox "修复缩略图失败，\r\n\r\n必须先管理员运行3dsMax...                    " beep:false title:"BsKeyTools")
+			try(HiddenDOSCommand ("regsvr32 \"" + (getdir #maxroot) + "MaxThumbnailShellExt.dll\""))catch(try(massagebox (getCurrentException()));catch();messagebox "修复缩略图失败，\r\n\r\n必须先管理员运行3dsMax...                    " beep:false title:"BsKeyTools")
 		)
 	)
 
@@ -3610,7 +3610,7 @@ rollout rolBsKeyTools "" width:355 height:250
 			SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" (tempTogglePanelPos as string)
 			try(rolBsKeyTools.height = 0)catch()
 			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
-			catch(massagebox (getCurrentException());messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+			catch(try(massagebox (getCurrentException()));catch();messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 		)
 		-- print ("iniBsAutoCheckUpdate: " + iniBsAutoCheckUpdate as string)
 		dotLVFilesList.visible = pgbLine03.visible = (fnJudgeScreenResolution())
@@ -3707,7 +3707,7 @@ rollout rolBsKeyTools "" width:355 height:250
 					SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" ((getDialogPos rolBsKeyTools) as string)
 					try(rolBsKeyTools.height = 0)catch()
 					try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
-					catch(massagebox (getCurrentException());messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
+					catch(try(massagebox (getCurrentException()));catch();messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
 				)
 				else 
 				(
@@ -3861,42 +3861,42 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnCSTools pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsBipedTools.ms");isRolloutOffScreen rolBsBipedTools)
-		catch(massagebox (getCurrentException());messagebox "打开 BsBipedTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsBipedTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnCSTools rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\cstools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 cstools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 cstools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 	on btnSpringMagic pressed do 
 	(
 		if keyboard.controlPressed then
 		(
 			try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\springmagic_Original.mse"))
-			catch(massagebox (getCurrentException());messagebox "打开 springmagic_Original.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+			catch(try(massagebox (getCurrentException()));catch();messagebox "打开 springmagic_Original.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 		)
 		else
 		(
 			try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\SpringMagic_Enhanced.ms");isRolloutOffScreen rolloutSpringMagic)
-			catch(massagebox (getCurrentException());messagebox "打开 SpringMagic_Enhanced.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+			catch(try(massagebox (getCurrentException()));catch();messagebox "打开 SpringMagic_Enhanced.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 		)
 	)
 	on btnSpringMagic rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\飘带解算.mse"))
-		catch(massagebox (getCurrentException());messagebox "打开 飘带解算.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 飘带解算.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 	on btnFileOpen pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsOpenTools.ms");isRolloutOffScreen rolBsOpenTools)
-		catch(massagebox (getCurrentException());messagebox "打开 BsOpenTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsOpenTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnProColor pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\ProColor.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 ProColor.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 ProColor.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 	on btnProTraj pressed do 
 	(
@@ -3926,7 +3926,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		-- 		)
 		-- )
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\ProTrajectoryHandles.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 ProTrajectoryHandles.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 ProTrajectoryHandles.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnProTraj rightclick do
@@ -4157,7 +4157,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnBoxMan pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsBoxMan.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsBoxMan.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsBoxMan.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on ckbHideBones changed state do
@@ -4337,7 +4337,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnImageComp pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\ImageCompHelper.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 ImageCompHelper.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 ImageCompHelper.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 	
 	on btnFnKeyType pressed do 
@@ -4412,13 +4412,13 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnMopherSlider pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\MorphSliders_11.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 MorphSliders_11.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 MorphSliders_11.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnLayerManager pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsLayerManager.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 ayerManagerAlternative.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 ayerManagerAlternative.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnLayerManager rightclick do 
@@ -4426,7 +4426,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		if keyboard.controlpressed == true then
 		(
 			try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\nestedLayerManager.mzp"))
-			catch(massagebox (getCurrentException());messagebox "打开 nestedLayerManager.mzp 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+			catch(try(massagebox (getCurrentException()));catch();messagebox "打开 nestedLayerManager.mzp 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 		)
 		else
 		(
@@ -4441,19 +4441,19 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnAnimMirror pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\Anim_mirror.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 Anim_mirror.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 Anim_mirror.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnAnimRef pressed do 
 	(
 		try(FileIn ("C:\\ProgramData\\Autodesk\\ApplicationPlugins\\AnimRef\\Contents\\AnimRef_Open.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 AnimRef.py 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...\r\n\r\n可能当前3ds Max版本不受AnimRef支持。\r\n支持的版本范围: 2018-2026\r\n\r\n也可以右键使用参考大师~~                                                              " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 AnimRef.py 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...\r\n\r\n可能当前3ds Max版本不受AnimRef支持。\r\n支持的版本范围: 2018-2026\r\n\r\n也可以右键使用参考大师~~                                                              " beep:false title:"BsKeyTools")
 	)
 
 	on btnAnimRef rightclick do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\参考大师.mse"))
-		catch(massagebox (getCurrentException());messagebox "打开 参考大师.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 参考大师.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnQuickPrev pressed do 
@@ -4481,55 +4481,55 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnRootMotionTools pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsRootMotionTools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsRootMotionTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsRootMotionTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnReplaceSkinBones pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\sox_replacebonefromskin.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 sox_replacebonefromskin.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 sox_replacebonefromskin.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnReplaceSkinBones rightclick do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\ChangeSkinBones.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 ChangeSkinBones.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 ChangeSkinBones.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnAnimCopyPaste pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\CPTools_New.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 CPTools_New.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 CPTools_New.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnAnimCopyPaste rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\CPTools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 CPTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 CPTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnPoseTool pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsRefTools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsRefTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsRefTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnTrajedit pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\DTrajEdit.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 DTrajEdit.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 DTrajEdit.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnTrajedit rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\DTrajEdit_New.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 DTrajEdit_New.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 DTrajEdit_New.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnTrackBarTools pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsTrackBarTools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsTrackBarTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsTrackBarTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on ckbShadowCut changed state do
@@ -4559,121 +4559,121 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnRenameTools pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\P_ObjectRenamer.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 P_ObjectRenamer.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 P_ObjectRenamer.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnMirrorMoph pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\mirrormorph.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 mirrormorph.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 mirrormorph.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnVportTools pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsVportTools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsVportTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsVportTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnMeshToBone pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\FractureVoronoi.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 FractureVoronoi.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 FractureVoronoi.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnLightTable pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\LightTable.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 LightTable.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 LightTable.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnCutSequence pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\AnimaRange.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 AnimaRange.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 AnimaRange.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnTwistBones pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\twistbones.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 twistbones.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 twistbones.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnChainsTools pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\ChainsTools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 ChainsTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 ChainsTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnBatchExport pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Batch version down.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 Batch version down.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 Batch version down.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnBatchExport rightclick do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Batch Import Convert.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 Batch Import Convert.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 Batch Import Convert.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnFastAlign pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\alexanimalign_0.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 alexanimalign_0.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 alexanimalign_0.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnCollider pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Collider.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 Collider.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 Collider.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnMassFX pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\MassFX.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 MassFX.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 MassFX.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnPicker pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\UILayout_V1.01_HPK.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 UILayout_V1.01_HPK.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 UILayout_V1.01_HPK.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnPicker rightclick do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\objectPicker.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 objectPicker.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 objectPicker.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnBakeAnim pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\BakeAnim.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BakeAnim.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BakeAnim.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnMotionReverse pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\MotionReverse_Tool.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 MotionReverse_Tool.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 MotionReverse_Tool.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnWeightSmooth pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\权重分区平滑.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 权重分区平滑.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 权重分区平滑.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnLODCreate pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\lod_creator.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 lod_creator.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 lod_creator.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnMorpherCtrl pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\pxMorphSliders.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 pxMorphSliders.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 pxMorphSliders.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnEndBone pressed do 
@@ -4746,60 +4746,60 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnRescaleWU pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsBatchRescaleWU.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsBatchRescaleWU.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsBatchRescaleWU.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnRescaleWU rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\RescaleWU.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 RescaleWU.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 RescaleWU.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnSkinTools pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\P_SkinWeightTool.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 SkinTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 SkinTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnSkinTools rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\SkinTools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 SkinTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 SkinTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnTweenMachine pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\TweenMachine.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsKeyStepMode.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsKeyStepMode.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnSelectionsetTools pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsSelSetTools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsSelSetTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsSelSetTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 	on btnXrSkinTool pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Xr_SkinTool.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 Xr_SkinTool.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 Xr_SkinTool.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnRetargetTools pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsRetargetTools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsRetargetTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsRetargetTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnCombineDetachSkin pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\Rigging_CombineSkin.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 Rigging_CombineSkin.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 Rigging_CombineSkin.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnRenderTools pressed do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote\\多方向渲染工具（集成修改版）.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 多方向渲染工具（集成修改版）.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 多方向渲染工具（集成修改版）.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnElement mouseDown senderArg arg do
@@ -4812,7 +4812,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnPrimogem mouseDown senderArg arg do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsScriptsSet.ms");isRolloutOffScreen rolBsScriptsSet)
-		catch(massagebox (getCurrentException());messagebox "打开 BsScriptsSet.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsScriptsSet.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on ckbPerspLock changed state do
@@ -4837,7 +4837,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnDemoTool pressed do
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsAnimDemoTools.ms"))
-		catch(massagebox (getCurrentException());messagebox "打开 BsAnimDemoTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsAnimDemoTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on dotLVFilesList DoubleClick do
