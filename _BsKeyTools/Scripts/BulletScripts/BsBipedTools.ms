@@ -3,7 +3,11 @@
 Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
 Since 2023.03
 
-2025.12 v1.7
+v1.8
+1.修复手指选择报错
+2.添加bend link功能
+
+v1.7
 1.头部按钮右键切换颜文字脸表情
 2.表情选择自动保存到配置文件
 3.添加表情还原按钮
@@ -1964,12 +1968,18 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	timer clock "PlayClock" interval:1 active:false -- 가장 빠른 인터벌로
 --/////////////////////////////////////////////////////////////////////////////////////////////////
     button btnAddScale "添加缩放" pos:[50,495] width:62
-
     button btnRemoveScale "移除缩放" pos:[114,495] width:62
+	checkButton ckbBendLink "弯曲" pos:[50,520] width:30 highlightColor:mcInPlace
+	checkButton ckbTwistLink "扭曲" pos:[82,520] width:30 highlightColor:mcInPlace
+	checkButton ckbTwistIndiv "自身" pos:[114,520] width:30 highlightColor:mcInPlace
+	checkButton ckbSmoothTwist "平滑" pos:[146,520] width:30 highlightColor:mcInPlace
+	button btnZeroTwist "归零扭曲" pos:[50,540] width:62
+	button btnZeroAllLink "归零所有" pos:[114,540] width:62
 	
 	local arrLoopTools = #("循环",#(uiBtnLoopGet,uiSpnLoopStart,uiSpnLoopEnd,uiCkbClearUserDef,uiBtnLoopSel,uiBtnGotoMirror,\
 		btnKey1,btnKey2,btnKey3,btnKey4,btnKey5,btnKey6,btnKey7,btnKey8))
-	local arrOtherTools = #("其他",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip,btnAddScale,btnRemoveScale)) 
+	local arrOtherTools = #("其他",#(uiBtn0,uiBtn25,uiBtnLoadBip,uiBtnSaveBip,btnAddScale,btnRemoveScale,ckbBendLink,ckbTwistLink,ckbTwistIndiv,\
+		ckbSmoothTwist,btnZeroTwist,btnZeroAllLink)) 
 	local arrLayerTools = #("层层",#(uiCbtRefreshLayer,uiCbtDown,uiCbtUp,uiLblLayerID,uiLblActive,uiChkActive,uiCbtAddLayer,\
 		uiCbtDelLayer,uiCbtDownLayer,uiCbtSnapKeys,uiCbtLeftArm,uiCbtRightArm,uiCbtLeftLeg,uiCbtRightLeg,uiCbtUpdate,uiChkIKonly,ddlLayers))
 	local arrCopyTools = #("复制",#(uiCbtCopy,uiCbtPaste,uiCbtPasteOpposite,uiCbtSelPostureObjs,uiCbtMirrorLArm,uiCbtMirrorRArm,\
@@ -1977,6 +1987,48 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	local arrAllToolsTab = #(arrCopyTools,arrLayerTools,arrLoopTools,arrOtherTools)
 
 	local m_goto1; local m_goto2; local m_goto3; local m_goto4; local m_goto5; local m_goto6; local m_goto7; local m_goto8
+
+	
+	fn fnRefreshTwistState =
+	(
+		if selection.count == 1 and classOf selection[1] == Biped_Object then
+        (
+            bipRoot = selection[1].controller.rootNode
+            try (
+                local ctrl = bipRoot.controller
+                ckbBendLink.state = ctrl.bendLinksMode
+                ckbTwistLink.state = ctrl.twistLinksMode
+                ckbTwistIndiv.state = ctrl.twistIndMode
+                
+                -- 检查SmoothTwist状态
+                try (
+                    ckbSmoothTwist.state = bipRoot.controller.SmoothTwistMode
+                ) catch (
+                    ckbSmoothTwist.state = false
+                )
+            )
+            catch ()
+        )
+        else
+        (
+            ckbBendLink.state = false
+            ckbTwistLink.state = false
+            ckbTwistIndiv.state = false
+            ckbSmoothTwist.state = false
+        )
+	)
+
+	fn fnSetTwistLink ctrl index =
+	(
+		case index of
+		(
+			(1):(ctrl.bendLinksMode = true;ctrl.twistLinksMode = ctrl.twistIndMode = ctrl.SmoothTwistMode = false)
+			(2):(ctrl.twistLinksMode = true;ctrl.bendLinksMode = ctrl.twistIndMode = ctrl.SmoothTwistMode = false)
+			(3):(ctrl.twistIndMode = true;ctrl.twistLinksMode = ctrl.bendLinksMode = ctrl.SmoothTwistMode = false)
+			(4):(ctrl.SmoothTwistMode = true;ctrl.twistLinksMode = ctrl.twistIndMode = ctrl.bendLinksMode = false)
+		)
+		fnRefreshTwistState()
+	)
 
 	fn fnChangeToolsVisble id =
 	(
@@ -3378,6 +3430,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		fnRefreshTrackSelection m_workingBipRoot
 		fnSyncBipedPanel()
 		fnBSUpdateLayers()
+		fnRefreshTwistState()
 	)
 
 	-- 보정치 회전값을 입력받고 똑바로 펴주는 기능을 한다. bips는 배열. 보정치 회전값은 Toe 등에서 90도 추가 회전이 필요함
@@ -5618,7 +5671,57 @@ on btnAddScale pressed do
         )
     )
 
+	on ckbBendLink changed state do
+	(
+		local ctrl = m_workingBipRoot.controller
+		if state then 
+		(
+			fnSetTwistLink ctrl 1
+		)
+		else ctrl.bendLinksMode = false
+	)
+
+	on ckbTwistLink changed state do
+	(
+		local ctrl = m_workingBipRoot.controller
+		if state then 
+		(
+			fnSetTwistLink ctrl 2
+		)
+		else ctrl.twistLinksMode = false
+	)
+
+	on ckbTwistIndiv changed state do
+	(
+		local ctrl = m_workingBipRoot.controller
+		if state then 
+		(
+			fnSetTwistLink ctrl 3
+		)
+		else ctrl.twistIndMode = false
+	)
+
+	on ckbSmoothTwist changed state do
+	(
+		local ctrl = m_workingBipRoot.controller
+		if state then 
+		(
+			fnSetTwistLink ctrl 4
+		)
+		else ctrl.SmoothTwistMode = false
+	)
+
+	on btnZeroTwist pressed do
+	(
+		if selection.count == 1 and classOf selection[1] == Biped_Object then biped.zeroTwist selection[1] 
+		fnRefreshTwistState()
+	)
 	
+	on btnZeroAllLink pressed do
+	(
+		if selection.count == 1 and classOf selection[1] == Biped_Object then biped.zeroAll selection[1] 
+		fnRefreshTwistState()
+	)
 	
 --////////////////////////////////////////////////////////		
 	
