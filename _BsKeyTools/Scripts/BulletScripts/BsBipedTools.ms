@@ -5713,13 +5713,13 @@ on btnAddScale pressed do
 
 	on btnZeroTwist pressed do
 	(
-		if selection.count == 1 and classOf selection[1] == Biped_Object then biped.zeroTwist selection[1] 
+		if selection.count == 1 and classOf selection[1] == Biped_Object then (with undo on (biped.zeroTwist selection[1]))
 		fnRefreshTwistState()
 	)
 	
 	on btnZeroAllLink pressed do
 	(
-		if selection.count == 1 and classOf selection[1] == Biped_Object then biped.zeroAll selection[1] 
+		if selection.count == 1 and classOf selection[1] == Biped_Object then (with undo on (biped.zeroAll selection[1]))
 		fnRefreshTwistState()
 	)
 	
