@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-25 16:47:51
+ * @LastEditTime: 2025-08-08 18:31:36
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -519,6 +519,7 @@ rcmenu menuConfig
 	)
 	separator menuSepHelp
 	menuItem mItemCleanVirus "杀毒工具 [推荐开启]"
+	menuItem mItemCustomMenu "自定义脚本菜单 [无限]"
 	menuItem mItemWinBack "窗口找回 [会有用的]"
 	menuItem mItemTimeline "时间轴工具 [Maya风格]"
 	menuItem mItemCleanAtt "清理冗余属性 [通常安全]"
@@ -1846,6 +1847,8 @@ rcmenu menuConfig
 			for i = 1 to cusAtt.count do deleteItem cusAtt 1
 		)
 	)
+
+	on mItemCustomMenu picked do (try(createDialog rolBsScriptMenu)catch())
 )
 
 -------------------帧率,播放速度--------------------------------------------------------------
