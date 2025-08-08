@@ -3,6 +3,9 @@
 Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
 Since 2023.03
 
+v1.9
+1.修复bip层内使用滑动帧导致卡死的bug
+
 v1.8
 1.修复手指选择报错
 2.添加bend link功能
@@ -36,7 +39,7 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
-global verBsBipedTools = "v1.8"
+global verBsBipedTools = "v1.9"
 
 try(destroydialog rolBsBipedTools) catch()
 try(destroyDialog rolBSLeftHandPivots)catch()
@@ -3753,122 +3756,146 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 
 	on uiBtnLimbPK changed state do (
 		uiBtnLimbPK.state = on -- 任何状态下按钮状态都保持按下
-		local tempPanel = getCommandPanelTaskMode()
-		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
-		local timeBefore = sliderTime
-		disableSceneRedraw()
-		undo on (
-			for obj in selection do (
-				if (IfLimb obj) do (
-					if (keyboard.shiftPressed OR keyboard.controlPressed) then (
-						local keys = obj.controller.keys
-						local animRangeBackup = animationRange -- 暂时可以修改外部的关键帧，记录当前的动画区间
-						animationRange = Interval keys[1].time keys[keys.count].time
-						for i = 1 to keys.count do (
-							if keyboard.shiftPressed do (
-								-- Shift 按下则不考虑关键帧选择，全部修改
-								sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
+		if ((rolBsBipedTools.m_workingBipRoot != undefined) and (not (isDeleted rolBsBipedTools.m_workingBipRoot))) then
+		(
+			layerIndex = biped.getCurrentLayer rolBsBipedTools.m_workingBipRoot.controller
+			if layerIndex == 0 then 
+			(
+				local tempPanel = getCommandPanelTaskMode()
+				setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
+				local timeBefore = sliderTime
+				disableSceneRedraw()
+				undo on (
+					for obj in selection do (
+						if (IfLimb obj) do (
+							if (keyboard.shiftPressed OR keyboard.controlPressed) then (
+								local keys = obj.controller.keys
+								local animRangeBackup = animationRange -- 暂时可以修改外部的关键帧，记录当前的动画区间
+								animationRange = Interval keys[1].time keys[keys.count].time
+								for i = 1 to keys.count do (
+									if keyboard.shiftPressed do (
+										-- Shift 按下则不考虑关键帧选择，全部修改
+										sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
+										biped.SetPlantedKey obj
+									)
+									if keyboard.controlPressed do (
+										-- Ctrl 按下则只修改选中的关键帧
+										if keys[i].selected == true do (
+											sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
+											biped.SetPlantedKey obj
+										)
+									)
+								)
+								animationRange = animRangeBackup -- 恢复原来的动画区间
+							)
+							else (
 								biped.SetPlantedKey obj
 							)
-							if keyboard.controlPressed do (
-								-- Ctrl 按下则只修改选中的关键帧
-								if keys[i].selected == true do (
-									sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
-									biped.SetPlantedKey obj
-								)
-							)
 						)
-						animationRange = animRangeBackup -- 恢复原来的动画区间
-					)
-					else (
-						biped.SetPlantedKey obj
-					)
-				)
-			) -- for
-		) -- Undo
-		if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
-		enableSceneRedraw()
-		sliderTime = timeBefore
+					) -- for
+				) -- Undo
+				if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
+				enableSceneRedraw()
+				sliderTime = timeBefore
+			)
+			else (messagebox "bip 层内无法使用此功能!                                     " beep:false title:"BsBipedTools")
+		)
 	)
 
 	on uiBtnLimbIK changed state do (
 		uiBtnLimbIK.state = on -- 任何状态下按钮状态都保持按下
-		local tempPanel = getCommandPanelTaskMode()
-		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
-		local timeBefore = sliderTime
-		disableSceneRedraw()
-		undo on (
-			for obj in selection do (
-				if (IfLimb obj) do (
-					if (keyboard.shiftPressed OR keyboard.controlPressed) then (
-						local keys = obj.controller.keys
-						local animRangeBackup = animationRange -- 暂时可以修改外部的关键帧，记录当前的动画区间
-						animationRange = Interval keys[1].time keys[keys.count].time
-						for i = 1 to keys.count do (
-							if keyboard.shiftPressed do (
-								-- Shift 按下则不考虑关键帧选择，全部修改
-								sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
+		if ((rolBsBipedTools.m_workingBipRoot != undefined) and (not (isDeleted rolBsBipedTools.m_workingBipRoot))) then
+		(
+			layerIndex = biped.getCurrentLayer rolBsBipedTools.m_workingBipRoot.controller
+			if layerIndex == 0 then 
+			(
+				local tempPanel = getCommandPanelTaskMode()
+				setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
+				local timeBefore = sliderTime
+				disableSceneRedraw()
+				undo on (
+					for obj in selection do (
+						if (IfLimb obj) do (
+							if (keyboard.shiftPressed OR keyboard.controlPressed) then (
+								local keys = obj.controller.keys
+								local animRangeBackup = animationRange -- 暂时可以修改外部的关键帧，记录当前的动画区间
+								animationRange = Interval keys[1].time keys[keys.count].time
+								for i = 1 to keys.count do (
+									if keyboard.shiftPressed do (
+										-- Shift 按下则不考虑关键帧选择，全部修改
+										sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
+										biped.setSlidingKey obj
+									)
+									if keyboard.controlPressed do (
+										-- Ctrl 按下则只修改选中的关键帧
+										if keys[i].selected == true do (
+											sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
+											biped.setSlidingKey obj
+										)
+									)
+								)
+								animationRange = animRangeBackup -- 恢复原来的动画区间
+							)
+							else (
 								biped.setSlidingKey obj
 							)
-							if keyboard.controlPressed do (
-								-- Ctrl 按下则只修改选中的关键帧
-								if keys[i].selected == true do (
-									sliderTime = keys[i].time -- 使用 at time 方式会导致 sliderTime 的姿势生成关键帧，所以直接改变 sliderTime 进行
-									biped.setSlidingKey obj
-								)
-							)
 						)
-						animationRange = animRangeBackup -- 恢复原来的动画区间
-					)
-					else (
-						biped.setSlidingKey obj
-					)
-				)
-			) -- for
-		) -- Undo
-		if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
-		enableSceneRedraw()
-		sliderTime = timeBefore
+					) -- for
+				) -- Undo
+				if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
+				enableSceneRedraw()
+				sliderTime = timeBefore
+			)
+			else (messagebox "bip 层内无法使用此功能!                                     " beep:false title:"BsBipedTools")
+		)
 	)
 
 	on uiBtnLimbFK changed state do (
 		uiBtnLimbFK.state = on -- 任何状态下按钮状态都保持按下
-		local tempPanel = getCommandPanelTaskMode()
-		setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
-		local timeBefore = sliderTime
-		disableSceneRedraw()
-		undo on (
-			for obj in selection do (
-				if (IfLimb obj) do (
-					if (keyboard.shiftPressed OR keyboard.controlPressed) then (
-						local keys = obj.controller.keys
-						local animRangeBackup = animationRange -- 잠시 바깥에 있는 키들도 수정할 수 있도록 현재의 애니메이션 구간을 기억한다.
-						animationRange = Interval keys[1].time keys[keys.count].time
-						for i = 1 to keys.count do (
-							if keyboard.shiftPressed do (
-								-- Shift가 눌려있으면 키 선택과 상관 없이 모두 변경
-								sliderTime = keys[i].time -- at time 방식으로 하면 sliderTime의 자세로 키가 생성되는 문제가 있어서 실제 sliderTime을 변경시켜서 진행
+		if ((rolBsBipedTools.m_workingBipRoot != undefined) and (not (isDeleted rolBsBipedTools.m_workingBipRoot))) then
+		(
+			layerIndex = biped.getCurrentLayer rolBsBipedTools.m_workingBipRoot.controller
+			if layerIndex == 0 then 
+			(
+				local tempPanel = getCommandPanelTaskMode()
+				setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
+				local timeBefore = sliderTime
+				disableSceneRedraw()
+				undo on (
+					for obj in selection do (
+						if (IfLimb obj) do (
+							if (keyboard.shiftPressed OR keyboard.controlPressed) then (
+								local keys = obj.controller.keys
+								local animRangeBackup = animationRange -- 잠시 바깥에 있는 키들도 수정할 수 있도록 현재의 애니메이션 구간을 기억한다.
+								animationRange = Interval keys[1].time keys[keys.count].time
+								for i = 1 to keys.count do (
+									if keyboard.shiftPressed do (
+										-- Shift가 눌려있으면 키 선택과 상관 없이 모두 변경
+										sliderTime = keys[i].time -- at time 방식으로 하면 sliderTime의 자세로 키가 생성되는 문제가 있어서 실제 sliderTime을 변경시켜서 진행
+										biped.setFreeKey obj
+									)
+									if keyboard.controlPressed do (
+										-- Ctrl이 눌려있으면 선택된 키듦만 변경
+										if keys[i].selected == true do (
+											sliderTime = keys[i].time -- at time 방식으로 하면 sliderTime의 자세로 키가 생성되는 문제가 있어서 실제 sliderTime을 변경시켜서 진행
+											biped.setFreeKey obj
+										)
+									)
+								)
+								animationRange = animRangeBackup -- 다시 원래대로의 애니메이션 구간으로 복구
+							)
+							else (
 								biped.setFreeKey obj
 							)
-							if keyboard.controlPressed do (
-								-- Ctrl이 눌려있으면 선택된 키듦만 변경
-								if keys[i].selected == true do (
-									sliderTime = keys[i].time -- at time 방식으로 하면 sliderTime의 자세로 키가 생성되는 문제가 있어서 실제 sliderTime을 변경시켜서 진행
-									biped.setFreeKey obj
-								)
-							)
 						)
-						animationRange = animRangeBackup -- 다시 원래대로의 애니메이션 구간으로 복구
-					)
-					else (
-						biped.setFreeKey obj
-					)
-				)
-			) -- for
-		) -- Undo
-		if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
-		enableSceneRedraw()
-		sliderTime = timeBefore
+					) -- for
+				) -- Undo
+				if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
+				enableSceneRedraw()
+				sliderTime = timeBefore
+			)
+			else (messagebox "bip 层内无法使用此功能!                                     " beep:false title:"BsBipedTools")
+		)
 	)
 
 	on uiHead changed state do (
