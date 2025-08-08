@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-08-08 18:31:36
+ * @LastEditTime: 2025-08-08 19:39:04
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -1848,7 +1848,11 @@ rcmenu menuConfig
 		)
 	)
 
-	on mItemCustomMenu picked do (try(createDialog rolBsScriptMenu)catch())
+	on mItemCustomMenu picked do 
+	(
+		try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsScriptMenu.ms");try(createDialog rolBsScriptMenu)catch())
+    	catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsScriptMenu 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsScriptMenu")
+	)
 )
 
 -------------------帧率,播放速度--------------------------------------------------------------
