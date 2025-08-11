@@ -118,6 +118,122 @@ fn fnSetBsScriptMenuConfig =
 
 fnLoadBsScriptMenuConfig()
 
+-- 递归创建子菜单和脚本项
+fn fnRecursiveMenuHighVersion subMenu subPath =
+(
+    local scriptActionTableID = 647394
+    local files = getFiles (subPath + ("/" + "*.m*"))
+    sort files
+    local dirArr = GetDirectories (subPath + "/*")
+    sort dirArr
+    
+    -- 添加脚本文件
+    for i in files do
+    (
+        local scriptName = getFilenameFile i
+        local macroName = "BsScriptMenu" + (random 1000 9999) as string
+        
+        -- 创建宏脚本
+        local macroStr = "macroscript " + macroName + " category:\"_[BsScriptMenu]\" buttontext:\"" + scriptName + "\" (FileIn @\"" + i + "\")"
+        execute macroStr
+        
+        -- 添加到菜单
+        subMenu.CreateAction (genGUID()) scriptActionTableID (macroName + "`_[BsScriptMenu]")
+    )
+    
+    -- 添加分隔符（如果有文件和文件夹）
+    if files.count > 0 and dirArr.count > 0 then
+    (
+        subMenu.CreateSeparator (genGUID())
+    )
+    
+    -- 递归处理子文件夹
+    for j = 1 to dirArr.count do
+    (
+        local subSubPath = substring dirArr[j] 1 (dirArr[j].count-1)
+        local subSubMenuName = getFilenameFile subSubPath
+        local subSubMenu = subMenu.CreateSubMenu (genGUID()) subSubMenuName
+        fnRecursiveMenuHighVersion subSubMenu subSubPath
+    )
+)
+
+-- 高版本菜单创建函数
+fn fnCreateMenuHighVersion =
+(
+    function callbackBsScriptMenu =
+    (
+        local menuMgr = callbacks.notificationParam()
+        local mainMenuBar = menuMgr.mainMenuBar
+        local macroScriptActionTableID = 647394
+        
+        -- 创建主菜单 - 使用固定GUID
+        local newSubMenu = mainMenuBar.CreateSubMenu (genGUID()) iniBsScriptMenuName
+        
+        -- 开始创建菜单结构
+        if (iniBsScriptMenuPath != undefined) and (iniBsScriptMenuPath != "") then
+        (
+            fnRecursiveMenuHighVersion newSubMenu iniBsScriptMenuPath
+        )
+        
+        -- 添加配置菜单项
+        newSubMenu.CreateSeparator (genGUID())
+        newSubMenu.CreateAction (genGUID()) macroScriptActionTableID "BsScriptMenuConfig`_[BsScriptMenu]"
+        newSubMenu.CreateSeparator (genGUID())
+    )
+    
+    callbacks.removeScripts id:#menuBsScriptMenu
+    callbacks.addScript #cuiRegisterMenus callbackBsScriptMenu id:#menuBsScriptMenu
+)
+
+-- 低版本菜单创建函数（原有逻辑）
+fn fnCreateMenuLowVersion =
+(
+    local ii = 0 
+    
+    rolBsScriptMenu.deleting_previousMenu iniBsScriptMenuPath
+    if (lastMenuName != undefined and (lastMenuName as string) != "" and lastMenuName != iniBsScriptMenuName) then
+    (
+        while ((menuMan.findMenu lastMenuName) != undefined) do
+        (
+            menuMan.unRegisterMenu (menuMan.findMenu lastMenuName)
+            menuMan.updateMenuBar()
+        )
+    )
+    while ((menuMan.findMenu iniBsScriptMenuName) != undefined) do 
+    (  
+        menuMan.unRegisterMenu (menuMan.findMenu iniBsScriptMenuName)
+        menuMan.updateMenuBar()
+    ) 
+    --------------------creating menu
+    subMenu = menuMan.createMenu iniBsScriptMenuName 
+    subPath = iniBsScriptMenuPath
+    if (subPath != undefined) and (subPath != "") then (rolBsScriptMenu.recursive_menu subMenu subPath)
+    rolBsScriptMenu.about_Menu subMenu
+    -----------------------updating menu 
+    mainMenuBar = menuMan.getMainMenuBar() 
+    subMenuItem = menuMan.createSubMenuItem iniBsScriptMenuName subMenu 
+    subMenuIndex = mainMenuBar.numItems() - 1 
+    mainMenuBar.addItem subMenuItem subMenuIndex 
+    menuMan.updateMenuBar()
+)
+
+-- 统一的菜单刷新函数
+fn fnRefreshMenu =
+(
+    local curMaxVersion = ((maxVersion())[1] / 1000)
+    
+    if curMaxVersion < 27 then
+    (
+        -- 低版本使用原有方法
+        fnCreateMenuLowVersion()
+    )
+    else
+    (
+        -- 高版本使用新方法
+        fnCreateMenuHighVersion()
+    )
+)
+
 rollout rolBsScriptMenu "BsScriptMenuConfig" width:460 height:160
 (
 	group ""
@@ -157,11 +273,16 @@ rollout rolBsScriptMenu "BsScriptMenuConfig" width:460 height:160
 					menuMan.updateMenuBar()
 				)
 			)
+			else
+			(
+				-- 高版本移除菜单回调
+				callbacks.removeScripts id:#menuBsScriptMenu
+			)
 
 			arrDelMs = #(((getDir #StartupScripts)+ "\\BsScriptMenuStartup.ms"),\
 			((getDir #Scripts)+ @"\\BulletScripts\\BsScriptMenu.ms"),\
 			((getDir #Scripts)+ @"\\BulletScripts\\BsScriptMenuMacro.ms"))
-			for f in arrDelMs do (fnDelFileDir f)
+			for f in arrDelMs do (fnDelFile f)
 			try(destroydialog rolBsScriptMenu)catch()
 			(messagebox "已清理干净，保留配置文件备用...    \r\n" beep:false title:"卸载成功！")
 		)
@@ -253,35 +374,6 @@ rollout rolBsScriptMenu "BsScriptMenuConfig" width:460 height:160
         )
     )
 
-    fn fnRefreshMenu =
-    (
-        deleting_previousMenu iniBsScriptMenuPath
-        if (lastMenuName != undefined and (lastMenuName as string) != "" and lastMenuName != iniBsScriptMenuName) then
-        (
-            while ((menuMan.findMenu lastMenuName) != undefined) do
-            (
-                menuMan.unRegisterMenu (menuMan.findMenu lastMenuName)
-                menuMan.updateMenuBar()
-            )
-        )
-        while ((menuMan.findMenu iniBsScriptMenuName) != undefined) do 
-        (  
-            menuMan.unRegisterMenu (menuMan.findMenu iniBsScriptMenuName)
-            menuMan.updateMenuBar()
-        ) 
-        --------------------creating menu
-        subMenu = menuMan.createMenu iniBsScriptMenuName 
-        subPath = iniBsScriptMenuPath
-        if (subPath != undefined) and (subPath != "") then (recursive_menu subMenu subPath)
-        about_Menu subMenu
-        -----------------------updating menu 
-        mainMenuBar = menuMan.getMainMenuBar() 
-        subMenuItem = menuMan.createSubMenuItem iniBsScriptMenuName subMenu 
-        subMenuIndex = mainMenuBar.numItems() - 1 
-        mainMenuBar.addItem subMenuItem subMenuIndex 
-        menuMan.updateMenuBar()
-    )
-
 	on rolBsScriptMenu open do 
 	(
         fnLoadBsScriptMenuConfig()
@@ -306,15 +398,23 @@ rollout rolBsScriptMenu "BsScriptMenuConfig" width:460 height:160
 	)
 	on btnRefreshMenu pressed do
 	(
-        if (edtPath.text != "") then (
-            iniBsScriptMenuPath = edtPath.text
+        local curMaxVersion = ((maxVersion())[1] / 1000)
+        if curMaxVersion < 27 then
+        (
+            if (edtPath.text != "") then (
+                iniBsScriptMenuPath = edtPath.text
+            )
+            if (edtMenuName.text != "") then (
+                iniBsScriptMenuName = edtMenuName.text
+            )
+            fnSetBsScriptMenuConfig()
+            fnRefreshMenu()
+            try(destroydialog rolBsScriptMenu)catch()
         )
-        if (edtMenuName.text != "") then (
-            iniBsScriptMenuName = edtMenuName.text
+        else
+        (
+            messagebox "官方底层原因，当前版本可能不支持手动更新菜单，\r\n\r\n设置已生效，请重新打开max，菜单即会刷新！                                                     " beep:false title:"BsScriptMenu"
         )
-        fnSetBsScriptMenuConfig()
-		fnRefreshMenu()
-        try(destroydialog rolBsScriptMenu)catch()
 	)
 	on btnReadme pressed do 
 	(
@@ -358,4 +458,4 @@ rollout rolBsScriptMenu "BsScriptMenuConfig" width:460 height:160
         fnUninstallScriptMenu()
     )
 )
-rolBsScriptMenu.fnRefreshMenu()
+fnRefreshMenu()
