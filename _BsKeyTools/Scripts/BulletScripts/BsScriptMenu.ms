@@ -409,12 +409,13 @@ rollout rolBsScriptMenu "BsScriptMenuConfig" width:460 height:160
             )
             fnSetBsScriptMenuConfig()
             fnRefreshMenu()
-            try(destroydialog rolBsScriptMenu)catch()
         )
         else
         (
-            messagebox "官方底层原因，当前版本可能不支持手动更新菜单，\r\n\r\n设置已生效，请重新打开max，菜单即会刷新！                                                     " beep:false title:"BsScriptMenu"
+            (maxops.GetICuiMenuMgr()).LoadConfiguration((maxops.GetICuiMenuMgr()).GetCurrentConfiguration())
         )
+        try(destroydialog rolBsScriptMenu)catch()
+        messagebox "脚本菜单已实时刷新！                              " beep:false title:"BsScriptMenu"
 	)
 	on btnReadme pressed do 
 	(
