@@ -419,7 +419,7 @@ rollout rolBsScriptMenu "BsScriptMenuConfig" width:460 height:160
 	)
 	on btnReadme pressed do 
 	(
-		messagebox "注意事项：\n\n1 关于更新列表：\n支持重启MAX更新列表，并保留手动更新！\n\n2 关于作者：\n脚本启发 Igorznag & Jwtoon 和吇鱼，Bullet.S 完全重构~"
+		messagebox "注意事项：\n\n此工具可根据设定目录下的文件夹生成子菜单，\n\n根据脚本生成可执行菜单，完全自定义！\n\n1 关于更新列表：\n支持重启MAX更新列表，并保留手动更新！\n\n2 关于作者：\n脚本启发 Igorznag & Jwtoon 和吇鱼，Bullet.S 完全重构~"
 	)
     on btnSetPath pressed do
     (
