@@ -968,7 +968,7 @@ try (if bsHelpForm != undefined then bsHelpForm.close()) catch()
 
 -- 创建.NET窗体
 bsRootMotionForm = dotNetObject "MaxCustomControls.MaxForm"
-bsRootMotionForm.Text = "BsRootTools v1.0"
+bsRootMotionForm.Text = "BsRootTools v1.1"
 bsRootMotionForm.Size = dotNetObject "System.Drawing.Size" 330 290
 bsRootMotionForm.MinimizeBox = true
 bsRootMotionForm.MaximizeBox = false
@@ -1318,16 +1318,17 @@ fn OnApplyNewRoot sender args = (
 	if isBiped then (
 		-- Biped处理流程
 		try (
-			-- 记录临时Root的动画数据
-			local tempRootPosList = #()
-			local tempRootRotList = #()
+			-- 记录临时Root的完整变换矩阵
+			local tempRootTransformList = #()
 			
+			print ("开始采样临时Root完整变换...")
 			for t = animationRange.start to animationRange.end do (
 				at time t (
-					append tempRootPosList tempRootObj.transform.pos
-					append tempRootRotList tempRootObj.transform.rotation
+					-- 直接采样完整的变换矩阵
+					append tempRootTransformList tempRootObj.transform
 				)
 			)
+			print ("采样完成: " + tempRootTransformList.count as string + " 帧")
 			
 			-- 记录原始Biped质心的世界空间位置和旋转
 			local bipedPosList = #()
@@ -1348,21 +1349,24 @@ fn OnApplyNewRoot sender args = (
 					pelvisObj.parent = originalRootObj
 				)
 				
-				-- 将临时Root的动画应用到原Root，确保设置关键帧
+				-- 将临时Root的完整变换应用到原Root
 				local frameIndex = 1
 				local originalAnimState = animButtonState
 				try (
 					animButtonState = true
+					print ("开始应用变换到原Root...")
 					for t = animationRange.start to animationRange.end do (
 						at time t (
 							with animate on (
-								originalRootObj.pos = tempRootPosList[frameIndex]
-								originalRootObj.rotation = tempRootRotList[frameIndex]
+								-- 直接应用完整的变换矩阵
+								originalRootObj.transform = tempRootTransformList[frameIndex]
 							)
 							frameIndex += 1
 						)
 					)
-				) catch () (
+					print ("原Root动画应用完成")
+				) catch (ex) (
+					print ("应用原Root动画时出错: " + ex as string)
 					animButtonState = originalAnimState
 				)
 				
@@ -1377,21 +1381,24 @@ fn OnApplyNewRoot sender args = (
 				newRoot.cross = true
 				newRoot.box = true
 				
-				-- 将临时Root的动画应用到新Root，确保设置关键帧
+				-- 将临时Root的完整变换应用到新Root
 				local frameIndex = 1
 				local originalAnimState = animButtonState
 				try (
 					animButtonState = true
+					print ("开始应用变换到新Root...")
 					for t = animationRange.start to animationRange.end do (
 						at time t (
 							with animate on (
-								newRoot.pos = tempRootPosList[frameIndex]
-								newRoot.rotation = tempRootRotList[frameIndex]
+								-- 直接应用完整的变换矩阵
+								newRoot.transform = tempRootTransformList[frameIndex]
 							)
 							frameIndex += 1
 						)
 					)
-				) catch () (
+					print ("新Root动画应用完成")
+				) catch (ex) (
+					print ("应用新Root动画时出错: " + ex as string)
 					animButtonState = originalAnimState
 				)
 				
@@ -1511,19 +1518,22 @@ fn OnApplyNewRoot sender args = (
 			
 			-- 处理Root应用
 			if originalRootObj != undefined then (
-				-- 有原Root：直接传递临时Root的动画
+				-- 有原Root：直接传递临时Root的完整变换
 				local originalAnimState = animButtonState
 				try (
 					animButtonState = true
+					print ("非Biped：开始应用变换到原Root...")
 					for t = animationRange.start to animationRange.end do (
 						at time t (
 							with animate on (
-								originalRootObj.pos = tempRootObj.transform.pos
-								originalRootObj.rotation = tempRootObj.transform.rotation
+								-- 直接应用完整的变换矩阵
+								originalRootObj.transform = tempRootObj.transform
 							)
 						)
 					)
-				) catch () (
+					print ("非Biped：原Root动画应用完成")
+				) catch (ex) (
+					print ("非Biped：应用原Root动画时出错: " + ex as string)
 					animButtonState = originalAnimState
 				)
 			) else (
@@ -1535,19 +1545,22 @@ fn OnApplyNewRoot sender args = (
 				newRoot.cross = true
 				newRoot.box = true
 				
-				-- 应用临时Root的动画到新Root
+				-- 应用临时Root的完整变换到新Root
 				local originalAnimState = animButtonState
 				try (
 					animButtonState = true
+					print ("非Biped：开始应用变换到新Root...")
 					for t = animationRange.start to animationRange.end do (
 						at time t (
 							with animate on (
-								newRoot.pos = tempRootObj.transform.pos
-								newRoot.rotation = tempRootObj.transform.rotation
+								-- 直接应用完整的变换矩阵
+								newRoot.transform = tempRootObj.transform
 							)
 						)
 					)
-				) catch () (
+					print ("非Biped：新Root动画应用完成")
+				) catch (ex) (
+					print ("非Biped：应用新Root动画时出错: " + ex as string)
 					animButtonState = originalAnimState
 				)
 				
