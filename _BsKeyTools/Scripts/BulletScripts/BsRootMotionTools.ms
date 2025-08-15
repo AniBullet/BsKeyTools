@@ -1050,7 +1050,7 @@ linkHomepage.LinkColor = GetThemeColor #link
 linkHomepage.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
 
 global linkTutorial = dotNetObject "System.Windows.Forms.LinkLabel"
-linkTutorial.Text = "▶ 大改：Bullet.S"  -- 使用三角符号替代emoji
+linkTutorial.Text = "▶ 重构：Bullet.S"  -- 使用三角符号替代emoji
 linkTutorial.Size = dotNetObject "System.Drawing.Size" 140 20
 linkTutorial.Location = dotNetObject "System.Drawing.Point" 200 220
 linkTutorial.LinkColor = GetThemeColor #link
