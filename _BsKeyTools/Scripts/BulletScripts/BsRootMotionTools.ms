@@ -1405,7 +1405,7 @@ fn OnApplyNewRoot sender args = (
 			
 			-- 创建Biped层来处理偏移
 			try (
-				-- 创建第一个偏移层
+				-- 创建第一个偏移层（参考BsRetargetTools的方法）
 				biped.createLayer pelvisObj.controller 1 "RootMotionOffset"
 				biped.setCurrentLayer pelvisObj.controller 1
 				
@@ -1417,33 +1417,32 @@ fn OnApplyNewRoot sender args = (
 						local bipedPos = bipedPosList[frameIndex]
 						in coordsys world Biped.setTransform pelvisObj #pos bipedPos true
 						
-						-- 计算并设置局部旋转
-						local currentParent = if originalRootObj != undefined then originalRootObj else undefined
-						local parentRot = if currentParent != undefined then (
-							at time t currentParent.transform.rotation
+						-- 使用当前父节点的旋转作为参考（适配原Root或新建Root），并在当前帧获取
+						local parentNode = pelvisObj.parent
+						local rootRot = if parentNode != undefined then (
+							at time t parentNode.controller.rotation
 						) else (
 							(matrix3 1).rotation
 						)
 						local bipedRot = bipedRotList[frameIndex]
-						local localRot = bipedRot * (inverse parentRot)
+						local localRot = bipedRot * (inverse rootRot)  -- 参考代码的公式
 						Biped.setTransform pelvisObj #rotation localRot true
 						
 						frameIndex += 1
 					)
 				)
 				
-				-- 创建第二个反向层（参考你的代码）
+				-- 创建第二个反向层：仅还原位置，不再重设旋转，避免抵消第一层的局部旋转修正
 				biped.createLayer pelvisObj.controller 2 "RootMotionReverse"
 				biped.setCurrentLayer pelvisObj.controller 2
 				frameIndex = 1
 				for t = animationRange.start to animationRange.end do (
 					slidertime = t
 					with animate on (
-						-- 设置原始位置和旋转
+						-- 仅设置原始位置
 						local bipedPos = bipedPosList[frameIndex]
 						in coordsys world Biped.setTransform pelvisObj #pos bipedPos true
-						local bipedRot = bipedRotList[frameIndex]
-						in coordsys world Biped.setTransform pelvisObj #rotation bipedRot true
+						-- 保留第一层计算好的局部旋转
 						frameIndex += 1
 					)
 				)
