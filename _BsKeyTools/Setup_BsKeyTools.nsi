@@ -848,7 +848,7 @@ Function InstallVersionFiles
   SetOutPath "$R0Scripts"
   File /r "Scripts\*.*"
   ${If} ${Errors}
-    MessageBox MB_ICONSTOP|MB_OK "复制Scripts文件夹失败，安装中止。"
+    MessageBox MB_ICONSTOP|MB_OK "复制Scripts文件夹失败，安装中止，可能需要关闭3dsMax后重试！"
     SetErrors
     Abort "安装失败：复制Scripts文件失败"
   ${EndIf}
@@ -859,7 +859,7 @@ Function InstallVersionFiles
   SetOutPath "$R0UI_ln"
   File /r "UI_ln\*.*"
   ${If} ${Errors}
-    MessageBox MB_ICONSTOP|MB_OK "复制UI_ln文件夹失败，安装中止。"
+    MessageBox MB_ICONSTOP|MB_OK "复制UI_ln文件夹失败，安装中止，可能需要关闭3dsMax后重试！"
     SetErrors
     Abort "安装失败：复制UI_ln文件失败"
   ${EndIf}
