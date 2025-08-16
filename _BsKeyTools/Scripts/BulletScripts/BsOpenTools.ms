@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-05-11 23:37:12
+ * @LastEditTime: 2025-08-17 02:22:52
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -125,7 +125,7 @@ rollout rolAddItem "添加常用路径" width:340 height:80
 
 rollout rolBsOpenTools "" width:580 height:400
 (
-	groupbox grpMain "时光机_v1.1" \
+	groupbox grpMain "时光机_v1.2" \
 	width:570 height:395 pos:[5,0]
 	button btnClose "X" pos:[rolBsOpenTools.width - 15,0] height:15 width:15 border:false
 	editText edtBrowseFolder "" text:"" labelOnTop:false align:#right \
@@ -160,13 +160,23 @@ rollout rolBsOpenTools "" width:580 height:400
 	height:18 width:18 pos:[180,50] tooltip:"添加过滤词缀"
 	button btnDelFilterPrefix "－" border:true \
 	height:18 width:18 pos:[200,50] tooltip:"删除选中过滤词缀"
-	checkbutton ckbReverse "倒序" pos:[480,50] height:18 width:40 border:true
-	button btnPrevFolder "上层" tooltip:"返回上层目录，也可右击面板空白处" \
-	height:18 width:40 pos:[525,50] border:true
 	listBox ltbFilterPrefix "" align:#left selection:0 \
 	height:10 width:100 pos:[120,100]
-	radioButtons rdoFileType "" columns:5 \
-	pos:[235,50] labels:#(".max",".fbx",".bip",".ms", ".mzp") 
+	checkbutton ckbReverse "倒序" pos:[420,50] height:18 width:40 border:true
+	button btnPrevFolder "上层" tooltip:"返回上层目录，也可右击面板空白处" \
+	height:18 width:40 pos:[465,50] border:true
+	checkbutton chePreview "预览 >>" pos:[510,50] height:18 width:55 border:true tooltip:"展开预览窗口" checked:false
+	
+	-- 预览窗口相关UI元素
+	groupbox grpPreview "预览窗口" width:360 height:200 pos:[585,5] visible:false
+	dotNetControl dncMaxPreview "System.Windows.Forms.PictureBox" width:350 height:170 pos:[590,25]
+	dotNetControl dncFbxPreview "System.Windows.Forms.Panel" width:340 height:180 pos:[595,200] visible:true
+	
+	-- 文件属性显示区域
+	groupbox grpFileInfo "文件属性" width:360 height:185 pos:[585,210] visible:false
+	label lblFileInfo "" width:340 height:160 pos:[590,230] align:#left
+	radioButtons rdoFileType "" columns:4 \
+	pos:[230,50] labels:#(".max",".fbx",".bip",".ms") 
 
 	checkbox ckbSilentOpen "静默打开Max" pos:[125,240] width:90 height:15 checked:true
 	button btnRecentFileDir "最近打开" border:true \
@@ -222,6 +232,7 @@ rollout rolBsOpenTools "" width:580 height:400
 		)
 	)
 -------------------------------------↑ 文件排序方法 --------------------------------------------------
+
 	Fn fnLoadRecentFileList = -------获取最近打开文件列表
 	(
 		local recentfiles = (getdir #maxData) + "RecentDocuments.xml"
@@ -432,6 +443,299 @@ rollout rolBsOpenTools "" width:580 height:400
 		+ dateTime.Day as string + "  星期" + arrDayWeek[dayWeekID + 1] as string
 	)
 
+	-- 预览相关函数
+	fn fnTogglePreviewWindow state =
+	(
+		if state then
+		(
+			rolBsOpenTools.width = 950
+			grpPreview.visible = true
+			grpFileInfo.visible = true
+			chePreview.text = "预览 <<"
+		)
+		else
+		(
+			rolBsOpenTools.width = 580
+			grpPreview.visible = false
+			grpFileInfo.visible = false
+			chePreview.text = "预览 >>"
+		)
+	)
+
+	-- 获取Max文件版本号（转换为20xx格式）
+	fn fnGetMaxVersionString versionNumber =
+	(
+		-- 直接使用版本号，不需要转换
+		return versionNumber as string
+	)
+	
+	-- 获取文件属性信息
+	fn fnGetFileProperties filePath =
+	(
+		local fileExt = getFilenameType filePath
+		local infoText = ""
+		
+		case fileExt of
+		(
+			".max":
+			(
+				-- Max文件属性
+				try
+				(
+					-- 尝试加载MaxFileUtilities库
+					local assemblyPath = (getDir #scripts) + "\\BulletScripts\\Res\\MaxFileUtilitiesDotNet.dll"
+					if doesFileExist assemblyPath then
+					(
+						local assembly = dotnet.loadAssembly assemblyPath
+						local mfuMFI = dotNetObject "MaxFileUtilities.MaxFileInterface"
+						
+						-- 获取基本信息
+						local generalInfo = mfuMFI.GetGeneralInformation filePath
+						local meshInfo = mfuMFI.GetMeshTotalsInformation filePath
+						local sceneInfo = mfuMFI.GetSceneTotalsInformation filePath
+						
+						-- 构建信息文本
+						-- infoText = "Max文件属性:\n"
+						-- infoText += "Max版本号: " + (generalInfo.MaxVersion as string) + "\n"
+						if generalInfo.ReadableSavedAsVersion != undefined then
+						(
+							infoText += "保存版本: " + (generalInfo.ReadableSavedAsVersion as string) + "\n"
+						)
+						infoText += "\n"
+						-- infoText += "场景统计:\n"
+						infoText += "物体总数: " + (sceneInfo.Total as string) + "\n"
+						infoText += "几何体: " + (sceneInfo.NbOfObjects as string) + "  ||  "
+						infoText += "形状: " + (sceneInfo.NbOfShapes as string) + "\n"
+						infoText += "灯光: " + (sceneInfo.NbOfLights as string) + "  ||  "
+						infoText += "相机: " + (sceneInfo.NbOfCameras as string) + "\n"
+						infoText += "辅助对象: " + (sceneInfo.NbOfHelpers as string) + "  ||  "
+						infoText += "空间扭曲: " + (sceneInfo.NbOfSpaceWarps as string) + "\n"
+												
+						-- 尝试获取骨骼信息
+						try
+						(
+							-- 获取所有对象名称，查找骨骼
+							local allObjects = mfuMFI.GetObjectsNames filePath
+							local boneCount = 0
+							for objName in allObjects do
+							(
+								-- 检查是否包含骨骼相关关键词
+								if matchPattern objName pattern:"*Bone*" or matchPattern objName pattern:"*Bip*" or matchPattern objName pattern:"*Armature*" then
+								(
+									boneCount += 1
+								)
+							)
+							-- infoText += "骨骼统计:\n"
+							infoText += "骨骼数量: " + (boneCount as string) + "\n\n"
+						)
+						catch
+						(
+							-- infoText += "骨骼统计:\n"
+							infoText += "骨骼数量: 无法获取\n\n"
+						)
+						
+						-- infoText += "网格统计:\n"
+						infoText += "顶点数: " + (meshInfo.NbOfVertices as string) + "  ||  "
+						infoText += "面数: " + (meshInfo.NbOfFaces as string) + "\n\n"
+					)
+					else
+					(
+						infoText = "未找到MaxFileUtilities库\n无法获取详细属性\n\n"
+					)
+				)
+				catch
+				(
+					infoText = "获取Max文件属性失败\n" + (getCurrentException()) + "\n\n"
+				)
+			)
+			".fbx":
+			(
+				-- FBX文件属性
+				infoText = "FBX文件属性:\n"
+				infoText += "文件类型: FBX格式\n\n"
+			)
+			".bip":
+			(
+				-- BIP文件属性
+				infoText = "BIP文件属性:\n"
+				infoText += "文件类型: Biped动画\n\n"
+			)
+			".ms":
+			(
+				-- MS文件属性
+				infoText = "MS文件属性:\n"
+				infoText += "文件类型: MAXScript脚本\n\n"
+			)
+			default:
+			(
+				infoText = "未知文件类型\n\n"
+			)
+		)
+		
+		-- 添加通用文件信息
+		try
+		(
+			-- 使用dotNet FileInfo获取文件信息
+			local fileInfo = dotNetObject "System.IO.FileInfo" filePath
+			if fileInfo != undefined and fileInfo.Exists then
+			(
+				-- 获取文件大小
+				local fileSize = fileInfo.Length
+				local fileSizeKB = fileSize / 1024.0
+				local fileSizeMB = fileSize / (1024.0 * 1024.0)
+				local sizeText = if fileSizeMB >= 1.0 then 
+				(
+					-- 保留一位小数显示MB
+					((fileSizeMB * 10) as integer / 10.0) as string + " MB"
+				) else 
+				(
+					-- 保留一位小数显示KB
+					((fileSizeKB * 10) as integer / 10.0) as string + " KB"
+				)
+				infoText += "文件大小: " + sizeText + "\n"
+				
+				-- 获取修改时间
+				local lastWriteTime = fileInfo.LastWriteTime
+				local timeString = lastWriteTime.ToString "yyyy/MM/dd HH:mm:ss"
+				infoText += "修改时间: " + timeString
+			)
+			else
+			(
+				infoText += "文件大小: 无法获取\n"
+				infoText += "修改时间: 无法获取"
+			)
+		)
+		catch
+		(
+			infoText += "文件大小: 获取失败\n"
+			infoText += "修改时间: 获取失败"
+		)
+		
+		return infoText
+	)
+
+	fn fnPreviewFile filePath =
+	(
+		if filePath == undefined or filePath == "" then return false
+		
+		-- 显示文件属性
+		local propertiesText = fnGetFileProperties filePath
+		lblFileInfo.text = propertiesText
+		grpFileInfo.visible = true
+		
+		local fileExt = getFilenameType filePath
+		case fileExt of
+		(
+			".max":
+			(
+				-- Max文件预览缩略图
+				try
+				(
+					-- 显示Max预览控件
+					dncMaxPreview.visible = true
+					dncFbxPreview.visible = false
+					
+					-- 尝试获取Max文件的缩略图
+					local thumbnailFound = false
+					
+					-- 使用专门的dotNet库获取Max文件缩略图
+					try
+					(
+						-- 尝试加载MaxFileUtilities库
+						local assemblyPath = (getDir #scripts) + "\\BulletScripts\\Res\\MaxFileUtilitiesDotNet.dll"
+						if doesFileExist assemblyPath then
+						(
+							local assembly = dotnet.loadAssembly assemblyPath
+							local mfuMFI = dotNetObject "MaxFileUtilities.MaxFileInterface"
+							
+							-- 获取缩略图
+							local thumb = mfuMFI.GetThumbnail filePath
+							if thumb != undefined then
+							(
+								-- 直接使用dotNet bitmap，设置SizeMode确保图片完全显示
+								dncMaxPreview.SizeMode = (dotNetClass "System.Windows.Forms.PictureBoxSizeMode").Zoom
+								dncMaxPreview.Image = thumb
+								thumbnailFound = true
+							)
+						)
+					)
+					catch
+					(
+						-- 如果获取缩略图失败，记录错误信息
+						print "获取Max文件缩略图失败: " + (getCurrentException())
+					)
+					
+					-- 如果没有找到缩略图，显示文件信息
+					if not thumbnailFound then
+					(
+						-- 清除图片
+						dncMaxPreview.Image = undefined
+					)
+				)
+				catch
+				(
+					dncMaxPreview.visible = true
+					dncFbxPreview.visible = false
+					
+					-- 清除图片
+					dncMaxPreview.Image = undefined
+				)
+			)
+			".fbx":
+			(
+				-- FBX文件预览 - 简化版本
+				dncMaxPreview.visible = true
+				dncFbxPreview.visible = false
+				
+				-- 清除图片
+				dncMaxPreview.Image = undefined
+			)
+			".bip":
+			(
+				dncMaxPreview.visible = true
+				dncFbxPreview.visible = false
+				
+				-- 清除图片
+				dncMaxPreview.Image = undefined
+			)
+			".ms":
+			(
+				dncMaxPreview.visible = true
+				dncFbxPreview.visible = false
+				
+				-- 清除图片
+				dncMaxPreview.Image = undefined
+			)
+			default:
+			(
+				dncMaxPreview.visible = true
+				dncFbxPreview.visible = false
+				
+				-- 清除图片
+				dncMaxPreview.Image = undefined
+			)
+		)
+	)
+
+	fn fnGetSelectedFilePath =
+	(
+		local selectedID = ltbFilesList.selection
+		if selectedID == 0 then return undefined
+		
+		local idNew = selectedID
+		if ckbReverse.state == true then 
+		(
+			idNew = (arrFiles.count + arrFolders.count) + 1 - selectedID
+		)
+		
+		if idNew > arrFolders.count then
+		(
+			local idFile = idNew - arrFolders.count
+			return arrFiles[idFile]
+		)
+		return undefined
+	)
+	
 	----------------------------------------------------------------------------------------------------
 	
 	on rolBsOpenTools open do 
@@ -443,6 +747,15 @@ rollout rolBsOpenTools "" width:580 height:400
 		btnAddPathToVavorite.images = #("enss_tools_16i.bmp","enss_tools_16a.bmp",13,5,5,6,6,false,true)
 		btnOpenCurrentDir.images = #("bip_general_i.bmp","bip_general_i.bmp",30,5,5,6,6,false,true)
 		-- btnPrevFolder.images     = #("MergeAnim_24i.bmp","MergeAnim_24i.bmp",4,1,1,1,1,false,true)
+		
+		-- 初始化预览窗口
+		grpPreview.visible = false
+		grpFileInfo.visible = false
+		chePreview.state = false
+		
+		-- 设置PictureBox的SizeMode，确保图片能够完整显示
+		dncMaxPreview.SizeMode = (dotNetClass "System.Windows.Forms.PictureBoxSizeMode").Zoom
+		
 		stLoadConfigAll.fnLoadConfigBsOpenTools ()  ---------------脚本位置等赋值
 		stSetConfigAll.fnSetConfigBsOpenTools ()  ----------------保存位置信息到ini文件	
 		fnRefLikedFolderItems ()
@@ -713,13 +1026,12 @@ rollout rolBsOpenTools "" width:580 height:400
 							(
 								if CheckForSave() then 
 								(
-									loadMaxFile (arrFiles[idFile] as string) useFileUnits:true quiet:ckbSilentOpen.state
+									loadMaxFile arrFiles[idFile] useFileUnits:true quiet:ckbSilentOpen.state
 								)
 							)
 							(rdoFileType.state == 2):(importFile arrFiles[idFile] #noPrompt using:FBXIMP)
 							(rdoFileType.state == 3):(fnLoadBip arrFiles[idFile])
 							(rdoFileType.state == 4):(fileIn arrFiles[idFile])
-							(rdoFileType.state == 5):(fileIn arrFiles[idFile])
 						)
 					)
 				)
@@ -810,6 +1122,32 @@ rollout rolBsOpenTools "" width:580 height:400
 		arrAll = (arrFoldersName + arrFilesName)
 		id = rolBsOpenTools.ltbFilesList.selection
 		rolBsOpenTools.ltbFilesList.selection = arrAll.count + 1 - id
+	)
+
+	-- 预览相关事件
+	on chePreview changed state do
+	(
+		fnTogglePreviewWindow state
+		if state and ltbFilesList.selection != 0 then
+		(
+			local selectedFile = fnGetSelectedFilePath()
+			if selectedFile != undefined then
+			(
+				fnPreviewFile selectedFile
+			)
+		)
+	)
+
+	on ltbFilesList selected id do
+	(
+		if chePreview.state and id != 0 then
+		(
+			local selectedFile = fnGetSelectedFilePath()
+			if selectedFile != undefined then
+			(
+				fnPreviewFile selectedFile
+			)
+		)
 	)
 )
 if (iniPosOpenTools != 0) then (Createdialog rolBsOpenTools fgcolor:myFgColor pos:iniPosOpenTools style:#() lockHeight:true)
