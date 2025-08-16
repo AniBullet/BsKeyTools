@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-08-17 02:22:52
+ * @LastEditTime: 2025-08-17 02:55:21
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -170,11 +170,15 @@ rollout rolBsOpenTools "" width:580 height:400
 	-- 预览窗口相关UI元素
 	groupbox grpPreview "预览窗口" width:360 height:200 pos:[585,5] visible:false
 	dotNetControl dncMaxPreview "System.Windows.Forms.PictureBox" width:350 height:170 pos:[590,25]
-	dotNetControl dncFbxPreview "System.Windows.Forms.Panel" width:340 height:180 pos:[595,200] visible:true
+	dotNetControl dncFbxPreview "System.Windows.Forms.Panel" width:350 height:170 pos:[595,25] visible:false
 	
 	-- 文件属性显示区域
-	groupbox grpFileInfo "文件属性" width:360 height:185 pos:[585,210] visible:false
-	label lblFileInfo "" width:340 height:160 pos:[590,230] align:#left
+	groupbox grpFileInfo "文件属性" width:360 height:155 pos:[585,210] visible:false
+	label lblFileInfo "" width:340 height:120 pos:[590,230] align:#left
+	
+	-- 文件操作按钮
+	button btnCopyPath "复制路径" width:175 height:20 pos:[585,375] tooltip:"复制文件完整路径到剪贴板"
+	button btnCopyFileName "复制文件名" width:175 height:20 pos:[770,375] tooltip:"复制文件名到剪贴板"
 	radioButtons rdoFileType "" columns:4 \
 	pos:[230,50] labels:#(".max",".fbx",".bip",".ms") 
 
@@ -505,11 +509,11 @@ rollout rolBsOpenTools "" width:580 height:400
 						-- infoText += "场景统计:\n"
 						infoText += "物体总数: " + (sceneInfo.Total as string) + "\n"
 						infoText += "几何体: " + (sceneInfo.NbOfObjects as string) + "  ||  "
-						infoText += "形状: " + (sceneInfo.NbOfShapes as string) + "\n"
+						infoText += "形状: " + (sceneInfo.NbOfShapes as string) + "  ||  "
 						infoText += "灯光: " + (sceneInfo.NbOfLights as string) + "  ||  "
-						infoText += "相机: " + (sceneInfo.NbOfCameras as string) + "\n"
+						infoText += "相机: " + (sceneInfo.NbOfCameras as string) + "  ||  "
 						infoText += "辅助对象: " + (sceneInfo.NbOfHelpers as string) + "  ||  "
-						infoText += "空间扭曲: " + (sceneInfo.NbOfSpaceWarps as string) + "\n"
+						infoText += "空间扭曲: " + (sceneInfo.NbOfSpaceWarps as string) + "  ||  "
 												
 						-- 尝试获取骨骼信息
 						try
@@ -592,7 +596,7 @@ rollout rolBsOpenTools "" width:580 height:400
 					-- 保留一位小数显示KB
 					((fileSizeKB * 10) as integer / 10.0) as string + " KB"
 				)
-				infoText += "文件大小: " + sizeText + "\n"
+				infoText += "文件大小: " + sizeText + "  ||  "
 				
 				-- 获取修改时间
 				local lastWriteTime = fileInfo.LastWriteTime
@@ -1109,6 +1113,54 @@ rollout rolBsOpenTools "" width:580 height:400
 	on btnClose pressed do 
 	(
 		try (destroydialog rolBsOpenTools) catch()
+	)
+	
+	-- 文件操作按钮事件
+	on btnCopyPath pressed do
+	(
+		local selectedFile = fnGetSelectedFilePath()
+		if selectedFile != undefined and doesFileExist selectedFile then
+		(
+			try
+			(
+				-- 使用dotNet剪贴板功能
+				local clipboard = dotNetClass "System.Windows.Forms.Clipboard"
+				clipboard.SetText selectedFile
+				messageBox "文件路径已复制到剪贴板！" title:"复制成功"
+			)
+			catch
+			(
+				messageBox "复制失败：" + (getCurrentException()) title:"复制失败"
+			)
+		)
+		else
+		(
+			messageBox "请先选择一个文件！" title:"提示"
+		)
+	)
+	
+	on btnCopyFileName pressed do
+	(
+		local selectedFile = fnGetSelectedFilePath()
+		if selectedFile != undefined and doesFileExist selectedFile then
+		(
+			try
+			(
+				local fileName = getFilenameFile selectedFile + getFilenameType selectedFile
+				-- 使用dotNet剪贴板功能
+				local clipboard = dotNetClass "System.Windows.Forms.Clipboard"
+				clipboard.SetText fileName
+				messageBox "文件名已复制到剪贴板！" title:"复制成功"
+			)
+			catch
+			(
+				messageBox "复制失败：" + (getCurrentException()) title:"复制失败"
+			)
+		)
+		else
+		(
+			messageBox "请先选择一个文件！" title:"提示"
+		)
 	)
 
 	on edtInputFilter entered textFolder do
