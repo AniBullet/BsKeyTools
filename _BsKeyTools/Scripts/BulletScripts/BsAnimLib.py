@@ -34,48 +34,47 @@ except ImportError:
 
 # ---------------- Path: 通过 getDir #scripts 生成 fbxreview.exe 绝对路径 ----------------
 def get_fbxreview_path():
-    """获取 fbxreview.exe 路径，兼容所有 Max 版本"""
+    """获取 FBX Review 可执行文件路径"""
     try:
-        # 方法1：优先使用 scripts 目录（如你的 animref 一样）
-        scripts_dir = rt.getDir(rt.Name('scripts'))
-        path = os.path.join(scripts_dir, 'BulletScripts', 'Res', 'fbxreview.exe')
-        if os.path.isfile(path):
-            return os.path.normpath(path)
+        # 尝试从环境变量获取
+        env_path = os.environ.get('FBXREVIEW_PATH')
+        if env_path and os.path.isfile(env_path):
+            return env_path
         
-        # 方法2：回退到 publicExchangeStoreInstallPath（如果 scripts 没有）
-        install_dir = rt.getDir(rt.Name('publicExchangeStoreInstallPath'))
-        path = os.path.join(install_dir, 'Scripts', 'Res', 'fbxreview.exe')
-        if os.path.isfile(path):
-            return os.path.normpath(path)
+        # 尝试常见安装路径
+        common_paths = [
+            r"C:\Program Files\Autodesk\FBX\FBX Review\fbxreview.exe",
+            r"C:\Program Files (x86)\Autodesk\FBX\FBX Review\fbxreview.exe",
+            r"C:\Program Files\Autodesk\3ds Max 2026\bin\fbxreview.exe",
+            r"C:\Program Files\Autodesk\3ds Max 2025\bin\fbxreview.exe",
+            r"C:\Program Files\Autodesk\3ds Max 2024\bin\fbxreview.exe",
+            r"C:\Program Files\Autodesk\3ds Max 2023\bin\fbxreview.exe",
+            r"C:\Program Files\Autodesk\3ds Max 2022\bin\fbxreview.exe",
+            r"C:\Program Files\Autodesk\3ds Max 2021\bin\fbxreview.exe",
+            r"C:\Program Files\Autodesk\3ds Max 2020\bin\fbxreview.exe",
+        ]
         
-        # 方法3：检查当前脚本目录相对路径
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        for relative_path in [
-            '../../_BsKeyTools/Scripts/Res/fbxreview.exe',
-            '../Scripts/Res/fbxreview.exe',
-            'Res/fbxreview.exe',
-            'fbxreview.exe'
-        ]:
-            path = os.path.normpath(os.path.join(script_dir, relative_path))
+        for path in common_paths:
             if os.path.isfile(path):
                 return path
         
-        # 方法4：在 Max 安装目录查找
-        max_root = os.path.dirname(os.path.dirname(rt.getDir(rt.Name('maxroot'))))
-        for search_path in [
-            os.path.join(max_root, 'Scripts', 'BulletScripts', 'Res', 'fbxreview.exe'),
-            os.path.join(max_root, 'plugins', 'BsKeyTools', 'Res', 'fbxreview.exe')
-        ]:
-            if os.path.isfile(search_path):
-                return os.path.normpath(search_path)
+        # 尝试从Max脚本目录获取
+        try:
+            import pymxs
+            rt = pymxs.runtime
+            scripts_dir = rt.getDir(rt.Name("scripts"))
+            local_path = os.path.join(scripts_dir, "BulletScripts", "Res", "fbxreview.exe")
+            if os.path.isfile(local_path):
+                return local_path
+        except:
+            pass
         
-        # 返回默认路径（即使不存在，让用户看到期望的位置）
-        return os.path.normpath(os.path.join(scripts_dir, 'BulletScripts', 'Res', 'fbxreview.exe'))
-    
+        # 如果都找不到，返回默认路径
+        return r"C:\Program Files\Autodesk\FBX\FBX Review\fbxreview.exe"
+        
     except Exception as e:
-        print(f"获取 FBX Review 路径失败: {e}")
-        # 返回一个常见的默认路径
-        return r"C:\Program Files\Autodesk\3ds Max 2024\Scripts\BulletScripts\Res\fbxreview.exe"
+        # 返回默认路径
+        return r"C:\Program Files\Autodesk\FBX\FBX Review\fbxreview.exe"
 
 # --------------------------------------------------------------------------------------
 # Win32 API (增强版：包含桌面操作)
@@ -332,7 +331,7 @@ class InvisibleDesktop:
 class WinEmbedArea(QtWidgets.QWidget):
     resized = QtCore.Signal()
     clicked = QtCore.Signal()
-    wheelForward = QtCore.Signal(int, QtCore.QPoint, bool)
+    # wheelForward 信号已移除，使用直接事件转发
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -351,18 +350,48 @@ class WinEmbedArea(QtWidgets.QWidget):
         super().mousePressEvent(e)
 
     def wheelEvent(self, e):
-        ad = e.angleDelta()
-        delta_v = ad.y()
-        delta_h = ad.x()
-        if delta_v != 0:
-            self.wheelForward.emit(delta_v, e.globalPos(), False)
+        """处理滚轮事件，转发给嵌入的FBX Review窗口"""
+        try:
+            # 获取滚轮数据
+            ad = e.angleDelta()
+            delta_v = ad.y()
+            delta_h = ad.x()
+            
+            # 如果有父窗口，尝试转发滚轮事件
+            if hasattr(self, 'parent') and self.parent():
+                try:
+                    # 转发给父窗口处理
+                    self.parent().wheelEvent(e)
+                    return
+                except Exception as parent_error:
+                    # 如果转发失败，尝试直接处理
+                    self._handle_wheel_directly(delta_v, delta_h)
+            else:
+                # 没有父窗口，直接处理
+                self._handle_wheel_directly(delta_v, delta_h)
+            
+            # 接受事件，避免传播
             e.accept()
-            return
-        if delta_h != 0:
-            self.wheelForward.emit(delta_h, e.globalPos(), True)
+            
+        except Exception as e:
             e.accept()
-            return
-        super().wheelEvent(e)
+    
+    def _handle_wheel_directly(self, delta_v, delta_h):
+        """直接处理滚轮事件"""
+        try:
+            # 如果有嵌入的FBX Review窗口，尝试直接发送消息
+            if hasattr(self, 'parent') and self.parent():
+                parent = self.parent()
+                if hasattr(parent, '_child_hwnd') and parent._child_hwnd:
+                    # 尝试直接调用父窗口的滚轮处理方法
+                    if hasattr(parent, '_send_wheel_message'):
+                        mouse_pos = QtWidgets.QApplication.mouse().pos()
+                        if delta_v != 0:
+                            parent._send_wheel_message(parent._child_hwnd, delta_v, mouse_pos, False)
+                        if delta_h != 0:
+                            parent._send_wheel_message(parent._child_hwnd, delta_h, mouse_pos, True)
+        except Exception as e:
+            pass
 
     def enterEvent(self, e):
         self.clicked.emit()
@@ -405,7 +434,7 @@ def get_max_parent_widget():
             from shiboken6 import wrapInstance
             return wrapInstance(int(max_hwnd), QtWidgets.QWidget)
     except Exception as e:
-        print(f"获取 Max 主窗口失败: {e}")
+        pass
     
     # 方法3：返回 None（独立窗口）
     return None
@@ -438,11 +467,20 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
             if app and hasattr(app, 'applicationStateChanged'):
                 app.applicationStateChanged.connect(self._on_app_state_changed)
         except Exception as e:
-            print(f"连接应用状态变化失败: {e}")
+            pass
         
-        print(f"FBX Viewer 初始化完成 - Max {self.max_version}, {self.qt_version}")
-        print(f"FBX Review 路径: {self.fbxreview_path}")
-        print(f"路径存在: {os.path.isfile(self.fbxreview_path)}")
+        # 设置窗口属性，确保能接收滚轮事件
+        self.setAttribute(QtCore.Qt.WA_AlwaysShowToolTips)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.setMouseTracking(True)
+        
+        # 添加定时器来定期检查滚轮事件处理
+        self.wheel_check_timer = QtCore.QTimer()
+        self.wheel_check_timer.timeout.connect(self._check_wheel_handling)
+        self.wheel_check_timer.start(5000)  # 每5秒检查一次
+        
+        # 添加窗口销毁时的清理回调
+        self.destroyed.connect(self._on_destroyed)
 
     def _build_ui(self):
         central = QtWidgets.QWidget(self)
@@ -471,9 +509,221 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
         vbox.addWidget(self.embedArea, 1)
         self.embedArea.resized.connect(self._resize_child)
         self.embedArea.clicked.connect(self._focus_child)
-        self.embedArea.wheelForward.connect(self._forward_wheel_to_child)
-
+        
+        # 滚轮事件现在直接在主窗口处理，不需要转发函数
+        
         self.statusBar().showMessage("准备就绪")
+
+    def wheelEvent(self, e):
+        """主窗口滚轮事件处理，确保滚轮事件能传递到嵌入窗口"""
+        try:
+            # 获取滚轮数据
+            ad = e.angleDelta()
+            delta_v = ad.y()
+            delta_h = ad.x()
+            
+            # 如果有嵌入的FBX Review窗口，转发滚轮事件
+            if hasattr(self, '_child_hwnd') and self._child_hwnd:
+                try:
+                    # 使用Windows API直接发送滚轮消息到嵌入窗口
+                    if delta_v != 0:
+                        self._send_wheel_message(self._child_hwnd, delta_v, self._get_global_pos(e), False)
+                    if delta_h != 0:
+                        self._send_wheel_message(self._child_hwnd, delta_h, self._get_global_pos(e), True)
+                    
+                    # 接受事件，避免传播
+                    e.accept()
+                    return
+                except Exception as wheel_error:
+                    pass
+            
+            # 如果没有嵌入窗口或转发失败，接受事件避免传播
+            e.accept()
+            
+        except Exception as e:
+            e.accept()
+    
+    def _get_global_pos(self, wheel_event):
+        """获取滚轮事件的全局位置，兼容PySide2和PySide6"""
+        try:
+            # 尝试PySide6的方法
+            if hasattr(wheel_event, 'globalPosition'):
+                return wheel_event.globalPosition()
+            # 尝试PySide2的方法
+            elif hasattr(wheel_event, 'globalPos'):
+                return wheel_event.globalPos()
+            # 备用方案：使用当前鼠标位置
+            else:
+                return QtWidgets.QApplication.mouse().pos()
+        except Exception as e:
+            # 最后的备用方案
+            return QtWidgets.QApplication.mouse().pos()
+    
+    def _send_wheel_message(self, hwnd, delta, global_pos, is_horizontal):
+        """使用Windows API发送滚轮消息"""
+        try:
+            # 导入必要的Windows API
+            import ctypes
+
+            # Windows消息常量
+            WM_MOUSEWHEEL = 0x020A
+            WM_MOUSEHWHEEL = 0x020E
+            
+            # 获取鼠标按钮和键盘修饰符状态
+            buttons = QtWidgets.QApplication.mouseButtons()
+            modifiers = QtWidgets.QApplication.keyboardModifiers()
+            
+            # 构建wParam
+            wparam = 0
+            if delta > 0:
+                wparam |= 0x00780000  # WHEEL_DELTA = 120
+            else:
+                wparam |= 0xFF880000  # 负值
+            
+            # 添加按钮状态
+            if buttons & QtCore.Qt.LeftButton:
+                wparam |= 0x0001
+            if buttons & QtCore.Qt.RightButton:
+                wparam |= 0x0002
+            if buttons & QtCore.Qt.MiddleButton:
+                wparam |= 0x0010
+            
+            # 添加键盘修饰符
+            if modifiers & QtCore.Qt.ShiftModifier:
+                wparam |= 0x0004
+            if modifiers & QtCore.Qt.ControlModifier:
+                wparam |= 0x0008
+            
+            # 构建lParam（屏幕坐标），兼容不同Qt版本
+            try:
+                # 尝试获取坐标
+                if hasattr(global_pos, 'x') and hasattr(global_pos, 'y'):
+                    x = global_pos.x()
+                    y = global_pos.y()
+                elif hasattr(global_pos, '__getitem__'):
+                    # 如果是元组或列表
+                    x = global_pos[0]
+                    y = global_pos[1]
+                else:
+                    # 备用方案：使用当前鼠标位置
+                    mouse_pos = QtWidgets.QApplication.mouse().pos()
+                    x = mouse_pos.x()
+                    y = mouse_pos.y()
+                
+                # 确保坐标是整数
+                x = int(x) & 0xFFFF
+                y = int(y) & 0xFFFF
+                lparam = (y << 16) | x
+                
+            except Exception as coord_error:
+                print(f"构建坐标失败: {coord_error}")
+                # 使用默认坐标
+                lparam = 0
+            
+            # 选择消息类型
+            msg = WM_MOUSEHWHEEL if is_horizontal else WM_MOUSEWHEEL
+            
+            # 发送消息
+            result = ctypes.windll.user32.SendMessageW(hwnd, msg, wparam, lparam)
+            
+        except Exception as e:
+            # 如果Windows API失败，尝试其他方法
+            self._fallback_wheel_handling(hwnd, delta, is_horizontal)
+    
+    def _fallback_wheel_handling(self, hwnd, delta, is_horizontal):
+        """滚轮事件处理的备用方案"""
+        try:
+            # 尝试使用Qt的事件系统
+            if hasattr(self, 'embedArea') and self.embedArea:
+                # 创建新的滚轮事件，兼容PySide2和PySide6
+                try:
+                    # 尝试PySide6
+                    from PySide6.QtCore import QPoint
+                    from PySide6.QtGui import QWheelEvent
+                except ImportError:
+                    try:
+                        # 尝试PySide2
+                        from PySide2.QtCore import QPoint
+                        from PySide2.QtGui import QWheelEvent
+                    except ImportError:
+                        return
+                
+                # 获取当前鼠标位置
+                cursor_pos = self.embedArea.mapFromGlobal(QtWidgets.QApplication.mouse().pos())
+                
+                # 创建滚轮事件，兼容不同版本
+                try:
+                    # PySide6方式
+                    wheel_event = QWheelEvent(
+                        cursor_pos,
+                        QtWidgets.QApplication.mouse().pos(),
+                        QPoint(0, delta) if not is_horizontal else QPoint(delta, 0),
+                        QPoint(0, delta) if not is_horizontal else QPoint(delta, 0),
+                        delta,
+                        QtCore.Qt.Vertical if not is_horizontal else QtCore.Qt.Horizontal,
+                        QtWidgets.QApplication.mouseButtons(),
+                        QtWidgets.QApplication.keyboardModifiers()
+                    )
+                except TypeError:
+                    # PySide2方式
+                    wheel_event = QWheelEvent(
+                        cursor_pos,
+                        QtWidgets.QApplication.mouse().pos(),
+                        delta,
+                        QtCore.Qt.Vertical if not is_horizontal else QtCore.Qt.Horizontal,
+                        QtWidgets.QApplication.mouseButtons(),
+                        QtWidgets.QApplication.keyboardModifiers()
+                    )
+                
+                # 发送事件到嵌入区域
+                QtWidgets.QApplication.sendEvent(self.embedArea, wheel_event)
+                
+        except Exception as e:
+            # 最后的备用方案：尝试重新聚焦嵌入区域
+            try:
+                if hasattr(self, 'embedArea') and self.embedArea:
+                    self.embedArea.setFocus()
+            except Exception as focus_error:
+                pass
+
+    def _check_wheel_handling(self):
+        """定期检查滚轮事件处理状态"""
+        try:
+            # 检查窗口是否还存在
+            if not hasattr(self, 'wheel_check_timer') or not self.wheel_check_timer:
+                return
+            
+            # 检查窗口是否还可见
+            if not self.isVisible() or not self.isEnabled():
+                # 如果窗口不可见，停止定时器
+                self._force_stop_timer()
+                return
+            
+            # 检查嵌入区域是否有焦点
+            if hasattr(self, 'embedArea') and self.embedArea:
+                if not self.embedArea.hasFocus():
+                    # 如果嵌入区域失去焦点，尝试恢复
+                    self.embedArea.setFocus()
+                
+                # 检查嵌入区域是否可见和启用
+                if not self.embedArea.isVisible() or not self.embedArea.isEnabled():
+                    self.embedArea.setVisible(True)
+                    self.embedArea.setEnabled(True)
+                    
+        except Exception as e:
+            # 如果出错，强制停止定时器
+            self._force_stop_timer()
+    
+    def _force_stop_timer(self):
+        """强制停止定时器"""
+        try:
+            if hasattr(self, 'wheel_check_timer') and self.wheel_check_timer:
+                self.wheel_check_timer.stop()
+                self.wheel_check_timer.timeout.disconnect()
+                self.wheel_check_timer.deleteLater()
+                self.wheel_check_timer = None
+        except:
+            pass
 
     def _verify_fbxreview(self):
         """验证 FBX Review 可执行文件，提供版本特定的帮助"""
@@ -654,18 +904,6 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
         if self._child_hwnd:
             SetFocus(self._child_hwnd)
 
-    def _forward_wheel_to_child(self, delta, global_pos, is_horizontal):
-        if not self._child_hwnd:
-            return
-        step = 120
-        if delta == 0:
-            return
-        delta_norm = int(round(delta / step)) * step
-        wparam = make_wheel_wparam(delta_norm, QtWidgets.QApplication.mouseButtons(), QtWidgets.QApplication.keyboardModifiers())
-        lparam = make_lparam_from_point(global_pos)
-        msg = WM_MOUSEHWHEEL if is_horizontal else WM_MOUSEWHEEL
-        SendMessageW(self._child_hwnd, msg, wparam, lparam)
-
     def _on_app_state_changed(self, state):
         if state == QtCore.Qt.ApplicationActive:
             self._focus_child()
@@ -688,20 +926,128 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
         self.process = None
 
     def _teardown(self):
-        self._child_hwnd = None
-        self._kill_process()
-        self.invisible_desktop.cleanup()
+        """彻底清理资源"""
+        try:
+            # 强制停止定时器
+            if hasattr(self, 'wheel_check_timer') and self.wheel_check_timer:
+                try:
+                    # 方法1：停止定时器
+                    self.wheel_check_timer.stop()
+                    # 方法2：断开信号连接
+                    self.wheel_check_timer.timeout.disconnect()
+                except:
+                    pass
+                finally:
+                    # 方法3：强制删除
+                    self.wheel_check_timer.deleteLater()
+                    self.wheel_check_timer = None
+            
+            # 清理子窗口句柄
+            self._child_hwnd = None
+            
+            # 强制终止进程
+            self._kill_process()
+            
+            # 清理不可见桌面
+            if hasattr(self, 'invisible_desktop'):
+                self.invisible_desktop.cleanup()
+            
+            # 强制垃圾回收
+            import gc
+            gc.collect()
+            
+        except Exception as e:
+            pass
 
     def closeEvent(self, e):
+        """窗口关闭事件"""
+        try:
+            # 强制停止定时器
+            if hasattr(self, 'wheel_check_timer') and self.wheel_check_timer:
+                try:
+                    # 方法1：停止定时器
+                    self.wheel_check_timer.stop()
+                    # 方法2：断开信号连接
+                    self.wheel_check_timer.timeout.disconnect()
+                except:
+                    pass
+                finally:
+                    # 方法3：强制删除
+                    self.wheel_check_timer.deleteLater()
+                    self.wheel_check_timer = None
+            
+            # 彻底清理资源
+            self._teardown()
+            
+            # 确保进程被强制终止
+            if hasattr(self, 'process') and self.process:
+                try:
+                    self.process.terminate()
+                    self.process.wait(timeout=1.0)
+                except:
+                    try:
+                        self.process.kill()
+                    except:
+                        pass
+                self.process = None
+            
+            # 重置全局变量
+            global _FBXR_WIN
+            if _FBXR_WIN == self:
+                _FBXR_WIN = None
+            
+            # 直接销毁
+            self.destroy()
+            
+            e.accept()
+        except Exception as e:
+            e.accept()
+
+    def _on_destroyed(self):
+        """窗口销毁时的清理回调"""
         self._teardown()
-        super().closeEvent(e)
+        self.process = None
+        self._child_hwnd = None
+        self.invisible_desktop.cleanup()
+        import gc
+        gc.collect()
 
 # --------------------------------------------------------------------------------------
 # 入口
 # --------------------------------------------------------------------------------------
 _FBXR_WIN = None
 
-def show_fbx_viewer():
+def destroy_fbx_viewer():
+    """直接销毁FBX查看器窗口（类似MAXScript的destroydialog）"""
+    global _FBXR_WIN
+    if _FBXR_WIN is not None:
+        try:
+            # 强制停止定时器
+            if hasattr(_FBXR_WIN, 'wheel_check_timer') and _FBXR_WIN.wheel_check_timer:
+                try:
+                    # 方法1：停止定时器
+                    _FBXR_WIN.wheel_check_timer.stop()
+                    # 方法2：断开信号连接
+                    _FBXR_WIN.wheel_check_timer.timeout.disconnect()
+                except:
+                    pass
+                finally:
+                    # 方法3：强制删除
+                    _FBXR_WIN.wheel_check_timer.deleteLater()
+                    _FBXR_WIN.wheel_check_timer = None
+            
+            _FBXR_WIN.destroy()
+            _FBXR_WIN = None
+            import gc
+            gc.collect()
+            return True
+        except Exception as e:
+            _FBXR_WIN = None
+            return False
+    else:
+        return True
+
+def show_fbx_viewer(file_path=None):
     """显示 FBX 查看器，兼容所有 Max 版本"""
     app = QtWidgets.QApplication.instance()
     if app is None:
@@ -711,17 +1057,20 @@ def show_fbx_viewer():
     parent = get_max_parent_widget()
     
     global _FBXR_WIN
-    if _FBXR_WIN is None:
+    
+    # 如果已有窗口，使用直接销毁方法
+    if _FBXR_WIN is not None:
+        destroy_fbx_viewer()
+    
+    # 创建新窗口
+    try:
+        _FBXR_WIN = FbxReviewEmbedder(parent=parent)
+    except Exception as e:
+        # 尝试无父窗口创建
         try:
-            _FBXR_WIN = FbxReviewEmbedder(parent=parent)
-        except Exception as e:
-            print(f"创建 FBX 查看器失败: {e}")
-            # 尝试无父窗口创建
-            try:
-                _FBXR_WIN = FbxReviewEmbedder(parent=None)
-                print("已创建独立窗口模式的 FBX 查看器")
-            except Exception as e2:
-                raise RuntimeError(f"无法创建 FBX 查看器: {e2}")
+            _FBXR_WIN = FbxReviewEmbedder(parent=None)
+        except Exception as e2:
+            raise RuntimeError(f"无法创建 FBX 查看器: {e2}")
     
     # 显示窗口
     try:
@@ -729,25 +1078,20 @@ def show_fbx_viewer():
         _FBXR_WIN.raise_()
         _FBXR_WIN.activateWindow()
         
-        # 版本信息提示
-        max_ver = get_max_version()
-        print(f"FBX Viewer 已启动 - 3ds Max {max_ver} ({QT_VERSION})")
+        # 如果提供了文件路径，自动加载
+        if file_path and os.path.isfile(file_path):
+            _FBXR_WIN.load_file(file_path)
         
         return _FBXR_WIN
     except Exception as e:
-        print(f"显示 FBX 查看器失败: {e}")
         raise
 
-def main():
-    """主入口函数"""
-    return show_fbx_viewer()
 
-if __name__ == "__main__":
-    main()
-else:
-    # 自动启动（当作为模块导入时）
-    try:
+try:
+    # 检查是否有全局文件路径变量
+    if 'FBX_FILE_PATH' in globals():
+        show_fbx_viewer(FBX_FILE_PATH)
+    else:
         show_fbx_viewer()
-    except Exception as e:
-        print(f"自动启动 FBX 查看器失败: {e}")
-        print("请手动调用 show_fbx_viewer() 函数")
+except Exception as e:
+    pass

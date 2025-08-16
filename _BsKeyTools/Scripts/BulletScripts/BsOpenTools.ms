@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-08-17 02:55:21
+ * @LastEditTime: 2025-08-17 04:44:37
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -168,9 +168,8 @@ rollout rolBsOpenTools "" width:580 height:400
 	checkbutton chePreview "预览 >>" pos:[510,50] height:18 width:55 border:true tooltip:"展开预览窗口" checked:false
 	
 	-- 预览窗口相关UI元素
-	groupbox grpPreview "预览窗口" width:360 height:200 pos:[585,5] visible:false
+	groupbox grpPreview "Max文件预览窗口，FBX会弹出额外预览窗" width:360 height:200 pos:[585,5] visible:false
 	dotNetControl dncMaxPreview "System.Windows.Forms.PictureBox" width:350 height:170 pos:[590,25]
-	dotNetControl dncFbxPreview "System.Windows.Forms.Panel" width:350 height:170 pos:[595,25] visible:false
 	
 	-- 文件属性显示区域
 	groupbox grpFileInfo "文件属性" width:360 height:155 pos:[585,210] visible:false
@@ -635,10 +634,6 @@ rollout rolBsOpenTools "" width:580 height:400
 				-- Max文件预览缩略图
 				try
 				(
-					-- 显示Max预览控件
-					dncMaxPreview.visible = true
-					dncFbxPreview.visible = false
-					
 					-- 尝试获取Max文件的缩略图
 					local thumbnailFound = false
 					
@@ -678,43 +673,57 @@ rollout rolBsOpenTools "" width:580 height:400
 				)
 				catch
 				(
-					dncMaxPreview.visible = true
-					dncFbxPreview.visible = false
-					
 					-- 清除图片
 					dncMaxPreview.Image = undefined
 				)
 			)
 			".fbx":
 			(
-				-- FBX文件预览 - 简化版本
+				-- FBX文件预览 - 直接filein Python脚本
 				dncMaxPreview.visible = true
-				dncFbxPreview.visible = false
 				
-				-- 清除图片
-				dncMaxPreview.Image = undefined
+				local pythonScriptPath = (getDir #scripts) + "\\BulletScripts\\BsAnimLib.py"
+				
+				if doesFileExist pythonScriptPath then
+				(
+					-- 先尝试销毁之前的FBX查看器窗口
+					try
+					(
+						python.execute ("if 'destroy_fbx_viewer' in globals(): destroy_fbx_viewer()")
+					)
+					catch
+					(
+						print "销毁之前的FBX查看器失败，继续创建新窗口"
+					)
+					
+					-- 设置全局变量存储文件路径
+					python.execute ("FBX_FILE_PATH = r'" + filePath + "'")
+					
+					-- 加载并执行Python脚本
+					python.ExecuteFile pythonScriptPath
+				)
+				else
+				(
+					-- 回退到外部FBX Review
+					local fbxReviewPath = (getDir #scripts) + "\\BulletScripts\\Res\\fbxreview.exe"
+					if doesFileExist fbxReviewPath then
+					(
+						shellLaunch fbxReviewPath filePath
+					)
+				)
 			)
 			".bip":
 			(
-				dncMaxPreview.visible = true
-				dncFbxPreview.visible = false
-				
 				-- 清除图片
 				dncMaxPreview.Image = undefined
 			)
 			".ms":
 			(
-				dncMaxPreview.visible = true
-				dncFbxPreview.visible = false
-				
 				-- 清除图片
 				dncMaxPreview.Image = undefined
 			)
 			default:
 			(
-				dncMaxPreview.visible = true
-				dncFbxPreview.visible = false
-				
 				-- 清除图片
 				dncMaxPreview.Image = undefined
 			)
