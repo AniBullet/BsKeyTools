@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-08-18 10:56:48
+ * @LastEditTime: 2025-08-18 22:52:24
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -697,10 +697,10 @@ rollout rolBsOpenTools "" width:580 height:400
 					)
 					
 					-- 设置全局变量存储文件路径
-					python.execute ("FBX_FILE_PATH = r'" + filePath + "'")
+					try(python.execute ("FBX_FILE_PATH = r'" + filePath + "'"))catch()
 					
 					-- 加载并执行Python脚本
-					python.ExecuteFile pythonScriptPath
+					try(python.ExecuteFile pythonScriptPath)catch()
 				)
 				else
 				(
