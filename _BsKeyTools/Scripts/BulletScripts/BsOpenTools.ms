@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-08-17 04:44:37
+ * @LastEditTime: 2025-08-18 10:56:48
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -168,7 +168,7 @@ rollout rolBsOpenTools "" width:580 height:400
 	checkbutton chePreview "预览 >>" pos:[510,50] height:18 width:55 border:true tooltip:"展开预览窗口" checked:false
 	
 	-- 预览窗口相关UI元素
-	groupbox grpPreview "Max文件预览窗口，FBX会弹出额外预览窗" width:360 height:200 pos:[585,5] visible:false
+	groupbox grpPreview "Max文件预览窗口，FBX会弹出额外预览窗（仅高版本max）" width:360 height:200 pos:[585,5] visible:false
 	dotNetControl dncMaxPreview "System.Windows.Forms.PictureBox" width:350 height:170 pos:[590,25]
 	
 	-- 文件属性显示区域
