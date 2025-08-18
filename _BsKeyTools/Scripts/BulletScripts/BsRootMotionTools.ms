@@ -1342,14 +1342,9 @@ fn OnApplyNewRoot sender args = (
 			
 			-- 处理父子关系
 			if originalRootObj != undefined then (
-				-- 有原Root的情况：将质心的父级设置为原Root，原Root应用临时Root的动画
-				
-				-- 确保质心的父级是原Root
 				if pelvisObj.parent != originalRootObj then (
 					pelvisObj.parent = originalRootObj
 				)
-				
-				-- 将临时Root的完整变换应用到原Root
 				local frameIndex = 1
 				local originalAnimState = animButtonState
 				try (
@@ -1358,7 +1353,6 @@ fn OnApplyNewRoot sender args = (
 					for t = animationRange.start to animationRange.end do (
 						at time t (
 							with animate on (
-								-- 直接应用完整的变换矩阵
 								originalRootObj.transform = tempRootTransformList[frameIndex]
 							)
 							frameIndex += 1
@@ -1369,19 +1363,13 @@ fn OnApplyNewRoot sender args = (
 					print ("应用原Root动画时出错: " + ex as string)
 					animButtonState = originalAnimState
 				)
-				
 			) else (
-				-- 没有原Root的情况：创建新的Root并应用动画
-				
-				-- 创建新的Root对象
 				local newRoot = Point()
 				newRoot.name = "Root"
 				newRoot.wirecolor = color 0 255 0  -- 绿色
 				newRoot.size = 80
 				newRoot.cross = true
 				newRoot.box = true
-				
-				-- 将临时Root的完整变换应用到新Root
 				local frameIndex = 1
 				local originalAnimState = animButtonState
 				try (
@@ -1390,7 +1378,6 @@ fn OnApplyNewRoot sender args = (
 					for t = animationRange.start to animationRange.end do (
 						at time t (
 							with animate on (
-								-- 直接应用完整的变换矩阵
 								newRoot.transform = tempRootTransformList[frameIndex]
 							)
 							frameIndex += 1
@@ -1401,63 +1388,50 @@ fn OnApplyNewRoot sender args = (
 					print ("应用新Root动画时出错: " + ex as string)
 					animButtonState = originalAnimState
 				)
-				
-				-- 设置质心的父级为新Root
 				pelvisObj.parent = newRoot
-				
-				-- 更新修改器的原Root引用
 				modifier.OriginalRootHandle = newRoot.inode.handle
 				setUserProp controllerObj "BsRMOriginalRoot" newRoot.name
 			)
 			
 			-- 创建Biped层来处理偏移
 			try (
-				-- 创建第一个偏移层（参考BsRetargetTools的方法）
+				-- 第一层：严格参考BsRetargetTools.ms，恢复原始位置和旋转
 				biped.createLayer pelvisObj.controller 1 "RootMotionOffset"
 				biped.setCurrentLayer pelvisObj.controller 1
-				
 				local frameIndex = 1
 				for t = animationRange.start to animationRange.end do (
 					slidertime = t
 					with animate on (
-						-- 恢复原始Biped位置
 						local bipedPos = bipedPosList[frameIndex]
 						in coordsys world Biped.setTransform pelvisObj #pos bipedPos true
-						
-						-- 使用当前父节点的旋转作为参考（适配原Root或新建Root），并在当前帧获取
 						local parentNode = pelvisObj.parent
 						local rootRot = if parentNode != undefined then (
-							at time t parentNode.controller.rotation
+							at time t (in coordsys world parentNode.rotation)
 						) else (
 							(matrix3 1).rotation
 						)
 						local bipedRot = bipedRotList[frameIndex]
-						local localRot = bipedRot * (inverse rootRot)  -- 参考代码的公式
+						local localRot = bipedRot * (inverse rootRot)
 						Biped.setTransform pelvisObj #rotation localRot true
-						
 						frameIndex += 1
 					)
 				)
-				
-				-- 创建第二个反向层：仅还原位置，不再重设旋转，避免抵消第一层的局部旋转修正
+				-- 第二层：严格参考bsretarget，直接还原世界空间旋转
 				biped.createLayer pelvisObj.controller 2 "RootMotionReverse"
 				biped.setCurrentLayer pelvisObj.controller 2
 				frameIndex = 1
 				for t = animationRange.start to animationRange.end do (
 					slidertime = t
 					with animate on (
-						-- 仅设置原始位置
 						local bipedPos = bipedPosList[frameIndex]
 						in coordsys world Biped.setTransform pelvisObj #pos bipedPos true
-						-- 保留第一层计算好的局部旋转
+						local bipedRot = bipedRotList[frameIndex]
+						in coordsys world Biped.setTransform pelvisObj #rotation bipedRot true
 						frameIndex += 1
 					)
 				)
-				
-				-- 塌陷层（重要！）
 				biped.collapseAtLayer pelvisObj.controller 1
 				biped.collapseAtLayer pelvisObj.controller 0
-				
 			) catch (
 				-- 如果Biped层创建失败，使用基本的位置设置
 				local frameIndex = 1
