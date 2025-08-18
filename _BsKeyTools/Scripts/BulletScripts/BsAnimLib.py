@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 FBX Viewer for 3ds Max - 全版本兼容（2020-2026+）
 在 3ds Max 内嵌入 FBX Review 查看器，支持实时交互和材质显示
 """
+from __future__ import unicode_literals
+
 import ctypes
 import os
 import subprocess
@@ -281,6 +282,57 @@ def make_lparam_from_point(global_qpoint):
     return (y << 16) | x
 
 # --------------------------------------------------------------------------------------
+# HWND/WinId 兼容获取（处理 PyCObject/PyCapsule）
+# --------------------------------------------------------------------------------------
+def _to_hwnd_int(win_id_obj):
+    """将 Qt 的 winId 对象安全转换为 HWND(int)，兼容 PySide/PySide2/PySide6 与 Py2/3。"""
+    try:
+        return int(win_id_obj)
+    except Exception:
+        pass
+    # 尝试 __int__ 方法
+    try:
+        if hasattr(win_id_obj, '__int__'):
+            return int(win_id_obj.__int__())
+    except Exception:
+        pass
+    # PyCapsule (Python3)
+    try:
+        _py = ctypes.pythonapi
+        _py.PyCapsule_GetPointer.restype = ctypes.c_void_p
+        _py.PyCapsule_GetPointer.argtypes = [ctypes.py_object, ctypes.c_char_p]
+        ptr = _py.PyCapsule_GetPointer(win_id_obj, None)
+        if ptr:
+            return int(ctypes.c_void_p(ptr).value)
+    except Exception:
+        pass
+    # PyCObject (Python2)
+    try:
+        _py = ctypes.pythonapi
+        _py.PyCObject_AsVoidPtr.restype = ctypes.c_void_p
+        _py.PyCObject_AsVoidPtr.argtypes = [ctypes.py_object]
+        ptr = _py.PyCObject_AsVoidPtr(win_id_obj)
+        if ptr:
+            return int(ctypes.c_void_p(ptr).value)
+    except Exception:
+        pass
+    raise TypeError("无法从 winId 提取有效的 HWND")
+
+def _get_hwnd_from_widget(widget):
+    try:
+        win_id = widget.winId()
+        return _to_hwnd_int(win_id)
+    except Exception:
+        # 最后尝试 windowHandle 获取
+        try:
+            handle = widget.windowHandle()
+            if handle and hasattr(handle, 'winId'):
+                return _to_hwnd_int(handle.winId())
+        except Exception:
+            pass
+    return None
+
+# --------------------------------------------------------------------------------------
 # 不可见桌面管理器
 # --------------------------------------------------------------------------------------
 class InvisibleDesktop:
@@ -295,7 +347,7 @@ class InvisibleDesktop:
             self.original_desktop = GetThreadDesktop(GetCurrentThreadId())
             
             # 创建新的隐藏桌面
-            desktop_name = f"BsFbxHidden_{int(time.time())}"
+            desktop_name = "BsFbxHidden_%d" % int(time.time())
             self.desktop_handle = CreateDesktopW(
                 desktop_name, None, None, 0,
                 DESKTOP_CREATEWINDOW | DESKTOP_ENUMERATE | DESKTOP_WRITEOBJECTS | DESKTOP_READOBJECTS,
@@ -334,7 +386,7 @@ class WinEmbedArea(QtWidgets.QWidget):
     # wheelForward 信号已移除，使用直接事件转发
 
     def __init__(self, parent=None):
-        super().__init__(parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.setAttribute(QtCore.Qt.WA_NativeWindow, True)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setMouseTracking(True)
@@ -342,12 +394,12 @@ class WinEmbedArea(QtWidgets.QWidget):
         self.setStyleSheet("background:#202020;")
 
     def resizeEvent(self, e):
-        super().resizeEvent(e)
+        QtWidgets.QWidget.resizeEvent(self, e)
         self.resized.emit()
 
     def mousePressEvent(self, e):
         self.clicked.emit()
-        super().mousePressEvent(e)
+        QtWidgets.QWidget.mousePressEvent(self, e)
 
     def wheelEvent(self, e):
         """处理滚轮事件，转发给嵌入的FBX Review窗口"""
@@ -395,7 +447,7 @@ class WinEmbedArea(QtWidgets.QWidget):
 
     def enterEvent(self, e):
         self.clicked.emit()
-        super().enterEvent(e)
+        QtWidgets.QWidget.enterEvent(self, e)
 
 # --------------------------------------------------------------------------------------
 # 主窗口
@@ -441,13 +493,13 @@ def get_max_parent_widget():
 
 class FbxReviewEmbedder(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        QtWidgets.QMainWindow.__init__(self, parent)
         
         # 版本信息
         self.max_version = get_max_version()
         self.qt_version = QT_VERSION
         
-        self.setWindowTitle(f"FBX Viewer (Max {self.max_version}, {self.qt_version})")
+        self.setWindowTitle("FBX Viewer (Max %s, %s)" % (self.max_version, self.qt_version))
         self.resize(1200, 800)
         
         # 初始化路径和进程
@@ -513,6 +565,15 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
         # 滚轮事件现在直接在主窗口处理，不需要转发函数
         
         self.statusBar().showMessage("准备就绪")
+        # 状态栏忙碌指示器（不确定进度时使用不确定进度条）
+        try:
+            self._busy = QtWidgets.QProgressBar()
+            self._busy.setRange(0, 0)
+            self._busy.setFixedWidth(120)
+            self._busy.hide()
+            self.statusBar().addPermanentWidget(self._busy)
+        except Exception:
+            self._busy = None
 
     def wheelEvent(self, e):
         """主窗口滚轮事件处理，确保滚轮事件能传递到嵌入窗口"""
@@ -616,7 +677,7 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
                 lparam = (y << 16) | x
                 
             except Exception as coord_error:
-                print(f"构建坐标失败: {coord_error}")
+                print("构建坐标失败: %s" % (coord_error,))
                 # 使用默认坐标
                 lparam = 0
             
@@ -731,19 +792,21 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
             # 根据 Max 版本提供不同的帮助信息
             if self.max_version >= 2026:
                 help_text = (
-                    f"未找到 FBX Review 可执行文件。\n\n"
-                    f"路径: {self.fbxreview_path}\n\n"
-                    f"对于 3ds Max {self.max_version}，请确保：\n"
-                    f"1. FBX Review 已正确安装\n"
-                    f"2. 路径指向正确的可执行文件\n"
-                    f"3. 或将 fbxreview.exe 放置在上述路径中"
+                    "未找到 FBX Review 可执行文件。\n\n"
+                    "路径: %s\n\n"
+                    "对于 3ds Max %s，请确保：\n"
+                    "1. FBX Review 已正确安装\n"
+                    "2. 路径指向正确的可执行文件\n"
+                    "3. 或将 fbxreview.exe 放置在上述路径中"
+                    % (self.fbxreview_path, self.max_version)
                 )
             else:
                 help_text = (
-                    f"未找到 FBX Review 可执行文件。\n\n"
-                    f"当前路径: {self.fbxreview_path}\n"
-                    f"Max 版本: {self.max_version}\n\n"
-                    f"请检查 FBX Review 是否已安装，或将 fbxreview.exe 放在正确位置。"
+                    "未找到 FBX Review 可执行文件。\n\n"
+                    "当前路径: %s\n"
+                    "Max 版本: %s\n\n"
+                    "请检查 FBX Review 是否已安装，或将 fbxreview.exe 放在正确位置。"
+                    % (self.fbxreview_path, self.max_version)
                 )
             
             QtWidgets.QMessageBox.warning(self, "找不到 FBX Review", help_text)
@@ -783,33 +846,56 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
             return
 
         self.current_file = file_path
-        self.statusBar().showMessage(f"加载：{file_path}")
-        self._teardown()
+        self.statusBar().showMessage("加载：%s" % (file_path,))
+        # 显示忙碌提示
+        try:
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.BusyCursor)
+        except Exception:
+            pass
+        if hasattr(self, '_busy') and self._busy:
+            try:
+                self._busy.show()
+            except Exception:
+                pass
 
-        # 方案1：隐藏桌面启动（彻底无闪现）
-        hwnd = self._try_invisible_desktop_launch()
-        if hwnd:
-            self._embed(hwnd)
-            return
+        try:
+            self._teardown()
 
-        # 方案2：隐藏启动回退
-        if self._start_fbxreview("hidden"):
-            hwnd = self._wait_and_find_hwnd(timeout_sec=12.0)
+            # 方案1：隐藏桌面启动（彻底无闪现）
+            hwnd = self._try_invisible_desktop_launch()
             if hwnd:
                 self._embed(hwnd)
                 return
-            self._kill_process()
 
-        # 方案3：最小化启动
-        if self._start_fbxreview("minimized"):
-            hwnd = self._wait_and_find_hwnd(timeout_sec=8.0)
-            if hwnd:
-                self._embed(hwnd)
-                return
-            self._kill_process()
+            # 方案2：隐藏启动回退
+            if self._start_fbxreview("hidden"):
+                hwnd = self._wait_and_find_hwnd(timeout_sec=12.0)
+                if hwnd:
+                    self._embed(hwnd)
+                    return
+                self._kill_process()
 
-        QtWidgets.QMessageBox.warning(self, "嵌入失败", "未能获取 FBX Review 窗口，将外部打开。")
-        self.open_external()
+            # 方案3：最小化启动
+            if self._start_fbxreview("minimized"):
+                hwnd = self._wait_and_find_hwnd(timeout_sec=8.0)
+                if hwnd:
+                    self._embed(hwnd)
+                    return
+                self._kill_process()
+
+            QtWidgets.QMessageBox.warning(self, "嵌入失败", "未能获取 FBX Review 窗口，将外部打开。")
+            self.open_external()
+        finally:
+            # 恢复忙碌提示
+            try:
+                QtWidgets.QApplication.restoreOverrideCursor()
+            except Exception:
+                pass
+            if hasattr(self, '_busy') and self._busy:
+                try:
+                    self._busy.hide()
+                except Exception:
+                    pass
 
     def _try_invisible_desktop_launch(self):
         """在不可见桌面启动，彻底无闪现"""
@@ -852,7 +938,7 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
             return None
             
         except Exception as e:
-            self.statusBar().showMessage(f"隐藏桌面方案失败: {e}")
+            self.statusBar().showMessage("隐藏桌面方案失败: %s" % (e,))
             return None
 
     def _start_fbxreview(self, mode="hidden"):
@@ -884,14 +970,17 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
 
     # ---- 嵌入/尺寸/焦点/滚轮转发 ----
     def _embed(self, child_hwnd):
-        container_hwnd = int(self.embedArea.winId())
+        container_hwnd = _get_hwnd_from_widget(self.embedArea)
+        if container_hwnd is None:
+            QtWidgets.QMessageBox.critical(self, "嵌入失败", "无法获取容器窗口句柄")
+            return
         SetParent(child_hwnd, container_hwnd)
         make_child_style(child_hwnd)
         self._child_hwnd = child_hwnd
         self._resize_child()
         ShowWindow(child_hwnd, SW_SHOW)
         self._focus_child()
-        self.statusBar().showMessage(f"已加载：{os.path.basename(self.current_file)}")
+        self.statusBar().showMessage("已加载：%s" % (os.path.basename(self.current_file),))
 
     def _resize_child(self):
         if not self._child_hwnd:
@@ -909,7 +998,7 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
             self._focus_child()
 
     def focusInEvent(self, e):
-        super().focusInEvent(e)
+        QtWidgets.QMainWindow.focusInEvent(self, e)
         self._focus_child()
 
     # ---- 清理 ----
@@ -1070,7 +1159,7 @@ def show_fbx_viewer(file_path=None):
         try:
             _FBXR_WIN = FbxReviewEmbedder(parent=None)
         except Exception as e2:
-            raise RuntimeError(f"无法创建 FBX 查看器: {e2}")
+            raise RuntimeError("无法创建 FBX 查看器: %s" % (e2,))
     
     # 显示窗口
     try:
