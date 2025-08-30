@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-07-19 10:44:16
+ * @LastEditTime: 2025-08-31 03:12:49
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -430,7 +430,7 @@ rcmenu menuQuickCreateNode
 					rolBsRetarget.characterBones.items = tempItems
 				)
 			)
-			else (messageBox "请先验证并检查映射列表是否完整！                                       " title:"BsRetargetTools")
+			-- else (messageBox "请先验证并检查映射列表是否完整！                                       " title:"BsRetargetTools")
 		)
 	)
 
@@ -636,7 +636,7 @@ rcmenu menuBsRetarget
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v4.7 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v4.8 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
@@ -704,9 +704,9 @@ rollout rolBsRetarget "BsRetargetTools_v4.7 （ FBX 转 BIP + 动画重定向 �
 
 	groupbox grpBoneTips "【慎用】除非你知道用途" pos:[490,498] width:(btnWidth + 10) height:125
 
-	checkbox chkRealign "是否重置 Bone 轴向" pos:[500,520] height:20 width:(btnWidth - 10) checked:false
+	checkbox chkRealign "↓↓ 重置 Bone 轴向 ↓↓" pos:[500,520] height:20 width:(btnWidth - 10) checked:false
 	button btnConvertToBone "[慎用] Helper 转 Bone" pos:[495,545] height:20 width:(btnWidth) tooltip:"需要选中"
-	checkbox chkFbxMixBip "FBX套接Biped当控制" pos:[500,595] height:20 width:(btnWidth - 10) checked:false
+	checkbox chkFbxMixBip "FBX 套接 Biped 控制" pos:[500,595] height:20 width:(btnWidth - 10) checked:false
 	
 	button btnRefreshFolder ">>  按默认规则刷新路径和文件  <<" \
 	height:40 width:225 pos:[240,65] tooltip:"刷新当前文件目录\r\n并按默认规则寻找文件\r\n映射文件为当前打开文件\r\n新 Skin 文件为同目录 Skin.max" visible:false
@@ -4228,7 +4228,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.7 （ FBX 转 BIP + 动画重定向 �
 
 	on btnConvertToBone pressed do with undo on
 	(
-		if (queryBox "因轴向原因转换可能会导致骨骼错乱，\r\n\r\n建议只选需要解算的飘带转换，\r\n\r\n注意备份文件！                                                     " \
+		if (queryBox "注意备份文件！\r\n\r\n注意备份文件！\r\n\r\n注意备份文件！                                                     " \
 		title:"BsRetargetTools Tips" beep:false) then
 		(
 			arrConvertBones = (selection as array)
@@ -4239,15 +4239,19 @@ rollout rolBsRetarget "BsRetargetTools_v4.7 （ FBX 转 BIP + 动画重定向 �
 				(
 					fnConvertToBone i
 				)
-				for i in arrConvertBones where (classof i.controller != Vertical_Horizontal_Turn) and (i.parent != undefined) do 
+				if (chkRealign.state) then
 				(
-					if (chkRealign.state) and i.children.count == 1 then
+					if (queryBox "会重置蒙皮影响！会重置蒙皮影响！\r\n\r\n请确认使用的是蒙皮姿势 (SkinPose)                                                     " \
+					title:"BsRetargetTools Tips" beep:false) then
 					(
-						i.realignBoneToChild()
+						for i in arrConvertBones where (classof i.controller != Vertical_Horizontal_Turn) and (i.parent != undefined) do 
+						(
+							i.realignBoneToChild()
+						)
 					)
+					fnRefreshSkinDeform()
 				)
 				-- format "ConvertToBone Cost % s\n" ((timeStamp()-tm)*0.001)
-				if chkRealign.state then fnRefreshSkinDeform()
 			)
 		)
 	)
@@ -4270,7 +4274,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.7 （ FBX 转 BIP + 动画重定向 �
 	)
 )
 
-createDialog rolBsRetarget 650 700 style:#(#style_titlebar, #style_sysmenu, #style_toolwindow) lockHeight:true lockWidth:true fgcolor:myFgColor
+createDialog rolBsRetarget 650 700 style:#(#style_sysmenu, #style_toolwindow) fgcolor:myFgColor
 
 
 
