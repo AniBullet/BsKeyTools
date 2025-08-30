@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-08-31 03:12:49
+ * @LastEditTime: 2025-08-31 04:10:32
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -468,6 +468,47 @@ rcmenu menuQuickCreateNode
 		rolBsRetarget.characterBones_B.items = arrListItemB
 	)
 
+	fn fnQuickTempRoot =
+	(
+		try
+		(
+			local leftLeg = GetSkeletalNode 12 false
+			local rightLeg = GetSkeletalNode 17 false
+			
+			local hip = GetSkeletalNode 1 false
+			local pelvis = GetSkeletalNode 2 false
+			
+			local dummyHip = point name:("NewHip_" + hip.name)
+			local dummyPelvis = point name:("NewPelvis_" + pelvis.name)
+
+			dummyHip.constantscreensize = false
+			dummyHip.size = 0.01
+
+			dummyPelvis.constantscreensize = false
+			dummyPelvis.size = 0.01
+			
+			dummyHip.transform = hip.transform
+			dummyHip.pos = 0.5 * (leftLeg.pos + rightLeg.pos)
+			dummyPelvis.transform = dummyHip.transform
+
+			dummyHip.parent = hip
+			dummyPelvis.parent = pelvis
+			
+			tempItems = rolBsRetarget.characterBones.items
+			tempItems[1] = dummyHip.name
+			tempItems[2] = dummyPelvis.name
+			rolBsRetarget.characterBones.items = tempItems
+
+			messagebox "已根据大腿重新创建符合 Biped 的质心和盆骨，并且更新了映射列表！                                                          "
+
+			hasExtraHips = true
+		)
+		catch
+		(
+            messagebox "请先添加骨骼映射！                 "
+		)
+	)
+
 	on quickMakeParent picked do
 	(
 		if $ != undefined then
@@ -510,75 +551,7 @@ rcmenu menuQuickCreateNode
 	)
 	on quickCenterRoot picked do
 	(
-		try
-		(
-			local leftLeg = GetSkeletalNode 12 false
-			local rightLeg = GetSkeletalNode 17 false
-			
-			local hip = GetSkeletalNode 1 false
-			local pelvis = GetSkeletalNode 2 false
-			
-			local dummyHip = point name:("NewHip_" + hip.name)
-			local dummyPelvis = point name:("NewPelvis_" + pelvis.name)
-
-			dummyHip.constantscreensize = false
-			dummyHip.size = 0.01
-
-			dummyPelvis.constantscreensize = false
-			dummyPelvis.size = 0.01
-			
-			dummyHip.transform = hip.transform
-			dummyHip.pos = 0.5 * (leftLeg.pos + rightLeg.pos)
-			dummyPelvis.transform = dummyHip.transform
-
-			-- local pC = Position_Constraint()
-			-- pC.appendTarget hip 100
-			-- dummyHip.Position.controller = pC
-			-- pC.relative = true
-			
-			-- local oC = Orientation_Constraint()
-			-- oC.appendTarget hip 100
-			-- dummyHip.Rotation.controller = oC
-			-- oC.relative = true
-
-			dummyHip.parent = hip
-			dummyPelvis.parent = pelvis
-			
-			tempItems = rolBsRetarget.characterBones.items
-			tempItems[1] = dummyHip.name
-			tempItems[2] = dummyPelvis.name
-			rolBsRetarget.characterBones.items = tempItems
-
-			-- if hip.parent != undefined then
-			-- (
-			-- 	boneRootMotionTarget = hip.parent
-			-- 	boneRootMotion = dummy name:("Root_" + boneRootMotionTarget.name)
-			-- 	boneRootMotion.transform = boneRootMotionTarget.transform
-			-- 	-- dummyHip.parent = boneRootMotion
-			-- 	local pC = Position_Constraint()
-			-- 	pC.appendTarget boneRootMotionTarget 100
-			-- 	boneRootMotion.Position.controller = pC
-			-- 	pC.relative = true
-				
-			-- 	local oC = Orientation_Constraint()
-			-- 	oC.appendTarget boneRootMotionTarget 100
-			-- 	boneRootMotion.Rotation.controller = oC
-			-- 	oC.relative = true
-			-- )
-
-			messagebox "已根据大腿重新创建符合 Biped 的质心和盆骨，并且更新了映射列表！                                                          "
-			-- pelvis.parent = dummyHip
-
-			-- print leftLeg
-			-- print rightLeg
-			-- print hip
-			-- print pelvis
-			hasExtraHips = true
-		)
-		catch
-		(
-            messagebox "请先添加骨骼映射！                 "
-		)
+		fnQuickTempRoot()
 	)
 
 	on fixOldList picked do 
@@ -2429,7 +2402,7 @@ rollout rolBsRetarget "BsRetargetTools_v4.8 （ FBX 转 BIP + 动画重定向 �
 		local missingFingers = #()
 		local otherMissing = #()
 		local autoCreated = false  -- 标志变量，记录是否进行了自动创建
-		
+
 		for i = 1 to characterBones.items.count do
 		(
 			local checkedNode = GetSkeletalNode i false
