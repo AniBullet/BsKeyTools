@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage
+    SchemaVersion="1.0"
+    AutodeskProduct="3ds Max"
+    ProductType="Application"
+    Name="Posture"
+	Description="Pose Saver For 3Ds Max"
+    AppVersion="1.3.1"
+	Author="Sherzad Bahrami"
+    ProductCode="{f6f0f21d-264d-4219-8a26-4765c2fd3fda}"
+    UpgradeCode="{cd7ffeab-e870-4a0c-854e-11547816f3e4}">
+    <CompanyDetails Name="CGcenter" Url="https://shirzadbahrami.com" />
+    <Components Description="post-start-up scripts parts">
+        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2026" SeriesMax="2026" />
+        <ComponentEntry AppName="Posture" Version="1.3.1" ModuleName="./Contents/2026.ms" />
+    </Components>
+    <Components Description="post-start-up scripts parts">
+        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2025" SeriesMax="2025" />
+        <ComponentEntry AppName="Posture" Version="1.3.1" ModuleName="./Contents/2025.ms" />
+    </Components>
+    <Components Description="post-start-up scripts parts">
+        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2021" SeriesMax="2024" />
+        <ComponentEntry AppName="Posture" Version="1.3.1" ModuleName="./Contents/2021.ms" />
+    </Components>
+    <Components Description="post-start-up scripts parts">
+        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2018" SeriesMax="2020" />
+        <ComponentEntry AppName="Posture" Version="1.3.1" ModuleName="./Contents/2020.ms" />
+    </Components>
+</ApplicationPackage>

@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-08-08 19:39:04
+ * @LastEditTime: 2025-09-04 17:48:20
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -2191,7 +2191,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnSelectionsetTools "集" pos:[70,190] width:20 height:25 \
 	toolTip:"选择集工具增强版" 
 	button btnPoseTool "库" pos:[90,190] width:20 height:25 \
-	toolTip:"参考库工具,待完善"
+	toolTip:"左键新pose库,右键老参考库工具"
 	button btnSetFps "" pos:[110,190] width:50 height:25 \
 	toolTip:"设置帧率" 
 	button btnSetSpeed "" pos:[160,190] width:50 height:25 \
@@ -4454,7 +4454,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	on btnAnimRef pressed do 
 	(
 		try(FileIn ("C:\\ProgramData\\Autodesk\\ApplicationPlugins\\AnimRef\\Contents\\AnimRef_Open.ms"))
-		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 AnimRef.py 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...\r\n\r\n可能当前3ds Max版本不受AnimRef支持。\r\n支持的版本范围: 2018-2026\r\n\r\n也可以右键使用参考大师~~                                                              " beep:false title:"BsKeyTools")
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 AnimRef.py 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...\r\n\r\n可能当前3ds Max版本不受AnimRef支持。\r\n支持的版本范围: 2018-当前最新\r\n\r\n也可以右键使用参考大师~~                                                              " beep:false title:"BsKeyTools")
 	)
 
 	on btnAnimRef rightclick do
@@ -4516,6 +4516,12 @@ rollout rolBsKeyTools "" width:355 height:250
 	)
 
 	on btnPoseTool pressed do 
+	(
+		try(FileIn ("C:\\ProgramData\\Autodesk\\ApplicationPlugins\\Posture\\Contents\\Posture_Open.ms"))
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 Posture.py 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...\r\n\r\n可能当前3ds Max版本不受Posture支持。\r\n支持的版本范围: 2018-当前最新                                                              " beep:false title:"BsKeyTools")
+	)
+
+	on btnPoseTool rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsRefTools.ms"))
 		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsRefTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")

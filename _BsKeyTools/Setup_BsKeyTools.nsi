@@ -1335,6 +1335,24 @@ Section "-Cleanup" ${SEC_ALL}
     DetailPrint "AnimRef文件夹已成功安装"
   ${EndIf}
   
+  ; 安装Posture文件夹到ApplicationPlugins目录
+  DetailPrint "安装Posture到ApplicationPlugins目录..."
+  
+  ; 确保目标文件夹存在
+  CreateDirectory "${APPDATA_PLUGINS_PATH}\Posture"
+  ClearErrors
+  
+  ; 设置输出路径并复制文件
+  SetOutPath "${APPDATA_PLUGINS_PATH}\Posture"
+  File /r "Posture\*.*"
+  
+  ${If} ${Errors}
+    DetailPrint "警告：复制Posture文件夹时遇到问题，可能需要管理员权限。"
+    MessageBox MB_ICONEXCLAMATION|MB_OK "Posture文件夹可能未成功安装。请确保您具有管理员权限，或手动复制Posture文件夹到：${APPDATA_PLUGINS_PATH}"
+  ${Else}
+    DetailPrint "Posture文件夹已成功安装"
+  ${EndIf}
+  
   DetailPrint "安装完成"
 SectionEnd
 
