@@ -2,6 +2,8 @@
 -- By Bullet.S 自用修改版,功能大集合,完全开源免费仅供学习使用,请勿用于商业用途,否则后果自负    
 Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
 Since 2023.03
+v2.0
+1.修复层功能某些ui遮挡导致按钮不灵的问题
 
 v1.9
 1.修复bip层内使用滑动帧导致卡死的bug
@@ -39,7 +41,7 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
-global verBsBipedTools = "v1.9"
+global verBsBipedTools = "v2.0"
 
 try(destroydialog rolBsBipedTools) catch()
 try(destroyDialog rolBSLeftHandPivots)catch()
@@ -1922,7 +1924,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 	button uiCbtDown "" pos:[50,465] width:20 height:20 visible:false border:false
 	button uiCbtUp "" pos:[70,465] width:20 height:20 visible:false border:false
 	label uiLblLayerID "0" pos:[95,469] width:20 height:16 visible:false style_sunkenedge:true readonly:true
-	label uiLblActive "活动" pos:[133,470] width:40 height:25 visible:false
+	label uiLblActive "活动" pos:[130,470] width:25 height:25 visible:false
 	checkbox uiChkActive "" pos:[160,465] width:60 height:25 visible:false checked:true
 	dropDownList ddlLayers "" pos:[50,489] width:110 visible:false
 	checkbutton uiCbtRefreshLayer "R" pos:[160,490] width:15 height:20 visible:false checked:true highlightColor:mcScanBiped tooltip:"刷新"
@@ -3764,7 +3766,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				local tempPanel = getCommandPanelTaskMode()
 				setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
 				local timeBefore = sliderTime
-				disableSceneRedraw()
+				-- disableSceneRedraw()
 				undo on (
 					for obj in selection do (
 						if (IfLimb obj) do (
@@ -3795,7 +3797,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 					) -- for
 				) -- Undo
 				if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
-				enableSceneRedraw()
+				-- enableSceneRedraw()
 				sliderTime = timeBefore
 			)
 			else (messagebox "bip 层内无法使用此功能!                                     " beep:false title:"BsBipedTools")
@@ -3812,7 +3814,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				local tempPanel = getCommandPanelTaskMode()
 				setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
 				local timeBefore = sliderTime
-				disableSceneRedraw()
+				-- disableSceneRedraw()
 				undo on (
 					for obj in selection do (
 						if (IfLimb obj) do (
@@ -3843,7 +3845,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 					) -- for
 				) -- Undo
 				if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
-				enableSceneRedraw()
+				-- enableSceneRedraw()
 				sliderTime = timeBefore
 			)
 			else (messagebox "bip 层内无法使用此功能!                                     " beep:false title:"BsBipedTools")
@@ -3860,7 +3862,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 				local tempPanel = getCommandPanelTaskMode()
 				setCommandPanelTaskMode mode:#motion -- biped.setSlidingKey 等功能只在 Motion 面板正常工作，其他地方会导致错误姿势覆盖
 				local timeBefore = sliderTime
-				disableSceneRedraw()
+				-- disableSceneRedraw()
 				undo on (
 					for obj in selection do (
 						if (IfLimb obj) do (
@@ -3891,7 +3893,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 					) -- for
 				) -- Undo
 				if tempPanel != #motion do setCommandPanelTaskMode mode:tempPanel
-				enableSceneRedraw()
+				-- enableSceneRedraw()
 				sliderTime = timeBefore
 			)
 			else (messagebox "bip 层内无法使用此功能!                                     " beep:false title:"BsBipedTools")
