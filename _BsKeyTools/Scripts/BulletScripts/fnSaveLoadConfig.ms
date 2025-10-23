@@ -106,6 +106,7 @@ struct stLoadConfigAll
 		iniFilterPrefix   = fnGetConfig iniFilterPrefix "BsOpenToolsSet" "FilterPrefix" (iniFilterPrefix as string)
 		iniWidthOpenTools = fnGetConfig iniWidthOpenTools "BsOpenToolsSet" "WidthOpenTools" (iniWidthOpenTools as string)
 		iniDesktop        = fnGetConfig iniDesktop "BsOpenToolsSet" "Desktop" (iniDesktop as string)
+		iniAutoFbxPreview = fnGetConfig iniAutoFbxPreview "BsOpenToolsSet" "AutoFbxPreview" (iniAutoFbxPreview as string)
 	),
 	fn fnLoadConfigBsRefTools =
 	(
@@ -180,6 +181,7 @@ struct stSetConfigAll
 		SetINISetting BulletConfig "BsOpenToolsSet" "FilterPrefix" (iniFilterPrefix as string)
 		SetINISetting BulletConfig "BsOpenToolsSet" "WidthOpenTools" (iniWidthOpenTools as string)
 		SetINISetting BulletConfig "BsOpenToolsSet" "Desktop" (iniDesktop as string)
+		SetINISetting BulletConfig "BsOpenToolsSet" "AutoFbxPreview" (iniAutoFbxPreview as string)
 	),
 	fn fnSetConfigBsRefTools =
 	(

@@ -32,6 +32,39 @@ except ImportError:
     except ImportError:
         raise RuntimeError("需要安装 PySide2 或 PySide6。")
 
+# --------------------------------------------------------------------------------------
+# 启动时清理：查找并关闭所有已存在的 FBX Viewer 窗口
+# 这样可以避免因多次 ExecuteFile 导致的窗口累积问题
+# --------------------------------------------------------------------------------------
+def _cleanup_existing_viewers():
+    """查找并关闭所有已存在的 FBX Viewer 窗口"""
+    try:
+        app = QtWidgets.QApplication.instance()
+        if app:
+            # 遍历所有顶层窗口
+            for widget in app.topLevelWidgets():
+                try:
+                    # 检查窗口标题是否包含 "FBX Viewer"
+                    if widget and hasattr(widget, 'windowTitle'):
+                        title = widget.windowTitle()
+                        if title and "FBX Viewer" in title:
+                            # 找到了旧的 FBX Viewer 窗口，关闭它
+                            try:
+                                widget.close()
+                                widget.deleteLater()
+                            except:
+                                pass
+                except:
+                    pass
+    except:
+        pass
+
+# 脚本加载时自动清理旧窗口
+try:
+    _cleanup_existing_viewers()
+except:
+    pass
+
 
 # ---------------- Path: 通过 getDir #scripts 生成 fbxreview.exe 绝对路径 ----------------
 def get_fbxreview_path():
@@ -1049,21 +1082,26 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
             pass
 
     def closeEvent(self, e):
-        """窗口关闭事件"""
+        """窗口关闭事件 - 彻底销毁窗口"""
+        global _FBXR_WIN  # 在函数开始时声明全局变量
+        
         try:
+            # 重置全局变量（必须在最前面，避免复用已关闭的窗口）
+            if _FBXR_WIN == self:
+                _FBXR_WIN = None
+            
             # 强制停止定时器
             if hasattr(self, 'wheel_check_timer') and self.wheel_check_timer:
                 try:
-                    # 方法1：停止定时器
                     self.wheel_check_timer.stop()
-                    # 方法2：断开信号连接
                     self.wheel_check_timer.timeout.disconnect()
                 except:
                     pass
-                finally:
-                    # 方法3：强制删除
+                try:
                     self.wheel_check_timer.deleteLater()
-                    self.wheel_check_timer = None
+                except:
+                    pass
+                self.wheel_check_timer = None
             
             # 彻底清理资源
             self._teardown()
@@ -1072,7 +1110,7 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
             if hasattr(self, 'process') and self.process:
                 try:
                     self.process.terminate()
-                    self.process.wait(timeout=1.0)
+                    self.process.wait(timeout=0.5)
                 except:
                     try:
                         self.process.kill()
@@ -1080,16 +1118,31 @@ class FbxReviewEmbedder(QtWidgets.QMainWindow):
                         pass
                 self.process = None
             
-            # 重置全局变量
-            global _FBXR_WIN
-            if _FBXR_WIN == self:
-                _FBXR_WIN = None
+            # 清理子窗口句柄
+            self._child_hwnd = None
             
-            # 直接销毁
-            self.destroy()
+            # 清理桌面资源
+            if hasattr(self, 'invisible_desktop'):
+                try:
+                    self.invisible_desktop.cleanup()
+                except:
+                    pass
+            
+            # 删除窗口对象
+            try:
+                self.deleteLater()
+            except:
+                pass
+            
+            # 强制垃圾回收
+            import gc
+            gc.collect()
             
             e.accept()
-        except Exception as e:
+        except Exception as ex:
+            # 确保全局变量被清理
+            if _FBXR_WIN == self:
+                _FBXR_WIN = None
             e.accept()
 
     def _on_destroyed(self):
@@ -1111,26 +1164,47 @@ def destroy_fbx_viewer():
     global _FBXR_WIN
     if _FBXR_WIN is not None:
         try:
-            # 强制停止定时器
+            # 方法1：先调用 close()，触发 closeEvent 进行完整清理
+            try:
+                _FBXR_WIN.close()
+            except:
+                pass
+            
+            # 方法2：强制停止定时器
             if hasattr(_FBXR_WIN, 'wheel_check_timer') and _FBXR_WIN.wheel_check_timer:
                 try:
-                    # 方法1：停止定时器
                     _FBXR_WIN.wheel_check_timer.stop()
-                    # 方法2：断开信号连接
                     _FBXR_WIN.wheel_check_timer.timeout.disconnect()
                 except:
                     pass
-                finally:
-                    # 方法3：强制删除
+                try:
                     _FBXR_WIN.wheel_check_timer.deleteLater()
-                    _FBXR_WIN.wheel_check_timer = None
+                except:
+                    pass
+                _FBXR_WIN.wheel_check_timer = None
             
-            _FBXR_WIN.destroy()
+            # 方法3：清理资源
+            try:
+                _FBXR_WIN._teardown()
+            except:
+                pass
+            
+            # 方法4：删除窗口对象
+            try:
+                _FBXR_WIN.deleteLater()
+            except:
+                pass
+            
+            # 方法5：重置全局变量
             _FBXR_WIN = None
+            
+            # 方法6：强制垃圾回收
             import gc
             gc.collect()
+            
             return True
         except Exception as e:
+            # 确保全局变量被清理
             _FBXR_WIN = None
             return False
     else:
@@ -1142,16 +1216,43 @@ def show_fbx_viewer(file_path=None):
     if app is None:
         raise RuntimeError("请在 3ds Max 内运行此脚本。")
     
+    global _FBXR_WIN
+    
+    # 先清理所有可能存在的旧窗口（避免累积）
+    try:
+        _cleanup_existing_viewers()
+    except:
+        pass
+    
+    # 如果已有窗口且窗口有效，复用它
+    if _FBXR_WIN is not None:
+        try:
+            # 检查窗口对象是否还有效（没有被删除）
+            # 尝试访问一个简单的属性来验证对象有效性
+            _ = _FBXR_WIN.windowTitle
+            
+            # 检查窗口是否仍然可见
+            if _FBXR_WIN.isVisible():
+                # 窗口存在且可见，直接复用
+                _FBXR_WIN.raise_()
+                _FBXR_WIN.activateWindow()
+                
+                # 如果提供了新文件路径，加载新文件
+                if file_path and os.path.isfile(file_path):
+                    _FBXR_WIN.load_file(file_path)
+                
+                return _FBXR_WIN
+            else:
+                # 窗口已关闭但对象还在，彻底清理
+                _FBXR_WIN = None
+        except:
+            # 窗口对象无效或已被删除，清理
+            _FBXR_WIN = None
+    
+    # 创建新窗口
     # 获取 Max 主窗口作为父窗口
     parent = get_max_parent_widget()
     
-    global _FBXR_WIN
-    
-    # 如果已有窗口，使用直接销毁方法
-    if _FBXR_WIN is not None:
-        destroy_fbx_viewer()
-    
-    # 创建新窗口
     try:
         _FBXR_WIN = FbxReviewEmbedder(parent=parent)
     except Exception as e:
@@ -1176,11 +1277,14 @@ def show_fbx_viewer(file_path=None):
         raise
 
 
-try:
-    # 检查是否有全局文件路径变量
-    if 'FBX_FILE_PATH' in globals():
-        show_fbx_viewer(FBX_FILE_PATH)
-    else:
-        show_fbx_viewer()
-except Exception as e:
-    pass
+# 注释掉自动执行代码，避免在 BsOpenTools 中选择 FBX 文件时自动弹出预览窗口
+# 如果需要使用，请在 MAXScript 中显式调用：
+# python.execute("show_fbx_viewer(r'文件路径')")
+# try:
+#     # 检查是否有全局文件路径变量
+#     if 'FBX_FILE_PATH' in globals():
+#         show_fbx_viewer(FBX_FILE_PATH)
+#     else:
+#         show_fbx_viewer()
+# except Exception as e:
+#     pass

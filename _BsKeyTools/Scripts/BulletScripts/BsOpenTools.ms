@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-10-23 18:21:10
+ * @LastEditTime: 2025-10-23 20:17:49
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -18,6 +18,7 @@ Global iniDesktop        = (itemsFolder name:"Desktop" dir:"")
 Global iniSelectedID     = 1
 Global iniLikedFolder    = #()
 Global iniFilterPrefix   = #()
+Global iniAutoFbxPreview = true  -- 默认自动弹出 FBX 预览
 
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "脚本安装可能不完全,建议重新安装...        " beep:false)
@@ -175,9 +176,12 @@ rollout rolBsOpenTools "" width:580 height:400
 	groupbox grpFileInfo "文件属性" width:360 height:155 pos:[585,210] visible:false
 	label lblFileInfo "" width:340 height:120 pos:[590,230] align:#left
 	
-	-- 文件操作按钮
-	button btnCopyPath "复制路径" width:175 height:20 pos:[585,375] tooltip:"复制文件完整路径到剪贴板"
-	button btnCopyFileName "复制文件名" width:175 height:20 pos:[770,375] tooltip:"复制文件名到剪贴板"
+	-- 文件操作按钮（与 FBX 自动预览在同一行，平均分配宽度）
+	button btnCopyPath "复制路径" width:115 height:20 pos:[585,375] tooltip:"复制文件完整路径到剪贴板"
+	button btnCopyFileName "复制文件名" width:115 height:20 pos:[705,375] tooltip:"复制文件名到剪贴板"
+	-- FBX 自动预览控制（与按钮在同一行，只在 FBX 格式时显示）
+	checkbox ckbAutoFbxPreview "自动预览 FBX" pos:[825,378] width:140 height:15 checked:true visible:false \
+		tooltip:"勾选后，在预览模式下选择FBX文件会自动弹出预览窗口"
 	radioButtons rdoFileType "" columns:4 \
 	pos:[230,50] labels:#(".max",".fbx",".bip",".ms") 
 
@@ -680,39 +684,39 @@ rollout rolBsOpenTools "" width:580 height:400
 			)
 			".fbx":
 			(
-				-- FBX文件预览 - 直接filein Python脚本
+				-- FBX文件预览 - 使用 Python FBX Viewer
+				-- 根据 checkbox 状态决定是否自动弹出预览
 				dncMaxPreview.visible = true
 				dncMaxPreview.Image = undefined
 				
-				local pythonScriptPath = (getDir #scripts) + "\\BulletScripts\\BsAnimLib.py"
-				
-				if doesFileExist pythonScriptPath then
+				-- 检查是否需要自动弹出预览
+				if ckbAutoFbxPreview.checked then
 				(
-					-- 先尝试销毁之前的FBX查看器窗口
-					try
-					(
-						python.execute ("if 'destroy_fbx_viewer' in globals(): destroy_fbx_viewer()")
-					)
-					catch
-					(
-						print "销毁之前的FBX查看器失败，继续创建新窗口"
-					)
+					local pythonScriptPath = (getDir #scripts) + "\\BulletScripts\\BsAnimLib.py"
 					
-					-- 设置全局变量存储文件路径
-					try(python.execute ("FBX_FILE_PATH = r'" + filePath + "'"))catch()
-					
-					-- 加载并执行Python脚本
-					try(python.ExecuteFile pythonScriptPath)catch()
-				)
-				else
-				(
-					dncMaxPreview.visible = true
-					dncMaxPreview.Image = undefined
-					-- 回退到外部FBX Review
-					local fbxReviewPath = (getDir #scripts) + "\\BulletScripts\\Res\\fbxreview.exe"
-					if doesFileExist fbxReviewPath then
+					if doesFileExist pythonScriptPath then
 					(
-						shellLaunch fbxReviewPath filePath
+						-- 加载Python脚本（会自动清理旧窗口）
+						try(python.ExecuteFile pythonScriptPath)catch()
+						
+						-- 调用预览函数
+						try
+						(
+							python.execute ("show_fbx_viewer(r'" + filePath + "')")
+						)
+						catch
+						(
+							print ("FBX预览失败: " + (getCurrentException() as string))
+						)
+					)
+					else
+					(
+						-- 回退到外部FBX Review
+						local fbxReviewPath = (getDir #scripts) + "\\BulletScripts\\Res\\fbxreview.exe"
+						if doesFileExist fbxReviewPath then
+						(
+							shellLaunch fbxReviewPath filePath
+						)
 					)
 				)
 			)
@@ -773,6 +777,14 @@ rollout rolBsOpenTools "" width:580 height:400
 		grpFileInfo.visible = false
 		chePreview.state = false
 		
+		-- 初始化 FBX 自动预览 checkbox
+		ckbAutoFbxPreview.checked = iniAutoFbxPreview
+		-- 根据当前文件类型决定是否显示
+		if rdoFileType.state == 2 then  -- .fbx
+			ckbAutoFbxPreview.visible = true
+		else
+			ckbAutoFbxPreview.visible = false
+		
 		-- 设置PictureBox的SizeMode，确保图片能够完整显示
 		dncMaxPreview.SizeMode = (dotNetClass "System.Windows.Forms.PictureBoxSizeMode").Zoom
 		
@@ -794,6 +806,7 @@ rollout rolBsOpenTools "" width:580 height:400
 		iniPosOpenTools   = (GetDialogPos rolBsOpenTools)
 		iniSelectedID     = rolBsOpenTools.ltbLikedFolder.selection
 		iniWidthOpenTools = rolBsOpenTools.width
+		iniAutoFbxPreview = ckbAutoFbxPreview.checked  -- 保存 FBX 自动预览设置
 		stSetConfigAll.fnSetConfigBsOpenTools ()
 	)
 
@@ -896,6 +909,16 @@ rollout rolBsOpenTools "" width:580 height:400
 	on rdoFileType changed state do
 	(
 		fnRefreshList rolBsOpenTools.edtBrowseFolder.text type:arrFileType[state]
+		
+		-- 只在 FBX 格式时显示自动预览 checkbox
+		if state == 2 then  -- .fbx
+		(
+			ckbAutoFbxPreview.visible = true
+		)
+		else
+		(
+			ckbAutoFbxPreview.visible = false
+		)
 	)
 
 	on btnOpenAddress pressed do 
@@ -1206,12 +1229,19 @@ rollout rolBsOpenTools "" width:580 height:400
 		)
 	)
 
+	on ckbAutoFbxPreview changed state do
+	(
+		-- 保存 FBX 自动预览设置
+		iniAutoFbxPreview = state
+		stSetConfigAll.fnSetConfigBsOpenTools ()
+	)
+	
 	on ltbFilesList selected id do
 	(
 		if chePreview.state and id != 0 then
 		(
 			local selectedFile = fnGetSelectedFilePath()
-			print selectedFile
+			-- print selectedFile
 			if selectedFile != undefined then
 			(
 				fnPreviewFile selectedFile
