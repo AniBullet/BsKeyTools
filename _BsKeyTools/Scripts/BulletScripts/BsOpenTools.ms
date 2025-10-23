@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-08-18 22:52:24
+ * @LastEditTime: 2025-10-23 18:21:10
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -477,7 +477,7 @@ rollout rolBsOpenTools "" width:580 height:400
 	(
 		local fileExt = getFilenameType filePath
 		local infoText = ""
-		
+		fileExt = (toLower fileExt)
 		case fileExt of
 		(
 			".max":
@@ -627,6 +627,7 @@ rollout rolBsOpenTools "" width:580 height:400
 		grpFileInfo.visible = true
 		
 		local fileExt = getFilenameType filePath
+		fileExt = (toLower fileExt)
 		case fileExt of
 		(
 			".max":
@@ -681,6 +682,7 @@ rollout rolBsOpenTools "" width:580 height:400
 			(
 				-- FBX文件预览 - 直接filein Python脚本
 				dncMaxPreview.visible = true
+				dncMaxPreview.Image = undefined
 				
 				local pythonScriptPath = (getDir #scripts) + "\\BulletScripts\\BsAnimLib.py"
 				
@@ -704,6 +706,8 @@ rollout rolBsOpenTools "" width:580 height:400
 				)
 				else
 				(
+					dncMaxPreview.visible = true
+					dncMaxPreview.Image = undefined
 					-- 回退到外部FBX Review
 					local fbxReviewPath = (getDir #scripts) + "\\BulletScripts\\Res\\fbxreview.exe"
 					if doesFileExist fbxReviewPath then
@@ -715,16 +719,19 @@ rollout rolBsOpenTools "" width:580 height:400
 			".bip":
 			(
 				-- 清除图片
+				dncMaxPreview.visible = true
 				dncMaxPreview.Image = undefined
 			)
 			".ms":
 			(
 				-- 清除图片
+				dncMaxPreview.visible = true
 				dncMaxPreview.Image = undefined
 			)
 			default:
 			(
 				-- 清除图片
+				dncMaxPreview.visible = true
 				dncMaxPreview.Image = undefined
 			)
 		)
@@ -1189,7 +1196,7 @@ rollout rolBsOpenTools "" width:580 height:400
 	on chePreview changed state do
 	(
 		fnTogglePreviewWindow state
-		if state and ltbFilesList.selection != 0 then
+		if chePreview.state and ltbFilesList.selection != 0 then
 		(
 			local selectedFile = fnGetSelectedFilePath()
 			if selectedFile != undefined then
@@ -1204,6 +1211,7 @@ rollout rolBsOpenTools "" width:580 height:400
 		if chePreview.state and id != 0 then
 		(
 			local selectedFile = fnGetSelectedFilePath()
+			print selectedFile
 			if selectedFile != undefined then
 			(
 				fnPreviewFile selectedFile
