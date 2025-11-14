@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-08-31 04:10:32
+ * @LastEditTime: 2025-11-14 16:14:49
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -392,6 +392,7 @@ fn GetSkeletalNode index isFaux findCorrect:true =
 
 rcmenu menuQuickCreateNode
 (
+	menuItem mItemFixSkinRotation "修复SkinMesh旋转"
 	menuItem fixOldList "修复旧映射列表 List"
 	menuItem quickMakeParent "快速创建父级骨骼"
     menuItem quickDuplicate "快速创建子级骨骼"
@@ -509,6 +510,123 @@ rcmenu menuQuickCreateNode
 		)
 	)
 
+	fn fnFixSkinRotation =
+	(
+		local meshes = selection as array
+		local tempDir = getDir #temp
+		local processedCount = 0
+		
+		for obj in meshes where classof obj == Editable_mesh or classof obj == Editable_Poly do
+		(
+			local skinMod = undefined
+			local skinModIndex = 0
+			local boneArray = #()
+			local upperMods = #()
+			
+			-- 第一步：查找 Skin 修改器位置
+			for m = 1 to obj.modifiers.count do
+			(
+				if classof obj.modifiers[m] == Skin then
+				(
+					skinMod = obj.modifiers[m]
+					skinModIndex = m
+					exit
+				)
+			)
+			
+			if skinMod != undefined then
+			(
+				-- 第一步：保存 Skin 权重到临时文件
+				local skinEnvelopeFile = tempDir + "\\" + obj.name + "_skin.env"
+				skinOps.SaveEnvelope skinMod skinEnvelopeFile
+				
+				-- 保存骨骼列表
+				for b = 1 to skinOps.GetNumberBones skinMod do
+				(
+					local boneName = skinOps.GetBoneName skinMod b 0
+					local boneNode = getNodeByName boneName
+					if boneNode != undefined then
+						append boneArray boneNode
+				)
+				
+				-- 第二步：创建当前变形状态的快照（保留Skin驱动的形态）
+				local snapshotMesh = snapshot obj
+				snapshotMesh.name = obj.name + "_temp_snapshot"
+				
+				-- 复制快照的网格数据
+				local vertCount = snapshotMesh.numverts
+				local vertArray = #()
+				for v = 1 to vertCount do
+				(
+					append vertArray (getVert snapshotMesh v)
+				)
+				
+				-- 删除快照对象
+				delete snapshotMesh
+				
+				-- 第三步：临时移除 Skin 及其上面的所有修改器
+				for m = 1 to skinModIndex do
+				(
+					append upperMods obj.modifiers[1]
+					deleteModifier obj 1
+				)
+				
+				-- 第四步：将快照的顶点位置应用到模型（固化当前形态）
+				for v = 1 to obj.numverts do
+				(
+					setVert obj v vertArray[v]
+				)
+				update obj
+				
+				-- 第五步：对固化后的网格进行两次 Reset XForm 和塌陷
+				-- 第一次 Reset XForm
+				local xform1 = XForm()
+				addModifier obj xform1
+				maxOps.CollapseNode obj off
+				
+				-- 第二次 Reset XForm
+				local xform2 = XForm()
+				addModifier obj xform2
+				maxOps.CollapseNode obj off
+				
+				-- 第六步：重新添加 Skin 修改器
+				local newSkinMod = Skin()
+				addModifier obj newSkinMod
+				
+				-- 添加骨骼
+				for bone in boneArray do
+				(
+					skinOps.addBone newSkinMod bone 0
+				)
+				
+				-- 加载权重（自动点击 OK）
+				rolBsRetarget.fnLoadEnvelope newSkinMod skinEnvelopeFile
+				
+				-- 第七步：恢复 Skin 上面的修改器
+				for i = (upperMods.count - 1) to 1 by -1 do
+				(
+					if classof upperMods[i] != Skin then
+					(
+						try (
+							addModifier obj (copy upperMods[i])
+						) catch ()
+					)
+				)
+				
+				-- 第八步：关闭再打开蒙皮影响
+				newSkinMod.enabled = false
+				newSkinMod.enabled = true
+				
+				-- 删除临时文件
+				deleteFile skinEnvelopeFile
+				
+				processedCount += 1
+			)
+		)
+		
+		messagebox ("已完成 " + processedCount as string + " 个对象的 Skin 旋转修复！                    ") title:"BsRetargetTools"
+	)
+
 	on quickMakeParent picked do
 	(
 		if $ != undefined then
@@ -558,6 +676,14 @@ rcmenu menuQuickCreateNode
 	(
 		if (queryBox "确认修复旧映射列表？会改变映射 list，请慎重考虑！                                                               " \
 		title:"BsRetargetTools Tips" beep:false) then (fnFixOldMappingList())
+	)
+
+	on mItemFixSkinRotation picked do
+	(
+		if queryBox "需要先旋转骨骼，使模型正面朝前，再执行此操作，\r\n\r\n确认继续请点是。请注意备份文件！                   " title:"BsRetargetTools Tips" then
+		(
+			fnFixSkinRotation()
+		)
 	)
 )
 
