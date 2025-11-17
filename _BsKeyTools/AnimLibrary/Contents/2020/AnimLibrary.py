@@ -8,19 +8,123 @@ import pymxs
 import time
 import uuid
 import base64
+import math
+import webbrowser
 from io import BytesIO
 from datetime import datetime
 from PySide2 import QtGui, QtCore, QtWidgets
 from PySide2.QtCore import Qt, QSize, QBuffer, QIODevice
-from PySide2.QtGui import QIcon, QColor, QPixmap, QPainter, QImage
+from PySide2.QtGui import QIcon, QColor, QPixmap, QPainter, QImage, QTextOption
 from PySide2.QtWidgets import (QMainWindow, QWidget, QFileDialog, QMessageBox,
                                QListWidget, QListWidgetItem, QTreeWidget, QTreeWidgetItem,
                                QSplitter, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
                                QLineEdit, QCheckBox, QRadioButton, QGroupBox, QTextEdit,
                                QProgressBar, QScrollArea, QGridLayout, QMenu, QSlider,
-                               QFrame, QColorDialog, QInputDialog, QLayout, QWidgetItem)
+                               QFrame, QColorDialog, QInputDialog, QLayout, QWidgetItem,
+                               QDialog, QDialogButtonBox, QApplication)
 from pymxs import runtime as mxs
 from qtmax import GetQMaxMainWindow
+
+
+# RBF混合系统
+class RBFBlender:
+    """径向基函数混合器，用于更自然的姿势混合"""
+    
+    @staticmethod
+    def gaussian_kernel(distance, sigma=1.0):
+        """高斯核函数"""
+        return math.exp(-(distance ** 2) / (2 * sigma ** 2))
+    
+    @staticmethod
+    def compute_transform_distance(tm1, tm2):
+        """计算两个变换矩阵之间的距离"""
+        try:
+            # 位置距离
+            pos1 = tm1.translationPart
+            pos2 = tm2.translationPart
+            pos_dist = mxs.distance(pos1, pos2)
+            
+            # 旋转距离（四元数点积转角度）
+            rot1 = tm1.rotationPart
+            rot2 = tm2.rotationPart
+            dot = abs(mxs.dot(rot1, rot2))
+            dot = min(1.0, max(-1.0, dot))  # 限制范围
+            rot_dist = math.acos(dot) * 57.2958  # 转为度数
+            
+            # 缩放距离
+            scale1 = tm1.scalePart
+            scale2 = tm2.scalePart
+            scale_dist = mxs.length(scale1 - scale2)
+            
+            # 加权组合（可调整权重）
+            total_dist = pos_dist * 1.0 + rot_dist * 0.5 + scale_dist * 0.3
+            return total_dist
+        except:
+            return 0.0
+    
+    @staticmethod
+    def rbf_blend_transform(current_tm, target_tm, blend_factor, sigma=2.0):
+        """使用RBF混合两个变换
+        sigma参数控制混合的平滑度：
+        - sigma越大：混合越平滑，更接近线性插值
+        - sigma越小：混合受距离影响越大，有更强的衰减效果
+        """
+        try:
+            # 提取变换组件
+            current_pos = current_tm.translationPart
+            current_rot = current_tm.rotationPart
+            current_scale = current_tm.scalePart
+            
+            target_pos = target_tm.translationPart
+            target_rot = target_tm.rotationPart
+            target_scale = target_tm.scalePart
+            
+            # 计算简化的距离度量（归一化）
+            try:
+                pos_dist = mxs.length(target_pos - current_pos)
+                # 归一化距离到合理范围（假设100单位是"远"）
+                normalized_dist = pos_dist / 100.0
+            except:
+                normalized_dist = 0.0
+            
+            # 使用高斯核计算RBF权重
+            # sigma值调整：实际使用时除以10，使得UI滑条更直观
+            actual_sigma = max(0.1, sigma / 10.0)
+            rbf_weight = math.exp(-(normalized_dist ** 2) / (2.0 * actual_sigma ** 2))
+            
+            # 混合权重：blend_factor主导，rbf_weight作为调制
+            # 当sigma大时，rbf_weight接近1，主要由blend_factor控制
+            # 当sigma小时，rbf_weight有明显衰减效果
+            effective_weight = blend_factor * (rbf_weight * 0.5 + 0.5)
+            
+            # 限制权重范围
+            effective_weight = max(0.0, min(1.0, effective_weight))
+            
+            # 使用有效权重进行插值
+            blended_pos = current_pos + (target_pos - current_pos) * effective_weight
+            blended_rot = mxs.slerp(current_rot, target_rot, effective_weight)
+            blended_scale = current_scale + (target_scale - current_scale) * effective_weight
+            
+            return blended_pos, blended_rot, blended_scale
+        except Exception as e:
+            # 如果RBF失败，回退到简单插值
+            print(f"RBF混合失败，使用简单插值: {e}")
+            import traceback
+            traceback.print_exc()
+            
+            current_pos = current_tm.translationPart
+            current_rot = current_tm.rotationPart
+            current_scale = current_tm.scalePart
+            
+            target_pos = target_tm.translationPart
+            target_rot = target_tm.rotationPart
+            target_scale = target_tm.scalePart
+            
+            blended_pos = current_pos + (target_pos - current_pos) * blend_factor
+            blended_rot = mxs.slerp(current_rot, target_rot, blend_factor)
+            blended_scale = current_scale + (target_scale - current_scale) * blend_factor
+            
+            return blended_pos, blended_rot, blended_scale
 
 
 # 流式布局类（支持自动换行）
@@ -106,7 +210,7 @@ class FlowLayout(QLayout):
 class AnimLibraryDialog(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowFlags(Qt.Window)
+        self.setWindowFlags(QtCore.Qt.Window)
         
         # 初始化变量
         self.library_path = ""  # 库路径（根目录）
@@ -117,15 +221,24 @@ class AnimLibraryDialog(QMainWindow):
         self.card_size = 150  # 姿势卡片大小
         self.selected_poses = []  # 多选的姿势列表
         self.selected_cards = []  # 多选的卡片列表
+        self.last_selected_pose = None  # 记录最后选择的pose，用于Shift多选
         self.filter_tags = []  # 标签筛选列表 [{"name": "标签名", "color": "#RRGGBB"}, ...]
         self.active_filter_tag = None  # 当前激活的筛选标签名
+        
+        # 缩略图缓存（减少内存占用和重复解码）
+        self._thumbnail_cache = {}  # {pose_name: QPixmap}
+        self._max_cache_size = 100  # 最大缓存数量
+        
+        # 用于Shift多选的有序pose列表（与显示顺序一致）
+        self.displayed_poses_order = []  # 存储当前显示的poses顺序
         
         # 配置文件路径
         self.config_file = self.get_config_path()
         
         # 设置窗口
-        self.setWindowTitle('AnimLibrary_v1.0_Bullet.S')
-        self.resize(1000, 600)
+        self.setWindowTitle('BsAnimLibrary_v1.0_Bullet.S')
+        # 窗口宽度设置为 splitter总宽度(810) + 边距(约30-40)
+        self.resize(850, 600)
         
         # 定义对象类型（用于图标）
         self.geometry_class = mxs.execute("GeometryClass")
@@ -162,6 +275,11 @@ class AnimLibraryDialog(QMainWindow):
         toolbar_layout.addWidget(self.btn_browse)
         self.btn_new_folder = QPushButton("新建文件夹")
         toolbar_layout.addWidget(self.btn_new_folder)
+        
+        # 设置按钮
+        self.btn_settings = QPushButton("工具设置")
+        self.btn_settings.setToolTip("工具设置")
+        toolbar_layout.addWidget(self.btn_settings)
         
         # 搜索框
         toolbar_layout.addWidget(QLabel("搜索:"))
@@ -214,9 +332,9 @@ class AnimLibraryDialog(QMainWindow):
         
         # 标签筛选栏（可展开设计）
         self.tag_container = QWidget()
-        self.tag_container.setMaximumHeight(32)  # 默认单行高度
+        self.tag_container.setMaximumHeight(30)  # 默认单行高度，更紧凑
         tag_layout = QHBoxLayout(self.tag_container)
-        tag_layout.setContentsMargins(0, 3, 0, 3)
+        tag_layout.setContentsMargins(0, 2, 0, 2)
         tag_layout.setSpacing(5)
         
         # 添加标签按钮（图标样式）
@@ -265,8 +383,8 @@ class AnimLibraryDialog(QMainWindow):
         self.tag_scroll_area.setWidgetResizable(True)
         self.tag_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.tag_scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.tag_scroll_area.setMinimumHeight(30)
-        self.tag_scroll_area.setMaximumHeight(30)  # 默认1行
+        self.tag_scroll_area.setMinimumHeight(26)
+        self.tag_scroll_area.setMaximumHeight(26)  # 默认1行，更紧凑
         self.tag_scroll_area.setFrameShape(QFrame.NoFrame)
         
         self.tag_buttons_widget = QWidget()
@@ -301,15 +419,19 @@ class AnimLibraryDialog(QMainWindow):
         self.grid_widget = QWidget()
         self.grid_layout = QGridLayout()
         self.grid_layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)  # 左上对齐
-        self.grid_layout.setSpacing(10)
+        self.grid_layout.setSpacing(8)  # 减小间距
         self.grid_widget.setLayout(self.grid_layout)
         self.scroll_area.setWidget(self.grid_widget)
+        
+        # 添加点击空白区域取消选择的功能
+        self.grid_widget.mousePressEvent = self.on_grid_widget_clicked
         center_layout.addWidget(self.scroll_area)
         
         splitter.addWidget(center_panel)
         
         # 右侧：操作面板
         right_panel = QWidget()
+        right_panel.setMinimumWidth(160)
         right_layout = QVBoxLayout()
         right_panel.setLayout(right_layout)
         
@@ -329,7 +451,7 @@ class AnimLibraryDialog(QMainWindow):
         self.save_desc_edit.setPlaceholderText("描述 (可选)")
         save_layout.addWidget(self.save_desc_edit)
         
-        # 保存选项：全局/局部单选 + 仅选中复选
+        # 保存选项：全局/局部单选
         save_opt_layout = QHBoxLayout()
         self.save_rb_global = QRadioButton("全局")
         self.save_rb_global.setChecked(True)
@@ -339,55 +461,47 @@ class AnimLibraryDialog(QMainWindow):
         save_opt_layout.addStretch()
         save_layout.addLayout(save_opt_layout)
         
-        self.chk_save_selected_only = QCheckBox("仅选中")
-        self.chk_save_selected_only.setChecked(False)  # 默认不勾选，保存所有
-        self.chk_save_selected_only.setToolTip("勾选：只保存当前选中的对象\n不勾选：保存所有对象")
-        save_layout.addWidget(self.chk_save_selected_only)
-        
         # 按钮组：覆盖 + 保存
         btn_layout = QHBoxLayout()
         self.btn_overwrite = QPushButton("覆盖")
-        self.btn_overwrite.setStyleSheet("QPushButton { padding: 8px; }")
+        self.btn_overwrite.setStyleSheet("""
+            QPushButton { 
+                padding: 8px; 
+                background-color: palette(button); 
+                color: palette(button-text);
+            }
+            QPushButton:hover { 
+                background-color: palette(light); 
+            }
+            QPushButton:pressed { 
+                background-color: palette(dark); 
+            }
+        """)
         self.btn_overwrite.setToolTip("覆盖选中的pose（需要先在下方选中一个pose）")
         self.btn_overwrite.setMaximumWidth(60)  # 限制覆盖按钮宽度
         btn_layout.addWidget(self.btn_overwrite)
         
         self.btn_save = QPushButton("保存")
-        self.btn_save.setStyleSheet("QPushButton { font-weight: bold; padding: 8px; }")
+        self.btn_save.setStyleSheet("""
+            QPushButton { 
+                font-weight: bold; 
+                padding: 8px; 
+                background-color: palette(button); 
+                color: palette(button-text);
+            }
+            QPushButton:hover { 
+                background-color: palette(light); 
+            }
+            QPushButton:pressed { 
+                background-color: palette(dark); 
+            }
+        """)
         btn_layout.addWidget(self.btn_save, 1)  # 拉伸因子1，占据剩余空间
         
         save_layout.addLayout(btn_layout)
         
         save_group.setLayout(save_layout)
         right_layout.addWidget(save_group)
-        
-        # 详情组 - 显示选中pose的信息
-        detail_group = QGroupBox("详情")
-        detail_layout = QVBoxLayout()
-        
-        self.detail_name_label = QLabel("名称: -")
-        self.detail_name_label.setWordWrap(True)
-        self.detail_name_label.setStyleSheet("QLabel { color: palette(window-text); font-weight: bold; }")
-        detail_layout.addWidget(self.detail_name_label)
-        
-        detail_layout.addWidget(QLabel("标签:"))
-        # 标签区域使用 QTextEdit 以支持更多内容显示
-        self.detail_tags_label = QTextEdit()
-        self.detail_tags_label.setReadOnly(True)
-        self.detail_tags_label.setMinimumHeight(80)  # 增大显示区域
-        self.detail_tags_label.setMaximumHeight(120)
-        self.detail_tags_label.setStyleSheet("QTextEdit { color: palette(window-text); padding: 4px; background-color: palette(base); }")
-        detail_layout.addWidget(self.detail_tags_label)
-        
-        detail_layout.addWidget(QLabel("描述:"))
-        self.detail_desc_label = QLabel("-")
-        self.detail_desc_label.setWordWrap(True)
-        self.detail_desc_label.setMinimumHeight(40)
-        self.detail_desc_label.setStyleSheet("QLabel { color: palette(window-text); padding: 4px; background-color: palette(base); }")
-        detail_layout.addWidget(self.detail_desc_label)
-        
-        detail_group.setLayout(detail_layout)
-        right_layout.addWidget(detail_group)
         
         # 加载组
         load_group = QGroupBox("加载姿势")
@@ -403,27 +517,91 @@ class AnimLibraryDialog(QMainWindow):
         load_mode_layout.addStretch()
         load_layout.addLayout(load_mode_layout)
         
-        # 暴力加载选项
-        self.chk_force_load = QCheckBox("暴力加载")
-        self.chk_force_load.setToolTip("不使用UUID匹配，直接通过节点名称匹配\n可以将pose应用到同名骨骼上")
-        load_layout.addWidget(self.chk_force_load)
-        
-        # 仅选中选项
+        # 加载选项：仅选中、暴力加载
+        load_options_layout = QHBoxLayout()
         self.chk_load_selected_only = QCheckBox("仅选中")
-        self.chk_load_selected_only.setChecked(False)  # 默认不勾选，加载到所有匹配对象
-        self.chk_load_selected_only.setToolTip("勾选：只加载到当前选中的对象\n不勾选：加载到所有匹配的对象")
-        load_layout.addWidget(self.chk_load_selected_only)
+        self.chk_load_selected_only.setChecked(False)
+        self.chk_load_selected_only.setToolTip("只加载到当前选中的对象")
+        load_options_layout.addWidget(self.chk_load_selected_only)
+        
+        self.chk_force_load = QCheckBox("暴力加载")
+        self.chk_force_load.setToolTip("通过节点名称匹配")
+        load_options_layout.addWidget(self.chk_force_load)
+        load_options_layout.addStretch()
+        load_layout.addLayout(load_options_layout)
+        
+        # 创建启用日志复选框（不显示在界面上，通过设置对话框控制）
+        self.chk_enable_log = QCheckBox("启用日志")
+        self.chk_enable_log.setChecked(False)
+        self.chk_enable_log.setToolTip("开启后在日志区域显示操作信息")
         
         self.btn_load = QPushButton("加载")
-        self.btn_load.setStyleSheet("QPushButton { font-weight: bold; padding: 8px; }")
+        self.btn_load.setStyleSheet("""
+            QPushButton { 
+                font-weight: bold; 
+                padding: 8px; 
+                background-color: palette(button); 
+                color: palette(button-text);
+            }
+            QPushButton:hover { 
+                background-color: palette(light); 
+            }
+            QPushButton:pressed { 
+                background-color: palette(dark); 
+            }
+        """)
         load_layout.addWidget(self.btn_load)
         
         load_group.setLayout(load_layout)
         right_layout.addWidget(load_group)
         
+        # 详情组 - 显示选中pose的信息
+        detail_group = QGroupBox("详情")
+        detail_layout = QVBoxLayout()
+        
+        self.detail_name_label = QLabel("名称: -")
+        self.detail_name_label.setWordWrap(True)
+        self.detail_name_label.setStyleSheet("QLabel { color: palette(window-text); font-weight: bold; }")
+        detail_layout.addWidget(self.detail_name_label)
+        
+        detail_layout.addWidget(QLabel("标签:"))
+        # 标签区域使用 QTextEdit 以支持更多内容显示
+        self.detail_tags_label = QTextEdit()
+        self.detail_tags_label.setReadOnly(True)
+        self.detail_tags_label.setMinimumHeight(80)
+        self.detail_tags_label.setMaximumHeight(100)
+        self.detail_tags_label.setWordWrapMode(QTextOption.WordWrap)  # 自动换行
+        self.detail_tags_label.setLineWrapMode(QTextEdit.WidgetWidth)  # 按宽度换行
+        self.detail_tags_label.setStyleSheet("QTextEdit { color: palette(window-text); padding: 4px; background-color: palette(base); }")
+        detail_layout.addWidget(self.detail_tags_label)
+        
+        detail_layout.addWidget(QLabel("描述:"))
+        self.detail_desc_label = QLabel("-")
+        self.detail_desc_label.setWordWrap(True)
+        self.detail_desc_label.setMinimumHeight(50)
+        self.detail_desc_label.setMaximumHeight(80)
+        self.detail_desc_label.setStyleSheet("QLabel { color: palette(window-text); padding: 4px; background-color: palette(base); }")
+        detail_layout.addWidget(self.detail_desc_label)
+        
+        detail_group.setLayout(detail_layout)
+        right_layout.addWidget(detail_group)
+        
         # 其他操作
         self.btn_delete = QPushButton("删除选中项")
-        self.btn_delete.setStyleSheet("QPushButton { font-weight: bold; padding: 8px; }")
+        self.btn_delete.setStyleSheet("""
+            QPushButton { 
+                font-weight: bold; 
+                padding: 8px; 
+                background-color: palette(button); 
+                color: palette(button-text);
+            }
+            QPushButton:hover { 
+                background-color: palette(light); 
+            }
+            QPushButton:pressed { 
+                background-color: palette(dark); 
+            }
+        """)
         right_layout.addWidget(self.btn_delete)
         
         # 进度条
@@ -453,9 +631,8 @@ class AnimLibraryDialog(QMainWindow):
         splitter.setStretchFactor(1, 5)
         splitter.setStretchFactor(2, 1)
         
-        # 设置初始宽度
-        splitter.setSizes([150, 700, 150])
-        self.splitter = splitter  # 保存引用以便保存配置
+        # 保存引用以便保存配置（默认宽度将在load_config中设置）
+        self.splitter = splitter
         
         main_layout.addWidget(splitter)
         
@@ -505,6 +682,9 @@ class AnimLibraryDialog(QMainWindow):
                 # 恢复分割器大小
                 if 'splitter_sizes' in config:
                     self.splitter.setSizes(config['splitter_sizes'])
+                else:
+                    # 配置中没有splitter_sizes，使用默认值
+                    self.splitter.setSizes([150, 500, 160])
                 
                 # 恢复日志可见性
                 if 'log_visible' in config:
@@ -516,17 +696,22 @@ class AnimLibraryDialog(QMainWindow):
                 # 恢复标签筛选
                 if 'filter_tags' in config:
                     self.filter_tags = config['filter_tags']
-                    self.log(f"加载了 {len(self.filter_tags)} 个标签", "cyan")
                     self.refresh_tag_buttons()
                 
-                self.log("已加载配置", "green")
+                # 恢复日志开关设置
+                if 'enable_log' in config:
+                    self.chk_enable_log.setChecked(config['enable_log'])
             else:
-                # 配置文件不存在，立即创建默认配置
+                # 配置文件不存在，设置默认值后创建配置
                 self.log("配置文件不存在，创建默认配置", "yellow")
+                # 强制设置默认splitter大小
+                self.splitter.setSizes([150, 500, 160])
                 self.save_config()
         except Exception as e:
             self.log(f"加载配置失败: {e}", "orange")
             # 加载失败也保存一个新的配置
+            # 强制设置默认splitter大小
+            self.splitter.setSizes([150, 500, 160])
             self.save_config()
     
     def save_config(self):
@@ -541,7 +726,8 @@ class AnimLibraryDialog(QMainWindow):
                 'library_path': self.library_path,
                 'splitter_sizes': self.splitter.sizes(),
                 'log_visible': self.log_text.isVisible(),
-                'filter_tags': self.filter_tags  # 保存标签配置
+                'filter_tags': self.filter_tags,  # 保存标签配置
+                'enable_log': self.chk_enable_log.isChecked()  # 保存日志开关设置
             }
             
             with open(self.config_file, 'w', encoding='utf-8') as f:
@@ -552,6 +738,29 @@ class AnimLibraryDialog(QMainWindow):
     def closeEvent(self, event):
         """窗口关闭事件"""
         self.save_config()
+        
+        # 清理内存
+        try:
+            # 清理缓存
+            if hasattr(self, '_thumbnail_cache'):
+                self._thumbnail_cache.clear()
+            
+            # 清理pose数据
+            if hasattr(self, 'global_data'):
+                self.global_data.clear()
+            
+            # 清理UI widgets
+            for i in reversed(range(self.grid_layout.count())):
+                widget = self.grid_layout.itemAt(i).widget()
+                if widget:
+                    widget.deleteLater()
+            
+            # 强制垃圾回收
+            import gc
+            gc.collect()
+        except:
+            pass
+        
         event.accept()
     
     def resizeEvent(self, event):
@@ -561,7 +770,7 @@ class AnimLibraryDialog(QMainWindow):
         if hasattr(self, '_resize_timer'):
             self._resize_timer.stop()
         else:
-            from PySide2.QtCore import QTimer
+            from PySide6.QtCore import QTimer
             self._resize_timer = QTimer()
             self._resize_timer.setSingleShot(True)
             self._resize_timer.timeout.connect(self.save_config)
@@ -574,7 +783,7 @@ class AnimLibraryDialog(QMainWindow):
         if hasattr(self, '_move_timer'):
             self._move_timer.stop()
         else:
-            from PySide2.QtCore import QTimer
+            from PySide6.QtCore import QTimer
             self._move_timer = QTimer()
             self._move_timer.setSingleShot(True)
             self._move_timer.timeout.connect(self.save_config)
@@ -584,6 +793,7 @@ class AnimLibraryDialog(QMainWindow):
         """连接信号"""
         self.btn_browse.clicked.connect(self.browse_library)
         self.btn_new_folder.clicked.connect(self.new_folder)
+        self.btn_settings.clicked.connect(self.show_settings_dialog)
         self.btn_save.clicked.connect(self.save_pose)
         self.btn_overwrite.clicked.connect(self.overwrite_pose_from_button)
         self.btn_load.clicked.connect(self.load_pose)
@@ -596,7 +806,9 @@ class AnimLibraryDialog(QMainWindow):
     
     def log(self, message, color="white"):
         """添加日志"""
-        self.log_text.append(f'<span style="color:{color}">{message}</span>')
+        # 只有启用日志时才输出
+        if hasattr(self, 'chk_enable_log') and self.chk_enable_log.isChecked():
+            self.log_text.append(f'<span style="color:{color}">{message}</span>')
     
     def toggle_log(self):
         """切换日志显示/隐藏"""
@@ -614,7 +826,7 @@ class AnimLibraryDialog(QMainWindow):
         if hasattr(self, '_splitter_timer'):
             self._splitter_timer.stop()
         else:
-            from PySide2.QtCore import QTimer
+            from PySide6.QtCore import QTimer
             self._splitter_timer = QTimer()
             self._splitter_timer.setSingleShot(True)
             self._splitter_timer.timeout.connect(self.save_config)
@@ -623,6 +835,9 @@ class AnimLibraryDialog(QMainWindow):
     def create_pose_card(self, pose_name, pose_data, file_path):
         """创建姿势卡片（带缩略图）"""
         card = QWidget()
+        
+        # 存储pose名称到card对象，用于Shift多选时查找
+        card._pose_name = pose_name
         
         # 获取Max视口比例 (通常是16:9或4:3，这里使用常见的16:9)
         aspect_ratio = 16.0 / 9.0
@@ -647,18 +862,33 @@ class AnimLibraryDialog(QMainWindow):
         thumbnail_label.setAlignment(Qt.AlignCenter)
         thumbnail_label.setStyleSheet("QLabel { background-color: palette(base); }")
         
-        # 尝试加载缩略图
+        # 尝试加载缩略图（使用缓存）
         if "thumbnail" in pose_data and pose_data["thumbnail"]:
             try:
-                image_data = base64.b64decode(pose_data["thumbnail"])
-                image = QImage()
-                image.loadFromData(image_data)
-                pixmap = QPixmap.fromImage(image)
-                # 保持宽高比缩放
-                scaled_pixmap = pixmap.scaled(thumb_width - 4, thumb_height - 4, 
-                                              Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                # 检查缓存
+                cache_key = f"{pose_name}_{thumb_width}x{thumb_height}"
+                if cache_key in self._thumbnail_cache:
+                    scaled_pixmap = self._thumbnail_cache[cache_key]
+                else:
+                    # 解码并缓存
+                    image_data = base64.b64decode(pose_data["thumbnail"])
+                    image = QImage()
+                    image.loadFromData(image_data)
+                    pixmap = QPixmap.fromImage(image)
+                    # 保持宽高比缩放
+                    scaled_pixmap = pixmap.scaled(thumb_width - 4, thumb_height - 4, 
+                                                  Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    
+                    # 缓存管理：限制缓存大小
+                    if len(self._thumbnail_cache) >= self._max_cache_size:
+                        # 清除最早的缓存项
+                        first_key = next(iter(self._thumbnail_cache))
+                        del self._thumbnail_cache[first_key]
+                    
+                    self._thumbnail_cache[cache_key] = scaled_pixmap
+                
                 thumbnail_label.setPixmap(scaled_pixmap)
-            except:
+            except Exception as e:
                 thumbnail_label.setText("无预览")
                 thumbnail_label.setStyleSheet("QLabel { background-color: palette(base); color: palette(window-text); }")
         else:
@@ -689,7 +919,7 @@ class AnimLibraryDialog(QMainWindow):
                 modifiers = event.modifiers()
                 self.on_pose_card_clicked(pose_name, card, modifiers)
             elif event.button() == Qt.RightButton:
-                # 使用新API: globalPosition() 代替 globalPos()
+                # PySide2: 使用 globalPos()
                 pos = event.globalPos()
                 self.show_pose_context_menu(pose_name, pos)
         
@@ -698,13 +928,101 @@ class AnimLibraryDialog(QMainWindow):
         
         return card
     
+    def on_grid_widget_clicked(self, event):
+        """点击grid_widget空白区域取消选择"""
+        # 检查点击位置是否在某个card上
+        click_pos = event.pos()
+        clicked_widget = self.grid_widget.childAt(click_pos)
+        
+        # 检查clicked_widget是否是pose card或其子元素
+        is_card_clicked = False
+        if clicked_widget:
+            # 向上遍历父元素，检查是否有_pose_name属性
+            current = clicked_widget
+            while current and current != self.grid_widget:
+                if hasattr(current, '_pose_name'):
+                    is_card_clicked = True
+                    break
+                current = current.parentWidget()
+        
+        # 如果点击的不是card或card的子元素，清除选择
+        if not is_card_clicked:
+            # 清除所有选择
+            for selected_card in self.selected_cards:
+                try:
+                    selected_card.setStyleSheet("""
+                        QWidget {
+                            background-color: palette(window);
+                            border: none;
+                        }
+                    """)
+                except:
+                    pass
+            
+            self.selected_poses = []
+            self.selected_cards = []
+            self.current_selected_pose = None
+            self.last_selected_pose = None
+            
+            # 更新详情显示
+            self.update_detail_panel()
+            
+            self.log("已取消选择", "blue")
+    
     def on_pose_card_clicked(self, pose_name, card, modifiers=None):
         """姿势卡片单击事件（支持多选）"""
         if modifiers is None:
             modifiers = QtCore.Qt.NoModifier
         
+        # Shift 范围多选
+        if modifiers & QtCore.Qt.ShiftModifier:
+            if self.last_selected_pose and self.last_selected_pose in self.displayed_poses_order:
+                # 找到上次选择和当前选择的索引
+                try:
+                    last_idx = self.displayed_poses_order.index(self.last_selected_pose)
+                    current_idx = self.displayed_poses_order.index(pose_name)
+                    
+                    # 确定范围
+                    start_idx = min(last_idx, current_idx)
+                    end_idx = max(last_idx, current_idx)
+                    
+                    # 先清空之前的选择
+                    for selected_card in self.selected_cards:
+                        try:
+                            selected_card.setStyleSheet("""
+                                QWidget {
+                                    background-color: palette(window);
+                                    border: none;
+                                }
+                            """)
+                        except:
+                            pass
+                    
+                    self.selected_poses = []
+                    self.selected_cards = []
+                    
+                    # 选择范围内的所有poses
+                    for idx in range(start_idx, end_idx + 1):
+                        range_pose_name = self.displayed_poses_order[idx]
+                        # 找到对应的card
+                        range_card = self.find_card_by_pose_name(range_pose_name)
+                        if range_card:
+                            self.selected_poses.append(range_pose_name)
+                            self.selected_cards.append(range_card)
+                            range_card.setStyleSheet("""
+                                QWidget {
+                                    background-color: palette(window);
+                                    border: 2px solid palette(highlight);
+                                }
+                            """)
+                except ValueError:
+                    pass
+            else:
+                # 如果没有上次选择，当作普通单选
+                self.on_pose_card_clicked(pose_name, card, QtCore.Qt.NoModifier)
+                return
         # Ctrl 多选
-        if modifiers & QtCore.Qt.ControlModifier:
+        elif modifiers & QtCore.Qt.ControlModifier:
             if pose_name in self.selected_poses:
                 # 取消选择
                 self.selected_poses.remove(pose_name)
@@ -725,6 +1043,8 @@ class AnimLibraryDialog(QMainWindow):
                         border: 2px solid palette(highlight);
                     }
                 """)
+            # 记录最后选择的pose
+            self.last_selected_pose = pose_name
         else:
             # 单选：清除之前的所有选择
             for selected_card in self.selected_cards:
@@ -748,6 +1068,8 @@ class AnimLibraryDialog(QMainWindow):
                     border: 2px solid palette(highlight);
                 }
             """)
+            # 记录最后选择的pose
+            self.last_selected_pose = pose_name
         
         # 更新当前选中（用于单个加载）
         if self.selected_poses:
@@ -762,6 +1084,31 @@ class AnimLibraryDialog(QMainWindow):
             self.log(f"已选中 {len(self.selected_poses)} 个姿势", "blue")
         elif self.selected_poses:
             self.log(f"选中: {pose_name}", "blue")
+    
+    def find_card_by_pose_name(self, pose_name):
+        """根据pose名称找到对应的卡片widget"""
+        for i in range(self.grid_layout.count()):
+            item = self.grid_layout.itemAt(i)
+            if item and item.widget():
+                card = item.widget()
+                # 检查card是否有pose_name属性或者通过其他方式识别
+                # 由于我们在创建卡片时设置了objectName或者可以通过其他方式识别
+                # 这里我们遍历所有卡片，通过事件处理函数中保存的信息来匹配
+                # 简单方法：给每个card设置objectName
+                if hasattr(card, '_pose_name') and card._pose_name == pose_name:
+                    return card
+        return None
+    
+    def clear_pose_thumbnail_cache(self, pose_name):
+        """清除指定pose的缩略图缓存"""
+        # 查找并删除所有与该pose相关的缓存
+        keys_to_delete = []
+        for key in self._thumbnail_cache.keys():
+            if key.startswith(f"{pose_name}_"):
+                keys_to_delete.append(key)
+        
+        for key in keys_to_delete:
+            del self._thumbnail_cache[key]
     
     def update_detail_panel(self):
         """更新右侧详情面板"""
@@ -831,8 +1178,11 @@ class AnimLibraryDialog(QMainWindow):
         overwrite_action = menu.addAction("覆盖")
         overwrite_action.triggered.connect(lambda: self.overwrite_pose(pose_name))
         
-        edit_action = menu.addAction("编辑标签...")
-        edit_action.triggered.connect(lambda: self.edit_pose_tags(pose_name))
+        edit_tags_action = menu.addAction("编辑标签")
+        edit_tags_action.triggered.connect(lambda: self.edit_pose_tags(pose_name))
+        
+        edit_desc_action = menu.addAction("编辑描述")
+        edit_desc_action.triggered.connect(lambda: self.edit_pose_description(pose_name))
         
         update_thumb_action = menu.addAction("更新缩略图")
         update_thumb_action.triggered.connect(lambda: self.update_pose_thumbnail(pose_name))
@@ -845,35 +1195,62 @@ class AnimLibraryDialog(QMainWindow):
         menu.exec_(pos)
     
     def edit_pose_tags(self, pose_name):
-        """编辑姿势标签和描述"""
+        """编辑姿势标签"""
         if pose_name not in self.global_data:
             return
         
         pose_data = self.global_data[pose_name]
         current_tags = pose_data.get("tags", "")
+        
+        # 输入标签
+        new_tags, ok = QtWidgets.QInputDialog.getText(self, "编辑标签", 
+                                                       "标签 (用逗号分隔):", 
+                                                       text=current_tags)
+        if ok:
+            # 更新数据
+            pose_data["tags"] = new_tags
+            
+            # 保存到文件
+            file_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+            try:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(pose_data, f, indent=2, ensure_ascii=False)
+                self.log(f"已更新标签: {pose_name}", "green")
+                
+                # 如果当前选中该pose，更新详情显示
+                if self.current_selected_pose == pose_name:
+                    self.update_detail_display(pose_name)
+            except Exception as e:
+                self.log(f"保存失败: {e}", "red")
+    
+    def edit_pose_description(self, pose_name):
+        """编辑姿势描述"""
+        if pose_name not in self.global_data:
+            return
+        
+        pose_data = self.global_data[pose_name]
         current_desc = pose_data.get("description", "")
         
-        # 简单对话框输入
-        new_tags, ok1 = QtWidgets.QInputDialog.getText(self, "编辑标签", 
-                                                        "标签 (用逗号分隔):", 
-                                                        text=current_tags)
-        if ok1:
-            new_desc, ok2 = QtWidgets.QInputDialog.getText(self, "编辑描述", 
-                                                           "描述:", 
-                                                           text=current_desc)
-            if ok2:
-                # 更新数据
-                pose_data["tags"] = new_tags
-                pose_data["description"] = new_desc
+        # 输入描述
+        new_desc, ok = QtWidgets.QInputDialog.getText(self, "编辑描述", 
+                                                       "描述:", 
+                                                       text=current_desc)
+        if ok:
+            # 更新数据
+            pose_data["description"] = new_desc
+            
+            # 保存到文件
+            file_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+            try:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(pose_data, f, indent=2, ensure_ascii=False)
+                self.log(f"已更新描述: {pose_name}", "green")
                 
-                # 保存到文件
-                file_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
-                try:
-                    with open(file_path, 'w', encoding='utf-8') as f:
-                        json.dump(pose_data, f, indent=2, ensure_ascii=False)
-                    self.log(f"已更新标签: {pose_name}", "green")
-                except Exception as e:
-                    self.log(f"保存失败: {e}", "red")
+                # 如果当前选中该pose，更新详情显示
+                if self.current_selected_pose == pose_name:
+                    self.update_detail_display(pose_name)
+            except Exception as e:
+                self.log(f"保存失败: {e}", "red")
     
     def update_pose_thumbnail(self, pose_name):
         """更新姿势缩略图"""
@@ -894,6 +1271,9 @@ class AnimLibraryDialog(QMainWindow):
             try:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     json.dump(pose_data, f, indent=2, ensure_ascii=False)
+                
+                # 清除该pose的缩略图缓存
+                self.clear_pose_thumbnail_cache(pose_name)
                 
                 # 刷新显示
                 self.refresh_pose_display()
@@ -924,19 +1304,11 @@ class AnimLibraryDialog(QMainWindow):
         )
         
         if reply == QMessageBox.Yes:
-            # 根据"仅选中"复选框决定覆盖使用哪些对象
-            if self.chk_save_selected_only.isChecked():
-                # 仅使用选中的对象
-                nodes = list(mxs.selection)
-                if not nodes:
-                    QMessageBox.warning(self, "警告", "请先选择对象")
-                    return
-            else:
-                # 使用所有对象
-                nodes = list(mxs.objects)
-                if not nodes:
-                    QMessageBox.warning(self, "警告", "场景中没有对象")
-                    return
+            # 使用所有对象
+            nodes = list(mxs.objects)
+            if not nodes:
+                QMessageBox.warning(self, "警告", "场景中没有对象")
+                return
             
             mxs.escapeEnable = False
             
@@ -1030,6 +1402,10 @@ class AnimLibraryDialog(QMainWindow):
                 
                 # 更新显示
                 self.global_data[pose_name] = pose_data
+                
+                # 清除该pose的缩略图缓存
+                self.clear_pose_thumbnail_cache(pose_name)
+                
                 self.refresh_pose_display()
                 
                 self.log(f"已覆盖姿势: {pose_name}", "green")
@@ -1130,6 +1506,79 @@ class AnimLibraryDialog(QMainWindow):
             self.load_poses_from_folder(path)
             self.save_config()  # 保存配置
             self.log(f"加载库: {path}")
+    
+    def show_settings_dialog(self):
+        """显示设置对话框"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("工具设置")
+        dialog.setMinimumWidth(300)
+        
+        layout = QVBoxLayout()
+        
+        # 日志设置组
+        log_group = QGroupBox("日志设置")
+        log_layout = QVBoxLayout()
+        
+        # 启用日志复选框
+        chk_log = QCheckBox("启用日志输出")
+        chk_log.setChecked(self.chk_enable_log.isChecked())
+        chk_log.setToolTip("开启后在日志区域显示操作信息")
+        log_layout.addWidget(chk_log)
+        
+        log_group.setLayout(log_layout)
+        layout.addWidget(log_group)
+        
+        # 帮助组
+        help_group = QGroupBox("帮助")
+        help_layout = QVBoxLayout()
+        
+        # 视频教程按钮
+        btn_tutorial = QPushButton("📺 视频教程")
+        btn_tutorial.setToolTip("观看B站视频教程")
+        btn_tutorial.clicked.connect(lambda: self.open_tutorial_link(dialog))
+        help_layout.addWidget(btn_tutorial)
+        
+        help_group.setLayout(help_layout)
+        layout.addWidget(help_group)
+        
+        # 按钮
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        layout.addWidget(button_box)
+        
+        dialog.setLayout(layout)
+        
+        # 显示对话框
+        if dialog.exec() == QDialog.Accepted:
+            # 保存设置
+            self.chk_enable_log.setChecked(chk_log.isChecked())
+            self.save_config()
+            self.log("设置已保存", "green")
+    
+    def open_tutorial_link(self, parent_dialog=None):
+        """打开视频教程链接"""
+        tutorial_url = "https://space.bilibili.com/2031113/lists/560782?type=season"
+        
+        reply = QMessageBox.question(
+            parent_dialog if parent_dialog else self,
+            "打开视频教程",
+            "是否在浏览器中打开视频教程？\n\n教程地址：\n" + tutorial_url,
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
+        )
+        
+        if reply == QMessageBox.Yes:
+            import webbrowser
+            try:
+                webbrowser.open(tutorial_url)
+                self.log("已打开视频教程链接", "green")
+            except Exception as e:
+                QMessageBox.warning(
+                    parent_dialog if parent_dialog else self,
+                    "错误",
+                    f"无法打开浏览器：{str(e)}"
+                )
     
     def show_folder_context_menu(self, position):
         """显示文件夹右键菜单"""
@@ -1271,7 +1720,18 @@ class AnimLibraryDialog(QMainWindow):
             if widget:
                 widget.deleteLater()
         
+        # 显式清空旧数据并强制垃圾回收
+        if hasattr(self, 'global_data'):
+            self.global_data.clear()
         self.global_data = {}
+        
+        # 清理缩略图缓存（如果存在）
+        if hasattr(self, '_thumbnail_cache'):
+            self._thumbnail_cache.clear()
+        
+        # 强制Python垃圾回收
+        import gc
+        gc.collect()
         
         if not os.path.exists(folder_path):
             return
@@ -1370,16 +1830,16 @@ class AnimLibraryDialog(QMainWindow):
         
         if self.tag_expanded:
             # 展开到2行
-            self.tag_scroll_area.setMinimumHeight(60)
-            self.tag_scroll_area.setMaximumHeight(60)
+            self.tag_scroll_area.setMinimumHeight(48)
+            self.tag_scroll_area.setMaximumHeight(48)
             self.btn_expand_tags.setText("▲")
-            self.tag_container.setMaximumHeight(64)
+            self.tag_container.setMaximumHeight(52)
         else:
             # 收起到1行
-            self.tag_scroll_area.setMinimumHeight(30)
-            self.tag_scroll_area.setMaximumHeight(30)
+            self.tag_scroll_area.setMinimumHeight(26)
+            self.tag_scroll_area.setMaximumHeight(26)
             self.btn_expand_tags.setText("▼")
-            self.tag_container.setMaximumHeight(32)
+            self.tag_container.setMaximumHeight(30)
     
     def add_new_tag(self):
         """添加新标签"""
@@ -1439,13 +1899,49 @@ class AnimLibraryDialog(QMainWindow):
         """显示标签右键菜单"""
         menu = QMenu(self)
         
+        edit_name_action = menu.addAction("修改名称")
+        edit_name_action.triggered.connect(lambda: self.edit_tag_name(tag_name))
+        
         edit_color_action = menu.addAction("修改颜色")
         edit_color_action.triggered.connect(lambda: self.edit_tag_color(tag_name))
+        
+        menu.addSeparator()
         
         delete_action = menu.addAction("删除标签")
         delete_action.triggered.connect(lambda: self.delete_tag(tag_name))
         
         menu.exec_(pos)
+    
+    def edit_tag_name(self, old_tag_name):
+        """编辑标签名称"""
+        # 找到标签
+        tag = next((t for t in self.filter_tags if t["name"] == old_tag_name), None)
+        if not tag:
+            return
+        
+        # 输入新名称
+        new_name, ok = QInputDialog.getText(
+            self, "修改标签名称", 
+            f"修改标签 '{old_tag_name}' 的名称:",
+            text=old_tag_name
+        )
+        
+        if ok and new_name and new_name != old_tag_name:
+            # 检查新名称是否已存在
+            if any(t["name"] == new_name for t in self.filter_tags):
+                QMessageBox.warning(self, "警告", f"标签 '{new_name}' 已存在！")
+                return
+            
+            # 更新标签名称
+            tag["name"] = new_name
+            
+            # 如果当前激活的筛选标签是被修改的标签，也需要更新
+            if self.active_filter_tag == old_tag_name:
+                self.active_filter_tag = new_name
+            
+            self.refresh_tag_buttons()
+            self.save_config()
+            self.log(f"已修改标签名称: {old_tag_name} → {new_name}", "green")
     
     def edit_tag_color(self, tag_name):
         """编辑标签颜色"""
@@ -1489,6 +1985,12 @@ class AnimLibraryDialog(QMainWindow):
             if widget:
                 widget.deleteLater()
         
+        # 处理Qt事件队列，确保deleteLater生效
+        QApplication.processEvents()
+        
+        # 清空显示顺序列表
+        self.displayed_poses_order = []
+        
         # 获取搜索关键词
         search_text = self.search_edit.text().lower().strip()
         
@@ -1496,7 +1998,11 @@ class AnimLibraryDialog(QMainWindow):
         row = 0
         col = 0
         # 根据卡片大小动态计算每行数量
-        max_cols = max(1, int(self.scroll_area.width() / (self.card_size + 20)))
+        # 计算可用宽度：scroll_area宽度 - 滚动条宽度(20) - 左右边距(约10)
+        available_width = self.scroll_area.width() - 30
+        # 每个卡片占用宽度 = 卡片大小 + 间距(8)
+        card_total_width = self.card_size + 8
+        max_cols = max(1, int(available_width / card_total_width))
         
         for pose_name, pose_data in self.global_data.items():
             # 标签筛选
@@ -1520,6 +2026,9 @@ class AnimLibraryDialog(QMainWindow):
             card = self.create_pose_card(pose_name, pose_data, file_path)
             self.grid_layout.addWidget(card, row, col)
             
+            # 记录显示顺序（用于Shift多选）
+            self.displayed_poses_order.append(pose_name)
+            
             col += 1
             if col >= max_cols:
                 col = 0
@@ -1535,12 +2044,41 @@ class AnimLibraryDialog(QMainWindow):
         self.refresh_pose_display()
         self.save_config()  # 保存配置
     
+    def generate_temp_pose_name(self):
+        """生成唯一的TempPose名称"""
+        if not os.path.exists(self.current_folder_path):
+            return "TempPose_1"
+        
+        # 查找当前文件夹中所有TempPose文件
+        existing_numbers = []
+        for file in os.listdir(self.current_folder_path):
+            if file.startswith("TempPose") and file.endswith(".json"):
+                # 提取序号
+                name_without_ext = os.path.splitext(file)[0]
+                if name_without_ext == "TempPose":
+                    existing_numbers.append(0)  # TempPose without number = 0
+                elif "_" in name_without_ext:
+                    try:
+                        number_part = name_without_ext.split("_")[-1]
+                        existing_numbers.append(int(number_part))
+                    except ValueError:
+                        pass
+        
+        # 找到下一个可用序号
+        if not existing_numbers:
+            return "TempPose_1"
+        else:
+            next_number = max(existing_numbers) + 1
+            return f"TempPose_{next_number}"
+    
     def save_pose(self):
         """保存姿势（使用 Posture 的逻辑）"""
         pose_name = self.save_name_edit.text().strip()
+        
+        # 如果没有输入名称，自动生成TempPose_序号
         if not pose_name:
-            QMessageBox.warning(self, "警告", "请输入姿势名称")
-            return
+            pose_name = self.generate_temp_pose_name()
+            self.save_name_edit.setText(pose_name)  # 更新输入框显示
         
         # 检查是否已存在同名pose
         save_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
@@ -1554,19 +2092,11 @@ class AnimLibraryDialog(QMainWindow):
             if reply == QMessageBox.No:
                 return  # 用户选择不覆盖，直接返回
         
-        # 根据"仅选中"复选框决定保存哪些对象
-        if self.chk_save_selected_only.isChecked():
-            # 仅保存选中的对象
-            nodes = list(mxs.selection)
-            if not nodes:
-                QMessageBox.warning(self, "警告", "请先选择对象")
-                return
-        else:
-            # 保存所有对象
-            nodes = list(mxs.objects)
-            if not nodes:
-                QMessageBox.warning(self, "警告", "场景中没有对象")
-                return
+        # 保存所有对象
+        nodes = list(mxs.objects)
+        if not nodes:
+            QMessageBox.warning(self, "警告", "场景中没有对象")
+            return
         
         mxs.escapeEnable = False
         
@@ -1706,19 +2236,11 @@ class AnimLibraryDialog(QMainWindow):
         )
         
         if reply == QMessageBox.Yes:
-            # 根据"仅选中"复选框决定覆盖使用哪些对象
-            if self.chk_save_selected_only.isChecked():
-                # 仅使用选中的对象
-                nodes = list(mxs.selection)
-                if not nodes:
-                    QMessageBox.warning(self, "警告", "请先选择对象")
-                    return
-            else:
-                # 使用所有对象
-                nodes = list(mxs.objects)
-                if not nodes:
-                    QMessageBox.warning(self, "警告", "场景中没有对象")
-                    return
+            # 使用所有对象
+            nodes = list(mxs.objects)
+            if not nodes:
+                QMessageBox.warning(self, "警告", "场景中没有对象")
+                return
             
             mxs.escapeEnable = False
             
@@ -1812,6 +2334,10 @@ class AnimLibraryDialog(QMainWindow):
                 
                 # 更新显示
                 self.global_data[pose_name] = pose_data
+                
+                # 清除该pose的缩略图缓存
+                self.clear_pose_thumbnail_cache(pose_name)
+                
                 self.refresh_pose_display()
                 
                 self.log(f"已覆盖姿势: {pose_name}", "green")
@@ -1841,6 +2367,9 @@ class AnimLibraryDialog(QMainWindow):
         apply_global = self.rb_global.isChecked()
         force_load = self.chk_force_load.isChecked()
         load_selected_only = self.chk_load_selected_only.isChecked()
+        
+        if self.chk_enable_log.isChecked():
+            self.log(f"开始加载姿势: {pose_name}", "yellow")
         
         # 如果勾选了"仅选中"，获取选中的对象列表
         selected_nodes = set(mxs.selection) if load_selected_only else None
@@ -1872,20 +2401,34 @@ class AnimLibraryDialog(QMainWindow):
                             continue  # 跳过未选中的节点
                         
                         found_count += 1
+                        
+                        # 获取目标变换矩阵
                         if apply_global and "global_transform" in pose_data:
-                            node.transform = mxs.execute(pose_data["global_transform"][i])
+                            target_transform = mxs.execute(pose_data["global_transform"][i])
                         elif "local_transform" in pose_data and pose_data["local_transform"][i]:
                             if mxs.isValidNode(node.parent):
-                                node.transform = mxs.execute(pose_data["local_transform"][i]) * node.parent.transform
+                                target_transform = mxs.execute(pose_data["local_transform"][i]) * node.parent.transform
+                            else:
+                                target_transform = None
+                        else:
+                            target_transform = None
+                        
+                        if target_transform:
+                            # 直接应用变换
+                            node.transform = target_transform
                 
                 # 完成后重新启用场景重绘
                 mxs.enableSceneRedraw()
+                
+                # 强制更新视口
                 mxs.redrawViews()
+                mxs.completeRedraw()
+                mxs.forceCompleteRedraw()
                 
                 # 显示加载结果
                 mode_text = "暴力加载" if force_load else "加载"
                 result_text = f"{mode_text}姿势: {pose_name} (匹配 {found_count}/{total_count} 个节点)"
-                self.log(result_text, "cyan")
+                self.log(result_text, "green")
                 try:
                     self.status_bar.showMessage(result_text)
                 except:
