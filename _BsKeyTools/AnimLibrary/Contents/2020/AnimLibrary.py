@@ -468,13 +468,15 @@ class AnimLibraryDialog(QMainWindow):
             QPushButton { 
                 padding: 8px; 
                 background-color: palette(button); 
-                color: palette(button-text);
+                color: palette(window-text);
+                border: 1px solid palette(mid);
             }
             QPushButton:hover { 
                 background-color: palette(light); 
+                border: 1px solid palette(highlight);
             }
             QPushButton:pressed { 
-                background-color: palette(dark); 
+                background-color: palette(mid); 
             }
         """)
         self.btn_overwrite.setToolTip("覆盖选中的pose（需要先在下方选中一个pose）")
@@ -487,13 +489,15 @@ class AnimLibraryDialog(QMainWindow):
                 font-weight: bold; 
                 padding: 8px; 
                 background-color: palette(button); 
-                color: palette(button-text);
+                color: palette(window-text);
+                border: 1px solid palette(mid);
             }
             QPushButton:hover { 
                 background-color: palette(light); 
+                border: 1px solid palette(highlight);
             }
             QPushButton:pressed { 
-                background-color: palette(dark); 
+                background-color: palette(mid); 
             }
         """)
         btn_layout.addWidget(self.btn_save, 1)  # 拉伸因子1，占据剩余空间
@@ -541,13 +545,15 @@ class AnimLibraryDialog(QMainWindow):
                 font-weight: bold; 
                 padding: 8px; 
                 background-color: palette(button); 
-                color: palette(button-text);
+                color: palette(window-text);
+                border: 1px solid palette(mid);
             }
             QPushButton:hover { 
                 background-color: palette(light); 
+                border: 1px solid palette(highlight);
             }
             QPushButton:pressed { 
-                background-color: palette(dark); 
+                background-color: palette(mid); 
             }
         """)
         load_layout.addWidget(self.btn_load)
@@ -593,33 +599,48 @@ class AnimLibraryDialog(QMainWindow):
                 font-weight: bold; 
                 padding: 8px; 
                 background-color: palette(button); 
-                color: palette(button-text);
+                color: palette(window-text);
+                border: 1px solid palette(mid);
             }
             QPushButton:hover { 
                 background-color: palette(light); 
+                border: 1px solid palette(highlight);
             }
             QPushButton:pressed { 
-                background-color: palette(dark); 
+                background-color: palette(mid); 
             }
         """)
         right_layout.addWidget(self.btn_delete)
-        
-        # 进度条
-        self.progress = QProgressBar()
-        self.progress.setMaximumHeight(4)
-        right_layout.addWidget(self.progress)
         
         # 日志（可折叠）
         self.log_toggle_btn = QPushButton("▼ 日志")
         self.log_toggle_btn.setCheckable(True)
         self.log_toggle_btn.setChecked(False)
-        self.log_toggle_btn.setStyleSheet("QPushButton { text-align: left; padding: 4px; }")
+        self.log_toggle_btn.setStyleSheet("""
+            QPushButton { 
+                text-align: left; 
+                padding: 4px; 
+                background-color: palette(button);
+                color: palette(window-text);
+                border: 1px solid palette(mid);
+            }
+            QPushButton:hover {
+                background-color: palette(light);
+            }
+        """)
         right_layout.addWidget(self.log_toggle_btn)
         
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
         self.log_text.setMaximumHeight(80)
         self.log_text.setVisible(False)  # 默认隐藏
+        self.log_text.setStyleSheet("""
+            QTextEdit {
+                background-color: palette(base);
+                color: palette(text);
+                border: 1px solid palette(mid);
+            }
+        """)
         right_layout.addWidget(self.log_text)
         
         right_layout.addStretch()
@@ -642,9 +663,8 @@ class AnimLibraryDialog(QMainWindow):
     
     def get_config_path(self):
         """获取配置文件路径"""
-        # 配置文件保存在默认库目录下
-        scripts_dir = mxs.getDir(mxs.name('scripts'))
-        config_dir = os.path.join(scripts_dir, 'BulletScripts', 'Res', 'BsAnimLibrary')
+        # 配置文件保存在ProgramData目录下，避免权限问题
+        config_dir = r'C:\ProgramData\Autodesk\ApplicationPlugins\AnimLibrary\BsAnimLibrary'
         if not os.path.exists(config_dir):
             os.makedirs(config_dir, exist_ok=True)
         return os.path.join(config_dir, 'BsAnimLibConfig.json')
@@ -770,7 +790,7 @@ class AnimLibraryDialog(QMainWindow):
         if hasattr(self, '_resize_timer'):
             self._resize_timer.stop()
         else:
-            from PySide6.QtCore import QTimer
+            from PySide2.QtCore import QTimer
             self._resize_timer = QTimer()
             self._resize_timer.setSingleShot(True)
             self._resize_timer.timeout.connect(self.save_config)
@@ -783,7 +803,7 @@ class AnimLibraryDialog(QMainWindow):
         if hasattr(self, '_move_timer'):
             self._move_timer.stop()
         else:
-            from PySide6.QtCore import QTimer
+            from PySide2.QtCore import QTimer
             self._move_timer = QTimer()
             self._move_timer.setSingleShot(True)
             self._move_timer.timeout.connect(self.save_config)
@@ -826,7 +846,7 @@ class AnimLibraryDialog(QMainWindow):
         if hasattr(self, '_splitter_timer'):
             self._splitter_timer.stop()
         else:
-            from PySide6.QtCore import QTimer
+            from PySide2.QtCore import QTimer
             self._splitter_timer = QTimer()
             self._splitter_timer.setSingleShot(True)
             self._splitter_timer.timeout.connect(self.save_config)
@@ -919,6 +939,10 @@ class AnimLibraryDialog(QMainWindow):
                 modifiers = event.modifiers()
                 self.on_pose_card_clicked(pose_name, card, modifiers)
             elif event.button() == Qt.RightButton:
+                # 右键前先确保该pose被选中
+                if pose_name not in self.selected_poses:
+                    # 如果右键的pose没有被选中，则单选它
+                    self.on_pose_card_clicked(pose_name, card, Qt.NoModifier)
                 # PySide2: 使用 globalPos()
                 pos = event.globalPos()
                 self.show_pose_context_menu(pose_name, pos)
@@ -1217,9 +1241,9 @@ class AnimLibraryDialog(QMainWindow):
                     json.dump(pose_data, f, indent=2, ensure_ascii=False)
                 self.log(f"已更新标签: {pose_name}", "green")
                 
-                # 如果当前选中该pose，更新详情显示
-                if self.current_selected_pose == pose_name:
-                    self.update_detail_display(pose_name)
+                # 如果该pose在当前选中的poses中，更新详情显示
+                if pose_name in self.selected_poses:
+                    self.update_detail_panel()
             except Exception as e:
                 self.log(f"保存失败: {e}", "red")
     
@@ -1246,9 +1270,9 @@ class AnimLibraryDialog(QMainWindow):
                     json.dump(pose_data, f, indent=2, ensure_ascii=False)
                 self.log(f"已更新描述: {pose_name}", "green")
                 
-                # 如果当前选中该pose，更新详情显示
-                if self.current_selected_pose == pose_name:
-                    self.update_detail_display(pose_name)
+                # 如果该pose在当前选中的poses中，更新详情显示
+                if pose_name in self.selected_poses:
+                    self.update_detail_panel()
             except Exception as e:
                 self.log(f"保存失败: {e}", "red")
     
@@ -1408,6 +1432,10 @@ class AnimLibraryDialog(QMainWindow):
                 
                 self.refresh_pose_display()
                 
+                # 如果该pose在当前选中的poses中，更新详情显示
+                if pose_name in self.selected_poses:
+                    self.update_detail_panel()
+                
                 self.log(f"已覆盖姿势: {pose_name}", "green")
                 try:
                     self.status_bar.showMessage(f"已覆盖: {pose_name}")
@@ -1481,9 +1509,8 @@ class AnimLibraryDialog(QMainWindow):
     
     def load_default_library(self):
         """加载默认库"""
-        # 获取 Max Scripts 目录
-        scripts_dir = mxs.getDir(mxs.name('scripts'))
-        default_path = os.path.join(scripts_dir, 'BulletScripts', 'Res', 'BsAnimLibrary')
+        # 使用ProgramData目录，避免权限问题
+        default_path = r'C:\ProgramData\Autodesk\ApplicationPlugins\AnimLibrary\BsAnimLibrary'
         
         if not os.path.exists(default_path):
             os.makedirs(default_path, exist_ok=True)
@@ -2004,6 +2031,8 @@ class AnimLibraryDialog(QMainWindow):
         card_total_width = self.card_size + 8
         max_cols = max(1, int(available_width / card_total_width))
         
+        displayed_count = 0  # 记录实际显示的数量
+        
         for pose_name, pose_data in self.global_data.items():
             # 标签筛选
             if self.active_filter_tag:
@@ -2028,11 +2057,22 @@ class AnimLibraryDialog(QMainWindow):
             
             # 记录显示顺序（用于Shift多选）
             self.displayed_poses_order.append(pose_name)
+            displayed_count += 1
             
             col += 1
             if col >= max_cols:
                 col = 0
                 row += 1
+        
+        # 更新状态栏
+        try:
+            total_count = len(self.global_data)
+            if displayed_count == total_count:
+                self.status_bar.showMessage(f"共 {total_count} 个姿势")
+            else:
+                self.status_bar.showMessage(f"显示 {displayed_count} 个姿势（共 {total_count} 个）")
+        except:
+            pass
     
     def on_search_changed(self, text):
         """搜索文本改变"""
@@ -2339,6 +2379,10 @@ class AnimLibraryDialog(QMainWindow):
                 self.clear_pose_thumbnail_cache(pose_name)
                 
                 self.refresh_pose_display()
+                
+                # 如果该pose在当前选中的poses中，更新详情显示
+                if pose_name in self.selected_poses:
+                    self.update_detail_panel()
                 
                 self.log(f"已覆盖姿势: {pose_name}", "green")
                 try:

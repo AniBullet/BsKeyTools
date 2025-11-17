@@ -1,6 +1,6 @@
 python.Init()
 
-macroScript AnimRef category:"CGcenter" buttonText: "AnimRef"
+macroScript AnimRef category:"_[BulletTools]" buttonText: "AnimRef"
 (
 	python.ExecuteFile(getDir #publicExchangeStoreInstallPath + "\AnimRef\Contents\2026\animref.py")
 )
