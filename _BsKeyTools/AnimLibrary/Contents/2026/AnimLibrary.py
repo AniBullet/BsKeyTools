@@ -451,16 +451,6 @@ class AnimLibraryDialog(QMainWindow):
         self.save_desc_edit.setPlaceholderText("描述 (可选)")
         save_layout.addWidget(self.save_desc_edit)
         
-        # 保存选项：全局/局部单选
-        save_opt_layout = QHBoxLayout()
-        self.save_rb_global = QRadioButton("全局")
-        self.save_rb_global.setChecked(True)
-        self.save_rb_local = QRadioButton("局部")
-        save_opt_layout.addWidget(self.save_rb_global)
-        save_opt_layout.addWidget(self.save_rb_local)
-        save_opt_layout.addStretch()
-        save_layout.addLayout(save_opt_layout)
-        
         # 按钮组：覆盖 + 保存
         btn_layout = QHBoxLayout()
         self.btn_overwrite = QPushButton("覆盖")
@@ -517,15 +507,45 @@ class AnimLibraryDialog(QMainWindow):
         load_mode_layout.addStretch()
         load_layout.addLayout(load_mode_layout)
         
+        # 位移轴控制（暂时隐藏）
+        # trans_layout = QHBoxLayout()
+        # trans_layout.addWidget(QLabel("位移:"))
+        # self.chk_trans_x = QCheckBox("X")
+        # self.chk_trans_x.setChecked(True)
+        # self.chk_trans_y = QCheckBox("Y")
+        # self.chk_trans_y.setChecked(True)
+        # self.chk_trans_z = QCheckBox("Z")
+        # self.chk_trans_z.setChecked(True)
+        # trans_layout.addWidget(self.chk_trans_x)
+        # trans_layout.addWidget(self.chk_trans_y)
+        # trans_layout.addWidget(self.chk_trans_z)
+        # trans_layout.addStretch()
+        # load_layout.addLayout(trans_layout)
+        
+        # 旋转轴控制（暂时隐藏）
+        # rot_layout = QHBoxLayout()
+        # rot_layout.addWidget(QLabel("旋转:"))
+        # self.chk_rot_x = QCheckBox("X")
+        # self.chk_rot_x.setChecked(True)
+        # self.chk_rot_y = QCheckBox("Y")
+        # self.chk_rot_y.setChecked(True)
+        # self.chk_rot_z = QCheckBox("Z")
+        # self.chk_rot_z.setChecked(True)
+        # rot_layout.addWidget(self.chk_rot_x)
+        # rot_layout.addWidget(self.chk_rot_y)
+        # rot_layout.addWidget(self.chk_rot_z)
+        # rot_layout.addStretch()
+        # load_layout.addLayout(rot_layout)
+        
         # 加载选项：仅选中、暴力加载
         load_options_layout = QHBoxLayout()
         self.chk_load_selected_only = QCheckBox("仅选中")
         self.chk_load_selected_only.setChecked(False)
-        self.chk_load_selected_only.setToolTip("只加载到当前选中的对象")
+        self.chk_load_selected_only.setToolTip("只加载到当前选中的对象（可以选择部分骨骼，如只选小臂）")
         load_options_layout.addWidget(self.chk_load_selected_only)
         
         self.chk_force_load = QCheckBox("暴力加载")
-        self.chk_force_load.setToolTip("通过节点名称匹配")
+        self.chk_force_load.setToolTip("通过节点名称匹配（忽略UUID）")
         load_options_layout.addWidget(self.chk_force_load)
         load_options_layout.addStretch()
         load_layout.addLayout(load_options_layout)
@@ -605,7 +625,8 @@ class AnimLibraryDialog(QMainWindow):
         right_layout.addWidget(self.btn_delete)
         
         # 日志（可折叠）
-        self.log_toggle_btn = QPushButton("▼ 日志")
+        log_header_layout = QHBoxLayout()
+        self.log_toggle_btn = QPushButton("▶ 日志")
         self.log_toggle_btn.setCheckable(True)
         self.log_toggle_btn.setChecked(False)
         self.log_toggle_btn.setStyleSheet("""
@@ -620,17 +641,38 @@ class AnimLibraryDialog(QMainWindow):
                 background-color: palette(light);
             }
         """)
-        right_layout.addWidget(self.log_toggle_btn)
+        log_header_layout.addWidget(self.log_toggle_btn)
+        
+        self.log_clear_btn = QPushButton("清空")
+        self.log_clear_btn.setMaximumWidth(60)
+        self.log_clear_btn.clicked.connect(lambda: self.log_text.clear())
+        self.log_clear_btn.setStyleSheet("""
+            QPushButton {
+                padding: 4px;
+                background-color: palette(button);
+                color: palette(window-text);
+                border: 1px solid palette(mid);
+            }
+            QPushButton:hover {
+                background-color: palette(light);
+            }
+        """)
+        log_header_layout.addWidget(self.log_clear_btn)
+        
+        right_layout.addLayout(log_header_layout)
         
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
-        self.log_text.setMaximumHeight(80)
+        self.log_text.setMinimumHeight(150)
+        self.log_text.setMaximumHeight(300)
         self.log_text.setVisible(False)  # 默认隐藏
         self.log_text.setStyleSheet("""
             QTextEdit {
                 background-color: palette(base);
                 color: palette(text);
                 border: 1px solid palette(mid);
+                font-family: Consolas, 'Courier New', monospace;
+                font-size: 9pt;
             }
         """)
         right_layout.addWidget(self.log_text)
@@ -947,7 +989,7 @@ class AnimLibraryDialog(QMainWindow):
     def on_grid_widget_clicked(self, event):
         """点击grid_widget空白区域取消选择"""
         # 检查点击位置是否在某个card上
-        click_pos = event.pos()
+        click_pos = event.position().toPoint()  # Qt6兼容：使用position()替代pos()
         clicked_widget = self.grid_widget.childAt(click_pos)
         
         # 检查clicked_widget是否是pose card或其子元素
@@ -1189,6 +1231,9 @@ class AnimLibraryDialog(QMainWindow):
         load_action = menu.addAction("加载")
         load_action.triggered.connect(lambda: self.load_pose_by_name(pose_name))
         
+        view_nodes_action = menu.addAction("查看节点列表")
+        view_nodes_action.triggered.connect(lambda: self.view_pose_nodes(pose_name))
+        
         menu.addSeparator()
         
         overwrite_action = menu.addAction("覆盖")
@@ -1209,6 +1254,88 @@ class AnimLibraryDialog(QMainWindow):
         delete_action.triggered.connect(lambda: self.delete_pose_by_name(pose_name))
         
         menu.exec(pos)
+    
+    def view_pose_nodes(self, pose_name):
+        """查看姿势包含的节点列表"""
+        if pose_name not in self.global_data:
+            return
+        
+        pose_data = self.global_data[pose_name]
+        node_names = pose_data.get("name", [])
+        node_ids = pose_data.get("ID", [])
+        
+        if not node_names:
+            QMessageBox.information(self, "节点列表", "该姿势没有包含任何节点")
+            return
+        
+        # 创建一个对话框显示节点列表
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"节点列表 - {pose_name}")
+        dialog.resize(400, 500)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # 添加说明标签
+        info_label = QLabel(f"该姿势包含 {len(node_names)} 个节点:")
+        layout.addWidget(info_label)
+        
+        # 创建列表显示
+        list_widget = QListWidget()
+        for i, name in enumerate(node_names):
+            # 显示节点名称和UUID（用于调试）
+            uuid = node_ids[i] if i < len(node_ids) else "N/A"
+            list_widget.addItem(f"{i+1}. {name} (UUID: {uuid[:8]}...)")
+        
+        layout.addWidget(list_widget)
+        
+        # 添加按钮
+        button_layout = QHBoxLayout()
+        
+        select_btn = QPushButton("选择这些节点")
+        select_btn.clicked.connect(lambda: self.select_pose_nodes(pose_name, dialog))
+        button_layout.addWidget(select_btn)
+        
+        close_btn = QPushButton("关闭")
+        close_btn.clicked.connect(dialog.close)
+        button_layout.addWidget(close_btn)
+        
+        layout.addLayout(button_layout)
+        
+        dialog.exec_()
+    
+    def select_pose_nodes(self, pose_name, dialog=None):
+        """选择pose包含的节点"""
+        if pose_name not in self.global_data:
+            return
+        
+        pose_data = self.global_data[pose_name]
+        node_ids = pose_data.get("ID", [])
+        
+        if not node_ids:
+            QMessageBox.warning(self, "警告", "该姿势没有包含任何节点")
+            return
+        
+        # 查找并选择节点
+        nodes_to_select = []
+        for node_id in node_ids:
+            for obj in mxs.objects:
+                if mxs.getAppData(obj, 10):
+                    if str(mxs.getAppData(obj, 10)) == str(node_id):
+                        nodes_to_select.append(obj)
+                        break
+        
+        if nodes_to_select:
+            mxs.clearSelection()
+            for node in nodes_to_select:
+                mxs.selectMore(node)
+            
+            self.log(f"已选择 {len(nodes_to_select)}/{len(node_ids)} 个节点", "green")
+            QMessageBox.information(self, "成功", f"已选择 {len(nodes_to_select)}/{len(node_ids)} 个节点")
+            
+            if dialog:
+                dialog.close()
+        else:
+            QMessageBox.warning(self, "警告", "场景中没有找到任何匹配的节点")
     
     def edit_pose_tags(self, pose_name):
         """编辑姿势标签"""
@@ -2124,11 +2251,15 @@ class AnimLibraryDialog(QMainWindow):
             if reply == QMessageBox.No:
                 return  # 用户选择不覆盖，直接返回
         
-        # 保存所有对象
-        nodes = list(mxs.objects)
+        # 保存选中的对象（对齐posture逻辑）
+        nodes = list(mxs.selection)
         if not nodes:
-            QMessageBox.warning(self, "警告", "场景中没有对象")
+            QMessageBox.warning(self, "警告", "请先选择要保存的对象")
             return
+        
+        # 显示将要保存的节点信息
+        node_names = [node.name for node in nodes]
+        self.log(f"准备保存 {len(nodes)} 个节点: {', '.join(node_names[:5])}{' ...' if len(nodes) > 5 else ''}", "yellow")
         
         mxs.escapeEnable = False
         
@@ -2185,20 +2316,26 @@ class AnimLibraryDialog(QMainWindow):
                         children_ids.append(child_id)
                     pose_data["children_IDs"].append(children_ids)
             
-            # 保存变换
-            if self.save_rb_global.isChecked():
-                pose_data["global_transform"] = []
-                for node in nodes:
-                    pose_data["global_transform"].append(str(node.transform))
+            # 保存变换（对齐posture逻辑：始终同时保存全局和局部）
+            # 保存全局变换
+            pose_data["global_transform"] = []
+            for node in nodes:
+                pose_data["global_transform"].append(str(node.transform))
             
-            if self.save_rb_local.isChecked():
-                pose_data["local_transform"] = []
-                for node in nodes:
-                    if mxs.isValidNode(node.parent):
-                        offset = mxs.inverse(node.parent.transform * mxs.inverse(node.transform))
-                        pose_data["local_transform"].append(str(offset))
-                    else:
-                        pose_data["local_transform"].append(None)
+            # 保存局部变换
+            pose_data["local_transform"] = []
+            trubled_nodes = []
+            for node in nodes:
+                if mxs.isValidNode(node.parent):
+                    offset = mxs.inverse(node.parent.transform * mxs.inverse(node.transform))
+                    pose_data["local_transform"].append(str(offset))
+                else:
+                    trubled_nodes.append(node.name)
+                    pose_data["local_transform"].append(None)
+            
+            # 如果有节点没有父节点，记录日志
+            if len(trubled_nodes) > 0 and self.chk_enable_log.isChecked():
+                self.log(f"警告: 以下 {len(trubled_nodes)} 个对象没有父节点（局部变换将为None）: {', '.join(trubled_nodes[:5])}{'...' if len(trubled_nodes) > 5 else ''}", "orange")
             
             # 添加标签和描述（可选）
             tags = self.save_tags_edit.text().strip()
@@ -2235,9 +2372,12 @@ class AnimLibraryDialog(QMainWindow):
             self.save_name_edit.clear()
             self.save_tags_edit.clear()
             self.save_desc_edit.clear()
-            self.log(f"保存姿势: {pose_name}", "green")
+            
+            # 显示保存成功消息
+            success_msg = f"✓ 已保存姿势 '{pose_name}' (包含 {len(nodes)} 个节点)"
+            self.log(success_msg, "green")
             try:
-                self.status_bar.showMessage(f"已保存: {pose_name}")
+                self.status_bar.showMessage(success_msg)
             except:
                 pass
             
@@ -2407,8 +2547,21 @@ class AnimLibraryDialog(QMainWindow):
         if self.chk_enable_log.isChecked():
             self.log(f"开始加载姿势: {pose_name}", "yellow")
         
-        # 如果勾选了"仅选中"，获取选中的对象列表
-        selected_nodes = set(mxs.selection) if load_selected_only else None
+        # 仅选中模式 或 暴力加载模式：需要先选中对象
+        if load_selected_only or force_load:
+            selected_nodes = set(mxs.selection)
+            if len(selected_nodes) == 0:
+                mode_name = "仅选中" if load_selected_only else "暴力加载"
+                self.log(f"{mode_name}模式：没有选中任何对象", "orange")
+                QMessageBox.warning(self, "警告", f"{mode_name}模式需要先选择物体")
+                return
+            
+            # 显示选中的节点列表
+            if self.chk_enable_log.isChecked():
+                selected_names = [str(node.name) for node in list(selected_nodes)[:10]]
+                self.log(f"已选中 {len(selected_nodes)} 个节点: {', '.join(selected_names)}{' ...' if len(selected_nodes) > 10 else ''}", "yellow")
+        else:
+            selected_nodes = None  # 默认模式不限制选中
         
         mxs.escapeEnable = False
         
@@ -2417,53 +2570,221 @@ class AnimLibraryDialog(QMainWindow):
                 # 禁用场景重绘以提高性能
                 mxs.DisableSceneRedraw()
                 
+                # 创建临时列表用于查找（提高性能，仅在非暴力加载时使用）
+                temporary_list = []
+                if not force_load:
+                    for obj in mxs.objects:
+                        if mxs.getAppData(obj, 10):
+                            temporary_list.append(obj)
+                
                 # 查找节点并应用变换
                 found_count = 0
+                missing_count = 0
                 total_count = len(pose_data.get("ID", []))
                 
-                for i, node_id in enumerate(pose_data.get("ID", [])):
-                    # 根据模式选择查找方法
-                    if force_load:
-                        # 暴力加载：通过节点名称匹配
-                        node_name = pose_data.get("name", [])[i] if i < len(pose_data.get("name", [])) else None
-                        node = self._find_node_by_name(node_name) if node_name else None
-                    else:
-                        # 正常加载：通过UUID匹配
-                        node = self._find_node_by_id(node_id)
+                # 显示pose包含的节点列表（仅在日志开启时）
+                if self.chk_enable_log.isChecked():
+                    pose_node_names = pose_data.get("name", [])
+                    self.log(f"Pose包含 {total_count} 个节点: {', '.join(pose_node_names[:5])}{' ...' if len(pose_node_names) > 5 else ''}", "cyan")
+                
+                # 整体循环3次，确保Biped和bone层级依赖能正确到位（参考cptools精度机制）
+                for loop_pass in range(3):
+                    # 每次循环重新获取引用，避免引用失效
+                    if loop_pass > 0:
+                        # 重新获取选中节点（暴力加载和仅选中模式需要）
+                        if force_load or load_selected_only:
+                            selected_nodes = set(mxs.selection)
+                        # 重建UUID临时列表（非暴力加载模式需要）
+                        if not force_load:
+                            temporary_list = [obj for obj in mxs.objects if mxs.getAppData(obj, 10)]
                     
-                    if node and mxs.isValidNode(node):
-                        # 如果勾选了"仅选中"，检查节点是否在选中列表中
-                        if selected_nodes is not None and node not in selected_nodes:
-                            continue  # 跳过未选中的节点
+                    for i, node_id in enumerate(pose_data.get("ID", [])):
+                        node = None
+                        pose_node_name = pose_data.get("name", [])[i] if i < len(pose_data.get("name", [])) else None
                         
-                        found_count += 1
-                        
-                        # 获取目标变换矩阵
-                        if apply_global and "global_transform" in pose_data:
-                            target_transform = mxs.execute(pose_data["global_transform"][i])
-                        elif "local_transform" in pose_data and pose_data["local_transform"][i]:
-                            if mxs.isValidNode(node.parent):
-                                target_transform = mxs.execute(pose_data["local_transform"][i]) * node.parent.transform
-                            else:
-                                target_transform = None
+                        # 根据模式选择查找方法
+                        if force_load:
+                            # 暴力加载：只在选中的节点中通过名称匹配（不查找未选中的节点）
+                            if pose_node_name and selected_nodes:
+                                for sel_node in selected_nodes:
+                                    try:
+                                        sel_node_name = str(sel_node.name)
+                                        if sel_node_name == pose_node_name:
+                                            node = sel_node
+                                            if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                self.log(f"  暴力加载匹配: {pose_node_name}", "cyan")
+                                            break
+                                    except:
+                                        continue
+                                
+                                # 记录未匹配的节点（仅在第一次循环）
+                                if not node and loop_pass == 0 and self.chk_enable_log.isChecked():
+                                    self.log(f"  暴力加载未匹配: {pose_node_name}", "orange")
                         else:
-                            target_transform = None
+                            # 正常加载：通过UUID匹配
+                            for item in temporary_list:
+                                if str(mxs.getAppData(item, 10)) == str(node_id):
+                                    node = item
+                                    temporary_list.remove(item)  # 找到后移除，提高后续查找效率
+                                    break
+                            
+                            # 仅选中模式：只处理选中的节点（通过handle比较，更可靠）
+                            if load_selected_only and selected_nodes is not None:
+                                node_in_selection = False
+                                try:
+                                    node_handle = mxs.getHandleByAnim(node)
+                                    for sel_node in selected_nodes:
+                                        try:
+                                            sel_handle = mxs.getHandleByAnim(sel_node)
+                                            if node_handle == sel_handle:
+                                                node_in_selection = True
+                                                break
+                                        except:
+                                            continue
+                                except:
+                                    node_in_selection = False
+                                
+                                if not node_in_selection:
+                                    if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                        self.log(f"  仅选中跳过: {node.name} (未在选中列表中)", "gray")
+                                    continue  # 跳过未选中的节点
                         
-                        if target_transform:
-                            # 直接应用变换
-                            node.transform = target_transform
+                        if node and mxs.isValidNode(node):
+                            
+                            # 只在第一次循环计数
+                            if loop_pass == 0:
+                                found_count += 1
+                            
+                            # 详细日志：显示正在加载哪个节点（只在第一次循环显示）
+                            if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                node_name = pose_data.get("name", [])[i] if i < len(pose_data.get("name", [])) else "Unknown"
+                                mode_info = f"[暴力]" if force_load else f"[UUID]"
+                                self.log(f"  → {mode_info} 加载节点: {node.name}", "cyan")
+                            
+                            # 应用变换（整体循环2次+Biped内部循环）
+                            try:
+                                if apply_global and "global_transform" in pose_data:
+                                    # 全局变换
+                                    transform_str = pose_data["global_transform"][i]
+                                    
+                                    # Biped需要特殊处理：使用Biped.setTransform方法
+                                    is_biped = mxs.classof(node) == mxs.Biped_Object
+                                    if is_biped:
+                                        # Biped骨骼：使用Biped.setTransform方法（专用API）
+                                        try:
+                                            target_transform = mxs.execute(transform_str)
+                                            # 尝试使用Biped专用方法
+                                            try:
+                                                mxs.Biped.setTransform(node, mxs.Name("pos"), target_transform.position, True)
+                                                mxs.Biped.setTransform(node, mxs.Name("rot"), target_transform.rotation, True)
+                                                if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                    self.log(f"    ✓ 应用全局变换(Biped API): {node.name}", "green")
+                                            except:
+                                                # 如果Biped API失败，尝试直接赋值（多次）
+                                                for attempt in range(3):
+                                                    node.transform = target_transform
+                                                if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                    self.log(f"    ✓ 应用全局变换(Biped 直接): {node.name}", "green")
+                                        except Exception as biped_e:
+                                            if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                self.log(f"    ✗ Biped变换失败: {node.name} - {biped_e}", "red")
+                                    else:
+                                        # 普通节点和bone：直接赋值
+                                        try:
+                                            target_transform = mxs.execute(transform_str)
+                                            node.transform = target_transform
+                                            if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                self.log(f"    ✓ 应用全局变换: {node.name}", "green")
+                                        except Exception as e:
+                                            if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                self.log(f"    ✗ 变换失败: {node.name} - {e}", "red")
+                            
+                                elif not apply_global and "local_transform" in pose_data:
+                                    # 局部变换
+                                    if pose_data["local_transform"][i] is not None:
+                                        if mxs.isValidNode(node.parent):
+                                            local_transform_str = pose_data["local_transform"][i]
+                                            
+                                            # Biped需要特殊处理：使用Biped.setTransform方法
+                                            is_biped = mxs.classof(node) == mxs.Biped_Object
+                                            if is_biped:
+                                                # Biped骨骼：使用Biped.setTransform方法（专用API）
+                                                try:
+                                                    offset = mxs.execute(local_transform_str)
+                                                    target_transform = offset * node.parent.transform
+                                                    # 尝试使用Biped专用方法
+                                                    try:
+                                                        mxs.Biped.setTransform(node, mxs.Name("pos"), target_transform.position, True)
+                                                        mxs.Biped.setTransform(node, mxs.Name("rot"), target_transform.rotation, True)
+                                                        if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                            self.log(f"    ✓ 应用局部变换(Biped API): {node.name}", "green")
+                                                    except:
+                                                        # 如果Biped API失败，尝试直接赋值（多次）
+                                                        for attempt in range(3):
+                                                            node.transform = target_transform
+                                                        if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                            self.log(f"    ✓ 应用局部变换(Biped 直接): {node.name}", "green")
+                                                except Exception as biped_e:
+                                                    if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                        self.log(f"    ✗ Biped局部变换失败: {node.name} - {biped_e}", "red")
+                                            else:
+                                                # 普通节点和bone：直接赋值
+                                                try:
+                                                    offset = mxs.execute(local_transform_str)
+                                                    target_transform = offset * node.parent.transform
+                                                    node.transform = target_transform
+                                                    if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                        self.log(f"    ✓ 应用局部变换: {node.name}", "green")
+                                                except Exception as e:
+                                                    if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                        self.log(f"    ✗ 局部变换失败: {node.name} - {e}", "red")
+                                        else:
+                                            if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                                self.log(f"    ⚠ 节点 {node.name} 没有父节点，跳过局部变换", "orange")
+                                
+                                # 处理颜色（全局和局部都适用）
+                                if "color" in pose_data and i < len(pose_data["color"]):
+                                    try:
+                                        color_str = pose_data["color"][i]
+                                        if color_str != "(color 0 0 0)":
+                                            if mxs.isGroupHead(node):
+                                                # 递归处理组头的子节点
+                                                color_obj = mxs.execute(color_str)
+                                                def apply_color_to_children(parent_node):
+                                                    for j in range(parent_node.children.count):
+                                                        child = parent_node.children[j]
+                                                        if mxs.isValidNode(child):
+                                                            child.wirecolor = color_obj
+                                                            if child.children.count > 0:
+                                                                apply_color_to_children(child)
+                                                apply_color_to_children(node)
+                                            else:
+                                                node.wirecolor = mxs.execute(color_str)
+                                    except:
+                                        pass
+                                        
+                            except Exception as e:
+                                if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                    self.log(f"    ✗ 应用变换到 {node.name} 失败: {e}", "red")
+                        else:
+                            if loop_pass == 0:
+                                missing_count += 1
+                
+                # 不主动清理，让Python自动管理内存（避免与MAXScript垃圾回收冲突）
                 
                 # 完成后重新启用场景重绘
                 mxs.enableSceneRedraw()
-                
-                # 强制更新视口
                 mxs.redrawViews()
-                mxs.completeRedraw()
-                mxs.forceCompleteRedraw()
                 
                 # 显示加载结果
                 mode_text = "暴力加载" if force_load else "加载"
-                result_text = f"{mode_text}姿势: {pose_name} (匹配 {found_count}/{total_count} 个节点)"
+                transform_mode = "全局" if apply_global else "局部"
+                selected_text = " [仅选中]" if load_selected_only else ""
+                result_text = f"{mode_text}姿势: {pose_name} ({transform_mode}模式{selected_text}, 匹配 {found_count}/{total_count} 个节点)"
+                
+                if missing_count > 0:
+                    result_text += f" [缺失 {missing_count} 个]"
+                
                 self.log(result_text, "green")
                 try:
                     self.status_bar.showMessage(result_text)
@@ -2503,6 +2824,9 @@ class AnimLibraryDialog(QMainWindow):
                     
                     if pose_name in self.global_data:
                         del self.global_data[pose_name]
+                    
+                    # 清除该pose的缩略图缓存
+                    self.clear_pose_thumbnail_cache(pose_name)
                     
                     deleted_count += 1
                 

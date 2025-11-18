@@ -451,16 +451,6 @@ class AnimLibraryDialog(QMainWindow):
         self.save_desc_edit.setPlaceholderText("描述 (可选)")
         save_layout.addWidget(self.save_desc_edit)
         
-        # 保存选项：全局/局部单选
-        save_opt_layout = QHBoxLayout()
-        self.save_rb_global = QRadioButton("全局")
-        self.save_rb_global.setChecked(True)
-        self.save_rb_local = QRadioButton("局部")
-        save_opt_layout.addWidget(self.save_rb_global)
-        save_opt_layout.addWidget(self.save_rb_local)
-        save_opt_layout.addStretch()
-        save_layout.addLayout(save_opt_layout)
-        
         # 按钮组：覆盖 + 保存
         btn_layout = QHBoxLayout()
         self.btn_overwrite = QPushButton("覆盖")
@@ -520,6 +510,36 @@ class AnimLibraryDialog(QMainWindow):
         load_mode_layout.addWidget(self.rb_local)
         load_mode_layout.addStretch()
         load_layout.addLayout(load_mode_layout)
+        
+        # 位移轴控制
+        trans_layout = QHBoxLayout()
+        trans_layout.addWidget(QLabel("位移:"))
+        self.chk_trans_x = QCheckBox("X")
+        self.chk_trans_x.setChecked(True)
+        self.chk_trans_y = QCheckBox("Y")
+        self.chk_trans_y.setChecked(True)
+        self.chk_trans_z = QCheckBox("Z")
+        self.chk_trans_z.setChecked(True)
+        trans_layout.addWidget(self.chk_trans_x)
+        trans_layout.addWidget(self.chk_trans_y)
+        trans_layout.addWidget(self.chk_trans_z)
+        trans_layout.addStretch()
+        load_layout.addLayout(trans_layout)
+        
+        # 旋转轴控制
+        rot_layout = QHBoxLayout()
+        rot_layout.addWidget(QLabel("旋转:"))
+        self.chk_rot_x = QCheckBox("X")
+        self.chk_rot_x.setChecked(True)
+        self.chk_rot_y = QCheckBox("Y")
+        self.chk_rot_y.setChecked(True)
+        self.chk_rot_z = QCheckBox("Z")
+        self.chk_rot_z.setChecked(True)
+        rot_layout.addWidget(self.chk_rot_x)
+        rot_layout.addWidget(self.chk_rot_y)
+        rot_layout.addWidget(self.chk_rot_z)
+        rot_layout.addStretch()
+        load_layout.addLayout(rot_layout)
         
         # 加载选项：仅选中、暴力加载
         load_options_layout = QHBoxLayout()
@@ -2193,20 +2213,26 @@ class AnimLibraryDialog(QMainWindow):
                         children_ids.append(child_id)
                     pose_data["children_IDs"].append(children_ids)
             
-            # 保存变换
-            if self.save_rb_global.isChecked():
-                pose_data["global_transform"] = []
-                for node in nodes:
-                    pose_data["global_transform"].append(str(node.transform))
+            # 保存变换（对齐posture逻辑：始终同时保存全局和局部）
+            # 保存全局变换
+            pose_data["global_transform"] = []
+            for node in nodes:
+                pose_data["global_transform"].append(str(node.transform))
             
-            if self.save_rb_local.isChecked():
-                pose_data["local_transform"] = []
-                for node in nodes:
-                    if mxs.isValidNode(node.parent):
-                        offset = mxs.inverse(node.parent.transform * mxs.inverse(node.transform))
-                        pose_data["local_transform"].append(str(offset))
-                    else:
-                        pose_data["local_transform"].append(None)
+            # 保存局部变换
+            pose_data["local_transform"] = []
+            trubled_nodes = []
+            for node in nodes:
+                if mxs.isValidNode(node.parent):
+                    offset = mxs.inverse(node.parent.transform * mxs.inverse(node.transform))
+                    pose_data["local_transform"].append(str(offset))
+                else:
+                    trubled_nodes.append(node.name)
+                    pose_data["local_transform"].append(None)
+            
+            # 如果有节点没有父节点，记录日志
+            if len(trubled_nodes) > 0 and self.chk_enable_log.isChecked():
+                self.log(f"警告: 以下 {len(trubled_nodes)} 个对象没有父节点（局部变换将为None）: {', '.join(trubled_nodes[:5])}{'...' if len(trubled_nodes) > 5 else ''}", "orange")
             
             # 添加标签和描述（可选）
             tags = self.save_tags_edit.text().strip()
@@ -2425,19 +2451,40 @@ class AnimLibraryDialog(QMainWindow):
                 # 禁用场景重绘以提高性能
                 mxs.DisableSceneRedraw()
                 
+                # 检查"仅选中"模式是否有选中对象
+                if selected_nodes is not None and len(selected_nodes) == 0:
+                    self.log("没有选中任何对象", "orange")
+                    mxs.enableSceneRedraw()
+                    QMessageBox.warning(self, "警告", "请先选择要应用姿势的对象")
+                    return
+                
+                # 创建临时列表用于查找（提高性能，仅在非暴力加载时使用）
+                temporary_list = []
+                if not force_load:
+                    for obj in mxs.objects:
+                        if mxs.getAppData(obj, 10):
+                            temporary_list.append(obj)
+                
                 # 查找节点并应用变换
                 found_count = 0
+                missing_count = 0
                 total_count = len(pose_data.get("ID", []))
                 
                 for i, node_id in enumerate(pose_data.get("ID", [])):
+                    node = None
+                    
                     # 根据模式选择查找方法
                     if force_load:
                         # 暴力加载：通过节点名称匹配
                         node_name = pose_data.get("name", [])[i] if i < len(pose_data.get("name", [])) else None
                         node = self._find_node_by_name(node_name) if node_name else None
                     else:
-                        # 正常加载：通过UUID匹配
-                        node = self._find_node_by_id(node_id)
+                        # 正常加载：通过UUID匹配（从临时列表中查找）
+                        for item in temporary_list:
+                            if str(mxs.getAppData(item, 10)) == str(node_id):
+                                node = item
+                                temporary_list.remove(item)  # 找到后移除，提高后续查找效率
+                                break
                     
                     if node and mxs.isValidNode(node):
                         # 如果勾选了"仅选中"，检查节点是否在选中列表中
@@ -2446,32 +2493,170 @@ class AnimLibraryDialog(QMainWindow):
                         
                         found_count += 1
                         
-                        # 获取目标变换矩阵
-                        if apply_global and "global_transform" in pose_data:
-                            target_transform = mxs.execute(pose_data["global_transform"][i])
-                        elif "local_transform" in pose_data and pose_data["local_transform"][i]:
-                            if mxs.isValidNode(node.parent):
-                                target_transform = mxs.execute(pose_data["local_transform"][i]) * node.parent.transform
-                            else:
-                                target_transform = None
-                        else:
-                            target_transform = None
-                        
-                        if target_transform:
-                            # 直接应用变换
-                            node.transform = target_transform
+                        # 应用变换和颜色（对齐posture逻辑）
+                        try:
+                            if apply_global and "global_transform" in pose_data:
+                                # 全局变换 - 支持分轴控制
+                                target_transform = mxs.execute(pose_data["global_transform"][i])
+                                
+                                # 获取勾选状态
+                                apply_trans_x = self.chk_trans_x.isChecked()
+                                apply_trans_y = self.chk_trans_y.isChecked()
+                                apply_trans_z = self.chk_trans_z.isChecked()
+                                apply_rot_x = self.chk_rot_x.isChecked()
+                                apply_rot_y = self.chk_rot_y.isChecked()
+                                apply_rot_z = self.chk_rot_z.isChecked()
+                                
+                                # 如果全部勾选，直接应用整个变换（性能优化）
+                                if all([apply_trans_x, apply_trans_y, apply_trans_z, 
+                                       apply_rot_x, apply_rot_y, apply_rot_z]):
+                                    node.transform = target_transform
+                                else:
+                                    # 分轴应用
+                                    current_transform = node.transform
+                                    
+                                    # 提取位移
+                                    current_pos = current_transform.translationPart
+                                    target_pos = target_transform.translationPart
+                                    new_pos = mxs.Point3(
+                                        target_pos.x if apply_trans_x else current_pos.x,
+                                        target_pos.y if apply_trans_y else current_pos.y,
+                                        target_pos.z if apply_trans_z else current_pos.z
+                                    )
+                                    
+                                    # 提取旋转（使用欧拉角）
+                                    current_rot = current_transform.rotationPart
+                                    target_rot = target_transform.rotationPart
+                                    current_euler = mxs.quatToEuler(current_rot)
+                                    target_euler = mxs.quatToEuler(target_rot)
+                                    new_euler = mxs.eulerAngles(
+                                        target_euler.x if apply_rot_x else current_euler.x,
+                                        target_euler.y if apply_rot_y else current_euler.y,
+                                        target_euler.z if apply_rot_z else current_euler.z
+                                    )
+                                    new_rot = mxs.eulerToQuat(new_euler)
+                                    
+                                    # 提取缩放（始终保持）
+                                    current_scale = current_transform.scalePart
+                                    
+                                    # 重新组合变换
+                                    node.transform = mxs.matrix3(1)
+                                    node.transform.scalePart = current_scale
+                                    node.transform.rotationPart = new_rot
+                                    node.transform.translationPart = new_pos
+                                
+                                # 处理颜色（对齐posture逻辑）
+                                if "color" in pose_data and i < len(pose_data["color"]):
+                                    try:
+                                        if mxs.isGroupHead(node):
+                                            color_str = pose_data["color"][i]
+                                            if color_str != "(color 0 0 0)":
+                                                def child_finder(input_node):
+                                                    current = input_node
+                                                    count = input_node.children.count
+                                                    for items in range(count):
+                                                        current.children[items].wirecolor = mxs.execute(color_str)
+                                                        if current.children[items].children.count != 0:
+                                                            child_finder(current.children[items])
+                                                child_finder(node)
+                                        else:
+                                            node.wirecolor = mxs.execute(pose_data["color"][i])
+                                    except:
+                                        pass
+                            
+                            elif not apply_global and "local_transform" in pose_data:
+                                # 局部变换 - 支持分轴控制
+                                if pose_data["local_transform"][i] is not None:
+                                    if mxs.isValidNode(node.parent):
+                                        offset = mxs.execute(pose_data["local_transform"][i])
+                                        target_transform = offset * node.parent.transform
+                                        
+                                        # 获取勾选状态
+                                        apply_trans_x = self.chk_trans_x.isChecked()
+                                        apply_trans_y = self.chk_trans_y.isChecked()
+                                        apply_trans_z = self.chk_trans_z.isChecked()
+                                        apply_rot_x = self.chk_rot_x.isChecked()
+                                        apply_rot_y = self.chk_rot_y.isChecked()
+                                        apply_rot_z = self.chk_rot_z.isChecked()
+                                        
+                                        # 如果全部勾选，直接应用整个变换（性能优化）
+                                        if all([apply_trans_x, apply_trans_y, apply_trans_z, 
+                                               apply_rot_x, apply_rot_y, apply_rot_z]):
+                                            node.transform = target_transform
+                                        else:
+                                            # 分轴应用
+                                            current_transform = node.transform
+                                            
+                                            # 提取位移
+                                            current_pos = current_transform.translationPart
+                                            target_pos = target_transform.translationPart
+                                            new_pos = mxs.Point3(
+                                                target_pos.x if apply_trans_x else current_pos.x,
+                                                target_pos.y if apply_trans_y else current_pos.y,
+                                                target_pos.z if apply_trans_z else current_pos.z
+                                            )
+                                            
+                                            # 提取旋转（使用欧拉角）
+                                            current_rot = current_transform.rotationPart
+                                            target_rot = target_transform.rotationPart
+                                            current_euler = mxs.quatToEuler(current_rot)
+                                            target_euler = mxs.quatToEuler(target_rot)
+                                            new_euler = mxs.eulerAngles(
+                                                target_euler.x if apply_rot_x else current_euler.x,
+                                                target_euler.y if apply_rot_y else current_euler.y,
+                                                target_euler.z if apply_rot_z else current_euler.z
+                                            )
+                                            new_rot = mxs.eulerToQuat(new_euler)
+                                            
+                                            # 提取缩放（始终保持）
+                                            current_scale = current_transform.scalePart
+                                            
+                                            # 重新组合变换
+                                            node.transform = mxs.matrix3(1)
+                                            node.transform.scalePart = current_scale
+                                            node.transform.rotationPart = new_rot
+                                            node.transform.translationPart = new_pos
+                                        
+                                        # 处理颜色
+                                        if "color" in pose_data and i < len(pose_data["color"]):
+                                            try:
+                                                if mxs.isGroupHead(node):
+                                                    color_str = pose_data["color"][i]
+                                                    if color_str != "(color 0 0 0)":
+                                                        def child_finder(input_node):
+                                                            current = input_node
+                                                            count = input_node.children.count
+                                                            for items in range(count):
+                                                                current.children[items].wirecolor = mxs.execute(color_str)
+                                                                if current.children[items].children.count != 0:
+                                                                    child_finder(current.children[items])
+                                                        child_finder(node)
+                                                else:
+                                                    node.wirecolor = mxs.execute(pose_data["color"][i])
+                                            except:
+                                                pass
+                                    else:
+                                        if self.chk_enable_log.isChecked():
+                                            self.log(f"节点 {node.name} 没有父节点，跳过局部变换", "orange")
+                        except Exception as e:
+                            if self.chk_enable_log.isChecked():
+                                self.log(f"应用变换到 {node.name} 失败: {e}", "orange")
+                    else:
+                        missing_count += 1
                 
                 # 完成后重新启用场景重绘
                 mxs.enableSceneRedraw()
-                
-                # 强制更新视口
                 mxs.redrawViews()
-                mxs.completeRedraw()
-                mxs.forceCompleteRedraw()
                 
                 # 显示加载结果
                 mode_text = "暴力加载" if force_load else "加载"
-                result_text = f"{mode_text}姿势: {pose_name} (匹配 {found_count}/{total_count} 个节点)"
+                transform_mode = "全局" if apply_global else "局部"
+                selected_text = " [仅选中]" if load_selected_only else ""
+                result_text = f"{mode_text}姿势: {pose_name} ({transform_mode}模式{selected_text}, 匹配 {found_count}/{total_count} 个节点)"
+                
+                if missing_count > 0:
+                    result_text += f" [缺失 {missing_count} 个]"
+                
                 self.log(result_text, "green")
                 try:
                     self.status_bar.showMessage(result_text)
@@ -2511,6 +2696,9 @@ class AnimLibraryDialog(QMainWindow):
                     
                     if pose_name in self.global_data:
                         del self.global_data[pose_name]
+                    
+                    # 清除该pose的缩略图缓存
+                    self.clear_pose_thumbnail_cache(pose_name)
                     
                     deleted_count += 1
                 

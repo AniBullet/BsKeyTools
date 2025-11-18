@@ -2049,7 +2049,6 @@ class AnimLibraryDialog(QMainWindow):
             
             # 记录显示顺序（用于Shift多选）
             self.displayed_poses_order.append(pose_name)
-            
             displayed_count += 1
             
             col += 1
@@ -2186,20 +2185,26 @@ class AnimLibraryDialog(QMainWindow):
                         children_ids.append(child_id)
                     pose_data["children_IDs"].append(children_ids)
             
-            # 保存变换
-            if self.save_rb_global.isChecked():
-                pose_data["global_transform"] = []
-                for node in nodes:
-                    pose_data["global_transform"].append(str(node.transform))
+            # 保存变换（对齐posture逻辑：始终同时保存全局和局部）
+            # 保存全局变换
+            pose_data["global_transform"] = []
+            for node in nodes:
+                pose_data["global_transform"].append(str(node.transform))
             
-            if self.save_rb_local.isChecked():
-                pose_data["local_transform"] = []
-                for node in nodes:
-                    if mxs.isValidNode(node.parent):
-                        offset = mxs.inverse(node.parent.transform * mxs.inverse(node.transform))
-                        pose_data["local_transform"].append(str(offset))
-                    else:
-                        pose_data["local_transform"].append(None)
+            # 保存局部变换
+            pose_data["local_transform"] = []
+            trubled_nodes = []
+            for node in nodes:
+                if mxs.isValidNode(node.parent):
+                    offset = mxs.inverse(node.parent.transform * mxs.inverse(node.transform))
+                    pose_data["local_transform"].append(str(offset))
+                else:
+                    trubled_nodes.append(node.name)
+                    pose_data["local_transform"].append(None)
+            
+            # 如果有节点没有父节点，记录日志
+            if len(trubled_nodes) > 0 and self.chk_enable_log.isChecked():
+                self.log(f"警告: 以下 {len(trubled_nodes)} 个对象没有父节点（局部变换将为None）: {', '.join(trubled_nodes[:5])}{'...' if len(trubled_nodes) > 5 else ''}", "orange")
             
             # 添加标签和描述（可选）
             tags = self.save_tags_edit.text().strip()
@@ -2418,19 +2423,40 @@ class AnimLibraryDialog(QMainWindow):
                 # 禁用场景重绘以提高性能
                 mxs.DisableSceneRedraw()
                 
+                # 检查"仅选中"模式是否有选中对象
+                if selected_nodes is not None and len(selected_nodes) == 0:
+                    self.log("没有选中任何对象", "orange")
+                    mxs.enableSceneRedraw()
+                    QMessageBox.warning(self, "警告", "请先选择要应用姿势的对象")
+                    return
+                
+                # 创建临时列表用于查找（提高性能，仅在非暴力加载时使用）
+                temporary_list = []
+                if not force_load:
+                    for obj in mxs.objects:
+                        if mxs.getAppData(obj, 10):
+                            temporary_list.append(obj)
+                
                 # 查找节点并应用变换
                 found_count = 0
+                missing_count = 0
                 total_count = len(pose_data.get("ID", []))
                 
                 for i, node_id in enumerate(pose_data.get("ID", [])):
+                    node = None
+                    
                     # 根据模式选择查找方法
                     if force_load:
                         # 暴力加载：通过节点名称匹配
                         node_name = pose_data.get("name", [])[i] if i < len(pose_data.get("name", [])) else None
                         node = self._find_node_by_name(node_name) if node_name else None
                     else:
-                        # 正常加载：通过UUID匹配
-                        node = self._find_node_by_id(node_id)
+                        # 正常加载：通过UUID匹配（从临时列表中查找）
+                        for item in temporary_list:
+                            if str(mxs.getAppData(item, 10)) == str(node_id):
+                                node = item
+                                temporary_list.remove(item)  # 找到后移除，提高后续查找效率
+                                break
                     
                     if node and mxs.isValidNode(node):
                         # 如果勾选了"仅选中"，检查节点是否在选中列表中
@@ -2439,32 +2465,79 @@ class AnimLibraryDialog(QMainWindow):
                         
                         found_count += 1
                         
-                        # 获取目标变换矩阵
-                        if apply_global and "global_transform" in pose_data:
-                            target_transform = mxs.execute(pose_data["global_transform"][i])
-                        elif "local_transform" in pose_data and pose_data["local_transform"][i]:
-                            if mxs.isValidNode(node.parent):
-                                target_transform = mxs.execute(pose_data["local_transform"][i]) * node.parent.transform
-                            else:
-                                target_transform = None
-                        else:
-                            target_transform = None
-                        
-                        if target_transform:
-                            # 直接应用变换
-                            node.transform = target_transform
+                        # 应用变换和颜色（对齐posture逻辑）
+                        try:
+                            if apply_global and "global_transform" in pose_data:
+                                # 全局变换
+                                target_transform = mxs.execute(pose_data["global_transform"][i])
+                                node.transform = target_transform
+                                
+                                # 处理颜色（对齐posture逻辑）
+                                if "color" in pose_data and i < len(pose_data["color"]):
+                                    try:
+                                        if mxs.isGroupHead(node):
+                                            color_str = pose_data["color"][i]
+                                            if color_str != "(color 0 0 0)":
+                                                def child_finder(input_node):
+                                                    current = input_node
+                                                    count = input_node.children.count
+                                                    for items in range(count):
+                                                        current.children[items].wirecolor = mxs.execute(color_str)
+                                                        if current.children[items].children.count != 0:
+                                                            child_finder(current.children[items])
+                                                child_finder(node)
+                                        else:
+                                            node.wirecolor = mxs.execute(pose_data["color"][i])
+                                    except:
+                                        pass
+                            
+                            elif not apply_global and "local_transform" in pose_data:
+                                # 局部变换
+                                if pose_data["local_transform"][i] is not None:
+                                    if mxs.isValidNode(node.parent):
+                                        offset = mxs.execute(pose_data["local_transform"][i])
+                                        node.transform = offset * node.parent.transform
+                                        
+                                        # 处理颜色
+                                        if "color" in pose_data and i < len(pose_data["color"]):
+                                            try:
+                                                if mxs.isGroupHead(node):
+                                                    color_str = pose_data["color"][i]
+                                                    if color_str != "(color 0 0 0)":
+                                                        def child_finder(input_node):
+                                                            current = input_node
+                                                            count = input_node.children.count
+                                                            for items in range(count):
+                                                                current.children[items].wirecolor = mxs.execute(color_str)
+                                                                if current.children[items].children.count != 0:
+                                                                    child_finder(current.children[items])
+                                                        child_finder(node)
+                                                else:
+                                                    node.wirecolor = mxs.execute(pose_data["color"][i])
+                                            except:
+                                                pass
+                                    else:
+                                        if self.chk_enable_log.isChecked():
+                                            self.log(f"节点 {node.name} 没有父节点，跳过局部变换", "orange")
+                        except Exception as e:
+                            if self.chk_enable_log.isChecked():
+                                self.log(f"应用变换到 {node.name} 失败: {e}", "orange")
+                    else:
+                        missing_count += 1
                 
                 # 完成后重新启用场景重绘
                 mxs.enableSceneRedraw()
-                
-                # 强制更新视口
                 mxs.redrawViews()
-                mxs.completeRedraw()
-                mxs.forceCompleteRedraw()
                 
                 # 显示加载结果
                 mode_text = "暴力加载" if force_load else "加载"
-                result_text = f"{mode_text}姿势: {pose_name} (匹配 {found_count}/{total_count} 个节点)"
+                transform_mode = "全局" if apply_global else "局部"
+                selected_text = " [仅选中]" if load_selected_only else ""
+                result_text = f"{mode_text}姿势: {pose_name} ({transform_mode}模式{selected_text}, 匹配 {found_count}/{total_count} 个节点)"
+                
+                if missing_count > 0:
+                    result_text += f" [缺失 {missing_count} 个]"
+                
                 self.log(result_text, "green")
                 try:
                     self.status_bar.showMessage(result_text)
@@ -2504,6 +2577,9 @@ class AnimLibraryDialog(QMainWindow):
                     
                     if pose_name in self.global_data:
                         del self.global_data[pose_name]
+                    
+                    # 清除该pose的缩略图缓存
+                    self.clear_pose_thumbnail_cache(pose_name)
                     
                     deleted_count += 1
                 

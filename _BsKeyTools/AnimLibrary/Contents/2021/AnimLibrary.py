@@ -2505,6 +2505,9 @@ class AnimLibraryDialog(QMainWindow):
                     if pose_name in self.global_data:
                         del self.global_data[pose_name]
                     
+                    # 清除该pose的缩略图缓存
+                    self.clear_pose_thumbnail_cache(pose_name)
+                    
                     deleted_count += 1
                 
                 # 清空选择
