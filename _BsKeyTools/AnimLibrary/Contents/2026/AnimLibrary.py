@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QFileDialog, QMessageBox,
                                QLineEdit, QCheckBox, QRadioButton, QGroupBox, QTextEdit,
                                QProgressBar, QScrollArea, QGridLayout, QMenu, QSlider,
                                QFrame, QColorDialog, QInputDialog, QLayout, QWidgetItem,
-                               QDialog, QDialogButtonBox, QApplication)
+                               QDialog, QDialogButtonBox, QApplication, QComboBox)
 from pymxs import runtime as mxs
 from qtmax import GetQMaxMainWindow
 
@@ -222,6 +222,7 @@ class AnimLibraryDialog(QMainWindow):
         self.selected_poses = []  # 多选的姿势列表
         self.selected_cards = []  # 多选的卡片列表
         self.last_selected_pose = None  # 记录最后选择的pose，用于Shift多选
+        self.sort_mode = 0  # 0=按名称，1=按时间
         self.filter_tags = []  # 标签筛选列表 [{"name": "标签名", "color": "#RRGGBB"}, ...]
         self.active_filter_tag = None  # 当前激活的筛选标签名
         
@@ -319,8 +320,17 @@ class AnimLibraryDialog(QMainWindow):
         
         control_layout_top.addStretch()
         
+        # 排序控制
+        control_layout_top.addWidget(QLabel("排序:"))
+        self.sort_combo = QComboBox()
+        self.sort_combo.addItem("按名称")
+        self.sort_combo.addItem("按时间")
+        self.sort_combo.setMaximumWidth(80)
+        self.sort_combo.currentIndexChanged.connect(self.on_sort_changed)
+        control_layout_top.addWidget(self.sort_combo)
+        
         # 缩放控制
-        control_layout_top.addWidget(QLabel("图标大小:"))
+        control_layout_top.addWidget(QLabel("大小:"))
         self.size_slider = QSlider(Qt.Horizontal)
         self.size_slider.setMinimum(80)
         self.size_slider.setMaximum(250)
@@ -725,6 +735,11 @@ class AnimLibraryDialog(QMainWindow):
                     self.card_size = config['card_size']
                     self.size_slider.setValue(self.card_size)
                 
+                # 恢复排序模式
+                if 'sort_mode' in config:
+                    self.sort_mode = config['sort_mode']
+                    self.sort_combo.setCurrentIndex(self.sort_mode)
+                
                 # 恢复库路径
                 if 'library_path' in config and os.path.exists(config['library_path']):
                     self.library_path = config['library_path']
@@ -777,6 +792,7 @@ class AnimLibraryDialog(QMainWindow):
                 'window_x': self.x(),
                 'window_y': self.y(),
                 'card_size': self.card_size,
+                'sort_mode': self.sort_mode,  # 保存排序模式
                 'library_path': self.library_path,
                 'splitter_sizes': self.splitter.sizes(),
                 'log_visible': self.log_text.isVisible(),
@@ -1301,7 +1317,7 @@ class AnimLibraryDialog(QMainWindow):
         
         layout.addLayout(button_layout)
         
-        dialog.exec_()
+        dialog.exec()
     
     def select_pose_nodes(self, pose_name, dialog=None):
         """选择pose包含的节点"""
@@ -1441,17 +1457,30 @@ class AnimLibraryDialog(QMainWindow):
         # 弹出确认对话框
         reply = QMessageBox.question(
             self, "确认覆盖", 
-            f"确定要用当前对象覆盖姿势 '{pose_name}' 吗？\n此操作不可恢复！",
+            f"确定要用当前选中的对象覆盖姿势 '{pose_name}' 吗？\n此操作不可恢复！",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
         
         if reply == QMessageBox.Yes:
-            # 使用所有对象
-            nodes = list(mxs.objects)
+            # 使用选中的对象（对齐save_pose逻辑）
+            nodes = list(mxs.selection)
             if not nodes:
-                QMessageBox.warning(self, "警告", "场景中没有对象")
+                QMessageBox.warning(self, "警告", "请先选择要保存的对象")
                 return
+            
+            # 显示将要覆盖保存的节点信息
+            self.log(f"准备覆盖保存 {len(nodes)} 个节点:", "yellow")
+            if self.chk_enable_log.isChecked():
+                for i, node in enumerate(nodes[:20]):
+                    try:
+                        node_type = str(mxs.classof(node))
+                        node_handle = mxs.getHandleByAnim(node)
+                        self.log(f"  [{i+1}] {node.name} (类型:{node_type}, handle:{node_handle})", "gray")
+                    except:
+                        self.log(f"  [{i+1}] {node.name}", "gray")
+                if len(nodes) > 20:
+                    self.log(f"  ... 还有 {len(nodes)-20} 个节点", "gray")
             
             mxs.escapeEnable = False
             
@@ -2152,7 +2181,27 @@ class AnimLibraryDialog(QMainWindow):
         
         displayed_count = 0  # 记录实际显示的数量
         
-        for pose_name, pose_data in self.global_data.items():
+        # 根据排序模式排序pose列表
+        if self.sort_mode == 0:
+            # 按名称排序（自然排序）
+            import re
+            def natural_sort_key(item):
+                """自然排序key，让pose10排在pose2后面"""
+                name = item[0]
+                return [int(text) if text.isdigit() else text.lower() 
+                        for text in re.split(r'(\d+)', name)]
+            sorted_poses = sorted(self.global_data.items(), key=natural_sort_key)
+        else:
+            # 按修改时间排序（最新的在前）
+            def time_sort_key(item):
+                pose_name, pose_data = item
+                json_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+                if os.path.exists(json_path):
+                    return -os.path.getmtime(json_path)  # 负数让最新的排前面
+                return 0
+            sorted_poses = sorted(self.global_data.items(), key=time_sort_key)
+        
+        for pose_name, pose_data in sorted_poses:
             # 标签筛选
             if self.active_filter_tag:
                 pose_tags = pose_data.get("tags", "").lower()
@@ -2200,6 +2249,12 @@ class AnimLibraryDialog(QMainWindow):
     def on_size_changed(self, value):
         """卡片大小改变"""
         self.card_size = value
+        self.refresh_pose_display()
+        self.save_config()  # 保存配置
+    
+    def on_sort_changed(self, index):
+        """排序方式改变"""
+        self.sort_mode = index
         self.refresh_pose_display()
         self.save_config()  # 保存配置
     
@@ -2257,9 +2312,19 @@ class AnimLibraryDialog(QMainWindow):
             QMessageBox.warning(self, "警告", "请先选择要保存的对象")
             return
         
-        # 显示将要保存的节点信息
-        node_names = [node.name for node in nodes]
-        self.log(f"准备保存 {len(nodes)} 个节点: {', '.join(node_names[:5])}{' ...' if len(nodes) > 5 else ''}", "yellow")
+        # 显示将要保存的节点信息（详细列出所有节点）
+        self.log(f"准备保存 {len(nodes)} 个节点:", "yellow")
+        # 列出所有节点，显示类型和handle确认唯一性
+        if self.chk_enable_log.isChecked():
+            for i, node in enumerate(nodes[:20]):  # 显示前20个
+                try:
+                    node_type = str(mxs.classof(node))
+                    node_handle = mxs.getHandleByAnim(node)
+                    self.log(f"  [{i+1}] {node.name} (类型:{node_type}, handle:{node_handle})", "gray")
+                except:
+                    self.log(f"  [{i+1}] {node.name}", "gray")
+            if len(nodes) > 20:
+                self.log(f"  ... 还有 {len(nodes)-20} 个节点", "gray")
         
         mxs.escapeEnable = False
         
@@ -2402,17 +2467,30 @@ class AnimLibraryDialog(QMainWindow):
         # 弹出确认对话框
         reply = QMessageBox.question(
             self, "确认覆盖", 
-            f"确定要用当前对象覆盖姿势 '{pose_name}' 吗？\n此操作不可恢复！",
+            f"确定要用当前选中的对象覆盖姿势 '{pose_name}' 吗？\n此操作不可恢复！",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
         
         if reply == QMessageBox.Yes:
-            # 使用所有对象
-            nodes = list(mxs.objects)
+            # 使用选中的对象（对齐save_pose逻辑）
+            nodes = list(mxs.selection)
             if not nodes:
-                QMessageBox.warning(self, "警告", "场景中没有对象")
+                QMessageBox.warning(self, "警告", "请先选择要保存的对象")
                 return
+            
+            # 显示将要覆盖保存的节点信息
+            self.log(f"准备覆盖保存 {len(nodes)} 个节点:", "yellow")
+            if self.chk_enable_log.isChecked():
+                for i, node in enumerate(nodes[:20]):
+                    try:
+                        node_type = str(mxs.classof(node))
+                        node_handle = mxs.getHandleByAnim(node)
+                        self.log(f"  [{i+1}] {node.name} (类型:{node_type}, handle:{node_handle})", "gray")
+                    except:
+                        self.log(f"  [{i+1}] {node.name}", "gray")
+                if len(nodes) > 20:
+                    self.log(f"  ... 还有 {len(nodes)-20} 个节点", "gray")
             
             mxs.escapeEnable = False
             
@@ -2556,10 +2634,17 @@ class AnimLibraryDialog(QMainWindow):
                 QMessageBox.warning(self, "警告", f"{mode_name}模式需要先选择物体")
                 return
             
-            # 显示选中的节点列表
+            # 显示选中的节点列表（详细）
             if self.chk_enable_log.isChecked():
-                selected_names = [str(node.name) for node in list(selected_nodes)[:10]]
+                selected_list = list(selected_nodes)
+                selected_names = [str(node.name) for node in selected_list[:10]]
                 self.log(f"已选中 {len(selected_nodes)} 个节点: {', '.join(selected_names)}{' ...' if len(selected_nodes) > 10 else ''}", "yellow")
+                # 显示每个选中节点的详细信息
+                for i, node in enumerate(selected_list[:5]):
+                    try:
+                        self.log(f"  选中节点[{i}]: 名称='{node.name}', 类型={mxs.classof(node)}", "gray")
+                    except:
+                        pass
         else:
             selected_nodes = None  # 默认模式不限制选中
         
@@ -2580,6 +2665,8 @@ class AnimLibraryDialog(QMainWindow):
                 # 查找节点并应用变换
                 found_count = 0
                 missing_count = 0
+                error_count = 0
+                max_errors = 50  # 最大错误数，超过则中断
                 total_count = len(pose_data.get("ID", []))
                 
                 # 显示pose包含的节点列表（仅在日志开启时）
@@ -2587,13 +2674,21 @@ class AnimLibraryDialog(QMainWindow):
                     pose_node_names = pose_data.get("name", [])
                     self.log(f"Pose包含 {total_count} 个节点: {', '.join(pose_node_names[:5])}{' ...' if len(pose_node_names) > 5 else ''}", "cyan")
                 
-                # 整体循环3次，确保Biped和bone层级依赖能正确到位（参考cptools精度机制）
-                for loop_pass in range(3):
+                # 整体循环2次，确保bone层级依赖能正确到位（参考cptools精度机制）
+                for loop_pass in range(2):
+                    # 安全检查：如果错误过多，中断循环
+                    if error_count > max_errors:
+                        if self.chk_enable_log.isChecked():
+                            self.log(f"⚠ 错误过多({error_count})，中断加载", "red")
+                        break
+                    
                     # 每次循环重新获取引用，避免引用失效
                     if loop_pass > 0:
                         # 重新获取选中节点（暴力加载和仅选中模式需要）
                         if force_load or load_selected_only:
                             selected_nodes = set(mxs.selection)
+                            if self.chk_enable_log.isChecked():
+                                self.log(f"  [循环{loop_pass+1}] 重新获取选中节点: {len(selected_nodes)}个", "gray")
                         # 重建UUID临时列表（非暴力加载模式需要）
                         if not force_load:
                             temporary_list = [obj for obj in mxs.objects if mxs.getAppData(obj, 10)]
@@ -2604,12 +2699,11 @@ class AnimLibraryDialog(QMainWindow):
                         
                         # 根据模式选择查找方法
                         if force_load:
-                            # 暴力加载：只在选中的节点中通过名称匹配（不查找未选中的节点）
+                            # 暴力加载：选中对象名字匹配pose节点名字就粘贴
                             if pose_node_name and selected_nodes:
                                 for sel_node in selected_nodes:
                                     try:
-                                        sel_node_name = str(sel_node.name)
-                                        if sel_node_name == pose_node_name:
+                                        if str(sel_node.name) == pose_node_name:
                                             node = sel_node
                                             if loop_pass == 0 and self.chk_enable_log.isChecked():
                                                 self.log(f"  暴力加载匹配: {pose_node_name}", "cyan")
@@ -2659,7 +2753,12 @@ class AnimLibraryDialog(QMainWindow):
                             if loop_pass == 0 and self.chk_enable_log.isChecked():
                                 node_name = pose_data.get("name", [])[i] if i < len(pose_data.get("name", [])) else "Unknown"
                                 mode_info = f"[暴力]" if force_load else f"[UUID]"
-                                self.log(f"  → {mode_info} 加载节点: {node.name}", "cyan")
+                                # 显示节点的handle，确认是否是同一个对象
+                                try:
+                                    node_handle = mxs.getHandleByAnim(node)
+                                    self.log(f"  → {mode_info} 加载节点: {node.name} (handle:{node_handle})", "cyan")
+                                except:
+                                    self.log(f"  → {mode_info} 加载节点: {node.name}", "cyan")
                             
                             # 应用变换（整体循环2次+Biped内部循环）
                             try:
@@ -2667,27 +2766,23 @@ class AnimLibraryDialog(QMainWindow):
                                     # 全局变换
                                     transform_str = pose_data["global_transform"][i]
                                     
-                                    # Biped需要特殊处理：使用Biped.setTransform方法
+                                    # Biped需要特殊处理：多次直接赋值
                                     is_biped = mxs.classof(node) == mxs.Biped_Object
                                     if is_biped:
-                                        # Biped骨骼：使用Biped.setTransform方法（专用API）
+                                        # Biped骨骼：Python直接赋值（优化版：第一次3次，第二次1次）
                                         try:
                                             target_transform = mxs.execute(transform_str)
-                                            # 尝试使用Biped专用方法
-                                            try:
-                                                mxs.Biped.setTransform(node, mxs.Name("pos"), target_transform.position, True)
-                                                mxs.Biped.setTransform(node, mxs.Name("rot"), target_transform.rotation, True)
-                                                if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                    self.log(f"    ✓ 应用全局变换(Biped API): {node.name}", "green")
-                                            except:
-                                                # 如果Biped API失败，尝试直接赋值（多次）
-                                                for attempt in range(3):
-                                                    node.transform = target_transform
-                                                if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                    self.log(f"    ✓ 应用全局变换(Biped 直接): {node.name}", "green")
-                                        except Exception as biped_e:
+                                            # 第一次循环多次赋值，第二次只赋值一次
+                                            repeat_times = 3 if loop_pass == 0 else 1
+                                            for biped_attempt in range(repeat_times):
+                                                node.transform = target_transform
+                                            
                                             if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                self.log(f"    ✗ Biped变换失败: {node.name} - {biped_e}", "red")
+                                                self.log(f"    ✓ 应用全局变换(Biped x{repeat_times}): {node.name}", "green")
+                                        except Exception as e:
+                                            error_count += 1
+                                            if loop_pass == 0 and self.chk_enable_log.isChecked() and error_count <= 10:
+                                                self.log(f"    ✗ Biped全局变换失败: {node.name} - {str(e)[:50]}", "red")
                                     else:
                                         # 普通节点和bone：直接赋值
                                         try:
@@ -2696,8 +2791,9 @@ class AnimLibraryDialog(QMainWindow):
                                             if loop_pass == 0 and self.chk_enable_log.isChecked():
                                                 self.log(f"    ✓ 应用全局变换: {node.name}", "green")
                                         except Exception as e:
-                                            if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                self.log(f"    ✗ 变换失败: {node.name} - {e}", "red")
+                                            error_count += 1
+                                            if loop_pass == 0 and self.chk_enable_log.isChecked() and error_count <= 10:
+                                                self.log(f"    ✗ 全局变换失败: {node.name} - {str(e)[:50]}", "red")
                             
                                 elif not apply_global and "local_transform" in pose_data:
                                     # 局部变换
@@ -2705,28 +2801,24 @@ class AnimLibraryDialog(QMainWindow):
                                         if mxs.isValidNode(node.parent):
                                             local_transform_str = pose_data["local_transform"][i]
                                             
-                                            # Biped需要特殊处理：使用Biped.setTransform方法
+                                            # Biped需要特殊处理：多次直接赋值
                                             is_biped = mxs.classof(node) == mxs.Biped_Object
                                             if is_biped:
-                                                # Biped骨骼：使用Biped.setTransform方法（专用API）
+                                                # Biped骨骼：Python直接赋值（优化版：第一次3次，第二次1次）
                                                 try:
                                                     offset = mxs.execute(local_transform_str)
                                                     target_transform = offset * node.parent.transform
-                                                    # 尝试使用Biped专用方法
-                                                    try:
-                                                        mxs.Biped.setTransform(node, mxs.Name("pos"), target_transform.position, True)
-                                                        mxs.Biped.setTransform(node, mxs.Name("rot"), target_transform.rotation, True)
-                                                        if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                            self.log(f"    ✓ 应用局部变换(Biped API): {node.name}", "green")
-                                                    except:
-                                                        # 如果Biped API失败，尝试直接赋值（多次）
-                                                        for attempt in range(3):
-                                                            node.transform = target_transform
-                                                        if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                            self.log(f"    ✓ 应用局部变换(Biped 直接): {node.name}", "green")
-                                                except Exception as biped_e:
+                                                    # 第一次循环多次赋值，第二次只赋值一次
+                                                    repeat_times = 3 if loop_pass == 0 else 1
+                                                    for biped_attempt in range(repeat_times):
+                                                        node.transform = target_transform
+                                                    
                                                     if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                        self.log(f"    ✗ Biped局部变换失败: {node.name} - {biped_e}", "red")
+                                                        self.log(f"    ✓ 应用局部变换(Biped x{repeat_times}): {node.name}", "green")
+                                                except Exception as e:
+                                                    error_count += 1
+                                                    if loop_pass == 0 and self.chk_enable_log.isChecked() and error_count <= 10:
+                                                        self.log(f"    ✗ Biped局部变换失败: {node.name} - {str(e)[:50]}", "red")
                                             else:
                                                 # 普通节点和bone：直接赋值
                                                 try:
@@ -2736,8 +2828,9 @@ class AnimLibraryDialog(QMainWindow):
                                                     if loop_pass == 0 and self.chk_enable_log.isChecked():
                                                         self.log(f"    ✓ 应用局部变换: {node.name}", "green")
                                                 except Exception as e:
-                                                    if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                        self.log(f"    ✗ 局部变换失败: {node.name} - {e}", "red")
+                                                    error_count += 1
+                                                    if loop_pass == 0 and self.chk_enable_log.isChecked() and error_count <= 10:
+                                                        self.log(f"    ✗ 局部变换失败: {node.name} - {str(e)[:50]}", "red")
                                         else:
                                             if loop_pass == 0 and self.chk_enable_log.isChecked():
                                                 self.log(f"    ⚠ 节点 {node.name} 没有父节点，跳过局部变换", "orange")
@@ -2764,8 +2857,9 @@ class AnimLibraryDialog(QMainWindow):
                                         pass
                                         
                             except Exception as e:
-                                if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                    self.log(f"    ✗ 应用变换到 {node.name} 失败: {e}", "red")
+                                error_count += 1
+                                if loop_pass == 0 and self.chk_enable_log.isChecked() and error_count <= 10:
+                                    self.log(f"    ✗ 应用变换失败: {node.name} - {str(e)[:50]}", "red")
                         else:
                             if loop_pass == 0:
                                 missing_count += 1
@@ -2784,6 +2878,11 @@ class AnimLibraryDialog(QMainWindow):
                 
                 if missing_count > 0:
                     result_text += f" [缺失 {missing_count} 个]"
+                
+                if error_count > 0:
+                    result_text += f" [错误 {error_count} 个]"
+                    if error_count > 10 and self.chk_enable_log.isChecked():
+                        self.log(f"⚠ 总计 {error_count} 个错误（仅显示前10个）", "orange")
                 
                 self.log(result_text, "green")
                 try:
