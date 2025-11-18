@@ -9,13 +9,9 @@ fn loadAppropriateAnimLibraryScript =
     local scriptFile = ""
     
     -- 根据版本选择适当的脚本文件
-    if maxVerNum >= 28 then
+    if maxVerNum >= 27 then
         scriptFile = scriptPath + "2026\\" + "AnimLibrary.py"
-    else if maxVerNum == 27 then
-        scriptFile = scriptPath + "2025\\" + "AnimLibrary.py"
-    else if maxVerNum >= 23 and maxVerNum <= 26 then
-        scriptFile = scriptPath + "2021\\" + "AnimLibrary.py"
-    else if maxVerNum >= 20 and maxVerNum <= 22 then
+    else if maxVerNum >= 20 and maxVerNum <= 26 then
         scriptFile = scriptPath + "2020\\" + "AnimLibrary.py"
     else
     (

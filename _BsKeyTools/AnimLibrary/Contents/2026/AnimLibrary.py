@@ -212,6 +212,18 @@ class AnimLibraryDialog(QMainWindow):
         super().__init__(parent)
         self.setWindowFlags(QtCore.Qt.WindowType.Window)
         
+        # 设置全局字体，放大一点
+        app = QApplication.instance()
+        if app:
+            from PySide6.QtGui import QFont
+            font = app.font()
+            current_size = font.pointSize()
+            if current_size > 0:
+                font.setPointSize(current_size + 2)  # 增加2pt
+            else:
+                font.setPointSize(10)  # 如果获取不到就设为10pt
+            self.setFont(font)
+        
         # 初始化变量
         self.library_path = ""  # 库路径（根目录）
         self.current_folder_path = ""  # 当前查看的文件夹
@@ -268,7 +280,9 @@ class AnimLibraryDialog(QMainWindow):
         
         # 顶部工具栏
         toolbar_layout = QHBoxLayout()
-        toolbar_layout.addWidget(QLabel("路径:"))
+        path_label = QLabel("路径:")
+        path_label.setStyleSheet("QLabel { color: palette(window-text); }")
+        toolbar_layout.addWidget(path_label)
         self.path_edit = QLineEdit()
         self.path_edit.setReadOnly(True)
         toolbar_layout.addWidget(self.path_edit, 1)
@@ -283,7 +297,9 @@ class AnimLibraryDialog(QMainWindow):
         toolbar_layout.addWidget(self.btn_settings)
         
         # 搜索框
-        toolbar_layout.addWidget(QLabel("搜索:"))
+        search_label = QLabel("搜索:")
+        search_label.setStyleSheet("QLabel { color: palette(window-text); }")
+        toolbar_layout.addWidget(search_label)
         self.search_edit = QLineEdit()
         self.search_edit.setPlaceholderText("输入名称或标签...")
         self.search_edit.setMaximumWidth(200)
@@ -298,7 +314,9 @@ class AnimLibraryDialog(QMainWindow):
         left_panel = QWidget()
         left_layout = QVBoxLayout()
         left_panel.setLayout(left_layout)
-        left_layout.addWidget(QLabel("文件夹"))
+        folder_label = QLabel("文件夹")
+        folder_label.setStyleSheet("QLabel { color: palette(window-text); }")
+        left_layout.addWidget(folder_label)
         self.folder_tree = QTreeWidget()
         self.folder_tree.setHeaderHidden(True)
         self.folder_tree.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -315,13 +333,15 @@ class AnimLibraryDialog(QMainWindow):
         control_layout_top = QHBoxLayout()
         
         title_label = QLabel("姿势库")
-        title_label.setStyleSheet("QLabel { font-weight: bold; font-size: 12px; }")
+        title_label.setStyleSheet("QLabel { color: palette(window-text); font-weight: bold; font-size: 12px; }")
         control_layout_top.addWidget(title_label)
         
         control_layout_top.addStretch()
         
         # 排序控制
-        control_layout_top.addWidget(QLabel("排序:"))
+        sort_label = QLabel("排序:")
+        sort_label.setStyleSheet("QLabel { color: palette(window-text); }")
+        control_layout_top.addWidget(sort_label)
         self.sort_combo = QComboBox()
         self.sort_combo.addItem("按名称")
         self.sort_combo.addItem("按时间")
@@ -330,7 +350,9 @@ class AnimLibraryDialog(QMainWindow):
         control_layout_top.addWidget(self.sort_combo)
         
         # 缩放控制
-        control_layout_top.addWidget(QLabel("大小:"))
+        size_label = QLabel("大小:")
+        size_label.setStyleSheet("QLabel { color: palette(window-text); }")
+        control_layout_top.addWidget(size_label)
         self.size_slider = QSlider(Qt.Horizontal)
         self.size_slider.setMinimum(80)
         self.size_slider.setMaximum(250)
@@ -351,19 +373,6 @@ class AnimLibraryDialog(QMainWindow):
         self.btn_add_tag = QPushButton("+")
         self.btn_add_tag.setFixedSize(26, 26)
         self.btn_add_tag.setToolTip("添加新的筛选标签")
-        self.btn_add_tag.setStyleSheet("""
-            QPushButton {
-                background-color: palette(button);
-                border: 1px solid palette(mid);
-                border-radius: 3px;
-                font-weight: bold;
-                font-size: 14px;
-            }
-            QPushButton:hover {
-                background-color: palette(light);
-                border: 1px solid palette(highlight);
-            }
-        """)
         self.btn_add_tag.clicked.connect(self.add_new_tag)
         tag_layout.addWidget(self.btn_add_tag)
         
@@ -371,19 +380,6 @@ class AnimLibraryDialog(QMainWindow):
         self.btn_expand_tags = QPushButton("▼")
         self.btn_expand_tags.setFixedSize(26, 26)
         self.btn_expand_tags.setToolTip("展开/收起标签区域")
-        self.btn_expand_tags.setStyleSheet("""
-            QPushButton {
-                background-color: palette(button);
-                border: 1px solid palette(mid);
-                border-radius: 3px;
-                font-weight: bold;
-                font-size: 10px;
-            }
-            QPushButton:hover {
-                background-color: palette(light);
-                border: 1px solid palette(highlight);
-            }
-        """)
         self.btn_expand_tags.clicked.connect(self.toggle_tag_area)
         tag_layout.addWidget(self.btn_expand_tags)
         
@@ -464,38 +460,11 @@ class AnimLibraryDialog(QMainWindow):
         # 按钮组：覆盖 + 保存
         btn_layout = QHBoxLayout()
         self.btn_overwrite = QPushButton("覆盖")
-        self.btn_overwrite.setStyleSheet("""
-            QPushButton { 
-                padding: 8px; 
-                background-color: palette(button); 
-                color: palette(button-text);
-            }
-            QPushButton:hover { 
-                background-color: palette(light); 
-            }
-            QPushButton:pressed { 
-                background-color: palette(dark); 
-            }
-        """)
         self.btn_overwrite.setToolTip("覆盖选中的pose（需要先在下方选中一个pose）")
         self.btn_overwrite.setMaximumWidth(60)  # 限制覆盖按钮宽度
         btn_layout.addWidget(self.btn_overwrite)
         
         self.btn_save = QPushButton("保存")
-        self.btn_save.setStyleSheet("""
-            QPushButton { 
-                font-weight: bold; 
-                padding: 8px; 
-                background-color: palette(button); 
-                color: palette(button-text);
-            }
-            QPushButton:hover { 
-                background-color: palette(light); 
-            }
-            QPushButton:pressed { 
-                background-color: palette(dark); 
-            }
-        """)
         btn_layout.addWidget(self.btn_save, 1)  # 拉伸因子1，占据剩余空间
         
         save_layout.addLayout(btn_layout)
@@ -566,20 +535,6 @@ class AnimLibraryDialog(QMainWindow):
         self.chk_enable_log.setToolTip("开启后在日志区域显示操作信息")
         
         self.btn_load = QPushButton("加载")
-        self.btn_load.setStyleSheet("""
-            QPushButton { 
-                font-weight: bold; 
-                padding: 8px; 
-                background-color: palette(button); 
-                color: palette(button-text);
-            }
-            QPushButton:hover { 
-                background-color: palette(light); 
-            }
-            QPushButton:pressed { 
-                background-color: palette(dark); 
-            }
-        """)
         load_layout.addWidget(self.btn_load)
         
         load_group.setLayout(load_layout)
@@ -594,7 +549,9 @@ class AnimLibraryDialog(QMainWindow):
         self.detail_name_label.setStyleSheet("QLabel { color: palette(window-text); font-weight: bold; }")
         detail_layout.addWidget(self.detail_name_label)
         
-        detail_layout.addWidget(QLabel("标签:"))
+        tags_title_label = QLabel("标签:")
+        tags_title_label.setStyleSheet("QLabel { color: palette(window-text); }")
+        detail_layout.addWidget(tags_title_label)
         # 标签区域使用 QTextEdit 以支持更多内容显示
         self.detail_tags_label = QTextEdit()
         self.detail_tags_label.setReadOnly(True)
@@ -605,7 +562,9 @@ class AnimLibraryDialog(QMainWindow):
         self.detail_tags_label.setStyleSheet("QTextEdit { color: palette(window-text); padding: 4px; background-color: palette(base); }")
         detail_layout.addWidget(self.detail_tags_label)
         
-        detail_layout.addWidget(QLabel("描述:"))
+        desc_title_label = QLabel("描述:")
+        desc_title_label.setStyleSheet("QLabel { color: palette(window-text); }")
+        detail_layout.addWidget(desc_title_label)
         self.detail_desc_label = QLabel("-")
         self.detail_desc_label.setWordWrap(True)
         self.detail_desc_label.setMinimumHeight(50)
@@ -618,20 +577,6 @@ class AnimLibraryDialog(QMainWindow):
         
         # 其他操作
         self.btn_delete = QPushButton("删除选中项")
-        self.btn_delete.setStyleSheet("""
-            QPushButton { 
-                font-weight: bold; 
-                padding: 8px; 
-                background-color: palette(button); 
-                color: palette(button-text);
-            }
-            QPushButton:hover { 
-                background-color: palette(light); 
-            }
-            QPushButton:pressed { 
-                background-color: palette(dark); 
-            }
-        """)
         right_layout.addWidget(self.btn_delete)
         
         # 日志（可折叠）
@@ -639,34 +584,11 @@ class AnimLibraryDialog(QMainWindow):
         self.log_toggle_btn = QPushButton("▶ 日志")
         self.log_toggle_btn.setCheckable(True)
         self.log_toggle_btn.setChecked(False)
-        self.log_toggle_btn.setStyleSheet("""
-            QPushButton { 
-                text-align: left; 
-                padding: 4px; 
-                background-color: palette(button);
-                color: palette(window-text);
-                border: 1px solid palette(mid);
-            }
-            QPushButton:hover {
-                background-color: palette(light);
-            }
-        """)
         log_header_layout.addWidget(self.log_toggle_btn)
         
         self.log_clear_btn = QPushButton("清空")
         self.log_clear_btn.setMaximumWidth(60)
         self.log_clear_btn.clicked.connect(lambda: self.log_text.clear())
-        self.log_clear_btn.setStyleSheet("""
-            QPushButton {
-                padding: 4px;
-                background-color: palette(button);
-                color: palette(window-text);
-                border: 1px solid palette(mid);
-            }
-            QPushButton:hover {
-                background-color: palette(light);
-            }
-        """)
         log_header_layout.addWidget(self.log_clear_btn)
         
         right_layout.addLayout(log_header_layout)
@@ -702,8 +624,25 @@ class AnimLibraryDialog(QMainWindow):
         main_layout.addWidget(splitter)
         
         # 状态栏
-        self.status_bar = self.statusBar()
-        self.status_bar.showMessage("就绪")
+        status_bar = self.statusBar()
+        status_bar.showMessage("就绪")
+        
+        # 应用按钮样式（根据主题自适应）
+        self.apply_button_styles()
+    
+    def apply_button_styles(self):
+        """应用按钮样式（根据主题自适应）"""
+        # 主要按钮
+        primary_style = self.get_button_style(is_primary=True)
+        self.btn_save.setStyleSheet(primary_style)
+        self.btn_load.setStyleSheet(primary_style)
+        
+        # 普通按钮
+        normal_style = self.get_button_style(is_primary=False)
+        self.btn_overwrite.setStyleSheet(normal_style)
+        self.btn_delete.setStyleSheet(normal_style)
+        self.log_toggle_btn.setStyleSheet(normal_style)
+        self.log_clear_btn.setStyleSheet(normal_style)
     
     def get_config_path(self):
         """获取配置文件路径"""
@@ -1439,7 +1378,7 @@ class AnimLibraryDialog(QMainWindow):
                 self.log(f"已更新缩略图: {pose_name}", "green")
                 
                 try:
-                    self.status_bar.showMessage(f"已更新缩略图: {pose_name}")
+                    self.statusBar().showMessage(f"已更新缩略图: {pose_name}")
                 except:
                     pass
             except Exception as e:
@@ -1586,7 +1525,7 @@ class AnimLibraryDialog(QMainWindow):
                 
                 self.log(f"已覆盖姿势: {pose_name}", "green")
                 try:
-                    self.status_bar.showMessage(f"已覆盖: {pose_name}")
+                    self.statusBar().showMessage(f"已覆盖: {pose_name}")
                 except:
                     pass
                 
@@ -1927,7 +1866,7 @@ class AnimLibraryDialog(QMainWindow):
         self.refresh_pose_display()
         
         try:
-            self.status_bar.showMessage(f"已加载 {len(self.global_data)} 个姿势")
+            self.statusBar().showMessage(f"已加载 {len(self.global_data)} 个姿势")
         except:
             pass
     
@@ -1946,6 +1885,97 @@ class AnimLibraryDialog(QMainWindow):
         
         # 如果亮度高（浅色背景）返回黑色，否则返回白色
         return 'black' if luminance > 128 else 'white'
+    
+    def is_dark_theme(self):
+        """检测当前是否为深色主题"""
+        # 获取窗口背景色的亮度来判断
+        from PySide6.QtGui import QPalette
+        bg_color = self.palette().color(QPalette.ColorRole.Window)
+        luminance = (0.299 * bg_color.red() + 0.587 * bg_color.green() + 0.114 * bg_color.blue())
+        return luminance < 128
+    
+    def get_button_style(self, is_primary=False):
+        """获取按钮样式（根据主题自适应）"""
+        is_dark = self.is_dark_theme()
+        
+        if is_primary:
+            # 主要按钮（保存、加载）- 稍微突出但不刺眼
+            if is_dark:
+                # 深色主题：柔和的蓝色
+                return """
+                    QPushButton { 
+                        font-weight: bold;
+                        padding: 6px 10px;
+                        background-color: #2d5a7b;
+                        color: #e0e0e0;
+                        border: 1px solid #3d6a8b;
+                        border-radius: 3px;
+                    }
+                    QPushButton:hover {
+                        background-color: #3d6a8b;
+                        color: white;
+                    }
+                    QPushButton:pressed {
+                        background-color: #1d4a6b;
+                    }
+                """
+            else:
+                # 浅色主题：柔和的蓝色
+                return """
+                    QPushButton { 
+                        font-weight: bold;
+                        padding: 6px 10px;
+                        background-color: #d0e4f5;
+                        color: #2d5a7b;
+                        border: 1px solid #a0c4e0;
+                        border-radius: 3px;
+                    }
+                    QPushButton:hover {
+                        background-color: #b8d4eb;
+                        color: #1d4a6b;
+                    }
+                    QPushButton:pressed {
+                        background-color: #a0c4e0;
+                    }
+                """
+        else:
+            # 普通按钮（覆盖、删除、日志等）- 统一的轻微背景色
+            if is_dark:
+                # 深色主题：浅灰背景
+                return """
+                    QPushButton { 
+                        padding: 6px 10px;
+                        background-color: #3a3a3a;
+                        color: #d0d0d0;
+                        border: 1px solid #4a4a4a;
+                        border-radius: 3px;
+                    }
+                    QPushButton:hover {
+                        background-color: #4a4a4a;
+                        color: #e0e0e0;
+                    }
+                    QPushButton:pressed {
+                        background-color: #2a2a2a;
+                    }
+                """
+            else:
+                # 浅色主题：浅灰背景
+                return """
+                    QPushButton { 
+                        padding: 6px 10px;
+                        background-color: #e8e8e8;
+                        color: #404040;
+                        border: 1px solid #c8c8c8;
+                        border-radius: 3px;
+                    }
+                    QPushButton:hover {
+                        background-color: #d8d8d8;
+                        color: #303030;
+                    }
+                    QPushButton:pressed {
+                        background-color: #c8c8c8;
+                    }
+                """
     
     def refresh_tag_buttons(self):
         """刷新标签按钮显示"""
@@ -2236,9 +2266,9 @@ class AnimLibraryDialog(QMainWindow):
         try:
             total_count = len(self.global_data)
             if displayed_count == total_count:
-                self.status_bar.showMessage(f"共 {total_count} 个姿势")
+                self.statusBar().showMessage(f"共 {total_count} 个姿势")
             else:
-                self.status_bar.showMessage(f"显示 {displayed_count} 个姿势（共 {total_count} 个）")
+                self.statusBar().showMessage(f"显示 {displayed_count} 个姿势（共 {total_count} 个）")
         except:
             pass
     
@@ -2442,7 +2472,7 @@ class AnimLibraryDialog(QMainWindow):
             success_msg = f"✓ 已保存姿势 '{pose_name}' (包含 {len(nodes)} 个节点)"
             self.log(success_msg, "green")
             try:
-                self.status_bar.showMessage(success_msg)
+                self.statusBar().showMessage(success_msg)
             except:
                 pass
             
@@ -2596,7 +2626,7 @@ class AnimLibraryDialog(QMainWindow):
                 
                 self.log(f"已覆盖姿势: {pose_name}", "green")
                 try:
-                    self.status_bar.showMessage(f"已覆盖: {pose_name}")
+                    self.statusBar().showMessage(f"已覆盖: {pose_name}")
                 except:
                     pass
                 
@@ -2687,8 +2717,9 @@ class AnimLibraryDialog(QMainWindow):
                         # 重新获取选中节点（暴力加载和仅选中模式需要）
                         if force_load or load_selected_only:
                             selected_nodes = set(mxs.selection)
+                            # 第二次循环也显示详细日志，方便调试
                             if self.chk_enable_log.isChecked():
-                                self.log(f"  [循环{loop_pass+1}] 重新获取选中节点: {len(selected_nodes)}个", "gray")
+                                self.log(f"  [循环{loop_pass+1}] 重新获取选中节点: {len(selected_nodes)}个", "yellow")
                         # 重建UUID临时列表（非暴力加载模式需要）
                         if not force_load:
                             temporary_list = [obj for obj in mxs.objects if mxs.getAppData(obj, 10)]
@@ -2705,15 +2736,15 @@ class AnimLibraryDialog(QMainWindow):
                                     try:
                                         if str(sel_node.name) == pose_node_name:
                                             node = sel_node
-                                            if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                self.log(f"  暴力加载匹配: {pose_node_name}", "cyan")
+                                            if self.chk_enable_log.isChecked():
+                                                self.log(f"  [循环{loop_pass+1}] 暴力加载匹配: {pose_node_name}", "cyan")
                                             break
                                     except:
                                         continue
                                 
-                                # 记录未匹配的节点（仅在第一次循环）
-                                if not node and loop_pass == 0 and self.chk_enable_log.isChecked():
-                                    self.log(f"  暴力加载未匹配: {pose_node_name}", "orange")
+                                # 记录未匹配的节点（两次循环都显示，方便调试）
+                                if not node and self.chk_enable_log.isChecked():
+                                    self.log(f"  [循环{loop_pass+1}] 暴力加载未匹配: {pose_node_name}", "orange")
                         else:
                             # 正常加载：通过UUID匹配
                             for item in temporary_list:
@@ -2749,16 +2780,18 @@ class AnimLibraryDialog(QMainWindow):
                             if loop_pass == 0:
                                 found_count += 1
                             
-                            # 详细日志：显示正在加载哪个节点（只在第一次循环显示）
-                            if loop_pass == 0 and self.chk_enable_log.isChecked():
+                            # 详细日志：显示正在加载哪个节点（两次循环都显示）
+                            if self.chk_enable_log.isChecked():
                                 node_name = pose_data.get("name", [])[i] if i < len(pose_data.get("name", [])) else "Unknown"
                                 mode_info = f"[暴力]" if force_load else f"[UUID]"
                                 # 显示节点的handle，确认是否是同一个对象
                                 try:
                                     node_handle = mxs.getHandleByAnim(node)
-                                    self.log(f"  → {mode_info} 加载节点: {node.name} (handle:{node_handle})", "cyan")
+                                    loop_info = f"[循环{loop_pass+1}]"
+                                    self.log(f"  {loop_info} → {mode_info} 加载节点: {node.name} (handle:{node_handle})", "cyan")
                                 except:
-                                    self.log(f"  → {mode_info} 加载节点: {node.name}", "cyan")
+                                    loop_info = f"[循环{loop_pass+1}]"
+                                    self.log(f"  {loop_info} → {mode_info} 加载节点: {node.name}", "cyan")
                             
                             # 应用变换（整体循环2次+Biped内部循环）
                             try:
@@ -2777,22 +2810,22 @@ class AnimLibraryDialog(QMainWindow):
                                             for biped_attempt in range(repeat_times):
                                                 node.transform = target_transform
                                             
-                                            if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                            if self.chk_enable_log.isChecked():
                                                 self.log(f"    ✓ 应用全局变换(Biped x{repeat_times}): {node.name}", "green")
                                         except Exception as e:
                                             error_count += 1
-                                            if loop_pass == 0 and self.chk_enable_log.isChecked() and error_count <= 10:
+                                            if self.chk_enable_log.isChecked() and error_count <= 10:
                                                 self.log(f"    ✗ Biped全局变换失败: {node.name} - {str(e)[:50]}", "red")
                                     else:
                                         # 普通节点和bone：直接赋值
                                         try:
                                             target_transform = mxs.execute(transform_str)
                                             node.transform = target_transform
-                                            if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                            if self.chk_enable_log.isChecked():
                                                 self.log(f"    ✓ 应用全局变换: {node.name}", "green")
                                         except Exception as e:
                                             error_count += 1
-                                            if loop_pass == 0 and self.chk_enable_log.isChecked() and error_count <= 10:
+                                            if self.chk_enable_log.isChecked() and error_count <= 10:
                                                 self.log(f"    ✗ 全局变换失败: {node.name} - {str(e)[:50]}", "red")
                             
                                 elif not apply_global and "local_transform" in pose_data:
@@ -2813,11 +2846,13 @@ class AnimLibraryDialog(QMainWindow):
                                                     for biped_attempt in range(repeat_times):
                                                         node.transform = target_transform
                                                     
-                                                    if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                        self.log(f"    ✓ 应用局部变换(Biped x{repeat_times}): {node.name}", "green")
+                                                    if self.chk_enable_log.isChecked():
+                                                        # 显示父节点信息，方便调试
+                                                        parent_name = node.parent.name if mxs.isValidNode(node.parent) else "None"
+                                                        self.log(f"    ✓ 应用局部变换(Biped x{repeat_times}): {node.name} (父:{parent_name})", "green")
                                                 except Exception as e:
                                                     error_count += 1
-                                                    if loop_pass == 0 and self.chk_enable_log.isChecked() and error_count <= 10:
+                                                    if self.chk_enable_log.isChecked() and error_count <= 10:
                                                         self.log(f"    ✗ Biped局部变换失败: {node.name} - {str(e)[:50]}", "red")
                                             else:
                                                 # 普通节点和bone：直接赋值
@@ -2825,14 +2860,16 @@ class AnimLibraryDialog(QMainWindow):
                                                     offset = mxs.execute(local_transform_str)
                                                     target_transform = offset * node.parent.transform
                                                     node.transform = target_transform
-                                                    if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                                        self.log(f"    ✓ 应用局部变换: {node.name}", "green")
+                                                    if self.chk_enable_log.isChecked():
+                                                        # 显示父节点信息，方便调试
+                                                        parent_name = node.parent.name if mxs.isValidNode(node.parent) else "None"
+                                                        self.log(f"    ✓ 应用局部变换: {node.name} (父:{parent_name})", "green")
                                                 except Exception as e:
                                                     error_count += 1
-                                                    if loop_pass == 0 and self.chk_enable_log.isChecked() and error_count <= 10:
+                                                    if self.chk_enable_log.isChecked() and error_count <= 10:
                                                         self.log(f"    ✗ 局部变换失败: {node.name} - {str(e)[:50]}", "red")
                                         else:
-                                            if loop_pass == 0 and self.chk_enable_log.isChecked():
+                                            if self.chk_enable_log.isChecked():
                                                 self.log(f"    ⚠ 节点 {node.name} 没有父节点，跳过局部变换", "orange")
                                 
                                 # 处理颜色（全局和局部都适用）
@@ -2886,7 +2923,7 @@ class AnimLibraryDialog(QMainWindow):
                 
                 self.log(result_text, "green")
                 try:
-                    self.status_bar.showMessage(result_text)
+                    self.statusBar().showMessage(result_text)
                 except:
                     pass
                 
@@ -2938,7 +2975,7 @@ class AnimLibraryDialog(QMainWindow):
                 self.refresh_pose_display()
                 self.log(f"已删除 {deleted_count} 个姿势", "orange")
                 try:
-                    self.status_bar.showMessage(f"已删除 {deleted_count} 个姿势")
+                    self.statusBar().showMessage(f"已删除 {deleted_count} 个姿势")
                 except:
                     pass
             except Exception as e:

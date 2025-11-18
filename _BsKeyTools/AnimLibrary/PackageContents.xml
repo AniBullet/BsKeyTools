@@ -11,19 +11,11 @@
     UpgradeCode="{A1B2C3D4-E5F6-4A5B-6C7D-8E9F0A1B2C3D}">
     <CompanyDetails Name="BsKeyTools" Url="https://github.com/AniBullet/BsKeyTools" />
     <Components Description="post-start-up scripts parts">
-        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2026" SeriesMax="2026" />
+        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2025" SeriesMax="2026" />
         <ComponentEntry AppName="AnimLibrary" Version="1.0.0" ModuleName="./Contents/2026.ms" />
     </Components>
     <Components Description="post-start-up scripts parts">
-        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2025" SeriesMax="2025" />
-        <ComponentEntry AppName="AnimLibrary" Version="1.0.0" ModuleName="./Contents/2025.ms" />
-    </Components>
-    <Components Description="post-start-up scripts parts">
-        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2021" SeriesMax="2024" />
-        <ComponentEntry AppName="AnimLibrary" Version="1.0.0" ModuleName="./Contents/2021.ms" />
-    </Components>
-    <Components Description="post-start-up scripts parts">
-        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2020" SeriesMax="2020" />
+        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2020" SeriesMax="2024" />
         <ComponentEntry AppName="AnimLibrary" Version="1.0.0" ModuleName="./Contents/2020.ms" />
     </Components>
 </ApplicationPackage>
