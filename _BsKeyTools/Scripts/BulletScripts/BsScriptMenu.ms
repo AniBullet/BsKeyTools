@@ -118,20 +118,108 @@ fn fnSetBsScriptMenuConfig =
 
 fnLoadBsScriptMenuConfig()
 
+-- 从主菜单栏删除已存在的同名菜单项（不遍历宏脚本列表，直接操作菜单栏）
+fn fnDeleteExistingMenuFromMainBar menuMgr menuName =
+(
+    try
+    (
+        local mainMenuBar = menuMgr.mainMenuBar
+        if mainMenuBar != undefined then
+        (
+            -- 从后往前遍历，避免删除时索引变化
+            for i = mainMenuBar.numItems() to 1 by -1 do
+            (
+                try
+                (
+                    local menuItem = mainMenuBar.getItem i
+                    if menuItem != undefined then
+                    (
+                        local itemTitle = menuItem.title
+                        if itemTitle == menuName then
+                        (
+                            mainMenuBar.removeItem i
+                        )
+                    )
+                )
+                catch()
+            )
+        )
+    )
+    catch()
+)
+
+-- 清理子菜单中所有以 "BsScriptMenu" 开头的菜单项（递归清理）
+fn fnClearSubMenuItems subMenu =
+(
+    try
+    (
+        if subMenu != undefined then
+        (
+            -- 从后往前遍历，避免删除时索引变化
+            for i = subMenu.numItems() to 1 by -1 do
+            (
+                try
+                (
+                    local menuItem = subMenu.getItem i
+                    if menuItem != undefined then
+                    (
+                        -- 检查是否是子菜单，如果是则递归清理
+                        if (hasProperty menuItem #subMenu) and (menuItem.subMenu != undefined) then
+                        (
+                            fnClearSubMenuItems menuItem.subMenu
+                        )
+                        else
+                        (
+                            -- 检查菜单项的 action 属性，判断是否以 "BsScriptMenu" 开头（但保留配置项）
+                            local shouldDelete = false
+                            try
+                            (
+                                if (hasProperty menuItem #action) then
+                                (
+                                    local actionStr = menuItem.action as string
+                                    if actionStr != undefined and (matchPattern actionStr pattern:"BsScriptMenu*`_[BsScriptMenu]") and (not (matchPattern actionStr pattern:"BsScriptMenuConfig`_[BsScriptMenu]")) then
+                                    (
+                                        shouldDelete = true
+                                    )
+                                )
+                            )
+                            catch()
+                            
+                            if shouldDelete then
+                            (
+                                subMenu.removeItem i
+                            )
+                        )
+                    )
+                )
+                catch()
+            )
+        )
+    )
+    catch()
+)
+
 -- 递归创建子菜单和脚本项
 fn fnRecursiveMenuHighVersion subMenu subPath =
 (
     local scriptActionTableID = 647394
+    
+    -- 先清理子菜单中所有以 "BsScriptMenu" 开头的旧菜单项
+    fnClearSubMenuItems subMenu
+    
     local files = getFiles (subPath + ("/" + "*.m*"))
     sort files
     local dirArr = GetDirectories (subPath + "/*")
     sort dirArr
+
+    n = 1
     
     -- 添加脚本文件
     for i in files do
     (
         local scriptName = getFilenameFile i
-        local macroName = "BsScriptMenu" + (random 1000 9999) as string
+        local macroName = ("BsScriptMenu" + (n as string))
+        n = n + 1
         
         -- 创建宏脚本
         local macroStr = "macroscript " + macroName + " category:\"_[BsScriptMenu]\" buttontext:\"" + scriptName + "\" (FileIn @\"" + i + "\")"
@@ -165,6 +253,9 @@ fn fnCreateMenuHighVersion =
         local menuMgr = callbacks.notificationParam()
         local mainMenuBar = menuMgr.mainMenuBar
         local macroScriptActionTableID = 647394
+        
+        -- 删除主菜单栏中已存在的同名菜单项（避免重复创建）
+        fnDeleteExistingMenuFromMainBar menuMgr iniBsScriptMenuName
         
         -- 创建主菜单 - 使用固定GUID
         local newSubMenu = mainMenuBar.CreateSubMenu (genGUID()) iniBsScriptMenuName
@@ -245,10 +336,10 @@ rollout rolBsScriptMenu "BsScriptMenuConfig" width:460 height:160
 		Label lblPath "自定义脚本目录：" align:#left across:3
 		edittext edtPath "" align:#center offset:[20,0] width:300
         button btnSetPath "设置" align:#right height:20 width:40  tooltip:"设置脚本目录"
-		button btnOpenPath "打开目录" height:30 width:100  tooltip:"打开脚本目录" across:4
-		button btnRefreshMenu "更新菜单" height:30 width:100  tooltip:"更新脚本列表"
-		button btnReadme "必看说明" height:30 width:100  tooltip:"必看说明" 
-        button btnUninstall "卸载" height:30 width:100  tooltip:"卸载工具"
+		button btnOpenPath "打开目录" height:30 width:85  tooltip:"打开脚本目录" offset:[-15,0] across:4
+		button btnRefreshMenu "【必点】更新菜单" height:30 width:145  tooltip:"更新脚本列表" offset:[5,0]
+		button btnReadme "【必看】说明" height:30 width:105  tooltip:"必看说明"  offset:[35,0]
+        button btnUninstall "卸载" height:30 width:60  tooltip:"卸载工具" offset:[25,0]
 	)
 
     group ""

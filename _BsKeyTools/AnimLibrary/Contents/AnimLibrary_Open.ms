@@ -15,7 +15,7 @@ fn loadAppropriateAnimLibraryScript =
         scriptFile = scriptPath + "2020\\" + "AnimLibrary.py"
     else
     (
-        messageBox "当前3ds Max版本不受AnimLibrary支持。\n支持的版本范围: 2018-2026" title:"AnimLibrary 版本错误"
+        messageBox "当前3ds Max版本不受AnimLibrary支持。\n支持的版本范围: 2020 及以上" title:"AnimLibrary 版本错误"
         return false
     )
     

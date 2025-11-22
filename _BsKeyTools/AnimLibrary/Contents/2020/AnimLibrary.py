@@ -1,28 +1,56 @@
 # AnimLibrary_Bullet.S
 # 基于 Posture 代码改写，添加库管理功能
 
+import base64
 import json
+import math
 import os
 import shutil
-import pymxs
 import time
 import uuid
-import base64
-import math
 import webbrowser
-from io import BytesIO
 from datetime import datetime
-from PySide2 import QtGui, QtCore, QtWidgets
-from PySide2.QtCore import Qt, QSize, QBuffer, QIODevice
-from PySide2.QtGui import QIcon, QColor, QPixmap, QPainter, QImage, QTextOption
-from PySide2.QtWidgets import (QMainWindow, QWidget, QFileDialog, QMessageBox,
-                               QListWidget, QListWidgetItem, QTreeWidget, QTreeWidgetItem,
-                               QSplitter, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
-                               QLineEdit, QCheckBox, QRadioButton, QGroupBox, QTextEdit,
-                               QProgressBar, QScrollArea, QGridLayout, QMenu, QSlider,
-                               QFrame, QColorDialog, QInputDialog, QLayout, QWidgetItem,
-                               QDialog, QDialogButtonBox, QApplication, QComboBox)
+from io import BytesIO
+
+import pymxs
 from pymxs import runtime as mxs
+from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2.QtCore import QBuffer, QIODevice, QPoint, QRect, QSize, Qt
+from PySide2.QtGui import QColor, QIcon, QImage, QPainter, QPixmap, QTextOption
+from PySide2.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QColorDialog,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QFrame,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QInputDialog,
+    QLabel,
+    QLayout,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMainWindow,
+    QMenu,
+    QMessageBox,
+    QProgressBar,
+    QPushButton,
+    QRadioButton,
+    QScrollArea,
+    QSlider,
+    QSplitter,
+    QTextEdit,
+    QTreeWidget,
+    QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
+    QWidgetItem,
+)
 from qtmax import GetQMaxMainWindow
 
 
@@ -207,10 +235,395 @@ class FlowLayout(QLayout):
         return y + line_height - rect.y()
 
 
+# 区域选择对话框类
+class RegionSelectLabel(QLabel):
+    """支持区域选择的标签控件"""
+    selection_changed = QtCore.Signal(int, int, int, int)  # x, y, width, height
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.selection_start = None
+        self.selection_end = None
+        self.original_pixmap = None
+        self.drawing_selection = False
+        self.display_rect = None  # 实际显示区域（考虑留白）
+        
+    def setPreviewPixmap(self, pixmap):
+        """设置预览图"""
+        self.original_pixmap = pixmap
+        self.updateDisplay()
+    
+    def getDisplayRect(self):
+        """计算预览图在label中的实际显示区域（考虑KeepAspectRatio的留白）"""
+        if not self.original_pixmap:
+            return None
+        
+        label_size = self.size()
+        pixmap_size = self.original_pixmap.size()
+        
+        # 计算缩放比例（保持长宽比）
+        scale_w = label_size.width() / pixmap_size.width()
+        scale_h = label_size.height() / pixmap_size.height()
+        scale = min(scale_w, scale_h)
+        
+        # 计算实际显示尺寸
+        display_width = int(pixmap_size.width() * scale)
+        display_height = int(pixmap_size.height() * scale)
+        
+        # 计算居中位置
+        x = (label_size.width() - display_width) // 2
+        y = (label_size.height() - display_height) // 2
+        
+        return QRect(x, y, display_width, display_height)
+    
+    def mapToPixmap(self, pos):
+        """将鼠标坐标映射到原图坐标"""
+        if not self.original_pixmap or not self.display_rect:
+            return None
+        
+        # 检查是否在显示区域内
+        if not self.display_rect.contains(pos):
+            return None
+        
+        # 计算相对于显示区域的坐标
+        rel_x = pos.x() - self.display_rect.x()
+        rel_y = pos.y() - self.display_rect.y()
+        
+        # 映射到原图坐标
+        pixmap_size = self.original_pixmap.size()
+        scale_x = pixmap_size.width() / self.display_rect.width()
+        scale_y = pixmap_size.height() / self.display_rect.height()
+        
+        orig_x = int(rel_x * scale_x)
+        orig_y = int(rel_y * scale_y)
+        
+        # 限制在原图范围内
+        orig_x = max(0, min(orig_x, pixmap_size.width() - 1))
+        orig_y = max(0, min(orig_y, pixmap_size.height() - 1))
+        
+        return QPoint(orig_x, orig_y)
+    
+    def mapFromPixmap(self, orig_pos):
+        """将原图坐标映射到显示坐标"""
+        if not self.original_pixmap or not self.display_rect:
+            return None
+        
+        pixmap_size = self.original_pixmap.size()
+        scale_x = self.display_rect.width() / pixmap_size.width()
+        scale_y = self.display_rect.height() / pixmap_size.height()
+        
+        rel_x = int(orig_pos.x() * scale_x)
+        rel_y = int(orig_pos.y() * scale_y)
+        
+        display_x = self.display_rect.x() + rel_x
+        display_y = self.display_rect.y() + rel_y
+        
+        return QPoint(display_x, display_y)
+    
+    def mousePressEvent(self, event):
+        """鼠标按下开始选择"""
+        if event.button() == Qt.LeftButton:
+            # 更新显示区域
+            self.display_rect = self.getDisplayRect()
+            if self.display_rect:
+                # 检查鼠标是否在显示区域内
+                pos = event.pos()
+                if self.display_rect.contains(pos):
+                    self.drawing_selection = True
+                    self.selection_start = pos
+                    self.selection_end = pos
+                    self.updateDisplay()
+    
+    def mouseMoveEvent(self, event):
+        """鼠标移动更新选择"""
+        if self.drawing_selection:
+            # 更新显示区域
+            self.display_rect = self.getDisplayRect()
+            if self.display_rect:
+                pos = event.pos()
+                # 限制在显示区域内
+                if self.display_rect.contains(pos):
+                    self.selection_end = pos
+                else:
+                    # 如果超出范围，限制到边界
+                    x = max(self.display_rect.x(), min(pos.x(), self.display_rect.x() + self.display_rect.width() - 1))
+                    y = max(self.display_rect.y(), min(pos.y(), self.display_rect.y() + self.display_rect.height() - 1))
+                    self.selection_end = QPoint(x, y)
+                self.updateDisplay()
+    
+    def mouseReleaseEvent(self, event):
+        """鼠标释放完成选择"""
+        if event.button() == Qt.LeftButton and self.drawing_selection:
+            self.drawing_selection = False
+            if self.selection_start and self.selection_end and self.original_pixmap:
+                # 计算选择区域（在显示坐标中）
+                x1 = min(self.selection_start.x(), self.selection_end.x())
+                y1 = min(self.selection_start.y(), self.selection_end.y())
+                x2 = max(self.selection_start.x(), self.selection_end.x())
+                y2 = max(self.selection_start.y(), self.selection_end.y())
+                width = x2 - x1
+                height = y2 - y1
+                
+                if width > 10 and height > 10:  # 最小选择区域
+                    # 转换到原图坐标
+                    if self.display_rect:
+                        # 计算相对于显示区域的坐标
+                        rel_x1 = x1 - self.display_rect.x()
+                        rel_y1 = y1 - self.display_rect.y()
+                        rel_x2 = x2 - self.display_rect.x()
+                        rel_y2 = y2 - self.display_rect.y()
+                        
+                        # 映射到原图坐标
+                        pixmap_size = self.original_pixmap.size()
+                        scale_x = pixmap_size.width() / self.display_rect.width()
+                        scale_y = pixmap_size.height() / self.display_rect.height()
+                        
+                        orig_x = int(rel_x1 * scale_x)
+                        orig_y = int(rel_y1 * scale_y)
+                        orig_width = int(width * scale_x)
+                        orig_height = int(height * scale_y)
+                        
+                        # 限制在原图范围内
+                        orig_x = max(0, min(orig_x, pixmap_size.width() - 1))
+                        orig_y = max(0, min(orig_y, pixmap_size.height() - 1))
+                        orig_width = min(orig_width, pixmap_size.width() - orig_x)
+                        orig_height = min(orig_height, pixmap_size.height() - orig_y)
+                        
+                        self.selection_changed.emit(orig_x, orig_y, orig_width, orig_height)
+    
+    def updateDisplay(self):
+        """更新显示（绘制选择框）"""
+        if self.original_pixmap:
+            # 更新显示区域
+            self.display_rect = self.getDisplayRect()
+            
+            # 创建临时pixmap用于显示（填充整个label，保持长宽比）
+            display_pixmap = QPixmap(self.size())
+            display_pixmap.fill(Qt.transparent)
+            
+            # 绘制缩放后的预览图
+            scaled_pixmap = self.original_pixmap.scaled(
+                self.display_rect.size() if self.display_rect else self.size(),
+                Qt.KeepAspectRatio, 
+                Qt.SmoothTransformation
+            )
+            
+            painter = QPainter(display_pixmap)
+            if self.display_rect:
+                painter.drawPixmap(self.display_rect.x(), self.display_rect.y(), scaled_pixmap)
+            
+            # 如果有选择，绘制选择框
+            if self.selection_start and self.selection_end and self.display_rect:
+                painter.setPen(QColor(255, 255, 0, 200))  # 黄色半透明
+                painter.setBrush(QColor(255, 255, 0, 50))  # 半透明填充
+                
+                x1 = min(self.selection_start.x(), self.selection_end.x())
+                y1 = min(self.selection_start.y(), self.selection_end.y())
+                x2 = max(self.selection_start.x(), self.selection_end.x())
+                y2 = max(self.selection_start.y(), self.selection_end.y())
+                
+                # 确保选择框在显示区域内
+                x1 = max(self.display_rect.x(), min(x1, self.display_rect.x() + self.display_rect.width() - 1))
+                y1 = max(self.display_rect.y(), min(y1, self.display_rect.y() + self.display_rect.height() - 1))
+                x2 = max(self.display_rect.x(), min(x2, self.display_rect.x() + self.display_rect.width() - 1))
+                y2 = max(self.display_rect.y(), min(y2, self.display_rect.y() + self.display_rect.height() - 1))
+                
+                painter.drawRect(x1, y1, x2 - x1, y2 - y1)
+            painter.end()
+            
+            self.setPixmap(display_pixmap)
+    
+    def resizeEvent(self, event):
+        """大小改变时更新显示"""
+        super().resizeEvent(event)
+        self.updateDisplay()
+    
+    def clearSelection(self):
+        """清除选择"""
+        self.selection_start = None
+        self.selection_end = None
+        self.drawing_selection = False
+        self.updateDisplay()
+
+
+class RegionSelectDialog(QDialog):
+    """区域选择对话框"""
+    def __init__(self, parent, pose_name, main_window):
+        super().__init__(parent)
+        self.pose_name = pose_name
+        self.main_window = main_window
+        self.selected_region = None  # (x, y, width, height)
+        self.selected_thumbnail = None  # base64字符串
+        
+        self.setWindowTitle(f"选择区域生成缩略图 - {pose_name}")
+        self.setMinimumSize(800, 600)
+        
+        layout = QVBoxLayout()
+        
+        # 说明标签
+        info_label = QLabel("在预览图上拖动鼠标选择区域（建议选择包含角色的主要区域）")
+        info_label.setStyleSheet("QLabel { padding: 8px; background-color: palette(highlight); color: palette(highlighted-text); }")
+        layout.addWidget(info_label)
+        
+        # 预览区域（可选择的标签）
+        self.preview_label = RegionSelectLabel(self)
+        self.preview_label.setAlignment(Qt.AlignCenter)
+        self.preview_label.setStyleSheet("QLabel { background-color: palette(base); border: 1px solid palette(mid); }")
+        self.preview_label.setMinimumHeight(500)
+        self.preview_label.selection_changed.connect(self.on_region_selected)
+        layout.addWidget(self.preview_label)
+        
+        # 按钮
+        button_layout = QHBoxLayout()
+        
+        self.btn_refresh = QPushButton("刷新预览")
+        self.btn_refresh.clicked.connect(self.refresh_preview)
+        button_layout.addWidget(self.btn_refresh)
+        
+        self.btn_clear = QPushButton("清除选择")
+        self.btn_clear.clicked.connect(self.clear_selection)
+        button_layout.addWidget(self.btn_clear)
+        
+        button_layout.addStretch()
+        
+        self.btn_cancel = QPushButton("取消")
+        self.btn_cancel.clicked.connect(self.reject)
+        button_layout.addWidget(self.btn_cancel)
+        
+        self.btn_confirm = QPushButton("确认选择")
+        self.btn_confirm.clicked.connect(self.confirm_selection)
+        self.btn_confirm.setEnabled(False)
+        button_layout.addWidget(self.btn_confirm)
+        
+        layout.addLayout(button_layout)
+        self.setLayout(layout)
+        
+        # 初始加载预览
+        self.refresh_preview()
+    
+    def refresh_preview(self):
+        """刷新预览图"""
+        try:
+            # 捕获当前视口（使用高质量）
+            temp_path = os.path.join(mxs.getDir(mxs.name('temp')), "region_preview_temp.jpg")
+            
+            # 捕获当前活动视口
+            bmp = mxs.gw.getViewportDib()
+            if not bmp:
+                QMessageBox.warning(self, "错误", "无法捕获视口，请确保视口中有内容")
+                return
+            
+            bmp.filename = temp_path
+            mxs.save(bmp, temp_path)
+            
+            # 加载并显示
+            if os.path.exists(temp_path):
+                pixmap = QPixmap(temp_path)
+                if not pixmap.isNull():
+                    self.preview_label.setPreviewPixmap(pixmap)
+                    
+                    # 根据预览图的长宽比调整窗口大小
+                    self.adjust_window_to_aspect_ratio(pixmap)
+                else:
+                    QMessageBox.warning(self, "错误", "无法加载预览图")
+            
+            # 清理临时文件
+            try:
+                os.remove(temp_path)
+            except:
+                pass
+                
+        except Exception as e:
+            QMessageBox.warning(self, "错误", f"刷新预览失败: {e}")
+    
+    def adjust_window_to_aspect_ratio(self, pixmap):
+        """根据预览图的长宽比调整窗口大小"""
+        try:
+            pixmap_size = pixmap.size()
+            if pixmap_size.width() <= 0 or pixmap_size.height() <= 0:
+                return
+            
+            # 计算预览图的长宽比
+            aspect_ratio = pixmap_size.width() / pixmap_size.height()
+            
+            # 计算预览区域的目标尺寸（考虑其他控件的高度）
+            # 估算其他控件的高度：说明标签 + 按钮栏 + 边距
+            other_height = 150  # 大约值
+            
+            # 设置目标预览尺寸（保持预览图的长宽比）
+            target_preview_height = 600  # 默认高度
+            target_preview_width = int(target_preview_height * aspect_ratio)
+            
+            # 确保最小尺寸
+            min_preview_width = 600
+            min_preview_height = 400
+            if target_preview_width < min_preview_width:
+                target_preview_width = min_preview_width
+                target_preview_height = int(target_preview_width / aspect_ratio)
+            if target_preview_height < min_preview_height:
+                target_preview_height = min_preview_height
+                target_preview_width = int(target_preview_height * aspect_ratio)
+            
+            # 限制最大尺寸
+            max_preview_width = 1600
+            max_preview_height = 1200
+            if target_preview_width > max_preview_width:
+                target_preview_width = max_preview_width
+                target_preview_height = int(target_preview_width / aspect_ratio)
+            if target_preview_height > max_preview_height:
+                target_preview_height = max_preview_height
+                target_preview_width = int(target_preview_height * aspect_ratio)
+            
+            # 设置预览标签的固定大小（保持长宽比，避免坐标偏移）
+            self.preview_label.setFixedSize(target_preview_width, target_preview_height)
+            
+            # 调整窗口大小以适应预览图
+            new_window_width = target_preview_width + 40  # 加上边距
+            new_window_height = target_preview_height + other_height
+            
+            # 设置窗口大小（保持与预览图一致的长宽比）
+            self.resize(new_window_width, new_window_height)
+            
+        except Exception as e:
+            print(f"调整窗口大小失败: {e}")
+    
+    def on_region_selected(self, x, y, width, height):
+        """区域选择完成"""
+        self.selected_region = (x, y, width, height)
+        self.btn_confirm.setEnabled(True)
+        
+        # 实时预览选择的区域
+        try:
+            # 捕获选择的区域
+            thumbnail = self.main_window.capture_viewport_region(x, y, width, height)
+            if thumbnail:
+                self.selected_thumbnail = thumbnail
+        except Exception as e:
+            print(f"预览选择区域失败: {e}")
+    
+    def clear_selection(self):
+        """清除选择"""
+        self.preview_label.clearSelection()
+        self.selected_region = None
+        self.selected_thumbnail = None
+        self.btn_confirm.setEnabled(False)
+    
+    def confirm_selection(self):
+        """确认选择"""
+        if self.selected_thumbnail:
+            self.accept()
+        else:
+            QMessageBox.warning(self, "警告", "请先选择一个区域")
+    
+    def get_selected_thumbnail(self):
+        """获取选择的缩略图（base64字符串）"""
+        return self.selected_thumbnail
+
+
 class AnimLibraryDialog(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowFlags(QtCore.Qt.WindowType.Window)
+        self.setWindowFlags(QtCore.Qt.Window)  # PySide2使用QtCore.Qt.Window而不是QtCore.Qt.WindowType.Window
         
         # 设置全局字体，放大一点
         app = QApplication.instance()
@@ -460,7 +873,7 @@ class AnimLibraryDialog(QMainWindow):
         save_layout = QVBoxLayout()
         
         self.save_name_edit = QLineEdit()
-        self.save_name_edit.setPlaceholderText("输入姿势名称... (必填)")
+        self.save_name_edit.setPlaceholderText("输入姿势名称... (重要)")
         save_layout.addWidget(self.save_name_edit)
         
         self.save_tags_edit = QLineEdit()
@@ -468,7 +881,7 @@ class AnimLibraryDialog(QMainWindow):
         save_layout.addWidget(self.save_tags_edit)
         
         self.save_desc_edit = QLineEdit()
-        self.save_desc_edit.setPlaceholderText("描述 (可选)")
+        self.save_desc_edit.setPlaceholderText("备注 (可选)")
         save_layout.addWidget(self.save_desc_edit)
         
         # 按钮组：覆盖 + 保存
@@ -566,17 +979,26 @@ class AnimLibraryDialog(QMainWindow):
         tags_title_label = QLabel("标签:")
         tags_title_label.setStyleSheet("QLabel { color: palette(window-text); }")
         detail_layout.addWidget(tags_title_label)
-        # 标签区域使用 QTextEdit 以支持更多内容显示
+        # 标签区域使用 QTextEdit 以支持更多内容显示（缩短高度）
         self.detail_tags_label = QTextEdit()
         self.detail_tags_label.setReadOnly(True)
-        self.detail_tags_label.setMinimumHeight(80)
-        self.detail_tags_label.setMaximumHeight(100)
+        self.detail_tags_label.setMinimumHeight(40)
+        self.detail_tags_label.setMaximumHeight(50)
         self.detail_tags_label.setWordWrapMode(QTextOption.WordWrap)  # 自动换行
         self.detail_tags_label.setLineWrapMode(QTextEdit.WidgetWidth)  # 按宽度换行
         self.detail_tags_label.setStyleSheet("QTextEdit { color: palette(window-text); padding: 4px; background-color: palette(base); }")
         detail_layout.addWidget(self.detail_tags_label)
         
-        desc_title_label = QLabel("描述:")
+        # 修改时间标签
+        time_title_label = QLabel("修改时间:")
+        time_title_label.setStyleSheet("QLabel { color: palette(window-text); }")
+        detail_layout.addWidget(time_title_label)
+        self.detail_time_label = QLabel("-")
+        self.detail_time_label.setWordWrap(True)
+        self.detail_time_label.setStyleSheet("QLabel { color: palette(window-text); padding: 4px; background-color: palette(base); font-size: 9pt; }")
+        detail_layout.addWidget(self.detail_time_label)
+        
+        desc_title_label = QLabel("备注:")
         desc_title_label.setStyleSheet("QLabel { color: palette(window-text); }")
         detail_layout.addWidget(desc_title_label)
         self.detail_desc_label = QLabel("-")
@@ -946,8 +1368,8 @@ class AnimLibraryDialog(QMainWindow):
                 if pose_name not in self.selected_poses:
                     # 如果右键的pose没有被选中，则单选它
                     self.on_pose_card_clicked(pose_name, card, Qt.NoModifier)
-                # 使用新API: globalPosition() 代替 globalPos()
-                pos = event.globalPosition().toPoint()
+                # PySide2使用globalPos()而不是globalPosition().toPoint()
+                pos = event.globalPos()
                 self.show_pose_context_menu(pose_name, pos)
         
         card.mousePressEvent = on_mouse_press
@@ -999,10 +1421,10 @@ class AnimLibraryDialog(QMainWindow):
     def on_pose_card_clicked(self, pose_name, card, modifiers=None):
         """姿势卡片单击事件（支持多选）"""
         if modifiers is None:
-            modifiers = QtCore.Qt.KeyboardModifier.NoModifier
+            modifiers = Qt.NoModifier  # PySide2使用Qt.NoModifier
         
         # Shift 范围多选
-        if modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier:
+        if modifiers & Qt.ShiftModifier:  # PySide2使用Qt.ShiftModifier
             if self.last_selected_pose and self.last_selected_pose in self.displayed_poses_order:
                 # 找到上次选择和当前选择的索引
                 try:
@@ -1046,10 +1468,10 @@ class AnimLibraryDialog(QMainWindow):
                     pass
             else:
                 # 如果没有上次选择，当作普通单选
-                self.on_pose_card_clicked(pose_name, card, QtCore.Qt.KeyboardModifier.NoModifier)
+                self.on_pose_card_clicked(pose_name, card, Qt.NoModifier)  # PySide2使用Qt.NoModifier
                 return
         # Ctrl 多选
-        elif modifiers & QtCore.Qt.KeyboardModifier.ControlModifier:
+        elif modifiers & Qt.ControlModifier:  # PySide2使用Qt.ControlModifier
             if pose_name in self.selected_poses:
                 # 取消选择
                 self.selected_poses.remove(pose_name)
@@ -1143,6 +1565,7 @@ class AnimLibraryDialog(QMainWindow):
             # 清空详情
             self.detail_name_label.setText("名称: -")
             self.detail_tags_label.setText("-")
+            self.detail_time_label.setText("-")
             self.detail_desc_label.setText("(无)")
             return
         
@@ -1162,7 +1585,19 @@ class AnimLibraryDialog(QMainWindow):
                 else:
                     self.detail_tags_label.setText("(无)")
                 
-                # 显示描述
+                # 显示修改时间
+                try:
+                    file_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+                    if os.path.exists(file_path):
+                        mtime = os.path.getmtime(file_path)
+                        time_str = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S")
+                        self.detail_time_label.setText(time_str)
+                    else:
+                        self.detail_time_label.setText("(未知)")
+                except Exception as e:
+                    self.detail_time_label.setText("(获取失败)")
+                
+                # 显示备注
                 desc = pose_data.get("description", "")
                 if desc:
                     self.detail_desc_label.setText(desc)
@@ -1185,6 +1620,9 @@ class AnimLibraryDialog(QMainWindow):
                 self.detail_tags_label.setText(", ".join(sorted(all_tags)))
             else:
                 self.detail_tags_label.setText("(无)")
+            
+            # 多选时不显示修改时间
+            self.detail_time_label.setText("(多选模式)")
             
             self.detail_desc_label.setText(f"多选模式 ({len(self.selected_poses)} 项)")
     
@@ -1211,18 +1649,24 @@ class AnimLibraryDialog(QMainWindow):
         edit_tags_action = menu.addAction("编辑标签")
         edit_tags_action.triggered.connect(lambda: self.edit_pose_tags(pose_name))
         
-        edit_desc_action = menu.addAction("编辑描述")
+        edit_desc_action = menu.addAction("编辑备注")
         edit_desc_action.triggered.connect(lambda: self.edit_pose_description(pose_name))
         
         update_thumb_action = menu.addAction("更新缩略图")
         update_thumb_action.triggered.connect(lambda: self.update_pose_thumbnail(pose_name))
+        
+        region_thumb_action = menu.addAction("选择区域生成缩略图")
+        region_thumb_action.triggered.connect(lambda: self.show_region_select_dialog(pose_name))
+        
+        load_thumb_action = menu.addAction("从文件加载缩略图")
+        load_thumb_action.triggered.connect(lambda: self.load_thumbnail_from_file(pose_name))
         
         menu.addSeparator()
         
         delete_action = menu.addAction("删除")
         delete_action.triggered.connect(lambda: self.delete_pose_by_name(pose_name))
         
-        menu.exec(pos)
+        menu.exec_(pos)  # PySide2使用exec_()而不是exec()
     
     def view_pose_nodes(self, pose_name):
         """查看姿势包含的节点列表"""
@@ -1336,16 +1780,16 @@ class AnimLibraryDialog(QMainWindow):
                 self.log(f"保存失败: {e}", "red")
     
     def edit_pose_description(self, pose_name):
-        """编辑姿势描述"""
+        """编辑姿势备注"""
         if pose_name not in self.global_data:
             return
         
         pose_data = self.global_data[pose_name]
         current_desc = pose_data.get("description", "")
         
-        # 输入描述
-        new_desc, ok = QtWidgets.QInputDialog.getText(self, "编辑描述", 
-                                                       "描述:", 
+        # 输入备注
+        new_desc, ok = QtWidgets.QInputDialog.getText(self, "编辑备注", 
+                                                       "备注:", 
                                                        text=current_desc)
         if ok:
             # 更新数据
@@ -1356,7 +1800,7 @@ class AnimLibraryDialog(QMainWindow):
             try:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     json.dump(pose_data, f, indent=2, ensure_ascii=False)
-                self.log(f"已更新描述: {pose_name}", "green")
+                self.log(f"已更新备注: {pose_name}", "green")
                 
                 # 如果该pose在当前选中的poses中，更新详情显示
                 if pose_name in self.selected_poses:
@@ -1365,13 +1809,13 @@ class AnimLibraryDialog(QMainWindow):
                 self.log(f"保存失败: {e}", "red")
     
     def update_pose_thumbnail(self, pose_name):
-        """更新姿势缩略图"""
+        """更新姿势缩略图（使用更高分辨率）"""
         if pose_name not in self.global_data:
             return
         
-        # 捕获当前视口缩略图
+        # 捕获当前视口缩略图（使用高质量）
         self.log("正在更新缩略图...", "yellow")
-        thumbnail = self.capture_viewport_thumbnail()
+        thumbnail = self.capture_viewport_thumbnail(target_width=1200, use_high_quality=True)
         
         if thumbnail:
             # 更新数据
@@ -1438,7 +1882,7 @@ class AnimLibraryDialog(QMainWindow):
             mxs.escapeEnable = False
             
             try:
-                # 保留原有的标签和描述
+                # 保留原有的标签和备注
                 old_pose_data = self.global_data[pose_name]
                 old_tags = old_pose_data.get("tags", "")
                 old_desc = old_pose_data.get("description", "")
@@ -1508,13 +1952,13 @@ class AnimLibraryDialog(QMainWindow):
                     else:
                         pose_data["local_transform"].append(None)
                 
-                # 恢复标签和描述
+                # 恢复标签和备注
                 pose_data["tags"] = old_tags
                 pose_data["description"] = old_desc
                 
                 # 捕获新缩略图
                 self.log("正在捕获视口缩略图...", "yellow")
-                thumbnail = self.capture_viewport_thumbnail()
+                thumbnail = self.capture_viewport_thumbnail(target_width=1200, use_high_quality=True)
                 if thumbnail:
                     pose_data["thumbnail"] = thumbnail
                 else:
@@ -1559,16 +2003,39 @@ class AnimLibraryDialog(QMainWindow):
         self.current_selected_pose = pose_name
         self.delete_pose()
     
-    def capture_viewport_thumbnail(self, target_width=400):
-        """捕获视口缩略图（保持Max视口原始比例）"""
+    def capture_viewport_thumbnail(self, target_width=1200, use_high_quality=True):
+        """捕获视口缩略图（提高默认分辨率到1200，支持高质量渲染）"""
         try:
             # 使用3ds Max的视口捕获功能
             temp_path = os.path.join(mxs.getDir(mxs.name('temp')), "thumbnail_temp.jpg")
             
-            # 捕获当前活动视口
-            bmp = mxs.gw.getViewportDib()
-            bmp.filename = temp_path
-            mxs.save(bmp, temp_path)
+            if use_high_quality:
+                # 尝试使用高质量渲染方法
+                try:
+                    # 先刷新视口以确保最新状态
+                    mxs.viewport.Refresh()
+                    mxs.completeredraw()
+                    
+                    # 捕获视口DIB
+                    bmp = mxs.gw.getViewportDib()
+                    if bmp:
+                        bmp.filename = temp_path
+                        mxs.save(bmp, temp_path)
+                    else:
+                        # 回退到普通方法
+                        bmp = mxs.gw.getViewportDib()
+                        bmp.filename = temp_path
+                        mxs.save(bmp, temp_path)
+                except:
+                    # 如果高质量方法失败，使用普通方法
+                    bmp = mxs.gw.getViewportDib()
+                    bmp.filename = temp_path
+                    mxs.save(bmp, temp_path)
+            else:
+                # 普通方法
+                bmp = mxs.gw.getViewportDib()
+                bmp.filename = temp_path
+                mxs.save(bmp, temp_path)
             
             # 加载并调整大小
             if os.path.exists(temp_path):
@@ -1582,14 +2049,15 @@ class AnimLibraryDialog(QMainWindow):
                     # 根据目标宽度计算高度，保持原始比例
                     target_height = int(target_width / aspect_ratio)
                     
+                    # 使用平滑缩放以保持清晰度
                     scaled_image = image.scaled(target_width, target_height, 
                                                Qt.KeepAspectRatio, Qt.SmoothTransformation)
                     
-                    # 使用 QBuffer 转换为 base64
+                    # 使用 QBuffer 转换为 base64，提高JPEG质量到95以获得更清晰的图片
                     byte_array = QtCore.QByteArray()
                     buffer = QBuffer(byte_array)
                     buffer.open(QIODevice.WriteOnly)
-                    scaled_image.save(buffer, "JPEG", 85)  # 85% 质量
+                    scaled_image.save(buffer, "JPEG", 95)  # 提高到95% 质量
                     buffer.close()
                     
                     thumbnail_base64 = base64.b64encode(byte_array.data()).decode()
@@ -1607,6 +2075,174 @@ class AnimLibraryDialog(QMainWindow):
             traceback.print_exc()
         
         return None
+    
+    def capture_viewport_region(self, x, y, width, height, target_width=1200):
+        """捕获视口指定区域（用于区域选择功能）"""
+        try:
+            temp_path = os.path.join(mxs.getDir(mxs.name('temp')), "thumbnail_region_temp.jpg")
+            
+            # 捕获整个视口
+            bmp = mxs.gw.getViewportDib()
+            if not bmp:
+                return None
+            
+            # 保存临时文件
+            temp_full_path = os.path.join(mxs.getDir(mxs.name('temp')), "viewport_full_temp.jpg")
+            bmp.filename = temp_full_path
+            mxs.save(bmp, temp_full_path)
+            
+            # 加载图片并裁剪指定区域
+            if os.path.exists(temp_full_path):
+                full_image = QImage(temp_full_path)
+                if not full_image.isNull():
+                    # 计算裁剪区域（注意坐标系统可能不同）
+                    # Max视口的坐标原点在左上角
+                    crop_x = max(0, min(x, full_image.width() - 1))
+                    crop_y = max(0, min(y, full_image.height() - 1))
+                    crop_width = min(width, full_image.width() - crop_x)
+                    crop_height = min(height, full_image.height() - crop_y)
+                    
+                    # 裁剪区域
+                    cropped_image = full_image.copy(crop_x, crop_y, crop_width, crop_height)
+                    
+                    if not cropped_image.isNull():
+                        # 缩放到目标尺寸（保持宽高比）
+                        aspect_ratio = crop_width / float(crop_height) if crop_height > 0 else 1
+                        if aspect_ratio > 1:
+                            # 横向
+                            target_height = int(target_width / aspect_ratio)
+                        else:
+                            # 纵向
+                            target_height = target_width
+                            target_width = int(target_height * aspect_ratio) if aspect_ratio > 0 else target_height
+                        
+                        scaled_image = cropped_image.scaled(target_width, target_height,
+                                                           Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        
+                        # 转换为base64
+                        byte_array = QtCore.QByteArray()
+                        buffer = QBuffer(byte_array)
+                        buffer.open(QIODevice.WriteOnly)
+                        scaled_image.save(buffer, "JPEG", 95)
+                        buffer.close()
+                        
+                        thumbnail_base64 = base64.b64encode(byte_array.data()).decode()
+                        
+                        # 清理临时文件
+                        try:
+                            os.remove(temp_full_path)
+                        except:
+                            pass
+                        
+                        return thumbnail_base64
+            
+            # 清理
+            try:
+                mxs.close(bmp)
+            except:
+                pass
+                
+        except Exception as e:
+            print(f"捕获区域缩略图失败: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        return None
+    
+    def show_region_select_dialog(self, pose_name):
+        """显示区域选择对话框，让用户选择视口区域生成缩略图"""
+        if pose_name not in self.global_data:
+            return
+        
+        # 创建对话框
+        dialog = RegionSelectDialog(self, pose_name, self)
+        if dialog.exec_() == QDialog.Accepted:  # PySide2使用exec_()
+            # 用户确认了选择
+            thumbnail_base64 = dialog.get_selected_thumbnail()
+            if thumbnail_base64:
+                # 更新pose的缩略图
+                pose_data = self.global_data[pose_name]
+                pose_data["thumbnail"] = thumbnail_base64
+                
+                # 保存到文件
+                json_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+                with open(json_path, 'w', encoding='utf-8') as f:
+                    json.dump(pose_data, f, indent=2, ensure_ascii=False)
+                
+                # 清除缓存并刷新显示
+                self.clear_pose_thumbnail_cache(pose_name)
+                self.refresh_pose_display()
+                self.log(f"已更新缩略图: {pose_name} (区域选择)", "green")
+                try:
+                    self.status_bar.showMessage(f"已更新缩略图: {pose_name}")
+                except:
+                    pass
+    
+    def load_thumbnail_from_file(self, pose_name):
+        """从文件加载缩略图（用户手动选择）"""
+        if pose_name not in self.global_data:
+            return
+        
+        # 打开文件选择对话框
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "选择缩略图图片",
+            "",
+            "图片文件 (*.png *.jpg *.jpeg *.bmp);;所有文件 (*.*)"
+        )
+        
+        if not file_path:
+            return
+        
+        try:
+            # 读取图片文件
+            image = QImage(file_path)
+            if image.isNull():
+                QMessageBox.warning(self, "错误", "无法读取图片文件")
+                return
+            
+            # 缩放图片（保持宽高比，最大宽度800）
+            target_width = 800
+            original_width = image.width()
+            original_height = image.height()
+            aspect_ratio = original_width / float(original_height)
+            target_height = int(target_width / aspect_ratio)
+            
+            scaled_image = image.scaled(target_width, target_height,
+                                       Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            
+            # 转换为base64
+            byte_array = QtCore.QByteArray()
+            buffer = QBuffer(byte_array)
+            buffer.open(QIODevice.WriteOnly)
+            scaled_image.save(buffer, "JPEG", 90)  # 90% 质量
+            buffer.close()
+            
+            thumbnail_base64 = base64.b64encode(byte_array.data()).decode()
+            
+            # 更新数据
+            pose_data = self.global_data[pose_name]
+            pose_data["thumbnail"] = thumbnail_base64
+            
+            # 保存到文件
+            json_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(pose_data, f, indent=2, ensure_ascii=False)
+            
+            # 清除该pose的缩略图缓存
+            self.clear_pose_thumbnail_cache(pose_name)
+            
+            # 刷新显示
+            self.refresh_pose_display()
+            self.log(f"已更新缩略图: {pose_name} (来自文件)", "green")
+            try:
+                self.status_bar.showMessage(f"已更新缩略图: {pose_name}")
+            except:
+                pass
+                
+        except Exception as e:
+            QMessageBox.warning(self, "错误", f"加载图片失败: {e}")
+            self.log(f"加载图片失败: {e}", "red")
     
     def load_default_library(self):
         """加载默认库"""
@@ -1724,7 +2360,7 @@ class AnimLibraryDialog(QMainWindow):
         rename_action = menu.addAction("重命名")
         delete_action = menu.addAction("删除")
         
-        action = menu.exec(self.folder_tree.viewport().mapToGlobal(position))
+        action = menu.exec_(self.folder_tree.viewport().mapToGlobal(position))  # PySide2使用exec_()
         
         if action == new_action:
             self.create_subfolder(folder_path)
@@ -2129,7 +2765,7 @@ class AnimLibraryDialog(QMainWindow):
         delete_action = menu.addAction("删除标签")
         delete_action.triggered.connect(lambda: self.delete_tag(tag_name))
         
-        menu.exec(pos)
+        menu.exec_(pos)  # PySide2使用exec_()而不是exec()
     
     def edit_tag_name(self, old_tag_name):
         """编辑标签名称"""
@@ -2446,7 +3082,7 @@ class AnimLibraryDialog(QMainWindow):
             if len(trubled_nodes) > 0 and self.chk_enable_log.isChecked():
                 self.log(f"警告: 以下 {len(trubled_nodes)} 个对象没有父节点（局部变换将为None）: {', '.join(trubled_nodes[:5])}{'...' if len(trubled_nodes) > 5 else ''}", "orange")
             
-            # 添加标签和描述（可选）
+            # 添加标签和备注（可选）
             tags = self.save_tags_edit.text().strip()
             desc = self.save_desc_edit.text().strip()
             if tags:  # 只有在有内容时才保存
@@ -2539,7 +3175,7 @@ class AnimLibraryDialog(QMainWindow):
             mxs.escapeEnable = False
             
             try:
-                # 保留原有的标签和描述
+                # 保留原有的标签和备注
                 old_pose_data = self.global_data[pose_name]
                 old_tags = old_pose_data.get("tags", "")
                 old_desc = old_pose_data.get("description", "")
@@ -2609,13 +3245,13 @@ class AnimLibraryDialog(QMainWindow):
                     else:
                         pose_data["local_transform"].append(None)
                 
-                # 恢复标签和描述
+                # 恢复标签和备注
                 pose_data["tags"] = old_tags
                 pose_data["description"] = old_desc
                 
                 # 捕获新缩略图
                 self.log("正在捕获视口缩略图...", "yellow")
-                thumbnail = self.capture_viewport_thumbnail()
+                thumbnail = self.capture_viewport_thumbnail(target_width=1200, use_high_quality=True)
                 if thumbnail:
                     pose_data["thumbnail"] = thumbnail
                 else:
