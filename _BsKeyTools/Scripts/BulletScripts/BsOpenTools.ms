@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-11-23 01:41:13
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-10-23 20:17:49
+ * @LastEditTime: 2025-11-22 21:46:22
 * @Email: animator.bullet@foxmail.com
 */
 
@@ -438,6 +438,7 @@ rollout rolBsOpenTools "" width:580 height:400
 			for b in numSelbiped do 
 			(
 				biped.loadBipFile b.controller fBip #noRedraw
+				forceCompleteRedraw()
 			)
 		)
 	)
