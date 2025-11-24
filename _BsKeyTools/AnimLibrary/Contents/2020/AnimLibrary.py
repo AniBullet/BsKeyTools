@@ -2,10 +2,12 @@
 # 基于 Posture 代码改写，添加库管理功能
 
 import base64
+import io
 import json
 import math
 import os
 import shutil
+import sys
 import time
 import uuid
 import webbrowser
@@ -14,6 +16,23 @@ from io import BytesIO
 
 import pymxs
 from pymxs import runtime as mxs
+
+# Python 2/3 兼容的 JSON 写入函数
+def write_json_file(file_path, data, indent=2):
+    """Python 2/3 兼容的 JSON 写入"""
+    if sys.version_info[0] == 2:
+        # Python 2: 先转为字符串，再转为 unicode 写入
+        json_str = json.dumps(data, indent=indent, ensure_ascii=False)
+        with io.open(file_path, 'w', encoding='utf-8') as f:
+            # 如果是 str 类型，需要解码为 unicode
+            if isinstance(json_str, str):
+                f.write(json_str.decode('utf-8'))
+            else:
+                f.write(json_str)
+    else:
+        # Python 3: 直接写入
+        with io.open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=indent, ensure_ascii=False)
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtCore import QBuffer, QIODevice, QPoint, QRect, QSize, Qt
 from PySide2.QtGui import QColor, QIcon, QImage, QPainter, QPixmap, QTextOption
@@ -51,7 +70,38 @@ from PySide2.QtWidgets import (
     QWidget,
     QWidgetItem,
 )
-from qtmax import GetQMaxMainWindow
+# 获取 Max 主窗口的兼容方法
+try:
+    from qtmax import GetQMaxMainWindow
+except ImportError:
+    # 3ds Max 2020 的替代方案
+    def GetQMaxMainWindow():
+        """获取 3ds Max 主窗口（兼容方案）"""
+        try:
+            # 方法1：尝试使用 MaxPlus
+            try:
+                import MaxPlus
+                main_window = MaxPlus.GetQMaxMainWindow()
+                if main_window:
+                    return main_window
+            except:
+                pass
+            
+            # 方法2：使用 PySide2 查找主窗口
+            try:
+                from PySide2.QtWidgets import QApplication
+                app = QApplication.instance()
+                if app and isinstance(app, QApplication):
+                    for widget in app.topLevelWidgets():
+                        if widget.objectName() == 'QmaxMainWindow':
+                            return widget
+            except:
+                pass
+            
+            # 方法3：返回 None，让对话框独立显示
+            return None
+        except:
+            return None
 
 
 # RBF混合系统
@@ -136,7 +186,7 @@ class RBFBlender:
             return blended_pos, blended_rot, blended_scale
         except Exception as e:
             # 如果RBF失败，回退到简单插值
-            print(f"RBF混合失败，使用简单插值: {e}")
+            print("RBF混合失败，使用简单插值: {}".format(e))
             import traceback
             traceback.print_exc()
             
@@ -158,7 +208,7 @@ class RBFBlender:
 # 流式布局类（支持自动换行）
 class FlowLayout(QLayout):
     def __init__(self, parent=None, margin=0, spacing=-1):
-        super().__init__(parent)
+        QLayout.__init__(self, parent)
         if parent is not None:
             self.setContentsMargins(margin, margin, margin, margin)
         self.setSpacing(spacing)
@@ -196,7 +246,7 @@ class FlowLayout(QLayout):
         return height
 
     def setGeometry(self, rect):
-        super().setGeometry(rect)
+        QLayout.setGeometry(self, rect)
         self._do_layout(rect, False)
 
     def sizeHint(self):
@@ -241,7 +291,7 @@ class RegionSelectLabel(QLabel):
     selection_changed = QtCore.Signal(int, int, int, int)  # x, y, width, height
     
     def __init__(self, parent=None):
-        super().__init__(parent)
+        QLabel.__init__(self, parent)
         self.selection_start = None
         self.selection_end = None
         self.original_pixmap = None
@@ -435,7 +485,7 @@ class RegionSelectLabel(QLabel):
     
     def resizeEvent(self, event):
         """大小改变时更新显示"""
-        super().resizeEvent(event)
+        QLabel.resizeEvent(self, event)
         self.updateDisplay()
     
     def clearSelection(self):
@@ -449,13 +499,13 @@ class RegionSelectLabel(QLabel):
 class RegionSelectDialog(QDialog):
     """区域选择对话框"""
     def __init__(self, parent, pose_name, main_window):
-        super().__init__(parent)
+        QDialog.__init__(self, parent)
         self.pose_name = pose_name
         self.main_window = main_window
         self.selected_region = None  # (x, y, width, height)
         self.selected_thumbnail = None  # base64字符串
         
-        self.setWindowTitle(f"选择区域生成缩略图 - {pose_name}")
+        self.setWindowTitle("选择区域生成缩略图 - {}".format(pose_name))
         self.setMinimumSize(800, 600)
         
         layout = QVBoxLayout()
@@ -534,7 +584,7 @@ class RegionSelectDialog(QDialog):
                 pass
                 
         except Exception as e:
-            QMessageBox.warning(self, "错误", f"刷新预览失败: {e}")
+            QMessageBox.warning(self, "错误", "刷新预览失败: {}".format(e))
     
     def adjust_window_to_aspect_ratio(self, pixmap):
         """根据预览图的长宽比调整窗口大小"""
@@ -585,7 +635,7 @@ class RegionSelectDialog(QDialog):
             self.resize(new_window_width, new_window_height)
             
         except Exception as e:
-            print(f"调整窗口大小失败: {e}")
+            print("调整窗口大小失败: {}".format(e))
     
     def on_region_selected(self, x, y, width, height):
         """区域选择完成"""
@@ -599,7 +649,7 @@ class RegionSelectDialog(QDialog):
             if thumbnail:
                 self.selected_thumbnail = thumbnail
         except Exception as e:
-            print(f"预览选择区域失败: {e}")
+            print("预览选择区域失败: {}".format(e))
     
     def clear_selection(self):
         """清除选择"""
@@ -622,20 +672,25 @@ class RegionSelectDialog(QDialog):
 
 class AnimLibraryDialog(QMainWindow):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        QMainWindow.__init__(self, parent)
         self.setWindowFlags(QtCore.Qt.Window)  # PySide2使用QtCore.Qt.Window而不是QtCore.Qt.WindowType.Window
         
         # 设置全局字体，放大一点
-        app = QApplication.instance()
-        if app:
-            from PySide2.QtGui import QFont
-            font = app.font()
-            current_size = font.pointSize()
-            if current_size > 0:
-                font.setPointSize(current_size + 2)  # 增加2pt
-            else:
-                font.setPointSize(10)  # 如果获取不到就设为10pt
-            self.setFont(font)
+        try:
+            app = QApplication.instance()
+            # 确保是 QApplication 实例，而不是 QCoreApplication
+            if app and isinstance(app, QApplication):
+                from PySide2.QtGui import QFont
+                font = app.font()
+                current_size = font.pointSize()
+                if current_size > 0:
+                    font.setPointSize(current_size + 2)  # 增加2pt
+                else:
+                    font.setPointSize(10)  # 如果获取不到就设为10pt
+                self.setFont(font)
+        except:
+            # 如果设置字体失败，忽略错误继续执行
+            pass
         
         # 初始化变量
         self.library_path = ""  # 库路径（根目录）
@@ -1094,7 +1149,7 @@ class AnimLibraryDialog(QMainWindow):
         
         try:
             if config_exists:
-                with open(self.config_file, 'r', encoding='utf-8') as f:
+                with io.open(self.config_file, 'r', encoding='utf-8') as f:
                     config = json.load(f)
                 
                 # 恢复窗口大小
@@ -1152,7 +1207,7 @@ class AnimLibraryDialog(QMainWindow):
                 self.splitter.setSizes([150, 500, 160])
                 self.save_config()
         except Exception as e:
-            self.log(f"加载配置失败: {e}", "orange")
+            self.log("加载配置失败: {}".format(e), "orange")
             # 加载失败也保存一个新的配置
             # 强制设置默认splitter大小
             self.splitter.setSizes([150, 500, 160])
@@ -1175,10 +1230,10 @@ class AnimLibraryDialog(QMainWindow):
                 'enable_log': self.chk_enable_log.isChecked()  # 保存日志开关设置
             }
             
-            with open(self.config_file, 'w', encoding='utf-8') as f:
-                json.dump(config, f, indent=2)
+            # 使用兼容函数写入 JSON
+            write_json_file(self.config_file, config)
         except Exception as e:
-            print(f"保存配置失败: {e}")
+            print("保存配置失败: {}".format(e))
     
     def closeEvent(self, event):
         """窗口关闭事件"""
@@ -1210,7 +1265,7 @@ class AnimLibraryDialog(QMainWindow):
     
     def resizeEvent(self, event):
         """窗口大小改变事件"""
-        super().resizeEvent(event)
+        QMainWindow.resizeEvent(self, event)
         # 延迟保存，避免拖动时频繁保存
         if hasattr(self, '_resize_timer'):
             self._resize_timer.stop()
@@ -1223,7 +1278,7 @@ class AnimLibraryDialog(QMainWindow):
     
     def moveEvent(self, event):
         """窗口移动事件"""
-        super().moveEvent(event)
+        QMainWindow.moveEvent(self, event)
         # 延迟保存
         if hasattr(self, '_move_timer'):
             self._move_timer.stop()
@@ -1253,7 +1308,7 @@ class AnimLibraryDialog(QMainWindow):
         """添加日志"""
         # 只有启用日志时才输出
         if hasattr(self, 'chk_enable_log') and self.chk_enable_log.isChecked():
-            self.log_text.append(f'<span style="color:{color}">{message}</span>')
+            self.log_text.append('<span style="color:{}">{}</span>'.format(color, message))
     
     def toggle_log(self):
         """切换日志显示/隐藏"""
@@ -1311,7 +1366,7 @@ class AnimLibraryDialog(QMainWindow):
         if "thumbnail" in pose_data and pose_data["thumbnail"]:
             try:
                 # 检查缓存
-                cache_key = f"{pose_name}_{thumb_width}x{thumb_height}"
+                cache_key = "{}_{}x{}".format(pose_name, thumb_width, thumb_height)
                 if cache_key in self._thumbnail_cache:
                     scaled_pixmap = self._thumbnail_cache[cache_key]
                 else:
@@ -1530,9 +1585,9 @@ class AnimLibraryDialog(QMainWindow):
         self.update_detail_panel()
         
         if len(self.selected_poses) > 1:
-            self.log(f"已选中 {len(self.selected_poses)} 个姿势", "blue")
+            self.log("已选中 {} 个姿势".format(len(self.selected_poses)), "blue")
         elif self.selected_poses:
-            self.log(f"选中: {pose_name}", "blue")
+            self.log("选中: {}".format(pose_name), "blue")
     
     def find_card_by_pose_name(self, pose_name):
         """根据pose名称找到对应的卡片widget"""
@@ -1553,7 +1608,7 @@ class AnimLibraryDialog(QMainWindow):
         # 查找并删除所有与该pose相关的缓存
         keys_to_delete = []
         for key in self._thumbnail_cache.keys():
-            if key.startswith(f"{pose_name}_"):
+            if key.startswith("{}_".format(pose_name)):
                 keys_to_delete.append(key)
         
         for key in keys_to_delete:
@@ -1576,7 +1631,7 @@ class AnimLibraryDialog(QMainWindow):
                 pose_data = self.global_data[pose_name]
                 
                 # 显示名称
-                self.detail_name_label.setText(f"名称: {pose_name}")
+                self.detail_name_label.setText("名称: {}".format(pose_name))
                 
                 # 显示标签
                 tags = pose_data.get("tags", "")
@@ -1587,7 +1642,7 @@ class AnimLibraryDialog(QMainWindow):
                 
                 # 显示修改时间
                 try:
-                    file_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+                    file_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
                     if os.path.exists(file_path):
                         mtime = os.path.getmtime(file_path)
                         time_str = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S")
@@ -1605,7 +1660,7 @@ class AnimLibraryDialog(QMainWindow):
                     self.detail_desc_label.setText("(无)")
         else:
             # 多选：显示所有选中项的标签合集
-            self.detail_name_label.setText(f"已选中 {len(self.selected_poses)} 项")
+            self.detail_name_label.setText("已选中 {} 项".format(len(self.selected_poses)))
             
             # 收集所有标签
             all_tags = set()
@@ -1624,7 +1679,7 @@ class AnimLibraryDialog(QMainWindow):
             # 多选时不显示修改时间
             self.detail_time_label.setText("(多选模式)")
             
-            self.detail_desc_label.setText(f"多选模式 ({len(self.selected_poses)} 项)")
+            self.detail_desc_label.setText("多选模式 ({} 项)".format(len(self.selected_poses)))
     
     def on_pose_card_double_clicked(self, pose_name):
         """姿势卡片双击事件 - 直接加载"""
@@ -1683,13 +1738,13 @@ class AnimLibraryDialog(QMainWindow):
         
         # 创建一个对话框显示节点列表
         dialog = QDialog(self)
-        dialog.setWindowTitle(f"节点列表 - {pose_name}")
+        dialog.setWindowTitle("节点列表 - {}".format(pose_name))
         dialog.resize(400, 500)
         
         layout = QVBoxLayout(dialog)
         
         # 添加说明标签
-        info_label = QLabel(f"该姿势包含 {len(node_names)} 个节点:")
+        info_label = QLabel("该姿势包含 {} 个节点:".format(len(node_names)))
         layout.addWidget(info_label)
         
         # 创建列表显示
@@ -1697,7 +1752,7 @@ class AnimLibraryDialog(QMainWindow):
         for i, name in enumerate(node_names):
             # 显示节点名称和UUID（用于调试）
             uuid = node_ids[i] if i < len(node_ids) else "N/A"
-            list_widget.addItem(f"{i+1}. {name} (UUID: {uuid[:8]}...)")
+            list_widget.addItem("{}. {} (UUID: {}...)".format(i+1, name, uuid[:8]))
         
         layout.addWidget(list_widget)
         
@@ -1742,8 +1797,8 @@ class AnimLibraryDialog(QMainWindow):
             for node in nodes_to_select:
                 mxs.selectMore(node)
             
-            self.log(f"已选择 {len(nodes_to_select)}/{len(node_ids)} 个节点", "green")
-            QMessageBox.information(self, "成功", f"已选择 {len(nodes_to_select)}/{len(node_ids)} 个节点")
+            self.log("已选择 {}/{} 个节点".format(len(nodes_to_select), len(node_ids)), "green")
+            QMessageBox.information(self, "成功", "已选择 {}/{} 个节点".format(len(nodes_to_select), len(node_ids)))
             
             if dialog:
                 dialog.close()
@@ -1767,17 +1822,16 @@ class AnimLibraryDialog(QMainWindow):
             pose_data["tags"] = new_tags
             
             # 保存到文件
-            file_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+            file_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
             try:
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    json.dump(pose_data, f, indent=2, ensure_ascii=False)
-                self.log(f"已更新标签: {pose_name}", "green")
+                write_json_file(file_path, pose_data)
+                self.log("已更新标签: {}".format(pose_name), "green")
                 
                 # 如果该pose在当前选中的poses中，更新详情显示
                 if pose_name in self.selected_poses:
                     self.update_detail_panel()
             except Exception as e:
-                self.log(f"保存失败: {e}", "red")
+                self.log("保存失败: {}".format(e), "red")
     
     def edit_pose_description(self, pose_name):
         """编辑姿势备注"""
@@ -1796,17 +1850,16 @@ class AnimLibraryDialog(QMainWindow):
             pose_data["description"] = new_desc
             
             # 保存到文件
-            file_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+            file_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
             try:
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    json.dump(pose_data, f, indent=2, ensure_ascii=False)
-                self.log(f"已更新备注: {pose_name}", "green")
+                write_json_file(file_path, pose_data)
+                self.log("已更新备注: {}".format(pose_name), "green")
                 
                 # 如果该pose在当前选中的poses中，更新详情显示
                 if pose_name in self.selected_poses:
                     self.update_detail_panel()
             except Exception as e:
-                self.log(f"保存失败: {e}", "red")
+                self.log("保存失败: {}".format(e), "red")
     
     def update_pose_thumbnail(self, pose_name):
         """更新姿势缩略图（使用更高分辨率）"""
@@ -1823,25 +1876,24 @@ class AnimLibraryDialog(QMainWindow):
             pose_data["thumbnail"] = thumbnail
             
             # 保存到文件
-            file_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+            file_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
             try:
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    json.dump(pose_data, f, indent=2, ensure_ascii=False)
+                write_json_file(file_path, pose_data)
                 
                 # 清除该pose的缩略图缓存
                 self.clear_pose_thumbnail_cache(pose_name)
                 
                 # 刷新显示
                 self.refresh_pose_display()
-                self.log(f"已更新缩略图: {pose_name}", "green")
+                self.log("已更新缩略图: {}".format(pose_name), "green")
                 
                 try:
-                    self.status_bar.showMessage(f"已更新缩略图: {pose_name}")
+                    self.status_bar.showMessage("已更新缩略图: {}".format(pose_name))
                 except:
                     pass
             except Exception as e:
-                self.log(f"保存失败: {e}", "red")
-                QMessageBox.warning(self, "错误", f"保存失败: {e}")
+                self.log("保存失败: {}".format(e), "red")
+                QMessageBox.warning(self, "错误", "保存失败: {}".format(e))
         else:
             self.log("缩略图捕获失败", "red")
             QMessageBox.warning(self, "错误", "缩略图捕获失败，请确保视口中有内容")
@@ -1854,7 +1906,7 @@ class AnimLibraryDialog(QMainWindow):
         # 弹出确认对话框
         reply = QMessageBox.question(
             self, "确认覆盖", 
-            f"确定要用当前选中的对象覆盖姿势 '{pose_name}' 吗？\n此操作不可恢复！",
+            "确定要用当前选中的对象覆盖姿势 '{}' 吗？\n此操作不可恢复！".format(pose_name),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -1867,17 +1919,17 @@ class AnimLibraryDialog(QMainWindow):
                 return
             
             # 显示将要覆盖保存的节点信息
-            self.log(f"准备覆盖保存 {len(nodes)} 个节点:", "yellow")
+            self.log("准备覆盖保存 {} 个节点:".format(len(nodes)), "yellow")
             if self.chk_enable_log.isChecked():
                 for i, node in enumerate(nodes[:20]):
                     try:
                         node_type = str(mxs.classof(node))
                         node_handle = mxs.getHandleByAnim(node)
-                        self.log(f"  [{i+1}] {node.name} (类型:{node_type}, handle:{node_handle})", "gray")
+                        self.log("  [{}] {} (类型:{}, handle:{})".format(i+1, node.name, node_type, node_handle), "gray")
                     except:
-                        self.log(f"  [{i+1}] {node.name}", "gray")
+                        self.log("  [{}] {}".format(i+1, node.name), "gray")
                 if len(nodes) > 20:
-                    self.log(f"  ... 还有 {len(nodes)-20} 个节点", "gray")
+                    self.log("  ... 还有 {} 个节点".format(len(nodes)-20), "gray")
             
             mxs.escapeEnable = False
             
@@ -1965,9 +2017,8 @@ class AnimLibraryDialog(QMainWindow):
                     pose_data["thumbnail"] = ""
                 
                 # 保存到文件
-                save_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
-                with open(save_path, 'w', encoding='utf-8') as f:
-                    json.dump(pose_data, f, indent=2, ensure_ascii=False)
+                save_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
+                write_json_file(save_path, pose_data)
                 
                 # 更新显示
                 self.global_data[pose_name] = pose_data
@@ -1981,15 +2032,15 @@ class AnimLibraryDialog(QMainWindow):
                 if pose_name in self.selected_poses:
                     self.update_detail_panel()
                 
-                self.log(f"已覆盖姿势: {pose_name}", "green")
+                self.log("已覆盖姿势: {}".format(pose_name), "green")
                 try:
-                    self.status_bar.showMessage(f"已覆盖: {pose_name}")
+                    self.status_bar.showMessage("已覆盖: {}".format(pose_name))
                 except:
                     pass
                 
             except Exception as e:
-                self.log(f"覆盖失败: {str(e)}", "red")
-                QMessageBox.critical(self, "错误", f"覆盖失败: {str(e)}")
+                self.log("覆盖失败: {}".format(str(e)), "red")
+                QMessageBox.critical(self, "错误", "覆盖失败: {}".format(str(e)))
             finally:
                 mxs.escapeEnable = True
     
@@ -2070,7 +2121,7 @@ class AnimLibraryDialog(QMainWindow):
                     
                     return thumbnail_base64
         except Exception as e:
-            print(f"捕获缩略图失败: {e}")
+            print("捕获缩略图失败: {}".format(e))
             import traceback
             traceback.print_exc()
         
@@ -2143,7 +2194,7 @@ class AnimLibraryDialog(QMainWindow):
                 pass
                 
         except Exception as e:
-            print(f"捕获区域缩略图失败: {e}")
+            print("捕获区域缩略图失败: {}".format(e))
             import traceback
             traceback.print_exc()
         
@@ -2165,16 +2216,15 @@ class AnimLibraryDialog(QMainWindow):
                 pose_data["thumbnail"] = thumbnail_base64
                 
                 # 保存到文件
-                json_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
-                with open(json_path, 'w', encoding='utf-8') as f:
-                    json.dump(pose_data, f, indent=2, ensure_ascii=False)
+                json_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
+                write_json_file(json_path, pose_data)
                 
                 # 清除缓存并刷新显示
                 self.clear_pose_thumbnail_cache(pose_name)
                 self.refresh_pose_display()
-                self.log(f"已更新缩略图: {pose_name} (区域选择)", "green")
+                self.log("已更新缩略图: {} (区域选择)".format(pose_name), "green")
                 try:
-                    self.status_bar.showMessage(f"已更新缩略图: {pose_name}")
+                    self.status_bar.showMessage("已更新缩略图: {}".format(pose_name))
                 except:
                     pass
     
@@ -2225,24 +2275,23 @@ class AnimLibraryDialog(QMainWindow):
             pose_data["thumbnail"] = thumbnail_base64
             
             # 保存到文件
-            json_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
-            with open(json_path, 'w', encoding='utf-8') as f:
-                json.dump(pose_data, f, indent=2, ensure_ascii=False)
+            json_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
+            write_json_file(json_path, pose_data)
             
             # 清除该pose的缩略图缓存
             self.clear_pose_thumbnail_cache(pose_name)
             
             # 刷新显示
             self.refresh_pose_display()
-            self.log(f"已更新缩略图: {pose_name} (来自文件)", "green")
+            self.log("已更新缩略图: {} (来自文件)".format(pose_name), "green")
             try:
-                self.status_bar.showMessage(f"已更新缩略图: {pose_name}")
+                self.status_bar.showMessage("已更新缩略图: {}".format(pose_name))
             except:
                 pass
                 
         except Exception as e:
-            QMessageBox.warning(self, "错误", f"加载图片失败: {e}")
-            self.log(f"加载图片失败: {e}", "red")
+            QMessageBox.warning(self, "错误", "加载图片失败: {}".format(e))
+            self.log("加载图片失败: {}".format(e), "red")
     
     def load_default_library(self):
         """加载默认库"""
@@ -2269,7 +2318,7 @@ class AnimLibraryDialog(QMainWindow):
             self.refresh_folder_tree()
             self.load_poses_from_folder(path)
             self.save_config()  # 保存配置
-            self.log(f"加载库: {path}")
+            self.log("加载库: {}".format(path))
     
     def show_settings_dialog(self):
         """显示设置对话框"""
@@ -2341,7 +2390,7 @@ class AnimLibraryDialog(QMainWindow):
                 QMessageBox.warning(
                     parent_dialog if parent_dialog else self,
                     "错误",
-                    f"无法打开浏览器：{str(e)}"
+                    "无法打开浏览器：{}".format(str(e))
                 )
     
     def show_folder_context_menu(self, position):
@@ -2377,10 +2426,10 @@ class AnimLibraryDialog(QMainWindow):
             try:
                 os.makedirs(new_path, exist_ok=True)
                 self.refresh_folder_tree()
-                self.log(f"创建文件夹: {folder_name}", "green")
+                self.log("创建文件夹: {}".format(folder_name), "green")
             except Exception as e:
-                QMessageBox.warning(self, "错误", f"创建文件夹失败: {e}")
-                self.log(f"创建文件夹失败: {e}", "red")
+                QMessageBox.warning(self, "错误", "创建文件夹失败: {}".format(e))
+                self.log("创建文件夹失败: {}".format(e), "red")
     
     def rename_folder(self, item, folder_path):
         """重命名文件夹"""
@@ -2394,7 +2443,7 @@ class AnimLibraryDialog(QMainWindow):
             try:
                 os.rename(folder_path, new_path)
                 self.refresh_folder_tree()
-                self.log(f"重命名文件夹: {old_name} -> {new_name}", "green")
+                self.log("重命名文件夹: {} -> {}".format(old_name, new_name), "green")
                 
                 # 如果重命名的是当前选中的文件夹，更新路径
                 if self.current_folder_path == folder_path:
@@ -2402,8 +2451,8 @@ class AnimLibraryDialog(QMainWindow):
                     self.path_edit.setText(new_path)
                     self.save_config()
             except Exception as e:
-                QMessageBox.warning(self, "错误", f"重命名失败: {e}")
-                self.log(f"重命名失败: {e}", "red")
+                QMessageBox.warning(self, "错误", "重命名失败: {}".format(e))
+                self.log("重命名失败: {}".format(e), "red")
     
     def delete_folder(self, item, folder_path):
         """删除文件夹"""
@@ -2412,7 +2461,7 @@ class AnimLibraryDialog(QMainWindow):
         # 弹出确认对话框
         reply = QMessageBox.question(
             self, "确认删除", 
-            f"确定要删除文件夹 '{folder_name}' 及其所有内容吗？\n此操作不可恢复！",
+            "确定要删除文件夹 '{}' 及其所有内容吗？\n此操作不可恢复！".format(folder_name),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -2421,7 +2470,7 @@ class AnimLibraryDialog(QMainWindow):
             try:
                 shutil.rmtree(folder_path)
                 self.refresh_folder_tree()
-                self.log(f"已删除文件夹: {folder_name}", "green")
+                self.log("已删除文件夹: {}".format(folder_name), "green")
                 
                 # 如果删除的是当前文件夹，清空显示
                 if self.current_folder_path == folder_path or self.current_folder_path.startswith(folder_path + os.sep):
@@ -2430,8 +2479,8 @@ class AnimLibraryDialog(QMainWindow):
                     self.load_poses_from_folder(self.current_folder_path)
                     self.save_config()
             except Exception as e:
-                QMessageBox.warning(self, "错误", f"删除文件夹失败: {e}")
-                self.log(f"删除失败: {e}", "red")
+                QMessageBox.warning(self, "错误", "删除文件夹失败: {}".format(e))
+                self.log("删除失败: {}".format(e), "red")
     
     def new_folder(self):
         """新建文件夹（从工具栏按钮调用）"""
@@ -2505,7 +2554,7 @@ class AnimLibraryDialog(QMainWindow):
             if file.endswith('.json') and file.lower() not in ['config.json', 'bsanimlibconfig.json']:
                 file_path = os.path.join(folder_path, file)
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
+                    with io.open(file_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
                     pose_name = os.path.splitext(file)[0]
                     self.global_data[pose_name] = data
@@ -2516,7 +2565,7 @@ class AnimLibraryDialog(QMainWindow):
         self.refresh_pose_display()
         
         try:
-            self.status_bar.showMessage(f"已加载 {len(self.global_data)} 个姿势")
+            self.status_bar.showMessage("已加载 {} 个姿势".format(len(self.global_data)))
         except:
             pass
     
@@ -2643,10 +2692,10 @@ class AnimLibraryDialog(QMainWindow):
             # 根据背景颜色自动选择文字颜色
             text_color = self.get_contrast_color(tag["color"])
             
-            btn.setStyleSheet(f"""
+            btn.setStyleSheet("""
                 QPushButton {{
-                    background-color: {tag["color"]};
-                    color: {text_color};
+                    background-color: {};
+                    color: {};
                     border: 2px solid transparent;
                     border-radius: 3px;
                     padding: 2px 12px;
@@ -2657,10 +2706,10 @@ class AnimLibraryDialog(QMainWindow):
                     border: 2px solid palette(highlight);
                 }}
                 QPushButton:checked {{
-                    border: 3px solid {text_color};
+                    border: 3px solid {};
                     padding: 1px 11px;
                 }}
-            """)
+            """.format(tag["color"], text_color, text_color))
             btn.setCheckable(True)
             btn.setChecked(self.active_filter_tag == tag["name"])
             
@@ -2703,7 +2752,7 @@ class AnimLibraryDialog(QMainWindow):
             name = name.strip()
             # 检查是否已存在
             if any(tag["name"] == name for tag in self.filter_tags):
-                QMessageBox.warning(self, "警告", f"标签 '{name}' 已存在")
+                QMessageBox.warning(self, "警告", "标签 '{}' 已存在".format(name))
                 return
             
             # 选择颜色
@@ -2712,7 +2761,7 @@ class AnimLibraryDialog(QMainWindow):
                 self.filter_tags.append({"name": name, "color": color.name()})
                 self.refresh_tag_buttons()
                 self.save_config()
-                self.log(f"已添加标签: {name}")
+                self.log("已添加标签: {}".format(name))
     
     def on_tag_button_clicked(self, tag_name, checked):
         """标签按钮点击"""
@@ -2725,7 +2774,7 @@ class AnimLibraryDialog(QMainWindow):
                 if btn and btn.text() != tag_name:
                     btn.setChecked(False)
             # 显示筛选横幅
-            self.filter_banner.setText(f"🔍 正在筛选: {tag_name}  (点击此处取消)")
+            self.filter_banner.setText("🔍 正在筛选: {}  (点击此处取消)".format(tag_name))
             self.filter_banner.setVisible(True)
         else:
             # 取消筛选
@@ -2734,7 +2783,7 @@ class AnimLibraryDialog(QMainWindow):
             self.filter_banner.setVisible(False)
         
         self.refresh_pose_display()
-        self.log(f"筛选标签: {tag_name if checked else '全部'}")
+        self.log("筛选标签: {}".format(tag_name if checked else '全部'))
     
     def clear_filter(self):
         """清除筛选（点击横幅时调用）"""
@@ -2777,14 +2826,14 @@ class AnimLibraryDialog(QMainWindow):
         # 输入新名称
         new_name, ok = QInputDialog.getText(
             self, "修改标签名称", 
-            f"修改标签 '{old_tag_name}' 的名称:",
+            "修改标签 '{}' 的名称:".format(old_tag_name),
             text=old_tag_name
         )
         
         if ok and new_name and new_name != old_tag_name:
             # 检查新名称是否已存在
             if any(t["name"] == new_name for t in self.filter_tags):
-                QMessageBox.warning(self, "警告", f"标签 '{new_name}' 已存在！")
+                QMessageBox.warning(self, "警告", "标签 '{}' 已存在！".format(new_name))
                 return
             
             # 更新标签名称
@@ -2796,7 +2845,7 @@ class AnimLibraryDialog(QMainWindow):
             
             self.refresh_tag_buttons()
             self.save_config()
-            self.log(f"已修改标签名称: {old_tag_name} → {new_name}", "green")
+            self.log("已修改标签名称: {} → {}".format(old_tag_name, new_name), "green")
     
     def edit_tag_color(self, tag_name):
         """编辑标签颜色"""
@@ -2807,18 +2856,18 @@ class AnimLibraryDialog(QMainWindow):
         
         # 选择新颜色
         current_color = QColor(tag["color"])
-        color = QColorDialog.getColor(current_color, self, f"修改 '{tag_name}' 的颜色")
+        color = QColorDialog.getColor(current_color, self, "修改 '{}' 的颜色".format(tag_name))
         if color.isValid():
             tag["color"] = color.name()
             self.refresh_tag_buttons()
             self.save_config()
-            self.log(f"已修改标签颜色: {tag_name}")
+            self.log("已修改标签颜色: {}".format(tag_name))
     
     def delete_tag(self, tag_name):
         """删除标签"""
         reply = QMessageBox.question(
             self, "确认删除",
-            f"确定要删除标签 '{tag_name}' 吗？",
+            "确定要删除标签 '{}' 吗？".format(tag_name),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -2830,7 +2879,7 @@ class AnimLibraryDialog(QMainWindow):
             self.refresh_tag_buttons()
             self.refresh_pose_display()
             self.save_config()
-            self.log(f"已删除标签: {tag_name}")
+            self.log("已删除标签: {}".format(tag_name))
     
     def refresh_pose_display(self):
         """刷新姿势显示"""
@@ -2841,7 +2890,12 @@ class AnimLibraryDialog(QMainWindow):
                 widget.deleteLater()
         
         # 处理Qt事件队列，确保deleteLater生效
-        QApplication.processEvents()
+        try:
+            app = QApplication.instance()
+            if app and isinstance(app, QApplication):
+                app.processEvents()
+        except:
+            pass
         
         # 清空显示顺序列表
         self.displayed_poses_order = []
@@ -2875,7 +2929,7 @@ class AnimLibraryDialog(QMainWindow):
             # 按修改时间排序（最新的在前）
             def time_sort_key(item):
                 pose_name, pose_data = item
-                json_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+                json_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
                 if os.path.exists(json_path):
                     return -os.path.getmtime(json_path)  # 负数让最新的排前面
                 return 0
@@ -2899,7 +2953,7 @@ class AnimLibraryDialog(QMainWindow):
                     continue
             
             # 创建卡片
-            file_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+            file_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
             card = self.create_pose_card(pose_name, pose_data, file_path)
             self.grid_layout.addWidget(card, row, col)
             
@@ -2916,9 +2970,9 @@ class AnimLibraryDialog(QMainWindow):
         try:
             total_count = len(self.global_data)
             if displayed_count == total_count:
-                self.status_bar.showMessage(f"共 {total_count} 个姿势")
+                self.status_bar.showMessage("共 {} 个姿势".format(total_count))
             else:
-                self.status_bar.showMessage(f"显示 {displayed_count} 个姿势（共 {total_count} 个）")
+                self.status_bar.showMessage("显示 {} 个姿势（共 {} 个）".format(displayed_count, total_count))
         except:
             pass
     
@@ -2963,7 +3017,7 @@ class AnimLibraryDialog(QMainWindow):
             return "TempPose_1"
         else:
             next_number = max(existing_numbers) + 1
-            return f"TempPose_{next_number}"
+            return "TempPose_{}".format(next_number)
     
     def save_pose(self):
         """保存姿势（使用 Posture 的逻辑）"""
@@ -2975,11 +3029,11 @@ class AnimLibraryDialog(QMainWindow):
             self.save_name_edit.setText(pose_name)  # 更新输入框显示
         
         # 检查是否已存在同名pose
-        save_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+        save_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
         if os.path.exists(save_path):
             reply = QMessageBox.question(
                 self, "确认覆盖", 
-                f"姿势 '{pose_name}' 已存在，是否覆盖？",
+                "姿势 '{}' 已存在，是否覆盖？".format(pose_name),
                 QMessageBox.Yes | QMessageBox.No,
                 QMessageBox.No
             )
@@ -2993,18 +3047,18 @@ class AnimLibraryDialog(QMainWindow):
             return
         
         # 显示将要保存的节点信息（详细列出所有节点）
-        self.log(f"准备保存 {len(nodes)} 个节点:", "yellow")
+        self.log("准备保存 {} 个节点:".format(len(nodes)), "yellow")
         # 列出所有节点，显示类型和handle确认唯一性
         if self.chk_enable_log.isChecked():
             for i, node in enumerate(nodes[:20]):  # 显示前20个
                 try:
                     node_type = str(mxs.classof(node))
                     node_handle = mxs.getHandleByAnim(node)
-                    self.log(f"  [{i+1}] {node.name} (类型:{node_type}, handle:{node_handle})", "gray")
+                    self.log("  [{}] {} (类型:{}, handle:{})".format(i+1, node.name, node_type, node_handle), "gray")
                 except:
-                    self.log(f"  [{i+1}] {node.name}", "gray")
+                    self.log("  [{}] {}".format(i+1, node.name), "gray")
             if len(nodes) > 20:
-                self.log(f"  ... 还有 {len(nodes)-20} 个节点", "gray")
+                self.log("  ... 还有 {} 个节点".format(len(nodes)-20), "gray")
         
         mxs.escapeEnable = False
         
@@ -3080,7 +3134,7 @@ class AnimLibraryDialog(QMainWindow):
             
             # 如果有节点没有父节点，记录日志
             if len(trubled_nodes) > 0 and self.chk_enable_log.isChecked():
-                self.log(f"警告: 以下 {len(trubled_nodes)} 个对象没有父节点（局部变换将为None）: {', '.join(trubled_nodes[:5])}{'...' if len(trubled_nodes) > 5 else ''}", "orange")
+                self.log("警告: 以下 {} 个对象没有父节点（局部变换将为None）: {}{}".format(len(trubled_nodes), ', '.join(trubled_nodes[:5]), '...' if len(trubled_nodes) > 5 else ''), "orange")
             
             # 添加标签和备注（可选）
             tags = self.save_tags_edit.text().strip()
@@ -3106,9 +3160,8 @@ class AnimLibraryDialog(QMainWindow):
                 self.log("缩略图捕获失败，将保存为无预览", "orange")
             
             # 保存到文件
-            save_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
-            with open(save_path, 'w', encoding='utf-8') as f:
-                json.dump(pose_data, f, indent=2, ensure_ascii=False)
+            save_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
+            write_json_file(save_path, pose_data)
             
             # 更新显示
             self.global_data[pose_name] = pose_data
@@ -3119,7 +3172,7 @@ class AnimLibraryDialog(QMainWindow):
             self.save_desc_edit.clear()
             
             # 显示保存成功消息
-            success_msg = f"✓ 已保存姿势 '{pose_name}' (包含 {len(nodes)} 个节点)"
+            success_msg = "✓ 已保存姿势 '{}' (包含 {} 个节点)".format(pose_name, len(nodes))
             self.log(success_msg, "green")
             try:
                 self.status_bar.showMessage(success_msg)
@@ -3127,8 +3180,8 @@ class AnimLibraryDialog(QMainWindow):
                 pass
             
         except Exception as e:
-            self.log(f"保存失败: {str(e)}", "red")
-            QMessageBox.critical(self, "错误", f"保存失败: {str(e)}")
+            self.log("保存失败: {}".format(str(e)), "red")
+            QMessageBox.critical(self, "错误", "保存失败: {}".format(str(e)))
         finally:
             mxs.escapeEnable = True
     
@@ -3147,7 +3200,7 @@ class AnimLibraryDialog(QMainWindow):
         # 弹出确认对话框
         reply = QMessageBox.question(
             self, "确认覆盖", 
-            f"确定要用当前选中的对象覆盖姿势 '{pose_name}' 吗？\n此操作不可恢复！",
+            "确定要用当前选中的对象覆盖姿势 '{}' 吗？\n此操作不可恢复！".format(pose_name),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -3160,17 +3213,17 @@ class AnimLibraryDialog(QMainWindow):
                 return
             
             # 显示将要覆盖保存的节点信息
-            self.log(f"准备覆盖保存 {len(nodes)} 个节点:", "yellow")
+            self.log("准备覆盖保存 {} 个节点:".format(len(nodes)), "yellow")
             if self.chk_enable_log.isChecked():
                 for i, node in enumerate(nodes[:20]):
                     try:
                         node_type = str(mxs.classof(node))
                         node_handle = mxs.getHandleByAnim(node)
-                        self.log(f"  [{i+1}] {node.name} (类型:{node_type}, handle:{node_handle})", "gray")
+                        self.log("  [{}] {} (类型:{}, handle:{})".format(i+1, node.name, node_type, node_handle), "gray")
                     except:
-                        self.log(f"  [{i+1}] {node.name}", "gray")
+                        self.log("  [{}] {}".format(i+1, node.name), "gray")
                 if len(nodes) > 20:
-                    self.log(f"  ... 还有 {len(nodes)-20} 个节点", "gray")
+                    self.log("  ... 还有 {} 个节点".format(len(nodes)-20), "gray")
             
             mxs.escapeEnable = False
             
@@ -3258,9 +3311,8 @@ class AnimLibraryDialog(QMainWindow):
                     pose_data["thumbnail"] = ""
                 
                 # 保存到文件
-                save_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
-                with open(save_path, 'w', encoding='utf-8') as f:
-                    json.dump(pose_data, f, indent=2, ensure_ascii=False)
+                save_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
+                write_json_file(save_path, pose_data)
                 
                 # 更新显示
                 self.global_data[pose_name] = pose_data
@@ -3274,15 +3326,15 @@ class AnimLibraryDialog(QMainWindow):
                 if pose_name in self.selected_poses:
                     self.update_detail_panel()
                 
-                self.log(f"已覆盖姿势: {pose_name}", "green")
+                self.log("已覆盖姿势: {}".format(pose_name), "green")
                 try:
-                    self.status_bar.showMessage(f"已覆盖: {pose_name}")
+                    self.status_bar.showMessage("已覆盖: {}".format(pose_name))
                 except:
                     pass
                 
             except Exception as e:
-                self.log(f"覆盖失败: {str(e)}", "red")
-                QMessageBox.critical(self, "错误", f"覆盖失败: {str(e)}")
+                self.log("覆盖失败: {}".format(str(e)), "red")
+                QMessageBox.critical(self, "错误", "覆盖失败: {}".format(str(e)))
             finally:
                 mxs.escapeEnable = True
     
@@ -3303,26 +3355,26 @@ class AnimLibraryDialog(QMainWindow):
         load_selected_only = self.chk_load_selected_only.isChecked()
         
         if self.chk_enable_log.isChecked():
-            self.log(f"开始加载姿势: {pose_name}", "yellow")
+            self.log("开始加载姿势: {}".format(pose_name), "yellow")
         
         # 仅选中模式 或 暴力加载模式：需要先选中对象
         if load_selected_only or force_load:
             selected_nodes = set(mxs.selection)
             if len(selected_nodes) == 0:
                 mode_name = "仅选中" if load_selected_only else "暴力加载"
-                self.log(f"{mode_name}模式：没有选中任何对象", "orange")
-                QMessageBox.warning(self, "警告", f"{mode_name}模式需要先选择物体")
+                self.log("{}模式：没有选中任何对象".format(mode_name), "orange")
+                QMessageBox.warning(self, "警告", "{}模式需要先选择物体".format(mode_name))
                 return
             
             # 显示选中的节点列表（详细）
             if self.chk_enable_log.isChecked():
                 selected_list = list(selected_nodes)
                 selected_names = [str(node.name) for node in selected_list[:10]]
-                self.log(f"已选中 {len(selected_nodes)} 个节点: {', '.join(selected_names)}{' ...' if len(selected_nodes) > 10 else ''}", "yellow")
+                self.log("已选中 {} 个节点: {}{}".format(len(selected_nodes), ', '.join(selected_names), ' ...' if len(selected_nodes) > 10 else ''), "yellow")
                 # 显示每个选中节点的详细信息
                 for i, node in enumerate(selected_list[:5]):
                     try:
-                        self.log(f"  选中节点[{i}]: 名称='{node.name}', 类型={mxs.classof(node)}", "gray")
+                        self.log("  选中节点[{}]: 名称='{}', 类型={}".format(i, node.name, mxs.classof(node)), "gray")
                     except:
                         pass
         else:
@@ -3352,14 +3404,14 @@ class AnimLibraryDialog(QMainWindow):
                 # 显示pose包含的节点列表（仅在日志开启时）
                 if self.chk_enable_log.isChecked():
                     pose_node_names = pose_data.get("name", [])
-                    self.log(f"Pose包含 {total_count} 个节点: {', '.join(pose_node_names[:5])}{' ...' if len(pose_node_names) > 5 else ''}", "cyan")
+                    self.log("Pose包含 {} 个节点: {}{}".format(total_count, ', '.join(pose_node_names[:5]), ' ...' if len(pose_node_names) > 5 else ''), "cyan")
                 
                 # 整体循环2次，确保bone层级依赖能正确到位（参考cptools精度机制）
                 for loop_pass in range(2):
                     # 安全检查：如果错误过多，中断循环
                     if error_count > max_errors:
                         if self.chk_enable_log.isChecked():
-                            self.log(f"⚠ 错误过多({error_count})，中断加载", "red")
+                            self.log("⚠ 错误过多({})，中断加载".format(error_count), "red")
                         break
                     
                     # 每次循环重新获取引用，避免引用失效
@@ -3369,7 +3421,7 @@ class AnimLibraryDialog(QMainWindow):
                             selected_nodes = set(mxs.selection)
                             # 第二次循环也显示详细日志，方便调试
                             if self.chk_enable_log.isChecked():
-                                self.log(f"  [循环{loop_pass+1}] 重新获取选中节点: {len(selected_nodes)}个", "yellow")
+                                self.log("  [循环{}] 重新获取选中节点: {}个".format(loop_pass+1, len(selected_nodes)), "yellow")
                         # 重建UUID临时列表（非暴力加载模式需要）
                         if not force_load:
                             temporary_list = [obj for obj in mxs.objects if mxs.getAppData(obj, 10)]
@@ -3387,14 +3439,14 @@ class AnimLibraryDialog(QMainWindow):
                                         if str(sel_node.name) == pose_node_name:
                                             node = sel_node
                                             if self.chk_enable_log.isChecked():
-                                                self.log(f"  [循环{loop_pass+1}] 暴力加载匹配: {pose_node_name}", "cyan")
+                                                self.log("  [循环{}] 暴力加载匹配: {}".format(loop_pass+1, pose_node_name), "cyan")
                                             break
                                     except:
                                         continue
                                 
                                 # 记录未匹配的节点（两次循环都显示，方便调试）
                                 if not node and self.chk_enable_log.isChecked():
-                                    self.log(f"  [循环{loop_pass+1}] 暴力加载未匹配: {pose_node_name}", "orange")
+                                    self.log("  [循环{}] 暴力加载未匹配: {}".format(loop_pass+1, pose_node_name), "orange")
                         else:
                             # 正常加载：通过UUID匹配
                             for item in temporary_list:
@@ -3421,7 +3473,7 @@ class AnimLibraryDialog(QMainWindow):
                                 
                                 if not node_in_selection:
                                     if loop_pass == 0 and self.chk_enable_log.isChecked():
-                                        self.log(f"  仅选中跳过: {node.name} (未在选中列表中)", "gray")
+                                        self.log("  仅选中跳过: {} (未在选中列表中)".format(node.name), "gray")
                                     continue  # 跳过未选中的节点
                         
                         if node and mxs.isValidNode(node):
@@ -3433,15 +3485,15 @@ class AnimLibraryDialog(QMainWindow):
                             # 详细日志：显示正在加载哪个节点（两次循环都显示）
                             if self.chk_enable_log.isChecked():
                                 node_name = pose_data.get("name", [])[i] if i < len(pose_data.get("name", [])) else "Unknown"
-                                mode_info = f"[暴力]" if force_load else f"[UUID]"
+                                mode_info = "[暴力]" if force_load else "[UUID]"
                                 # 显示节点的handle，确认是否是同一个对象
                                 try:
                                     node_handle = mxs.getHandleByAnim(node)
-                                    loop_info = f"[循环{loop_pass+1}]"
-                                    self.log(f"  {loop_info} → {mode_info} 加载节点: {node.name} (handle:{node_handle})", "cyan")
+                                    loop_info = "[循环{}]".format(loop_pass+1)
+                                    self.log("  {} → {} 加载节点: {} (handle:{})".format(loop_info, mode_info, node.name, node_handle), "cyan")
                                 except:
-                                    loop_info = f"[循环{loop_pass+1}]"
-                                    self.log(f"  {loop_info} → {mode_info} 加载节点: {node.name}", "cyan")
+                                    loop_info = "[循环{}]".format(loop_pass+1)
+                                    self.log("  {} → {} 加载节点: {}".format(loop_info, mode_info, node.name), "cyan")
                             
                             # 应用变换（整体循环2次+Biped内部循环）
                             try:
@@ -3461,22 +3513,22 @@ class AnimLibraryDialog(QMainWindow):
                                                 node.transform = target_transform
                                             
                                             if self.chk_enable_log.isChecked():
-                                                self.log(f"    ✓ 应用全局变换(Biped x{repeat_times}): {node.name}", "green")
+                                                self.log("    ✓ 应用全局变换(Biped x{}): {}".format(repeat_times, node.name), "green")
                                         except Exception as e:
                                             error_count += 1
                                             if self.chk_enable_log.isChecked() and error_count <= 10:
-                                                self.log(f"    ✗ Biped全局变换失败: {node.name} - {str(e)[:50]}", "red")
+                                                self.log("    ✗ Biped全局变换失败: {} - {}".format(node.name, str(e)[:50]), "red")
                                     else:
                                         # 普通节点和bone：直接赋值
                                         try:
                                             target_transform = mxs.execute(transform_str)
                                             node.transform = target_transform
                                             if self.chk_enable_log.isChecked():
-                                                self.log(f"    ✓ 应用全局变换: {node.name}", "green")
+                                                self.log("    ✓ 应用全局变换: {}".format(node.name), "green")
                                         except Exception as e:
                                             error_count += 1
                                             if self.chk_enable_log.isChecked() and error_count <= 10:
-                                                self.log(f"    ✗ 全局变换失败: {node.name} - {str(e)[:50]}", "red")
+                                                self.log("    ✗ 全局变换失败: {} - {}".format(node.name, str(e)[:50]), "red")
                             
                                 elif not apply_global and "local_transform" in pose_data:
                                     # 局部变换
@@ -3499,11 +3551,11 @@ class AnimLibraryDialog(QMainWindow):
                                                     if self.chk_enable_log.isChecked():
                                                         # 显示父节点信息，方便调试
                                                         parent_name = node.parent.name if mxs.isValidNode(node.parent) else "None"
-                                                        self.log(f"    ✓ 应用局部变换(Biped x{repeat_times}): {node.name} (父:{parent_name})", "green")
+                                                        self.log("    ✓ 应用局部变换(Biped x{}): {} (父:{})".format(repeat_times, node.name, parent_name), "green")
                                                 except Exception as e:
                                                     error_count += 1
                                                     if self.chk_enable_log.isChecked() and error_count <= 10:
-                                                        self.log(f"    ✗ Biped局部变换失败: {node.name} - {str(e)[:50]}", "red")
+                                                        self.log("    ✗ Biped局部变换失败: {} - {}".format(node.name, str(e)[:50]), "red")
                                             else:
                                                 # 普通节点和bone：直接赋值
                                                 try:
@@ -3513,14 +3565,14 @@ class AnimLibraryDialog(QMainWindow):
                                                     if self.chk_enable_log.isChecked():
                                                         # 显示父节点信息，方便调试
                                                         parent_name = node.parent.name if mxs.isValidNode(node.parent) else "None"
-                                                        self.log(f"    ✓ 应用局部变换: {node.name} (父:{parent_name})", "green")
+                                                        self.log("    ✓ 应用局部变换: {} (父:{})".format(node.name, parent_name), "green")
                                                 except Exception as e:
                                                     error_count += 1
                                                     if self.chk_enable_log.isChecked() and error_count <= 10:
-                                                        self.log(f"    ✗ 局部变换失败: {node.name} - {str(e)[:50]}", "red")
+                                                        self.log("    ✗ 局部变换失败: {} - {}".format(node.name, str(e)[:50]), "red")
                                         else:
                                             if self.chk_enable_log.isChecked():
-                                                self.log(f"    ⚠ 节点 {node.name} 没有父节点，跳过局部变换", "orange")
+                                                self.log("    ⚠ 节点 {} 没有父节点，跳过局部变换".format(node.name), "orange")
                                 
                                 # 处理颜色（全局和局部都适用）
                                 if "color" in pose_data and i < len(pose_data["color"]):
@@ -3546,7 +3598,7 @@ class AnimLibraryDialog(QMainWindow):
                             except Exception as e:
                                 error_count += 1
                                 if loop_pass == 0 and self.chk_enable_log.isChecked() and error_count <= 10:
-                                    self.log(f"    ✗ 应用变换失败: {node.name} - {str(e)[:50]}", "red")
+                                    self.log("    ✗ 应用变换失败: {} - {}".format(node.name, str(e)[:50]), "red")
                         else:
                             if loop_pass == 0:
                                 missing_count += 1
@@ -3561,15 +3613,15 @@ class AnimLibraryDialog(QMainWindow):
                 mode_text = "暴力加载" if force_load else "加载"
                 transform_mode = "全局" if apply_global else "局部"
                 selected_text = " [仅选中]" if load_selected_only else ""
-                result_text = f"{mode_text}姿势: {pose_name} ({transform_mode}模式{selected_text}, 匹配 {found_count}/{total_count} 个节点)"
+                result_text = "{}姿势: {} ({}模式{}, 匹配 {}/{} 个节点)".format(mode_text, pose_name, transform_mode, selected_text, found_count, total_count)
                 
                 if missing_count > 0:
-                    result_text += f" [缺失 {missing_count} 个]"
+                    result_text += " [缺失 {} 个]".format(missing_count)
                 
                 if error_count > 0:
-                    result_text += f" [错误 {error_count} 个]"
+                    result_text += " [错误 {} 个]".format(error_count)
                     if error_count > 10 and self.chk_enable_log.isChecked():
-                        self.log(f"⚠ 总计 {error_count} 个错误（仅显示前10个）", "orange")
+                        self.log("⚠ 总计 {} 个错误（仅显示前10个）".format(error_count), "orange")
                 
                 self.log(result_text, "green")
                 try:
@@ -3578,8 +3630,8 @@ class AnimLibraryDialog(QMainWindow):
                     pass
                 
             except Exception as e:
-                self.log(f"加载失败: {str(e)}", "red")
-                QMessageBox.critical(self, "错误", f"加载失败: {str(e)}")
+                self.log("加载失败: {}".format(str(e)), "red")
+                QMessageBox.critical(self, "错误", "加载失败: {}".format(str(e)))
                 mxs.enableSceneRedraw()
             finally:
                 mxs.escapeEnable = True
@@ -3592,9 +3644,9 @@ class AnimLibraryDialog(QMainWindow):
         
         # 确认删除
         if len(self.selected_poses) == 1:
-            message = f"确定要删除 '{self.selected_poses[0]}' 吗？"
+            message = "确定要删除 '{}' 吗？".format(self.selected_poses[0])
         else:
-            message = f"确定要删除选中的 {len(self.selected_poses)} 个姿势吗？"
+            message = "确定要删除选中的 {} 个姿势吗？".format(len(self.selected_poses))
         
         reply = QMessageBox.question(self, "确认删除", message,
                                      QMessageBox.Yes | QMessageBox.No,
@@ -3604,7 +3656,7 @@ class AnimLibraryDialog(QMainWindow):
             deleted_count = 0
             try:
                 for pose_name in self.selected_poses[:]:  # 使用副本遍历
-                    file_path = os.path.join(self.current_folder_path, f"{pose_name}.json")
+                    file_path = os.path.join(self.current_folder_path, "{}.json".format(pose_name))
                     if os.path.exists(file_path):
                         os.remove(file_path)
                     
@@ -3623,13 +3675,13 @@ class AnimLibraryDialog(QMainWindow):
                 
                 # 刷新显示
                 self.refresh_pose_display()
-                self.log(f"已删除 {deleted_count} 个姿势", "orange")
+                self.log("已删除 {} 个姿势".format(deleted_count), "orange")
                 try:
-                    self.status_bar.showMessage(f"已删除 {deleted_count} 个姿势")
+                    self.status_bar.showMessage("已删除 {} 个姿势".format(deleted_count))
                 except:
                     pass
             except Exception as e:
-                QMessageBox.critical(self, "错误", f"删除失败: {str(e)}")
+                QMessageBox.critical(self, "错误", "删除失败: {}".format(str(e)))
     
     def _find_node_by_id(self, node_id):
         """通过 ID 查找节点"""
@@ -3658,7 +3710,7 @@ def execute():
         studio_library = AnimLibraryDialog(GetQMaxMainWindow())
         studio_library.show()
     except Exception as e:
-        print(f"启动 Anim Library 失败: {e}")
+        print("启动 Anim Library 失败: {}".format(e))
         import traceback
         traceback.print_exc()
 
