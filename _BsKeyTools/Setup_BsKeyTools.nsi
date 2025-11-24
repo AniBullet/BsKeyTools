@@ -3,7 +3,7 @@ Unicode true
 
 ; 安装程序初始定义常量
 !define PRODUCT_NAME "BsKeyTools"
-!define PRODUCT_VERSION "_v1.2.0"
+!define PRODUCT_VERSION "_v1.2.1"
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
 !define APPDATA_PLUGINS_PATH "C:\ProgramData\Autodesk\ApplicationPlugins"

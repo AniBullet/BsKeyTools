@@ -662,7 +662,7 @@ class AnimLibraryDialog(QMainWindow):
         self.config_file = self.get_config_path()
         
         # 设置窗口
-        self.setWindowTitle('BsAnimLibrary_v1.0_Bullet.S')
+        self.setWindowTitle('BsAnimLibrary_v1.1_Bullet.S')
         # 窗口宽度设置为 splitter总宽度(810) + 边距(约30-40)
         self.resize(850, 600)
         

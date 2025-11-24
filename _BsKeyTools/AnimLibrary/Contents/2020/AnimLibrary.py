@@ -717,7 +717,7 @@ class AnimLibraryDialog(QMainWindow):
         self.config_file = self.get_config_path()
         
         # 设置窗口
-        self.setWindowTitle('BsAnimLibrary_v1.0_Bullet.S')
+        self.setWindowTitle('BsAnimLibrary_v1.1_Bullet.S')
         # 窗口宽度设置为 splitter总宽度(810) + 边距(约30-40)
         self.resize(850, 600)
         
@@ -1140,7 +1140,10 @@ class AnimLibraryDialog(QMainWindow):
         # 配置文件保存在ProgramData目录下，避免权限问题
         config_dir = r'C:\ProgramData\Autodesk\ApplicationPlugins\AnimLibrary\BsAnimLibrary'
         if not os.path.exists(config_dir):
-            os.makedirs(config_dir, exist_ok=True)
+            try:
+                os.makedirs(config_dir)
+            except OSError:
+                pass  # 目录已存在
         return os.path.join(config_dir, 'BsAnimLibConfig.json')
     
     def load_config(self):
@@ -2299,7 +2302,10 @@ class AnimLibraryDialog(QMainWindow):
         default_path = r'C:\ProgramData\Autodesk\ApplicationPlugins\AnimLibrary\BsAnimLibrary'
         
         if not os.path.exists(default_path):
-            os.makedirs(default_path, exist_ok=True)
+            try:
+                os.makedirs(default_path)
+            except OSError:
+                pass  # 目录已存在
         
         self.library_path = default_path
         self.current_folder_path = default_path
@@ -2424,7 +2430,8 @@ class AnimLibraryDialog(QMainWindow):
         if ok and folder_name:
             new_path = os.path.join(parent_path, folder_name)
             try:
-                os.makedirs(new_path, exist_ok=True)
+                if not os.path.exists(new_path):
+                    os.makedirs(new_path)
                 self.refresh_folder_tree()
                 self.log("创建文件夹: {}".format(folder_name), "green")
             except Exception as e:
