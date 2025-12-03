@@ -1,0 +1,28 @@
+name: 欢迎新贡献者
+
+on: [pull_request_target, issues]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        issue-message: |
+          👋 你好！感谢你提交第一个 Issue！
+          
+          我们会尽快查看并回复。如有疑问，也可以加入 QQ 交流群：993590655 / 907481113
+          
+        pr-message: |
+          🎉 感谢你提交第一个 Pull Request！
+          
+          我们会仔细审查你的代码。请确保：
+          - ✅ 代码已测试
+          - ✅ PR 提交到 `dev` 分支
+          - ✅ 遵循项目代码规范
+          
+          查看贡献指南：https://github.com/AniBullet/BsKeyTools/blob/dev/CONTRIBUTING.md

@@ -170,6 +170,26 @@ BsKeyTools 是一个面向 **Autodesk 3ds Max** 的综合性动画工具集，
 
 ---
 
+## 🤝 参与贡献
+
+我们欢迎所有形式的贡献!无论是报告 Bug、提出功能建议还是提交代码。
+
+### 如何贡献
+
+1. **Fork** 本仓库到你的账号
+2. 创建新分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'feat: Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 提交 **Pull Request** 到 `dev` 分支
+
+📖 **贡献指南**: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+### 贡献者
+
+感谢所有为 BsKeyTools 做出贡献的开发者! 🙏
+
+---
+
 ## 💬 联系与交流
 
 <div align="center">
