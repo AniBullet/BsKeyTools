@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-12-04 17:33:47
+ * @LastEditTime: 2025-12-04 19:36:35
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))

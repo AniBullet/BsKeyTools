@@ -13,25 +13,28 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
 stLoadConfigAll.fnLoadConfigBsTogglePanel()
 
+-- 创建一个全局结构来封装 GetForegroundWindow，兼容所有 Max 版本
+struct WindowHelper
 (
-	fn getWindowClass =
+	-- 使用 UIAccessor 来获取前台窗口（MaxScript 内置功能，兼容所有版本）
+	fn getForegroundWindow =
 	(
-		local source  = "using System;"
-		source += "using System.Runtime.InteropServices;"
-		source += "public class Window"
-		source += "{"
-		source += "	[DllImport(\"user32.dll\")]"
-		source += "	public static extern IntPtr GetForegroundWindow();"
-		source += "}"
-
-		local csharpProvider = dotNetObject "Microsoft.CSharp.CSharpCodeProvider"
-		local compilerParams = dotNetObject "System.CodeDom.Compiler.CompilerParameters"
-		compilerParams.GenerateInMemory = true
-		compilerParams.ReferencedAssemblies.Add "System.dll"
-		local compilerResults = csharpProvider.CompileAssemblyFromSource compilerParams #(source)
-		compilerResults.CompiledAssembly.CreateInstance "Window"
+		try
+		(
+			-- UIAccessor.GetForegroundWindow() 返回前台窗口句柄
+			return (UIAccessor.GetForegroundWindow())
+		)
+		catch
+		(
+			return 0
+		)
 	)
-	if NOT isKindOf ::window dotNetObject do window = getWindowClass()
+)
+
+-- 创建全局 window 实例
+if window == undefined do
+(
+	global window = WindowHelper()
 )
 
 fn fnGetParentHwnd chwnd =
@@ -96,30 +99,72 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
 
     fn fnGetHitokoto = 
     (
-        local isConnectInternet = (internet.CheckConnection url:"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&c=j&charset=gbk" force:true)
+        -- 使用字节下载 + UTF-8 解码，彻底解决编码问题（兼容所有版本）
+        local urlLine = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&c=j"
+        local isConnectInternet = (internet.CheckConnection url:urlLine force:true)
     
         if isConnectInternet == true then
         (
-            local urlLine = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&c=j&charset=gbk"
-            local strAllLine = (try ((dotNetObject "System.Net.WebClient").downloadString urlLine) catch())
-            if strAllLine != undefined then
+            try
             (
-                arrAllLine = filterString strAllLine "\""
-                strMainLine = arrAllLine[10]
-                strFrom = arrAllLine[18]
-                -- strFromWho = if arrAllLine[21] == ":null," then "未知" else arrAllLine[22]
-                strOneLine = ("\"" + strMainLine + "\"" + " 《" + strFrom + "》\r\n" + "May all the beauty be blessed." + userName)
-                -- print strAllLine
-                -- print strOneLine
-                return strOneLine
+                -- 使用 DownloadData 获取字节数组，然后用 UTF-8 解码
+                local webClient = dotNetObject "System.Net.WebClient"
+                
+                -- 设置请求头，明确要求 UTF-8 编码
+                webClient.Headers.Add "Accept-Charset" "UTF-8"
+                
+                local bytesData = webClient.DownloadData urlLine
+                local utf8 = (dotNetClass "System.Text.Encoding").UTF8
+                local strAllLine = utf8.GetString bytesData
+                
+                -- 调试输出（如果需要可以取消注释）
+                -- print ("原始数据: " + strAllLine)
+                
+                if strAllLine != undefined and strAllLine != "" then
+                (
+                    -- 解析 JSON 格式的返回数据
+                    arrAllLine = filterString strAllLine "\""
+                    
+                    -- 调试输出（如果需要可以取消注释）
+                    -- print ("分割后数组长度: " + arrAllLine.count as string)
+                    -- if arrAllLine.count >= 10 then print ("第10项: " + arrAllLine[10])
+                    
+                    if arrAllLine.count >= 18 then
+                    (
+                        strMainLine = arrAllLine[10]
+                        strFrom = arrAllLine[18]
+                        -- strFromWho = if arrAllLine[21] == ":null," then "未知" else arrAllLine[22]
+                        strOneLine = ("\"" + strMainLine + "\"" + " 《" + strFrom + "》\r\n" + "May all the beauty be blessed." + userName)
+                        return strOneLine
+                    )
+                    else
+                    (
+                        return "May all the beauty be blessed." + userName
+                    )
+                )
+                else
+                (
+                    return "May all the beauty be blessed." + userName
+                )
+            )
+            catch
+            (
+                --检查网络是否能连接
+                if internet.CheckConnection url:urlLine force:true == true then 
+                (
+                    print "网络服务器当前不可用,请稍后再试                        "
+                    return "网络服务器暂时不可用..."
+                )
+                else 
+                (
+                    print "BsKeyTools ：无网络连接或链接未响应...                                "
+                    return "请检查网络..."
+                )
             )
         )
         else
         (
-            --检查网络是否能连接
-            if internet.CheckConnection url:"https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=h&c=i&c=j&charset=gbk" force:true == true then 
-            (print "网络服务器当前不可用,请稍后再试                        ")
-            else (print "BsKeyTools ：无网络连接或链接未响应...                                ")
+            print "BsKeyTools ：无网络连接...                                "
             return "请检查网络..."
         )
     )
@@ -195,7 +240,8 @@ rollout rolTogglePanel "rolTogglePanel" width:widthToggleTools height:heightTogg
             local mouseClientPos = mouse.screenPos - (getDialogPos rolTogglePanel) + ui_clientOffset
             
             local dialogPos = getDialogPos rolTogglePanel
-            local dialogBox = (Box2 dialogPos.x dialogPos.y rolTogglePanel.width rolTogglePanel.height)
+            -- Box2 构造需要两个点：左上角和右下角（兼容2026版本）
+            local dialogBox = (Box2 [dialogPos.x, dialogPos.y] [dialogPos.x + rolTogglePanel.width, dialogPos.y + rolTogglePanel.height])
             
             if (contains dialogBox mouse.screenPos) and isMaxActive then 
             (
