@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-11-24 11:07:58
+ * @LastEditTime: 2025-12-04 17:33:47
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -27,7 +27,7 @@ try (callbacks.removeScripts #filePostSave id:#BsRefreshRecentFilesSave) catch (
 try (callbacks.removeScripts #systemPostNew id:#BsRefreshRecentFilesNew) catch ()
 try (callbacks.removeScripts #systemPostReset id:#BsRefreshRecentFilesReset) catch ()
 
-global curVerBsKeyTools  = "1.2.1"
+global curVerBsKeyTools  = "1.2.2"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 -- global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 -- global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
@@ -44,6 +44,8 @@ global iniTogglePanelPos
 Global idBtn                = 1
 global iniBsAutoCheckUpdate = false
 global iniCollopseType		= 0
+global isMenuConfigOpen = false  -- 标记菜单是否打开,防止菜单展开时触发收缩
+global menuOpenTime = 0  -- 记录菜单打开的时间戳(tick数)
 Global switchToolPanel      = 0
 -- global switchMSPanel        = 0
 Global iniToolBtnAll        = #(101,102,103,104,105,106,107,108,109,110,111,112,
@@ -1366,7 +1368,9 @@ rcmenu menuConfig
 
 	on menuConfig open do
 	(
-		-- rolBsKeyTools.timerTickTock.active = false
+		-- 设置菜单打开标志并记录时间，防止菜单项较多时鼠标移到外侧选项触发自动收缩
+		isMenuConfigOpen = true
+		menuOpenTime = timestamp()  -- 记录打开时间戳
 		-- stLoadConfigAll.fnLoadConfigBsKeyToolsAll ()
 		if(SIOFile.Exists startupPath) then (mItemIsStartup.checked = true)
 		else (mItemIsStartup.checked = false)
@@ -3670,6 +3674,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	
 	on rolBsKeyTools lbuttondown posMou do
 	(
+		-- 鼠标点击时重置菜单标志（菜单关闭或点击了窗口）
+		isMenuConfigOpen = false
 		setSysCur #move
 		posMouMoved = posMou
 		switchMouseState = on
@@ -3686,6 +3692,11 @@ rollout rolBsKeyTools "" width:355 height:250
 	(
 		if not rolBsKeyTools.dialogBar then
 		(
+			-- 鼠标在窗口内移动时，如果菜单标志还在，说明菜单已关闭，重置标志
+			if isMenuConfigOpen == true then
+			(
+				isMenuConfigOpen = false
+			)
 			-- myTimer.Start()
 			if (ui_clientOffset == undefined) and (switchMouseState == off) then 
 			(ui_clientOffset = pos - (mouse.screenPos - (getDialogPos rolBsKeyTools)))
@@ -3707,7 +3718,14 @@ rollout rolBsKeyTools "" width:355 height:250
 			(if switchToolPanel == 1 then (Box2 (dialogPos.x - 30) (dialogPos.y - 30) (rolBsKeyTools.width + 60) (rolBsKeyTools.height + 60))
 			else (Box2 (dialogPos.x - 30) (dialogPos.y - 30) (rolBsKeyTools.width + 360)  (rolBsKeyTools.height + 60)))
 
-			if not (contains dialogBox mouse.screenPos) then
+			-- 菜单打开超时保护：超过10秒自动恢复正常检测
+			if isMenuConfigOpen == true and (timestamp() - menuOpenTime) > 10000 then
+			(
+				isMenuConfigOpen = false
+			)
+
+			-- 如果菜单打开状态，完全跳过收缩检测（菜单关闭会通过鼠标点击/移动/超时自动恢复）
+			if not isMenuConfigOpen and not (contains dialogBox mouse.screenPos) then
 			(
 				if rolTogglePanel == undefined or rolTogglePanel.open == false then 
 				(
