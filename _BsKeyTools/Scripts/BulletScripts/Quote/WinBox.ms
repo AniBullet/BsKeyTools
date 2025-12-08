@@ -89,17 +89,25 @@ rollout WindowBox "WindowBox【找回窗口】" width:520 height:0
     (
         local codeProvider = undefined
         local source = ""
-        local useVB = true
         local useMax2026API = false
+        local CSharpCompilationHelper = undefined
         
-        -- 首先尝试使用 VBCodeProvider (Max 2025 及更早版本)
+        -- 首先检测是否是 Max 2026+ (检测新 API 是否存在)
         try (
-            codeProvider = dotnetobject "Microsoft.VisualBasic.VBCodeProvider"
+            CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+            if CSharpCompilationHelper != undefined then useMax2026API = true
         ) catch (
-            useVB = false
+            useMax2026API = false
         )
         
-        if useVB then (
+        if not useMax2026API then (
+            -- Max 2025 及更早版本，使用 VBCodeProvider
+            try (
+                codeProvider = dotnetobject "Microsoft.VisualBasic.VBCodeProvider"
+            ) catch (
+                return undefined
+            )
+            
             -- VB.NET 源代码 (Max 2025 及更早版本)
             source += "Imports System.Runtime.InteropServices\n"
             source += "Imports System.Drawing\n"
@@ -158,26 +166,18 @@ rollout WindowBox "WindowBox【找回窗口】" width:520 height:0
             source += "End Class"
             
             -- 使用旧版编译方式
-            compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
-            compilerParams.ReferencedAssemblies.add "C:\Windows\Microsoft.NET\Framework\v2.0.50727\System.drawing.dll"
-            compilerParams.GenerateInMemory = on
-            compilerResults = codeProvider.CompileAssemblyFromSource compilerParams #(source)
-            if (compilerResults.Errors.Count > 0 ) then return undefined
-            return compilerResults.CompiledAssembly.CreateInstance "DialogWindowOps"
+            try (
+                compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+                compilerParams.ReferencedAssemblies.add "C:\Windows\Microsoft.NET\Framework\v2.0.50727\System.drawing.dll"
+                compilerParams.GenerateInMemory = on
+                compilerResults = codeProvider.CompileAssemblyFromSource compilerParams #(source)
+                if (compilerResults.Errors.Count > 0 ) then return undefined
+                return compilerResults.CompiledAssembly.CreateInstance "DialogWindowOps"
+            ) catch (
+                return undefined
+            )
         ) else (
             -- Max 2026+ 使用 CSharpUtilities.CSharpCompilationHelper (官方新 API)
-            local CSharpCompilationHelper = undefined
-            try (
-                CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
-            ) catch (
-                print "[WinBox] 无法加载 CSharpCompilationHelper"
-                return undefined
-            )
-            
-            if CSharpCompilationHelper == undefined then (
-                print "[WinBox] CSharpCompilationHelper 为 undefined"
-                return undefined
-            )
             
             -- C# 源代码 (Max 2026+, .NET 8) - 使用 System.Drawing 兼容的属性名
             source = "
@@ -243,12 +243,8 @@ namespace WinBoxHelper {
             -- 使用 Max 2026 新 API 编译
             try (
                 CSharpCompilationHelper.compile source #()
-                print "[WinBox] 编译成功"
-                local result = dotnetobject "WinBoxHelper.DialogWindowOps"
-                print ("[WinBox] 创建实例: " + (result as string))
-                return result
+                return dotnetobject "WinBoxHelper.DialogWindowOps"
             ) catch (
-                print ("[WinBox] 编译或实例化失败: " + (getCurrentException()))
                 return undefined
             )
         )
