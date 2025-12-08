@@ -87,82 +87,171 @@ rollout WindowBox "WindowBox【找回窗口】" width:520 height:0
     
     fn DialogWindowOpsClass = 
     (
-        source = ""
-        source += "Imports System.Runtime.InteropServices\n"
-        source += "Imports System.Drawing\n"
-        source += "Public Class DialogWindowOps\n"
-        source += "Public Structure RECT\n"
-        source += "Public left As Integer\n"
-        source += "Public top As Integer\n"
-        source += "Public right As Integer\n"
-        source += "Public bottom As Integer\n"
-        source += "Public ReadOnly Property Width() As Integer\n"
-        source += "Get\n"
-        source += "Return right - left\n"
-        source += "End Get\n"
-        source += "End Property\n"
-        source += "Public ReadOnly Property Height() As Integer\n"
-        source += "Get\n"
-        source += "Return bottom - top\n"
-        source += "End Get\n"
-        source += "End Property\n"
-        source += "End Structure\n"
-        source += "Public Structure POINTAPI\n"
-        source += "Public x As Integer\n"
-        source += "Public y As Integer\n"
-        source += "End Structure\n"
-        source += "Public Structure WINDOWPLACEMENT\n"
-        source += "Public Length As Integer\n"
-        source += "Public flags As Integer\n"
-        source += "Public showCmd As Integer\n"
-        source += "Public ptMinPosition As POINTAPI\n"
-        source += "Public ptMaxPosition As POINTAPI\n"
-        source += "Public rcNormalPosition As RECT\n"
-        source += "End Structure\n"
-        source += "<DllImport(\"user32.dll\")> _\n"
-        source += "Public Shared Function MoveWindow(ByVal hWnd As System.IntPtr, ByVal x As Integer, ByVal y As Integer, ByVal nWidth As Integer, ByVal nHeight As Integer, ByVal bRepaint As Boolean) As Boolean\n"
-        source += "End Function\n"
-        source += "<DllImport(\"user32.dll\")> _\n"
-        source += "Public Shared Function GetWindowRect(ByVal hWnd As System.IntPtr, ByRef lpRect As RECT) As Boolean\n"
-        source += "End Function\n"
-        source += "<DllImport(\"user32.dll\")> _\n"
-        source += "Public Shared Function GetWindowPlacement(ByVal hWnd As System.IntPtr, ByRef lpwndpl As WINDOWPLACEMENT) As Boolean\n"
-        source += "End Function\n"
-        source += "Public Function WindowSize(ByVal Hwnd As System.IntPtr) As System.Drawing.Size\n"
-        source += "Dim LPRECT As RECT\n"
-        source += "GetWindowRect(Hwnd, LPRECT)\n"
-        source += "Dim WinSize As System.drawing.size = New System.drawing.size(LPRECT.Width, LPRECT.Height)\n"
-        source += "Return WinSize\n"
-        source += "End Function\n"
-        source += "Public Function WindowPosition(ByVal Hwnd As System.IntPtr) As System.Drawing.Point\n"
-        source += "Dim intRet As Integer\n"
-        source += "Dim wpTemp As WINDOWPLACEMENT = New WINDOWPLACEMENT()\n"
-        source += "wpTemp.Length = System.Runtime.InteropServices.Marshal.SizeOf(wpTemp)\n"
-        source += "intRet = GetWindowPlacement(Hwnd, wpTemp)\n"
-        source += "Dim WinPoint As System.drawing.point = New System.drawing.point(wpTemp.rcNormalPosition.left, wpTemp.rcNormalPosition.top)\n"
-        source += "Return WinPoint\n"
-        source += "End Function\n"
-        source += "End Class"  
-
-        VBProvider = dotnetobject "Microsoft.VisualBasic.VBCodeProvider"
-        compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
-        compilerParams.ReferencedAssemblies.add "C:\Windows\Microsoft.NET\Framework\v2.0.50727\System.drawing.dll"	
-        compilerParams.GenerateInMemory = on
-        compilerResults = VBProvider.CompileAssemblyFromSource compilerParams #(source)		
-        -- this is very useful to debug your source code and check for referencing errors
-            if (compilerResults.Errors.Count > 0 ) then
-            (
-                errs = stringstream ""
-                for i = 0 to (compilerResults.Errors.Count-1) do
-                (
-                    err = compilerResults.Errors.Item[i]
-                    format "Error:% Line:% Column:% %\n" err.ErrorNumber err.Line \											  
-                                                            err.Column err.ErrorText to:errs 
-                )
-                MessageBox (errs as string) title: "编译VB代码时遇到的错误"
+        local codeProvider = undefined
+        local source = ""
+        local useVB = true
+        local useMax2026API = false
+        
+        -- 首先尝试使用 VBCodeProvider (Max 2025 及更早版本)
+        try (
+            codeProvider = dotnetobject "Microsoft.VisualBasic.VBCodeProvider"
+        ) catch (
+            useVB = false
+        )
+        
+        if useVB then (
+            -- VB.NET 源代码 (Max 2025 及更早版本)
+            source += "Imports System.Runtime.InteropServices\n"
+            source += "Imports System.Drawing\n"
+            source += "Public Class DialogWindowOps\n"
+            source += "Public Structure RECT\n"
+            source += "Public left As Integer\n"
+            source += "Public top As Integer\n"
+            source += "Public right As Integer\n"
+            source += "Public bottom As Integer\n"
+            source += "Public ReadOnly Property Width() As Integer\n"
+            source += "Get\n"
+            source += "Return right - left\n"
+            source += "End Get\n"
+            source += "End Property\n"
+            source += "Public ReadOnly Property Height() As Integer\n"
+            source += "Get\n"
+            source += "Return bottom - top\n"
+            source += "End Get\n"
+            source += "End Property\n"
+            source += "End Structure\n"
+            source += "Public Structure POINTAPI\n"
+            source += "Public x As Integer\n"
+            source += "Public y As Integer\n"
+            source += "End Structure\n"
+            source += "Public Structure WINDOWPLACEMENT\n"
+            source += "Public Length As Integer\n"
+            source += "Public flags As Integer\n"
+            source += "Public showCmd As Integer\n"
+            source += "Public ptMinPosition As POINTAPI\n"
+            source += "Public ptMaxPosition As POINTAPI\n"
+            source += "Public rcNormalPosition As RECT\n"
+            source += "End Structure\n"
+            source += "<DllImport(\"user32.dll\")> _\n"
+            source += "Public Shared Function MoveWindow(ByVal hWnd As System.IntPtr, ByVal x As Integer, ByVal y As Integer, ByVal nWidth As Integer, ByVal nHeight As Integer, ByVal bRepaint As Boolean) As Boolean\n"
+            source += "End Function\n"
+            source += "<DllImport(\"user32.dll\")> _\n"
+            source += "Public Shared Function GetWindowRect(ByVal hWnd As System.IntPtr, ByRef lpRect As RECT) As Boolean\n"
+            source += "End Function\n"
+            source += "<DllImport(\"user32.dll\")> _\n"
+            source += "Public Shared Function GetWindowPlacement(ByVal hWnd As System.IntPtr, ByRef lpwndpl As WINDOWPLACEMENT) As Boolean\n"
+            source += "End Function\n"
+            source += "Public Function WindowSize(ByVal Hwnd As System.IntPtr) As System.Drawing.Size\n"
+            source += "Dim LPRECT As RECT\n"
+            source += "GetWindowRect(Hwnd, LPRECT)\n"
+            source += "Dim WinSize As System.drawing.size = New System.drawing.size(LPRECT.Width, LPRECT.Height)\n"
+            source += "Return WinSize\n"
+            source += "End Function\n"
+            source += "Public Function WindowPosition(ByVal Hwnd As System.IntPtr) As System.Drawing.Point\n"
+            source += "Dim intRet As Integer\n"
+            source += "Dim wpTemp As WINDOWPLACEMENT = New WINDOWPLACEMENT()\n"
+            source += "wpTemp.Length = System.Runtime.InteropServices.Marshal.SizeOf(wpTemp)\n"
+            source += "intRet = GetWindowPlacement(Hwnd, wpTemp)\n"
+            source += "Dim WinPoint As System.drawing.point = New System.drawing.point(wpTemp.rcNormalPosition.left, wpTemp.rcNormalPosition.top)\n"
+            source += "Return WinPoint\n"
+            source += "End Function\n"
+            source += "End Class"
+            
+            -- 使用旧版编译方式
+            compilerParams = dotnetobject "System.CodeDom.Compiler.CompilerParameters"
+            compilerParams.ReferencedAssemblies.add "C:\Windows\Microsoft.NET\Framework\v2.0.50727\System.drawing.dll"
+            compilerParams.GenerateInMemory = on
+            compilerResults = codeProvider.CompileAssemblyFromSource compilerParams #(source)
+            if (compilerResults.Errors.Count > 0 ) then return undefined
+            return compilerResults.CompiledAssembly.CreateInstance "DialogWindowOps"
+        ) else (
+            -- Max 2026+ 使用 CSharpUtilities.CSharpCompilationHelper (官方新 API)
+            local CSharpCompilationHelper = undefined
+            try (
+                CSharpCompilationHelper = dotnetclass "CSharpUtilities.CSharpCompilationHelper"
+            ) catch (
+                print "[WinBox] 无法加载 CSharpCompilationHelper"
                 return undefined
-            ) 	
-        return compilerResults.CompiledAssembly.CreateInstance "DialogWindowOps"
+            )
+            
+            if CSharpCompilationHelper == undefined then (
+                print "[WinBox] CSharpCompilationHelper 为 undefined"
+                return undefined
+            )
+            
+            -- C# 源代码 (Max 2026+, .NET 8) - 使用 System.Drawing 兼容的属性名
+            source = "
+using System;
+using System.Runtime.InteropServices;
+
+namespace WinBoxHelper {
+    public class WinSize {
+        public int width { get; set; }
+        public int height { get; set; }
+        public WinSize(int w, int h) { width = w; height = h; }
+    }
+
+    public class WinPoint {
+        public int x { get; set; }
+        public int y { get; set; }
+        public WinPoint(int px, int py) { x = px; y = py; }
+    }
+
+    public class DialogWindowOps {
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT {
+            public int left;
+            public int top;
+            public int right;
+            public int bottom;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINTAPI {
+            public int x;
+            public int y;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct WINDOWPLACEMENT {
+            public int Length;
+            public int flags;
+            public int showCmd;
+            public POINTAPI ptMinPosition;
+            public POINTAPI ptMaxPosition;
+            public RECT rcNormalPosition;
+        }
+        [DllImport(\"user32.dll\")]
+        public static extern bool MoveWindow(IntPtr hWnd, int x, int y, int nWidth, int nHeight, bool bRepaint);
+        [DllImport(\"user32.dll\")]
+        public static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
+        [DllImport(\"user32.dll\")]
+        public static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
+        
+        public WinSize WindowSize(IntPtr Hwnd) {
+            RECT LPRECT = new RECT();
+            GetWindowRect(Hwnd, ref LPRECT);
+            return new WinSize(LPRECT.right - LPRECT.left, LPRECT.bottom - LPRECT.top);
+        }
+        public WinPoint WindowPosition(IntPtr Hwnd) {
+            WINDOWPLACEMENT wpTemp = new WINDOWPLACEMENT();
+            wpTemp.Length = Marshal.SizeOf(wpTemp);
+            GetWindowPlacement(Hwnd, ref wpTemp);
+            return new WinPoint(wpTemp.rcNormalPosition.left, wpTemp.rcNormalPosition.top);
+        }
+    }
+}
+"
+            -- 使用 Max 2026 新 API 编译
+            try (
+                CSharpCompilationHelper.compile source #()
+                print "[WinBox] 编译成功"
+                local result = dotnetobject "WinBoxHelper.DialogWindowOps"
+                print ("[WinBox] 创建实例: " + (result as string))
+                return result
+            ) catch (
+                print ("[WinBox] 编译或实例化失败: " + (getCurrentException()))
+                return undefined
+            )
+        )
     )
 
 
@@ -310,6 +399,13 @@ rollout WindowBox "WindowBox【找回窗口】" width:520 height:0
     on WindowBox open do
     (	
         WindowOps = DialogWindowOpsClass() 
+        
+        -- 如果 WindowOps 初始化失败，静默关闭窗口
+        if WindowOps == undefined then
+        (
+            try(destroydialog WindowBox)catch()
+            return undefined
+        )
             
         WindowIcon =  (dotNetclass "System.Drawing.image").fromfile (AssetDir + @"WBwin.png")
         CloseIcon =   (dotNetclass "System.Drawing.image").fromfile (AssetDir + @"WBclose.png")
