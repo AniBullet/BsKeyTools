@@ -27,7 +27,7 @@ try (callbacks.removeScripts #filePostSave id:#BsRefreshRecentFilesSave) catch (
 try (callbacks.removeScripts #systemPostNew id:#BsRefreshRecentFilesNew) catch ()
 try (callbacks.removeScripts #systemPostReset id:#BsRefreshRecentFilesReset) catch ()
 
-global curVerBsKeyTools  = "1.2.2"
+global curVerBsKeyTools  = "1.3.0"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 -- global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 -- global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
@@ -3912,7 +3912,14 @@ rollout rolBsKeyTools "" width:355 height:250
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\Quote" + "\\飘带解算.mse"))
 		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 飘带解算.mse 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
+
 	on btnFileOpen pressed do 
+	(
+		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsOpenToolsPy.ms"))
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsOpenToolsPy.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+	)
+
+	on btnFileOpen rightclick do 
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsOpenTools.ms");isRolloutOffScreen rolBsOpenTools)
 		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsOpenTools.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
