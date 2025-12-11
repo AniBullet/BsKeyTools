@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-11-14 16:14:49
+ * @LastEditTime: 2025-12-11 15:04:28
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -268,6 +268,8 @@ global isEulerFilter = false
 global isReloadBip = false
 
 global isHalfAnimSpeed = false
+
+global isRemoveRootKeepAnim = false
 
 -- wizardIndex = 1
 -- wizardArray = #()
@@ -694,13 +696,15 @@ rcmenu menuBsRetarget
 	menuItem mItemNier "修复 Nier 帧率和缩放"
 	menuItem mItemScale100 "仅 Scale 100"
 	menuItem mItemReloadBip "重新加载 Biped"
+	menuItem mItemRemoveRootKeepAnim "移除 Root 保留动画"
 
 	on menuBsRetarget open do
 	(
-		mItemNier.checked          = fixNierFramerate
-		mItemScale100.checked      = isScale100
-		mItemReloadBip.checked     = isReloadBip
-		mItemHalfAnimSpeed.checked = isHalfAnimSpeed
+		mItemNier.checked              = fixNierFramerate
+		mItemScale100.checked          = isScale100
+		mItemReloadBip.checked         = isReloadBip
+		mItemHalfAnimSpeed.checked     = isHalfAnimSpeed
+		mItemRemoveRootKeepAnim.checked = isRemoveRootKeepAnim
 	)
 
 	on mItemEulerFilter picked do
@@ -732,10 +736,16 @@ rcmenu menuBsRetarget
 		mItemHalfAnimSpeed.checked = not mItemHalfAnimSpeed.checked
 		isHalfAnimSpeed            = mItemHalfAnimSpeed.checked
 	)
+
+	on mItemRemoveRootKeepAnim picked do
+	(
+		mItemRemoveRootKeepAnim.checked = not mItemRemoveRootKeepAnim.checked
+		isRemoveRootKeepAnim            = mItemRemoveRootKeepAnim.checked
+	)
 )
 
 -- The rollout used for this script.
-rollout rolBsRetarget "BsRetargetTools_v4.8 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v5.0 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 
@@ -1380,6 +1390,51 @@ rollout rolBsRetarget "BsRetargetTools_v4.8 （ FBX 转 BIP + 动画重定向 �
 			-- (GetBipedNode 1).controller.triangleNeck = true
 			-- (GetBipedNode 1).transform.controller.figureMode = false
 
+			-- 移除 Root 保留动画
+			if isRemoveRootKeepAnim and (getnodebyname "Root") != undefined then
+			(
+				local rootNode = getnodebyname "Root"
+				local bipRoot = GetBipedNode 1
+				
+				-- 记录质心在世界空间的每帧位置和旋转
+				local bipWorldPosList = #()
+				local bipWorldRotList = #()
+				
+				for t = animationRange.start to animationRange.end do
+				(
+					at time t
+					(
+						append bipWorldPosList (in coordsys world Biped.getTransform bipRoot #pos)
+						append bipWorldRotList (in coordsys world Biped.getTransform bipRoot #rotation)
+					)
+				)
+				
+				-- 断开父子关系
+				bipRoot.parent = undefined
+				
+				-- 创建新层并应用世界空间动画
+				biped.createLayer bipRoot.controller 1 "layerRemoveRoot"
+				biped.setcurrentlayer bipRoot.controller 1
+				
+				local f = 1
+				for t = animationRange.start to animationRange.end do
+				(
+					slidertime = t
+					with animate on
+					(
+						in coordsys world Biped.setTransform bipRoot #pos bipWorldPosList[f] true
+						in coordsys world Biped.setTransform bipRoot #rotation bipWorldRotList[f] true
+						f += 1
+					)
+				)
+				
+				-- 合并层
+				biped.collapseAtLayer bipRoot.controller 0
+				
+				-- 删除 Root 骨骼
+				delete rootNode
+			)
+
 			saveMaxFile tarMaxFile saveAsVersion:((rolBsRetarget.ddlSaveVersion.selected) as integer) clearNeedSaveFlag:true quiet:true
 			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
 			select arrExport
@@ -1434,6 +1489,52 @@ rollout rolBsRetarget "BsRetargetTools_v4.8 （ FBX 转 BIP + 动画重定向 �
 			-- fnTransferRootAnim()
 
 			animationrange = (interval zeroFrame endFrame)
+
+			-- 移除 Root 保留动画
+			if isRemoveRootKeepAnim and (getnodebyname "Root") != undefined then
+			(
+				local rootNode = getnodebyname "Root"
+				local bipRoot = GetBipedNode 1
+				
+				-- 记录质心在世界空间的每帧位置和旋转
+				local bipWorldPosList = #()
+				local bipWorldRotList = #()
+				
+				for t = animationRange.start to animationRange.end do
+				(
+					at time t
+					(
+						append bipWorldPosList (in coordsys world Biped.getTransform bipRoot #pos)
+						append bipWorldRotList (in coordsys world Biped.getTransform bipRoot #rotation)
+					)
+				)
+				
+				-- 断开父子关系
+				bipRoot.parent = undefined
+				
+				-- 创建新层并应用世界空间动画
+				biped.createLayer bipRoot.controller 1 "layerRemoveRoot"
+				biped.setcurrentlayer bipRoot.controller 1
+				
+				local f = 1
+				for t = animationRange.start to animationRange.end do
+				(
+					slidertime = t
+					with animate on
+					(
+						in coordsys world Biped.setTransform bipRoot #pos bipWorldPosList[f] true
+						in coordsys world Biped.setTransform bipRoot #rotation bipWorldRotList[f] true
+						f += 1
+					)
+				)
+				
+				-- 合并层
+				biped.collapseAtLayer bipRoot.controller 0
+				
+				-- 删除 Root 骨骼
+				delete rootNode
+			)
+
 			saveMaxFile tarMaxFile saveAsVersion:((rolBsRetarget.ddlSaveVersion.selected) as integer) clearNeedSaveFlag:true quiet:true
 			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
 			select arrExport
