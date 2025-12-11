@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2022-11-17 13:05:32
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-12-11 15:04:28
+ * @LastEditTime: 2025-12-11 16:26:28
  * @Email: animator.bullet@foxmail.com
  */
 -- BipedRigCreator_v3.3.2_Enhanced
@@ -748,140 +748,175 @@ rcmenu menuBsRetarget
 rollout rolBsRetarget "BsRetargetTools_v5.0 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
+	local winW = 655  -- 窗口宽度
+	local margin = 8 -- 边距
+	local listW = 117 -- 列表宽度
+	local rightPanelX = 485 -- 右侧面板起始X
+	local rightPanelW = 162 -- 右侧面板宽度
+	local btnWidth = 150    -- 按钮宽度
+	local listH = 38        -- 列表高度(行数)
 
-	dotnetcontrol lblTitle "Label" text:"选择Bone，左键填入列表，右键重置，除【可选】以外，需要映射列表完整，按【1234】顺序执行即可" pos:[0,5] width:(rolBsRetarget.width - 50) height:16
-	button btnHelp "❓" pos:[(rolBsRetarget.width - 45),3] width:40 height:20 tooltip:"点击查看使用帮助"
-	dotNetControl tabBsADT "System.Windows.Forms.TabControl" height:30 width:rolBsRetarget.width pos:[0,25] align:#center
-	-- Contains the names of the first 35 biped bones for reference
-	dotnetcontrol lblPreset "Label" text:"[重要]  映射列表 和 手指轴向 配置预设 【List】→ ：" pos:[10,65] width:280 height:20
-	dropdownList ddlPreset "" pos:[300,65] width:140 height:20 items:#() selection:1
-	button btnApplyList "应用" pos:[445,65] width:35 height:20 tooltip:"右键可打开预设存放文件夹"
-	dotnetcontrol lblRoot "Label" text:"[可选] 指认原 Bone 骨骼内的根节点 【 Root 】→ ：" pos:[10,95] width:280 height:20
-	listbox lbxRoot "" pos:[300,95] height:1 width:180 items:#("~undefined~") selection:0
-	listbox bipedBones "Bip 节点 1 - 37" pos:[10,120] across:4 height:37 width:114 selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
-	-- visible:false
-    -- Contains the names of the first 35 bones used from the original rig
-	listbox characterBones "Bone 骨骼 1 - 37" pos:[130,120]height:37 width:114 items:#("~undefined~") selection:0
+	-- ========== 顶部标题区域 ==========
+	dotnetcontrol lblTitle "Label" text:"选择Bone，左键填入列表，右键重置，除【可选】外需映射完整，按【1234】顺序执行" pos:[10,3] width:(rightPanelX + 115) height:18
+	button btnHelp "?" pos:[(winW - 38),1] width:32 height:20 tooltip:"点击查看使用帮助"
 	
-	-- Contains the names of the reamining biped bones for reference
-	listbox bipedBones_B "Bip 节点 38 - 69" pos:[250,120] height:37 width:114 selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
-	-- Contains the names of the remaining original rig's bones.
-	listbox characterBones_B "Bone 骨骼 38 - 69" pos:[370,120] height:37 width:114 items:#("~undefined~") selection:0
+	-- ========== Tab 控件 ==========
+	dotNetControl tabBsADT "System.Windows.Forms.TabControl" height:30 width:winW pos:[0,23] align:#center
+	
+	-- ========== Tab1: 预设和Root区域 ==========
+	dotnetcontrol lblPreset "Label" text:"[重要] 映射列表和手指轴向配置预设【List】:" pos:[margin,55] width:280 height:17
+	dropdownList ddlPreset "" pos:[305,55] width:125 height:20 items:#() selection:1
+	button btnApplyList "应用" pos:[435,55] width:38 height:20 tooltip:"右键可打开预设存放文件夹"
+	
+	dotnetcontrol lblRoot "Label" text:"[可选] 指认原 Bone 骨骼内的根节点【Root】:" pos:[margin,77] width:290 height:17
+	listbox lbxRoot "" pos:[305,77] height:1 width:168 items:#("~undefined~") selection:0
+	
+	-- ========== Tab1: 四个映射列表 ==========
+	listbox bipedBones "Bip 节点 1-37" pos:[margin,100] height:listH width:listW selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
+	listbox characterBones "Bone 骨骼 1-37" pos:[margin+listW+2,100] height:listH width:listW items:#("~undefined~") selection:0
+	listbox bipedBones_B "Bip 节点 38-69" pos:[margin+listW*2+4,100] height:listH width:listW selection:0 items:#("Biped Root", "Biped Pelvis", "Biped Spine 0", "Biped Spine 1")
+	listbox characterBones_B "Bone 骨骼 38-69" pos:[margin+listW*3+6,100] height:listH width:listW items:#("~undefined~") selection:0
 	
 	local switchFBXTools = false
-    local btnWidth   = 145
 	local arrSaveVer = (for i = 0 to 3 collect ("20" + (((maxversion())[1]/1000)-2-i) as string))
 
-    groupbox grpRetargetList "便捷工具" pos:[490,65] width:(btnWidth + 10) height:125
-
-	-- label lblTips "" pos:[260,450] width:200 height:30
-	-- pickbutton pkbRootMption "0. 指定原 RootMotion" pos:[20,505] height:30 width:(btnWidth) message:"指定原始 FBX 的 RootMotion" autoDisplay:true tooltip:"右键清除选择"
-    button loadDialogue "1.加载列表" pos:[100,630] width:(btnWidth/2+10) height:16
-    button saveDialogue "1.保存列表" pos:[100,650] width:(btnWidth/2+10) height:16
-	button btnQuickTools "⚡️ 快速便捷小工具 ⚡️" pos:[495,145] width:btnWidth height:35 tooltip:"快速创建 nub 骨骼或符合 Biped 的质心。"
-	button btnAutoMapping "0. 按命名匹配" pos:[10,630] width:(btnWidth-60) height:35 tooltip:"根据通用的身体骨骼名称，自动检索匹配。"
-	button validateButton "2. 验证映射列表完整" pos:[190,630] width:btnWidth height:35 tooltip:"必须验证匹配是否完整。"
-    
-    groupbox grpBiped "【可选】轴向设置" pos:[490,200] width:(btnWidth + 10) height:290
-	spinner spnObjSize "选中物体 Size: " pos:[500,86] range:[0.01,1000,5] align:#left offset:[2,0] fieldwidth:40 scale:0.01
-	button btnResetSize "重置选中物体大小" pos:[495,110] width:btnWidth height:30 tooltip:"重置选中辅助骨骼大小"
-	button btnHandAxisTips "💡 手指轴向提示 💡" pos:[495,268] width:btnWidth height:30 tooltip:"试图自动检测轴向失败~"
-	label lblThumbAxis "(左)拇指 右轴" pos:[500,307] width:70 height:25
-	dropdownList ddlThumbAxis "" pos:[590,305] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	label lblHandAxis "(左)四指 右轴" pos:[500,332] width:70 height:25
-	dropdownList ddlHandAxis "" pos:[590,330] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	label lblThumbAxis2 "(右)拇指 右轴" pos:[500,357] width:70 height:25
-	dropdownList ddlThumbAxis2 "" pos:[590,355] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	label lblHandAxis2 "(右)四指 右轴" pos:[500,382] width:70 height:25
-	dropdownList ddlHandAxis2 "" pos:[590,380] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	label lblPalmAxis "(左)手掌 右轴" pos:[500,407] width:70 height:25
-	dropdownList ddlPalmAxis "" pos:[590,405] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	label lblPalmAxis2 "(右)手掌 右轴" pos:[500,432] width:70 height:25
-	dropdownList ddlPalmAxis2 "" pos:[590,430] width:50 height:25 items:#("X","Y","Z","-X","-Y","-Z") selection:3
-	button reAlignFingers "🤞🏼 重新对齐手指 🤞🏼" pos:[495,460] width:(btnWidth) height:20
-	-- checkbox chkRenameBiped "Biped 保持 Bone 原名" checked:false pos:[164,535] width:(btnWidth + 20) height:20
-	-- radiobuttons rdoUpAxis " 映射 RootMotion 轴向" pos:[155,500] width:154 height:46 labels:#("Y-Up (U3D)", "Z-Up (UE)") columns:2 default:2
-	label lblUpAxis "引擎 RootMotion 选择" pos:[500,220] width:120 height:20
-	dropdownList ddlUpAxis "" pos:[495,240] width:145 height:25 items:#("Y-Up (U3D) -  Unity","Z-Up (UE)   -  Unreal") selection:2
-	checkbox chkCopySubs "需要重定向飘带动画" pos:[500,570] height:20 width:(btnWidth-10) checked:false
-    button alignBipedToHelper "3. 创建重定向映射文件" pos:[345,630] width:btnWidth height:35
-    
-    -- button btnExportTPose "[可选]导出 Biped Figure Pose" pos:[305,505] width:(btnWidth + 35) height:25
+	-- ========== 右侧面板: 便捷工具区 ==========
+	groupbox grpRetargetList "便捷工具" pos:[rightPanelX,53] width:rightPanelW height:105
+	spinner spnObjSize "Size:" pos:[rightPanelX+8,72] range:[0.01,1000,5] align:#left fieldwidth:45 scale:0.01
+	button btnResetSize "重置物体大小" pos:[rightPanelX+5,94] width:(btnWidth) height:24 tooltip:"重置选中辅助骨骼大小"
+	button btnQuickTools "快速便捷小工具" pos:[rightPanelX+5,122] width:(btnWidth) height:28 tooltip:"快速创建 nub 骨骼或符合 Biped 的质心"
 	
-	button btnReplaceToBiped "4. FBX 转 Biped (Skin)" pos:[500,630] width:btnWidth height:35
-    -- checkbutton ckbExportFBXTools "🎮 动画批量重定向工具" pos:[305,555] width:(btnWidth + 35) height:45
-
-	groupbox grpBoneTips "【慎用】除非你知道用途" pos:[490,498] width:(btnWidth + 10) height:125
-
-	checkbox chkRealign "↓↓ 重置 Bone 轴向 ↓↓" pos:[500,520] height:20 width:(btnWidth - 10) checked:false
-	button btnConvertToBone "[慎用] Helper 转 Bone" pos:[495,545] height:20 width:(btnWidth) tooltip:"需要选中"
-	checkbox chkFbxMixBip "FBX 套接 Biped 控制" pos:[500,595] height:20 width:(btnWidth - 10) checked:false
+	-- ========== 右侧面板: 轴向设置区 ==========
+	groupbox grpBiped "【可选】轴向设置" pos:[rightPanelX,162] width:rightPanelW height:175
+	label lblUpAxis "引擎:" pos:[rightPanelX+8,180] width:35 height:16
+	dropdownList ddlUpAxis "" pos:[rightPanelX+42,178] width:112 height:20 items:#("Y-Up (Unity)","Z-Up (Unreal)") selection:2
+	button btnHandAxisTips "手指轴向说明" pos:[rightPanelX+5,202] width:(btnWidth) height:22 tooltip:"点击查看手指轴向设置说明"
 	
-	button btnRefreshFolder ">>  按默认规则刷新路径和文件  <<" \
-	height:40 width:225 pos:[240,65] tooltip:"刷新当前文件目录\r\n并按默认规则寻找文件\r\n映射文件为当前打开文件\r\n新 Skin 文件为同目录 Skin.max" visible:false
-	edittext edtAllTips text:"打开映射文件\r\n\r\n按规则刷新路径\r\n\r\n会找同目录下的 \r\n\r\nSkin.max（转的蒙皮文件）\r\n\r\nAniFBX（原fbx动画目录）\r\n\r\nReOutput（新导出目录）
-\r\n\r\n\r\n\r\n映射文件为\r\n\r\n前面fbx转biped\r\n\r\n的中间文件\r\n\r\nskin文件为\r\n\r\n最后转的文件\r\n\r\n注意分别保存\r\n\r\n注意检查映射文件\r\n\r\n的手指轴向（Y内Z右）\r\n\r\n\r\n\r\n\r\n清零Root曲线不用点\r\n\r\n暂时没多大用\r\n\r\n是测试用小工具" pos:[475,65] height:530 width:165 readOnly:true visible:false
+	-- 轴向设置：左右并排布局
+	label lblLeftHand "左手" pos:[rightPanelX+58,226] width:40 height:14
+	label lblRightHand "右手" pos:[rightPanelX+108,226] width:40 height:14
+	
+	label lblThumbAxis "拇指:" pos:[rightPanelX+10,244] width:40 height:16
+	dropdownList ddlThumbAxis "" pos:[rightPanelX+50,241] width:50 height:20 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	dropdownList ddlThumbAxis2 "" pos:[rightPanelX+103,241] width:50 height:20 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	
+	label lblHandAxis "四指:" pos:[rightPanelX+10,267] width:40 height:16
+	dropdownList ddlHandAxis "" pos:[rightPanelX+50,264] width:50 height:20 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	dropdownList ddlHandAxis2 "" pos:[rightPanelX+103,264] width:50 height:20 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	
+	label lblPalmAxis "手掌:" pos:[rightPanelX+10,290] width:40 height:16
+	dropdownList ddlPalmAxis "" pos:[rightPanelX+50,287] width:50 height:20 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	dropdownList ddlPalmAxis2 "" pos:[rightPanelX+103,287] width:50 height:20 items:#("X","Y","Z","-X","-Y","-Z") selection:3
+	
+	-- 隐藏的占位标签（保持兼容性）
+	label lblThumbAxis2 "" pos:[9999,9999] width:0 height:0
+	label lblHandAxis2 "" pos:[9999,9999] width:0 height:0
+	label lblPalmAxis2 "" pos:[9999,9999] width:0 height:0
+	
+	button reAlignFingers "重新对齐手指" pos:[rightPanelX+5,312] width:(btnWidth) height:20
+	
+	-- ========== 右侧面板: 慎用区域 ==========
+	groupbox grpBoneTips "【慎用】高级选项" pos:[rightPanelX,342] width:rightPanelW height:110
+	checkbox chkRealign "重置 Bone 轴向" pos:[rightPanelX+8,360] height:16 width:(btnWidth-10) checked:false
+	button btnConvertToBone "Helper 转 Bone" pos:[rightPanelX+5,380] height:22 width:(btnWidth) tooltip:"需要选中 Helper 对象"
+	checkbox chkCopySubs "重定向飘带动画" pos:[rightPanelX+8,406] height:16 width:(btnWidth-10) checked:false
+	checkbox chkFbxMixBip "FBX 套接 Biped" pos:[rightPanelX+8,424] height:16 width:(btnWidth-10) checked:false
+	
+	-- ========== 底部操作按钮区 ==========
+	button btnAutoMapping "1.自动匹配" pos:[margin,625] width:92 height:32 tooltip:"根据通用骨骼名称自动匹配"
+	button loadDialogue "加载列表" pos:[margin+96,625] width:60 height:15 tooltip:"加载映射列表文件"
+	button saveDialogue "保存列表" pos:[margin+96,642] width:60 height:15 tooltip:"保存映射列表文件"
+	button validateButton "2.验证映射" pos:[margin+160,625] width:92 height:32 tooltip:"验证映射列表是否完整"
+	button alignBipedToHelper "3.创建映射文件" pos:[margin+256,625] width:110 height:32 tooltip:"创建重定向映射中间文件"
+	button btnReplaceToBiped "4.FBX转Biped" pos:[margin+370,625] width:105 height:32 tooltip:"将 FBX 骨骼转换为 Biped"
 
-	listBox ltbFilesList "" selection:0 \
-	height:40 width:215 pos:[15,65] visible:false
+	-- ========== Tab2: 动画重定向界面 (初始隐藏) ==========
+	listBox ltbFilesList "" selection:0 height:41 width:225 pos:[margin,55] visible:false
 
+	button btnRefreshFolder ">>  刷新路径和文件  <<" \
+	height:32 width:200 pos:[245,55] tooltip:"刷新当前文件目录\n并按默认规则寻找文件" visible:false
+	
 	button btnLoadAnimPath "选择动画目录" tooltip:"选择原始动画目录" \
-	height:22 width:105 pos:[240,115] visible:false
-	button btnRefreshAnimFiles "刷新" \
-	height:22 width:60 pos:[345,115] visible:false
+	height:22 width:100 pos:[245,95] visible:false
+	button btnRefreshAnimFiles "刷新" height:22 width:46 pos:[349,95] visible:false
 	button btnOpenCurrentPath "打开" tooltip:"打开当前文件夹" \
-	height:22 width:60 pos:[405,115] border:true visible:false
+	height:22 width:46 pos:[399,95] border:true visible:false
 	editText edtAnimFbxPath "" text:"" labelOnTop:true \
-	height:22 fieldWidth:225 pos:[240,145] readOnly:true visible:false
+	height:20 fieldWidth:200 pos:[245,122] readOnly:true visible:false
 	
-	button btnOutputPath "选择导出目录" pos:[240,175] width:165 visible:false \
-	tooltip:"导出的重定向动画 FBX 保存目录，\r\n新 Skin 动画目录在：\r\n此目录的 *\NewFbx 目录下。"
-	button btnOpedOutputPath "打开" pos:[405,175] width:60 visible:false \
+	button btnOutputPath "选择导出目录" pos:[245,150] width:146 visible:false \
+	tooltip:"导出的重定向动画 FBX 保存目录"
+	button btnOpedOutputPath "打开" pos:[399,150] width:46 visible:false \
 	tooltip:"打开重定向文件导出目录"
 	editText edtOutputPath "" text:"" labelOnTop:true \
-	height:22 fieldWidth:225 pos:[240,200] readOnly:true visible:false
-    
-	button btnSelectMappingFile "选择映射文件" pos:[240,230] width:165 visible:false \
-	tooltip:"选择以 Bone 骨架生成的 Biped 映射文件"
-	button btnOpenMappingFile "打开" pos:[405,230] width:60 visible:false \
-	tooltip:"打开映射文件"
-    editText edtMappingFile "" text:"" labelOnTop:true \
-	height:22 fieldWidth:225 pos:[240,260] readOnly:true visible:false
+	height:20 fieldWidth:200 pos:[245,175] readOnly:true visible:false
 	
-	button btnSelectSkinFile "选择新 Skin 文件" pos:[240,295] width:165 visible:false \
+	button btnSelectMappingFile "选择映射文件" pos:[245,203] width:146 visible:false \
+	tooltip:"选择以 Bone 骨架生成的 Biped 映射文件"
+	button btnOpenMappingFile "打开" pos:[399,203] width:46 visible:false \
+	tooltip:"打开映射文件"
+	editText edtMappingFile "" text:"" labelOnTop:true \
+	height:20 fieldWidth:200 pos:[245,228] readOnly:true visible:false
+	
+	button btnSelectSkinFile "选择新Skin文件" pos:[245,256] width:146 visible:false \
 	tooltip:"选择新的 Skin 文件"
-	button btnOpenSkinFile "打开" pos:[405,295] width:60 visible:false \
+	button btnOpenSkinFile "打开" pos:[399,256] width:46 visible:false \
 	tooltip:"打开新 Skin 文件"
-    editText edtSkinFile "" text:"" labelOnTop:true \
-	height:22 fieldWidth:225 pos:[240,325] readOnly:true visible:false
+	editText edtSkinFile "" text:"" labelOnTop:true \
+	height:20 fieldWidth:200 pos:[245,281] readOnly:true visible:false
 
-	checkbox chkRecoverExport "不覆盖导出，用于崩溃后继续重导" checked:false pos:[250,355] width:225 height:20 visible:false
-    button btnRetargetSelected ">>>   重定向列表选中动画   <<<" pos:[240,430] width:225 height:30 visible:false \
-	tooltip:"重定向列表选中的动画并且打开\r\n会保存一份 .max 和 .FBX 文件"
-    button btnRetargettAll ">>>   重定向列表所有动画   <<<" pos:[240,470] width:225 height:30 visible:false \
-	tooltip:"重定向列表选中的动画\r\n会保存一份 .max 和 .FBX 文件\r\n可能比较慢..."
-	button btnSpecial "[自用] 后处理集合" pos:[240,385] width:110 height:25 visible:false border:true
-	label lblVerTips "保存版本:" pos:[355,390] width:60 height:25 visible:false
-	dropdownList ddlSaveVersion "" pos:[410,387] width:55 items:arrSaveVer visible:false
-	button btnCount "待处理原始动画 FBX 数：0 个" pos:[15,600] width:215 height:30 visible:false border:true tooltip:"打开原始动画 FBX 文件夹"
+	checkbox chkRecoverExport "不覆盖导出(崩溃后继续)" checked:false pos:[250,310] width:195 height:18 visible:false
+	button btnSpecial "[自用]后处理" pos:[245,335] width:90 height:24 visible:false border:true
+	label lblVerTips "版本:" pos:[342,340] width:32 height:18 visible:false
+	dropdownList ddlSaveVersion "" pos:[375,337] width:55 items:arrSaveVer visible:false
+	
+	button btnRetargetSelected ">>>  重定向选中动画  <<<" pos:[245,370] width:200 height:30 visible:false \
+	tooltip:"重定向列表选中的动画\n会保存 .max 和 .FBX 文件"
+	button btnRetargettAll ">>>  重定向所有动画  <<<" pos:[245,405] width:200 height:30 visible:false \
+	tooltip:"重定向列表所有动画\n可能比较慢..."
 
-	checkbox chkXAxis "X" pos:[245,563] width:30 height:30 visible:false
-	checkbox chkYAxis "Y" pos:[275,563] width:30 height:30 visible:false
-	checkbox chkZAxis "Z" pos:[305,563] width:30 height:30 visible:false
-	button btnBatchAll "清零 Root 位移曲线" pos:[340,565] width:125 height:25 visible:false border:false tooltip:"自用"
+	checkbox chkXAxis "X" pos:[250,445] width:32 height:20 visible:false
+	checkbox chkYAxis "Y" pos:[285,445] width:32 height:20 visible:false
+	checkbox chkZAxis "Z" pos:[320,445] width:32 height:20 visible:false
+	button btnBatchAll "清零Root位移" pos:[355,443] width:90 height:22 visible:false border:false tooltip:"清零Root位移曲线"
+	
+	button btnCount "待处理: 0 个" pos:[margin,610] width:225 height:26 visible:false border:true tooltip:"打开原始动画 FBX 文件夹"
 
-    progressbar pgbBar "" pos:[10,675] width:590 height:16 color:white
-	label lblBarValue "" pos:[610,675] width:60
+	-- Tab2 右侧说明（精简）
+	edittext edtAllTips text:"【说明】\n\n映射文件=FBX转Biped中间文件\n\nSkin文件=最终蒙皮文件\n\n\n\n目录结构:\n\n- Skin.max\n- AniFBX/\n- ReOutput/" \
+	pos:[rightPanelX-30,55] height:200 width:(rightPanelW+30) readOnly:true visible:false
 
-	local arrFBXtoBIPED   = #(">> 【 FBX 转 Biped 】 <<",#(lblPreset,ddlPreset,btnApplyList,lblRoot,lbxRoot,bipedBones,characterBones,bipedBones_B,characterBones_B,grpRetargetList,loadDialogue,saveDialogue,\
-											btnAutoMapping,btnQuickTools,validateButton,grpBiped,spnObjSize,btnResetSize,lblThumbAxis,ddlThumbAxis,btnHandAxisTips,grpBoneTips,\
-											lblHandAxis,ddlHandAxis,lblThumbAxis2,ddlThumbAxis2,ddlHandAxis2,lblHandAxis2,lblPalmAxis,ddlPalmAxis,lblPalmAxis2,ddlPalmAxis2,reAlignFingers,lblUpAxis,ddlUpAxis,chkCopySubs,alignBipedToHelper,\
-											btnReplaceToBiped,chkRealign,btnConvertToBone,chkFbxMixBip))
-	local arrAnimRetarget = #(">> 【 动画重定向 】<<",#(btnRefreshFolder,ltbFilesList,btnLoadAnimPath,btnRefreshAnimFiles,btnOpenCurrentPath,edtAnimFbxPath,btnOutputPath,\
-											btnOpedOutputPath,edtOutputPath,btnSelectMappingFile,btnOpenMappingFile,edtMappingFile,btnSelectSkinFile,btnOpenSkinFile,\
-											edtSkinFile,chkRecoverExport,btnRetargetSelected,btnRetargettAll,chkXAxis,chkYAxis,chkZAxis,btnBatchAll,\
-											btnSpecial,lblVerTips,ddlSaveVersion,btnCount,edtAllTips))
-	local arrAllToolsTab  = #(arrFBXtoBIPED,arrAnimRetarget)
+	-- ========== 进度条区域 ==========
+	progressbar pgbBar "" pos:[margin,660] width:(winW-55) height:16 color:white
+	label lblBarValue "0 %" pos:[(winW-42),661] width:38
+
+	-- Tab1 控件列表: FBX 转 Biped
+	local arrFBXtoBIPED = #(">> 【 FBX 转 Biped 】 <<",#(
+		lblPreset,ddlPreset,btnApplyList,lblRoot,lbxRoot,
+		bipedBones,characterBones,bipedBones_B,characterBones_B,
+		grpRetargetList,spnObjSize,btnResetSize,btnQuickTools,
+		grpBiped,lblUpAxis,ddlUpAxis,btnHandAxisTips,
+		lblLeftHand,lblRightHand,
+		lblThumbAxis,ddlThumbAxis,ddlThumbAxis2,
+		lblHandAxis,ddlHandAxis,ddlHandAxis2,
+		lblPalmAxis,ddlPalmAxis,ddlPalmAxis2,
+		lblThumbAxis2,lblHandAxis2,lblPalmAxis2,
+		reAlignFingers,
+		grpBoneTips,chkRealign,btnConvertToBone,chkCopySubs,chkFbxMixBip,
+		btnAutoMapping,loadDialogue,saveDialogue,validateButton,alignBipedToHelper,btnReplaceToBiped
+	))
+	-- Tab2 控件列表: 动画重定向
+	local arrAnimRetarget = #(">> 【 动画重定向 】<<",#(
+		btnRefreshFolder,ltbFilesList,
+		btnLoadAnimPath,btnRefreshAnimFiles,btnOpenCurrentPath,edtAnimFbxPath,
+		btnOutputPath,btnOpedOutputPath,edtOutputPath,
+		btnSelectMappingFile,btnOpenMappingFile,edtMappingFile,
+		btnSelectSkinFile,btnOpenSkinFile,edtSkinFile,
+		chkRecoverExport,btnSpecial,lblVerTips,ddlSaveVersion,
+		btnRetargetSelected,btnRetargettAll,
+		chkXAxis,chkYAxis,chkZAxis,btnBatchAll,btnCount,edtAllTips
+	))
+	local arrAllToolsTab = #(arrFBXtoBIPED,arrAnimRetarget)
 
 	local pathMappingListPreset = ((getDir #scripts) + "\\BulletScripts\\Res\\BsMappingList\\")
 	local arrMappingListFile = #()
@@ -957,15 +992,26 @@ rollout rolBsRetarget "BsRetargetTools_v5.0 （ FBX 转 BIP + 动画重定向 �
 
 	fn fnInitDotTabs =
 	(
-		lblTitle.font      = lblPreset.font = lblRoot.font = dotnetobject "System.Drawing.Font" "Roboto" 8
-		lblTitle.TextAlign = lblPreset.TextAlign = lblRoot.TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleCenter
-		lblTitle.BackColor = lblPreset.BackColor = lblRoot.BackColor = (dotColor.FromArgb	200 200 200)
-		lblTitle.ForeColor = lblPreset.ForeColor = lblRoot.ForeColor = (dotColor.FromArgb 139 0 0)
-		tabBsADT.sizeMode  = (dotnetclass "System.Windows.Forms.TabSizeMode").Fixed
-		tabBsADT.itemSize  = dotNetObject "System.Drawing.Size" (rolBsRetarget.width/arrAllToolsTab.count - arrAllToolsTab.count) 30
-		tabBsADT.dock      = tabBsADT.dock.Fill
-		tabBsADT.Drawmode  = tabBsADT.Drawmode.OwnerDrawFixed
+		-- 设置标签字体和样式
+		local dotFont = dotnetobject "System.Drawing.Font" "Microsoft YaHei UI" 8.5
+		lblTitle.font = lblPreset.font = lblRoot.font = dotFont
+		lblTitle.TextAlign = lblPreset.TextAlign = lblRoot.TextAlign = (dotnetclass "system.drawing.contentalignment").MiddleLeft
+		
+		-- 设置标签颜色
+		local tipsBgColor = (dotColor.FromArgb 220 230 240)
+		local tipsFgColor = (dotColor.FromArgb 50 80 120)
+		lblTitle.BackColor = tipsBgColor
+		lblTitle.ForeColor = tipsFgColor
+		lblPreset.BackColor = lblRoot.BackColor = (dotColor.FromArgb 245 245 245)
+		lblPreset.ForeColor = lblRoot.ForeColor = (dotColor.FromArgb 80 80 80)
+		
+		-- 设置 Tab 控件
+		tabBsADT.sizeMode = (dotnetclass "System.Windows.Forms.TabSizeMode").Fixed
+		tabBsADT.itemSize = dotNetObject "System.Drawing.Size" (winW/arrAllToolsTab.count - arrAllToolsTab.count) 30
+		tabBsADT.dock = tabBsADT.dock.Fill
+		tabBsADT.Drawmode = tabBsADT.Drawmode.OwnerDrawFixed
 
+		-- 添加 Tab 页
 		for aTab = 1 to arrAllToolsTab.count do
 		(
 			tabBsADT.TabPages.add arrAllToolsTab[aTab][1]
@@ -974,23 +1020,28 @@ rollout rolBsRetarget "BsRetargetTools_v5.0 （ FBX 转 BIP + 动画重定向 �
 
 	fn fnChangeToolsVisble id =
 	(
+		-- 切换 Tab 页显示
 		for i = 1 to arrAllToolsTab.count do 
 		(
 			if i == id then
 			(
 				for j in arrAllToolsTab[i][2] do j.visible = true
 			)
-			else (for j in arrAllToolsTab[i][2] do j.visible = false)
-
-			if id != 1 then 
-			(
-				lblPreset.pos = lblRoot.pos = [9999,9999]
-			)
 			else 
 			(
-				lblPreset.pos = [10,65]
-				lblRoot.pos = [10,95]
+				for j in arrAllToolsTab[i][2] do j.visible = false
 			)
+		)
+
+		-- Tab1 时显示预设和Root标签
+		if id != 1 then 
+		(
+			lblPreset.pos = lblRoot.pos = [9999,9999]
+		)
+		else 
+		(
+			lblPreset.pos = [margin,55]
+			lblRoot.pos = [margin,77]
 		)
 		LastSubRollout = id
 	)
@@ -4474,7 +4525,7 @@ rollout rolBsRetarget "BsRetargetTools_v5.0 （ FBX 转 BIP + 动画重定向 �
 	)
 )
 
-createDialog rolBsRetarget 650 700 style:#(#style_sysmenu, #style_toolwindow) fgcolor:myFgColor
+createDialog rolBsRetarget 655 690 style:#(#style_sysmenu, #style_toolwindow) fgcolor:myFgColor
 
 
 
@@ -4568,31 +4619,45 @@ for  i=2 to rolBsRetarget.bipedBones_B.items.count do
 )
 
 -- 简洁的帮助窗口
-rollout rolHelpDialog "BsRetargetTools 使用帮助" width:450 height:520
+rollout rolHelpDialog "BsRetargetTools 使用帮助" width:480 height:560
 (
-    label lblTitle "🎯 BsRetargetTools 快速使用指南" pos:[10,10] width:430 height:20
-    
-    groupbox grpSteps "📋 使用步骤" pos:[10,40] width:430 height:200
-    label lblStep0 "0. 骨骼映射：将原始骨骼填入对应的Biped位置，缺失的Nub可自动创建" pos:[20,60] width:410 height:20
-    label lblStep1 "1. 验证映射：选择预设模板 或 点击【自动匹配】→【验证】完整性" pos:[20,80] width:410 height:20
-    label lblStep2 "2. 调整参数：设置手指轴向、选择目标引擎(Unity/Unreal)" pos:[20,100] width:410 height:20
-    label lblStep3 "3. 创建映射：点击【创建重定向映射文件】生成中间文件" pos:[20,120] width:410 height:20
-    label lblStep4 "4. 转换骨架：点击【FBX 转 Biped (Skin)】生成目标骨架" pos:[20,140] width:410 height:20
-	label lblStep42 "4. 转换骨架：上面可选保留原Bone，用Biped当做一套控制器" pos:[20,140] width:410 height:20
-    label lblStep5 "5. 重定向动画：切换到【动画重定向】页签，批量处理动画" pos:[20,160] width:410 height:20
-    label lblStep6 "6. 检查结果：在ReOutput文件夹查看生成的FBX/MAX/BIP文件" pos:[20,180] width:410 height:20
-    
-    groupbox grpTips "💡 重要提示" pos:[10,250] width:430 height:140
-    label lblTip1 "• 必需骨骼：除标记【可选】的骨骼外，其他必须完整映射" pos:[20,270] width:410 height:20
-    label lblTip2 "• 手指轴向：选择手掌或手指，靠身后的Local轴向（通常为Y或Z轴）" pos:[20,290] width:410 height:20
-    label lblTip3 "• 文件结构：建议使用 MappingFile.max、Skin.max、AniFBX、ReOutput" pos:[20,310] width:410 height:20
-    label lblTip4 "• 自动创建：HeadNub、FootNub、手指Nub等辅助骨骼可一键生成" pos:[20,330] width:410 height:20
-	label lblTip5 "• 慎用选项：可选转换Biped时保留原来Bone骨骼，套接Biped当控制器" pos:[20,350] width:410 height:20
-    
-    groupbox grpContact "📞 作者信息" pos:[10,400] width:430 height:100
-    label lblAuthor "作者：Bullet.S" pos:[20,420] width:410 height:20
-    hyperLink hlHomepage "🏠 个人主页：www.anibullet.com" pos:[20,440] width:410 height:20 \
-        address:"https://www.anibullet.com/" color:(color 0 100 200) hovercolor:(color 0 150 255)
-    hyperLink hlTutorial "📺 视频教程：Bilibili教程合集" pos:[20,460] width:410 height:20 \
-        address:"https://space.bilibili.com/2031113/lists/560782?type=season" color:(color 0 100 200) hovercolor:(color 0 150 255)
+	local helpW = 480
+	local helpM = 12  -- margin
+	local contentW = helpW - helpM*2
+	local lineH = 22
+	
+	-- 标题
+	label lblTitle "BsRetargetTools 快速使用指南" pos:[helpM,10] width:contentW height:24 style_sunkenedge:true
+	
+	-- 使用步骤
+	groupbox grpSteps "使用步骤" pos:[helpM,42] width:contentW height:210
+	label lblStep0 "0. 骨骼映射：将原始骨骼填入对应的Biped位置" pos:[helpM+8,62] width:(contentW-16) height:lineH
+	label lblStep0b "        缺失的Nub骨骼可通过【快速便捷小工具】自动创建" pos:[helpM+8,82] width:(contentW-16) height:lineH
+	label lblStep1 "1. 验证映射：选择预设模板 或 点击【自动匹配】→【验证映射】" pos:[helpM+8,106] width:(contentW-16) height:lineH
+	label lblStep2 "2. 调整参数：设置手指轴向、选择目标引擎 (Unity / Unreal)" pos:[helpM+8,128] width:(contentW-16) height:lineH
+	label lblStep3 "3. 创建映射：点击【创建映射文件】生成重定向中间文件" pos:[helpM+8,150] width:(contentW-16) height:lineH
+	label lblStep4 "4. 转换骨架：点击【FBX转Biped】完成骨骼替换" pos:[helpM+8,172] width:(contentW-16) height:lineH
+	label lblStep5 "5. 重定向动画：切换【动画重定向】页签，批量处理动画文件" pos:[helpM+8,194] width:(contentW-16) height:lineH
+	label lblStep6 "6. 检查结果：在 ReOutput 文件夹查看生成的 FBX/MAX/BIP" pos:[helpM+8,216] width:(contentW-16) height:lineH
+	
+	-- 重要提示
+	groupbox grpTips "重要提示" pos:[helpM,258] width:contentW height:150
+	label lblTip1 "• 必需骨骼：除标记【可选】的骨骼外，其他都必须完整映射" pos:[helpM+8,278] width:(contentW-16) height:lineH
+	label lblTip2 "• 手指轴向：观察手指Local坐标，选择靠身后方向的轴" pos:[helpM+8,300] width:(contentW-16) height:lineH
+	label lblTip3 "• 文件结构：建议目录包含 Mapping.max / Skin.max / AniFBX /" pos:[helpM+8,322] width:(contentW-16) height:lineH
+	label lblTip4 "• 自动创建：HeadNub、FootNub、手指Nub 可一键生成" pos:[helpM+8,344] width:(contentW-16) height:lineH
+	label lblTip5 "• 慎用选项：可保留原Bone骨骼，用Biped作为控制器" pos:[helpM+8,366] width:(contentW-16) height:lineH
+	
+	-- 作者信息
+	groupbox grpContact "作者信息" pos:[helpM,414] width:contentW height:105
+	label lblAuthor "作者：Bullet.S" pos:[helpM+8,436] width:(contentW-16) height:lineH
+	hyperLink hlHomepage "个人主页：www.anibullet.com" pos:[helpM+8,460] width:(contentW-16) height:lineH \
+		address:"https://www.anibullet.com/" color:(color 30 90 180) hovercolor:(color 0 120 220)
+	hyperLink hlTutorial "视频教程：Bilibili 教程合集" pos:[helpM+8,484] width:(contentW-16) height:lineH \
+		address:"https://space.bilibili.com/2031113/lists/560782?type=season" color:(color 30 90 180) hovercolor:(color 0 120 220)
+	
+	-- 关闭按钮
+	button btnClose "关闭" pos:[(helpW/2-50),525] width:100 height:26
+	
+	on btnClose pressed do (destroyDialog rolHelpDialog)
 )
