@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-12-04 19:36:35
+ * @LastEditTime: 2025-12-10 22:40:26
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -2177,7 +2177,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	button btnTrajedit "轨迹线" pos:[60,140] width:50 height:25 \
 	tooltip:"动画轨迹工具个人优化版（by 东见云）\r\n左键原版优化\r\n右键重构新版"
 	button btnFileOpen "时光机" pos:[110,140] width:50 height:25 \
-	tooltip:"快速打开max文件\r\n可收藏常用目录"
+	tooltip:"左键新版，右键老版\r\n快速打开max文件\r\n可收藏常用目录"
 	button btnLightTable "洋葱皮" pos:[160,140] width:50 height:25 \
 	toolTip:"显示运动重影 (修改自San_oOo)"
 	checkButton ckbPlayBlocking "跳帧播" pos:[10,165] width:50 height:25 
