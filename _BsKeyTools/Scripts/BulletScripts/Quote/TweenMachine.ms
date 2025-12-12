@@ -3,7 +3,7 @@
  * @Author: Bullet.S
  * @Date: 2024-04-13 13:20:58
  * @LastEditors: Bullet.S
- * @LastEditTime: 2024-04-16 01:27:33
+ * @LastEditTime: 2025-12-12 16:21:11
  * @Email: animator.bullet@foxmail.com
  */
 
@@ -439,7 +439,8 @@ rollout rolBsTweenMachine "" width:410 height:120
 	
 	groupbox gpbOutline "" pos:[5,15] width:400 height:100
 
-	label lblTitle "TweenMachine_Mod_v2.1" pos:[5,3]
+	label lblTitle "TweenMachine_Mod_v2.2" pos:[5,3]
+
 	button btnLink "关于" pos:[rolBsTweenMachine.width - 100,0] height:16 width:50
 	button btnHelp "?" pos:[rolBsTweenMachine.width - 40,0] height:16 width:20
 	button btnClose "X" pos:[rolBsTweenMachine.width - 20,0] height:16 width:20 
@@ -448,8 +449,9 @@ rollout rolBsTweenMachine "" width:410 height:120
 	button more "++10" width:40 pos:[355,60] height:25
 	radiobuttons rdoType "" pos:[300,93] offsets:#([0,0],[0,0]) columns:2 labels:#("选中","全Bip") default:1
 	-- button btnFrameTick "整小数帧" pos:[132.5,90] width:65 height:20 checked:true
-	button btnStepPlay	"|◀▶| 切换" pos:[15,90] width:65 height:20
-	checkbutton chkAutoKey	"AutoKey(N)" pos:[90,90] width:80 height:20 checked:animButtonState
+	button btnStepPlay	"|◀▶|" pos:[15,90] width:35 height:20
+	checkbutton chkAutoKey	"AutoKey" pos:[55,90] width:60 height:20 checked:animButtonState
+	checkbutton chkRealTime "实时" pos:[120,90] width:50 height:20 checked:false tooltip:"开启实时预览 (拖动滑条时实时更新)"
 	
 	checkbutton prev "前 Pose" pos:[50,25] width:50 height:30 border:true checked:true
 	button twoNegativeHundred "-100" pos:[15,30] width:30 height:20 border:true tooltip:"慎用，可能出现未知pose...\r\n别怕，可以回退~"
@@ -523,6 +525,17 @@ rollout rolBsTweenMachine "" width:410 height:120
 	on tweenSl changed arg do
 	(
 		tweenSp.value = arg
+		if chkRealTime.checked and (maxOps.setKeyMode or animButtonState) do
+		(
+			sliderValue = tweenSP.value/100
+			try
+			(	
+				if rdoType.state !=	2 then tarObjs = (selection as array)
+				else tarObjs = (for obj in objects where (classof obj.baseObject == Biped_Object) collect obj)
+				TweenMachine sliderValue tarObjs
+			)
+			catch()
+		)
 	)
 	
 	on tweenSp changed arg do
