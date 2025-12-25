@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-12-10 22:40:26
+ * @LastEditTime: 2025-12-25 14:18:18
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -69,14 +69,39 @@ catch(try(massagebox (getCurrentException()));catch();messagebox "打开 fnGetCo
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsSwitchBtnString.ms"))
 catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsSwitchBtnString.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 
-Global arrToolC1 = #()
-Global arrToolC2 = #()
-Global arrToolC3 = #()
-Global arrToolC4 = #()
-Global arrSourToolC1 = #()
-Global arrSourToolC2 = #()
-Global arrSourToolC3 = #()
-Global arrSourToolC4 = #()
+-- 页签数量配置（可扩展）
+Global numToolTabs = 4
+-- 统一数组管理
+Global arrToolTabs = for i = 1 to numToolTabs collect #()
+Global arrSourToolTabs = for i = 1 to numToolTabs collect #()
+-- 向后兼容别名（通过函数访问）
+Global arrToolC1, arrToolC2, arrToolC3, arrToolC4
+Global arrSourToolC1, arrSourToolC2, arrSourToolC3, arrSourToolC4
+
+-- 同步别名函数
+fn fnSyncToolTabAliases = 
+(
+	if arrToolTabs.count >= 1 then arrToolC1 = arrToolTabs[1]
+	if arrToolTabs.count >= 2 then arrToolC2 = arrToolTabs[2]
+	if arrToolTabs.count >= 3 then arrToolC3 = arrToolTabs[3]
+	if arrToolTabs.count >= 4 then arrToolC4 = arrToolTabs[4]
+	if arrSourToolTabs.count >= 1 then arrSourToolC1 = arrSourToolTabs[1]
+	if arrSourToolTabs.count >= 2 then arrSourToolC2 = arrSourToolTabs[2]
+	if arrSourToolTabs.count >= 3 then arrSourToolC3 = arrSourToolTabs[3]
+	if arrSourToolTabs.count >= 4 then arrSourToolC4 = arrSourToolTabs[4]
+)
+fnSyncToolTabAliases()
+
+-- 获取所有工具按钮
+fn fnGetAllToolButtons = 
+(
+	local result = #()
+	for arr in arrToolTabs do join result arr
+	result
+)
+
+-- 获取所有页签按钮（在rollout加载后调用）
+Global arrTabButtons = #()
 
 Global rolBsKeyTools
 global rolAddMyScripts
@@ -152,259 +177,322 @@ fn fnPseudoNaturalSort a b =  --文件名排序新方法--https://forums.cgsocie
 iniAddToolbars  = fnGetConfig iniAddToolbars "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
 ----addToolBarButton在BsKeyToolsMenuBar.ms中
 -----------------------------------------------------------------------------------------------------
+-- 临时排序用数组
+global arrToolNewTabs = for i = 1 to numToolTabs collect #()
 global arrToolNewC1 = #();global arrToolNewC2 = #();global arrToolNewC3 = #();global arrToolNewC4 = #();
 global arrToolsAll
 global arrToolsNameAll
+-- 工具列表框数组（在 rolCustomBtn 中初始化）
+global arrMlbToolBtns = #()
 
-rollout rolCustomBtn "自定义功能按钮位置" width:490 height:210
+rollout rolCustomBtn "自定义功能按钮排序" width:660 height:240
 (
-	dotNetControl dotnetBtnTabCon "System.Windows.Forms.TabControl" height:165 width:30 align:#center pos:[136,18]
-
-	multilistbox mlbToolsBtnAll "已选择:        " width:100 height:12 pos:[5,4] selection:0
-	button btnAddToSort ">>>" width:30 height:40 pos:[106,20]
-	button btnRemoveFromSort "<<<" width:30 height:40 pos:[106,60]
-	listbox mlbToolBtn1 "剩余:     " width:80 height:12 pos:[167,4] selection:0
-	listbox mlbToolBtn2 "剩余:     " width:80 height:12 pos:[247,4] selection:0
-	listbox mlbToolBtn3 "剩余:     " width:80 height:12 pos:[327,4] selection:0
-	listbox mlbToolBtn4 "剩余:     " width:80 height:12 pos:[407,4] selection:0
-	button btnMoveUp "↑" width:30 height:40 pos:[106,100]
-	button btnMoveDown "↓" width:30 height:40 pos:[106,140]
-	button btnResetBtn "重置默认" width:60 height:25 pos:[0,185]
-	button btnCollectCurrent "加载当前" width:60 height:25 pos:[60,185]
-	button btnReAdd "清空" width:50 height:25 pos:[120,185]
-	button btnSetBtn ">>> 确认设置排序（每组最多12个按钮）<<<" width:320 height:25 pos:[170,185]
+	-- 说明标签
+	label lblHelp "操作: ↑↓调整顺序 | 可选两个后点[交换] | 右键取消选择    提示: 左列=1,3,5,7,9,11  右列=2,4,6,8,10,12" pos:[5,3] 
 	
-	fn fnSwitchTab = 
+	-- 每个页签两列显示（左列+右列），模拟实际界面
+	-- 页签1
+	groupbox gbxTab1 "页签1" pos:[5,18] width:158 height:180
+	label lblL1 "左列" pos:[18,35]
+	label lblR1 "右列" pos:[95,35]
+	listbox mlbTab1L "" width:68 height:8 pos:[10,48] selection:0
+	listbox mlbTab1R "" width:68 height:8 pos:[85,48] selection:0
+	button btnUp1L "↑" width:28 height:18 pos:[10,175]
+	button btnDn1L "↓" width:28 height:18 pos:[42,175]
+	button btnUp1R "↑" width:28 height:18 pos:[85,175]
+	button btnDn1R "↓" width:28 height:18 pos:[117,175]
+	
+	-- 页签2
+	groupbox gbxTab2 "页签2" pos:[168,18] width:158 height:180
+	label lblL2 "左列" pos:[181,35]
+	label lblR2 "右列" pos:[258,35]
+	listbox mlbTab2L "" width:68 height:8 pos:[173,48] selection:0
+	listbox mlbTab2R "" width:68 height:8 pos:[248,48] selection:0
+	button btnUp2L "↑" width:28 height:18 pos:[173,175]
+	button btnDn2L "↓" width:28 height:18 pos:[205,175]
+	button btnUp2R "↑" width:28 height:18 pos:[248,175]
+	button btnDn2R "↓" width:28 height:18 pos:[280,175]
+	
+	-- 页签3
+	groupbox gbxTab3 "页签3" pos:[331,18] width:158 height:180
+	label lblL3 "左列" pos:[344,35]
+	label lblR3 "右列" pos:[421,35]
+	listbox mlbTab3L "" width:68 height:8 pos:[336,48] selection:0
+	listbox mlbTab3R "" width:68 height:8 pos:[411,48] selection:0
+	button btnUp3L "↑" width:28 height:18 pos:[336,175]
+	button btnDn3L "↓" width:28 height:18 pos:[368,175]
+	button btnUp3R "↑" width:28 height:18 pos:[411,175]
+	button btnDn3R "↓" width:28 height:18 pos:[443,175]
+	
+	-- 页签4
+	groupbox gbxTab4 "页签4" pos:[494,18] width:158 height:180
+	label lblL4 "左列" pos:[507,35]
+	label lblR4 "右列" pos:[584,35]
+	listbox mlbTab4L "" width:68 height:8 pos:[499,48] selection:0
+	listbox mlbTab4R "" width:68 height:8 pos:[574,48] selection:0
+	button btnUp4L "↑" width:28 height:18 pos:[499,175]
+	button btnDn4L "↓" width:28 height:18 pos:[531,175]
+	button btnUp4R "↑" width:28 height:18 pos:[574,175]
+	button btnDn4R "↓" width:28 height:18 pos:[606,175]
+	
+	-- 底部操作按钮
+	button btnResetBtn "重置默认" width:90 height:26 pos:[5,205] tooltip:"恢复出厂顺序"
+	button btnCollectCurrent "撤销修改" width:90 height:26 pos:[100,205] tooltip:"恢复为当前配置"
+	button btnSwapItems "交换选中" width:90 height:26 pos:[195,205] tooltip:"交换任意两个选中项"
+	button btnSetBtn "✓ 应用并关闭" width:120 height:26 pos:[535,205] tooltip:"保存并关闭"
+	
+	-- 左列和右列的listbox数组
+	local arrLeftLists = #()
+	local arrRightLists = #()
+	
+	-- 更新页签标题
+	fn fnUpdateLabels =
 	(
-		local strCurIndex = (rolCustomBtn.dotnetBtnTabCon.SelectedIndex + 1) as string
-		local arrMlbToolBtn = #(mlbToolBtn1,mlbToolBtn2,mlbToolBtn3,mlbToolBtn4)
-		for i in arrMlbToolBtn do
+		gbxTab1.caption = if arrTabButtons.count >= 1 then arrTabButtons[1].caption else "页签1"
+		gbxTab2.caption = if arrTabButtons.count >= 2 then arrTabButtons[2].caption else "页签2"
+		gbxTab3.caption = if arrTabButtons.count >= 3 then arrTabButtons[3].caption else "页签3"
+		gbxTab4.caption = if arrTabButtons.count >= 4 then arrTabButtons[4].caption else "页签4"
+	)
+	
+	-- 获取页签的完整12个按钮（左列6个+右列6个交叉排列）
+	fn fnGetTabItems tabIdx =
+	(
+		local leftItems = arrLeftLists[tabIdx].items as array
+		local rightItems = arrRightLists[tabIdx].items as array
+		local result = #()
+		for i = 1 to 6 do
 		(
-			if (i.name)[i.name.count] == strCurIndex then i.enabled = true
-			else i.enabled = false
+			if i <= leftItems.count then append result leftItems[i]
+			if i <= rightItems.count then append result rightItems[i]
 		)
+		result
 	)
 	
-	on dotnetBtnTabCon Selected arg do
+	-- 设置页签的按钮（拆分为左列和右列）
+	fn fnSetTabItems tabIdx items =
 	(
-		fnSwitchTab()
-	)		
-	
-	fn fnToolBtnCountText =
-	(
-		mlbToolBtn1.caption = "剩余: " + (12 - mlbToolBtn1.items.count) as string
-		mlbToolBtn2.caption = "剩余: " + (12 - mlbToolBtn2.items.count) as string
-		mlbToolBtn3.caption = "剩余: " + (12 - mlbToolBtn3.items.count) as string
-		mlbToolBtn4.caption = "剩余: " + (12 - mlbToolBtn4.items.count) as string
+		local leftItems = #()
+		local rightItems = #()
+		for i = 1 to items.count do
+		(
+			if mod i 2 == 1 then append leftItems items[i]
+			else append rightItems items[i]
+		)
+		arrLeftLists[tabIdx].items = leftItems
+		arrRightLists[tabIdx].items = rightItems
+		arrLeftLists[tabIdx].selection = 0
+		arrRightLists[tabIdx].selection = 0
 	)
 	
-	fn fnAddRemoveItems action:"add" =
+	-- 记录选择顺序（用于交换时最多保留两个选择）
+	local selectionOrder = #() -- #(#(tabIdx, isLeft), ...)
+	
+	-- 处理选择，最多保留两个选中项用于交换
+	fn fnHandleSelection tabIdx isLeft =
 	(
-		local arrBtnSort = #(rolCustomBtn.mlbToolBtn1,rolCustomBtn.mlbToolBtn2,
-							rolCustomBtn.mlbToolBtn3,rolCustomBtn.mlbToolBtn4)
-		local arrTarSort = arrBtnSort[rolCustomBtn.dotnetBtnTabCon.SelectedIndex + 1]
-		local numSelAddBtn = (rolCustomBtn.mlbToolsBtnAll.selection as array).count
-		local arrBtnAllTemp = join #() (mlbToolsBtnAll.items as array)
-		local arrTarSortTemp = join #() (arrTarSort.items as array)
+		-- 添加当前选择到队列
+		local newSel = #(tabIdx, isLeft)
+		local foundIdx = 0
+		for i = 1 to selectionOrder.count do
+			if selectionOrder[i][1] == tabIdx and selectionOrder[i][2] == isLeft then foundIdx = i
 		
-		if (action == "add") then 
+		-- 如果已经在队列中，先移除（会重新添加到末尾）
+		if foundIdx > 0 then deleteItem selectionOrder foundIdx
+		
+		-- 添加到队列末尾
+		append selectionOrder newSel
+		
+		-- 如果超过2个，清除最早的那个选择
+		while selectionOrder.count > 2 do
 		(
-			if numSelAddBtn > 0 and ((arrTarSort.items as array).count + numSelAddBtn) <= 12 then
-			(
-				for i in mlbToolsBtnAll.selection as array do
-				(
-					append arrTarSortTemp arrBtnAllTemp[i]
-				)
-				for i in mlbToolsBtnAll.selection as array do
-				(
-					deleteitem arrBtnAllTemp (finditem arrBtnAllTemp mlbToolsBtnAll.items[i])
-				)
-				arrTarSort.items = arrTarSortTemp
-				mlbToolsBtnAll.items = arrBtnAllTemp
-				-- mlbToolsBtnAll.selection = 0
-			)
-			else if ((arrTarSort.items as array).count + numSelAddBtn) > 12 then (messagebox"每栏最多12个按钮...          "beep:false)
-		)
-		else if (action == "remove") then 
-		(
-			if arrTarSort.selection != 0 then 
-			(
-				arrBtnAllTemp = join #(arrTarSort.selected) arrBtnAllTemp
-				deleteitem arrTarSortTemp (finditem arrTarSortTemp arrTarSort.selected)
-				mlbToolsBtnAll.items = arrBtnAllTemp
-				arrTarSort.items = arrTarSortTemp
-				-- arrTarSort.selection = 0
-			)
+			local oldest = selectionOrder[1]
+			local mlb = if oldest[2] then arrLeftLists[oldest[1]] else arrRightLists[oldest[1]]
+			mlb.selection = 0
+			deleteItem selectionOrder 1
 		)
 	)
-
+	
+	-- 移动项目（上/下）在同一列内
+	fn fnMoveInColumn tabIdx isLeft direction =
+	(
+		local mlb = if isLeft then arrLeftLists[tabIdx] else arrRightLists[tabIdx]
+		if mlb.selection == 0 then return false
+		
+		local items = join #() (mlb.items as array)
+		local idx = mlb.selection
+		
+		if direction == #up and idx > 1 then
+		(
+			local temp = items[idx]
+			items[idx] = items[idx - 1]
+			items[idx - 1] = temp
+			mlb.items = items
+			mlb.selection = idx - 1
+		)
+		else if direction == #down and idx < items.count then
+		(
+			local temp = items[idx]
+			items[idx] = items[idx + 1]
+			items[idx + 1] = temp
+			mlb.items = items
+			mlb.selection = idx + 1
+		)
+	)
+	
+	-- 交换任意两个选中项
+	fn fnSwapSelectedItems =
+	(
+		-- 收集所有选中项
+		local selections = #() -- #(#(tabIdx, isLeft, idx, item), ...)
+		for i = 1 to 4 do
+		(
+			if arrLeftLists[i].selection != 0 then
+				append selections #(i, true, arrLeftLists[i].selection, arrLeftLists[i].selected)
+			if arrRightLists[i].selection != 0 then
+				append selections #(i, false, arrRightLists[i].selection, arrRightLists[i].selected)
+		)
+		
+		if selections.count != 2 then
+		(
+			messagebox "请选中两个按钮进行交换" title:"交换" beep:false
+			return false
+		)
+		
+		local s1 = selections[1]
+		local s2 = selections[2]
+		
+		-- 交换
+		local mlb1 = if s1[2] then arrLeftLists[s1[1]] else arrRightLists[s1[1]]
+		local mlb2 = if s2[2] then arrLeftLists[s2[1]] else arrRightLists[s2[1]]
+		local items1 = join #() (mlb1.items as array)
+		local items2 = join #() (mlb2.items as array)
+		
+		items1[s1[3]] = s2[4]
+		items2[s2[3]] = s1[4]
+		
+		mlb1.items = items1
+		mlb2.items = items2
+		true
+	)
+	
+	-- 保存排序
 	fn fnSaveBtnSort =
 	(
-		arrToolNewC1 = mlbToolBtn1.items
-		arrToolNewC2 = mlbToolBtn2.items
-		arrToolNewC3 = mlbToolBtn3.items
-		arrToolNewC4 = mlbToolBtn4.items
-		-- arrToolsAll = arrToolC1 + arrToolC2 + arrToolC3 + arrToolC4
-		-- arrToolsNameAll = for i in arrToolsAll collect i.caption
-		local arrToolsNewAll = arrToolNewC1 + arrToolNewC2 + arrToolNewC3 + arrToolNewC4
+		local arrToolsNewAll = #()
+		for i = 1 to 4 do
+		(
+			local tabItems = fnGetTabItems i
+			arrToolNewTabs[i] = tabItems
+			join arrToolsNewAll tabItems
+		)
+		if arrToolNewTabs.count >= 1 then arrToolNewC1 = arrToolNewTabs[1]
+		if arrToolNewTabs.count >= 2 then arrToolNewC2 = arrToolNewTabs[2]
+		if arrToolNewTabs.count >= 3 then arrToolNewC3 = arrToolNewTabs[3]
+		if arrToolNewTabs.count >= 4 then arrToolNewC4 = arrToolNewTabs[4]
+		
 		local arrIniToolBtnAllNew = #()
 		for i in arrToolsNewAll do 
-		(
 			append arrIniToolBtnAllNew iniToolBtnAll[finditem arrToolsNameAll i]
-		)
-		iniToolBtnAll = (join #() arrIniToolBtnAllNew)
-		fnSetToolBtnConfig ()
-		-- print iniToolBtnAll #nomap
+		iniToolBtnAll = join #() arrIniToolBtnAllNew
+		fnSetToolBtnConfig()
 		rolBsKeyTools.fnReloadToolsBtn()
 		rolBsKeyTools.fnSwitchToolsBtn idBtn
 	)
 
-	fn fnRefreshMlbToolBtn =
+	-- 加载当前配置
+	fn fnLoadCurrentConfig =
 	(
-		mlbToolBtn1.items    = for i in arrToolC1 collect i.caption
-		mlbToolBtn2.items    = for i in arrToolC2 collect i.caption
-		mlbToolBtn3.items    = for i in arrToolC3 collect i.caption
-		mlbToolBtn4.items    = for i in arrToolC4 collect i.caption
-		mlbToolsBtnAll.items = #()
-		fnToolBtnCountText()
-	)
-
-	fn fnCheckSort =
-	(
-		if (((mlbToolsBtnAll.items as array).count == 0) and ((mlbToolBtn1.items as array).count == 12) and
-			((mlbToolBtn1.items as array).count == 12) and ((mlbToolBtn1.items as array).count == 12) and 
-			((mlbToolBtn1.items as array).count == 12)) then (true) else (false)
-	)
-
-	fn fnMoveItems action:"MoveUp" = 
-	(
-		local arrBtnSort = #(rolCustomBtn.mlbToolBtn1,rolCustomBtn.mlbToolBtn2,
-							rolCustomBtn.mlbToolBtn3,rolCustomBtn.mlbToolBtn4)
-		local arrTarSort = arrBtnSort[rolCustomBtn.dotnetBtnTabCon.SelectedIndex + 1]
-		local arrTarSortTemp = join #() (arrTarSort.items as array)
-		
-		if arrTarSort.selection != 0 then 
+		for i = 1 to 4 do
 		(
-			local tarSortBtn = arrTarSort.selected
-			local tarSortBtnIndex = arrTarSort.selection
-			
-			if (action == "MoveUp") and (tarSortBtnIndex != 1) then 
+			if i <= arrToolTabs.count then
 			(
-				deleteItem arrTarSortTemp tarSortBtnIndex
-				insertitem tarSortBtn arrTarSortTemp (tarSortBtnIndex - 1)
-				arrTarSort.selection = (tarSortBtnIndex - 1)
+				local items = for btn in arrToolTabs[i] collect btn.caption
+				fnSetTabItems i items
 			)
-			else if (action == "MoveDown") and (tarSortBtnIndex != 12) then
-			(
-				deleteItem arrTarSortTemp tarSortBtnIndex
-				insertitem tarSortBtn arrTarSortTemp (tarSortBtnIndex + 1)
-				arrTarSort.selection = (tarSortBtnIndex + 1)
-			)
-			arrTarSort.items = arrTarSortTemp
-			-- print arrTarSortTemp #nomap
 		)
+		fnUpdateLabels()
 	)
 
 	on rolCustomBtn open do 
 	(
-		local arrBtnTabCon = #(rolBsKeyTools.ckbC1.caption,rolBsKeyTools.ckbC2.caption,
-						rolBsKeyTools.ckbC3.caption,rolBsKeyTools.ckbC4.caption)
-		arrToolNewC1              = #();arrToolNewC2 = #();arrToolNewC3 = #();arrToolNewC4 = #();
-		arrToolsAll               = arrToolC1 + arrToolC2 + arrToolC3 + arrToolC4
-		arrToolsNameAll           = for i in arrToolsAll collect i.caption
-		mlbToolsBtnAll.items      = arrToolsNameAll
-		mlbToolsBtnAll.text       = "已选择: " + (rolCustomBtn.mlbToolsBtnAll.selection as array).count as string
-		dotnetBtnTabCon.dock      = dotnetBtnTabCon.dock.Fill
-		dotnetBtnTabCon.Drawmode  = dotnetBtnTabCon.Drawmode.OwnerDrawFixed
-		dotnetBtnTabCon.SizeMode  = dotnetBtnTabCon.SizeMode.Fixed
-		dotnetBtnTabCon.ItemSize  = dotNetobject "System.Drawing.Size" 40 30
-		dotnetBtnTabCon.alignment = (dotnetclass "system.Windows.Forms.Tabalignment").left
-        
-        for aTab in arrBtnTabCon do
-        (
-            dotnetBtnTabCon.TabPages.add aTab
-        )
-        rolCustomBtn.dotnetBtnTabCon.SelectedIndex = 0
-		fnSwitchTab()
-		fnToolBtnCountText()
+		arrLeftLists = #(mlbTab1L, mlbTab2L, mlbTab3L, mlbTab4L)
+		arrRightLists = #(mlbTab1R, mlbTab2R, mlbTab3R, mlbTab4R)
+		arrMlbToolBtns = #()  -- 不再使用
+		arrToolNewTabs = for i = 1 to numToolTabs collect #()
+		arrToolNewC1 = #();arrToolNewC2 = #();arrToolNewC3 = #();arrToolNewC4 = #()
+		arrToolsAll = fnGetAllToolButtons()
+		arrToolsNameAll = for i in arrToolsAll collect i.caption
+		fnLoadCurrentConfig()
 	)
 	
-	on mlbToolsBtnAll selectionEnd do 
+	-- 从选择队列中移除
+	fn fnRemoveFromSelection tabIdx isLeft =
 	(
-		mlbToolsBtnAll.text = "已选择: " + (rolCustomBtn.mlbToolsBtnAll.selection as array).count as string
+		for i = selectionOrder.count to 1 by -1 do
+			if selectionOrder[i][1] == tabIdx and selectionOrder[i][2] == isLeft then
+				deleteItem selectionOrder i
 	)
 	
-	on btnAddToSort pressed do
-	(
-		fnAddRemoveItems()
-		fnToolBtnCountText()
-		mlbToolsBtnAll.text = "已选择: " + (rolCustomBtn.mlbToolsBtnAll.selection as array).count as string
-	)
-
-	on btnRemoveFromSort pressed do
-	(
-		fnAddRemoveItems action:"remove"
-		fnToolBtnCountText()
-		mlbToolsBtnAll.text = "已选择: " + (rolCustomBtn.mlbToolsBtnAll.selection as array).count as string
-	)
-
-	on btnSetBtn pressed do 
-	(
-		if fnCheckSort() == true then
-		(
-			fnSaveBtnSort()
-			try(destroydialog rolCustomBtn)catch()
-		)
-		else (messagebox "请确认按钮都排序完毕,才能完成设置...                    " beep:false)
-	)
+	-- 点击时处理选择（最多保留两个）
+	on mlbTab1L selected sel do fnHandleSelection 1 true
+	on mlbTab1R selected sel do fnHandleSelection 1 false
+	on mlbTab2L selected sel do fnHandleSelection 2 true
+	on mlbTab2R selected sel do fnHandleSelection 2 false
+	on mlbTab3L selected sel do fnHandleSelection 3 true
+	on mlbTab3R selected sel do fnHandleSelection 3 false
+	on mlbTab4L selected sel do fnHandleSelection 4 true
+	on mlbTab4R selected sel do fnHandleSelection 4 false
+	
+	-- 右键取消选择
+	on mlbTab1L rightClick sel do (mlbTab1L.selection = 0; fnRemoveFromSelection 1 true)
+	on mlbTab1R rightClick sel do (mlbTab1R.selection = 0; fnRemoveFromSelection 1 false)
+	on mlbTab2L rightClick sel do (mlbTab2L.selection = 0; fnRemoveFromSelection 2 true)
+	on mlbTab2R rightClick sel do (mlbTab2R.selection = 0; fnRemoveFromSelection 2 false)
+	on mlbTab3L rightClick sel do (mlbTab3L.selection = 0; fnRemoveFromSelection 3 true)
+	on mlbTab3R rightClick sel do (mlbTab3R.selection = 0; fnRemoveFromSelection 3 false)
+	on mlbTab4L rightClick sel do (mlbTab4L.selection = 0; fnRemoveFromSelection 4 true)
+	on mlbTab4R rightClick sel do (mlbTab4R.selection = 0; fnRemoveFromSelection 4 false)
+	
+	-- 上下移动（左列）
+	on btnUp1L pressed do fnMoveInColumn 1 true #up
+	on btnDn1L pressed do fnMoveInColumn 1 true #down
+	on btnUp2L pressed do fnMoveInColumn 2 true #up
+	on btnDn2L pressed do fnMoveInColumn 2 true #down
+	on btnUp3L pressed do fnMoveInColumn 3 true #up
+	on btnDn3L pressed do fnMoveInColumn 3 true #down
+	on btnUp4L pressed do fnMoveInColumn 4 true #up
+	on btnDn4L pressed do fnMoveInColumn 4 true #down
+	
+	-- 上下移动（右列）
+	on btnUp1R pressed do fnMoveInColumn 1 false #up
+	on btnDn1R pressed do fnMoveInColumn 1 false #down
+	on btnUp2R pressed do fnMoveInColumn 2 false #up
+	on btnDn2R pressed do fnMoveInColumn 2 false #down
+	on btnUp3R pressed do fnMoveInColumn 3 false #up
+	on btnDn3R pressed do fnMoveInColumn 3 false #down
+	on btnUp4R pressed do fnMoveInColumn 4 false #up
+	on btnDn4R pressed do fnMoveInColumn 4 false #down
+	
+	on btnSwapItems pressed do fnSwapSelectedItems()
+	on btnCollectCurrent pressed do fnLoadCurrentConfig()
+	
 	on btnResetBtn pressed do 
-	(
-		if (queryBox "是否重置功能按钮默认位置？                   " \
-		title:"重置位置" beep:false) then
+		if (queryBox "重置为默认顺序？" title:"重置" beep:false) then
 		(
 			iniToolBtnAll = #(101,102,103,104,105,106,107,108,109,110,111,112,
 							201,202,203,204,205,206,207,208,209,210,211,212,
 							301,302,303,304,305,306,307,308,309,310,311,312,
 							401,402,403,404,405,406,407,408,409,410,411,412)
-			fnSetToolBtnConfig ()
+			fnSetToolBtnConfig()
 			rolBsKeyTools.fnReloadToolsBtn()
 			rolBsKeyTools.fnSwitchToolsBtn idBtn
-			-- print iniToolBtnAll #nomap
-			fnRefreshMlbToolBtn()
-			arrToolsAll = arrToolC1 + arrToolC2 + arrToolC3 + arrToolC4
-			arrToolsNameAll = for i in arrToolsAll collect i.caption
-			mlbToolsBtnAll.text = "已选择: " + (rolCustomBtn.mlbToolsBtnAll.selection as array).count as string
+			fnLoadCurrentConfig()
 		)
-	)
-	on btnReAdd pressed do 
-	(
-		if (queryBox "是否清空当前列表重新排序？                   " \
-		title:"清空重新排序" beep:false) then
-		(
-			arrToolsAll = arrToolC1 + arrToolC2 + arrToolC3 + arrToolC4
-			arrToolsNameAll = for i in arrToolsAll collect i.caption
-			mlbToolsBtnAll.items = arrToolsNameAll
-			arrToolNewC1 = #();arrToolNewC2 = #();arrToolNewC3 = #();arrToolNewC4 = #();
-			mlbToolBtn1.items = #();mlbToolBtn2.items = #();mlbToolBtn3.items = #();mlbToolBtn4.items = #()
-			fnToolBtnCountText()
-			mlbToolsBtnAll.selection = 0
-			mlbToolsBtnAll.text = "已选择: " + (rolCustomBtn.mlbToolsBtnAll.selection as array).count as string
-		)
-	)
-	on btnCollectCurrent pressed do 
-	(
-		fnRefreshMlbToolBtn()
-		mlbToolsBtnAll.text = "已选择: " + (rolCustomBtn.mlbToolsBtnAll.selection as array).count as string
-	)
 	
-	on btnMoveUp pressed do 
+	on btnSetBtn pressed do 
 	(
-		fnMoveItems action:"MoveUp"
-	)
-
-	on btnMoveDown pressed do 
-	(
-		fnMoveItems action:"MoveDown"
+		fnSaveBtnSort()
+		try(destroydialog rolCustomBtn)catch()
 	)
 )
 --------------------------------------------------------------------------------------------------------
@@ -2483,10 +2571,12 @@ rollout rolBsKeyTools "" width:355 height:250
 		ToolTipObj = dotnetobject "System.Windows.Forms.ToolTip"
 		ToolTipObj.SetToolTip btnelement "手指解压放松按钮"
 
-		ckbC1.text = strBtnName[1][1]
-		ckbC2.text = strBtnName[1][2]
-		ckbC3.text = strBtnName[1][3]
-		ckbC4.text = strBtnName[1][4]
+		-- 使用循环设置页签按钮文字
+		for i = 1 to arrTabButtons.count do
+		(
+			if strBtnName[1].count >= i then
+				arrTabButtons[i].text = strBtnName[1][i]
+		)
 
 		btnElement.flatstyle                         = btnElement.flatstyle.flat
 		btnElement.FlatAppearance.BorderSize         = 0
@@ -2533,33 +2623,40 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	fn fnReloadToolsBtn =
 	(
-		arrSourToolC1 = #(rolBsKeyTools.btnPicker,rolBsKeyTools.btnFastAlign,
+		-- 源工具按钮分组定义
+		arrSourToolTabs[1] = #(rolBsKeyTools.btnPicker,rolBsKeyTools.btnFastAlign,
 						rolBsKeyTools.ckbPerspLock,rolBsKeyTools.btnAnimMirror,
 						rolBsKeyTools.btnVportTools,rolBsKeyTools.btnBatchExport,
 						rolBsKeyTools.btnTweenMachine,rolBsKeyTools.btnProTraj,
 						rolBsKeyTools.btnRescaleWU,rolBsKeyTools.btnXrSkinTool,
 						rolBsKeyTools.btnFnFrame,rolBsKeyTools.btnRetargetTools)
-		arrSourToolC2 = #(rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnDemoTool,
+		arrSourToolTabs[2] = #(rolBsKeyTools.btnTrackBarTools,rolBsKeyTools.btnDemoTool,
 						rolBsKeyTools.btnSelBiped,rolBsKeyTools.btnSelBone,
 						rolBsKeyTools.btnFnTCB,rolBsKeyTools.btnEulerFilter,
 						rolBsKeyTools.btnDelOutKeys,rolBsKeyTools.btnCleanOutKeys,
 						rolBsKeyTools.btnEndBone,rolBsKeyTools.btnRenameTools,
 						rolBsKeyTools.btnRootMotionTools,rolBsKeyTools.btnSelByColor)
-		arrSourToolC3 = #(rolBsKeyTools.btnMeshToBone,rolBsKeyTools.btnMassFX,
+		arrSourToolTabs[3] = #(rolBsKeyTools.btnMeshToBone,rolBsKeyTools.btnMassFX,
 						rolBsKeyTools.btnCollider,rolBsKeyTools.btnBakeAnim,
 						rolBsKeyTools.btnHideBipedTwists,rolBsKeyTools.btnQuickPrev,
 						rolBsKeyTools.btnChainsTools,rolBsKeyTools.btnCutSequence,
 						rolBsKeyTools.btnSkinTools,rolBsKeyTools.btnCombineDetachSkin,
 						rolBsKeyTools.btnBoxMan,rolBsKeyTools.btnTwistBones)
-		arrSourToolC4 = #(rolBsKeyTools.btnFnKeyType,rolBsKeyTools.btnRenderTools,
+		arrSourToolTabs[4] = #(rolBsKeyTools.btnFnKeyType,rolBsKeyTools.btnRenderTools,
 						rolBsKeyTools.btnMopherSlider,rolBsKeyTools.btnMorpherCtrl,
 						rolBsKeyTools.btnMirrorMoph,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnReplaceSkinBones,rolBsKeyTools.btnAnimRef,
 						rolBsKeyTools.btnMotionReverse,rolBsKeyTools.btnWeightSmooth,
 						rolBsKeyTools.btnLODCreate,rolBsKeyTools.btnProColor)
 		
+		-- 同步别名
+		fnSyncToolTabAliases()
+		
 		fnLoadToolBtnConfig()
-		arrToolsAllTemp = arrSourToolC1 + arrSourToolC2 + arrSourToolC3 + arrSourToolC4
+		-- 合并所有源工具按钮
+		arrToolsAllTemp = #()
+		for arr in arrSourToolTabs do join arrToolsAllTemp arr
+		
 		arrTargetTemp = #()
 		for i in iniToolBtnAll where i != undefined do
 		(
@@ -2567,87 +2664,98 @@ rollout rolBsKeyTools "" width:355 height:250
 			local indexToolID = (strSortID[1] as number - 1) * 12 + (strSortID[2] + strSortID[3]) as Number
 			append arrTargetTemp arrToolsAllTemp[indexToolID]
 		)
-		arrToolC1 = for i = 1 to arrTargetTemp.count/4 collect arrTargetTemp[i]
-		arrToolC2 = for i = (arrTargetTemp.count/4 + 1) to (2 * arrTargetTemp.count/4) collect arrTargetTemp[i]
-		arrToolC3 = for i = (2 * arrTargetTemp.count/4 + 1) to (3 * arrTargetTemp.count/4) collect arrTargetTemp[i]
-		arrToolC4 = for i = (3 * arrTargetTemp.count/4 + 1) to (4 * arrTargetTemp.count/4) collect arrTargetTemp[i]
+		
+		-- 按页签数量均分工具按钮
+		local toolsPerTab = arrTargetTemp.count / numToolTabs
+		for t = 1 to numToolTabs do
+		(
+			local startIdx = (t - 1) * toolsPerTab + 1
+			local endIdx = t * toolsPerTab
+			arrToolTabs[t] = for i = startIdx to endIdx collect arrTargetTemp[i]
+		)
+		-- 同步别名
+		fnSyncToolTabAliases()
 	)
 
 	fn fnSwitchToolsBtn idBtn =
 	(
-		local arrBtnAll = arrToolC1 + arrToolC2 + arrToolC3 + arrToolC4
+		-- 使用统一数组获取所有按钮
+		local arrBtnAll = fnGetAllToolButtons()
 		local curMaxVersion = ((maxVersion())[1] / 1000)
 		for b in arrBtnAll do (b.visible = false)
+		
+		-- 使用数组索引访问
+		local strTabIdx = idBtn as string
 
 		if not rolBsKeyTools.dialogBar then 
 		(
-			str  = "for b = 1 to arrToolC" + idBtn as string + ".count do" + "\r\n"
+			str  = "for b = 1 to arrToolTabs[" + strTabIdx + "].count do" + "\r\n"
 			str += "(" + "\r\n"
-			str += "	arrToolC" + idBtn as string + "[b].visible = true" + "\r\n"
+			str += "	arrToolTabs[" + strTabIdx + "][b].visible = true" + "\r\n"
 			str += "	if (mod b 2 == 1) then \r\n"
 			str += "	("
-			str += "		arrToolC" + idBtn as string + "[b].pos = " + [225,45] as string + " + [0,(b - 1) * 16.5]" + "\r\n"
+			str += "		arrToolTabs[" + strTabIdx + "][b].pos = " + [225,45] as string + " + [0,(b - 1) * 16.5]" + "\r\n"
 			str += "	)"
 			str += "	else if (mod b 2 == 0) then"
 			str += "	("
-			str += "		arrToolC" + idBtn as string + "[b].pos = " + [285,45] as string + " + [0,(b - 2) * 16.5]" + "\r\n"
+			str += "		arrToolTabs[" + strTabIdx + "][b].pos = " + [285,45] as string + " + [0,(b - 2) * 16.5]" + "\r\n"
 			str += "	)"
 			str += ")"
 		)
 		else if rolBsKeyTools.dialogBar and ((cui.getDockState rolBsKeyTools) as string == "cui_dock_left" or (cui.getDockState rolBsKeyTools) as string == "cui_dock_right") then
 		(
-			str  = "for b = 1 to arrToolC" + idBtn as string + ".count do" + "\r\n"
+			str  = "for b = 1 to arrToolTabs[" + strTabIdx + "].count do" + "\r\n"
 			str += "(" + "\r\n"
-			str += "	arrToolC" + idBtn as string + "[b].visible = true" + "\r\n"
+			str += "	arrToolTabs[" + strTabIdx + "][b].visible = true" + "\r\n"
 			str += "	if (mod b 2 == 1) then \r\n"
 			str += "	("
 			str += "        if " + curMaxVersion as string + " > 20 then "
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [5,490] as string + " + [0,(b - 1) * 17]" + "\r\n"
+			str += "			arrToolTabs[" + strTabIdx + "][b].pos = " + [5,490] as string + " + [0,(b - 1) * 17]" + "\r\n"
 			str += "		)"
 			str += "		else"
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [15,370] as string + " + [0,(b - 1) * 17]" + "\r\n"
+			str += "			arrToolTabs[" + strTabIdx + "][b].pos = " + [15,370] as string + " + [0,(b - 1) * 17]" + "\r\n"
 			str += "		)"
 			str += "	)"
 			str += "	else if (mod b 2 == 0) then"
 			str += "	("
 			str += "		if " + curMaxVersion as string + " > 20 then "
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [65,490] as string + " + [0,(b - 2) * 17]" + "\r\n"
+			str += "			arrToolTabs[" + strTabIdx + "][b].pos = " + [65,490] as string + " + [0,(b - 2) * 17]" + "\r\n"
 			str += "		)"
 			str += "		else"
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [85,370] as string + " + [0,(b - 2) * 17]" + "\r\n"
+			str += "			arrToolTabs[" + strTabIdx + "][b].pos = " + [85,370] as string + " + [0,(b - 2) * 17]" + "\r\n"
 			str += "		)"
 			str += "	)"
 			str += ")"
 		)
 		else if rolBsKeyTools.dialogBar and ((cui.getDockState rolBsKeyTools) as string == "cui_dock_top" or (cui.getDockState rolBsKeyTools) as string == "cui_dock_bottom") then
 		(
-			str  = "for b = 1 to arrToolC" + idBtn as string + ".count do" + "\r\n"
+			str  = "for b = 1 to arrToolTabs[" + strTabIdx + "].count do" + "\r\n"
 			str += "(" + "\r\n"
-			str += "	arrToolC" + idBtn as string + "[b].visible = true" + "\r\n"
+			str += "	arrToolTabs[" + strTabIdx + "][b].visible = true" + "\r\n"
 			str += "	if (mod b 2 == 1) then \r\n"
 			str += "	("
 			str += "        if " + curMaxVersion as string + " > 20 then "
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1190,0] as string + " + [(b - 1) * 30,0]" + "\r\n"
+			str += "			arrToolTabs[" + strTabIdx + "][b].pos = " + [1190,0] as string + " + [(b - 1) * 30,0]" + "\r\n"
 			str += "		)"
 			str += "		else"
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1190,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
+			str += "			arrToolTabs[" + strTabIdx + "][b].pos = " + [1190,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
 			str += "		)"
 			str += "	)"
 			str += "	else if (mod b 2 == 0) then"
 			str += "	("
 			str += "		if " + curMaxVersion as string + " > 20 then "
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1190,20] as string + " + [(b - 2) * 30,0]" + "\r\n"
+			str += "			arrToolTabs[" + strTabIdx + "][b].pos = " + [1190,20] as string + " + [(b - 2) * 30,0]" + "\r\n"
 			str += "		)"
 			str += "		else"
 			str += "		("
-			str += "			arrToolC" + idBtn as string + "[b].pos = " + [1190,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
+			str += "			arrToolTabs[" + strTabIdx + "][b].pos = " + [1190,10] as string + " + [(b - 1) * 60,0]" + "\r\n"
 			str += "		)"
 			str += "	)"
 			str += ")"
@@ -2663,19 +2771,33 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	fn fnSwitchToolBtnChecked Btn =
 	(
-		arrToolsBtn = #(rolBsKeyTools.ckbC1,rolBsKeyTools.ckbC2,rolBsKeyTools.ckbC3,rolBsKeyTools.ckbC4)
-		arrBtn = arrToolsBtn
-		for i = 1 to arrBtn.count do
+		-- 使用全局页签按钮数组
+		for i = 1 to arrTabButtons.count do
 		(
 			if i != Btn then 
 			(
-				arrBtn[i].checked = false
+				arrTabButtons[i].checked = false
 			)
 			else 
 			(
 				idBtn = Btn
-				arrBtn[Btn].checked = true
+				arrTabButtons[Btn].checked = true
 			)
+		)
+	)
+	
+	-- 通用页签切换函数
+	fn fnTabChanged idx state =
+	(
+		setfocus rolBsKeyTools.btnPrimogem
+		if state == true then 
+		(
+			fnSwitchToolBtnChecked idx
+			fnSwitchToolsBtn idx
+		)
+		else if idx <= arrTabButtons.count then
+		(
+			arrTabButtons[idx].checked = true
 		)
 	)
 
@@ -3576,6 +3698,10 @@ rollout rolBsKeyTools "" width:355 height:250
 		-- panelMyTools.backcolor = BsDotBackColor
 		-- panelMyTools.autoScroll = true
 		-- fnAddDotButton()
+		
+		-- 初始化页签按钮数组
+		arrTabButtons = #(ckbC1, ckbC2, ckbC3, ckbC4)
+		
 		arrNewCostTime 		= iniCostTime
 		lblLink.TextAlign   = (dotnetclass "system.drawing.contentalignment").MiddleCenter
 		lblLink.font        = BsDotFont
@@ -4309,46 +4435,10 @@ rollout rolBsKeyTools "" width:355 height:250
 	-- )
 
 	------------切换工具栏分类--------------------------------------------
-	on ckbC1 changed state do 
-	(
-		setfocus rolbskeytools.btnPrimogem
-		if state == true then 
-		(
-			fnSwitchToolBtnChecked 1
-			fnSwitchToolsBtn 1
-		)
-		else ckbC1.checked = true
-	)
-	on ckbC2 changed state do 
-	(
-		setfocus rolbskeytools.btnPrimogem
-		if state == true then 
-		(
-			fnSwitchToolBtnChecked 2
-			fnSwitchToolsBtn 2
-		)
-		else ckbC2.checked = true
-	)
-	on ckbC3 changed state do 
-	(
-		setfocus rolbskeytools.btnPrimogem
-		if state == true then 
-		(
-			fnSwitchToolBtnChecked 3
-			fnSwitchToolsBtn 3
-		)
-		else ckbC3.checked = true
-	)
-	on ckbC4 changed state do 
-	(
-		setfocus rolbskeytools.btnPrimogem
-		if state == true then 
-		(
-			fnSwitchToolBtnChecked 4
-			fnSwitchToolsBtn 4
-		)
-		else ckbC4.checked = true
-	)
+	on ckbC1 changed state do fnTabChanged 1 state
+	on ckbC2 changed state do fnTabChanged 2 state
+	on ckbC3 changed state do fnTabChanged 3 state
+	on ckbC4 changed state do fnTabChanged 4 state
 	-- on ckbSwitchMyScripts changed state do 
 	-- (
 	-- 	if state then switchMSPanel = 1 else switchMSPanel = 0

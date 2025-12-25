@@ -96,6 +96,10 @@ fn fnSaveMsArray arrMsTemp =
 	fnSetMsBtnConfig()
 )
 
+-- 脚本按钮数组（在对应rollout打开时初始化）
+global arrReAddMsBtns = #()    -- 路径选择按钮数组
+global arrClearMsBtns = #()    -- 清除按钮数组
+
 fn fnRefreshMyMsBtn = 
 (
 	arrMyMsBtn = #(rolBsScriptsSet.btnMyScripts1, \
@@ -114,6 +118,22 @@ fn fnRefreshMyMsBtn =
 		rolAddMyMs.edtRenameMs6, \
 		rolAddMyMs.edtRenameMs7, \
 		rolAddMyMs.edtRenameMs8)
+	arrReAddMsBtns = #(rolAddMyMs.btnReAddMs1, \
+		rolAddMyMs.btnReAddMs2, \
+		rolAddMyMs.btnReAddMs3, \
+		rolAddMyMs.btnReAddMs4, \
+		rolAddMyMs.btnReAddMs5, \
+		rolAddMyMs.btnReAddMs6, \
+		rolAddMyMs.btnReAddMs7, \
+		rolAddMyMs.btnReAddMs8)
+	arrClearMsBtns = #(rolAddMyMs.btnClearMs1, \
+		rolAddMyMs.btnClearMs2, \
+		rolAddMyMs.btnClearMs3, \
+		rolAddMyMs.btnClearMs4, \
+		rolAddMyMs.btnClearMs5, \
+		rolAddMyMs.btnClearMs6, \
+		rolAddMyMs.btnClearMs7, \
+		rolAddMyMs.btnClearMs8)
 )
 
 rollout rolAddMyMs "我的脚本" width:300 height:220
@@ -294,97 +314,54 @@ rollout rolAddMyMs "我的脚本" width:300 height:220
 		stSetConfigAll.fnSetConfigBsScriptsSet ()
 	)
 
+	-- 通用：处理编辑框文本变化（移除换行符）
+	fn fnHandleEdtChanged edt txt =
+	(
+		edt.text = substituteString txt "\n" ""
+	)
+	
+	-- 通用：处理路径按钮点击
+	fn fnHandleReAddMs id =
+	(
+		fnRefreshMyMsBtn()
+		fnRefreshBtnReAddMs arrAddMyMsBtn[id] arrReAddMsBtns[id] arrAddMyMsBtn[id] id
+	)
+
 	on rolAddMyMs open do 
 	(
+		fnRefreshMyMsBtn()
 		fnRefreshMyScriptsUI ()
 	)
 
-	on btnReAddMs1 pressed do 
-	(
-		fnRefreshBtnReAddMs edtRenameMs1 btnReAddMs1 edtRenameMs1 1
-	)
+	-- 路径选择按钮事件（简化）
+	on btnReAddMs1 pressed do fnHandleReAddMs 1
+	on btnReAddMs2 pressed do fnHandleReAddMs 2
+	on btnReAddMs3 pressed do fnHandleReAddMs 3
+	on btnReAddMs4 pressed do fnHandleReAddMs 4
+	on btnReAddMs5 pressed do fnHandleReAddMs 5
+	on btnReAddMs6 pressed do fnHandleReAddMs 6
+	on btnReAddMs7 pressed do fnHandleReAddMs 7
+	on btnReAddMs8 pressed do fnHandleReAddMs 8
 
-	on btnReAddMs2 pressed do 
-	(
-		fnRefreshBtnReAddMs edtRenameMs2 btnReAddMs2 edtRenameMs2 2
-	)
+	-- 编辑框文本变化事件（简化）
+	on edtRenameMs1 changed txt do fnHandleEdtChanged edtRenameMs1 txt
+	on edtRenameMs2 changed txt do fnHandleEdtChanged edtRenameMs2 txt
+	on edtRenameMs3 changed txt do fnHandleEdtChanged edtRenameMs3 txt
+	on edtRenameMs4 changed txt do fnHandleEdtChanged edtRenameMs4 txt
+	on edtRenameMs5 changed txt do fnHandleEdtChanged edtRenameMs5 txt
+	on edtRenameMs6 changed txt do fnHandleEdtChanged edtRenameMs6 txt
+	on edtRenameMs7 changed txt do fnHandleEdtChanged edtRenameMs7 txt
+	on edtRenameMs8 changed txt do fnHandleEdtChanged edtRenameMs8 txt
 
-	on btnReAddMs3 pressed do 
-	(
-		fnRefreshBtnReAddMs edtRenameMs3 btnReAddMs3 edtRenameMs3 3
-	)
-	on btnReAddMs4 pressed do 
-	(
-		fnRefreshBtnReAddMs edtRenameMs4 btnReAddMs4 edtRenameMs4 4
-	)
-	on btnReAddMs5 pressed do 
-	(
-		fnRefreshBtnReAddMs edtRenameMs5 btnReAddMs5 edtRenameMs5 5
-	)
-	on btnReAddMs6 pressed do 
-	(
-		fnRefreshBtnReAddMs edtRenameMs6 btnReAddMs6 edtRenameMs6 6
-	)
-	on btnReAddMs7 pressed do 
-	(
-		fnRefreshBtnReAddMs edtRenameMs7 btnReAddMs7 edtRenameMs7 7
-	)
-	on btnReAddMs8 pressed do 
-	(
-		fnRefreshBtnReAddMs edtRenameMs8 btnReAddMs8 edtRenameMs8 8
-	)
-
-	on edtRenameMs1 changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtRenameMs1.text = tempText
-	)
-
-	on edtRenameMs2 changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtRenameMs2.text = tempText
-	)
-
-	on edtRenameMs3 changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtRenameMs3.text = tempText
-	)
-	on edtRenameMs4 changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtRenameMs4.text = tempText
-	)
-	on edtRenameMs5 changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtRenameMs5.text = tempText
-	)
-	on edtRenameMs6 changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtRenameMs6.text = tempText
-	)
-	on edtRenameMs7 changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtRenameMs7.text = tempText
-	)
-	on edtRenameMs8 changed txt do 
-	(
-		tempText = substituteString txt "\n" ""
-		edtRenameMs8.text = tempText
-	)
-
-	on btnClearMs1 pressed do (fnClearOneMs 1)
-	on btnClearMs2 pressed do (fnClearOneMs 2)
-	on btnClearMs3 pressed do (fnClearOneMs 3)
-	on btnClearMs4 pressed do (fnClearOneMs 4)
-	on btnClearMs5 pressed do (fnClearOneMs 5)
-	on btnClearMs6 pressed do (fnClearOneMs 6)
-	on btnClearMs7 pressed do (fnClearOneMs 7)
-	on btnClearMs8 pressed do (fnClearOneMs 8)
+	-- 清除按钮事件（简化）
+	on btnClearMs1 pressed do fnClearOneMs 1
+	on btnClearMs2 pressed do fnClearOneMs 2
+	on btnClearMs3 pressed do fnClearOneMs 3
+	on btnClearMs4 pressed do fnClearOneMs 4
+	on btnClearMs5 pressed do fnClearOneMs 5
+	on btnClearMs6 pressed do fnClearOneMs 6
+	on btnClearMs7 pressed do fnClearOneMs 7
+	on btnClearMs8 pressed do fnClearOneMs 8
 
 	on btnDoit pressed do(fnApplyMyMs())
 
@@ -476,21 +453,64 @@ rollout rolBsScriptsSet "" width:170 height:265
 		fnSaveMsArray arrMsTemp
 	)
 
+	-- 页签切换按钮数组
+	local arrMsTabBtns = #()
+	
 	fn fnSwitchToolBtnChecked Btn =
 	(
-		arrMsBtn = #(rolBsScriptsSet.ckbMs1,rolBsScriptsSet.ckbMs2,rolBsScriptsSet.ckbMs3,rolBsScriptsSet.ckbMs4,rolBsScriptsSet.ckbMs5)
-		for i = 1 to arrMsBtn.count do
+		arrMsTabBtns = #(ckbMs1, ckbMs2, ckbMs3, ckbMs4, ckbMs5)
+		for i = 1 to arrMsTabBtns.count do
 		(
 			if i != Btn then 
 			(
-				arrMsBtn[i].checked = false
+				arrMsTabBtns[i].checked = false
 			)
 			else 
 			(
 				idMsBtn = Btn
-				arrMsBtn[Btn].checked = true
+				arrMsTabBtns[Btn].checked = true
 			)
 		)
+	)
+	
+	-- 通用：页签切换处理
+	fn fnMsTabChanged idx state =
+	(
+		if state == true then 
+		(
+			fnSwitchToolBtnChecked idx
+			fnRefreshMyScripts()
+		)
+		else if idx <= arrMsTabBtns.count then
+		(
+			arrMsTabBtns[idx].checked = true
+		)
+	)
+	
+	-- 通用：执行脚本按钮
+	fn fnRunMyScript id =
+	(
+		fnRefreshMyMsBtn()
+		arrMsTemp = fnLoadMsArray()
+		if ((arrMsTemp[id] != undefined) and (doesfileexist arrMsTemp[id].dir)) then 
+		(
+			try(fileIn arrMsTemp[id].dir)
+			catch(messagebox "打开失败，可能脚本错误或安装不完全...                            " beep:false title:"BsKeyTools")
+		)
+		else 
+		(
+			if arrMyMsBtn[id].text != "<＋＋>" then 
+			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools")
+			fnAddMyScript arrMyMsBtn[id] id
+		)
+	)
+	
+	-- 通用：打开配置对话框
+	fn fnOpenConfigDialog =
+	(
+		try(destroydialog rolAddMyMs)catch()
+		createDialog rolAddMyMs fgcolor:myFgColor \
+		pos:[mouse.screenpos.x - 150, mouse.screenpos.y + 20]
 	)
 
 	on rolBsScriptsSet open do  ----打开脚本时操作
@@ -552,225 +572,39 @@ rollout rolBsScriptsSet "" width:170 height:265
 		)
 	)
 
-	on ckbMs1 changed state do 
-	(
-		if state == true then 
-		(
-			fnSwitchToolBtnChecked 1 isMsBtn:true
-			fnRefreshMyScripts()
-		)
-		else ckbMs1.checked = true
-	)
-	on ckbMs2 changed state do 
-	(
-		if state == true then 
-		(
-			fnSwitchToolBtnChecked 2 isMsBtn:true
-			fnRefreshMyScripts()
-		)
-		else ckbMs2.checked = true
-	)
-	on ckbMs3 changed state do 
-	(
-		if state == true then 
-		(
-			fnSwitchToolBtnChecked 3 isMsBtn:true
-			fnRefreshMyScripts()
-		)
-		else ckbMs3.checked = true
-	)
-	on ckbMs4 changed state do 
-	(
-		if state == true then 
-		(
-			fnSwitchToolBtnChecked 4 isMsBtn:true
-			fnRefreshMyScripts()
-		)
-		else ckbMs4.checked = true
-	)
-	on ckbMs5 changed state do 
-	(
-		if state == true then 
-		(
-			fnSwitchToolBtnChecked 5 isMsBtn:true
-			fnRefreshMyScripts()
-		)
-		else ckbMs5.checked = true
-	)
+	-- 页签切换事件（简化）
+	on ckbMs1 changed state do fnMsTabChanged 1 state
+	on ckbMs2 changed state do fnMsTabChanged 2 state
+	on ckbMs3 changed state do fnMsTabChanged 3 state
+	on ckbMs4 changed state do fnMsTabChanged 4 state
+	on ckbMs5 changed state do fnMsTabChanged 5 state
 
-	on btnMyScripts1 pressed do 
-	(
-		arrMsTemp = fnLoadMsArray()
-		if ((arrMsTemp[1] != undefined) and (doesfileexist arrMsTemp[1].dir)) then 
-		(
-			try(fileIn arrMsTemp[1].dir)catch(messagebox "打开失败，可能脚本错误或安装不完全...                            " beep:false title:"BsKeyTools")
-		)
-		else 
-		(
-			if btnMyScripts1.text != "<＋＋>" then 
-			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
-			fnAddMyScript btnMyScripts1 1
-		)
-	)
-	on btnMyScripts2 pressed do 
-	(
-		arrMsTemp = fnLoadMsArray()
-		if ((arrMsTemp[2] != undefined) and (doesfileexist arrMsTemp[2].dir)) then 
-		(
-			try(fileIn arrMsTemp[2].dir)catch(messagebox "打开失败，可能脚本错误或安装不完全...                            " beep:false title:"BsKeyTools")
-		)
-		else 
-		(
-			if btnMyScripts2.text != "<＋＋>" then 
-			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
-			fnAddMyScript btnMyScripts2 2
-		)
-	)
-	on btnMyScripts3 pressed do 
-	(
-		arrMsTemp = fnLoadMsArray()
-		if ((arrMsTemp[3] != undefined) and (doesfileexist arrMsTemp[3].dir)) then 
-		(
-			try(fileIn arrMsTemp[3].dir)catch(messagebox "打开失败，可能脚本错误或安装不完全...                            " beep:false title:"BsKeyTools")
-		)
-		else 
-		(
-			if btnMyScripts3.text != "<＋＋>" then 
-			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
-			fnAddMyScript btnMyScripts3 3
-		)
-	)
-	on btnMyScripts4 pressed do 
-	(
-		arrMsTemp = fnLoadMsArray()
-		if ((arrMsTemp[4] != undefined) and (doesfileexist arrMsTemp[4].dir)) then 
-		(
-			try(fileIn arrMsTemp[4].dir)catch(messagebox "打开失败，可能脚本错误或安装不完全...                            " beep:false title:"BsKeyTools")
-		)
-		else 
-		(
-			if btnMyScripts4.text != "<＋＋>" then 
-			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
-			fnAddMyScript btnMyScripts4 4
-		)
-	)
-	on btnMyScripts5 pressed do 
-	(
-		arrMsTemp = fnLoadMsArray()
-		if ((arrMsTemp[5] != undefined) and (doesfileexist arrMsTemp[5].dir)) then 
-		(
-			try(fileIn arrMsTemp[5].dir)catch(messagebox "打开失败，可能脚本错误或安装不完全...                            " beep:false title:"BsKeyTools")
-		)
-		else 
-		(
-			if btnMyScripts5.text != "<＋＋>" then 
-			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
-			fnAddMyScript btnMyScripts5 5
-		)
-	)
-	on btnMyScripts6 pressed do 
-	(
-		arrMsTemp = fnLoadMsArray()
-		if ((arrMsTemp[6] != undefined) and (doesfileexist arrMsTemp[6].dir)) then 
-		(
-			try(fileIn arrMsTemp[6].dir)catch(messagebox "打开失败，可能脚本错误或安装不完全...                            " beep:false title:"BsKeyTools")
-		)
-		else 
-		(
-			if btnMyScripts6.text != "<＋＋>" then 
-			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
-			fnAddMyScript btnMyScripts6 6
-		)
-	)
-	on btnMyScripts7 pressed do 
-	(
-		arrMsTemp = fnLoadMsArray()
-		if ((arrMsTemp[7] != undefined) and (doesfileexist arrMsTemp[7].dir)) then 
-		(
-			try(fileIn arrMsTemp[7].dir)catch(messagebox "打开失败，可能脚本错误或安装不完全...                            " beep:false title:"BsKeyTools")
-		)
-		else 
-		(
-			if btnMyScripts7.text != "<＋＋>" then 
-			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
-			fnAddMyScript btnMyScripts7 7
-		)
-	)
-	on btnMyScripts8 pressed do 
-	(
-		arrMsTemp = fnLoadMsArray()
-		if ((arrMsTemp[8] != undefined) and (doesfileexist arrMsTemp[8].dir)) then 
-		(
-			try(fileIn arrMsTemp[8].dir)catch(messagebox "打开失败，可能脚本错误或安装不完全...                            " beep:false title:"BsKeyTools")
-		)
-		else 
-		(
-			if btnMyScripts8.text != "<＋＋>" then 
-			(messagebox "找不到该脚本，请确认脚本路径或重新指定！                         " title:"BsKeyTools";)
-			fnAddMyScript btnMyScripts8 8
-		)
-	)
+	-- 脚本按钮点击事件（简化）
+	on btnMyScripts1 pressed do fnRunMyScript 1
+	on btnMyScripts2 pressed do fnRunMyScript 2
+	on btnMyScripts3 pressed do fnRunMyScript 3
+	on btnMyScripts4 pressed do fnRunMyScript 4
+	on btnMyScripts5 pressed do fnRunMyScript 5
+	on btnMyScripts6 pressed do fnRunMyScript 6
+	on btnMyScripts7 pressed do fnRunMyScript 7
+	on btnMyScripts8 pressed do fnRunMyScript 8
 
-	on btnMyScripts1 rightclick do 
-	(
-		try(destroydialog rolAddMyMs)catch()
-		createDialog rolAddMyMs fgcolor:myFgColor \
-		pos:[mouse.screenpos.x - 150,mouse.screenpos.y +20]
-	)
-	on btnMyScripts2 rightclick do 
-	(
-		try(destroydialog rolAddMyMs)catch()
-		createDialog rolAddMyMs fgcolor:myFgColor \
-		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
-	)
-	on btnMyScripts3 rightclick do 
-	(
-		try(destroydialog rolAddMyMs)catch()
-		createDialog rolAddMyMs fgcolor:myFgColor\
-		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
-	)
-	on btnMyScripts4 rightclick do 
-	(
-		try(destroydialog rolAddMyMs)catch()
-		createDialog rolAddMyMs fgcolor:myFgColor\
-		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
-	)
-	on btnMyScripts5 rightclick do 
-	(
-		try(destroydialog rolAddMyMs)catch()
-		createDialog rolAddMyMs fgcolor:myFgColor\
-		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
-	)
-	on btnMyScripts6 rightclick do 
-	(
-		try(destroydialog rolAddMyMs)catch()
-		createDialog rolAddMyMs fgcolor:myFgColor\
-		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
-	)
-	on btnMyScripts7 rightclick do 
-	(
-		try(destroydialog rolAddMyMs)catch()
-		createDialog rolAddMyMs fgcolor:myFgColor\
-		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
-	)
-	on btnMyScripts8 rightclick do 
-	(
-		try(destroydialog rolAddMyMs)catch()
-		createDialog rolAddMyMs fgcolor:myFgColor\
-		pos:[mouse.screenpos.x - 150,mouse.screenpos.y + 20]
-	)
+	-- 脚本按钮右键事件（简化）
+	on btnMyScripts1 rightclick do fnOpenConfigDialog()
+	on btnMyScripts2 rightclick do fnOpenConfigDialog()
+	on btnMyScripts3 rightclick do fnOpenConfigDialog()
+	on btnMyScripts4 rightclick do fnOpenConfigDialog()
+	on btnMyScripts5 rightclick do fnOpenConfigDialog()
+	on btnMyScripts6 rightclick do fnOpenConfigDialog()
+	on btnMyScripts7 rightclick do fnOpenConfigDialog()
+	on btnMyScripts8 rightclick do fnOpenConfigDialog()
 	
 	on btnClose pressed do 
 	(
 		try (destroydialog rolBsScriptsSet) catch()
 	)
 
-	on btnConfig pressed do
-	(
-		try(destroydialog rolAddMyMs)catch()
-		createDialog rolAddMyMs fgcolor:myFgColor \
-		pos:[mouse.screenpos.x - 150,mouse.screenpos.y +20]
-	)
+	on btnConfig pressed do fnOpenConfigDialog()
 )
 if (iniBsScriptsSetPos != 0) then (Createdialog rolBsScriptsSet fgcolor:myFgColor pos:iniBsScriptsSetPos style:#())
 else (Createdialog rolBsScriptsSet pos:(iniPos - [rolBsScriptsSet.width,0]) fgcolor:myFgColor style:#())
