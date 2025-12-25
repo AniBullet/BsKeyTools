@@ -1,12 +1,4 @@
--------------------------------------------------------
--------------------AnimationTool-----------------------
-------------------Time:2025-07-03----------------------
--------------------Author:一方狂三-------------------------
-------------------QQ:1256604813-------------------------
--------------------------------------------------------
-
-
-rollout skin权重平滑 "skin权重平滑" width:260 height:100
+rollout skinWeights "skin权重平滑" width:260 height:100
 (
 	button 'btn1' "一键权重分区" pos:[17,17] width:85 height:32 align:#left
 	button 'btn2' "平滑权重" pos:[118,17] width:85 height:32 align:#left
@@ -117,231 +109,237 @@ rollout skin权重平滑 "skin权重平滑" width:260 height:100
 	
 	on btn2 pressed do
 	(
-		-- 检查选择状态
-		if selection.count != 1 then
+		undo on
 		(
-			messageBox "请选择一个对象！" title:"错误"
-			return false
-		)
-		
-		-- 检查是否在Skin修改器模式下
-		if classOf (modPanel.getCurrentObject()) != Skin then
-		(
-			messageBox "请先选择Skin修改器！" title:"错误"
-			return false
-		)
-		
-		local obj = selection[1]
-		local skinMod = modPanel.getCurrentObject()  -- 直接获取当前的Skin修改器
-		
-		-- 优化后的平滑权重函数
-		fn smoothSkinWeightsOptimized obj skinMod iterations threshold =
-		(
-			local vertCount = obj.numverts
-			local boneCount = skinOps.GetNumberBones skinMod
-			
-			-- 获取需要处理的顶点（选中的顶点）
-			local vertsToProcess = #{}
-			for v = 1 to vertCount do
+			-- 检查选择状态
+			if selection.count != 1 then
 			(
-				if skinOps.IsVertexSelected skinMod v then
-					vertsToProcess[v] = true
+				messageBox "请选择一个对象！" title:"错误"
+				return false
 			)
 			
-			if vertsToProcess.count == 0 then
+			-- 检查是否在Skin修改器模式下
+			if classOf (modPanel.getCurrentObject()) != Skin then
 			(
-				-- 如果没有选中顶点，处理所有顶点
-				vertsToProcess = #{1..vertCount}
+				messageBox "请先选择Skin修改器！" title:"错误"
+				return false
 			)
 			
-			print ("开始平滑处理 " + vertsToProcess.count as string + " 个顶点")
+			local obj = selection[1]
+			local skinMod = modPanel.getCurrentObject()  -- 直接获取当前的Skin修改器
 			
-			-- 预建立邻接关系表，避免重复计算
-			local neighborMap = #()
-			neighborMap.count = vertCount + 1
-			
-			print "建立邻接关系表..."
-			pb1.value = 10
-			
-			for v in vertsToProcess do
+			-- 优化后的平滑权重函数
+			fn smoothSkinWeightsOptimized obj skinMod iterations threshold =
 			(
-				local neighborVerts = #{}
+				local vertCount = obj.numverts
+				local boneCount = skinOps.GetNumberBones skinMod
 				
-				-- 根据模型类型获取相邻顶点
-				if classof obj == Editable_Poly or classof obj == PolyMeshObject then
+				-- 获取需要处理的顶点（选中的顶点）- 修复：转换为数组
+				local vertsToProcess = #()
+				for v = 1 to vertCount do
 				(
-					local edges = polyop.GetEdgesUsingVert obj v
-					for e in edges do
-					(
-						local edgeVerts = polyop.getEdgeVerts obj e
-						for ev in edgeVerts do 
-							if ev != v then neighborVerts[ev] = true
-					)
-				)
-				else if classof obj == Editable_Mesh then
-				(
-					local faces = meshop.GetFacesUsingVert obj v
-					for f in faces do
-					(
-						local faceVerts = meshop.getFaceVerts obj f
-						for fv in faceVerts do 
-							if fv != v then neighborVerts[fv] = true
-					)
+					-- 修复：显式检查返回值是否为真值（非0）
+					if (skinOps.IsVertexSelected skinMod v) == 1 then
+						append vertsToProcess v
 				)
 				
-				neighborMap[v] = neighborVerts
-			)
-			
-			-- 预读取所有顶点的权重信息，避免重复API调用
-			local vertexWeights = #()
-			vertexWeights.count = vertCount + 1
-			
-			print "预读取权重信息..."
-			pb1.value = 20
-			
-			for v in vertsToProcess do
-			(
-				local weights = #()
-				local bones = #()
-				
-				local weightCount = skinOps.GetVertexWeightCount skinMod v
-				for w = 1 to weightCount do
+				if vertsToProcess.count == 0 then
 				(
-					local boneID = skinOps.GetVertexWeightBoneID skinMod v w
-					local weight = skinOps.GetVertexWeight skinMod v w
-					if weight > threshold then
-					(
-						append bones boneID
-						append weights weight
-					)
+					-- 如果没有选中顶点，处理所有顶点
+					for v = 1 to vertCount do
+						append vertsToProcess v
 				)
 				
-				vertexWeights[v] = #(bones, weights)
-			)
-			
-			-- 开始平滑迭代
-			for iter = 1 to iterations do
-			(
-				pb1.value = 20 + (iter as float / iterations) * 70
+				print ("开始平滑处理 " + vertsToProcess.count as string + " 个顶点")
 				
-				-- 存储新权重，避免在迭代过程中修改数据
-				local newWeights = #()
-				newWeights.count = vertCount + 1
+				-- 预建立邻接关系表，避免重复计算
+				local neighborMap = #()
+				neighborMap.count = vertCount + 1
 				
-				-- 为每个顶点计算新的权重
+				print "建立邻接关系表..."
+				pb1.value = 10
+				
 				for v in vertsToProcess do
 				(
-					local neighborVerts = neighborMap[v]
+					local neighborVerts = #()
 					
-					if neighborVerts != undefined and neighborVerts.count > 0 then
+					-- 根据模型类型获取相邻顶点
+					if classof obj == Editable_Poly or classof obj == PolyMeshObject then
+					( 
+					  local edges = polyop.GetEdgesUsingVert obj v
+					  for e in edges do
+					  ( 
+					    local edgeVerts = polyop.getEdgeVerts obj e
+					    for ev in edgeVerts do 
+					      if ev != v then appendIfUnique neighborVerts ev
+					  ) 
+					) 
+					else if classof obj == Editable_Mesh then
+					( 
+					  local faces = meshop.GetFacesUsingVert obj v
+					  for f in faces do
+					  ( 
+					    local faceVerts = getFace obj f  -- getFace返回point3类型
+					    if faceVerts.x as integer != v then appendIfUnique neighborVerts (faceVerts.x as integer)
+					    if faceVerts.y as integer != v then appendIfUnique neighborVerts (faceVerts.y as integer)
+					    if faceVerts.z as integer != v then appendIfUnique neighborVerts (faceVerts.z as integer)
+					  ) 
+					)
+					
+					neighborMap[v] = neighborVerts
+				)
+				
+				-- 预读取所有顶点的权重信息，避免重复API调用
+				local vertexWeights = #()
+				vertexWeights.count = vertCount + 1
+				
+				print "预读取权重信息..."
+				pb1.value = 20
+				
+				for v in vertsToProcess do
+				(
+					local weights = #()
+					local bones = #()
+					
+					local weightCount = skinOps.GetVertexWeightCount skinMod v
+					for w = 1 to weightCount do
 					(
-						local currentBones = vertexWeights[v][1]
-						local currentWeights = vertexWeights[v][2]
-						
-						-- 收集邻居顶点的权重信息
-						local neighborWeightSum = #()
-						for i = 1 to boneCount do neighborWeightSum[i] = 0.0
-						
-						local neighborCount = 0
-						for nv in neighborVerts do
+						local boneID = skinOps.GetVertexWeightBoneID skinMod v w
+						local weight = skinOps.GetVertexWeight skinMod v w
+						if weight > threshold then
 						(
-							if vertexWeights[nv] != undefined then
+							append bones boneID
+							append weights weight
+						)
+					)
+					
+					vertexWeights[v] = #(bones, weights)
+				)
+				
+				-- 开始平滑迭代
+				for iter = 1 to iterations do
+				(
+					pb1.value = 20 + (iter as float / iterations) * 70
+					
+					-- 存储新权重，避免在迭代过程中修改数据
+					local newWeights = #()
+					newWeights.count = vertCount + 1
+					
+					-- 为每个顶点计算新的权重
+					for v in vertsToProcess do
+					(
+						local neighborVerts = neighborMap[v]
+						
+						if neighborVerts != undefined and neighborVerts.count > 0 then
+						(
+							local currentBones = vertexWeights[v][1]
+							local currentWeights = vertexWeights[v][2]
+							
+							-- 收集邻居顶点的权重信息
+							local neighborWeightSum = #()
+							for i = 1 to boneCount do neighborWeightSum[i] = 0.0
+							
+							local neighborCount = 0
+							for nv in neighborVerts do
 							(
-								neighborCount += 1
-								local nvBones = vertexWeights[nv][1]
-								local nvWeights = vertexWeights[nv][2]
-								
-								for i = 1 to nvBones.count do
+								if vertexWeights[nv] != undefined then
 								(
-									local boneID = nvBones[i]
-									local weight = nvWeights[i]
-									neighborWeightSum[boneID] += weight
+									neighborCount += 1
+									local nvBones = vertexWeights[nv][1]
+									local nvWeights = vertexWeights[nv][2]
+									
+									for i = 1 to nvBones.count do
+									(
+										local boneID = nvBones[i]
+										local weight = nvWeights[i]
+										neighborWeightSum[boneID] += weight
+									)
+								)
+							)
+							
+							-- 计算平均权重并与当前权重混合
+							if neighborCount > 0 then
+							(
+								local blendRatio = 0.5  -- 混合比例
+								local finalWeights = #()
+								local finalBones = #()
+								
+								-- 创建权重映射表
+								local weightMap = #()
+								for i = 1 to boneCount do weightMap[i] = 0.0
+								
+								-- 设置当前权重
+								for i = 1 to currentBones.count do
+								(
+									local boneID = currentBones[i]
+									weightMap[boneID] = currentWeights[i]
+								)
+								
+								-- 混合权重
+								for boneID = 1 to boneCount do
+								(
+									local currentWeight = weightMap[boneID]
+									local neighborAvgWeight = neighborWeightSum[boneID] / neighborCount
+									local newWeight = currentWeight * (1.0 - blendRatio) + neighborAvgWeight * blendRatio
+									
+									if newWeight > threshold then
+									(
+										append finalBones boneID
+										append finalWeights newWeight
+									)
+								)
+								
+								-- 归一化权重
+								if finalWeights.count > 0 then
+								(
+									local weightSum = 0.0
+									for w in finalWeights do weightSum += w
+									
+									if weightSum > 0 then
+									(
+										for i = 1 to finalWeights.count do
+											finalWeights[i] /= weightSum
+									)
+									
+									-- 存储新权重
+									newWeights[v] = #(finalBones, finalWeights)
 								)
 							)
 						)
-						
-						-- 计算平均权重并与当前权重混合
-						if neighborCount > 0 then
+					)
+					
+					-- 批量应用新权重
+					for v in vertsToProcess do
+					(
+						if newWeights[v] != undefined then
 						(
-							local blendRatio = 0.5  -- 混合比例
-							local finalWeights = #()
-							local finalBones = #()
-							
-							-- 创建权重映射表
-							local weightMap = #()
-							for i = 1 to boneCount do weightMap[i] = 0.0
-							
-							-- 设置当前权重
-							for i = 1 to currentBones.count do
-							(
-								local boneID = currentBones[i]
-								weightMap[boneID] = currentWeights[i]
-							)
-							
-							-- 混合权重
-							for boneID = 1 to boneCount do
-							(
-								local currentWeight = weightMap[boneID]
-								local neighborAvgWeight = neighborWeightSum[boneID] / neighborCount
-								local newWeight = currentWeight * (1.0 - blendRatio) + neighborAvgWeight * blendRatio
-								
-								if newWeight > threshold then
-								(
-									append finalBones boneID
-									append finalWeights newWeight
-								)
-							)
-							
-							-- 归一化权重
-							if finalWeights.count > 0 then
-							(
-								local weightSum = 0.0
-								for w in finalWeights do weightSum += w
-								
-								if weightSum > 0 then
-								(
-									for i = 1 to finalWeights.count do
-										finalWeights[i] /= weightSum
-								)
-								
-								-- 存储新权重
-								newWeights[v] = #(finalBones, finalWeights)
-							)
+							skinOps.ReplaceVertexWeights skinMod v newWeights[v][1] newWeights[v][2]
+							vertexWeights[v] = newWeights[v]  -- 更新缓存
 						)
 					)
 				)
 				
-				-- 批量应用新权重
-				for v in vertsToProcess do
-				(
-					if newWeights[v] != undefined then
-					(
-						skinOps.ReplaceVertexWeights skinMod v newWeights[v][1] newWeights[v][2]
-						vertexWeights[v] = newWeights[v]  -- 更新缓存
-					)
-				)
+				pb1.value = 100
+				return true
 			)
 			
-			pb1.value = 100
-			return true
-		)
-		
-		-- 开始平滑处理
-		pb1.value = 0
-		
-		-- 使用spinner控件的值作为迭代次数，0.01作为权重阈值
-		local success = smoothSkinWeightsOptimized obj skinMod spn1.value 0.01
-		
-		-- 只刷新视图，不改变任何选择状态
-		redrawViews()
-		
-		if success then
-		(
-			print "权重平滑完成！保持在当前骨骼选择状态"
-		)
-		else
-		(
-			print "权重平滑失败"
+			-- 开始平滑处理
+			pb1.value = 0
+			
+			-- 使用spinner控件的值作为迭代次数，0.01作为权重阈值
+			local success = smoothSkinWeightsOptimized obj skinMod spn1.value 0.01
+			
+			-- 只刷新视图，不改变任何选择状态
+			redrawViews()
+			
+			if success then
+			(
+				print "权重平滑完成！保持在当前骨骼选择状态"
+			)
+			else
+			(
+				print "权重平滑失败"
+			)
 		)
 	)
 	
@@ -351,11 +349,11 @@ rollout skin权重平滑 "skin权重平滑" width:260 height:100
 	    helpText += "1.一键分区的时候请在刚刚skin添加完骨骼后直接使用\n"
 	    helpText += "2.一键分区是按照初始封套效果进行一定的修改的，所以不要动默认的封套\n"
 	    helpText += "3.一键平滑选中点进行平滑效果即刻\n"
-		helpText += "使用的时候如果有问题可以加我QQ反馈\n"
-	    helpText += "QQ:1256604813\n" 
+		helpText += "使用的时候如果有问题可以加Q群反馈\n"
+	    helpText += "Q群:607416824\n" 
 	    messageBox helpText title:"帮助信息"  
 	)
 )
 
 -- 创建对话框
-createDialog skin权重平滑
+createDialog skinWeights
