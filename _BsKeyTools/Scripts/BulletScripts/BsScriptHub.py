@@ -1142,52 +1142,91 @@ class BsScriptHub(QDialog):
             self._download_script()
     
     def _update_all_scripts(self):
-        """批量更新所有脚本"""
-        # 收集需要更新的脚本
+        """批量下载/更新所有脚本"""
+        # 收集未安装和需要更新的脚本
+        scripts_to_download = []
         scripts_to_update = []
+        
         for script in self.scripts_data:
             name = script.get("name", "")
+            # 检查是否有 script 字段
+            if not script.get("script"):
+                continue
+            
             remote_ver = script.get("version", "1.0.0")
             local_ver = self.local_versions.get(name, {}).get("version", "")
-            if local_ver and compare_versions(local_ver, remote_ver) < 0:
+            
+            if not local_ver:
+                # 未安装
+                scripts_to_download.append(script)
+            elif compare_versions(local_ver, remote_ver) < 0:
+                # 需要更新
                 scripts_to_update.append(script)
         
-        if not scripts_to_update:
-            QMessageBox.information(self, "提示", "所有已安装脚本都是最新版本！")
+        total_count = len(scripts_to_download) + len(scripts_to_update)
+        
+        if total_count == 0:
+            QMessageBox.information(self, "提示", "所有脚本都已是最新版本！")
             return
         
+        msg = ""
+        if scripts_to_download:
+            msg += "未安装: %d 个\n" % len(scripts_to_download)
+        if scripts_to_update:
+            msg += "需更新: %d 个\n" % len(scripts_to_update)
+        msg += "\n是否全部下载？"
+        
         reply = QMessageBox.question(
-            self, "批量更新",
-            "发现 %d 个脚本有更新，是否全部更新？" % len(scripts_to_update),
+            self, "批量下载",
+            msg,
             QMessageBox.Yes | QMessageBox.No
         )
         
         if reply == QMessageBox.Yes:
-            self._batch_update_scripts(scripts_to_update)
+            all_scripts = scripts_to_download + scripts_to_update
+            self._batch_update_scripts(all_scripts)
     
     def _batch_update_scripts(self, scripts):
         """批量下载更新脚本"""
-        self.status_label.setText("正在批量更新 %d 个脚本..." % len(scripts))
+        self.status_label.setText("正在批量下载 %d 个脚本..." % len(scripts))
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, len(scripts))
         self.progress_bar.setValue(0)
         
         self._batch_scripts = scripts
         self._batch_index = 0
+        self._batch_success = 0
+        self._batch_failed = 0
         self._batch_download_next()
     
     def _batch_download_next(self):
         """下载下一个批量脚本"""
         if self._batch_index >= len(self._batch_scripts):
             self.progress_bar.setVisible(False)
-            self.status_label.setText("批量更新完成！共更新 %d 个脚本" % len(self._batch_scripts))
-            QMessageBox.information(self, "完成", "批量更新完成！\n共更新 %d 个脚本" % len(self._batch_scripts))
+            msg = "批量下载完成！\n成功: %d 个" % self._batch_success
+            if self._batch_failed > 0:
+                msg += "\n失败: %d 个" % self._batch_failed
+            self.status_label.setText("完成！成功 %d，失败 %d" % (self._batch_success, self._batch_failed))
+            QMessageBox.information(self, "完成", msg)
+            # 刷新列表显示
+            self._refresh_script_buttons()
             return
         
         script = self._batch_scripts[self._batch_index]
+        script_name = script.get("name", "未知")
+        
+        self.status_label.setText("正在下载: %s (%d/%d)" % (
+            script_name, self._batch_index + 1, len(self._batch_scripts)))
         
         # 使用分类路径
         remote_path = self._get_script_remote_path(script)
+        if not remote_path or not script.get("script"):
+            # 跳过无效脚本
+            self._batch_index += 1
+            self._batch_failed += 1
+            QTimer.singleShot(10, self._batch_download_next)
+            return
+        
         url = self._get_github_url(remote_path)
         worker = NetworkWorker(url)
         worker.finished.connect(lambda d, e: self._on_batch_script_downloaded(d, e, script))
@@ -1196,6 +1235,8 @@ class BsScriptHub(QDialog):
     
     def _on_batch_script_downloaded(self, data, error, script):
         """批量脚本下载完成"""
+        script_name = script.get("name", "")
+        
         if not error and data:
             # 使用分类路径保存
             save_path = self._get_script_local_path(script)
@@ -1205,19 +1246,27 @@ class BsScriptHub(QDialog):
                     f.write(data)
                 
                 # 更新版本记录
-                script_name = script.get("name", "")
                 script_version = script.get("version", "1.0.0")
                 self._update_script_version(script_name, script_version)
-            except:
-                pass
+                self._batch_success += 1
+            except Exception as e:
+                print("保存失败: %s - %s" % (script_name, str(e)))
+                self._batch_failed += 1
+        else:
+            print("下载失败: %s - %s" % (script_name, error or "未知错误"))
+            self._batch_failed += 1
         
         self._batch_index += 1
         self.progress_bar.setValue(self._batch_index)
-        self.status_label.setText("正在更新: %s (%d/%d)" % (
-            script.get("name", ""), self._batch_index, len(self._batch_scripts)))
         
         # 下载下一个
-        QTimer.singleShot(100, self._batch_download_next)
+        QTimer.singleShot(50, self._batch_download_next)
+    
+    def _refresh_script_buttons(self):
+        """刷新脚本按钮状态"""
+        for cat_widget in self.categories.values():
+            for btn in cat_widget.scripts:
+                btn.update_local_versions(self.local_versions)
     
     def _on_script_selected(self, script_data):
         """脚本选中回调"""
