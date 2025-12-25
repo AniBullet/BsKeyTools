@@ -8,6 +8,7 @@
 
 import os
 import json
+from datetime import datetime
 
 # 获取当前脚本所在目录
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,6 +45,14 @@ def scan_scripts():
                     script_info["category"] = category_name
                     if "name" not in script_info:
                         script_info["name"] = os.path.splitext(file)[0]
+                    
+                    # 自动读取脚本文件的修改日期
+                    script_file = script_info.get("script", "")
+                    if script_file:
+                        script_path = os.path.join(item_path, script_file)
+                        if os.path.exists(script_path):
+                            mtime = os.path.getmtime(script_path)
+                            script_info["modified_date"] = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
                     
                     scripts.append(script_info)
                     print(f"  + {category_name}/{file}")

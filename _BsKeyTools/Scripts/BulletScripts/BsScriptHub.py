@@ -555,9 +555,11 @@ class BsScriptHub(QDialog):
         self.refresh_btn = QToolButton()
         self.refresh_btn.setText("🔄")
         self.refresh_btn.setObjectName("iconBtn")
-        self.refresh_btn.setToolTip("刷新脚本列表")
+        self.refresh_btn.setToolTip("刷新脚本列表\n右键: 清空缓存")
         self.refresh_btn.setFixedSize(28, 24)
         self.refresh_btn.clicked.connect(self._refresh_all)
+        self.refresh_btn.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.refresh_btn.customContextMenuRequested.connect(self._show_refresh_menu)
         title_row.addWidget(self.refresh_btn)
         
         # 批量更新按钮
@@ -1144,6 +1146,10 @@ class BsScriptHub(QDialog):
         action_cache = menu.addAction("📁 打开缓存目录")
         action_cache.triggered.connect(self._open_cache_folder)
         
+        # 清空缓存
+        action_clear = menu.addAction("🗑 清空本地缓存")
+        action_clear.triggered.connect(self._clear_cache)
+        
         menu.exec_(pos)
     
     def _context_download_script(self, script_data):
@@ -1296,6 +1302,28 @@ class BsScriptHub(QDialog):
         """刷新所有数据（重新加载本地版本和脚本列表）"""
         self._load_local_versions()  # 重新加载本地版本记录
         self._load_scripts_index()   # 重新加载脚本列表
+    
+    def _show_refresh_menu(self, pos):
+        """显示刷新按钮右键菜单"""
+        menu = QMenu(self)
+        menu.setStyleSheet("""
+            QMenu { background: #2b2b2b; border: 1px solid #404040; border-radius: 4px; padding: 4px; }
+            QMenu::item { padding: 6px 20px; border-radius: 3px; }
+            QMenu::item:selected { background: #357abd; }
+        """)
+        
+        action_refresh = menu.addAction("🔄 刷新列表")
+        action_refresh.triggered.connect(self._refresh_all)
+        
+        menu.addSeparator()
+        
+        action_clear = menu.addAction("🗑 清空本地缓存")
+        action_clear.triggered.connect(self._clear_cache)
+        
+        action_open = menu.addAction("📁 打开缓存目录")
+        action_open.triggered.connect(self._open_cache_folder)
+        
+        menu.exec_(self.refresh_btn.mapToGlobal(pos))
     
     def _refresh_script_buttons(self):
         """刷新脚本按钮状态"""
@@ -1665,6 +1693,42 @@ class BsScriptHub(QDialog):
                 subprocess.run(["xdg-open", cache_dir])
         else:
             QMessageBox.information(self, "提示", "缓存目录不存在：\n" + cache_dir)
+    
+    def _clear_cache(self):
+        """清空本地缓存"""
+        import shutil
+        
+        reply = QMessageBox.question(
+            self, "确认清空",
+            "确定要清空本地缓存吗？\n\n这将删除所有已下载的脚本和配置，\n下次使用时会重新从远程下载。",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        
+        if reply != QMessageBox.Yes:
+            return
+        
+        try:
+            # 删除缓存目录中的所有内容（保留目录本身）
+            for item in os.listdir(self.local_cache_dir):
+                item_path = os.path.join(self.local_cache_dir, item)
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                else:
+                    os.remove(item_path)
+            
+            # 清空内存缓存
+            self.local_versions = {}
+            self.script_info_cache = {}
+            self.categories_data = {}
+            
+            self.status_label.setText("缓存已清空，正在重新加载...")
+            QMessageBox.information(self, "完成", "缓存已清空！\n正在重新加载脚本列表...")
+            
+            # 重新加载
+            self._refresh_all()
+            
+        except Exception as e:
+            QMessageBox.warning(self, "错误", "清空缓存失败：\n" + str(e))
     
     def closeEvent(self, event):
         # 停止所有工作线程

@@ -65,13 +65,7 @@ BsScriptHub/
     "version": "1.0.0",
     "description": "脚本功能描述",
     "author": "你的名字",
-    "optimizer": "",
-    "modified_date": "2024-12-25",
-    "keywords": ["关键词1", "关键词2"],
-    "preview": "",
-    "script": "MyScript.ms",
-    "url": "",
-    "tutorial": ""
+    "script": "MyScript.ms"
 }
 ```
 
@@ -87,6 +81,8 @@ BsScriptHub/
 | `url` | | 发布地址 |
 | `tutorial` | | 教程链接 |
 | `preview` | | 预览图文件名（同目录） |
+
+> 💡 `modified_date` 无需填写，会自动从脚本文件读取修改日期
 
 ### 3. 添加预览图（可选）
 
