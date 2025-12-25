@@ -8,6 +8,7 @@ Compatibility: 3ds Max 2020+ (PySide2/PySide6)
 import os
 import sys
 import json
+import re
 import tempfile
 import threading
 from datetime import datetime
@@ -993,6 +994,12 @@ class BsScriptHub(QDialog):
         except Exception as e:
             callback(None, str(e))
     
+    def _get_display_category_name(self, cat_name):
+        """获取分类显示名称（去掉数字前缀）"""
+        # 支持格式: "01_基础工具" -> "基础工具"
+        match = re.match(r'^\d+[_\-\s]*(.+)$', cat_name)
+        return match.group(1) if match else cat_name
+    
     def _build_categories(self):
         """构建分类列表"""
         # 清除现有分类
@@ -1011,8 +1018,9 @@ class BsScriptHub(QDialog):
         
         # 按分类构建 UI
         for cat_name, scripts in self.categories_data.items():
-            cat_widget = CollapsibleCategory(cat_name)
-            self.categories[cat_name] = cat_widget
+            display_name = self._get_display_category_name(cat_name)
+            cat_widget = CollapsibleCategory(display_name)
+            self.categories[cat_name] = cat_widget  # key 保持原名用于路径匹配
             
             # scripts 是脚本信息对象列表 (可能为空)
             if isinstance(scripts, list):
