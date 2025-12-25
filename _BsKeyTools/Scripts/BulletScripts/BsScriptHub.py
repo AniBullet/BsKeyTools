@@ -54,18 +54,21 @@ except ImportError:
 VERSION = "1.0"
 
 # GitHub 仓库配置
-GITHUB_REPO_BASE = "https://raw.githubusercontent.com/AnimatorBullet/BsKeyTools"
-GITHUB_PAGE_BASE = "https://github.com/AnimatorBullet/BsKeyTools"  # 网页版
+GITHUB_OWNER = "AnimatorBullet"
+GITHUB_REPO = "BsKeyTools"
+GITHUB_REPO_BASE = "https://raw.githubusercontent.com/%s/%s" % (GITHUB_OWNER, GITHUB_REPO)
+GITHUB_API_BASE = "https://api.github.com/repos/%s/%s/contents" % (GITHUB_OWNER, GITHUB_REPO)
+GITHUB_PAGE_BASE = "https://github.com/%s/%s" % (GITHUB_OWNER, GITHUB_REPO)
 GITHUB_BRANCHES = ["main", "dev"]  # 可用分支
 DEFAULT_BRANCH = "main"
 SCRIPTS_PATH = "_BsKeyTools/Scripts/BsScriptHub"
-INDEX_FILE = "scripts_index.json"
 LOCAL_VERSIONS_FILE = "local_versions.json"  # 本地版本记录文件
 CONFIG_FILE = "config.json"  # 窗口配置文件
+CACHE_INDEX_FILE = "cached_index.json"  # 本地缓存的目录结构
 
 # 窗口尺寸配置
-LEFT_PANEL_WIDTH = 280  # 左侧面板宽度
-RIGHT_PANEL_WIDTH = 380  # 右侧面板宽度
+LEFT_PANEL_WIDTH = 250  # 左侧面板宽度
+RIGHT_PANEL_WIDTH = 300  # 右侧面板宽度
 MARGIN = 16  # 主布局边距
 SPACING = 8  # 主布局间距
 WINDOW_WIDTH_COLLAPSED = LEFT_PANEL_WIDTH + MARGIN  # 折叠宽度
@@ -174,11 +177,18 @@ class NetworkWorker(QThread):
             data = response.read()
             self.finished.emit(data, "")
         except HTTPError as e:
-            self.finished.emit(None, "HTTP错误: %d" % e.code)
+            if e.code == 404:
+                self.finished.emit(None, "[404] 文件不存在，请确认远程仓库已上传该文件")
+            elif e.code == 403:
+                self.finished.emit(None, "[403] 访问被拒绝，可能是请求过于频繁")
+            elif e.code >= 500:
+                self.finished.emit(None, "[%d] 服务器错误，GitHub 暂时不可用" % e.code)
+            else:
+                self.finished.emit(None, "[%d] HTTP 错误" % e.code)
         except URLError as e:
-            self.finished.emit(None, "网络错误: %s" % str(e.reason))
+            self.finished.emit(None, "[网络] 连接失败: %s" % str(e.reason))
         except Exception as e:
-            self.finished.emit(None, "错误: %s" % str(e))
+            self.finished.emit(None, "[异常] %s" % str(e))
 
 
 class CollapsibleCategory(QWidget):
@@ -356,7 +366,9 @@ class BsScriptHub(QDialog):
         super().__init__(parent)
         
         self.scripts_data = []
-        self.categories = {}
+        self.categories_data = {}  # 分类和脚本名列表
+        self.categories = {}  # UI 分类组件
+        self.script_info_cache = {}  # 脚本详情缓存
         self.current_script = None
         self.workers = []
         self.local_cache_dir = self._get_cache_dir()
@@ -598,7 +610,7 @@ class BsScriptHub(QDialog):
         self.status_label.setStyleSheet("color: #666; font-size: 10px; padding: 2px;")
         left_layout.addWidget(self.status_label)
         
-        self.left_panel.setFixedWidth(280)
+        self.left_panel.setFixedWidth(LEFT_PANEL_WIDTH)
         main_layout.addWidget(self.left_panel)
         
         # ========== 右侧面板：详情 ==========
@@ -803,56 +815,194 @@ class BsScriptHub(QDialog):
                 }
             """)
     
+    def _get_github_api_url(self, path=""):
+        """获取 GitHub API URL"""
+        base = "%s/%s" % (GITHUB_API_BASE, SCRIPTS_PATH)
+        if path:
+            base = "%s/%s" % (base, path)
+        return "%s?ref=%s" % (base, self.current_branch)
+    
     def _load_scripts_index(self):
-        """加载远程脚本索引"""
+        """通过 GitHub API 自动扫描目录结构"""
         branch_text = " [%s]" % self.current_branch if self.current_branch != "main" else ""
-        self.status_label.setText("正在连接远程仓库%s..." % branch_text)
+        self.status_label.setText("正在扫描远程仓库%s..." % branch_text)
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, 0)  # 无限进度
         
-        url = self._get_github_url("%s/%s" % (SCRIPTS_PATH, INDEX_FILE))
+        # 使用 GitHub API 获取目录列表
+        url = self._get_github_api_url()
         worker = NetworkWorker(url)
-        worker.finished.connect(self._on_index_loaded)
+        worker.finished.connect(self._on_repo_scanned)
         self.workers.append(worker)
         worker.start()
     
-    def _on_index_loaded(self, data, error):
-        """索引加载完成回调"""
-        self.progress_bar.setVisible(False)
-        
+    def _on_repo_scanned(self, data, error):
+        """仓库扫描完成，获取分类列表"""
         if error:
-            self.status_label.setText("加载失败: " + error)
-            # 尝试加载本地缓存
+            self.progress_bar.setVisible(False)
+            self.status_label.setText("扫描失败: " + error)
             self._load_local_cache()
             return
         
         try:
-            index_data = json.loads(data.decode('utf-8'))
-            self.scripts_data = index_data.get("scripts", [])
+            items = json.loads(data.decode('utf-8'))
             
-            # 保存到本地缓存
-            cache_file = os.path.join(self.local_cache_dir, INDEX_FILE)
-            with open(cache_file, 'w', encoding='utf-8') as f:
-                json.dump(index_data, f, ensure_ascii=False, indent=2)
+            # 筛选出文件夹（分类）
+            self.categories_data = {}
+            self._pending_categories = []
             
-            self._build_categories()
-            self.status_label.setText("已加载 %d 个脚本" % len(self.scripts_data))
+            for item in items:
+                if item.get("type") == "dir":
+                    cat_name = item.get("name", "")
+                    if cat_name and not cat_name.startswith("."):
+                        self._pending_categories.append(cat_name)
+                        self.categories_data[cat_name] = []
+            
+            if not self._pending_categories:
+                self.progress_bar.setVisible(False)
+                self.status_label.setText("未找到任何分类")
+                return
+            
+            # 开始扫描每个分类
+            self._scan_index = 0
+            self._scan_next_category()
+            
         except Exception as e:
+            self.progress_bar.setVisible(False)
             self.status_label.setText("解析失败: " + str(e))
             self._load_local_cache()
     
+    def _scan_next_category(self):
+        """扫描下一个分类"""
+        if self._scan_index >= len(self._pending_categories):
+            # 全部扫描完成
+            self._on_scan_complete()
+            return
+        
+        cat_name = self._pending_categories[self._scan_index]
+        self.status_label.setText("正在扫描分类: %s..." % cat_name)
+        
+        url = self._get_github_api_url(cat_name)
+        worker = NetworkWorker(url)
+        worker.finished.connect(lambda d, e: self._on_category_scanned(d, e, cat_name))
+        self.workers.append(worker)
+        worker.start()
+    
+    def _on_category_scanned(self, data, error, cat_name):
+        """分类扫描完成"""
+        if not error and data:
+            try:
+                items = json.loads(data.decode('utf-8'))
+                
+                # 筛选出 .json 文件（脚本配置）
+                for item in items:
+                    if item.get("type") == "file":
+                        name = item.get("name", "")
+                        if name.endswith(".json"):
+                            script_name = name[:-5]  # 去掉 .json
+                            self.categories_data[cat_name].append(script_name)
+            except:
+                pass
+        
+        self._scan_index += 1
+        self._scan_next_category()
+    
+    def _on_scan_complete(self):
+        """扫描完成"""
+        self.progress_bar.setVisible(False)
+        
+        # 移除空分类
+        self.categories_data = {k: v for k, v in self.categories_data.items() if v}
+        
+        # 保存到本地缓存
+        cache_file = os.path.join(self.local_cache_dir, CACHE_INDEX_FILE)
+        try:
+            with open(cache_file, 'w', encoding='utf-8') as f:
+                json.dump({"categories": self.categories_data}, f, ensure_ascii=False, indent=2)
+        except:
+            pass
+        
+        self._build_categories()
+        total_scripts = sum(len(scripts) for scripts in self.categories_data.values())
+        self.status_label.setText("已加载 %d 个脚本，%d 个分类" % (total_scripts, len(self.categories_data)))
+    
     def _load_local_cache(self):
         """加载本地缓存"""
-        cache_file = os.path.join(self.local_cache_dir, INDEX_FILE)
+        cache_file = os.path.join(self.local_cache_dir, CACHE_INDEX_FILE)
         if os.path.exists(cache_file):
             try:
                 with open(cache_file, 'r', encoding='utf-8') as f:
                     index_data = json.load(f)
-                self.scripts_data = index_data.get("scripts", [])
+                self.categories_data = index_data.get("categories", {})
                 self._build_categories()
-                self.status_label.setText("已从缓存加载 %d 个脚本 (离线模式)" % len(self.scripts_data))
+                total_scripts = sum(len(scripts) for scripts in self.categories_data.values())
+                self.status_label.setText("已从缓存加载 %d 个脚本 (离线模式)" % total_scripts)
             except:
                 self.status_label.setText("无可用数据")
+        else:
+            self.status_label.setText("无可用数据，请检查网络连接")
+    
+    def _get_script_info_url(self, category, script_name):
+        """获取脚本配置 JSON 的远程 URL"""
+        return self._get_github_url("%s/%s/%s.json" % (SCRIPTS_PATH, category, script_name))
+    
+    def _get_script_info_cache_path(self, category, script_name):
+        """获取脚本配置 JSON 的本地缓存路径"""
+        return os.path.join(self.local_cache_dir, category, "%s.json" % script_name)
+    
+    def _load_script_info(self, category, script_name, callback):
+        """加载单个脚本的详细信息（优先缓存，否则远程获取）"""
+        cache_key = "%s/%s" % (category, script_name)
+        
+        # 检查内存缓存
+        if cache_key in self.script_info_cache:
+            callback(self.script_info_cache[cache_key], None)
+            return
+        
+        # 检查本地文件缓存
+        cache_path = self._get_script_info_cache_path(category, script_name)
+        if os.path.exists(cache_path):
+            try:
+                with open(cache_path, 'r', encoding='utf-8') as f:
+                    info = json.load(f)
+                info["category"] = category  # 添加分类信息
+                self.script_info_cache[cache_key] = info
+                callback(info, None)
+                return
+            except:
+                pass
+        
+        # 从远程获取
+        self.status_label.setText("正在加载脚本信息...")
+        url = self._get_script_info_url(category, script_name)
+        worker = NetworkWorker(url)
+        worker.finished.connect(lambda d, e: self._on_script_info_loaded(d, e, category, script_name, callback))
+        self.workers.append(worker)
+        worker.start()
+    
+    def _on_script_info_loaded(self, data, error, category, script_name, callback):
+        """脚本信息加载完成"""
+        if error or not data:
+            callback(None, error or "加载失败")
+            return
+        
+        try:
+            info = json.loads(data.decode('utf-8'))
+            info["category"] = category  # 添加分类信息
+            
+            # 保存到本地缓存
+            cache_path = self._get_script_info_cache_path(category, script_name)
+            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+            with open(cache_path, 'w', encoding='utf-8') as f:
+                json.dump(info, f, ensure_ascii=False, indent=2)
+            
+            # 保存到内存缓存
+            cache_key = "%s/%s" % (category, script_name)
+            self.script_info_cache[cache_key] = info
+            
+            callback(info, None)
+        except Exception as e:
+            callback(None, str(e))
     
     def _build_categories(self):
         """构建分类列表"""
@@ -867,21 +1017,19 @@ class BsScriptHub(QDialog):
             if item.widget():
                 item.widget().deleteLater()
         
-        # 按分类组织脚本
-        cat_scripts = {}
-        for script in self.scripts_data:
-            cat = script.get("category", "未分类")
-            if cat not in cat_scripts:
-                cat_scripts[cat] = []
-            cat_scripts[cat].append(script)
-        
-        # 创建分类组件
-        for cat_name in sorted(cat_scripts.keys()):
+        # 按分类构建 UI
+        for cat_name, script_names in self.categories_data.items():
+            # 跳过空分类
+            if not script_names:
+                continue
+                
             cat_widget = CollapsibleCategory(cat_name)
             self.categories[cat_name] = cat_widget
             
-            for script in cat_scripts[cat_name]:
-                btn = ScriptButton(script, self.local_versions)
+            for script_name in script_names:
+                # 创建简化的脚本数据（只有名称和分类）
+                script_data = {"name": script_name, "category": cat_name}
+                btn = ScriptButton(script_data, self.local_versions)
                 btn.script_selected.connect(self._on_script_selected)
                 btn.script_run.connect(self._on_script_run)
                 btn.script_context_menu.connect(self._show_script_context_menu)
@@ -923,12 +1071,34 @@ class BsScriptHub(QDialog):
     
     def _on_script_run(self, script_data):
         """双击运行脚本"""
+        script_name = script_data.get("name", "")
+        category = script_data.get("category", "")
+        
+        # 如果没有完整信息，先加载
+        if "script" not in script_data and category:
+            self.status_label.setText("正在加载脚本信息...")
+            self._load_script_info(category, script_name, self._on_script_info_for_run)
+            return
+        
         self.current_script = script_data
         self._run_script()
     
+    def _on_script_info_for_run(self, info, error):
+        """获取脚本信息后运行"""
+        if error:
+            self.status_label.setText("加载失败: " + error)
+            QMessageBox.warning(self, "加载失败", error)
+            return
+        
+        if info:
+            self.current_script = info
+            self._run_script()
+    
     def _show_script_context_menu(self, script_data, pos):
         """显示脚本右键菜单"""
-        self.current_script = script_data
+        # 先保存基本信息，用于后续操作
+        self._pending_script_data = script_data
+        
         menu = QMenu(self)
         menu.setStyleSheet("""
             QMenu { background: #2b2b2b; border: 1px solid #404040; border-radius: 4px; padding: 4px; }
@@ -938,7 +1108,7 @@ class BsScriptHub(QDialog):
         
         # 运行脚本
         action_run = menu.addAction("▶ 运行脚本")
-        action_run.triggered.connect(self._run_script)
+        action_run.triggered.connect(lambda: self._on_script_run(script_data))
         
         # 下载/更新
         script_name = script_data.get("name", "")
@@ -947,7 +1117,7 @@ class BsScriptHub(QDialog):
             action_download = menu.addAction("📥 更新脚本")
         else:
             action_download = menu.addAction("📥 下载脚本")
-        action_download.triggered.connect(self._download_script)
+        action_download.triggered.connect(lambda: self._context_download_script(script_data))
         
         menu.addSeparator()
         
@@ -962,6 +1132,31 @@ class BsScriptHub(QDialog):
             action_url.triggered.connect(lambda: QDesktopServices.openUrl(QUrl(url)))
         
         menu.exec_(pos)
+    
+    def _context_download_script(self, script_data):
+        """从右键菜单下载脚本"""
+        script_name = script_data.get("name", "")
+        category = script_data.get("category", "")
+        
+        # 如果没有完整信息，先加载
+        if "script" not in script_data and category:
+            self.status_label.setText("正在加载脚本信息...")
+            self._load_script_info(category, script_name, self._on_script_info_for_download)
+            return
+        
+        self.current_script = script_data
+        self._download_script()
+    
+    def _on_script_info_for_download(self, info, error):
+        """获取脚本信息后下载"""
+        if error:
+            self.status_label.setText("加载失败: " + error)
+            QMessageBox.warning(self, "加载失败", error)
+            return
+        
+        if info:
+            self.current_script = info
+            self._download_script()
     
     def _update_all_scripts(self):
         """批量更新所有脚本"""
@@ -1007,9 +1202,10 @@ class BsScriptHub(QDialog):
             return
         
         script = self._batch_scripts[self._batch_index]
-        script_file = script.get("script", "")
         
-        url = self._get_github_url("%s/%s" % (SCRIPTS_PATH, script_file))
+        # 使用分类路径
+        remote_path = self._get_script_remote_path(script)
+        url = self._get_github_url(remote_path)
         worker = NetworkWorker(url)
         worker.finished.connect(lambda d, e: self._on_batch_script_downloaded(d, e, script))
         self.workers.append(worker)
@@ -1018,8 +1214,8 @@ class BsScriptHub(QDialog):
     def _on_batch_script_downloaded(self, data, error, script):
         """批量脚本下载完成"""
         if not error and data:
-            script_file = script.get("script", "")
-            save_path = os.path.join(self.local_cache_dir, script_file)
+            # 使用分类路径保存
+            save_path = self._get_script_local_path(script)
             try:
                 os.makedirs(os.path.dirname(save_path), exist_ok=True)
                 with open(save_path, 'wb') as f:
@@ -1042,6 +1238,41 @@ class BsScriptHub(QDialog):
     
     def _on_script_selected(self, script_data):
         """脚本选中回调"""
+        script_name = script_data.get("name", "-")
+        category = script_data.get("category", "")
+        
+        # 如果没有详细信息（只有 name 和 category），需要懒加载
+        if "version" not in script_data and category:
+            # 先显示基本信息
+            self.name_label.setText(script_name)
+            self.version_label.setText("加载中...")
+            self.author_label.setText("-")
+            self.optimizer_label.setText("-")
+            self.date_label.setText("-")
+            self.desc_text.setText("正在加载脚本信息...")
+            self._clear_keywords()
+            self.run_btn.setEnabled(False)
+            self.download_btn.setEnabled(False)
+            
+            # 异步加载详情
+            self._load_script_info(category, script_name, self._on_script_info_ready)
+            return
+        
+        # 有完整信息，直接显示
+        self._display_script_info(script_data)
+    
+    def _on_script_info_ready(self, info, error):
+        """脚本详情加载完成"""
+        if error:
+            self.status_label.setText("加载失败: " + error)
+            self.desc_text.setText("加载失败: " + error)
+            return
+        
+        if info:
+            self._display_script_info(info)
+    
+    def _display_script_info(self, script_data):
+        """显示脚本详细信息"""
         self.current_script = script_data
         
         script_name = script_data.get("name", "-")
@@ -1116,6 +1347,8 @@ class BsScriptHub(QDialog):
         self.run_btn.setEnabled(True)
         self.download_btn.setEnabled(True)
         
+        self.status_label.setText("已选择: " + script_name)
+        
         # 加载预览图
         self._load_preview(script_data)
     
@@ -1182,6 +1415,18 @@ class BsScriptHub(QDialog):
         )
         self.preview_label.setPixmap(scaled)
     
+    def _get_script_remote_path(self, script_data):
+        """获取脚本的远程路径（包含分类文件夹）"""
+        category = script_data.get("category", "未分类")
+        script_file = script_data.get("script", "")
+        return "%s/%s/%s" % (SCRIPTS_PATH, category, script_file)
+    
+    def _get_script_local_path(self, script_data):
+        """获取脚本的本地缓存路径"""
+        category = script_data.get("category", "未分类")
+        script_file = script_data.get("script", "")
+        return os.path.join(self.local_cache_dir, category, script_file)
+    
     def _run_script(self):
         """运行脚本"""
         if not self.current_script:
@@ -1192,14 +1437,23 @@ class BsScriptHub(QDialog):
             QMessageBox.warning(self, "错误", "脚本文件未指定")
             return
         
+        # 先检查本地缓存是否已有脚本
+        local_path = self._get_script_local_path(self.current_script)
+        if os.path.exists(local_path):
+            # 本地已有，直接运行
+            self._execute_script(local_path)
+            return
+        
+        # 本地没有，需要下载
         self.status_label.setText("正在下载脚本...")
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, 0)
         
-        # 下载脚本
-        url = self._get_github_url("%s/%s" % (SCRIPTS_PATH, script_file))
+        # 下载脚本（使用分类路径）
+        remote_path = self._get_script_remote_path(self.current_script)
+        url = self._get_github_url(remote_path)
         worker = NetworkWorker(url)
-        worker.finished.connect(lambda d, e: self._on_script_downloaded(d, e, script_file, True))
+        worker.finished.connect(lambda d, e: self._on_script_downloaded(d, e, self.current_script, True))
         self.workers.append(worker)
         worker.start()
     
@@ -1217,13 +1471,15 @@ class BsScriptHub(QDialog):
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, 0)
         
-        url = self._get_github_url("%s/%s" % (SCRIPTS_PATH, script_file))
+        # 下载脚本（使用分类路径）
+        remote_path = self._get_script_remote_path(self.current_script)
+        url = self._get_github_url(remote_path)
         worker = NetworkWorker(url)
-        worker.finished.connect(lambda d, e: self._on_script_downloaded(d, e, script_file, False))
+        worker.finished.connect(lambda d, e: self._on_script_downloaded(d, e, self.current_script, False))
         self.workers.append(worker)
         worker.start()
     
-    def _on_script_downloaded(self, data, error, filename, run_after=False):
+    def _on_script_downloaded(self, data, error, script_data, run_after=False):
         """脚本下载完成"""
         self.progress_bar.setVisible(False)
         
@@ -1232,41 +1488,27 @@ class BsScriptHub(QDialog):
             QMessageBox.warning(self, "下载失败", error or "未知错误")
             return
         
-        # 保存脚本
-        save_path = os.path.join(self.local_cache_dir, filename)
+        # 保存脚本（使用分类路径）
+        save_path = self._get_script_local_path(script_data)
         try:
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
             with open(save_path, 'wb') as f:
                 f.write(data)
             
-            # 同时下载对应的 JSON 配置文件
-            json_file = os.path.splitext(filename)[0] + ".json"
-            json_url = self._get_github_url("%s/%s" % (SCRIPTS_PATH, json_file))
-            try:
-                req = Request(json_url)
-                req.add_header('User-Agent', 'BsScriptHub/1.0')
-                response = urlopen(req, timeout=10)
-                json_data = response.read()
-                json_path = os.path.join(self.local_cache_dir, json_file)
-                with open(json_path, 'wb') as f:
-                    f.write(json_data)
-            except:
-                pass
-            
             # 更新本地版本记录
-            if self.current_script:
-                script_name = self.current_script.get("name", "")
-                script_version = self.current_script.get("version", "1.0.0")
-                if script_name:
-                    self._update_script_version(script_name, script_version)
-                    # 刷新当前选中脚本的显示
+            script_name = script_data.get("name", "")
+            script_version = script_data.get("version", "1.0.0")
+            if script_name:
+                self._update_script_version(script_name, script_version)
+                # 刷新当前选中脚本的显示
+                if self.current_script and self.current_script.get("name") == script_name:
                     self._on_script_selected(self.current_script)
             
             if run_after:
                 self.status_label.setText("正在执行脚本...")
                 self._execute_script(save_path)
             else:
-                self.status_label.setText("脚本已下载到: " + save_path)
+                self.status_label.setText("脚本已下载: " + script_data.get("name", ""))
                 QMessageBox.information(self, "下载完成", "脚本已保存到:\n" + save_path)
         except Exception as e:
             self.status_label.setText("保存失败: " + str(e))
