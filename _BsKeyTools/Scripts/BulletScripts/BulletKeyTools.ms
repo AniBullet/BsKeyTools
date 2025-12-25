@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-12-25 16:24:22
+ * @LastEditTime: 2025-12-25 21:27:43
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -2374,8 +2374,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	tooltip:"替换Skin蒙皮骨骼~\r\n（左右键点击有2个不同插件）" pos:btnPos
 	button btnAnimRef "参考工具" width:btnWidth height:btnHeight visible:false \
 	toolTip:"" pos:btnPos
-	button btnMotionReverse "动作逆向" width:btnWidth height:btnHeight visible:false \
-	tooltip:"游戏动作逆向学习" pos:btnPos
+	button btnBsScriptHub "远端脚本" width:btnWidth height:btnHeight visible:false \
+	tooltip:"BsScriptHub 远端脚本平台" pos:btnPos
 	button btnWeightSmooth "权重平滑" width:btnWidth height:btnHeight visible:false \
 	tooltip:"权重分区平滑工具 (by一方狂三)" pos:btnPos
 	button btnLODCreate "LOD 创建" width:btnWidth height:btnHeight visible:false \
@@ -2551,7 +2551,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	fn fnSwitchToolBtnName =
 	(
 		ToolTipObj = dotnetobject "System.Windows.Forms.ToolTip"
-		ToolTipObj.SetToolTip btnelement "打开远程脚本仓库 (BsScriptHub)"
+		ToolTipObj.SetToolTip btnelement "打开远端脚本仓库 (BsScriptHub)"
 
 		-- 使用循环设置页签按钮文字
 		for i = 1 to arrTabButtons.count do
@@ -2628,7 +2628,7 @@ rollout rolBsKeyTools "" width:355 height:250
 						rolBsKeyTools.btnMopherSlider,rolBsKeyTools.btnMorpherCtrl,
 						rolBsKeyTools.btnMirrorMoph,rolBsKeyTools.btnDelDecimalKeys,
 						rolBsKeyTools.btnReplaceSkinBones,rolBsKeyTools.btnAnimRef,
-						rolBsKeyTools.btnMotionReverse,rolBsKeyTools.btnWeightSmooth,
+						rolBsKeyTools.btnBsScriptHub,rolBsKeyTools.btnWeightSmooth,
 						rolBsKeyTools.btnLODCreate,rolBsKeyTools.btnProColor)
 		
 		-- 同步别名
@@ -4762,10 +4762,10 @@ rollout rolBsKeyTools "" width:355 height:250
 		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BakeAnim.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
-	on btnMotionReverse pressed do
+	on btnBsScriptHub pressed do
 	(
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\MotionReverse_Tool.ms"))
-		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 MotionReverse_Tool.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsScriptHub.ms"))
+		catch(try(messagebox (getCurrentException()));catch();messagebox "打开 BsScriptHub.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnWeightSmooth pressed do
@@ -4918,9 +4918,6 @@ rollout rolBsKeyTools "" width:355 height:250
 		iconCurStr = (fnChangeBtnElement iconCurStr)
 		iconElement = (iconPath + @"\\" + iconCurStr)
 		btnElement.image = (fnDotnetBitmap iconElement)
-		-- 打开远程脚本仓库
-		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsScriptHub.ms"))
-		catch(try(messagebox (getCurrentException()));catch();messagebox "打开 BsScriptHub.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnPrimogem mouseDown senderArg arg do

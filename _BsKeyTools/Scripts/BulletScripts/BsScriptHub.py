@@ -79,6 +79,19 @@ WINDOW_WIDTH_COLLAPSED = LEFT_PANEL_WIDTH + MARGIN  # 折叠宽度
 WINDOW_WIDTH_EXPANDED = LEFT_PANEL_WIDTH + RIGHT_PANEL_WIDTH + SPACING + MARGIN  # 展开宽度
 WINDOW_HEIGHT = 550
 
+# 单例窗口管理 - 使用 builtins 存储窗口引用，实现跨文件执行的单例
+_WIN_KEY = '_BsScriptHub_Window_Instance_'
+
+def _get_win():
+    """获取窗口实例"""
+    import builtins
+    return getattr(builtins, _WIN_KEY, None)
+
+def _set_win(win):
+    """设置窗口实例"""
+    import builtins
+    setattr(builtins, _WIN_KEY, win)
+
 
 def compare_versions(local_ver, remote_ver):
     """
@@ -608,7 +621,7 @@ class BsScriptHub(QDialog):
         title_row.addWidget(self.help_btn)
         
         self.refresh_btn = QToolButton()
-        self.refresh_btn.setText("🔄")
+        self.refresh_btn.setText("↻")  # 刷新符号
         self.refresh_btn.setObjectName("iconBtn")
         self.refresh_btn.setToolTip("刷新脚本列表\n右键: 清空缓存")
         self.refresh_btn.setFixedSize(28, 24)
@@ -619,9 +632,9 @@ class BsScriptHub(QDialog):
         
         # 批量更新按钮
         self.update_all_btn = QToolButton()
-        self.update_all_btn.setText("⬇")
+        self.update_all_btn.setText("↓")  # 下载符号
         self.update_all_btn.setObjectName("iconBtn")
-        self.update_all_btn.setToolTip("批量更新所有脚本")
+        self.update_all_btn.setToolTip("批量下载/更新所有脚本")
         self.update_all_btn.setFixedSize(28, 24)
         self.update_all_btn.clicked.connect(self._update_all_scripts)
         title_row.addWidget(self.update_all_btn)
@@ -1639,10 +1652,14 @@ class BsScriptHub(QDialog):
             self.preview_label.setText("预览图格式不支持")
             return
         
+        # 使用固定宽度，避免首次加载时 label 宽度不正确
+        preview_width = RIGHT_PANEL_WIDTH - 20
+        preview_height = 140
+        
         # 缩放图片以适应区域
         scaled = pixmap.scaled(
-            self.preview_label.width() - 20,
-            240,
+            preview_width,
+            preview_height,
             Qt.KeepAspectRatio,
             Qt.SmoothTransformation
         )
@@ -1837,17 +1854,34 @@ class BsScriptHub(QDialog):
     
     def closeEvent(self, event):
         # 保存窗口位置
-        self._save_window_position()
+        try:
+            self._save_window_position()
+        except:
+            pass
+        
+        # 断开所有信号连接，防止回调到已销毁的对象
+        try:
+            self.closed.disconnect()
+        except:
+            pass
+        
         # 停止所有工作线程
         for worker in self.workers:
-            if worker.isRunning():
-                worker.quit()
-                worker.wait(1000)
-        # 清理全局变量
-        global _win
-        _win = None
-        self.closed.emit()
-        super().closeEvent(event)
+            try:
+                if worker.isRunning():
+                    worker.quit()
+                    worker.wait(500)  # 减少等待时间
+                    if worker.isRunning():
+                        worker.terminate()  # 强制终止
+            except:
+                pass
+        self.workers.clear()
+        
+        # 清理窗口引用
+        _set_win(None)
+        
+        # 接受关闭事件
+        event.accept()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
@@ -1858,12 +1892,9 @@ class BsScriptHub(QDialog):
             super().keyPressEvent(event)
 
 
-# 全局窗口实例
-_win = None
-
 def show_window():
     """显示窗口（单例模式）"""
-    global _win
+    _win = _get_win()
     
     # 如果窗口已存在且有效，直接激活
     if _win is not None:
@@ -1876,10 +1907,11 @@ def show_window():
             return _win
         except (RuntimeError, AttributeError):
             # 窗口已被删除
-            _win = None
+            _set_win(None)
     
     # 创建新窗口
     _win = BsScriptHub()
+    _set_win(_win)
     _win.show()
     _win.raise_()
     _win.activateWindow()
@@ -1897,9 +1929,14 @@ def close_window():
         _win = None
 
 
-# 直接运行时启动
-if __name__ == "__main__":
+# 启动窗口
+if IN_MAX:
+    # 在 Max 中执行时自动显示窗口
+    show_window()
+elif __name__ == "__main__":
+    # 独立运行测试
     app = QApplication.instance() or QApplication(sys.argv)
     win = show_window()
-    if not IN_MAX:
-        sys.exit(app.exec() if PYSIDE_VERSION == 6 else app.exec_())
+    _exec_func = getattr(app, 'exec', getattr(app, 'exec_', None))
+    sys.exit(_exec_func())
+

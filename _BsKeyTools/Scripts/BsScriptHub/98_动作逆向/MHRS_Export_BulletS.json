@@ -1,0 +1,12 @@
+{
+    "name": "怪猎崛起曙光导出",
+    "script": "MHRS_Export_BulletS.ms",
+    "version": "1.0",
+    "description": "怪物猎人崛起曙光 动画批量导出工具\n\n将游戏动画批量导出为通用格式。\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
+    "author": "Bullet.S",
+    "modifier": "",
+    "keywords": "怪物猎人,MHRise,Sunbreak,曙光,批量导出,动画",
+    "url": "https://github.com/AniBullet/MotionReverse",
+    "tutorial": "https://space.bilibili.com/2031113/lists/560782"
+}
+

@@ -212,6 +212,112 @@
         "category": "08_导入导出"
       }
     ],
+    "98_动作逆向": [
+      {
+        "name": "ActorX 导入器",
+        "script": "ActorXImporter_BulletS.ms",
+        "version": "1.38",
+        "description": "ActorX 模型(psk)和动画(psa)导入工具\n\n支持导入 Unreal Engine 导出的 ActorX 格式文件，包括模型网格和骨骼动画。\n\n功能特性：\n- 支持 PSK/PSA 格式\n- 支持顶点色导入\n- 支持 PNG 贴图\n- 支持批量导入",
+        "author": "Gildor",
+        "modifier": "Bullet.S",
+        "keywords": "ActorX,PSK,PSA,Unreal,导入,模型,动画",
+        "url": "http://www.gildor.org/projects/unactorx",
+        "tutorial": "https://space.bilibili.com/2031113/lists/560782",
+        "category": "98_动作逆向",
+        "modified_date": "2025-06-25"
+      },
+      {
+        "name": "鬼泣5动画导出",
+        "script": "DMC5_Export_BulletS.ms",
+        "version": "2.0",
+        "description": "鬼泣5 (Devil May Cry 5) 动画批量导出工具\n\n将游戏动画批量导出为通用格式。\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
+        "author": "Bullet.S",
+        "modifier": "",
+        "keywords": "鬼泣5,DMC5,Devil May Cry,批量导出,动画,Capcom",
+        "url": "https://github.com/AniBullet/MotionReverse",
+        "tutorial": "https://space.bilibili.com/2031113/lists/560782",
+        "category": "98_动作逆向",
+        "modified_date": "2025-06-10"
+      },
+      {
+        "name": "ActorX 批量转换 FBX",
+        "script": "ExportFBX_BulletS.ms",
+        "version": "1.07",
+        "description": "ActorX 批量转换工具\n\n将 PSK/PSA 文件批量转换为 FBX 格式，方便在其他软件中使用。\n\n功能特性：\n- 支持批量转换\n- 支持多动画合并为单个 FBX (Multi-Take)\n- 支持子文件夹递归处理",
+        "author": "Gildor",
+        "modifier": "Bullet.S",
+        "keywords": "ActorX,FBX,批量转换,导出,PSK,PSA",
+        "url": "http://www.gildor.org/projects/unactorx",
+        "tutorial": "https://space.bilibili.com/2031113/lists/560782",
+        "category": "98_动作逆向",
+        "modified_date": "2025-06-10"
+      },
+      {
+        "name": "Havok 动画导出",
+        "script": "Havok_Export_BulletS.ms",
+        "version": "1.0",
+        "description": "Havok 引擎动画导出工具\n\n支持 Havok 物理引擎游戏的动画导出。\n\n适用于使用 Havok 动画系统的游戏。",
+        "author": "Bullet.S",
+        "modifier": "",
+        "keywords": "Havok,动画导出,物理引擎",
+        "url": "https://github.com/AniBullet/MotionReverse",
+        "tutorial": "https://space.bilibili.com/2031113/lists/560782",
+        "category": "98_动作逆向",
+        "modified_date": "2025-06-10"
+      },
+      {
+        "name": "怪猎崛起曙光导出",
+        "script": "MHRS_Export_BulletS.ms",
+        "version": "1.0",
+        "description": "怪物猎人崛起曙光 动画批量导出工具\n\n将游戏动画批量导出为通用格式。\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
+        "author": "Bullet.S",
+        "modifier": "",
+        "keywords": "怪物猎人,MHRise,Sunbreak,曙光,批量导出,动画",
+        "url": "https://github.com/AniBullet/MotionReverse",
+        "tutorial": "https://space.bilibili.com/2031113/lists/560782",
+        "category": "98_动作逆向",
+        "modified_date": "2025-06-10"
+      },
+      {
+        "name": "RE引擎动画工具",
+        "script": "RE_AnimTools_BulletS.ms",
+        "version": "1.4",
+        "description": "RE Engine 游戏动画导入工具\n\n支持 Capcom RE 引擎游戏的动画文件导入。\n\n支持游戏：\n- 怪物猎人荒野 (MHWilds)\n- 怪物猎人崛起 (MHRise)\n- 怪物猎人崛起曙光 (MHR Sunbreak)\n\n需要配合 Noesis 使用。",
+        "author": "Bullet.S",
+        "modifier": "",
+        "keywords": "RE引擎,怪物猎人,MHWilds,MHRise,动画导入,Capcom",
+        "url": "https://github.com/AniBullet/MotionReverse",
+        "tutorial": "https://space.bilibili.com/2031113/lists/560782",
+        "category": "98_动作逆向",
+        "modified_date": "2025-06-10"
+      },
+      {
+        "name": "街霸6动画导出",
+        "script": "SF6_Export_BulletS.ms",
+        "version": "1.0",
+        "description": "街头霸王6 (Street Fighter 6) 动画批量导出工具\n\n将游戏动画批量导出为通用格式。\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
+        "author": "Bullet.S",
+        "modifier": "",
+        "keywords": "街霸6,SF6,Street Fighter,批量导出,动画,Capcom",
+        "url": "https://github.com/AniBullet/MotionReverse",
+        "tutorial": "https://space.bilibili.com/2031113/lists/560782",
+        "category": "98_动作逆向",
+        "modified_date": "2024-04-11"
+      },
+      {
+        "name": "XnaLara/XPS 转换器",
+        "script": "XnaLara_Converter.ms",
+        "version": "1.41",
+        "description": "XnaLara / XPS 模型导入导出工具\n\n支持 XNALara 和 XPS (XNAPosingStudio) 格式的模型文件。\n\n功能特性：\n- 支持 .mesh / .xps 格式导入\n- 支持 .mesh 格式导出\n- 支持 PMX (MikuMikuDance) 导出\n- 支持骨骼和蒙皮\n- 支持多UV和顶点色",
+        "author": "Dusan Pavlicek",
+        "modifier": "",
+        "keywords": "XnaLara,XPS,mesh,PMX,MMD,模型转换,导入导出",
+        "url": "https://github.com/AniBullet/MotionReverse",
+        "tutorial": "https://space.bilibili.com/2031113/lists/560782",
+        "category": "98_动作逆向",
+        "modified_date": "2025-05-13"
+      }
+    ],
     "99_测试工具": [
       {
         "name": "HelloWorld",

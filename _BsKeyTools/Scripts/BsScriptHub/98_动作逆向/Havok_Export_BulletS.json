@@ -1,0 +1,12 @@
+{
+    "name": "Havok 动画导出",
+    "script": "Havok_Export_BulletS.ms",
+    "version": "1.0",
+    "description": "Havok 引擎动画导出工具\n\n支持 Havok 物理引擎游戏的动画导出。\n\n适用于使用 Havok 动画系统的游戏。",
+    "author": "Bullet.S",
+    "modifier": "",
+    "keywords": "Havok,动画导出,物理引擎",
+    "url": "https://github.com/AniBullet/MotionReverse",
+    "tutorial": "https://space.bilibili.com/2031113/lists/560782"
+}
+

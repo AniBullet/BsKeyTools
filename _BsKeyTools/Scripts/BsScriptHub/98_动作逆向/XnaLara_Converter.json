@@ -1,0 +1,12 @@
+{
+    "name": "XnaLara/XPS 转换器",
+    "script": "XnaLara_Converter.ms",
+    "version": "1.41",
+    "description": "XnaLara / XPS 模型导入导出工具\n\n支持 XNALara 和 XPS (XNAPosingStudio) 格式的模型文件。\n\n功能特性：\n- 支持 .mesh / .xps 格式导入\n- 支持 .mesh 格式导出\n- 支持 PMX (MikuMikuDance) 导出\n- 支持骨骼和蒙皮\n- 支持多UV和顶点色",
+    "author": "Dusan Pavlicek",
+    "modifier": "",
+    "keywords": "XnaLara,XPS,mesh,PMX,MMD,模型转换,导入导出",
+    "url": "https://github.com/AniBullet/MotionReverse",
+    "tutorial": "https://space.bilibili.com/2031113/lists/560782"
+}
+

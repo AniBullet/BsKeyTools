@@ -2,6 +2,10 @@
 -- By Bullet.S 自用修改版,功能大集合,完全开源免费仅供学习使用,请勿用于商业用途,否则后果自负    
 Reference： SoxBipedAssist_v0.423 & Biped Helper v3.1  
 Since 2023.03
+
+v2.1
+1.优化手指弯曲功能（一方狂三）
+
 v2.0
 1.修复层功能某些ui遮挡导致按钮不灵的问题
 
@@ -41,7 +45,7 @@ global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
 global dotLinkLabel1
 global dotLinkLabel2
-global verBsBipedTools = "v2.0"
+global verBsBipedTools = "v2.1"
 
 try(destroydialog rolBsBipedTools) catch()
 try(destroyDialog rolBSLeftHandPivots)catch()

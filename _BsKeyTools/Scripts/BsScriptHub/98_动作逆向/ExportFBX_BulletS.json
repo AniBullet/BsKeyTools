@@ -1,0 +1,12 @@
+{
+    "name": "ActorX 批量转换 FBX",
+    "script": "ExportFBX_BulletS.ms",
+    "version": "1.07",
+    "description": "ActorX 批量转换工具\n\n将 PSK/PSA 文件批量转换为 FBX 格式，方便在其他软件中使用。\n\n功能特性：\n- 支持批量转换\n- 支持多动画合并为单个 FBX (Multi-Take)\n- 支持子文件夹递归处理",
+    "author": "Gildor",
+    "modifier": "Bullet.S",
+    "keywords": "ActorX,FBX,批量转换,导出,PSK,PSA",
+    "url": "http://www.gildor.org/projects/unactorx",
+    "tutorial": "https://space.bilibili.com/2031113/lists/560782"
+}
+

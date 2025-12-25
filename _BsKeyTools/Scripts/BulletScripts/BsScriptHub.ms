@@ -78,27 +78,8 @@ fn fnLaunchBsScriptHub =
     (
         try
         (
-            -- 单例模式：如果模块已加载，直接调用show_window；否则才加载模块
-            local pyCode = "
-import sys
-import importlib.util
-
-_bs_module_path = r'" + pyPath + "'
-_bs_module_name = 'BsScriptHub_Runtime'
-
-# 检查模块是否已加载
-if _bs_module_name in sys.modules:
-    # 模块已存在，直接调用
-    sys.modules[_bs_module_name].show_window()
-else:
-    # 首次加载模块
-    _bs_spec = importlib.util.spec_from_file_location(_bs_module_name, _bs_module_path)
-    _bs_module = importlib.util.module_from_spec(_bs_spec)
-    sys.modules[_bs_module_name] = _bs_module
-    _bs_spec.loader.exec_module(_bs_module)
-    _bs_module.show_window()
-"
-            python.Execute pyCode
+            -- 直接执行 Python 文件
+            python.ExecuteFile pyPath
         )
         catch
         (
