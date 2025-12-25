@@ -188,6 +188,10 @@ BsKeyTools 是一个面向 **Autodesk 3ds Max** 的综合性动画工具集，
 
 感谢所有为 BsKeyTools 做出贡献的开发者! 🙏
 
+<a href="https://github.com/AniBullet/BsKeyTools/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=AniBullet/BsKeyTools" />
+</a>
+
 ---
 
 ## 💬 联系与交流
