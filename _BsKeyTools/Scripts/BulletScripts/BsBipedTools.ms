@@ -554,6 +554,12 @@ rollout rolBSRightFootPivots "R-Foot" width:90
 
 rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 (
+	-- ← 新增：手指结构变量
+	local rIsKnuckles = false
+	local lIsKnuckles = false
+	local mc_spreadMaxAngle = 45.0
+	-- 新增截断 →
+
 	checkbutton chbTips "暂不支持4节手指" pos:[100,5] height:20 highlightColor:rolBsBipedTools.mcScanBiped checked:true
 
 	checkbutton chbRFingers "R Fingers" pos:[40,160] width:100 highlightColor:rolBsBipedTools.mcRightFinger checked:true
@@ -658,6 +664,427 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		)
 	)
 
+	  -- ← 新增：获取Biped名称
+	fn getBipedName =
+	( 
+	    if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) then return ""
+	    try
+	    ( 
+	      local bipName = rolBsBipedTools.m_workingBipRoot.name
+	      return bipName
+	    ) 
+	    catch() 
+	    return ""
+	) 
+
+	-- ← 新增：获取Biped控制器
+	fn getBipedController =
+	( 
+	    if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) then return undefined
+	    try
+	    ( 
+	      if classof rolBsBipedTools.m_workingBipRoot.controller == Vertical_Horizontal_Turn then
+	        return rolBsBipedTools.m_workingBipRoot.controller
+	    ) 
+	    catch() 
+	    return undefined
+	) 
+
+	 -- 检测是否为Knuckles模式
+	fn detectKnucklesMode =
+	( 
+	    local isKnuckles = false
+	    try
+	    ( 
+	      local bipCtrl = getBipedController() 
+	      if bipCtrl != undefined then
+	      ( 
+	        try
+	        ( 
+	          isKnuckles = bipCtrl.knuckles
+	        ) 
+	        catch() 
+	      ) 
+	    ) 
+	    catch() 
+	    return isKnuckles
+	) 
+	
+  -- ← 新增：检测手指结构（返回每根手指的节数）
+  fn DetectFingerStructure side =
+  ( 
+    local bipedName = getBipedName() 
+    if bipedName == "" then return undefined
+    
+    local handSide = side
+    local fingerInfo = #()  -- 存储每根手指的信息：#(fingerIndex, segmentCount)
+    
+    -- 检测Finger0-4每根手指
+    for fingerIdx = 0 to 4 do
+    ( 
+      local segmentCount = 0
+      local fingerName = "Finger" + fingerIdx as string
+      
+      -- 检测最多4节（Knuckles模式）
+      for segIdx = 0 to 3 do
+      ( 
+        local boneName = if segIdx == 0 then
+          (bipedName + " " + handSide + " " + fingerName)
+        else
+          (bipedName + " " + handSide + " " + fingerName + segIdx as string)
+        
+        local bone = getNodeByName boneName
+        if bone != undefined and not isDeleted bone then
+          segmentCount = segIdx + 1
+        else
+          exit  -- 遇到不存在的节就停止检测
+      ) 
+      
+      append fingerInfo #(fingerIdx, segmentCount)
+    ) 
+    
+    return fingerInfo
+  ) 
+  -- 更新按钮启用/禁用状态
+  fn UpdateFingerButtonStates =
+  ( 
+    local bipedName = getBipedName() 
+    if bipedName == "" then
+    ( 
+      -- 没有biped时禁用所有按钮
+      local allBtns = #(
+        select_rthumb1_btn, select_rthumb2_btn, select_rthumb3_btn,
+        select_rfing11_btn, select_rfing12_btn, select_rfing13_btn,
+        select_rfing21_btn, select_rfing22_btn, select_rfing23_btn,
+        select_rfing31_btn, select_rfing32_btn, select_rfing33_btn,
+        select_rfing41_btn, select_rfing42_btn, select_rfing43_btn,
+        select_lthumb1_btn, select_lthumb2_btn, select_lthumb3_btn,
+        select_lfing11_btn, select_lfing12_btn, select_lfing13_btn,
+        select_lfing21_btn, select_lfing22_btn, select_lfing23_btn,
+        select_lfing31_btn, select_lfing32_btn, select_lfing33_btn,
+        select_lfing41_btn, select_lfing42_btn, select_lfing43_btn,
+        btnFingerLineR1, btnFingerLineR2, btnFingerLineR3, btnFingerLineR4, btnFingerLineR5,
+        btnFingerLineL1, btnFingerLineL2, btnFingerLineL3, btnFingerLineL4, btnFingerLineL5
+      )
+      for btn in allBtns do
+      ( 
+        btn.enabled = false
+        btn.highlightColor = (color 128 128 128)
+      )
+      return()
+    )
+    
+    -- 检测右手手指结构
+    local rFingerInfo = DetectFingerStructure "R"
+    local rIsKnuckles = detectKnucklesMode()
+    
+    -- 检测左手手指结构
+    local lFingerInfo = DetectFingerStructure "L"
+    local lIsKnuckles = detectKnucklesMode()
+    
+    -- 右手按钮数组：[手指索引][节索引] = 按钮
+    local rBtnMap = #(
+      #(select_rthumb1_btn, select_rthumb2_btn, select_rthumb3_btn),      -- Finger0
+      #(select_rfing11_btn, select_rfing12_btn, select_rfing13_btn),      -- Finger1
+      #(select_rfing21_btn, select_rfing22_btn, select_rfing23_btn),      -- Finger2
+      #(select_rfing31_btn, select_rfing32_btn, select_rfing33_btn),      -- Finger3
+      #(select_rfing41_btn, select_rfing42_btn, select_rfing43_btn)       -- Finger4
+    )
+    
+    -- 左手按钮数组
+    local lBtnMap = #(
+      #(select_lthumb1_btn, select_lthumb2_btn, select_lthumb3_btn),
+      #(select_lfing11_btn, select_lfing12_btn, select_lfing13_btn),
+      #(select_lfing21_btn, select_lfing22_btn, select_lfing23_btn),
+      #(select_lfing31_btn, select_lfing32_btn, select_lfing33_btn),
+      #(select_lfing41_btn, select_lfing42_btn, select_lfing43_btn)
+    )
+    
+    -- 单指选择按钮
+    local rLineBtns = #(btnFingerLineR1, btnFingerLineR2, btnFingerLineR3, btnFingerLineR4, btnFingerLineR5)
+    local lLineBtns = #(btnFingerLineL1, btnFingerLineL2, btnFingerLineL3, btnFingerLineL4, btnFingerLineL5)
+    
+    -- 更新右手按钮
+    for i = 1 to 5 do
+    ( 
+      local fingerIdx = i - 1
+      local segCount = rFingerInfo[i][2]
+      local btns = rBtnMap[i]
+      
+      -- Knuckles模式：需要跳过第一节（掌骨节）
+      local actualSegCount = if rIsKnuckles and fingerIdx != 0 then
+        (if segCount > 1 then segCount - 1 else 0)
+      else
+        segCount
+      
+      -- 更新3个节按钮
+      for j = 1 to 3 do
+      ( 
+        if j <= actualSegCount then
+        ( 
+          btns[j].enabled = true
+          btns[j].highlightColor = if fingerIdx == 0 then
+            rolBsBipedTools.mcRightThumb
+          else
+            rolBsBipedTools.mcRightFinger
+        )
+        else
+        ( 
+          btns[j].enabled = false
+          btns[j].highlightColor = (color 128 128 128)
+        )
+      )
+      
+      -- 更新单指选择按钮
+      if segCount > 0 then
+      ( 
+        rLineBtns[i].enabled = true
+        rLineBtns[i].highlightColor = if fingerIdx == 0 then
+          (rolBsBipedTools.mcRightThumb * 0.7)
+        else
+          (rolBsBipedTools.mcRightFinger * 0.7)
+      )
+      else
+      ( 
+        rLineBtns[i].enabled = false
+        rLineBtns[i].highlightColor = (color 128 128 128)
+      )
+    )
+    
+    -- 更新左手按钮
+    for i = 1 to 5 do
+    ( 
+      local fingerIdx = i - 1
+      local segCount = lFingerInfo[i][2]
+      local btns = lBtnMap[i]
+      
+      -- Knuckles模式：需要跳过第一节（掌骨节）
+      local actualSegCount = if lIsKnuckles and fingerIdx != 0 then
+        (if segCount > 1 then segCount - 1 else 0)
+      else
+        segCount
+      
+      -- 更新3个节按钮
+      for j = 1 to 3 do
+      ( 
+        if j <= actualSegCount then
+        ( 
+          btns[j].enabled = true
+          btns[j].highlightColor = if fingerIdx == 0 then
+            rolBsBipedTools.mcLeftThumb
+          else
+            rolBsBipedTools.mcLeftFinger
+        )
+        else
+        ( 
+          btns[j].enabled = false
+          btns[j].highlightColor = (color 128 128 128)
+        )
+      )
+      
+      -- 更新单指选择按钮
+      if segCount > 0 then
+      ( 
+        lLineBtns[i].enabled = true
+        lLineBtns[i].highlightColor = if fingerIdx == 0 then
+          (rolBsBipedTools.mcLeftThumb * 0.7)
+        else
+          (rolBsBipedTools.mcLeftFinger * 0.7)
+      )
+      else
+      ( 
+        lLineBtns[i].enabled = false
+        lLineBtns[i].highlightColor = (color 128 128 128)
+      )
+    )
+  )
+  -- 新增截断 →
+
+
+	-- ← 新增：选择单根手指所有骨骼
+	fn SelectWholeFinger side fingerIndex =
+	( 
+	    local bipedName = getBipedName() 
+	    if bipedName == "" then return false
+	    
+	    local isKnuckles = detectKnucklesMode() 
+	    local handSide = side
+	    local fingerBones = #() 
+	    
+	    if fingerIndex == 0 then
+	    ( 
+	      -- 拇指：Finger0, Finger01, Finger02, (Finger03在Knuckles可能不存在)
+	      local f0 = getNodeByName (bipedName + " " + handSide + " Finger0") 
+	      local f01 = getNodeByName (bipedName + " " + handSide + " Finger01") 
+	      local f02 = getNodeByName (bipedName + " " + handSide + " Finger02") 
+	      local f03 = getNodeByName (bipedName + " " + handSide + " Finger03") 
+	      if f0 != undefined and not isDeleted f0 then append fingerBones f0
+	      if f01 != undefined and not isDeleted f01 then append fingerBones f01
+	      if f02 != undefined and not isDeleted f02 then append fingerBones f02
+	      if f03 != undefined and not isDeleted f03 then append fingerBones f03
+	    ) 
+	    else
+	    ( 
+		    -- Finger1-4
+		    local fingerName = "Finger" + fingerIndex as string
+		      
+		    if isKnuckles then
+		    ( 
+		        -- Knuckles模式：包含掌骨节(Finger1/2/3/4) + 3指节(Finger11/21/31/41等)
+		        local f0 = getNodeByName (bipedName + " " + handSide + " " + fingerName) 
+		        local f1 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "1") 
+		        local f2 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "2") 
+		        local f3 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "3") 
+		        if f0 != undefined and not isDeleted f0 then append fingerBones f0
+		        if f1 != undefined and not isDeleted f1 then append fingerBones f1
+		        if f2 != undefined and not isDeleted f2 then append fingerBones f2
+		        if f3 != undefined and not isDeleted f3 then append fingerBones f3
+		    ) 
+		    else
+		    ( 
+		        -- 标准模式：Finger1/2/3/4 + Finger11/21等
+		        local f0 = getNodeByName (bipedName + " " + handSide + " " + fingerName) 
+		        local f1 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "1") 
+		        local f2 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "2") 
+		        if f0 != undefined and not isDeleted f0 then append fingerBones f0
+		        if f1 != undefined and not isDeleted f1 then append fingerBones f1
+		        if f2 != undefined and not isDeleted f2 then append fingerBones f2
+		    ) 
+	    ) 
+	    
+	    if fingerBones.count > 0 then
+	    ( 
+	      select fingerBones
+	      return true
+	    ) 
+	    return false
+	) 
+
+	-- 选择所有手指（包含拇指Finger0）
+	fn SelectAllFingers side =
+	( 
+	    local bipedName = getBipedName() 
+	    if bipedName == "" then return false
+	    
+	    local isKnuckles = detectKnucklesMode() 
+	    local handSide = side
+	    local allFingerBones = #() 
+	    
+	    -- 选择Finger0-4所有骨骼（包含拇指）
+	    for fingerIdx = 0 to 4 do
+	    ( 
+	      local fingerName = "Finger" + fingerIdx as string
+	      
+	      if isKnuckles then
+	      ( 
+	        -- Knuckles模式：4节（拇指3节）
+	        if fingerIdx == 0 then
+	        ( 
+	          -- 拇指：Finger0, Finger01, Finger02
+	          local f0 = getNodeByName (bipedName + " " + handSide + " " + fingerName) 
+	          local f1 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "1") 
+	          local f2 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "2") 
+	          if f0 != undefined and not isDeleted f0 then append allFingerBones f0
+	          if f1 != undefined and not isDeleted f1 then append allFingerBones f1
+	          if f2 != undefined and not isDeleted f2 then append allFingerBones f2
+	        )
+	        else
+	        ( 
+	          -- 其他手指：包含掌骨节 + 3指节
+	          local f0 = getNodeByName (bipedName + " " + handSide + " " + fingerName) 
+	          local f1 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "1") 
+	          local f2 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "2") 
+	          local f3 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "3") 
+	          if f0 != undefined and not isDeleted f0 then append allFingerBones f0
+	          if f1 != undefined and not isDeleted f1 then append allFingerBones f1
+	          if f2 != undefined and not isDeleted f2 then append allFingerBones f2
+	          if f3 != undefined and not isDeleted f3 then append allFingerBones f3
+	        )
+	      ) 
+	      else
+	      ( 
+	        -- 标准模式：3节
+	        local f0 = getNodeByName (bipedName + " " + handSide + " " + fingerName) 
+	        local f1 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "1") 
+	        local f2 = getNodeByName (bipedName + " " + handSide + " " + fingerName + "2") 
+	        if f0 != undefined and not isDeleted f0 then append allFingerBones f0
+	        if f1 != undefined and not isDeleted f1 then append allFingerBones f1
+	        if f2 != undefined and not isDeleted f2 then append allFingerBones f2
+	      ) 
+	    ) 
+	    
+	    if allFingerBones.count > 0 then
+	    ( 
+	      select allFingerBones
+	      return true
+	    ) 
+	    return false
+	)
+	-- 新增截断 →
+
+	-- ← 新增：智能获取手指骨骼（根据模式自动映射）
+	fn GetFingerBone side fingerIdx segmentIdx =
+	( 
+	    local bipedName = getBipedName() 
+	    if bipedName == "" then return undefined
+	    
+	    local isKnuckles = detectKnucklesMode() 
+	    local handSide = side
+	    local boneName = ""
+	    
+	    -- 拇指特殊处理
+	    if fingerIdx == 0 then
+	    ( 
+	      if segmentIdx == 1 then boneName = bipedName + " " + handSide + " Finger0"
+	      else if segmentIdx == 2 then boneName = bipedName + " " + handSide + " Finger01"
+	      else if segmentIdx == 3 then boneName = bipedName + " " + handSide + " Finger02"
+	    ) 
+	    else
+	    ( 
+	      local fingerName = "Finger" + fingerIdx as string
+	      
+	      if isKnuckles then
+	      ( 
+	        -- Knuckles模式：跳过掌骨节，直接映射到Finger11/12/13
+	        if segmentIdx == 1 then boneName = bipedName + " " + handSide + " " + fingerName + "1"
+	        else if segmentIdx == 2 then boneName = bipedName + " " + handSide + " " + fingerName + "2"
+	        else if segmentIdx == 3 then boneName = bipedName + " " + handSide + " " + fingerName + "3"
+	      ) 
+	      else
+	      ( 
+	        -- 标准模式：先检查是否有根节点Finger1/2/3/4
+	        local rootNode = getNodeByName (bipedName + " " + handSide + " " + fingerName)
+	        
+	        if rootNode != undefined and not isDeleted rootNode then
+	        ( 
+	          -- 有根节点（3节模式）：Finger1 → Finger11 → Finger12
+	          if segmentIdx == 1 then boneName = bipedName + " " + handSide + " " + fingerName
+	          else if segmentIdx == 2 then boneName = bipedName + " " + handSide + " " + fingerName + "1"
+	          else if segmentIdx == 3 then boneName = bipedName + " " + handSide + " " + fingerName + "2"
+	        ) 
+	        else
+	        ( 
+	          -- 无根节点（2节模式）：直接从Finger11开始
+	          if segmentIdx == 1 then boneName = bipedName + " " + handSide + " " + fingerName + "1"
+	          else if segmentIdx == 2 then boneName = bipedName + " " + handSide + " " + fingerName + "2"
+	          else if segmentIdx == 3 then return undefined  -- 第3节不存在
+	        ) 
+	      ) 
+	    ) 
+	    
+	    if boneName != "" then
+	    ( 
+	      local bone = getNodeByName boneName
+	      if bone != undefined and not isDeleted bone then
+	        return bone
+	    ) 
+	    
+	    return undefined
+	) 
+
+
+
+
 	on select_lhand1_btn changed state do (
 		select_lhand1_btn.state = true
 		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do ( rolBsBipedTools.SetButtonState false; return ())
@@ -714,768 +1141,533 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 	)
 
 	on chbRFingers changed state do
-	(
-		chbRFingers.state = true
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or rolBsBipedTools.m_RHand == undefined ) do (return ())
-		chbRFingers.state = true
-		rolBsBipedTools.fnSelAllChildrens rolBsBipedTools.m_RHand
-		deselect rolBsBipedTools.m_RHand
+	( 
+	    chbRFingers.state = true
+	    if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do (return ()) 
+	    SelectAllFingers "R"
+	) 
+
+	-- 右手拇指
+	on select_rthumb1_btn changed state do ( 
+	    select_rthumb1_btn.state = true
+	    local bone = GetFingerBone "R" 0 1
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+	) 
+
+	on select_rthumb2_btn changed state do ( 
+	    select_rthumb2_btn.state = true
+	    local bone = GetFingerBone "R" 0 2
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
 	)
 
-	on select_rthumb1_btn changed state do (
-		select_rthumb1_btn.state = true
-		m_RThumb1 = (GetFinger "R" 1)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RThumb1 == undefined ) do (return ())
+	on select_rthumb3_btn changed state do ( 
+	    select_rthumb3_btn.state = true
+	    local bone = GetFingerBone "R" 0 3
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+	) 
 
-		selBackup = selection as array
+	-- 右手食指
+	on select_rfing11_btn changed state do ( 
+	    select_rfing11_btn.state = true
+	    local bone = GetFingerBone "R" 1 1
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+	  ) 
 
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RThumb1 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
+	on select_rfing12_btn changed state do ( 
+	    select_rfing12_btn.state = true
+	    local bone = GetFingerBone "R" 1 2
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+	  ) 
 
-		try(rolBsBipedTools.CompSelect selBackup m_RThumb1) catch (
-			m_RThumb1 = (GetFinger "R" 1)
-			select m_RThumb1
-		)
-	)
+	on select_rfing13_btn changed state do ( 
+	    select_rfing13_btn.state = true
+	    local bone = GetFingerBone "R" 1 3
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+	  ) 
 
-	on select_rthumb2_btn changed state do (
-		select_rthumb2_btn.state = true
-		m_RThumb2 = (GetFinger "R" 2)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RThumb2 == undefined ) do (return ())
+  	-- 右手中指
+	on select_rfing21_btn changed state do ( 
+	    select_rfing21_btn.state = true
+	    local bone = GetFingerBone "R" 2 1
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+	) 
 
-		selBackup = selection as array
+	  on select_rfing22_btn changed state do ( 
+	    select_rfing22_btn.state = true
+	    local bone = GetFingerBone "R" 2 2
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+	  ) 
 
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RThumb2 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
+	on select_rfing23_btn changed state do ( 
+	    select_rfing23_btn.state = true
+	    local bone = GetFingerBone "R" 2 3
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+	) 
 
-		try(rolBsBipedTools.CompSelect selBackup m_RThumb2) catch (
-			m_RThumb2 = (GetFinger "R" 2)
-			select m_RThumb2
-		)
-	)
 
-	on select_rthumb3_btn changed state do (
-		select_rthumb3_btn.state = true
-		m_RThumb3 = (GetFinger "R" 3)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RThumb3 == undefined ) do (return ())
+ 	 -- 右手无名指
+ 	 on select_rfing31_btn changed state do ( 
+	    select_rfing31_btn.state = true
+	    local bone = GetFingerBone "R" 3 1
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+ 	 ) 
 
-		selBackup = selection as array
+ 	 on select_rfing32_btn changed state do ( 
+	    select_rfing32_btn.state = true
+	    local bone = GetFingerBone "R" 3 2
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+ 	 ) 
 
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RThumb3 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RThumb3) catch (
-			m_RThumb3 = (GetFinger "R" 3)
-			select m_RThumb3
-		)
-	)
+ 	 on select_rfing33_btn changed state do ( 
+	    select_rfing33_btn.state = true
+	    local bone = GetFingerBone "R" 3 3
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-	on select_rfing11_btn changed state do (
-		select_rfing11_btn.state = true
-		m_RFing11 = (GetFinger "R" 4)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing11 == undefined ) do (return ())
+ 	 -- 右手小指
+ 	 on select_rfing41_btn changed state do ( 
+	    select_rfing41_btn.state = true
+	    local bone = GetFingerBone "R" 4 1
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		selBackup = selection as array
+  	on select_rfing42_btn changed state do ( 
+	    select_rfing42_btn.state = true
+	    local bone = GetFingerBone "R" 4 2
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing11 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing11) catch (
-			m_RFing11 = (GetFinger "R" 4)
-			select m_RFing11
-		)
-	)
+ 	 on select_rfing43_btn changed state do ( 
+	    select_rfing43_btn.state = true
+	    local bone = GetFingerBone "R" 4 3
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	)
 
-	on select_rfing12_btn changed state do (
-		select_rfing12_btn.state = true
-		m_RFing12 = (GetFinger "R" 5)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing12 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing12 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing12) catch (
-			m_RFing12 = (GetFinger "R" 5)
-			select m_RFing12
-		)
-	)
-
-	on select_rfing13_btn changed state do (
-		select_rfing13_btn.state = true
-		m_RFing13 = (GetFinger "R" 6)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing13 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing13 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing13) catch (
-			m_RFing13 = (GetFinger "R" 6)
-			select m_RFing13
-		)
-	)
-
-	on select_rfing21_btn changed state do (
-		select_rfing21_btn.state = true
-		m_RFing21 = (GetFinger "R" 7)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing21 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing21 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing21) catch (
-			m_RFing21 = (GetFinger "R" 7)
-			select m_RFing21
-		)
-	)
-
-	on select_rfing22_btn changed state do (
-		select_rfing22_btn.state = true
-		m_RFing22 = (GetFinger "R" 8)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing22 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing22 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing22) catch (
-			m_RFing22 = (GetFinger "R" 8)
-			select m_RFing22
-		)
-	)
-
-	on select_rfing23_btn changed state do (
-		select_rfing23_btn.state = true
-		m_RFing23 = (GetFinger "R" 9)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing23 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing23 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing23) catch (
-			m_RFing23 = (GetFinger "R" 9)
-			select m_RFing23
-		)
-	)
-
-	on select_rfing31_btn changed state do (
-		select_rfing31_btn.state = true
-		m_RFing31 = (GetFinger "R" 10)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing31 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing31 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing31) catch (
-			m_RFing31 = (GetFinger "R" 10)
-			select m_RFing31
-		)
-	)
-
-	on select_rfing32_btn changed state do (
-		select_rfing32_btn.state = true
-		m_RFing32 = (GetFinger "R" 11)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing32 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing32 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing32) catch (
-			m_RFing32 = (GetFinger "R" 11)
-			select m_RFing32
-		)
-	)
-
-	on select_rfing33_btn changed state do (
-		select_rfing33_btn.state = true
-		m_RFing33 = (GetFinger "R" 12)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing33 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing33 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing33) catch (
-			m_RFing33 = (GetFinger "R" 12)
-			select m_RFing33
-		)
-	)
-
-	on select_rfing41_btn changed state do (
-		select_rfing41_btn.state = true
-		m_RFing41 = (GetFinger "R" 13)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing41 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing41 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing41) catch (
-			m_RFing41 = (GetFinger "R" 13)
-			select m_RFing41
-		)
-	)
-
-	on select_rfing42_btn changed state do (
-		select_rfing42_btn.state = true
-		m_RFing42 = (GetFinger "R" 14)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing42 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing42 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing42) catch (
-			m_RFing42 = (GetFinger "R" 14)
-			select m_RFing42
-		)
-	)
-
-	on select_rfing43_btn changed state do (
-		select_rfing43_btn.state = true
-		m_RFing43 = (GetFinger "R" 15)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_RFing43 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_RFing43 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_RFing43) catch (
-			m_RFing43 = (GetFinger "R" 15)
-			select m_RFing43
-		)
-	)
 
 	on chbLFingers changed state do
-	(
-		chbLFingers.state = true
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or rolBsBipedTools.m_LHand == undefined ) do (return ())
-		chbLFingers.state = true
-		rolBsBipedTools.fnSelAllChildrens rolBsBipedTools.m_LHand
-		deselect rolBsBipedTools.m_LHand
+	( 
+	    chbLFingers.state = true
+	    if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do (return ()) 
+	    SelectAllFingers "L"
 	)
 
-	on select_Lthumb1_btn changed state do (
-		select_Lthumb1_btn.state = true
-		m_LThumb1 = (GetFinger "L" 1)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LThumb1 == undefined ) do (return ())
+	-- 左手拇指
+  	on select_lthumb1_btn changed state do ( 
+	    select_lthumb1_btn.state = true
+	    local bone = GetFingerBone "L" 0 1
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		selBackup = selection as array
+ 	 on select_lthumb2_btn changed state do ( 
+	    select_lthumb2_btn.state = true
+	    local bone = GetFingerBone "L" 0 2
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LThumb1 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LThumb1) catch (
-			m_LThumb1 = (GetFinger "L" 1)
-			select m_LThumb1
-		)
-	)
+ 	 on select_lthumb3_btn changed state do ( 
+	    select_lthumb3_btn.state = true
+	    local bone = GetFingerBone "L" 0 3
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+ 	 ) 
 
-	on select_Lthumb2_btn changed state do (
-		select_Lthumb2_btn.state = true
-		m_LThumb2 = (GetFinger "L" 2)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LThumb2 == undefined ) do (return ())
+  	-- 左手食指
+  	on select_lfing11_btn changed state do ( 
+	    select_lfing11_btn.state = true
+	    local bone = GetFingerBone "L" 1 1
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		selBackup = selection as array
+  	on select_lfing12_btn changed state do ( 
+	    select_lfing12_btn.state = true
+	    local bone = GetFingerBone "L" 1 2
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LThumb2 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LThumb2) catch (
-			m_LThumb2 = (GetFinger "L" 2)
-			select m_LThumb2
-		)
-	)
+  	on select_lfing13_btn changed state do ( 
+	    select_lfing13_btn.state = true
+	    local bone = GetFingerBone "L" 1 3
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-	on select_Lthumb3_btn changed state do (
-		select_Lthumb3_btn.state = true
-		m_LThumb3 = (GetFinger "L" 3)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LThumb3 == undefined ) do (return ())
+  	-- 左手中指
+  	on select_lfing21_btn changed state do ( 
+	    select_lfing21_btn.state = true
+	    local bone = GetFingerBone "L" 2 1
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		selBackup = selection as array
+  	on select_lfing22_btn changed state do ( 
+	    select_lfing22_btn.state = true
+	    local bone = GetFingerBone "L" 2 2
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LThumb3 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LThumb3) catch (
-			m_LThumb3 = (GetFinger "L" 3)
-			select m_LThumb3
-		)
-	)
+  	on select_lfing23_btn changed state do ( 
+	    select_lfing23_btn.state = true
+	    local bone = GetFingerBone "L" 2 3
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-	on select_Lfing11_btn changed state do (
-		select_Lfing11_btn.state = true
-		m_LFing11 = (GetFinger "L" 4)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing11 == undefined ) do (return ())
+ 	 -- 左手无名指
+  	on select_lfing31_btn changed state do ( 
+	    select_lfing31_btn.state = true
+	    local bone = GetFingerBone "L" 3 1
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		selBackup = selection as array
+  	on select_lfing32_btn changed state do ( 
+	    select_lfing32_btn.state = true
+	    local bone = GetFingerBone "L" 3 2
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing11 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing11) catch (
-			m_LFing11 = (GetFinger "L" 4)
-			select m_LFing11
-		)
-	)
+  	on select_lfing33_btn changed state do ( 
+	    select_lfing33_btn.state = true
+	    local bone = GetFingerBone "L" 3 3
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+ 	 ) 
 
-	on select_Lfing12_btn changed state do (
-		select_Lfing12_btn.state = true
-		m_LFing12 = (GetFinger "L" 5)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing12 == undefined ) do (return ())
+  	-- 左手小指
+  	on select_lfing41_btn changed state do ( 
+	    select_lfing41_btn.state = true
+	    local bone = GetFingerBone "L" 4 1
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		selBackup = selection as array
+ 	 on select_lfing42_btn changed state do ( 
+	    select_lfing42_btn.state = true
+	    local bone = GetFingerBone "L" 4 2
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	) 
 
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing12 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing12) catch (
-			m_LFing12 = (GetFinger "L" 5)
-			select m_LFing12
-		)
-	)
+  	on select_lfing43_btn changed state do ( 
+	    select_lfing43_btn.state = true
+	    local bone = GetFingerBone "L" 4 3
+	    if bone == undefined do return()
+	    
+	    selBackup = selection as array
+	    
+	    if keyboard.controlPressed and keyboard.altpressed do ( 
+	      rolBsBipedTools.Straighten #(bone) ((eulerangles 0 0 0) as quat) 
+	      return () 
+	    ) 
+	    
+	    try(rolBsBipedTools.CompSelect selBackup #(bone)) catch (select bone)
+  	)
 
-	on select_Lfing13_btn changed state do (
-		select_Lfing13_btn.state = true
-		m_LFing13 = (GetFinger "L" 6)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing13 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing13 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing13) catch (
-			m_LFing13 = (GetFinger "L" 6)
-			select m_LFing13
-		)
-	)
-
-	on select_Lfing21_btn changed state do (
-		select_Lfing21_btn.state = true
-		m_LFing21 = (GetFinger "L" 7)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing21 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing21 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing21) catch (
-			m_LFing21 = (GetFinger "L" 7)
-			select m_LFing21
-		)
-	)
-
-	on select_Lfing22_btn changed state do (
-		select_Lfing22_btn.state = true
-		m_LFing22 = (GetFinger "L" 8)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing22 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing22 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing22) catch (
-			m_LFing22 = (GetFinger "L" 8)
-			select m_LFing22
-		)
-	)
-
-	on select_Lfing23_btn changed state do (
-		select_Lfing23_btn.state = true
-		m_LFing23 = (GetFinger "L" 9)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing23 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing23 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing23) catch (
-			m_LFing23 = (GetFinger "L" 9)
-			select m_LFing23
-		)
-	)
-
-	on select_Lfing31_btn changed state do (
-		select_Lfing31_btn.state = true
-		m_LFing31 = (GetFinger "L" 10)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing31 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing31 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing31) catch (
-			m_LFing31 = (GetFinger "L" 10)
-			select m_LFing31
-		)
-	)
-
-	on select_Lfing32_btn changed state do (
-		select_Lfing32_btn.state = true
-		m_LFing32 = (GetFinger "L" 11)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing32 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing32 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing32) catch (
-			m_LFing32 = (GetFinger "L" 11)
-			select m_LFing32
-		)
-	)
-
-	on select_Lfing33_btn changed state do (
-		select_Lfing33_btn.state = true
-		m_LFing33 = (GetFinger "L" 12)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing33 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing33 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing33) catch (
-			m_LFing33 = (GetFinger "L" 12)
-			select m_LFing33
-		)
-	)
-
-	on select_Lfing41_btn changed state do (
-		select_Lfing41_btn.state = true
-		m_LFing41 = (GetFinger "L" 13)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing41 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing41 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing41) catch (
-			m_LFing41 = (GetFinger "L" 13)
-			select m_LFing41
-		)
-	)
-
-	on select_Lfing42_btn changed state do (
-		select_Lfing42_btn.state = true
-		m_LFing42 = (GetFinger "L" 14)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing42 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing42 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing42) catch (
-			m_LFing42 = (GetFinger "L" 14)
-			select m_LFing42
-		)
-	)
-
-	on select_Lfing43_btn changed state do (
-		select_Lfing43_btn.state = true
-		m_LFing43 = (GetFinger "L" 15)
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or m_LFing43 == undefined ) do (return ())
-
-		selBackup = selection as array
-
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten m_LFing43 ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		try(rolBsBipedTools.CompSelect selBackup m_LFing43) catch (
-			m_LFing43 = (GetFinger "L" 15)
-			select m_LFing43
-		)
-	)
-
-	on btnFingerLineR1 changed state do (
-		btnFingerLineR1.state = true
-		local arrFingerLine = #()
-		for i = 1 to 3 do (
-			tempFinger = (GetFinger "R" i)
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
-			(
-				print "请先确认手指骨骼!"
-				return ()
-			)
-			append arrFingerLine tempFinger[1]
-		)
-		
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		select arrFingerLine
-	)
-	on btnFingerLineR2 changed state do (
-		btnFingerLineR2.state = true
-		local arrFingerLine = #()
-		for i = 4 to 6 do (
-			tempFinger = (GetFinger "R" i)
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
-			(
-				print "请先确认手指骨骼!"
-				return ()
-			)
-			append arrFingerLine tempFinger[1]
-		)
-		
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		select arrFingerLine
-	)
-	on btnFingerLineR3 changed state do (
-		btnFingerLineR3.state = true
-		local arrFingerLine = #()
-		for i = 7 to 9 do (
-			tempFinger = (GetFinger "R" i)
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
-			(
-				print "请先确认手指骨骼!"
-				return ()
-			)
-			append arrFingerLine tempFinger[1]
-		)
-		
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		select arrFingerLine
-	)
-	on btnFingerLineR4 changed state do (
-		btnFingerLineR4.state = true
-		local arrFingerLine = #()
-		for i = 10 to 12 do (
-			tempFinger = (GetFinger "R" i)
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
-			(
-				print "请先确认手指骨骼!"
-				return ()
-			)
-			append arrFingerLine tempFinger[1]
-		)
-		
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		select arrFingerLine
-	)
-	on btnFingerLineR5 changed state do (
-		btnFingerLineR5.state = true
-		local arrFingerLine = #()
-		for i = 13 to 15 do (
-			tempFinger = (GetFinger "R" i)
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
-			(
-				print "请先确认手指骨骼!"
-				return ()
-			)
-			append arrFingerLine tempFinger[1]
-		)
-		
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		select arrFingerLine
-	)
+-- 右手单根手指选择按钮
+  on btnFingerLineR1 changed state do ( 
+    btnFingerLineR1.state = true
+    SelectWholeFinger "R" 0
+  ) 
+  
+  on btnFingerLineR2 changed state do ( 
+    btnFingerLineR2.state = true
+    SelectWholeFinger "R" 1
+  ) 
+  
+  on btnFingerLineR3 changed state do ( 
+    btnFingerLineR3.state = true
+    SelectWholeFinger "R" 2
+  ) 
+  
+  on btnFingerLineR4 changed state do ( 
+    btnFingerLineR4.state = true
+    SelectWholeFinger "R" 3
+  ) 
+  
+  on btnFingerLineR5 changed state do ( 
+    btnFingerLineR5.state = true
+    SelectWholeFinger "R" 4
+  ) 
 
 	
-	on btnFingerLineL1 changed state do (
-		btnFingerLineL1.state = true
-		local arrFingerLine = #()
-		for i = 1 to 3 do (
-			tempFinger = (GetFinger "L" i)
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
-			(
-				print "请先确认手指骨骼!"
-				return ()
-			)
-			append arrFingerLine tempFinger[1]
-		)
-		
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		select arrFingerLine
-	)
-	on btnFingerLineL2 changed state do (
-		btnFingerLineL2.state = true
-		local arrFingerLine = #()
-		for i = 4 to 6 do (
-			tempFinger = (GetFinger "L" i)
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
-			(
-				print "请先确认手指骨骼!"
-				return ()
-			)
-			append arrFingerLine tempFinger[1]
-		)
-		
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		select arrFingerLine
-	)
-	on btnFingerLineL3 changed state do (
-		btnFingerLineL3.state = true
-		local arrFingerLine = #()
-		for i = 7 to 9 do (
-			tempFinger = (GetFinger "L" i)
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
-			(
-				print "请先确认手指骨骼!"
-				return ()
-			)
-			append arrFingerLine tempFinger[1]
-		)
-		
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		select arrFingerLine
-	)
-	on btnFingerLineL4 changed state do (
-		btnFingerLineL4.state = true
-		local arrFingerLine = #()
-		for i = 10 to 12 do (
-			tempFinger = (GetFinger "L" i)
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
-			(
-				print "请先确认手指骨骼!"
-				return ()
-			)
-			append arrFingerLine tempFinger[1]
-		)
-		
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		select arrFingerLine
-	)
-	on btnFingerLineL5 changed state do (
-		btnFingerLineL5.state = true
-		local arrFingerLine = #()
-		for i = 13 to 15 do (
-			tempFinger = (GetFinger "L" i)
-			if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot) or tempFinger == undefined ) do 
-			(
-				print "请先确认手指骨骼!"
-				return ()
-			)
-			append arrFingerLine tempFinger[1]
-		)
-		
-		if keyboard.controlPressed and keyboard.altpressed do (
-			rolBsBipedTools.Straighten arrFingerLine ((eulerangles 0 0 0) as quat)
-			return ()
-		)
-		
-		select arrFingerLine
-	)
-	
-	-- 手指张开功能 (参考 BipedAssist)
-	local mc_spreadMaxAngle = 45.0
+  -- 左手单根手指选择按钮
+  on btnFingerLineL1 changed state do ( 
+    btnFingerLineL1.state = true
+    SelectWholeFinger "L" 0
+  ) 
+  
+  on btnFingerLineL2 changed state do ( 
+    btnFingerLineL2.state = true
+    SelectWholeFinger "L" 1
+  ) 
+  
+  on btnFingerLineL3 changed state do ( 
+    btnFingerLineL3.state = true
+    SelectWholeFinger "L" 2
+  ) 
+  
+  on btnFingerLineL4 changed state do ( 
+    btnFingerLineL4.state = true
+    SelectWholeFinger "L" 3
+  ) 
+  
+  on btnFingerLineL5 changed state do ( 
+    btnFingerLineL5.state = true
+    SelectWholeFinger "L" 4
+  )
 	
 	-- 线性插值函数
 	function LerpFloat a b bias = (
@@ -1490,76 +1682,222 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 	)
 	
 	-- 手指张开函数 (完全参考BipedAssist实现，6个参数)
-	function SpreadFingers fingersArr minAngle maxAngle spread bendStart bendEnd =
-	(
-		if fingersArr.count < 3 do return()
-		for fingerIndex = 2 to fingersArr.count do (
-			local tFingerBias = ((fingerIndex - 2) as float) / ((fingersArr.count - 2) as float)
-			local tWeightedAngle = LerpFloat bendStart bendEnd tFingerBias
-			local tSpreadMaxAngle = LerpFloat minAngle maxAngle tFingerBias
-			local tSpreadMaxQuat = eulerToQuat (eulerAngles 0 tSpreadMaxAngle tWeightedAngle) order:1
-			local tSpreadMinQuat = eulerToQuat (eulerAngles 0 0 tWeightedAngle) order:1
-			MakeClosest tSpreadMinQuat tSpreadMaxQuat
-			local tRot = slerp tSpreadMinQuat tSpreadMaxQuat spread
-			tRot = tRot * fingersArr[fingerIndex][1].parent.transform.rotation
-			biped.setTransform fingersArr[fingerIndex][1] #rotation tRot animButtonState
-		)
+	-- 手指张开函数（优化版 - 只对根指节操作）
+	function SpreadFingers fingersArr minAngle maxAngle spread bendStart bendEnd isKnucklesMode side =
+	( 
+	    if fingersArr.count < 1 do return() 
+	    if fingersArr.count == 1 then
+	    ( 
+	      return() 
+	    ) 
+	    
+	    local spreadMultiplier = if side == "L" then -1.0 else 1.0
+	    
+	    for fingerIndex = 1 to fingersArr.count do
+	    ( 
+		    if fingersArr[fingerIndex].count > 0 then
+		    ( 
+		      	local tFingerBias = ((fingerIndex - 1) as float) / ((fingersArr.count - 1) as float) 
+		        local tWeightedAngle = LerpFloat bendStart bendEnd tFingerBias
+		        local tSpreadMaxAngle = LerpFloat minAngle maxAngle tFingerBias
+		        local tSpreadMaxQuat = eulerToQuat (eulerAngles 0 (tSpreadMaxAngle * spreadMultiplier) tWeightedAngle) order:1
+		        local tSpreadMinQuat = eulerToQuat (eulerAngles 0 0 tWeightedAngle) order:1
+		        MakeClosest tSpreadMinQuat tSpreadMaxQuat
+		        local tRot = slerp tSpreadMinQuat tSpreadMaxQuat spread
+		        
+		        try
+		        ( 
+		          tRot = tRot * fingersArr[fingerIndex][1].parent.transform.rotation
+		          biped.setTransform fingersArr[fingerIndex][1] #rotation tRot false
+		        ) 
+		        catch() 
+		    ) 
+	    ) 
 	)
-	
+		
 	-- 手指弯曲函数 (完全参考BipedAssist实现)
-	function BendFingers fingersArr bendStart bendEnd spread = (
-		if fingersArr.count < 2 do return()
-		for fingerIndex = 2 to fingersArr.count do (
-			local tFingerBias = ((fingerIndex - 2) as float) / ((fingersArr.count - 2) as float)
-			local tWeightedAngle = LerpFloat bendStart bendEnd tFingerBias
-			local tSpreadSliderValue = ((tFingerBias - 0.5) * 2.0) * spread * mc_spreadMaxAngle
-			local tBendY = LerpFloat tSpreadSliderValue 0 ((tWeightedAngle as float) / 90.0)
-			local tBendX = LerpFloat 0 -tSpreadSliderValue ((tWeightedAngle as float) / 90.0)
-			local tRot = eulerToQuat (eulerAngles tWeightedAngle tBendY tBendX) order:6
-			tRot = tRot * fingersArr[fingerIndex][1].parent.transform.rotation
-			biped.setTransform fingersArr[fingerIndex][1] #rotation tRot animButtonState
-			if fingersArr[fingerIndex].count >= 2 do (
-				for i = 2 to fingersArr[fingerIndex].count do (
-					tRot = eulerToQuat (eulerAngles tWeightedAngle 0 0) order:6
-					tRot = tRot * fingersArr[fingerIndex][i].parent.transform.rotation
-					biped.setTransform fingersArr[fingerIndex][i] #rotation tRot animButtonState
-				)
-			)
-		)
-	)
-	
-	-- 获取手指数组 (完全参考BipedAssist实现，支持不同手指组合)
-	function GetFingerArray side fingerType = (
-		local fingerArr = #()
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) then return fingerArr
-		local fingerTypeSym = if side == "R" then #rfingers else #lfingers
-		local maxFingers = 5 -- 5根手指
-		local maxJoints = 3  -- 每根手指3节
-		for f = 1 to maxFingers do (
-			local oneFinger = #()
-			for j = 1 to maxJoints do (
-				local idx = (f - 1) * maxJoints + j
-				local tFinger = biped.getNode rolBsBipedTools.m_workingBipRoot fingerTypeSym link:idx
-				if tFinger != undefined do append oneFinger tFinger
-			)
-			if oneFinger.count > 0 do append fingerArr oneFinger
-		)
-		return fingerArr
+	-- 手指弯曲函数（优化版 - 对所有指节操作）
+	function BendFingers fingersArr bendStart bendEnd spread isKnucklesMode side = ( 
+	    if fingersArr.count < 1 do return() 
+	    
+	    local spreadMultiplier = if side == "L" then -1.0 else 1.0
+	    
+	    if fingersArr.count == 1 then
+	    ( 
+	      local avgAngle = (bendStart + bendEnd) / 2.0
+	      
+	      if fingersArr[1].count > 0 then
+	      ( 
+	        try
+	        ( 
+	          local tRot = eulerToQuat (eulerAngles avgAngle 0 0) order:6
+	          tRot = tRot * fingersArr[1][1].parent.transform.rotation
+	          biped.setTransform fingersArr[1][1] #rotation tRot false
+	          
+	          if fingersArr[1].count >= 2 do
+	          ( 
+	            for i = 2 to fingersArr[1].count do
+	            ( 
+	              tRot = eulerToQuat (eulerAngles avgAngle 0 0) order:6
+	              tRot = tRot * fingersArr[1][i].parent.transform.rotation
+	              biped.setTransform fingersArr[1][i] #rotation tRot false
+	            ) 
+	          ) 
+	        ) 
+	        catch() 
+	      ) 
+	      return() 
+	    ) 
+	    
+	    for fingerIndex = 1 to fingersArr.count do
+	    ( 
+	        if fingersArr[fingerIndex].count > 0 then
+	        ( 
+		        local tFingerBias = ((fingerIndex - 1) as float) / ((fingersArr.count - 1) as float) 
+		        local tWeightedAngle = LerpFloat bendStart bendEnd tFingerBias
+		        local tSpreadSliderValue = ((tFingerBias - 0.5) * 2.0) * spread * mc_spreadMaxAngle * spreadMultiplier
+		        local tBendY = LerpFloat tSpreadSliderValue 0 ((tWeightedAngle as float) / 90.0) 
+		        local tBendX = LerpFloat 0 -tSpreadSliderValue ((tWeightedAngle as float) / 90.0) 
+		        
+		        try
+		        ( 
+		          local tRot = eulerToQuat (eulerAngles tWeightedAngle tBendY tBendX) order:6
+		          tRot = tRot * fingersArr[fingerIndex][1].parent.transform.rotation
+		          biped.setTransform fingersArr[fingerIndex][1] #rotation tRot false
+		          
+		          if fingersArr[fingerIndex].count >= 2 do
+		          ( 
+		            for i = 2 to fingersArr[fingerIndex].count do
+		            ( 
+		              tRot = eulerToQuat (eulerAngles tWeightedAngle 0 0) order:6
+		              tRot = tRot * fingersArr[fingerIndex][i].parent.transform.rotation
+		              biped.setTransform fingersArr[fingerIndex][i] #rotation tRot false
+		            ) 
+		          ) 
+		        ) 
+		        catch() 
+		    ) 
+	    ) 
 	)
 
+	  function GetFingerArray side isKnucklesMode =
+	  ( 
+	    local fingerArr = #() 
+	    local bipedName = getBipedName() 
+	    
+	    if bipedName == "" or bipedName == undefined then return fingerArr
+	    
+	    local handSide = side
+	    
+	    if isKnucklesMode then
+	    ( 
+	      -- Knuckles模式：跳过掌骨节(Finger1/2/3/4)，从Finger11/21/31/41开始
+	      
+	      -- Finger1 (食指) - 3节
+	      local finger1 = #() 
+	      local f1_1 = getNodeByName (bipedName + " " + handSide + " Finger11") 
+	      local f1_2 = getNodeByName (bipedName + " " + handSide + " Finger12") 
+	      local f1_3 = getNodeByName (bipedName + " " + handSide + " Finger13") 
+	      if f1_1 != undefined and not isDeleted f1_1 then append finger1 f1_1
+	      if f1_2 != undefined and not isDeleted f1_2 then append finger1 f1_2
+	      if f1_3 != undefined and not isDeleted f1_3 then append finger1 f1_3
+	      if finger1.count > 0 do append fingerArr finger1
+	      
+	      -- Finger2 (中指) - 3节
+	      local finger2 = #() 
+	      local f2_1 = getNodeByName (bipedName + " " + handSide + " Finger21") 
+	      local f2_2 = getNodeByName (bipedName + " " + handSide + " Finger22") 
+	      local f2_3 = getNodeByName (bipedName + " " + handSide + " Finger23") 
+	      if f2_1 != undefined and not isDeleted f2_1 then append finger2 f2_1
+	      if f2_2 != undefined and not isDeleted f2_2 then append finger2 f2_2
+	      if f2_3 != undefined and not isDeleted f2_3 then append finger2 f2_3
+	      if finger2.count > 0 do append fingerArr finger2
+	      
+	      -- Finger3 (无名指) - 3节
+	      local finger3 = #() 
+	      local f3_1 = getNodeByName (bipedName + " " + handSide + " Finger31") 
+	      local f3_2 = getNodeByName (bipedName + " " + handSide + " Finger32") 
+	      local f3_3 = getNodeByName (bipedName + " " + handSide + " Finger33") 
+	      if f3_1 != undefined and not isDeleted f3_1 then append finger3 f3_1
+	      if f3_2 != undefined and not isDeleted f3_2 then append finger3 f3_2
+	      if f3_3 != undefined and not isDeleted f3_3 then append finger3 f3_3
+	      if finger3.count > 0 do append fingerArr finger3
+	      
+	      -- Finger4 (小指) - 3节
+	      local finger4 = #() 
+	      local f4_1 = getNodeByName (bipedName + " " + handSide + " Finger41") 
+	      local f4_2 = getNodeByName (bipedName + " " + handSide + " Finger42") 
+	      local f4_3 = getNodeByName (bipedName + " " + handSide + " Finger43") 
+	      if f4_1 != undefined and not isDeleted f4_1 then append finger4 f4_1
+	      if f4_2 != undefined and not isDeleted f4_2 then append finger4 f4_2
+	      if f4_3 != undefined and not isDeleted f4_3 then append finger4 f4_3
+	      if finger4.count > 0 do append fingerArr finger4
+	      
+	    ) 
+	    else
+	    ( 
+	      -- 标准3节模式：Finger1-4各3节（包含Finger1/2/3/4根节），跳过拇指
+	      
+	      -- Finger1 (食指) - 3节
+	      local finger1 = #() 
+	      local f1_0 = getNodeByName (bipedName + " " + handSide + " Finger1") 
+	      local f1_1 = getNodeByName (bipedName + " " + handSide + " Finger11") 
+	      local f1_2 = getNodeByName (bipedName + " " + handSide + " Finger12") 
+	      if f1_0 != undefined and not isDeleted f1_0 then append finger1 f1_0
+	      if f1_1 != undefined and not isDeleted f1_1 then append finger1 f1_1
+	      if f1_2 != undefined and not isDeleted f1_2 then append finger1 f1_2
+	      if finger1.count > 0 do append fingerArr finger1
+	      
+	      -- Finger2 (中指) - 3节
+	      local finger2 = #() 
+	      local f2_0 = getNodeByName (bipedName + " " + handSide + " Finger2") 
+	      local f2_1 = getNodeByName (bipedName + " " + handSide + " Finger21") 
+	      local f2_2 = getNodeByName (bipedName + " " + handSide + " Finger22") 
+	      if f2_0 != undefined and not isDeleted f2_0 then append finger2 f2_0
+	      if f2_1 != undefined and not isDeleted f2_1 then append finger2 f2_1
+	      if f2_2 != undefined and not isDeleted f2_2 then append finger2 f2_2
+	      if finger2.count > 0 do append fingerArr finger2
+	      
+	      -- Finger3 (无名指) - 3节
+	      local finger3 = #() 
+	      local f3_0 = getNodeByName (bipedName + " " + handSide + " Finger3") 
+	      local f3_1 = getNodeByName (bipedName + " " + handSide + " Finger31") 
+	      local f3_2 = getNodeByName (bipedName + " " + handSide + " Finger32") 
+	      if f3_0 != undefined and not isDeleted f3_0 then append finger3 f3_0
+	      if f3_1 != undefined and not isDeleted f3_1 then append finger3 f3_1
+	      if f3_2 != undefined and not isDeleted f3_2 then append finger3 f3_2
+	      if finger3.count > 0 do append fingerArr finger3
+	      
+	      -- Finger4 (小指) - 3节
+	      local finger4 = #() 
+	      local f4_0 = getNodeByName (bipedName + " " + handSide + " Finger4") 
+	      local f4_1 = getNodeByName (bipedName + " " + handSide + " Finger41") 
+	      local f4_2 = getNodeByName (bipedName + " " + handSide + " Finger42") 
+	      if f4_0 != undefined and not isDeleted f4_0 then append finger4 f4_0
+	      if f4_1 != undefined and not isDeleted f4_1 then append finger4 f4_1
+	      if f4_2 != undefined and not isDeleted f4_2 then append finger4 f4_2
+	      if finger4.count > 0 do append fingerArr finger4
+	      
+	    ) 
+	    
+	    return fingerArr
+	  )
 	-- 右手张开事件
 	on uiRSpread rightClick do (
 		uiRSpread.value = 0
 		uiRSpread.changed 0
 	)
 	
-	on uiRSpread changed var do (
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
-		local m_RFingers = GetFingerArray "R" "spread"
-		if m_RFingers.count > 0 then (
-			SpreadFingers m_RFingers (-mc_spreadMaxAngle) mc_spreadMaxAngle var uiRBendStart.value uiRBendEnd.value
-		)
-	)
+	on uiRSpread changed var do ( 
+	    if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return() 
+	    rIsKnuckles = detectKnucklesMode()  -- 动态检测
+	    local m_RFingers = GetFingerArray "R" rIsKnuckles
+	    if m_RFingers.count > 0 then ( 
+	      BendFingers m_RFingers uiRBendStart.value uiRBendEnd.value var rIsKnuckles "R"
+	      if var != 0 then
+	        SpreadFingers m_RFingers (-mc_spreadMaxAngle) mc_spreadMaxAngle var uiRBendStart.value uiRBendEnd.value rIsKnuckles "R"
+	    ) 
+	) 
 	
 	-- 左手张开事件
 	on uiLSpread rightClick do (
@@ -1567,46 +1905,68 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 		uiLSpread.changed 0
 	)
 	
-	on uiLSpread changed var do (
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
-		local m_LFingers = GetFingerArray "L" "spread"
-		if m_LFingers.count > 0 then (
-			SpreadFingers m_LFingers mc_spreadMaxAngle (-mc_spreadMaxAngle) var uiLBendEnd.value uiLBendStart.value 
-		)
-	)
+	on uiLSpread changed var do ( 
+	    if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return() 
+	    lIsKnuckles = detectKnucklesMode()  -- 动态检测
+	    local m_LFingers = GetFingerArray "L" lIsKnuckles
+	    if m_LFingers.count > 0 then ( 
+	      BendFingers m_LFingers uiLBendStart.value uiLBendEnd.value var lIsKnuckles "L"
+	      if var != 0 then
+	        SpreadFingers m_LFingers (-mc_spreadMaxAngle) mc_spreadMaxAngle var uiLBendStart.value uiLBendEnd.value lIsKnuckles "L"
+	    ) 
+	) 
 	
 	-- 右手弯曲事件 (食指、中指、无名指)
-	on uiRBendEnd changed var do (
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
-		local m_RFingers = GetFingerArray "R" "bend2"
-		if m_RFingers.count > 0 then (
-			BendFingers m_RFingers uiRBendStart.value uiRBendEnd.value uiRSpread.value
-		)
-	)
+	on uiRBendEnd changed var do ( 
+	    if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return() 
+	    rIsKnuckles = detectKnucklesMode()  -- 动态检测
+	    local m_RFingers = GetFingerArray "R" rIsKnuckles
+	    if m_RFingers.count > 0 then ( 
+	      BendFingers m_RFingers uiRBendStart.value uiRBendEnd.value uiRSpread.value rIsKnuckles "R"
+	      if uiRSpread.value != 0 then
+	        SpreadFingers m_RFingers (-mc_spreadMaxAngle) mc_spreadMaxAngle uiRSpread.value uiRBendStart.value uiRBendEnd.value rIsKnuckles "R"
+	    ) 
+	) 
+
 	
-	on uiRBendStart changed var do (
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
-		local m_RFingers = GetFingerArray "R" "bend1"
-		if m_RFingers.count > 0 then (
-			BendFingers m_RFingers uiRBendStart.value uiRBendEnd.value uiRSpread.value
-		)
-	)
+	on uiRBendStart changed var do ( 
+	    if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return() 
+	    rIsKnuckles = detectKnucklesMode()  -- 动态检测
+	    local m_RFingers = GetFingerArray "R" rIsKnuckles
+	    if m_RFingers.count > 0 then ( 
+	      BendFingers m_RFingers uiRBendStart.value uiRBendEnd.value uiRSpread.value rIsKnuckles "R"
+	      if uiRSpread.value != 0 then
+	        SpreadFingers m_RFingers (-mc_spreadMaxAngle) mc_spreadMaxAngle uiRSpread.value uiRBendStart.value uiRBendEnd.value rIsKnuckles "R"
+	    ) 
+	) 
 	
 	-- 左手弯曲事件 (中指、无名指、小指)
-	on uiLBendStart changed var do (
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
-		local m_LFingers = GetFingerArray "L" "bend1"
-		if m_LFingers.count > 0 then (
-			BendFingers m_LFingers uiLBendStart.value uiLBendEnd.value (-uiLSpread.value)
-		)
-	)
+	on uiLBendStart changed var do ( 
+	    if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return() 
+	    lIsKnuckles = detectKnucklesMode()  -- 动态检测
+	    local m_LFingers = GetFingerArray "L" lIsKnuckles
+	    if m_LFingers.count > 0 then ( 
+	      BendFingers m_LFingers uiLBendStart.value uiLBendEnd.value uiLSpread.value lIsKnuckles "L"
+	      if uiLSpread.value != 0 then
+	        SpreadFingers m_LFingers (-mc_spreadMaxAngle) mc_spreadMaxAngle uiLSpread.value uiLBendStart.value uiLBendEnd.value lIsKnuckles "L"
+	    ) 
+	) 
 	
-	on uiLBendEnd changed var do (
-		if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return()
-		local m_LFingers = GetFingerArray "L" "bend2"
-		if m_LFingers.count > 0 then (
-			BendFingers m_LFingers uiLBendStart.value uiLBendEnd.value (-uiLSpread.value)
-		)
+	on uiLBendEnd changed var do ( 
+	    if (rolBsBipedTools.m_workingBipRoot == undefined or (isDeleted rolBsBipedTools.m_workingBipRoot)) do return() 
+	    lIsKnuckles = detectKnucklesMode()  -- 动态检测
+	    local m_LFingers = GetFingerArray "L" lIsKnuckles
+	    if m_LFingers.count > 0 then ( 
+	      BendFingers m_LFingers uiLBendStart.value uiLBendEnd.value uiLSpread.value lIsKnuckles "L"
+	      if uiLSpread.value != 0 then
+	        SpreadFingers m_LFingers (-mc_spreadMaxAngle) mc_spreadMaxAngle uiLSpread.value uiLBendStart.value uiLBendEnd.value lIsKnuckles "L"
+	    ) 
+	)
+
+	on rolBSFingers open do
+	( 
+	    -- 打开面板时更新按钮状态
+	    UpdateFingerButtonStates()
 	)
 )
 
