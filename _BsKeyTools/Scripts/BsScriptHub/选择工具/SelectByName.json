@@ -1,0 +1,13 @@
+{
+  "name": "SelectByName",
+  "version": "1.0.0",
+  "description": "按名称关键词批量选择对象。\n\n输入关键词后，自动选中场景中所有名称包含该关键词的对象。\n\n支持通配符匹配。",
+  "author": "Bullet.S",
+  "optimizer": "",
+  "modified_date": "2024-12-25",
+  "keywords": ["选择", "名称", "批量", "通配符"],
+  "preview": "",
+  "script": "SelectByName.ms",
+  "url": ""
+}
+

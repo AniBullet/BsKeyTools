@@ -1,0 +1,13 @@
+{
+  "name": "PrintSceneInfo",
+  "version": "1.0.0",
+  "description": "打印场景统计信息。\n\n显示对象数量、面数、材质数等信息。",
+  "author": "Bullet.S",
+  "optimizer": "",
+  "modified_date": "2024-12-25",
+  "keywords": ["场景", "统计", "信息", "面数"],
+  "preview": "",
+  "script": "PrintSceneInfo.ms",
+  "url": ""
+}
+

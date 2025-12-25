@@ -1,0 +1,13 @@
+{
+  "name": "CleanScene",
+  "version": "1.0.0",
+  "description": "清理场景垃圾数据。\n\n删除空组、无效材质引用等。",
+  "author": "Bullet.S",
+  "optimizer": "",
+  "modified_date": "2024-12-25",
+  "keywords": ["场景", "清理", "优化", "垃圾"],
+  "preview": "",
+  "script": "CleanScene.ms",
+  "url": ""
+}
+

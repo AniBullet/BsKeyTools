@@ -1,0 +1,13 @@
+{
+  "name": "InvertSelection",
+  "version": "1.0.0",
+  "description": "反转当前选择。\n\n选中未选择的对象，取消选择已选择的对象。",
+  "author": "Bullet.S",
+  "optimizer": "",
+  "modified_date": "2024-12-25",
+  "keywords": ["选择", "反转", "反选"],
+  "preview": "",
+  "script": "InvertSelection.ms",
+  "url": ""
+}
+

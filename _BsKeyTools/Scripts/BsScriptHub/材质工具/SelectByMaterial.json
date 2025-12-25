@@ -1,0 +1,13 @@
+{
+  "name": "SelectByMaterial",
+  "version": "1.0.0",
+  "description": "选择所有使用相同材质的对象。\n\n先选中一个对象，运行脚本后会选中场景中所有使用相同材质的对象。",
+  "author": "Bullet.S",
+  "optimizer": "",
+  "modified_date": "2024-12-25",
+  "keywords": ["材质", "选择", "相同材质"],
+  "preview": "",
+  "script": "SelectByMaterial.ms",
+  "url": ""
+}
+

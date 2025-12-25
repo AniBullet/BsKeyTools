@@ -1,0 +1,13 @@
+{
+  "name": "CenterPivot",
+  "version": "1.0.0",
+  "description": "将选中对象的轴心点居中到对象中心。\n\n支持批量处理多个对象。",
+  "author": "Bullet.S",
+  "optimizer": "",
+  "modified_date": "2024-12-25",
+  "keywords": ["建模", "轴心", "居中", "Pivot"],
+  "preview": "",
+  "script": "CenterPivot.ms",
+  "url": ""
+}
+

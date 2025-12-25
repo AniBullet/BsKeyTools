@@ -1,0 +1,13 @@
+{
+  "name": "BakeAnimation",
+  "version": "1.0.0",
+  "description": "烘焙选中对象的动画。\n\n将约束、表达式等转换为关键帧动画。\n\n烘焙范围为当前时间线范围。",
+  "author": "Bullet.S",
+  "optimizer": "",
+  "modified_date": "2024-12-25",
+  "keywords": ["动画", "烘焙", "Bake", "关键帧"],
+  "preview": "",
+  "script": "BakeAnimation.ms",
+  "url": ""
+}
+

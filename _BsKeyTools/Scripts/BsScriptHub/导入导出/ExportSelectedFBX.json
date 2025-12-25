@@ -1,0 +1,13 @@
+{
+  "name": "ExportSelectedFBX",
+  "version": "1.0.0",
+  "description": "快速导出选中对象为 FBX 文件。\n\n自动弹出保存对话框。",
+  "author": "Bullet.S",
+  "optimizer": "",
+  "modified_date": "2024-12-25",
+  "keywords": ["导出", "FBX", "选中"],
+  "preview": "",
+  "script": "ExportSelectedFBX.ms",
+  "url": ""
+}
+

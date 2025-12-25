@@ -1,0 +1,13 @@
+{
+  "name": "DeleteAllKeys",
+  "version": "1.0.0",
+  "description": "删除选中对象的所有动画关键帧。\n\n谨慎使用，此操作不可撤销（建议先保存）。",
+  "author": "Bullet.S",
+  "optimizer": "",
+  "modified_date": "2024-12-25",
+  "keywords": ["动画", "关键帧", "删除", "清理"],
+  "preview": "",
+  "script": "DeleteAllKeys.ms",
+  "url": ""
+}
+

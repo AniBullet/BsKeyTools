@@ -1,0 +1,13 @@
+{
+  "name": "ResetXForm",
+  "version": "1.0.0",
+  "description": "批量重置选中对象的变换。\n\n对所有选中对象执行 Reset XForm 并塌陷堆栈。\n\n常用于导出前的模型清理。",
+  "author": "Bullet.S",
+  "optimizer": "",
+  "modified_date": "2024-12-25",
+  "keywords": ["建模", "变换", "重置", "XForm", "清理"],
+  "preview": "",
+  "script": "ResetXForm.ms",
+  "url": ""
+}
+

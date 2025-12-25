@@ -1,8 +1,82 @@
 {
   "version": "1.0",
   "categories": {
-    "动画工具": [],
-    "场景管理": [],
+    "动画工具": [
+      {
+        "name": "BakeAnimation",
+        "version": "1.0.0",
+        "description": "烘焙选中对象的动画。\n\n将约束、表达式等转换为关键帧动画。\n\n烘焙范围为当前时间线范围。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "动画",
+          "烘焙",
+          "Bake",
+          "关键帧"
+        ],
+        "preview": "",
+        "script": "BakeAnimation.ms",
+        "url": "",
+        "category": "动画工具"
+      },
+      {
+        "name": "DeleteAllKeys",
+        "version": "1.0.0",
+        "description": "删除选中对象的所有动画关键帧。\n\n谨慎使用，此操作不可撤销（建议先保存）。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "动画",
+          "关键帧",
+          "删除",
+          "清理"
+        ],
+        "preview": "",
+        "script": "DeleteAllKeys.ms",
+        "url": "",
+        "category": "动画工具"
+      }
+    ],
+    "场景管理": [
+      {
+        "name": "CleanScene",
+        "version": "1.0.0",
+        "description": "清理场景垃圾数据。\n\n删除空组、无效材质引用等。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "场景",
+          "清理",
+          "优化",
+          "垃圾"
+        ],
+        "preview": "",
+        "script": "CleanScene.ms",
+        "url": "",
+        "category": "场景管理"
+      },
+      {
+        "name": "PrintSceneInfo",
+        "version": "1.0.0",
+        "description": "打印场景统计信息。\n\n显示对象数量、面数、材质数等信息。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "场景",
+          "统计",
+          "信息",
+          "面数"
+        ],
+        "preview": "",
+        "script": "PrintSceneInfo.ms",
+        "url": "",
+        "category": "场景管理"
+      }
+    ],
     "基础工具": [
       {
         "name": "HelloWorld",
@@ -22,10 +96,139 @@
         "category": "基础工具"
       }
     ],
-    "导入导出": [],
-    "建模工具": [],
-    "材质工具": [],
-    "选择工具": [],
-    "骨骼绑定": []
+    "导入导出": [
+      {
+        "name": "ExportSelectedFBX",
+        "version": "1.0.0",
+        "description": "快速导出选中对象为 FBX 文件。\n\n自动弹出保存对话框。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "导出",
+          "FBX",
+          "选中"
+        ],
+        "preview": "",
+        "script": "ExportSelectedFBX.ms",
+        "url": "",
+        "category": "导入导出"
+      }
+    ],
+    "建模工具": [
+      {
+        "name": "CenterPivot",
+        "version": "1.0.0",
+        "description": "将选中对象的轴心点居中到对象中心。\n\n支持批量处理多个对象。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "建模",
+          "轴心",
+          "居中",
+          "Pivot"
+        ],
+        "preview": "",
+        "script": "CenterPivot.ms",
+        "url": "",
+        "category": "建模工具"
+      },
+      {
+        "name": "ResetXForm",
+        "version": "1.0.0",
+        "description": "批量重置选中对象的变换。\n\n对所有选中对象执行 Reset XForm 并塌陷堆栈。\n\n常用于导出前的模型清理。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "建模",
+          "变换",
+          "重置",
+          "XForm",
+          "清理"
+        ],
+        "preview": "",
+        "script": "ResetXForm.ms",
+        "url": "",
+        "category": "建模工具"
+      }
+    ],
+    "材质工具": [
+      {
+        "name": "SelectByMaterial",
+        "version": "1.0.0",
+        "description": "选择所有使用相同材质的对象。\n\n先选中一个对象，运行脚本后会选中场景中所有使用相同材质的对象。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "材质",
+          "选择",
+          "相同材质"
+        ],
+        "preview": "",
+        "script": "SelectByMaterial.ms",
+        "url": "",
+        "category": "材质工具"
+      }
+    ],
+    "选择工具": [
+      {
+        "name": "InvertSelection",
+        "version": "1.0.0",
+        "description": "反转当前选择。\n\n选中未选择的对象，取消选择已选择的对象。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "选择",
+          "反转",
+          "反选"
+        ],
+        "preview": "",
+        "script": "InvertSelection.ms",
+        "url": "",
+        "category": "选择工具"
+      },
+      {
+        "name": "SelectByName",
+        "version": "1.0.0",
+        "description": "按名称关键词批量选择对象。\n\n输入关键词后，自动选中场景中所有名称包含该关键词的对象。\n\n支持通配符匹配。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "选择",
+          "名称",
+          "批量",
+          "通配符"
+        ],
+        "preview": "",
+        "script": "SelectByName.ms",
+        "url": "",
+        "category": "选择工具"
+      }
+    ],
+    "骨骼绑定": [
+      {
+        "name": "SelectAllBones",
+        "version": "1.0.0",
+        "description": "选择场景中所有骨骼对象。\n\n包括 Bone、Biped 骨骼和 CAT 骨骼。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2024-12-25",
+        "keywords": [
+          "骨骼",
+          "选择",
+          "Bone",
+          "Biped"
+        ],
+        "preview": "",
+        "script": "SelectAllBones.ms",
+        "url": "",
+        "category": "骨骼绑定"
+      }
+    ]
   }
 }
