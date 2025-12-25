@@ -10,6 +10,7 @@
 |-----|------|-----|
 | 🐞 [报告 Bug](#-报告-bug) | 发现问题？告诉我们 | ⭐ |
 | 💡 [功能建议](#-功能建议) | 有好想法？提出来 | ⭐ |
+| 📦 [添加脚本](#-添加脚本到-bsscripthub) | 分享你的脚本 | ⭐⭐ |
 | 🔧 [提交代码](#-提交代码) | 直接贡献代码 | ⭐⭐⭐ |
 
 ---
@@ -33,6 +34,84 @@
 请说明：
 - 🎯 想要什么功能？
 - 📝 解决什么问题？
+
+---
+
+## 📦 添加脚本到 BsScriptHub
+
+想分享你的脚本？按以下步骤操作：
+
+### 1. 准备文件
+
+在 `_BsKeyTools/Scripts/BsScriptHub/分类名/` 下创建两个文件：
+
+```
+BsScriptHub/
+├── 选择工具/
+│   ├── MyScript.ms      ← 脚本文件
+│   └── MyScript.json    ← 配置文件（同名）
+```
+
+### 2. 编写配置文件
+
+`MyScript.json` 格式：
+
+```json
+{
+    "name": "MyScript",
+    "version": "1.0.0",
+    "description": "脚本功能描述",
+    "author": "你的名字",
+    "optimizer": "",
+    "modified_date": "2024-12-25",
+    "keywords": ["关键词1", "关键词2"],
+    "preview": "",
+    "script": "MyScript.ms",
+    "url": "",
+    "tutorial": ""
+}
+```
+
+| 字段 | 必填 | 说明 |
+|-----|:---:|-----|
+| `name` | ✓ | 脚本名（与文件名一致） |
+| `version` | ✓ | 版本号 |
+| `description` | ✓ | 功能描述（支持 `\n` 换行） |
+| `author` | ✓ | 原作者 |
+| `script` | ✓ | 脚本文件名 |
+| `optimizer` | | 修改人 |
+| `keywords` | | 搜索关键词 |
+| `url` | | 发布地址 |
+| `tutorial` | | 教程链接 |
+| `preview` | | 预览图文件名（同目录） |
+
+### 3. 添加预览图（可选）
+
+把预览图放在脚本同目录下，JSON 里只写文件名：
+
+```
+BsScriptHub/
+├── 选择工具/
+│   ├── MyScript.ms
+│   ├── MyScript.json
+│   └── MyScript_preview.png  ← 预览图
+```
+
+**建议**：
+- 格式：PNG / JPG
+- 尺寸：400×300 左右
+- 大小：< 200KB
+
+### 4. 更新索引
+
+```bash
+cd _BsKeyTools/Scripts/BsScriptHub
+python generate_index.py
+```
+
+### 5. 提交 PR
+
+按下方流程提交到 `dev` 分支即可。
 
 ---
 

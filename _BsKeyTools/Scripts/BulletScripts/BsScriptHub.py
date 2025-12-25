@@ -141,10 +141,20 @@ QLineEdit {
 }
 QLineEdit:focus { border-color: #7ecbff; }
 QScrollArea { border: none; background: transparent; }
-QScrollBar:vertical { background: #2b2b2b; width: 8px; }
-QScrollBar::handle:vertical { background: #505050; min-height: 20px; border-radius: 4px; }
-QScrollBar::handle:vertical:hover { background: #606060; }
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+QScrollBar:vertical { 
+    background: #2a2a2a; 
+    width: 8px; 
+    border-radius: 4px;
+    margin: 0;
+}
+QScrollBar::handle:vertical { 
+    background: #606060; 
+    min-height: 20px; 
+    border-radius: 4px; 
+}
+QScrollBar::handle:vertical:hover { background: #707070; }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; background: none; }
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: #2a2a2a; }
 QTextEdit {
     background: #1e1e1e; border: 1px solid #404040; border-radius: 3px;
     padding: 6px; color: #fff;
@@ -208,19 +218,21 @@ class CollapsibleCategory(QWidget):
         layout.setSpacing(2)
         
         # 标题栏
-        self.header = QPushButton("▼  " + title)
+        self.header = QPushButton("▼ " + title)
         self.header.setStyleSheet("""
             QPushButton {
-                background: #383838;
+                background: #353535;
                 border: none;
-                border-radius: 4px;
-                padding: 8px 12px;
+                border-radius: 3px;
+                padding: 4px 8px;
                 text-align: left;
+                font-size: 11px;
                 font-weight: bold;
-                color: #7ecbff;
+                color: #8ac;
             }
             QPushButton:hover {
                 background: #404040;
+                color: #7ecbff;
             }
         """)
         self.header.clicked.connect(self._toggle)
@@ -229,7 +241,7 @@ class CollapsibleCategory(QWidget):
         # 内容区域
         self.content = QWidget()
         self.content_layout = QVBoxLayout(self.content)
-        self.content_layout.setContentsMargins(8, 4, 0, 4)
+        self.content_layout.setContentsMargins(8, 4, 8, 4)  # 增加右边距
         self.content_layout.setSpacing(2)
         layout.addWidget(self.content)
         
@@ -239,7 +251,7 @@ class CollapsibleCategory(QWidget):
         self.expanded = not self.expanded
         self.content.setVisible(self.expanded)
         arrow = "▼" if self.expanded else "▶"
-        self.header.setText(arrow + "  " + self.title)
+        self.header.setText(arrow + " " + self.title)
         self.toggled.emit(self.expanded)
     
     def add_script_item(self, script_btn):
@@ -373,6 +385,7 @@ class BsScriptHub(QDialog):
         self.categories = {}  # UI 分类组件
         self.script_info_cache = {}  # 脚本详情缓存
         self.current_script = None
+        self._expected_script = None  # 当前期望加载的脚本（防止异步回调覆盖）
         self.workers = []
         self.local_cache_dir = self._get_cache_dir()
         self.local_versions = {}  # 本地版本记录
@@ -382,8 +395,8 @@ class BsScriptHub(QDialog):
         self.current_branch = self.config.get("current_branch", DEFAULT_BRANCH)  # 从配置加载分支
         self.detail_visible = self.config.get("detail_visible", False)  # 默认收起
         
-        # 设置窗口标志：添加最小化按钮
-        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint)
+        # 设置窗口标志：Dialog 类型跟随Max
+        self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
         
         self._update_window_title()
         self._load_local_versions()  # 加载本地版本信息
@@ -463,6 +476,9 @@ class BsScriptHub(QDialog):
                     self.local_versions = json.load(f)
             except:
                 self.local_versions = {}
+        else:
+            # 文件不存在时清空版本记录
+            self.local_versions = {}
     
     def _save_local_versions(self):
         """保存本地版本记录"""
@@ -540,7 +556,7 @@ class BsScriptHub(QDialog):
         self.refresh_btn.setObjectName("iconBtn")
         self.refresh_btn.setToolTip("刷新脚本列表")
         self.refresh_btn.setFixedSize(28, 24)
-        self.refresh_btn.clicked.connect(self._load_scripts_index)
+        self.refresh_btn.clicked.connect(self._refresh_all)
         title_row.addWidget(self.refresh_btn)
         
         # 批量更新按钮
@@ -584,7 +600,7 @@ class BsScriptHub(QDialog):
         
         self.categories_widget = QWidget()
         self.categories_layout = QVBoxLayout(self.categories_widget)
-        self.categories_layout.setContentsMargins(0, 0, 0, 0)
+        self.categories_layout.setContentsMargins(0, 0, 8, 0)  # 增加右边距给滚动条留空间
         self.categories_layout.setSpacing(4)
         self.categories_layout.addStretch()
         
@@ -885,6 +901,7 @@ class BsScriptHub(QDialog):
                 pass
             
             self._build_categories()
+            self._refresh_script_buttons()  # 确保按钮状态正确
             total_scripts = sum(len(scripts) for scripts in self.categories_data.values())
             self.status_label.setText("已加载 %d 个脚本，%d 个分类" % (total_scripts, len(self.categories_data)))
             
@@ -901,6 +918,7 @@ class BsScriptHub(QDialog):
                     index_data = json.load(f)
                 self.categories_data = index_data.get("categories", {})
                 self._build_categories()
+                self._refresh_script_buttons()  # 确保按钮状态正确
                 total_scripts = sum(len(scripts) if isinstance(scripts, list) else 0 
                                    for scripts in self.categories_data.values())
                 self.status_label.setText("已从缓存加载 %d 个脚本 (离线模式)" % total_scripts)
@@ -949,6 +967,10 @@ class BsScriptHub(QDialog):
     
     def _on_script_info_loaded(self, data, error, category, script_name, callback):
         """脚本信息加载完成"""
+        # 先检查是否是当前期望的脚本（防止过时请求）
+        if hasattr(self, '_expected_script') and script_name != self._expected_script:
+            return  # 忽略过时的请求
+        
         if error or not data:
             callback(None, error or "加载失败")
             return
@@ -1262,6 +1284,11 @@ class BsScriptHub(QDialog):
         # 下载下一个
         QTimer.singleShot(50, self._batch_download_next)
     
+    def _refresh_all(self):
+        """刷新所有数据（重新加载本地版本和脚本列表）"""
+        self._load_local_versions()  # 重新加载本地版本记录
+        self._load_scripts_index()   # 重新加载脚本列表
+    
     def _refresh_script_buttons(self):
         """刷新脚本按钮状态"""
         for cat_widget in self.categories.values():
@@ -1272,6 +1299,9 @@ class BsScriptHub(QDialog):
         """脚本选中回调"""
         script_name = script_data.get("name", "-")
         category = script_data.get("category", "")
+        
+        # 记录当前期望加载的脚本（用于防止异步回调覆盖）
+        self._expected_script = script_name
         
         # 如果没有详细信息（只有 name 和 category），需要懒加载
         if "version" not in script_data and category:
@@ -1301,11 +1331,18 @@ class BsScriptHub(QDialog):
             return
         
         if info:
+            # 检查是否是当前期望的脚本（防止旧请求覆盖新选择）
+            if hasattr(self, '_expected_script') and info.get("name") != self._expected_script:
+                return  # 忽略过时的回调
             self._display_script_info(info)
     
     def _display_script_info(self, script_data):
         """显示脚本详细信息"""
         self.current_script = script_data
+        self._expected_script = script_data.get("name", "")
+        
+        # 强制处理 UI 事件，确保立即更新
+        QApplication.processEvents()
         
         script_name = script_data.get("name", "-")
         remote_ver = script_data.get("version", "1.0.0")
@@ -1401,6 +1438,9 @@ class BsScriptHub(QDialog):
         
         self.status_label.setText("已选择: " + script_name)
         
+        # 强制刷新 UI，确保详情立即显示
+        QApplication.processEvents()
+        
         # 加载预览图
         self._load_preview(script_data)
     
@@ -1419,31 +1459,41 @@ class BsScriptHub(QDialog):
             self.preview_label.setPixmap(QPixmap())
             return
         
-        # 先检查本地缓存
-        cache_path = os.path.join(self.local_cache_dir, preview)
+        category = script_data.get("category", "")
+        
+        # 先检查本地缓存（分类文件夹下）
+        cache_path = os.path.join(self.local_cache_dir, category, preview) if category else os.path.join(self.local_cache_dir, preview)
         if os.path.exists(cache_path):
             self._set_preview_image(cache_path)
             return
         
         self.preview_label.setText("正在加载预览图...")
         
-        # 下载预览图
-        url = self._get_github_url("%s/%s" % (SCRIPTS_PATH, preview))
+        # 下载预览图（从分类文件夹）
+        if category:
+            remote_path = "%s/%s/%s" % (SCRIPTS_PATH, category, preview)
+        else:
+            remote_path = "%s/%s" % (SCRIPTS_PATH, preview)
+        
+        url = self._get_github_url(remote_path)
         worker = NetworkWorker(url)
-        worker.finished.connect(lambda d, e: self._on_preview_loaded(d, e, preview))
+        worker.finished.connect(lambda d, e: self._on_preview_loaded(d, e, category, preview))
         self.workers.append(worker)
         worker.start()
     
-    def _on_preview_loaded(self, data, error, filename):
+    def _on_preview_loaded(self, data, error, category, filename):
         """预览图加载完成"""
         if error or not data:
             self.preview_label.setText("预览图加载失败")
             return
         
-        # 保存到缓存
-        cache_path = os.path.join(self.local_cache_dir, filename)
+        # 保存到缓存（分类文件夹下）
+        if category:
+            cache_path = os.path.join(self.local_cache_dir, category, filename)
+        else:
+            cache_path = os.path.join(self.local_cache_dir, filename)
+        
         try:
-            # 确保目录存在
             os.makedirs(os.path.dirname(cache_path), exist_ok=True)
             with open(cache_path, 'wb') as f:
                 f.write(data)
