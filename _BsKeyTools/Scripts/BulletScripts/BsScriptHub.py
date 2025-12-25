@@ -15,7 +15,7 @@ from datetime import datetime
 # PySide 兼容层
 try:
     from PySide6.QtWidgets import (
-        QApplication, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+        QApplication, QWidget, QDialog, QVBoxLayout, QHBoxLayout, QGridLayout,
         QLabel, QPushButton, QLineEdit, QListWidget, QListWidgetItem,
         QGroupBox, QScrollArea, QFrame, QSplitter, QTextEdit,
         QTreeWidget, QTreeWidgetItem, QHeaderView, QSizePolicy,
@@ -26,7 +26,7 @@ try:
     PYSIDE_VERSION = 6
 except ImportError:
     from PySide2.QtWidgets import (
-        QApplication, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
+        QApplication, QWidget, QDialog, QVBoxLayout, QHBoxLayout, QGridLayout,
         QLabel, QPushButton, QLineEdit, QListWidget, QListWidgetItem,
         QGroupBox, QScrollArea, QFrame, QSplitter, QTextEdit,
         QTreeWidget, QTreeWidgetItem, QHeaderView, QSizePolicy,
@@ -55,11 +55,22 @@ VERSION = "1.0"
 
 # GitHub 仓库配置
 GITHUB_REPO_BASE = "https://raw.githubusercontent.com/AnimatorBullet/BsKeyTools"
+GITHUB_PAGE_BASE = "https://github.com/AnimatorBullet/BsKeyTools"  # 网页版
 GITHUB_BRANCHES = ["main", "dev"]  # 可用分支
 DEFAULT_BRANCH = "main"
 SCRIPTS_PATH = "_BsKeyTools/Scripts/BsScriptHub"
 INDEX_FILE = "scripts_index.json"
 LOCAL_VERSIONS_FILE = "local_versions.json"  # 本地版本记录文件
+CONFIG_FILE = "config.json"  # 窗口配置文件
+
+# 窗口尺寸配置
+LEFT_PANEL_WIDTH = 280  # 左侧面板宽度
+RIGHT_PANEL_WIDTH = 380  # 右侧面板宽度
+MARGIN = 16  # 主布局边距
+SPACING = 8  # 主布局间距
+WINDOW_WIDTH_COLLAPSED = LEFT_PANEL_WIDTH + MARGIN  # 折叠宽度
+WINDOW_WIDTH_EXPANDED = LEFT_PANEL_WIDTH + RIGHT_PANEL_WIDTH + SPACING + MARGIN  # 展开宽度
+WINDOW_HEIGHT = 550
 
 
 def compare_versions(local_ver, remote_ver):
@@ -88,195 +99,60 @@ def compare_versions(local_ver, remote_ver):
             return 1
     return 0
 
+# 帮助链接
+HELP_URL = "https://space.bilibili.com/2031113/lists/560782"
+
 # 样式表
 STYLE = """
-* {
-    font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
-    font-size: 11px;
-}
-QWidget {
-    background: #2b2b2b;
-    color: #e0e0e0;
-}
-QGroupBox {
-    border: 1px solid #404040;
-    border-radius: 6px;
-    margin-top: 12px;
-    padding: 8px;
-    padding-top: 16px;
-    font-weight: bold;
-    color: #7ecbff;
-}
-QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 10px;
-    padding: 0 6px;
-    color: #7ecbff;
-}
+* { font-family: "Microsoft YaHei", "Segoe UI", sans-serif; font-size: 11px; }
+QDialog, QWidget { background: #2b2b2b; color: #e0e0e0; }
 QPushButton, QToolButton {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #4a4a4a, stop:1 #3a3a3a);
-    border: 1px solid #505050;
-    border-radius: 4px;
-    padding: 6px 12px;
-    min-height: 22px;
-    color: #e0e0e0;
+    background: #404040; border: 1px solid #555; border-radius: 3px;
+    padding: 3px 8px; color: #fff;
 }
-QPushButton:hover, QToolButton:hover {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #5a5a5a, stop:1 #4a4a4a);
-    border-color: #7ecbff;
-    color: #ffffff;
-}
-QPushButton:pressed {
-    background: #333333;
-}
-QPushButton:disabled {
-    background: #3a3a3a;
-    color: #666666;
-}
+QPushButton:hover, QToolButton:hover { background: #505050; border-color: #7ecbff; color: #fff; }
+QPushButton:pressed { background: #333; }
+QPushButton:disabled { background: #3a3a3a; color: #777; }
 QPushButton#runBtn {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #2d7d46, stop:1 #1f5c32);
-    border-color: #3a9956;
-    font-weight: bold;
-    font-size: 12px;
+    background: #2d7d46; border-color: #3a9956; font-weight: bold; color: #fff;
 }
-QPushButton#runBtn:hover {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #3a9956, stop:1 #2d7d46);
-    border-color: #4db86a;
+QPushButton#runBtn:hover { background: #3a9956; }
+QToolButton#iconBtn {
+    background: #4a4a4a; border: 1px solid #666; font-size: 14px; color: #fff; font-weight: bold;
 }
+QToolButton#iconBtn:hover { background: #5a5a5a; border-color: #7ecbff; }
+QToolButton#toggleBtn {
+    background: #2d5a7d; border: 1px solid #4a9fd4; font-size: 14px; color: #7ecbff; font-weight: bold;
+}
+QToolButton#toggleBtn:hover { background: #3d6a8d; border-color: #7ecbff; color: #fff; }
+QLabel#urlLabel {
+    color: #7ecbff; font-size: 10px; text-decoration: underline;
+}
+QLabel#urlLabel:hover { color: #a0d8ff; }
 QLineEdit {
-    background: #1e1e1e;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    padding: 6px 10px;
-    selection-background-color: #357abd;
-    color: #e0e0e0;
+    background: #1e1e1e; border: 1px solid #404040; border-radius: 3px;
+    padding: 4px 8px; color: #fff;
 }
-QLineEdit:focus {
-    border-color: #7ecbff;
-}
-QLineEdit#searchBox {
-    font-size: 12px;
-    padding: 8px 12px;
-    padding-left: 30px;
-}
-QTreeWidget {
-    background: #1e1e1e;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    outline: none;
-    color: #e0e0e0;
-}
-QTreeWidget::item {
-    padding: 6px 4px;
-    border-radius: 3px;
-}
-QTreeWidget::item:selected {
-    background: #357abd;
-    color: #ffffff;
-}
-QTreeWidget::item:hover:!selected {
-    background: #3a3a3a;
-}
-QTreeWidget::branch:has-children:!has-siblings:closed,
-QTreeWidget::branch:closed:has-children:has-siblings {
-    border-image: none;
-    image: url(none);
-}
-QTreeWidget::branch:open:has-children:!has-siblings,
-QTreeWidget::branch:open:has-children:has-siblings {
-    border-image: none;
-    image: url(none);
-}
-QScrollArea {
-    border: none;
-    background: transparent;
-}
-QScrollBar:vertical {
-    background: #2b2b2b;
-    width: 10px;
-    margin: 0;
-}
-QScrollBar::handle:vertical {
-    background: #505050;
-    min-height: 30px;
-    border-radius: 5px;
-}
-QScrollBar::handle:vertical:hover {
-    background: #606060;
-}
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-    height: 0;
-}
-QScrollBar:horizontal {
-    background: #2b2b2b;
-    height: 10px;
-}
-QScrollBar::handle:horizontal {
-    background: #505050;
-    min-width: 30px;
-    border-radius: 5px;
-}
+QLineEdit:focus { border-color: #7ecbff; }
+QScrollArea { border: none; background: transparent; }
+QScrollBar:vertical { background: #2b2b2b; width: 8px; }
+QScrollBar::handle:vertical { background: #505050; min-height: 20px; border-radius: 4px; }
+QScrollBar::handle:vertical:hover { background: #606060; }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
 QTextEdit {
-    background: #1e1e1e;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    padding: 8px;
-    color: #e0e0e0;
+    background: #1e1e1e; border: 1px solid #404040; border-radius: 3px;
+    padding: 6px; color: #fff;
 }
-QTextEdit:read-only {
-    background: #252525;
-}
-QLabel#titleLabel {
-    font-size: 14px;
-    font-weight: bold;
-    color: #7ecbff;
-}
-QLabel#versionLabel {
-    color: #8bc34a;
-    font-weight: bold;
-}
-QLabel#authorLabel {
-    color: #ffb74d;
-}
+QTextEdit:read-only { background: #222; color: #ddd; }
+QFrame#previewFrame { background: #1a1a1a; border: 1px solid #404040; border-radius: 4px; }
+QProgressBar { background: #1e1e1e; border: none; border-radius: 2px; height: 3px; }
+QProgressBar::chunk { background: #7ecbff; border-radius: 2px; }
+QLabel { color: #e0e0e0; }
+QLabel#titleLabel { color: #fff; font-weight: bold; }
+QLabel#infoLabel { color: #bbb; }
 QLabel#keywordLabel {
-    background: #404040;
-    border-radius: 3px;
-    padding: 2px 6px;
-    color: #aaaaaa;
-}
-QFrame#previewFrame {
-    background: #1a1a1a;
-    border: 1px solid #404040;
-    border-radius: 6px;
-}
-QProgressBar {
-    background: #1e1e1e;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    height: 6px;
-    text-align: center;
-}
-QProgressBar::chunk {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 #7ecbff, stop:1 #4da6ff);
-    border-radius: 3px;
-}
-QMenu {
-    background: #2b2b2b;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    padding: 4px;
-}
-QMenu::item {
-    padding: 6px 24px;
-    border-radius: 3px;
-}
-QMenu::item:selected {
-    background: #357abd;
+    background: #404040; border-radius: 2px; padding: 1px 4px;
+    color: #aaa; font-size: 9px;
 }
 """
 
@@ -369,6 +245,8 @@ class CollapsibleCategory(QWidget):
 class ScriptButton(QPushButton):
     """脚本按钮"""
     script_selected = Signal(dict)
+    script_run = Signal(dict)  # 双击运行信号
+    script_context_menu = Signal(dict, object)  # 右键菜单信号 (script_data, pos)
     
     # 版本状态常量
     STATUS_NOT_INSTALLED = 0  # 未安装
@@ -384,6 +262,16 @@ class ScriptButton(QPushButton):
         self._update_display()
         self.setToolTip(script_data.get("description", ""))
         self.clicked.connect(lambda: self.script_selected.emit(self.script_data))
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._show_context_menu)
+    
+    def mouseDoubleClickEvent(self, event):
+        """双击运行脚本"""
+        self.script_run.emit(self.script_data)
+    
+    def _show_context_menu(self, pos):
+        """显示右键菜单"""
+        self.script_context_menu.emit(self.script_data, self.mapToGlobal(pos))
     
     def _check_version_status(self):
         """检查版本状态"""
@@ -454,28 +342,41 @@ class ScriptButton(QPushButton):
         return text in name or text in desc or text in keywords or text in author
 
 
-class BsScriptHub(QWidget):
+class BsScriptHub(QDialog):
     """BsScriptHub 主窗口"""
     closed = Signal()
     
     def __init__(self, parent=None):
+        # 尝试获取Max主窗口作为父窗口
+        if parent is None and IN_MAX:
+            try:
+                parent = QWidget.find(rt.windows.getMAXHWND())
+            except:
+                pass
         super().__init__(parent)
-        self.setMinimumSize(800, 600)
-        self.resize(950, 700)
-        self.setWindowFlags(Qt.Window)
         
         self.scripts_data = []
         self.categories = {}
         self.current_script = None
         self.workers = []
-        self.current_branch = DEFAULT_BRANCH  # 当前分支
         self.local_cache_dir = self._get_cache_dir()
         self.local_versions = {}  # 本地版本记录
+        self.config = {}  # 窗口配置
+        
+        self._load_config()  # 加载窗口配置
+        self.current_branch = self.config.get("current_branch", DEFAULT_BRANCH)  # 从配置加载分支
+        self.detail_visible = self.config.get("detail_visible", False)  # 默认收起
+        
+        # 设置窗口标志：添加最小化按钮
+        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint)
         
         self._update_window_title()
         self._load_local_versions()  # 加载本地版本信息
         self._init_ui()
         self.setStyleSheet(STYLE)
+        
+        # 根据保存的状态设置窗口大小和面板显示
+        self._apply_saved_state()
         
         # 延迟加载脚本列表
         QTimer.singleShot(100, self._load_scripts_index)
@@ -483,14 +384,58 @@ class BsScriptHub(QWidget):
     def _update_window_title(self):
         """更新窗口标题"""
         branch_tag = " [DEV]" if self.current_branch == "dev" else ""
-        self.setWindowTitle("BsScriptHub v%s - 远程脚本集合%s" % (VERSION, branch_tag))
+        self.setWindowTitle("BsScriptHub_v%s%s" % (VERSION, branch_tag))
     
     def _get_github_url(self, path=""):
-        """获取当前分支的 GitHub URL"""
+        """获取当前分支的 GitHub Raw URL (用于下载)"""
         base_url = "%s/%s" % (GITHUB_REPO_BASE, self.current_branch)
         if path:
             return "%s/%s" % (base_url, path)
         return base_url
+    
+    def _get_github_page_url(self, path=""):
+        """获取当前分支的 GitHub 页面 URL (用于浏览)"""
+        base_url = "%s/tree/%s" % (GITHUB_PAGE_BASE, self.current_branch)
+        if path:
+            return "%s/%s" % (base_url, path)
+        return base_url
+    
+    def _load_config(self):
+        """加载窗口配置"""
+        config_file = os.path.join(self.local_cache_dir, CONFIG_FILE)
+        if os.path.exists(config_file):
+            try:
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    self.config = json.load(f)
+            except:
+                self.config = {}
+    
+    def _save_config(self):
+        """保存窗口配置"""
+        config_file = os.path.join(self.local_cache_dir, CONFIG_FILE)
+        try:
+            with open(config_file, 'w', encoding='utf-8') as f:
+                json.dump(self.config, f, ensure_ascii=False, indent=2)
+        except:
+            pass
+    
+    def _apply_saved_state(self):
+        """应用保存的窗口状态"""
+        # 设置分支按钮状态
+        self._update_branch_btn()
+        
+        # 设置详情面板显示状态
+        self.right_panel.setVisible(self.detail_visible)
+        
+        if self.detail_visible:
+            self.toggle_detail_btn.setText("◀")
+            width = WINDOW_WIDTH_EXPANDED
+        else:
+            self.toggle_detail_btn.setText("▶")
+            width = WINDOW_WIDTH_COLLAPSED
+        
+        self.setFixedWidth(width)
+        self.resize(width, WINDOW_HEIGHT)
     
     def _load_local_versions(self):
         """加载本地版本记录"""
@@ -525,9 +470,10 @@ class BsScriptHub(QWidget):
                 btn.update_local_versions(self.local_versions)
     
     def _get_cache_dir(self):
-        """获取本地缓存目录"""
+        """获取本地缓存目录（使用有写入权限的目录）"""
         if IN_MAX:
-            cache = os.path.join(str(rt.getDir(rt.name("scripts"))), "BulletScripts", "BsScriptHub_Cache")
+            # 使用 maxData 目录（用户数据目录，有写入权限）
+            cache = os.path.join(str(rt.getDir(rt.name("maxData"))), "BsScriptHub_Cache")
         else:
             cache = os.path.join(tempfile.gettempdir(), "BsScriptHub_Cache")
         if not os.path.exists(cache):
@@ -536,76 +482,82 @@ class BsScriptHub(QWidget):
     
     def _init_ui(self):
         main_layout = QHBoxLayout(self)
-        main_layout.setContentsMargins(12, 12, 12, 12)
-        main_layout.setSpacing(12)
+        main_layout.setContentsMargins(8, 8, 8, 8)
+        main_layout.setSpacing(8)
         
         # ========== 左侧面板：搜索和分类 ==========
-        left_panel = QWidget()
-        left_layout = QVBoxLayout(left_panel)
+        self.left_panel = QWidget()
+        left_layout = QVBoxLayout(self.left_panel)
         left_layout.setContentsMargins(0, 0, 0, 0)
-        left_layout.setSpacing(8)
+        left_layout.setSpacing(4)
         
-        # 标题和刷新按钮
+        # 标题行
         title_row = QHBoxLayout()
-        title_lbl = QLabel("🔧 脚本仓库")
-        title_lbl.setStyleSheet("font-size: 14px; font-weight: bold; color: #7ecbff;")
-        title_row.addWidget(title_lbl)
-        title_row.addStretch()
+        title_row.setSpacing(4)
         
         # 分支切换按钮
         self.branch_btn = QPushButton("main")
-        self.branch_btn.setToolTip("点击切换分支\nmain: 稳定版\ndev: 开发版(测试功能)")
-        self.branch_btn.setFixedWidth(50)
+        self.branch_btn.setToolTip("点击切换分支\nmain: 稳定版\ndev: 开发版")
+        self.branch_btn.setFixedSize(42, 20)
         self.branch_btn.setStyleSheet("""
-            QPushButton {
-                background: #2d5a2d;
-                border: 1px solid #4caf50;
-                border-radius: 3px;
-                padding: 2px 6px;
-                font-size: 10px;
-                font-weight: bold;
-                color: #8bc34a;
-            }
-            QPushButton:hover {
-                background: #3d6a3d;
-                border-color: #8bc34a;
-            }
+            QPushButton { background: #2d5a2d; border: 1px solid #4caf50; border-radius: 3px;
+                font-size: 10px; font-weight: bold; color: #8bc34a; }
+            QPushButton:hover { background: #3d6a3d; }
         """)
         self.branch_btn.clicked.connect(self._toggle_branch)
         title_row.addWidget(self.branch_btn)
         
+        title_row.addStretch()
+        
+        # 帮助按钮
+        self.help_btn = QToolButton()
+        self.help_btn.setText("?")
+        self.help_btn.setObjectName("iconBtn")
+        self.help_btn.setToolTip("帮助 - 打开视频教程")
+        self.help_btn.setFixedSize(28, 24)
+        self.help_btn.clicked.connect(self._open_help)
+        title_row.addWidget(self.help_btn)
+        
         self.refresh_btn = QToolButton()
         self.refresh_btn.setText("🔄")
+        self.refresh_btn.setObjectName("iconBtn")
         self.refresh_btn.setToolTip("刷新脚本列表")
+        self.refresh_btn.setFixedSize(28, 24)
         self.refresh_btn.clicked.connect(self._load_scripts_index)
         title_row.addWidget(self.refresh_btn)
+        
+        # 批量更新按钮
+        self.update_all_btn = QToolButton()
+        self.update_all_btn.setText("⬇")
+        self.update_all_btn.setObjectName("iconBtn")
+        self.update_all_btn.setToolTip("批量更新所有脚本")
+        self.update_all_btn.setFixedSize(28, 24)
+        self.update_all_btn.clicked.connect(self._update_all_scripts)
+        title_row.addWidget(self.update_all_btn)
+        
+        # 详情面板切换按钮
+        self.toggle_detail_btn = QToolButton()
+        self.toggle_detail_btn.setText("◀")
+        self.toggle_detail_btn.setObjectName("toggleBtn")
+        self.toggle_detail_btn.setToolTip("显示/隐藏详情面板")
+        self.toggle_detail_btn.setFixedSize(28, 24)
+        self.toggle_detail_btn.clicked.connect(self._toggle_detail_panel)
+        title_row.addWidget(self.toggle_detail_btn)
+        
         left_layout.addLayout(title_row)
         
         # 搜索框
-        search_layout = QHBoxLayout()
         self.search_box = QLineEdit()
-        self.search_box.setObjectName("searchBox")
-        self.search_box.setPlaceholderText("🔍 搜索脚本名称、标签、作者...")
+        self.search_box.setPlaceholderText("🔍 搜索...")
+        self.search_box.setFixedHeight(24)
         self.search_box.textChanged.connect(self._filter_scripts)
-        search_layout.addWidget(self.search_box)
-        left_layout.addLayout(search_layout)
-        
-        # 工具栏
-        toolbar = QHBoxLayout()
-        self.expand_all_btn = QPushButton("展开全部")
-        self.expand_all_btn.clicked.connect(self._expand_all)
-        self.collapse_all_btn = QPushButton("折叠全部")
-        self.collapse_all_btn.clicked.connect(self._collapse_all)
-        toolbar.addWidget(self.expand_all_btn)
-        toolbar.addWidget(self.collapse_all_btn)
-        toolbar.addStretch()
-        left_layout.addLayout(toolbar)
+        left_layout.addWidget(self.search_box)
         
         # 进度条
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
         self.progress_bar.setTextVisible(False)
-        self.progress_bar.setMaximumHeight(4)
+        self.progress_bar.setMaximumHeight(3)
         left_layout.addWidget(self.progress_bar)
         
         # 分类滚动区域
@@ -616,123 +568,185 @@ class BsScriptHub(QWidget):
         self.categories_widget = QWidget()
         self.categories_layout = QVBoxLayout(self.categories_widget)
         self.categories_layout.setContentsMargins(0, 0, 0, 0)
-        self.categories_layout.setSpacing(6)
+        self.categories_layout.setSpacing(4)
         self.categories_layout.addStretch()
         
         scroll.setWidget(self.categories_widget)
         left_layout.addWidget(scroll, 1)
         
+        # 底部工具栏
+        bottom_bar = QHBoxLayout()
+        bottom_bar.setSpacing(4)
+        
+        self.run_btn = QPushButton("▶ 运行")
+        self.run_btn.setObjectName("runBtn")
+        self.run_btn.setEnabled(False)
+        self.run_btn.setFixedHeight(26)
+        self.run_btn.clicked.connect(self._run_script)
+        bottom_bar.addWidget(self.run_btn, 1)
+        
+        self.github_btn = QPushButton("🔗")
+        self.github_btn.setToolTip("查看源码")
+        self.github_btn.setFixedSize(30, 26)
+        self.github_btn.clicked.connect(self._open_github)
+        bottom_bar.addWidget(self.github_btn)
+        
+        left_layout.addLayout(bottom_bar)
+        
         # 状态标签
-        self.status_label = QLabel("准备加载脚本...")
-        self.status_label.setStyleSheet("color: #888888; padding: 4px;")
+        self.status_label = QLabel("准备中...")
+        self.status_label.setStyleSheet("color: #666; font-size: 10px; padding: 2px;")
         left_layout.addWidget(self.status_label)
         
-        left_panel.setFixedWidth(320)
-        main_layout.addWidget(left_panel)
+        self.left_panel.setFixedWidth(280)
+        main_layout.addWidget(self.left_panel)
         
         # ========== 右侧面板：详情 ==========
-        right_panel = QWidget()
-        right_layout = QVBoxLayout(right_panel)
+        self.right_panel = QWidget()
+        right_layout = QVBoxLayout(self.right_panel)
         right_layout.setContentsMargins(0, 0, 0, 0)
-        right_layout.setSpacing(12)
+        right_layout.setSpacing(6)
         
         # 预览图区域
         preview_frame = QFrame()
         preview_frame.setObjectName("previewFrame")
-        preview_frame.setMinimumHeight(200)
-        preview_frame.setMaximumHeight(280)
+        preview_frame.setFixedHeight(160)
         preview_layout = QVBoxLayout(preview_frame)
-        preview_layout.setContentsMargins(12, 12, 12, 12)
+        preview_layout.setContentsMargins(8, 8, 8, 8)
         
         self.preview_label = QLabel("选择脚本查看预览")
         self.preview_label.setAlignment(Qt.AlignCenter)
-        self.preview_label.setStyleSheet("color: #666666; font-size: 13px;")
+        self.preview_label.setStyleSheet("color: #555; font-size: 12px;")
         preview_layout.addWidget(self.preview_label)
         right_layout.addWidget(preview_frame)
         
-        # 脚本信息区域
-        info_group = QGroupBox("脚本信息")
-        info_layout = QGridLayout(info_group)
-        info_layout.setSpacing(8)
+        # 脚本信息区域 (精简版)
+        info_widget = QWidget()
+        info_layout = QGridLayout(info_widget)
+        info_layout.setContentsMargins(4, 4, 4, 4)
+        info_layout.setSpacing(4)
+        info_layout.setColumnStretch(1, 1)
+        info_layout.setColumnStretch(3, 1)
         
-        # 脚本名称
-        info_layout.addWidget(QLabel("名称:"), 0, 0)
+        # 名称 + 版本状态
         self.name_label = QLabel("-")
-        self.name_label.setObjectName("titleLabel")
-        info_layout.addWidget(self.name_label, 0, 1, 1, 3)
-        
-        # 版本号 - 远程版本
-        info_layout.addWidget(QLabel("远程版本:"), 1, 0)
-        self.version_label = QLabel("-")
-        self.version_label.setObjectName("versionLabel")
-        info_layout.addWidget(self.version_label, 1, 1)
-        
-        # 版本号 - 本地版本
-        info_layout.addWidget(QLabel("本地版本:"), 1, 2)
-        self.local_version_label = QLabel("-")
-        info_layout.addWidget(self.local_version_label, 1, 3)
+        self.name_label.setStyleSheet("font-size: 13px; font-weight: bold; color: #7ecbff;")
+        info_layout.addWidget(self.name_label, 0, 0, 1, 4)
         
         # 版本状态
         self.version_status_label = QLabel("")
-        self.version_status_label.setStyleSheet("font-weight: bold; padding: 2px 8px; border-radius: 3px;")
-        info_layout.addWidget(self.version_status_label, 2, 0, 1, 4)
+        self.version_status_label.setStyleSheet("font-size: 10px;")
+        info_layout.addWidget(self.version_status_label, 1, 0, 1, 4)
         
-        # 作者
-        info_layout.addWidget(QLabel("作者:"), 3, 0)
+        # 远程/本地版本
+        lbl_style = "color: #888; font-size: 10px;"
+        info_layout.addWidget(QLabel("远程:"), 2, 0)
+        info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
+        self.version_label = QLabel("-")
+        self.version_label.setStyleSheet("color: #8bc34a; font-size: 10px;")
+        info_layout.addWidget(self.version_label, 2, 1)
+        
+        info_layout.addWidget(QLabel("本地:"), 2, 2)
+        info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
+        self.local_version_label = QLabel("-")
+        self.local_version_label.setStyleSheet("font-size: 10px;")
+        info_layout.addWidget(self.local_version_label, 2, 3)
+        
+        # 原作者/修改人
+        info_layout.addWidget(QLabel("原作者:"), 3, 0)
+        info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.author_label = QLabel("-")
-        self.author_label.setObjectName("authorLabel")
+        self.author_label.setStyleSheet("color: #ffb74d; font-size: 10px;")
         info_layout.addWidget(self.author_label, 3, 1)
         
-        # 优化人
-        info_layout.addWidget(QLabel("优化:"), 3, 2)
+        info_layout.addWidget(QLabel("修改人:"), 3, 2)
+        info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.optimizer_label = QLabel("-")
+        self.optimizer_label.setStyleSheet("font-size: 10px;")
         info_layout.addWidget(self.optimizer_label, 3, 3)
         
-        # 修改日期
+        # 更新日期
         info_layout.addWidget(QLabel("更新:"), 4, 0)
+        info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.date_label = QLabel("-")
+        self.date_label.setStyleSheet("font-size: 10px;")
         info_layout.addWidget(self.date_label, 4, 1, 1, 3)
         
         # 标签
         info_layout.addWidget(QLabel("标签:"), 5, 0)
+        info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.keywords_layout = QHBoxLayout()
-        self.keywords_layout.setSpacing(4)
+        self.keywords_layout.setSpacing(3)
         self.keywords_layout.addStretch()
         info_layout.addLayout(self.keywords_layout, 5, 1, 1, 3)
         
-        right_layout.addWidget(info_group)
+        # 发布地址
+        info_layout.addWidget(QLabel("地址:"), 6, 0)
+        info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
+        self.url_label = QPushButton("点击查看")
+        self.url_label.setFlat(True)
+        self.url_label.setStyleSheet("""
+            QPushButton { color: #7ecbff; font-size: 10px; text-decoration: underline; 
+                text-align: left; padding: 0; border: none; background: transparent; }
+            QPushButton:hover { color: #a0d8ff; }
+        """)
+        self.url_label.setCursor(Qt.PointingHandCursor)
+        self.url_label.clicked.connect(self._on_url_clicked)
+        info_layout.addWidget(self.url_label, 6, 1, 1, 3)
+        
+        right_layout.addWidget(info_widget)
         
         # 描述区域
-        desc_group = QGroupBox("功能描述")
-        desc_layout = QVBoxLayout(desc_group)
         self.desc_text = QTextEdit()
         self.desc_text.setReadOnly(True)
-        self.desc_text.setMinimumHeight(100)
-        self.desc_text.setPlaceholderText("选择脚本查看详细描述...")
-        desc_layout.addWidget(self.desc_text)
-        right_layout.addWidget(desc_group, 1)
+        self.desc_text.setPlaceholderText("选择脚本查看描述...")
+        self.desc_text.setStyleSheet("font-size: 11px;")
+        right_layout.addWidget(self.desc_text, 1)
         
         # 操作按钮
         btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(4)
         
-        self.run_btn = QPushButton("▶  运行脚本")
-        self.run_btn.setObjectName("runBtn")
-        self.run_btn.setEnabled(False)
-        self.run_btn.clicked.connect(self._run_script)
-        
-        self.download_btn = QPushButton("📥  下载到本地")
+        self.download_btn = QPushButton("📥 下载")
         self.download_btn.setEnabled(False)
+        self.download_btn.setFixedHeight(26)
         self.download_btn.clicked.connect(self._download_script)
+        btn_layout.addWidget(self.download_btn)
         
-        self.github_btn = QPushButton("🔗  查看源码")
-        self.github_btn.clicked.connect(self._open_github)
-        
-        btn_layout.addWidget(self.run_btn, 2)
-        btn_layout.addWidget(self.download_btn, 1)
-        btn_layout.addWidget(self.github_btn, 1)
         right_layout.addLayout(btn_layout)
         
-        main_layout.addWidget(right_panel, 1)
+        self.right_panel.setFixedWidth(RIGHT_PANEL_WIDTH)
+        main_layout.addWidget(self.right_panel)
+    
+    def _toggle_detail_panel(self):
+        """切换详情面板显示/隐藏"""
+        self.detail_visible = not self.detail_visible
+        
+        if self.detail_visible:
+            self.right_panel.setVisible(True)
+            self.toggle_detail_btn.setText("◀")
+            self.setFixedWidth(WINDOW_WIDTH_EXPANDED)
+            self.resize(WINDOW_WIDTH_EXPANDED, self.height())
+        else:
+            self.right_panel.setVisible(False)
+            self.toggle_detail_btn.setText("▶")
+            self.setFixedWidth(WINDOW_WIDTH_COLLAPSED)
+            self.resize(WINDOW_WIDTH_COLLAPSED, self.height())
+        
+        # 保存状态
+        self.config["detail_visible"] = self.detail_visible
+        self._save_config()
+    
+    def _on_url_clicked(self):
+        """点击发布地址时打开链接"""
+        if self.current_script:
+            url = self.current_script.get("url", "")
+            if url:
+                QDesktopServices.openUrl(QUrl(url))
+    
+    def _open_help(self):
+        """打开帮助页面"""
+        QDesktopServices.openUrl(QUrl(HELP_URL))
     
     def _toggle_branch(self):
         """切换分支"""
@@ -740,6 +754,10 @@ class BsScriptHub(QWidget):
         current_idx = GITHUB_BRANCHES.index(self.current_branch)
         next_idx = (current_idx + 1) % len(GITHUB_BRANCHES)
         self.current_branch = GITHUB_BRANCHES[next_idx]
+        
+        # 保存分支设置
+        self.config["current_branch"] = self.current_branch
+        self._save_config()
         
         # 更新按钮显示
         self._update_branch_btn()
@@ -865,6 +883,8 @@ class BsScriptHub(QWidget):
             for script in cat_scripts[cat_name]:
                 btn = ScriptButton(script, self.local_versions)
                 btn.script_selected.connect(self._on_script_selected)
+                btn.script_run.connect(self._on_script_run)
+                btn.script_context_menu.connect(self._show_script_context_menu)
                 cat_widget.add_script_item(btn)
             
             self.categories_layout.addWidget(cat_widget)
@@ -901,6 +921,125 @@ class BsScriptHub(QWidget):
         for cat in self.categories.values():
             cat.collapse()
     
+    def _on_script_run(self, script_data):
+        """双击运行脚本"""
+        self.current_script = script_data
+        self._run_script()
+    
+    def _show_script_context_menu(self, script_data, pos):
+        """显示脚本右键菜单"""
+        self.current_script = script_data
+        menu = QMenu(self)
+        menu.setStyleSheet("""
+            QMenu { background: #2b2b2b; border: 1px solid #404040; border-radius: 4px; padding: 4px; }
+            QMenu::item { padding: 6px 20px; border-radius: 3px; }
+            QMenu::item:selected { background: #357abd; }
+        """)
+        
+        # 运行脚本
+        action_run = menu.addAction("▶ 运行脚本")
+        action_run.triggered.connect(self._run_script)
+        
+        # 下载/更新
+        script_name = script_data.get("name", "")
+        local_ver = self.local_versions.get(script_name, {}).get("version", "")
+        if local_ver:
+            action_download = menu.addAction("📥 更新脚本")
+        else:
+            action_download = menu.addAction("📥 下载脚本")
+        action_download.triggered.connect(self._download_script)
+        
+        menu.addSeparator()
+        
+        # 查看源码
+        action_github = menu.addAction("🔗 查看源码")
+        action_github.triggered.connect(self._open_github)
+        
+        # 打开发布地址
+        url = script_data.get("url", "")
+        if url:
+            action_url = menu.addAction("🌐 打开发布地址")
+            action_url.triggered.connect(lambda: QDesktopServices.openUrl(QUrl(url)))
+        
+        menu.exec_(pos)
+    
+    def _update_all_scripts(self):
+        """批量更新所有脚本"""
+        # 收集需要更新的脚本
+        scripts_to_update = []
+        for script in self.scripts_data:
+            name = script.get("name", "")
+            remote_ver = script.get("version", "1.0.0")
+            local_ver = self.local_versions.get(name, {}).get("version", "")
+            if local_ver and compare_versions(local_ver, remote_ver) < 0:
+                scripts_to_update.append(script)
+        
+        if not scripts_to_update:
+            QMessageBox.information(self, "提示", "所有已安装脚本都是最新版本！")
+            return
+        
+        reply = QMessageBox.question(
+            self, "批量更新",
+            "发现 %d 个脚本有更新，是否全部更新？" % len(scripts_to_update),
+            QMessageBox.Yes | QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            self._batch_update_scripts(scripts_to_update)
+    
+    def _batch_update_scripts(self, scripts):
+        """批量下载更新脚本"""
+        self.status_label.setText("正在批量更新 %d 个脚本..." % len(scripts))
+        self.progress_bar.setVisible(True)
+        self.progress_bar.setRange(0, len(scripts))
+        self.progress_bar.setValue(0)
+        
+        self._batch_scripts = scripts
+        self._batch_index = 0
+        self._batch_download_next()
+    
+    def _batch_download_next(self):
+        """下载下一个批量脚本"""
+        if self._batch_index >= len(self._batch_scripts):
+            self.progress_bar.setVisible(False)
+            self.status_label.setText("批量更新完成！共更新 %d 个脚本" % len(self._batch_scripts))
+            QMessageBox.information(self, "完成", "批量更新完成！\n共更新 %d 个脚本" % len(self._batch_scripts))
+            return
+        
+        script = self._batch_scripts[self._batch_index]
+        script_file = script.get("script", "")
+        
+        url = self._get_github_url("%s/%s" % (SCRIPTS_PATH, script_file))
+        worker = NetworkWorker(url)
+        worker.finished.connect(lambda d, e: self._on_batch_script_downloaded(d, e, script))
+        self.workers.append(worker)
+        worker.start()
+    
+    def _on_batch_script_downloaded(self, data, error, script):
+        """批量脚本下载完成"""
+        if not error and data:
+            script_file = script.get("script", "")
+            save_path = os.path.join(self.local_cache_dir, script_file)
+            try:
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                with open(save_path, 'wb') as f:
+                    f.write(data)
+                
+                # 更新版本记录
+                script_name = script.get("name", "")
+                script_version = script.get("version", "1.0.0")
+                self._update_script_version(script_name, script_version)
+            except:
+                pass
+        
+        self._batch_index += 1
+        self.progress_bar.setValue(self._batch_index)
+        self.status_label.setText("正在更新: %s (%d/%d)" % (
+            script.get("name", ""), self._batch_index, len(self._batch_scripts)))
+        
+        # 下载下一个
+        QTimer.singleShot(100, self._batch_download_next)
+    
     def _on_script_selected(self, script_data):
         """脚本选中回调"""
         self.current_script = script_data
@@ -920,30 +1059,26 @@ class BsScriptHub(QWidget):
         # 更新本地版本显示
         if local_ver:
             self.local_version_label.setText("v" + local_ver)
-            self.local_version_label.setStyleSheet("color: #8bc34a;")  # 绿色
+            self.local_version_label.setStyleSheet("color: #8bc34a; font-size: 10px;")
         else:
             self.local_version_label.setText("未安装")
-            self.local_version_label.setStyleSheet("color: #888888;")  # 灰色
+            self.local_version_label.setStyleSheet("color: #666; font-size: 10px;")
         
         # 更新版本状态标签
         if not local_ver:
-            self.version_status_label.setText("📦 尚未安装此脚本")
-            self.version_status_label.setStyleSheet("color: #888888; background: #333333; font-weight: bold; padding: 4px 10px; border-radius: 3px;")
-            self.download_btn.setText("📥  下载安装")
+            self.version_status_label.setText("📦 未安装")
+            self.version_status_label.setStyleSheet("color: #888; font-size: 10px;")
+            self.download_btn.setText("📥 下载")
         else:
             cmp = compare_versions(local_ver, remote_ver)
             if cmp < 0:
-                self.version_status_label.setText("🔺 有新版本可用！ (v%s → v%s)" % (local_ver, remote_ver))
-                self.version_status_label.setStyleSheet("color: #fff; background: #ff9800; font-weight: bold; padding: 4px 10px; border-radius: 3px;")
-                self.download_btn.setText("📥  更新脚本")
+                self.version_status_label.setText("🔺 有更新 v%s→v%s" % (local_ver, remote_ver))
+                self.version_status_label.setStyleSheet("color: #ff9800; font-size: 10px; font-weight: bold;")
+                self.download_btn.setText("📥 更新")
             else:
-                installed_date = local_info.get("installed_date", "")
-                if installed_date:
-                    self.version_status_label.setText("✓ 已是最新版本 (安装于 %s)" % installed_date)
-                else:
-                    self.version_status_label.setText("✓ 已是最新版本")
-                self.version_status_label.setStyleSheet("color: #fff; background: #4caf50; font-weight: bold; padding: 4px 10px; border-radius: 3px;")
-                self.download_btn.setText("📥  重新下载")
+                self.version_status_label.setText("✓ 已是最新")
+                self.version_status_label.setStyleSheet("color: #4caf50; font-size: 10px;")
+                self.download_btn.setText("📥 重新下载")
         
         # 更新描述
         self.desc_text.setText(script_data.get("description", "暂无描述"))
@@ -954,6 +1089,28 @@ class BsScriptHub(QWidget):
             lbl = QLabel(kw)
             lbl.setObjectName("keywordLabel")
             self.keywords_layout.insertWidget(self.keywords_layout.count() - 1, lbl)
+        
+        # 更新发布地址
+        url = script_data.get("url", "")
+        if url:
+            # 截断显示过长的 URL
+            display_url = url if len(url) <= 40 else url[:37] + "..."
+            self.url_label.setText(display_url)
+            self.url_label.setToolTip(url)
+            self.url_label.setEnabled(True)
+            self.url_label.setStyleSheet("""
+                QPushButton { color: #7ecbff; font-size: 10px; text-decoration: underline; 
+                    text-align: left; padding: 0; border: none; background: transparent; }
+                QPushButton:hover { color: #a0d8ff; }
+            """)
+        else:
+            self.url_label.setText("无")
+            self.url_label.setToolTip("")
+            self.url_label.setEnabled(False)
+            self.url_label.setStyleSheet("""
+                QPushButton { color: #666; font-size: 10px; text-align: left; 
+                    padding: 0; border: none; background: transparent; }
+            """)
         
         # 启用按钮
         self.run_btn.setEnabled(True)
@@ -1139,8 +1296,8 @@ class BsScriptHub(QWidget):
             QMessageBox.warning(self, "执行失败", str(e))
     
     def _open_github(self):
-        """打开 GitHub 仓库"""
-        url = "https://github.com/AnimatorBullet/BsKeyTools/tree/main/_BsKeyTools/Scripts/BsScriptHub"
+        """打开 GitHub 仓库（根据当前分支）"""
+        url = self._get_github_page_url(SCRIPTS_PATH)
         QDesktopServices.openUrl(QUrl(url))
     
     def closeEvent(self, event):

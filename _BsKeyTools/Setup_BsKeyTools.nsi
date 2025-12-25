@@ -842,11 +842,11 @@ Function InstallVersionFiles
   Call AddBackslash
   Pop $R0
   
-  ; Scripts目录
+  ; Scripts目录（排除BsScriptHub，该目录内容从远程获取）
   CreateDirectory "$R0Scripts"
   ClearErrors
   SetOutPath "$R0Scripts"
-  File /r "Scripts\*.*"
+  File /r /x "BsScriptHub" "Scripts\*.*"
   ${If} ${Errors}
     MessageBox MB_ICONSTOP|MB_OK "复制Scripts文件夹失败，安装中止，可能需要关闭3dsMax后重试！"
     SetErrors
