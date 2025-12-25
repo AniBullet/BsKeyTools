@@ -1,12 +1,13 @@
 {
     "name": "ActorX 导入器",
-    "script": "ActorXImporter_BulletS.ms",
     "version": "1.38",
     "description": "ActorX 模型(psk)和动画(psa)导入工具\n\n支持导入 Unreal Engine 导出的 ActorX 格式文件，包括模型网格和骨骼动画。\n\n功能特性：\n- 支持 PSK/PSA 格式\n- 支持顶点色导入\n- 支持 PNG 贴图\n- 支持批量导入",
     "author": "Gildor",
-    "modifier": "Bullet.S",
-    "keywords": "ActorX,PSK,PSA,Unreal,导入,模型,动画",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": ["ActorX", "PSK", "PSA", "Unreal", "导入"],
+    "preview": "",
+    "script": "ActorXImporter_BulletS.ms",
     "url": "http://www.gildor.org/projects/unactorx",
     "tutorial": "https://space.bilibili.com/2031113/lists/560782"
 }
-

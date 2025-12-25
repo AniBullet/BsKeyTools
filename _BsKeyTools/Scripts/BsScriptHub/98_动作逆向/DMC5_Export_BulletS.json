@@ -1,12 +1,13 @@
 {
     "name": "鬼泣5动画导出",
-    "script": "DMC5_Export_BulletS.ms",
     "version": "2.0",
-    "description": "鬼泣5 (Devil May Cry 5) 动画批量导出工具\n\n将游戏动画批量导出为通用格式。\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
+    "description": "鬼泣5 动画批量导出工具\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
     "author": "Bullet.S",
-    "modifier": "",
-    "keywords": "鬼泣5,DMC5,Devil May Cry,批量导出,动画,Capcom",
+    "optimizer": "",
+    "modified_date": "",
+    "keywords": ["鬼泣5", "DMC5", "Capcom", "导出"],
+    "preview": "",
+    "script": "DMC5_Export_BulletS.ms",
     "url": "https://github.com/AniBullet/MotionReverse",
     "tutorial": "https://space.bilibili.com/2031113/lists/560782"
 }
-

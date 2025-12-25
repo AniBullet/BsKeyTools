@@ -1788,8 +1788,14 @@ class BsScriptHub(QDialog):
             QMessageBox.warning(self, "执行失败", str(e))
     
     def _open_github(self):
-        """打开 GitHub 仓库（根据当前分支）"""
-        url = self._get_github_page_url(SCRIPTS_PATH)
+        """打开 GitHub 源码页面（定位到具体脚本文件）"""
+        if self.current_script:
+            # 获取脚本的远程路径
+            script_path = self._get_script_remote_path(self.current_script)
+            url = self._get_github_page_url(script_path)
+        else:
+            # 没有选中脚本时打开脚本目录
+            url = self._get_github_page_url(SCRIPTS_PATH)
         QDesktopServices.openUrl(QUrl(url))
     
     def _open_cache_folder(self):

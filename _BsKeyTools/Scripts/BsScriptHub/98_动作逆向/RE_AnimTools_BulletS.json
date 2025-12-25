@@ -1,12 +1,13 @@
 {
     "name": "RE引擎动画工具",
-    "script": "RE_AnimTools_BulletS.ms",
     "version": "1.4",
-    "description": "RE Engine 游戏动画导入工具\n\n支持 Capcom RE 引擎游戏的动画文件导入。\n\n支持游戏：\n- 怪物猎人荒野 (MHWilds)\n- 怪物猎人崛起 (MHRise)\n- 怪物猎人崛起曙光 (MHR Sunbreak)\n\n需要配合 Noesis 使用。",
+    "description": "RE Engine 游戏动画导入工具\n\n支持 Capcom RE 引擎游戏的动画文件导入。\n\n支持游戏：\n- 怪物猎人荒野\n- 怪物猎人崛起\n- 怪物猎人崛起曙光\n\n需要配合 Noesis 使用。",
     "author": "Bullet.S",
-    "modifier": "",
-    "keywords": "RE引擎,怪物猎人,MHWilds,MHRise,动画导入,Capcom",
+    "optimizer": "",
+    "modified_date": "",
+    "keywords": ["RE引擎", "怪物猎人", "MHWilds", "Capcom"],
+    "preview": "",
+    "script": "RE_AnimTools_BulletS.ms",
     "url": "https://github.com/AniBullet/MotionReverse",
     "tutorial": "https://space.bilibili.com/2031113/lists/560782"
 }
-
