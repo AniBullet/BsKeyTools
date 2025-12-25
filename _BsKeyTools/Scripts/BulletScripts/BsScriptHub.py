@@ -917,8 +917,7 @@ class BsScriptHub(QDialog):
         """扫描完成"""
         self.progress_bar.setVisible(False)
         
-        # 移除空分类
-        self.categories_data = {k: v for k, v in self.categories_data.items() if v}
+        # 保留空分类，让用户知道有哪些类别可用
         
         # 保存到本地缓存
         cache_file = os.path.join(self.local_cache_dir, CACHE_INDEX_FILE)
