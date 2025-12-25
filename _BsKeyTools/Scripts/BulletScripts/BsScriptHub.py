@@ -48,8 +48,10 @@ except ImportError:
 try:
     from urllib.request import urlopen, Request
     from urllib.error import URLError, HTTPError
+    from urllib.parse import quote
 except ImportError:
     from urllib2 import urlopen, Request, URLError, HTTPError
+    from urllib import quote
 
 VERSION = "1.0"
 
@@ -402,7 +404,9 @@ class BsScriptHub(QDialog):
         """获取当前分支的 GitHub Raw URL (用于下载)"""
         base_url = "%s/%s" % (GITHUB_REPO_BASE, self.current_branch)
         if path:
-            return "%s/%s" % (base_url, path)
+            # 对中文路径进行 URL 编码
+            encoded_path = "/".join(quote(p, safe='') for p in path.split("/"))
+            return "%s/%s" % (base_url, encoded_path)
         return base_url
     
     def _get_github_page_url(self, path=""):
@@ -819,7 +823,9 @@ class BsScriptHub(QDialog):
         """获取 GitHub API URL"""
         base = "%s/%s" % (GITHUB_API_BASE, SCRIPTS_PATH)
         if path:
-            base = "%s/%s" % (base, path)
+            # 对中文路径进行 URL 编码
+            encoded_path = "/".join(quote(p, safe='') for p in path.split("/"))
+            base = "%s/%s" % (base, encoded_path)
         return "%s?ref=%s" % (base, self.current_branch)
     
     def _load_scripts_index(self):
