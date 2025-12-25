@@ -1,0 +1,21 @@
+{
+    "version": "1.0",
+    "last_updated": "2024-12-25",
+    "description": "BsScriptHub 远程脚本索引文件",
+    "repository": "https://github.com/AnimatorBullet/BsKeyTools",
+    "scripts": [
+        {
+            "name": "HelloWorld",
+            "version": "1.0.0",
+            "description": "这是一个示例脚本，用于演示 BsScriptHub 的功能。\n\n运行后会在控制台打印 \"HelloWorld\" 消息。\n\n这个脚本可以作为模板，帮助你创建自己的脚本配置。",
+            "author": "Bullet.S",
+            "optimizer": "",
+            "modified_date": "2024-12-25",
+            "keywords": ["示例", "测试", "入门", "HelloWorld"],
+            "category": "基础工具",
+            "preview": "HelloWorld_preview.png",
+            "script": "HelloWorld.ms"
+        }
+    ]
+}
+

@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-12-25 14:18:18
+ * @LastEditTime: 2025-12-25 16:24:22
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -69,16 +69,13 @@ catch(try(massagebox (getCurrentException()));catch();messagebox "打开 fnGetCo
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsSwitchBtnString.ms"))
 catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsSwitchBtnString.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 
--- 页签数量配置（可扩展）
+-- 页签数量和数组管理
 Global numToolTabs = 4
--- 统一数组管理
 Global arrToolTabs = for i = 1 to numToolTabs collect #()
 Global arrSourToolTabs = for i = 1 to numToolTabs collect #()
--- 向后兼容别名（通过函数访问）
 Global arrToolC1, arrToolC2, arrToolC3, arrToolC4
 Global arrSourToolC1, arrSourToolC2, arrSourToolC3, arrSourToolC4
 
--- 同步别名函数
 fn fnSyncToolTabAliases = 
 (
 	if arrToolTabs.count >= 1 then arrToolC1 = arrToolTabs[1]
@@ -92,15 +89,8 @@ fn fnSyncToolTabAliases =
 )
 fnSyncToolTabAliases()
 
--- 获取所有工具按钮
-fn fnGetAllToolButtons = 
-(
-	local result = #()
-	for arr in arrToolTabs do join result arr
-	result
-)
+fn fnGetAllToolButtons = (local result = #(); for arr in arrToolTabs do join result arr; result)
 
--- 获取所有页签按钮（在rollout加载后调用）
 Global arrTabButtons = #()
 
 Global rolBsKeyTools
@@ -177,13 +167,9 @@ fn fnPseudoNaturalSort a b =  --文件名排序新方法--https://forums.cgsocie
 iniAddToolbars  = fnGetConfig iniAddToolbars "BulletKeyToolsSet"  "ToolBarBtn" (iniAddToolbars as string)
 ----addToolBarButton在BsKeyToolsMenuBar.ms中
 -----------------------------------------------------------------------------------------------------
--- 临时排序用数组
 global arrToolNewTabs = for i = 1 to numToolTabs collect #()
-global arrToolNewC1 = #();global arrToolNewC2 = #();global arrToolNewC3 = #();global arrToolNewC4 = #();
-global arrToolsAll
-global arrToolsNameAll
--- 工具列表框数组（在 rolCustomBtn 中初始化）
-global arrMlbToolBtns = #()
+global arrToolNewC1 = #(), arrToolNewC2 = #(), arrToolNewC3 = #(), arrToolNewC4 = #()
+global arrToolsAll, arrToolsNameAll, arrMlbToolBtns = #()
 
 rollout rolCustomBtn "自定义功能按钮排序" width:660 height:240
 (
@@ -241,17 +227,15 @@ rollout rolCustomBtn "自定义功能按钮排序" width:660 height:240
 	button btnSwapItems "交换选中" width:90 height:26 pos:[195,205] tooltip:"交换任意两个选中项"
 	button btnSetBtn "✓ 应用并关闭" width:120 height:26 pos:[535,205] tooltip:"保存并关闭"
 	
-	-- 左列和右列的listbox数组
 	local arrLeftLists = #()
 	local arrRightLists = #()
+	local arrGroupBoxes = #()
 	
 	-- 更新页签标题
 	fn fnUpdateLabels =
 	(
-		gbxTab1.caption = if arrTabButtons.count >= 1 then arrTabButtons[1].caption else "页签1"
-		gbxTab2.caption = if arrTabButtons.count >= 2 then arrTabButtons[2].caption else "页签2"
-		gbxTab3.caption = if arrTabButtons.count >= 3 then arrTabButtons[3].caption else "页签3"
-		gbxTab4.caption = if arrTabButtons.count >= 4 then arrTabButtons[4].caption else "页签4"
+		for i = 1 to arrGroupBoxes.count do
+			arrGroupBoxes[i].caption = if arrTabButtons.count >= i then arrTabButtons[i].caption else ("页签" + i as string)
 	)
 	
 	-- 获取页签的完整12个按钮（左列6个+右列6个交叉排列）
@@ -344,7 +328,7 @@ rollout rolCustomBtn "自定义功能按钮排序" width:660 height:240
 	(
 		-- 收集所有选中项
 		local selections = #() -- #(#(tabIdx, isLeft, idx, item), ...)
-		for i = 1 to 4 do
+		for i = 1 to arrLeftLists.count do
 		(
 			if arrLeftLists[i].selection != 0 then
 				append selections #(i, true, arrLeftLists[i].selection, arrLeftLists[i].selected)
@@ -379,16 +363,14 @@ rollout rolCustomBtn "自定义功能按钮排序" width:660 height:240
 	fn fnSaveBtnSort =
 	(
 		local arrToolsNewAll = #()
-		for i = 1 to 4 do
+		for i = 1 to arrLeftLists.count do
 		(
 			local tabItems = fnGetTabItems i
-			arrToolNewTabs[i] = tabItems
+			if i <= arrToolNewTabs.count then arrToolNewTabs[i] = tabItems
 			join arrToolsNewAll tabItems
 		)
-		if arrToolNewTabs.count >= 1 then arrToolNewC1 = arrToolNewTabs[1]
-		if arrToolNewTabs.count >= 2 then arrToolNewC2 = arrToolNewTabs[2]
-		if arrToolNewTabs.count >= 3 then arrToolNewC3 = arrToolNewTabs[3]
-		if arrToolNewTabs.count >= 4 then arrToolNewC4 = arrToolNewTabs[4]
+		arrToolNewC1 = arrToolNewTabs[1]; arrToolNewC2 = arrToolNewTabs[2]
+		arrToolNewC3 = arrToolNewTabs[3]; arrToolNewC4 = arrToolNewTabs[4]
 		
 		local arrIniToolBtnAllNew = #()
 		for i in arrToolsNewAll do 
@@ -402,7 +384,7 @@ rollout rolCustomBtn "自定义功能按钮排序" width:660 height:240
 	-- 加载当前配置
 	fn fnLoadCurrentConfig =
 	(
-		for i = 1 to 4 do
+		for i = 1 to arrLeftLists.count do
 		(
 			if i <= arrToolTabs.count then
 			(
@@ -417,9 +399,9 @@ rollout rolCustomBtn "自定义功能按钮排序" width:660 height:240
 	(
 		arrLeftLists = #(mlbTab1L, mlbTab2L, mlbTab3L, mlbTab4L)
 		arrRightLists = #(mlbTab1R, mlbTab2R, mlbTab3R, mlbTab4R)
-		arrMlbToolBtns = #()  -- 不再使用
+		arrGroupBoxes = #(gbxTab1, gbxTab2, gbxTab3, gbxTab4)
 		arrToolNewTabs = for i = 1 to numToolTabs collect #()
-		arrToolNewC1 = #();arrToolNewC2 = #();arrToolNewC3 = #();arrToolNewC4 = #()
+		arrToolNewC1 = #(); arrToolNewC2 = #(); arrToolNewC3 = #(); arrToolNewC4 = #()
 		arrToolsAll = fnGetAllToolButtons()
 		arrToolsNameAll = for i in arrToolsAll collect i.caption
 		fnLoadCurrentConfig()
@@ -2569,7 +2551,7 @@ rollout rolBsKeyTools "" width:355 height:250
 	fn fnSwitchToolBtnName =
 	(
 		ToolTipObj = dotnetobject "System.Windows.Forms.ToolTip"
-		ToolTipObj.SetToolTip btnelement "手指解压放松按钮"
+		ToolTipObj.SetToolTip btnelement "打开远程脚本仓库 (BsScriptHub)"
 
 		-- 使用循环设置页签按钮文字
 		for i = 1 to arrTabButtons.count do
@@ -4932,9 +4914,13 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on btnElement mouseDown senderArg arg do
 	(
+		-- 切换图标
 		iconCurStr = (fnChangeBtnElement iconCurStr)
 		iconElement = (iconPath + @"\\" + iconCurStr)
 		btnElement.image = (fnDotnetBitmap iconElement)
+		-- 打开远程脚本仓库
+		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsScriptHub.ms"))
+		catch(try(messagebox (getCurrentException()));catch();messagebox "打开 BsScriptHub.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnPrimogem mouseDown senderArg arg do
