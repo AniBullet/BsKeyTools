@@ -714,15 +714,14 @@ class BsScriptHub(QDialog):
         # 帮助教程
         info_layout.addWidget(QLabel("教程:"), 7, 0)
         info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
-        self.tutorial_label = QPushButton("📺 B站教程合集")
+        self.tutorial_label = QPushButton("无")
         self.tutorial_label.setFlat(True)
         self.tutorial_label.setStyleSheet("""
-            QPushButton { color: #fb7299; font-size: 10px; text-decoration: underline; 
-                text-align: left; padding: 0; border: none; background: transparent; }
-            QPushButton:hover { color: #ff9ab5; }
+            QPushButton { color: #666; font-size: 10px; text-align: left; 
+                padding: 0; border: none; background: transparent; }
         """)
         self.tutorial_label.setCursor(Qt.PointingHandCursor)
-        self.tutorial_label.clicked.connect(self._open_help)
+        self.tutorial_label.clicked.connect(self._on_tutorial_clicked)
         info_layout.addWidget(self.tutorial_label, 7, 1, 1, 3)
         
         right_layout.addWidget(info_widget)
@@ -774,6 +773,13 @@ class BsScriptHub(QDialog):
             url = self.current_script.get("url", "")
             if url:
                 QDesktopServices.openUrl(QUrl(url))
+    
+    def _on_tutorial_clicked(self):
+        """点击教程地址时打开链接"""
+        if self.current_script:
+            tutorial = self.current_script.get("tutorial", "")
+            if tutorial:
+                QDesktopServices.openUrl(QUrl(tutorial))
     
     def _open_help(self):
         """打开帮助页面"""
@@ -1316,6 +1322,26 @@ class BsScriptHub(QDialog):
             self.url_label.setToolTip("")
             self.url_label.setEnabled(False)
             self.url_label.setStyleSheet("""
+                QPushButton { color: #666; font-size: 10px; text-align: left; 
+                    padding: 0; border: none; background: transparent; }
+            """)
+        
+        # 更新教程地址
+        tutorial = script_data.get("tutorial", "")
+        if tutorial:
+            self.tutorial_label.setText("📺 查看教程")
+            self.tutorial_label.setToolTip(tutorial)
+            self.tutorial_label.setEnabled(True)
+            self.tutorial_label.setStyleSheet("""
+                QPushButton { color: #fb7299; font-size: 10px; text-decoration: underline; 
+                    text-align: left; padding: 0; border: none; background: transparent; }
+                QPushButton:hover { color: #ff9ab5; }
+            """)
+        else:
+            self.tutorial_label.setText("无")
+            self.tutorial_label.setToolTip("")
+            self.tutorial_label.setEnabled(False)
+            self.tutorial_label.setStyleSheet("""
                 QPushButton { color: #666; font-size: 10px; text-align: left; 
                     padding: 0; border: none; background: transparent; }
             """)
