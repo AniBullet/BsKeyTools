@@ -207,12 +207,13 @@ class NetworkWorker(QThread):
 
 class CollapsibleCategory(QWidget):
     """可折叠的分类组件"""
-    toggled = Signal(bool)
+    toggled = Signal(str, bool)  # (category_key, expanded)
     
-    def __init__(self, title, parent=None):
+    def __init__(self, title, category_key="", parent=None):
         super().__init__(parent)
         self.expanded = True
         self.scripts = []
+        self.category_key = category_key or title  # 用于保存状态的 key
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -253,7 +254,15 @@ class CollapsibleCategory(QWidget):
         self.content.setVisible(self.expanded)
         arrow = "▼" if self.expanded else "▶"
         self.header.setText(arrow + " " + self.title)
-        self.toggled.emit(self.expanded)
+        self.toggled.emit(self.category_key, self.expanded)
+    
+    def set_expanded(self, expanded):
+        """设置展开状态（不触发信号）"""
+        if self.expanded != expanded:
+            self.expanded = expanded
+            self.content.setVisible(expanded)
+            arrow = "▼" if expanded else "▶"
+            self.header.setText(arrow + " " + self.title)
     
     def add_script_item(self, script_btn):
         self.content_layout.addWidget(script_btn)
@@ -395,6 +404,9 @@ class BsScriptHub(QDialog):
         self._load_config()  # 加载窗口配置
         self.current_branch = self.config.get("current_branch", DEFAULT_BRANCH)  # 从配置加载分支
         self.detail_visible = self.config.get("detail_visible", False)  # 默认收起
+        self.category_states = self.config.get("category_states", {})  # 分类展开状态
+        self.last_selected_script = self.config.get("last_selected_script", None)  # 上次选中的脚本
+        self.saved_window_pos = self.config.get("window_pos", None)  # 窗口位置
         
         # 设置窗口标志：Dialog 类型跟随Max
         self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
@@ -467,6 +479,49 @@ class BsScriptHub(QDialog):
         
         self.setFixedWidth(width)
         self.resize(width, WINDOW_HEIGHT)
+        
+        # 恢复窗口位置
+        self._restore_window_position()
+    
+    def _restore_window_position(self):
+        """恢复窗口位置（适配多显示器）"""
+        if not self.saved_window_pos:
+            return
+        
+        x = self.saved_window_pos.get("x", 0)
+        y = self.saved_window_pos.get("y", 0)
+        
+        # 检查位置是否在可见屏幕范围内
+        if self._is_position_visible(x, y):
+            self.move(x, y)
+    
+    def _is_position_visible(self, x, y):
+        """检查位置是否在任意显示器的可见范围内"""
+        # 获取所有屏幕
+        app = QApplication.instance()
+        if not app:
+            return True  # 无法检查，默认可见
+        
+        screens = app.screens()
+        if not screens:
+            return True
+        
+        # 检查位置是否在任一屏幕内
+        for screen in screens:
+            geo = screen.availableGeometry()
+            # 只要窗口左上角在某个屏幕范围内即可
+            if (geo.x() <= x < geo.x() + geo.width() and
+                geo.y() <= y < geo.y() + geo.height()):
+                return True
+        
+        return False
+    
+    def _save_window_position(self):
+        """保存窗口位置"""
+        pos = self.pos()
+        self.saved_window_pos = {"x": pos.x(), "y": pos.y()}
+        self.config["window_pos"] = self.saved_window_pos
+        self._save_config()
     
     def _load_local_versions(self):
         """加载本地版本记录"""
@@ -1021,7 +1076,13 @@ class BsScriptHub(QDialog):
         # 按分类构建 UI
         for cat_name, scripts in self.categories_data.items():
             display_name = self._get_display_category_name(cat_name)
-            cat_widget = CollapsibleCategory(display_name)
+            cat_widget = CollapsibleCategory(display_name, category_key=cat_name)
+            cat_widget.toggled.connect(self._on_category_toggled)
+            
+            # 恢复保存的展开状态
+            if cat_name in self.category_states:
+                cat_widget.set_expanded(self.category_states[cat_name])
+            
             self.categories[cat_name] = cat_widget  # key 保持原名用于路径匹配
             
             # scripts 是脚本信息对象列表 (可能为空)
@@ -1047,6 +1108,35 @@ class BsScriptHub(QDialog):
             self.categories_layout.addWidget(cat_widget)
         
         self.categories_layout.addStretch()
+        
+        # 恢复上次选中的脚本
+        self._restore_last_selection()
+    
+    def _restore_last_selection(self):
+        """恢复上次选中的脚本"""
+        if not self.last_selected_script:
+            return
+        
+        target_name = self.last_selected_script.get("name", "")
+        target_category = self.last_selected_script.get("category", "")
+        
+        if not target_name:
+            return
+        
+        # 在分类中查找并选中脚本
+        for cat_name, cat_widget in self.categories.items():
+            for btn in cat_widget.scripts:
+                script_data = btn.script_data
+                if script_data.get("name") == target_name:
+                    # 找到了，触发选中
+                    QTimer.singleShot(100, lambda sd=script_data: self._on_script_selected(sd))
+                    return
+    
+    def _on_category_toggled(self, category_key, expanded):
+        """分类展开/收缩时保存状态"""
+        self.category_states[category_key] = expanded
+        self.config["category_states"] = self.category_states
+        self._save_config()
     
     def _filter_scripts(self, text):
         """过滤脚本"""
@@ -1338,6 +1428,11 @@ class BsScriptHub(QDialog):
         
         # 记录当前期望加载的脚本（用于防止异步回调覆盖）
         self._expected_script = script_name
+        
+        # 保存选中的脚本（立即保存配置）
+        self.last_selected_script = {"name": script_name, "category": category}
+        self.config["last_selected_script"] = self.last_selected_script
+        self._save_config()
         
         # 如果没有详细信息（只有 name 和 category），需要懒加载
         if "version" not in script_data and category:
@@ -1730,12 +1825,27 @@ class BsScriptHub(QDialog):
         except Exception as e:
             QMessageBox.warning(self, "错误", "清空缓存失败：\n" + str(e))
     
+    def moveEvent(self, event):
+        """窗口移动时保存位置"""
+        super().moveEvent(event)
+        # 使用延迟保存，避免频繁写入
+        if not hasattr(self, '_move_timer'):
+            self._move_timer = QTimer(self)
+            self._move_timer.setSingleShot(True)
+            self._move_timer.timeout.connect(self._save_window_position)
+        self._move_timer.start(500)  # 500ms 延迟
+    
     def closeEvent(self, event):
+        # 保存窗口位置
+        self._save_window_position()
         # 停止所有工作线程
         for worker in self.workers:
             if worker.isRunning():
                 worker.quit()
                 worker.wait(1000)
+        # 清理全局变量
+        global _win
+        _win = None
         self.closed.emit()
         super().closeEvent(event)
     
@@ -1752,14 +1862,23 @@ class BsScriptHub(QDialog):
 _win = None
 
 def show_window():
-    """显示窗口"""
+    """显示窗口（单例模式）"""
     global _win
-    if _win:
+    
+    # 如果窗口已存在且有效，直接激活
+    if _win is not None:
         try:
-            _win.close()
-            _win.deleteLater()
-        except:
-            pass
+            # 检查窗口是否仍然有效
+            _win.isVisible()  # 如果窗口已删除，这会抛出异常
+            _win.show()
+            _win.raise_()
+            _win.activateWindow()
+            return _win
+        except (RuntimeError, AttributeError):
+            # 窗口已被删除
+            _win = None
+    
+    # 创建新窗口
     _win = BsScriptHub()
     _win.show()
     _win.raise_()
