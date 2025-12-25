@@ -304,17 +304,17 @@ class ScriptButton(QPushButton):
         """更新显示"""
         name = self.script_data.get("name", "未知脚本")
         
-        # 根据状态添加标记
+        # 根据状态添加标记 (已下载为普通样式，未下载/有更新为特殊样式)
         if self.version_status == self.STATUS_UPDATE_AVAILABLE:
-            display_name = "🔺 " + name  # 有更新
+            display_name = "🔺 " + name  # 有更新 - 特殊样式
             border_color = "#ff9800"  # 橙色边框
             bg_color = "#3d3520"
-        elif self.version_status == self.STATUS_UP_TO_DATE:
-            display_name = "✓ " + name  # 已是最新
-            border_color = "#4caf50"  # 绿色边框
-            bg_color = "#2d3d2d"
+        elif self.version_status == self.STATUS_NOT_INSTALLED:
+            display_name = "○ " + name  # 未安装 - 特殊样式
+            border_color = "#666666"  # 灰色边框
+            bg_color = "#2a2a2a"
         else:
-            display_name = name  # 未安装
+            display_name = name  # 已是最新 - 普通样式(无标记)
             border_color = "#404040"
             bg_color = "#333333"
         
@@ -711,6 +711,20 @@ class BsScriptHub(QDialog):
         self.url_label.clicked.connect(self._on_url_clicked)
         info_layout.addWidget(self.url_label, 6, 1, 1, 3)
         
+        # 帮助教程
+        info_layout.addWidget(QLabel("教程:"), 7, 0)
+        info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
+        self.tutorial_label = QPushButton("📺 B站教程合集")
+        self.tutorial_label.setFlat(True)
+        self.tutorial_label.setStyleSheet("""
+            QPushButton { color: #fb7299; font-size: 10px; text-decoration: underline; 
+                text-align: left; padding: 0; border: none; background: transparent; }
+            QPushButton:hover { color: #ff9ab5; }
+        """)
+        self.tutorial_label.setCursor(Qt.PointingHandCursor)
+        self.tutorial_label.clicked.connect(self._open_help)
+        info_layout.addWidget(self.tutorial_label, 7, 1, 1, 3)
+        
         right_layout.addWidget(info_widget)
         
         # 描述区域
@@ -964,6 +978,9 @@ class BsScriptHub(QDialog):
             if item.widget():
                 item.widget().deleteLater()
         
+        # 清空并重建 scripts_data
+        self.scripts_data = []
+        
         # 按分类构建 UI
         for cat_name, scripts in self.categories_data.items():
             cat_widget = CollapsibleCategory(cat_name)
@@ -979,6 +996,9 @@ class BsScriptHub(QDialog):
                     else:
                         # 兼容旧格式（字符串）
                         script_data = {"name": script_info, "category": cat_name}
+                    
+                    # 添加到 scripts_data 供批量更新使用
+                    self.scripts_data.append(script_data)
                     
                     btn = ScriptButton(script_data, self.local_versions)
                     btn.script_selected.connect(self._on_script_selected)
@@ -1081,6 +1101,12 @@ class BsScriptHub(QDialog):
         if url:
             action_url = menu.addAction("🌐 打开发布地址")
             action_url.triggered.connect(lambda: QDesktopServices.openUrl(QUrl(url)))
+        
+        menu.addSeparator()
+        
+        # 打开缓存目录
+        action_cache = menu.addAction("📁 打开缓存目录")
+        action_cache.triggered.connect(self._open_cache_folder)
         
         menu.exec_(pos)
     
@@ -1492,6 +1518,20 @@ class BsScriptHub(QDialog):
         """打开 GitHub 仓库（根据当前分支）"""
         url = self._get_github_page_url(SCRIPTS_PATH)
         QDesktopServices.openUrl(QUrl(url))
+    
+    def _open_cache_folder(self):
+        """打开本地缓存目录"""
+        import subprocess
+        cache_dir = self.local_cache_dir
+        if os.path.exists(cache_dir):
+            if sys.platform == "win32":
+                os.startfile(cache_dir)
+            elif sys.platform == "darwin":
+                subprocess.run(["open", cache_dir])
+            else:
+                subprocess.run(["xdg-open", cache_dir])
+        else:
+            QMessageBox.information(self, "提示", "缓存目录不存在：\n" + cache_dir)
     
     def closeEvent(self, event):
         # 停止所有工作线程
