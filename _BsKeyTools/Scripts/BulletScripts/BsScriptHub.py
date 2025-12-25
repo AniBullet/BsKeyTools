@@ -64,9 +64,10 @@ GITHUB_PAGE_BASE = "https://github.com/%s/%s" % (GITHUB_OWNER, GITHUB_REPO)
 GITHUB_BRANCHES = ["main", "dev"]  # 可用分支
 DEFAULT_BRANCH = "main"
 SCRIPTS_PATH = "_BsKeyTools/Scripts/BsScriptHub"
+INDEX_FILE = "scripts_index.json"  # 远程索引文件
 LOCAL_VERSIONS_FILE = "local_versions.json"  # 本地版本记录文件
 CONFIG_FILE = "config.json"  # 窗口配置文件
-CACHE_INDEX_FILE = "cached_index.json"  # 本地缓存的目录结构
+CACHE_INDEX_FILE = "cached_index.json"  # 本地缓存的索引
 
 # 窗口尺寸配置
 LEFT_PANEL_WIDTH = 250  # 左侧面板宽度
@@ -829,107 +830,47 @@ class BsScriptHub(QDialog):
         return "%s?ref=%s" % (base, self.current_branch)
     
     def _load_scripts_index(self):
-        """通过 GitHub API 自动扫描目录结构"""
+        """下载远程脚本索引文件"""
         branch_text = " [%s]" % self.current_branch if self.current_branch != "main" else ""
-        self.status_label.setText("正在扫描远程仓库%s..." % branch_text)
+        self.status_label.setText("正在加载脚本索引%s..." % branch_text)
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, 0)  # 无限进度
         
-        # 使用 GitHub API 获取目录列表
-        url = self._get_github_api_url()
+        # 直接下载 scripts_index.json
+        url = self._get_github_url("%s/%s" % (SCRIPTS_PATH, INDEX_FILE))
         worker = NetworkWorker(url)
-        worker.finished.connect(self._on_repo_scanned)
+        worker.finished.connect(self._on_index_loaded)
         self.workers.append(worker)
         worker.start()
     
-    def _on_repo_scanned(self, data, error):
-        """仓库扫描完成，获取分类列表"""
-        if error:
-            self.progress_bar.setVisible(False)
-            self.status_label.setText("扫描失败: " + error)
-            self._load_local_cache()
-            return
-        
-        try:
-            items = json.loads(data.decode('utf-8'))
-            
-            # 筛选出文件夹（分类）
-            self.categories_data = {}
-            self._pending_categories = []
-            
-            for item in items:
-                if item.get("type") == "dir":
-                    cat_name = item.get("name", "")
-                    if cat_name and not cat_name.startswith("."):
-                        self._pending_categories.append(cat_name)
-                        self.categories_data[cat_name] = []
-            
-            if not self._pending_categories:
-                self.progress_bar.setVisible(False)
-                self.status_label.setText("未找到任何分类")
-                return
-            
-            # 开始扫描每个分类
-            self._scan_index = 0
-            self._scan_next_category()
-            
-        except Exception as e:
-            self.progress_bar.setVisible(False)
-            self.status_label.setText("解析失败: " + str(e))
-            self._load_local_cache()
-    
-    def _scan_next_category(self):
-        """扫描下一个分类"""
-        if self._scan_index >= len(self._pending_categories):
-            # 全部扫描完成
-            self._on_scan_complete()
-            return
-        
-        cat_name = self._pending_categories[self._scan_index]
-        self.status_label.setText("正在扫描分类: %s..." % cat_name)
-        
-        url = self._get_github_api_url(cat_name)
-        worker = NetworkWorker(url)
-        worker.finished.connect(lambda d, e: self._on_category_scanned(d, e, cat_name))
-        self.workers.append(worker)
-        worker.start()
-    
-    def _on_category_scanned(self, data, error, cat_name):
-        """分类扫描完成"""
-        if not error and data:
-            try:
-                items = json.loads(data.decode('utf-8'))
-                
-                # 筛选出 .json 文件（脚本配置）
-                for item in items:
-                    if item.get("type") == "file":
-                        name = item.get("name", "")
-                        if name.endswith(".json"):
-                            script_name = name[:-5]  # 去掉 .json
-                            self.categories_data[cat_name].append(script_name)
-            except:
-                pass
-        
-        self._scan_index += 1
-        self._scan_next_category()
-    
-    def _on_scan_complete(self):
-        """扫描完成"""
+    def _on_index_loaded(self, data, error):
+        """索引加载完成"""
         self.progress_bar.setVisible(False)
         
-        # 保留空分类，让用户知道有哪些类别可用
+        if error:
+            self.status_label.setText("加载失败: " + error)
+            self._load_local_cache()
+            return
         
-        # 保存到本地缓存
-        cache_file = os.path.join(self.local_cache_dir, CACHE_INDEX_FILE)
         try:
-            with open(cache_file, 'w', encoding='utf-8') as f:
-                json.dump({"categories": self.categories_data}, f, ensure_ascii=False, indent=2)
-        except:
-            pass
-        
-        self._build_categories()
-        total_scripts = sum(len(scripts) for scripts in self.categories_data.values())
-        self.status_label.setText("已加载 %d 个脚本，%d 个分类" % (total_scripts, len(self.categories_data)))
+            index_data = json.loads(data.decode('utf-8'))
+            self.categories_data = index_data.get("categories", {})
+            
+            # 保存到本地缓存
+            cache_file = os.path.join(self.local_cache_dir, CACHE_INDEX_FILE)
+            try:
+                with open(cache_file, 'w', encoding='utf-8') as f:
+                    json.dump(index_data, f, ensure_ascii=False, indent=2)
+            except:
+                pass
+            
+            self._build_categories()
+            total_scripts = sum(len(scripts) for scripts in self.categories_data.values())
+            self.status_label.setText("已加载 %d 个脚本，%d 个分类" % (total_scripts, len(self.categories_data)))
+            
+        except Exception as e:
+            self.status_label.setText("解析索引失败: " + str(e))
+            self._load_local_cache()
     
     def _load_local_cache(self):
         """加载本地缓存"""
@@ -940,10 +881,11 @@ class BsScriptHub(QDialog):
                     index_data = json.load(f)
                 self.categories_data = index_data.get("categories", {})
                 self._build_categories()
-                total_scripts = sum(len(scripts) for scripts in self.categories_data.values())
+                total_scripts = sum(len(scripts) if isinstance(scripts, list) else 0 
+                                   for scripts in self.categories_data.values())
                 self.status_label.setText("已从缓存加载 %d 个脚本 (离线模式)" % total_scripts)
-            except:
-                self.status_label.setText("无可用数据")
+            except Exception as e:
+                self.status_label.setText("缓存加载失败: " + str(e))
         else:
             self.status_label.setText("无可用数据，请检查网络连接")
     
@@ -1023,22 +965,26 @@ class BsScriptHub(QDialog):
                 item.widget().deleteLater()
         
         # 按分类构建 UI
-        for cat_name, script_names in self.categories_data.items():
-            # 跳过空分类
-            if not script_names:
-                continue
-                
+        for cat_name, scripts in self.categories_data.items():
             cat_widget = CollapsibleCategory(cat_name)
             self.categories[cat_name] = cat_widget
             
-            for script_name in script_names:
-                # 创建简化的脚本数据（只有名称和分类）
-                script_data = {"name": script_name, "category": cat_name}
-                btn = ScriptButton(script_data, self.local_versions)
-                btn.script_selected.connect(self._on_script_selected)
-                btn.script_run.connect(self._on_script_run)
-                btn.script_context_menu.connect(self._show_script_context_menu)
-                cat_widget.add_script_item(btn)
+            # scripts 是脚本信息对象列表 (可能为空)
+            if isinstance(scripts, list):
+                for script_info in scripts:
+                    # script_info 是完整的脚本数据对象
+                    if isinstance(script_info, dict):
+                        script_data = script_info.copy()
+                        script_data["category"] = cat_name  # 确保有分类信息
+                    else:
+                        # 兼容旧格式（字符串）
+                        script_data = {"name": script_info, "category": cat_name}
+                    
+                    btn = ScriptButton(script_data, self.local_versions)
+                    btn.script_selected.connect(self._on_script_selected)
+                    btn.script_run.connect(self._on_script_run)
+                    btn.script_context_menu.connect(self._show_script_context_menu)
+                    cat_widget.add_script_item(btn)
             
             self.categories_layout.addWidget(cat_widget)
         
