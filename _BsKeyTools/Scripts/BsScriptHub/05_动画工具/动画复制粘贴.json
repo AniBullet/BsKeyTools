@@ -1,0 +1,18 @@
+{
+    "name": "动画复制粘贴",
+    "version": "1.0",
+    "description": "高级动画复制粘贴工具，支持跨对象、跨场景操作",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "动画",
+        "复制",
+        "粘贴",
+        "关键帧"
+    ],
+    "preview": "",
+    "script": "动画复制粘贴.ms",
+    "url": "",
+    "tutorial": ""
+}

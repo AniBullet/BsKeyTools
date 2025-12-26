@@ -1,0 +1,18 @@
+{
+    "name": "UI布局工具",
+    "version": "1.0",
+    "description": "MaxScript界面布局辅助工具",
+    "author": "HPK",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "开发",
+        "UI",
+        "布局",
+        "界面"
+    ],
+    "preview": "",
+    "script": "UI布局工具.ms",
+    "url": "",
+    "tutorial": ""
+}

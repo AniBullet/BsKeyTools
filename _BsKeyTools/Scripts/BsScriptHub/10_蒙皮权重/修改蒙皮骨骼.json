@@ -1,0 +1,18 @@
+{
+    "name": "修改蒙皮骨骼",
+    "version": "1.0",
+    "description": "批量修改蒙皮骨骼设置",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "蒙皮",
+        "骨骼",
+        "修改",
+        "Skin"
+    ],
+    "preview": "",
+    "script": "修改蒙皮骨骼.ms",
+    "url": "",
+    "tutorial": ""
+}

@@ -1,0 +1,18 @@
+{
+    "name": "批量降版本",
+    "version": "1.0",
+    "description": "批量将Max文件降低版本保存",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "导入",
+        "导出",
+        "版本",
+        "批量"
+    ],
+    "preview": "",
+    "script": "批量降版本.ms",
+    "url": "",
+    "tutorial": ""
+}

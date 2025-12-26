@@ -1,0 +1,18 @@
+{
+    "name": "蒙皮工具集",
+    "version": "1.0",
+    "description": "蒙皮相关工具集合，包含多种实用功能",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "蒙皮",
+        "权重",
+        "Skin",
+        "工具"
+    ],
+    "preview": "",
+    "script": "蒙皮工具集.ms",
+    "url": "",
+    "tutorial": ""
+}

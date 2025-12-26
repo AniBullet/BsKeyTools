@@ -1,0 +1,18 @@
+{
+    "name": "扭曲骨骼",
+    "version": "1.0",
+    "description": "创建扭曲骨骼系统，改善关节变形效果",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "绑定",
+        "扭曲",
+        "Twist",
+        "骨骼"
+    ],
+    "preview": "",
+    "script": "扭曲骨骼.ms",
+    "url": "",
+    "tutorial": ""
+}

@@ -1,0 +1,18 @@
+{
+    "name": "多方向渲染工具",
+    "version": "1.0",
+    "description": "从多个角度批量渲染场景",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "渲染",
+        "多角度",
+        "批量",
+        "输出"
+    ],
+    "preview": "",
+    "script": "多方向渲染工具.ms",
+    "url": "",
+    "tutorial": ""
+}

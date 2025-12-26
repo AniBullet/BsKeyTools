@@ -1,0 +1,18 @@
+{
+    "name": "动画对齐工具",
+    "version": "1.0",
+    "description": "对齐多个对象的动画关键帧",
+    "author": "Alex",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "动画",
+        "对齐",
+        "Align",
+        "关键帧"
+    ],
+    "preview": "",
+    "script": "动画对齐工具.ms",
+    "url": "",
+    "tutorial": ""
+}

@@ -1,0 +1,18 @@
+{
+    "name": "嵌套图层管理",
+    "version": "1.0",
+    "description": "支持嵌套结构的高级图层管理工具",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "场景",
+        "图层",
+        "Layer",
+        "嵌套"
+    ],
+    "preview": "",
+    "script": "嵌套图层管理.ms",
+    "url": "",
+    "tutorial": ""
+}

@@ -1,0 +1,18 @@
+{
+    "name": "轨迹编辑器",
+    "version": "1.0",
+    "description": "可视化编辑运动轨迹，支持轨迹修改和平滑",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "动画",
+        "轨迹",
+        "路径",
+        "编辑"
+    ],
+    "preview": "",
+    "script": "轨迹编辑器.ms",
+    "url": "",
+    "tutorial": ""
+}

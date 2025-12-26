@@ -1,0 +1,18 @@
+{
+    "name": "批量导入转换",
+    "version": "1.0",
+    "description": "批量导入文件并转换格式",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "导入",
+        "导出",
+        "批量",
+        "转换"
+    ],
+    "preview": "",
+    "script": "批量导入转换.ms",
+    "url": "",
+    "tutorial": ""
+}

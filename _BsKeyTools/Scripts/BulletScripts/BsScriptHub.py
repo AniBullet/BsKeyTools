@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
 """
 BsScriptHub v1.0 - 远程脚本集合平台
 Author: Bullet.S
 Compatibility: 3ds Max 2020+ (PySide2/PySide6)
 """
+from __future__ import unicode_literals
 
 import os
 import sys
+import io
 import json
 import re
 import tempfile
@@ -49,10 +50,34 @@ except ImportError:
 try:
     from urllib.request import urlopen, Request
     from urllib.error import URLError, HTTPError
-    from urllib.parse import quote
+    from urllib.parse import quote as _quote
+    PY2 = False
 except ImportError:
     from urllib2 import urlopen, Request, URLError, HTTPError
-    from urllib import quote
+    from urllib import quote as _quote
+    PY2 = True
+
+def makedirs_safe(path):
+    """创建目录 - 兼容 Python 2 (没有 exist_ok 参数)"""
+    if path and not os.path.exists(path):
+        try:
+            os.makedirs(path)
+        except OSError:
+            pass
+
+def url_quote(s):
+    """URL 编码 - 兼容 Python 2/3 和中文字符"""
+    if PY2:
+        # Python 2: 必须是 byte string
+        # noinspection PyUnresolvedReferences
+        if isinstance(s, unicode):  # noqa: F821 - unicode exists in Python 2
+            s = s.encode('utf-8')
+        elif not isinstance(s, str):
+            s = str(s)
+        return _quote(s, safe=b'')
+    else:
+        # Python 3: 直接处理
+        return _quote(str(s), safe='')
 
 VERSION = "1.0"
 
@@ -79,18 +104,18 @@ WINDOW_WIDTH_COLLAPSED = LEFT_PANEL_WIDTH + MARGIN  # 折叠宽度
 WINDOW_WIDTH_EXPANDED = LEFT_PANEL_WIDTH + RIGHT_PANEL_WIDTH + SPACING + MARGIN  # 展开宽度
 WINDOW_HEIGHT = 550
 
-# 单例窗口管理 - 使用 builtins 存储窗口引用，实现跨文件执行的单例
-_WIN_KEY = '_BsScriptHub_Window_Instance_'
+# 单例窗口管理 - 使用模块级变量
+_bsscripthub_instance = None
 
 def _get_win():
     """获取窗口实例"""
-    import builtins
-    return getattr(builtins, _WIN_KEY, None)
+    global _bsscripthub_instance
+    return _bsscripthub_instance
 
 def _set_win(win):
     """设置窗口实例"""
-    import builtins
-    setattr(builtins, _WIN_KEY, win)
+    global _bsscripthub_instance
+    _bsscripthub_instance = win
 
 
 def compare_versions(local_ver, remote_ver):
@@ -124,11 +149,11 @@ HELP_URL = "https://space.bilibili.com/2031113/lists/560782"
 
 # 样式表
 STYLE = """
-* { font-family: "Microsoft YaHei", "Segoe UI", sans-serif; font-size: 11px; }
+* { font-family: "Microsoft YaHei", "Segoe UI"; font-size: 11px; color: #ddd; }
 QDialog, QWidget { background: #2b2b2b; color: #e0e0e0; }
 QPushButton, QToolButton {
     background: #404040; border: 1px solid #555; border-radius: 3px;
-    padding: 3px 8px; color: #fff;
+    padding: 3px 8px; min-height: 20px; color: #fff;
 }
 QPushButton:hover, QToolButton:hover { background: #505050; border-color: #7ecbff; color: #fff; }
 QPushButton:pressed { background: #333; }
@@ -184,6 +209,14 @@ QLabel#keywordLabel {
     background: #404040; border-radius: 2px; padding: 1px 4px;
     color: #aaa; font-size: 9px;
 }
+QMenu {
+    background: #3a3a3a; border: 1px solid #555; padding: 4px;
+}
+QMenu::item {
+    padding: 6px 12px;
+}
+QMenu::item:selected { background: #505050; }
+QMenu::separator { height: 1px; background: #555; margin: 4px 8px; }
 """
 
 
@@ -193,7 +226,7 @@ class NetworkWorker(QThread):
     progress = Signal(int)
     
     def __init__(self, url, parent=None):
-        super().__init__(parent)
+        super(NetworkWorker, self).__init__(parent)
         self.url = url
     
     def run(self):
@@ -223,7 +256,7 @@ class CollapsibleCategory(QWidget):
     toggled = Signal(str, bool)  # (category_key, expanded)
     
     def __init__(self, title, category_key="", parent=None):
-        super().__init__(parent)
+        super(CollapsibleCategory, self).__init__(parent)
         self.expanded = True
         self.scripts = []
         self.category_key = category_key or title  # 用于保存状态的 key
@@ -232,8 +265,8 @@ class CollapsibleCategory(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
         
-        # 标题栏
-        self.header = QPushButton("▼ " + title)
+        # 标题栏 - emoji后加双空格确保在Max 2022正确显示
+        self.header = QPushButton("🔽  " + title)
         self.header.setStyleSheet("""
             QPushButton {
                 background: #353535;
@@ -265,8 +298,8 @@ class CollapsibleCategory(QWidget):
     def _toggle(self):
         self.expanded = not self.expanded
         self.content.setVisible(self.expanded)
-        arrow = "▼" if self.expanded else "▶"
-        self.header.setText(arrow + " " + self.title)
+        arrow = "🔽  " if self.expanded else "▶  "
+        self.header.setText(arrow + self.title)
         self.toggled.emit(self.category_key, self.expanded)
     
     def set_expanded(self, expanded):
@@ -274,8 +307,8 @@ class CollapsibleCategory(QWidget):
         if self.expanded != expanded:
             self.expanded = expanded
             self.content.setVisible(expanded)
-            arrow = "▼" if expanded else "▶"
-            self.header.setText(arrow + " " + self.title)
+            arrow = "🔽  " if expanded else "▶  "
+            self.header.setText(arrow + self.title)
     
     def add_script_item(self, script_btn):
         self.content_layout.addWidget(script_btn)
@@ -302,7 +335,7 @@ class ScriptButton(QPushButton):
     STATUS_UPDATE_AVAILABLE = 2  # 有更新
     
     def __init__(self, script_data, local_versions=None, parent=None):
-        super().__init__(parent)
+        super(ScriptButton, self).__init__(parent)
         self.script_data = script_data
         self.local_versions = local_versions or {}
         self.version_status = self._check_version_status()
@@ -340,12 +373,13 @@ class ScriptButton(QPushButton):
         name = self.script_data.get("name", "未知脚本")
         
         # 根据状态添加标记 (已下载为普通样式，未下载/有更新为特殊样式)
+        # emoji后加空格确保在Max 2022正确显示
         if self.version_status == self.STATUS_UPDATE_AVAILABLE:
-            display_name = "🔺 " + name  # 有更新 - 特殊样式
+            display_name = "🔺  " + name  # 有更新 - 特殊样式
             border_color = "#ff9800"  # 橙色边框
             bg_color = "#3d3520"
         elif self.version_status == self.STATUS_NOT_INSTALLED:
-            display_name = "○ " + name  # 未安装 - 特殊样式
+            display_name = "○  " + name  # 未安装 - 特殊样式
             border_color = "#666666"  # 灰色边框
             bg_color = "#2a2a2a"
         else:
@@ -401,7 +435,7 @@ class BsScriptHub(QDialog):
                 parent = QWidget.find(rt.windows.getMAXHWND())
             except:
                 pass
-        super().__init__(parent)
+        super(BsScriptHub, self).__init__(parent)
         
         self.scripts_data = []
         self.categories_data = {}  # 分类和脚本名列表
@@ -445,7 +479,7 @@ class BsScriptHub(QDialog):
         base_url = "%s/%s" % (GITHUB_REPO_BASE, self.current_branch)
         if path:
             # 对中文路径进行 URL 编码
-            encoded_path = "/".join(quote(p, safe='') for p in path.split("/"))
+            encoded_path = "/".join(url_quote(p) for p in path.split("/"))
             return "%s/%s" % (base_url, encoded_path)
         return base_url
     
@@ -461,7 +495,7 @@ class BsScriptHub(QDialog):
         config_file = os.path.join(self.local_cache_dir, CONFIG_FILE)
         if os.path.exists(config_file):
             try:
-                with open(config_file, 'r', encoding='utf-8') as f:
+                with io.open(config_file, 'r', encoding='utf-8') as f:
                     self.config = json.load(f)
             except:
                 self.config = {}
@@ -470,7 +504,7 @@ class BsScriptHub(QDialog):
         """保存窗口配置"""
         config_file = os.path.join(self.local_cache_dir, CONFIG_FILE)
         try:
-            with open(config_file, 'w', encoding='utf-8') as f:
+            with io.open(config_file, 'w', encoding='utf-8') as f:
                 json.dump(self.config, f, ensure_ascii=False, indent=2)
         except:
             pass
@@ -541,7 +575,7 @@ class BsScriptHub(QDialog):
         versions_file = os.path.join(self.local_cache_dir, LOCAL_VERSIONS_FILE)
         if os.path.exists(versions_file):
             try:
-                with open(versions_file, 'r', encoding='utf-8') as f:
+                with io.open(versions_file, 'r', encoding='utf-8') as f:
                     self.local_versions = json.load(f)
             except:
                 self.local_versions = {}
@@ -553,7 +587,7 @@ class BsScriptHub(QDialog):
         """保存本地版本记录"""
         versions_file = os.path.join(self.local_cache_dir, LOCAL_VERSIONS_FILE)
         try:
-            with open(versions_file, 'w', encoding='utf-8') as f:
+            with io.open(versions_file, 'w', encoding='utf-8') as f:
                 json.dump(self.local_versions, f, ensure_ascii=False, indent=2)
         except:
             pass
@@ -682,7 +716,7 @@ class BsScriptHub(QDialog):
         bottom_bar = QHBoxLayout()
         bottom_bar.setSpacing(4)
         
-        self.run_btn = QPushButton("▶ 运行")
+        self.run_btn = QPushButton("▶  运行")
         self.run_btn.setObjectName("runBtn")
         self.run_btn.setEnabled(False)
         self.run_btn.setFixedHeight(26)
@@ -791,7 +825,7 @@ class BsScriptHub(QDialog):
         self.url_label.setFlat(True)
         self.url_label.setStyleSheet("""
             QPushButton { color: #7ecbff; font-size: 10px; text-decoration: underline; 
-                text-align: left; padding: 0; border: none; background: transparent; }
+                text-align: left; border: none; background: transparent; }
             QPushButton:hover { color: #a0d8ff; }
         """)
         self.url_label.setCursor(Qt.PointingHandCursor)
@@ -805,7 +839,7 @@ class BsScriptHub(QDialog):
         self.tutorial_label.setFlat(True)
         self.tutorial_label.setStyleSheet("""
             QPushButton { color: #666; font-size: 10px; text-align: left; 
-                padding: 0; border: none; background: transparent; }
+                border: none; background: transparent; }
         """)
         self.tutorial_label.setCursor(Qt.PointingHandCursor)
         self.tutorial_label.clicked.connect(self._on_tutorial_clicked)
@@ -824,7 +858,7 @@ class BsScriptHub(QDialog):
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(4)
         
-        self.download_btn = QPushButton("📥 下载")
+        self.download_btn = QPushButton("📥  下载")
         self.download_btn.setEnabled(False)
         self.download_btn.setFixedHeight(26)
         self.download_btn.clicked.connect(self._download_script)
@@ -932,7 +966,7 @@ class BsScriptHub(QDialog):
         base = "%s/%s" % (GITHUB_API_BASE, SCRIPTS_PATH)
         if path:
             # 对中文路径进行 URL 编码
-            encoded_path = "/".join(quote(p, safe='') for p in path.split("/"))
+            encoded_path = "/".join(url_quote(p) for p in path.split("/"))
             base = "%s/%s" % (base, encoded_path)
         return "%s?ref=%s" % (base, self.current_branch)
     
@@ -966,7 +1000,7 @@ class BsScriptHub(QDialog):
             # 保存到本地缓存
             cache_file = os.path.join(self.local_cache_dir, CACHE_INDEX_FILE)
             try:
-                with open(cache_file, 'w', encoding='utf-8') as f:
+                with io.open(cache_file, 'w', encoding='utf-8') as f:
                     json.dump(index_data, f, ensure_ascii=False, indent=2)
             except:
                 pass
@@ -985,7 +1019,7 @@ class BsScriptHub(QDialog):
         cache_file = os.path.join(self.local_cache_dir, CACHE_INDEX_FILE)
         if os.path.exists(cache_file):
             try:
-                with open(cache_file, 'r', encoding='utf-8') as f:
+                with io.open(cache_file, 'r', encoding='utf-8') as f:
                     index_data = json.load(f)
                 self.categories_data = index_data.get("categories", {})
                 self._build_categories()
@@ -1019,7 +1053,7 @@ class BsScriptHub(QDialog):
         cache_path = self._get_script_info_cache_path(category, script_name)
         if os.path.exists(cache_path):
             try:
-                with open(cache_path, 'r', encoding='utf-8') as f:
+                with io.open(cache_path, 'r', encoding='utf-8') as f:
                     info = json.load(f)
                 info["category"] = category  # 添加分类信息
                 self.script_info_cache[cache_key] = info
@@ -1052,8 +1086,8 @@ class BsScriptHub(QDialog):
             
             # 保存到本地缓存
             cache_path = self._get_script_info_cache_path(category, script_name)
-            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-            with open(cache_path, 'w', encoding='utf-8') as f:
+            makedirs_safe(os.path.dirname(cache_path))
+            with io.open(cache_path, 'w', encoding='utf-8') as f:
                 json.dump(info, f, ensure_ascii=False, indent=2)
             
             # 保存到内存缓存
@@ -1086,8 +1120,8 @@ class BsScriptHub(QDialog):
         # 清空并重建 scripts_data
         self.scripts_data = []
         
-        # 按分类构建 UI
-        for cat_name, scripts in self.categories_data.items():
+        # 按分类构建 UI (排序确保 Python 2/3 一致性)
+        for cat_name, scripts in sorted(self.categories_data.items()):
             display_name = self._get_display_category_name(cat_name)
             cat_widget = CollapsibleCategory(display_name, category_key=cat_name)
             cat_widget.toggled.connect(self._on_category_toggled)
@@ -1100,7 +1134,9 @@ class BsScriptHub(QDialog):
             
             # scripts 是脚本信息对象列表 (可能为空)
             if isinstance(scripts, list):
-                for script_info in scripts:
+                # 按脚本名排序确保 Python 2/3 一致性
+                sorted_scripts = sorted(scripts, key=lambda x: x.get("name", "") if isinstance(x, dict) else str(x))
+                for script_info in sorted_scripts:
                     # script_info 是完整的脚本数据对象
                     if isinstance(script_info, dict):
                         script_data = script_info.copy()
@@ -1214,46 +1250,47 @@ class BsScriptHub(QDialog):
         menu = QMenu(self)
         menu.setStyleSheet("""
             QMenu { background: #2b2b2b; border: 1px solid #404040; border-radius: 4px; padding: 4px; }
-            QMenu::item { padding: 6px 20px; border-radius: 3px; }
+            QMenu::item { padding: 6px 12px; border-radius: 3px; }
             QMenu::item:selected { background: #357abd; }
         """)
         
         # 运行脚本
-        action_run = menu.addAction("▶ 运行脚本")
+        action_run = menu.addAction("▶  运行脚本")
         action_run.triggered.connect(lambda: self._on_script_run(script_data))
         
         # 下载/更新
         script_name = script_data.get("name", "")
         local_ver = self.local_versions.get(script_name, {}).get("version", "")
         if local_ver:
-            action_download = menu.addAction("📥 更新脚本")
+            action_download = menu.addAction("📥  更新脚本")
         else:
-            action_download = menu.addAction("📥 下载脚本")
+            action_download = menu.addAction("📥  下载脚本")
         action_download.triggered.connect(lambda: self._context_download_script(script_data))
         
         menu.addSeparator()
         
         # 查看源码
-        action_github = menu.addAction("🔗 查看源码")
+        action_github = menu.addAction("🔗  查看源码")
         action_github.triggered.connect(self._open_github)
         
         # 打开发布地址
         url = script_data.get("url", "")
         if url:
-            action_url = menu.addAction("🌐 打开发布地址")
+            action_url = menu.addAction("🌐  打开发布地址")
             action_url.triggered.connect(lambda: QDesktopServices.openUrl(QUrl(url)))
         
         menu.addSeparator()
         
         # 打开缓存目录
-        action_cache = menu.addAction("📁 打开缓存目录")
+        action_cache = menu.addAction("📁  打开缓存目录")
         action_cache.triggered.connect(self._open_cache_folder)
         
         # 清空缓存
-        action_clear = menu.addAction("🗑 清空本地缓存")
+        action_clear = menu.addAction("🗑  清空本地缓存")
         action_clear.triggered.connect(self._clear_cache)
         
-        menu.exec_(pos)
+        # exec_ 在 PySide6 中已弃用，使用 getattr 兼容
+        getattr(menu, 'exec', menu.exec_)(pos)
     
     def _context_download_script(self, script_data):
         """从右键菜单下载脚本"""
@@ -1380,7 +1417,7 @@ class BsScriptHub(QDialog):
             # 使用分类路径保存
             save_path = self._get_script_local_path(script)
             try:
-                os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                makedirs_safe(os.path.dirname(save_path))
                 with open(save_path, 'wb') as f:
                     f.write(data)
                 
@@ -1411,22 +1448,23 @@ class BsScriptHub(QDialog):
         menu = QMenu(self)
         menu.setStyleSheet("""
             QMenu { background: #2b2b2b; border: 1px solid #404040; border-radius: 4px; padding: 4px; }
-            QMenu::item { padding: 6px 20px; border-radius: 3px; }
+            QMenu::item { padding: 6px 12px; border-radius: 3px; }
             QMenu::item:selected { background: #357abd; }
         """)
         
-        action_refresh = menu.addAction("🔄 刷新列表")
+        action_refresh = menu.addAction("🔄  刷新列表")
         action_refresh.triggered.connect(self._refresh_all)
         
         menu.addSeparator()
         
-        action_clear = menu.addAction("🗑 清空本地缓存")
+        action_clear = menu.addAction("🗑  清空本地缓存")
         action_clear.triggered.connect(self._clear_cache)
         
-        action_open = menu.addAction("📁 打开缓存目录")
+        action_open = menu.addAction("📁  打开缓存目录")
         action_open.triggered.connect(self._open_cache_folder)
         
-        menu.exec_(self.refresh_btn.mapToGlobal(pos))
+        # exec_ 在 PySide6 中已弃用，使用 getattr 兼容
+        getattr(menu, 'exec', menu.exec_)(self.refresh_btn.mapToGlobal(pos))
     
     def _refresh_script_buttons(self):
         """刷新脚本按钮状态"""
@@ -1512,17 +1550,17 @@ class BsScriptHub(QDialog):
         if not local_ver:
             self.version_status_label.setText("📦 未安装")
             self.version_status_label.setStyleSheet("color: #888; font-size: 10px;")
-            self.download_btn.setText("📥 下载")
+            self.download_btn.setText("📥  下载")
         else:
             cmp = compare_versions(local_ver, remote_ver)
             if cmp < 0:
-                self.version_status_label.setText("🔺 有更新 v%s→v%s" % (local_ver, remote_ver))
+                self.version_status_label.setText("🔺  有更新 v%s→v%s" % (local_ver, remote_ver))
                 self.version_status_label.setStyleSheet("color: #ff9800; font-size: 10px; font-weight: bold;")
-                self.download_btn.setText("📥 更新")
+                self.download_btn.setText("📥  更新")
             else:
                 self.version_status_label.setText("✓ 已是最新")
                 self.version_status_label.setStyleSheet("color: #4caf50; font-size: 10px;")
-                self.download_btn.setText("📥 重新下载")
+                self.download_btn.setText("📥  重新下载")
         
         # 更新描述
         self.desc_text.setText(script_data.get("description", "暂无描述"))
@@ -1544,7 +1582,7 @@ class BsScriptHub(QDialog):
             self.url_label.setEnabled(True)
             self.url_label.setStyleSheet("""
                 QPushButton { color: #7ecbff; font-size: 10px; text-decoration: underline; 
-                    text-align: left; padding: 0; border: none; background: transparent; }
+                    text-align: left; border: none; background: transparent; }
                 QPushButton:hover { color: #a0d8ff; }
             """)
         else:
@@ -1553,18 +1591,18 @@ class BsScriptHub(QDialog):
             self.url_label.setEnabled(False)
             self.url_label.setStyleSheet("""
                 QPushButton { color: #666; font-size: 10px; text-align: left; 
-                    padding: 0; border: none; background: transparent; }
+                    border: none; background: transparent; }
             """)
         
         # 更新教程地址
         tutorial = script_data.get("tutorial", "")
         if tutorial:
-            self.tutorial_label.setText("📺 查看教程")
+            self.tutorial_label.setText("📺  查看教程")
             self.tutorial_label.setToolTip(tutorial)
             self.tutorial_label.setEnabled(True)
             self.tutorial_label.setStyleSheet("""
                 QPushButton { color: #fb7299; font-size: 10px; text-decoration: underline; 
-                    text-align: left; padding: 0; border: none; background: transparent; }
+                    text-align: left; border: none; background: transparent; }
                 QPushButton:hover { color: #ff9ab5; }
             """)
         else:
@@ -1573,7 +1611,7 @@ class BsScriptHub(QDialog):
             self.tutorial_label.setEnabled(False)
             self.tutorial_label.setStyleSheet("""
                 QPushButton { color: #666; font-size: 10px; text-align: left; 
-                    padding: 0; border: none; background: transparent; }
+                    border: none; background: transparent; }
             """)
         
         # 启用按钮
@@ -1638,7 +1676,7 @@ class BsScriptHub(QDialog):
             cache_path = os.path.join(self.local_cache_dir, filename)
         
         try:
-            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+            makedirs_safe(os.path.dirname(cache_path))
             with open(cache_path, 'wb') as f:
                 f.write(data)
             self._set_preview_image(cache_path)
@@ -1741,7 +1779,7 @@ class BsScriptHub(QDialog):
         # 保存脚本（使用分类路径）
         save_path = self._get_script_local_path(script_data)
         try:
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            makedirs_safe(os.path.dirname(save_path))
             with open(save_path, 'wb') as f:
                 f.write(data)
             
@@ -1850,7 +1888,7 @@ class BsScriptHub(QDialog):
     
     def moveEvent(self, event):
         """窗口移动时保存位置"""
-        super().moveEvent(event)
+        super(BsScriptHub, self).moveEvent(event)
         # 使用延迟保存，避免频繁写入
         if not hasattr(self, '_move_timer'):
             self._move_timer = QTimer(self)
@@ -1881,7 +1919,7 @@ class BsScriptHub(QDialog):
                         worker.terminate()  # 强制终止
             except:
                 pass
-        self.workers.clear()
+        del self.workers[:]  # Python 2 兼容写法
         
         # 清理窗口引用
         _set_win(None)
@@ -1895,7 +1933,7 @@ class BsScriptHub(QDialog):
         elif event.key() == Qt.Key_F5:
             self._load_scripts_index()
         else:
-            super().keyPressEvent(event)
+            super(BsScriptHub, self).keyPressEvent(event)
 
 
 def show_window():

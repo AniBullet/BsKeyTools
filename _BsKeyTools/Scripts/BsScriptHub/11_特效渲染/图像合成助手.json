@@ -1,0 +1,18 @@
+{
+    "name": "图像合成助手",
+    "version": "1.0",
+    "description": "渲染图像的合成辅助工具",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "渲染",
+        "合成",
+        "图像",
+        "后期"
+    ],
+    "preview": "",
+    "script": "图像合成助手.ms",
+    "url": "",
+    "tutorial": ""
+}

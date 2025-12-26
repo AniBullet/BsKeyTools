@@ -1,0 +1,18 @@
+{
+    "name": "链条工具",
+    "version": "1.0",
+    "description": "创建和管理骨骼链条，适用于绳索、链条等效果",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "绑定",
+        "链条",
+        "Chain",
+        "骨骼"
+    ],
+    "preview": "",
+    "script": "链条工具.ms",
+    "url": "",
+    "tutorial": ""
+}

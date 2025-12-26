@@ -76,6 +76,44 @@
         "script": "ResetXForm.ms",
         "url": "",
         "category": "03_建模工具"
+      },
+      {
+        "name": "变形滑块",
+        "version": "1.0",
+        "description": "便捷的变形目标滑块控制工具",
+        "author": "px",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "建模",
+          "变形",
+          "Morph",
+          "滑块"
+        ],
+        "preview": "",
+        "script": "变形滑块.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "03_建模工具"
+      },
+      {
+        "name": "镜像变形",
+        "version": "1.0",
+        "description": "镜像复制变形目标",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "建模",
+          "变形",
+          "镜像",
+          "Morph"
+        ],
+        "preview": "",
+        "script": "镜像变形.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "03_建模工具"
       }
     ],
     "04_材质工具": [
@@ -133,6 +171,158 @@
         "script": "DeleteAllKeys.ms",
         "url": "",
         "category": "05_动画工具"
+      },
+      {
+        "name": "专业轨迹控制",
+        "version": "1.0",
+        "description": "专业级轨迹控制手柄，精确调整运动路径",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "轨迹",
+          "控制",
+          "专业"
+        ],
+        "preview": "",
+        "script": "专业轨迹控制.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_动画工具"
+      },
+      {
+        "name": "动画复制粘贴",
+        "version": "1.0",
+        "description": "高级动画复制粘贴工具，支持跨对象、跨场景操作",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "复制",
+          "粘贴",
+          "关键帧"
+        ],
+        "preview": "",
+        "script": "动画复制粘贴.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_动画工具"
+      },
+      {
+        "name": "动画对齐工具",
+        "version": "1.0",
+        "description": "对齐多个对象的动画关键帧",
+        "author": "Alex",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "对齐",
+          "Align",
+          "关键帧"
+        ],
+        "preview": "",
+        "script": "动画对齐工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_动画工具"
+      },
+      {
+        "name": "动画范围工具",
+        "version": "1.0",
+        "description": "快速设置和管理动画时间范围",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "范围",
+          "时间",
+          "帧"
+        ],
+        "preview": "",
+        "script": "动画范围工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_动画工具"
+      },
+      {
+        "name": "动画镜像",
+        "version": "1.0",
+        "description": "镜像复制动画数据，适用于对称动作",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "镜像",
+          "Mirror",
+          "对称"
+        ],
+        "preview": "",
+        "script": "动画镜像.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_动画工具"
+      },
+      {
+        "name": "烘焙动画",
+        "version": "1.0",
+        "description": "将程序动画烘焙为关键帧动画",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "烘焙",
+          "Bake",
+          "关键帧"
+        ],
+        "preview": "",
+        "script": "烘焙动画.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_动画工具"
+      },
+      {
+        "name": "补间动画工具",
+        "version": "1.0",
+        "description": "在关键帧之间快速创建补间动画，支持多种缓动曲线",
+        "author": "Justin Barrett",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "补间",
+          "Tween",
+          "关键帧"
+        ],
+        "preview": "",
+        "script": "补间动画工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_动画工具"
+      },
+      {
+        "name": "轨迹编辑器",
+        "version": "1.0",
+        "description": "可视化编辑运动轨迹，支持轨迹修改和平滑",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "轨迹",
+          "路径",
+          "编辑"
+        ],
+        "preview": "",
+        "script": "轨迹编辑器.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_动画工具"
       }
     ],
     "06_骨骼绑定": [
@@ -152,6 +342,101 @@
         "preview": "",
         "script": "SelectAllBones.ms",
         "url": "",
+        "category": "06_骨骼绑定"
+      },
+      {
+        "name": "弹簧控制器",
+        "version": "1.0",
+        "description": "为对象添加弹簧控制器，实现弹性跟随效果",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "绑定",
+          "弹簧",
+          "控制器",
+          "跟随"
+        ],
+        "preview": "",
+        "script": "弹簧控制器.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "06_骨骼绑定"
+      },
+      {
+        "name": "弹簧魔法增强版",
+        "version": "1.0",
+        "description": "增强版弹簧动力学工具，模拟弹性运动效果，支持更多参数调节",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "绑定",
+          "弹簧",
+          "Spring",
+          "动力学"
+        ],
+        "preview": "",
+        "script": "弹簧魔法增强版.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "06_骨骼绑定"
+      },
+      {
+        "name": "扭曲骨骼",
+        "version": "1.0",
+        "description": "创建扭曲骨骼系统，改善关节变形效果",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "绑定",
+          "扭曲",
+          "Twist",
+          "骨骼"
+        ],
+        "preview": "",
+        "script": "扭曲骨骼.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "06_骨骼绑定"
+      },
+      {
+        "name": "链条工具",
+        "version": "1.0",
+        "description": "创建和管理骨骼链条，适用于绳索、链条等效果",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "绑定",
+          "链条",
+          "Chain",
+          "骨骼"
+        ],
+        "preview": "",
+        "script": "链条工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "06_骨骼绑定"
+      },
+      {
+        "name": "飘带解算",
+        "version": "1.0",
+        "description": "飘带和布料的简易动力学解算工具",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "绑定",
+          "飘带",
+          "布料",
+          "解算"
+        ],
+        "preview": "",
+        "script": "飘带解算.ms",
+        "url": "",
+        "tutorial": "",
         "category": "06_骨骼绑定"
       }
     ],
@@ -175,6 +460,25 @@
         "category": "07_场景管理"
       },
       {
+        "name": "LOD创建器",
+        "version": "1.0",
+        "description": "自动创建多级细节模型",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "场景",
+          "LOD",
+          "细节",
+          "优化"
+        ],
+        "preview": "",
+        "script": "LOD创建器.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "07_场景管理"
+      },
+      {
         "name": "PrintSceneInfo",
         "version": "1.0.0",
         "description": "打印场景统计信息。\n\n显示对象数量、面数、材质数等信息。",
@@ -190,6 +494,101 @@
         "preview": "",
         "script": "PrintSceneInfo.ms",
         "url": "",
+        "category": "07_场景管理"
+      },
+      {
+        "name": "专业颜色工具",
+        "version": "1.0",
+        "description": "批量修改对象线框颜色，方便场景管理",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "场景",
+          "颜色",
+          "Color",
+          "线框"
+        ],
+        "preview": "",
+        "script": "专业颜色工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "07_场景管理"
+      },
+      {
+        "name": "图层管理替代版",
+        "version": "1.0",
+        "description": "轻量级图层管理工具，快速操作图层",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "场景",
+          "图层",
+          "Layer",
+          "管理"
+        ],
+        "preview": "",
+        "script": "图层管理替代版.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "07_场景管理"
+      },
+      {
+        "name": "对象批量重命名",
+        "version": "1.0",
+        "description": "强大的批量重命名工具，支持多种命名规则",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "场景",
+          "重命名",
+          "Rename",
+          "批量"
+        ],
+        "preview": "",
+        "script": "对象批量重命名.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "07_场景管理"
+      },
+      {
+        "name": "对象选择器",
+        "version": "1.0",
+        "description": "高级对象选择工具，支持多种筛选条件",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "场景",
+          "选择",
+          "Picker",
+          "筛选"
+        ],
+        "preview": "",
+        "script": "对象选择器.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "07_场景管理"
+      },
+      {
+        "name": "嵌套图层管理",
+        "version": "1.0",
+        "description": "支持嵌套结构的高级图层管理工具",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "场景",
+          "图层",
+          "Layer",
+          "嵌套"
+        ],
+        "preview": "",
+        "script": "嵌套图层管理.ms",
+        "url": "",
+        "tutorial": "",
         "category": "07_场景管理"
       }
     ],
@@ -210,6 +609,469 @@
         "script": "ExportSelectedFBX.ms",
         "url": "",
         "category": "08_导入导出"
+      },
+      {
+        "name": "批量导入转换",
+        "version": "1.0",
+        "description": "批量导入文件并转换格式",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "导入",
+          "导出",
+          "批量",
+          "转换"
+        ],
+        "preview": "",
+        "script": "批量导入转换.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "08_导入导出"
+      },
+      {
+        "name": "批量降版本",
+        "version": "1.0",
+        "description": "批量将Max文件降低版本保存",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "导入",
+          "导出",
+          "版本",
+          "批量"
+        ],
+        "preview": "",
+        "script": "批量降版本.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "08_导入导出"
+      }
+    ],
+    "09_镜头相关": [],
+    "10_蒙皮权重": [
+      {
+        "name": "XR蒙皮工具",
+        "version": "1.0",
+        "description": "XR系列蒙皮权重编辑工具",
+        "author": "Xr",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "蒙皮",
+          "权重",
+          "Skin",
+          "XR"
+        ],
+        "preview": "",
+        "script": "XR蒙皮工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "10_蒙皮权重"
+      },
+      {
+        "name": "修改蒙皮骨骼",
+        "version": "1.0",
+        "description": "批量修改蒙皮骨骼设置",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "蒙皮",
+          "骨骼",
+          "修改",
+          "Skin"
+        ],
+        "preview": "",
+        "script": "修改蒙皮骨骼.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "10_蒙皮权重"
+      },
+      {
+        "name": "合并蒙皮",
+        "version": "1.0",
+        "description": "合并多个蒙皮修改器或蒙皮数据",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "蒙皮",
+          "合并",
+          "Combine",
+          "绑定"
+        ],
+        "preview": "",
+        "script": "合并蒙皮.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "10_蒙皮权重"
+      },
+      {
+        "name": "替换蒙皮骨骼",
+        "version": "1.0",
+        "description": "替换蒙皮修改器中的骨骼引用",
+        "author": "Sox",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "蒙皮",
+          "骨骼",
+          "替换",
+          "Skin"
+        ],
+        "preview": "",
+        "script": "替换蒙皮骨骼.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "10_蒙皮权重"
+      },
+      {
+        "name": "权重分区平滑",
+        "version": "1.0",
+        "description": "按分区平滑蒙皮权重，提高变形质量",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "蒙皮",
+          "权重",
+          "平滑",
+          "分区"
+        ],
+        "preview": "",
+        "script": "权重分区平滑.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "10_蒙皮权重"
+      },
+      {
+        "name": "蒙皮工具集",
+        "version": "1.0",
+        "description": "蒙皮相关工具集合，包含多种实用功能",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "蒙皮",
+          "权重",
+          "Skin",
+          "工具"
+        ],
+        "preview": "",
+        "script": "蒙皮工具集.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "10_蒙皮权重"
+      },
+      {
+        "name": "蒙皮权重工具",
+        "version": "1.0",
+        "description": "专业蒙皮权重编辑工具，支持权重复制、镜像等功能",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "蒙皮",
+          "权重",
+          "Skin",
+          "编辑"
+        ],
+        "preview": "",
+        "script": "蒙皮权重工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "10_蒙皮权重"
+      }
+    ],
+    "11_特效渲染": [
+      {
+        "name": "MassFX物理工具",
+        "version": "1.0",
+        "description": "MassFX物理模拟增强工具",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "特效",
+          "物理",
+          "MassFX",
+          "模拟"
+        ],
+        "preview": "",
+        "script": "MassFX物理工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "11_特效渲染"
+      },
+      {
+        "name": "Voronoi破碎",
+        "version": "1.0",
+        "description": "基于Voronoi算法的模型破碎工具",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "特效",
+          "破碎",
+          "Voronoi",
+          "碎片"
+        ],
+        "preview": "",
+        "script": "Voronoi破碎.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "11_特效渲染"
+      },
+      {
+        "name": "参考大师",
+        "version": "1.0",
+        "description": "参考图管理工具，方便查看参考资料",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "渲染",
+          "参考",
+          "Reference",
+          "图片"
+        ],
+        "preview": "",
+        "script": "参考大师.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "11_特效渲染"
+      },
+      {
+        "name": "图像合成助手",
+        "version": "1.0",
+        "description": "渲染图像的合成辅助工具",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "渲染",
+          "合成",
+          "图像",
+          "后期"
+        ],
+        "preview": "",
+        "script": "图像合成助手.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "11_特效渲染"
+      },
+      {
+        "name": "多方向渲染工具",
+        "version": "1.0",
+        "description": "从多个角度批量渲染场景",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "渲染",
+          "多角度",
+          "批量",
+          "输出"
+        ],
+        "preview": "",
+        "script": "多方向渲染工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "11_特效渲染"
+      },
+      {
+        "name": "灯光台",
+        "version": "1.0",
+        "description": "灯光管理和编辑工具台",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "渲染",
+          "灯光",
+          "Light",
+          "管理"
+        ],
+        "preview": "",
+        "script": "灯光台.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "11_特效渲染"
+      },
+      {
+        "name": "碰撞器工具",
+        "version": "1.0",
+        "description": "快速创建和管理碰撞器",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "特效",
+          "碰撞",
+          "Collider",
+          "物理"
+        ],
+        "preview": "",
+        "script": "碰撞器工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "11_特效渲染"
+      }
+    ],
+    "12_开发工具": [
+      {
+        "name": ".NET属性查看器",
+        "version": "1.0",
+        "description": "查看.NET对象的属性和方法",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "开发",
+          ".NET",
+          "属性",
+          "调试"
+        ],
+        "preview": "",
+        "script": ".NET属性查看器.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "12_开发工具"
+      },
+      {
+        "name": "CS工具集",
+        "version": "1.0",
+        "description": "CS系列开发辅助工具",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "开发",
+          "工具",
+          "CS",
+          "辅助"
+        ],
+        "preview": "",
+        "script": "CS工具集.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "12_开发工具"
+      },
+      {
+        "name": "Rollout构建器",
+        "version": "1.0",
+        "description": "可视化MaxScript界面构建工具",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "开发",
+          "Rollout",
+          "界面",
+          "构建"
+        ],
+        "preview": "",
+        "script": "Rollout构建器.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "12_开发工具"
+      },
+      {
+        "name": "UI布局工具",
+        "version": "1.0",
+        "description": "MaxScript界面布局辅助工具",
+        "author": "HPK",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "开发",
+          "UI",
+          "布局",
+          "界面"
+        ],
+        "preview": "",
+        "script": "UI布局工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "12_开发工具"
+      },
+      {
+        "name": "世界单位缩放",
+        "version": "1.0",
+        "description": "调整场景世界单位比例",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "开发",
+          "单位",
+          "缩放",
+          "场景"
+        ],
+        "preview": "",
+        "script": "世界单位缩放.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "12_开发工具"
+      },
+      {
+        "name": "暗黑代码编辑器",
+        "version": "1.0",
+        "description": "暗色主题的MaxScript代码编辑器",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "开发",
+          "编辑器",
+          "代码",
+          "暗色"
+        ],
+        "preview": "",
+        "script": "暗黑代码编辑器.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "12_开发工具"
+      },
+      {
+        "name": "窗口句柄查看器",
+        "version": "1.0",
+        "description": "查看窗口句柄信息的调试工具",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "开发",
+          "窗口",
+          "句柄",
+          "HWND"
+        ],
+        "preview": "",
+        "script": "窗口句柄查看器.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "12_开发工具"
+      },
+      {
+        "name": "窗口工具箱",
+        "version": "1.0",
+        "description": "窗口操作和管理工具集",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "开发",
+          "窗口",
+          "工具",
+          "管理"
+        ],
+        "preview": "",
+        "script": "窗口工具箱.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "12_开发工具"
       }
     ],
     "98_动作逆向": [

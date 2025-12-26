@@ -1,0 +1,18 @@
+{
+    "name": "烘焙动画",
+    "version": "1.0",
+    "description": "将程序动画烘焙为关键帧动画",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "动画",
+        "烘焙",
+        "Bake",
+        "关键帧"
+    ],
+    "preview": "",
+    "script": "烘焙动画.ms",
+    "url": "",
+    "tutorial": ""
+}

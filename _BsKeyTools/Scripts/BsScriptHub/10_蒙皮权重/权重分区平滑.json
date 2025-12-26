@@ -1,0 +1,18 @@
+{
+    "name": "权重分区平滑",
+    "version": "1.0",
+    "description": "按分区平滑蒙皮权重，提高变形质量",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "蒙皮",
+        "权重",
+        "平滑",
+        "分区"
+    ],
+    "preview": "",
+    "script": "权重分区平滑.ms",
+    "url": "",
+    "tutorial": ""
+}

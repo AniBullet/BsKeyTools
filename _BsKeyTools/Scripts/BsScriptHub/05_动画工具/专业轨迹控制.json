@@ -1,0 +1,18 @@
+{
+    "name": "专业轨迹控制",
+    "version": "1.0",
+    "description": "专业级轨迹控制手柄，精确调整运动路径",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "动画",
+        "轨迹",
+        "控制",
+        "专业"
+    ],
+    "preview": "",
+    "script": "专业轨迹控制.ms",
+    "url": "",
+    "tutorial": ""
+}

@@ -1,0 +1,18 @@
+{
+    "name": "镜像变形",
+    "version": "1.0",
+    "description": "镜像复制变形目标",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "建模",
+        "变形",
+        "镜像",
+        "Morph"
+    ],
+    "preview": "",
+    "script": "镜像变形.ms",
+    "url": "",
+    "tutorial": ""
+}

@@ -1,0 +1,18 @@
+{
+    "name": "CS工具集",
+    "version": "1.0",
+    "description": "CS系列开发辅助工具",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "开发",
+        "工具",
+        "CS",
+        "辅助"
+    ],
+    "preview": "",
+    "script": "CS工具集.ms",
+    "url": "",
+    "tutorial": ""
+}

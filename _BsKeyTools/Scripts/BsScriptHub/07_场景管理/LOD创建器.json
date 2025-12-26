@@ -1,0 +1,18 @@
+{
+    "name": "LOD创建器",
+    "version": "1.0",
+    "description": "自动创建多级细节模型",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "场景",
+        "LOD",
+        "细节",
+        "优化"
+    ],
+    "preview": "",
+    "script": "LOD创建器.ms",
+    "url": "",
+    "tutorial": ""
+}

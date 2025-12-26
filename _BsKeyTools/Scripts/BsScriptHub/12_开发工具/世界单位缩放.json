@@ -1,0 +1,18 @@
+{
+    "name": "世界单位缩放",
+    "version": "1.0",
+    "description": "调整场景世界单位比例",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "开发",
+        "单位",
+        "缩放",
+        "场景"
+    ],
+    "preview": "",
+    "script": "世界单位缩放.ms",
+    "url": "",
+    "tutorial": ""
+}

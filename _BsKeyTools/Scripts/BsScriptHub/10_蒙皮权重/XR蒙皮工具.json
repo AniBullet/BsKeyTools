@@ -1,0 +1,18 @@
+{
+    "name": "XR蒙皮工具",
+    "version": "1.0",
+    "description": "XR系列蒙皮权重编辑工具",
+    "author": "Xr",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "蒙皮",
+        "权重",
+        "Skin",
+        "XR"
+    ],
+    "preview": "",
+    "script": "XR蒙皮工具.ms",
+    "url": "",
+    "tutorial": ""
+}

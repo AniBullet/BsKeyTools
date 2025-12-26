@@ -1,0 +1,18 @@
+{
+    "name": "补间动画工具",
+    "version": "1.0",
+    "description": "在关键帧之间快速创建补间动画，支持多种缓动曲线",
+    "author": "Justin Barrett",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "动画",
+        "补间",
+        "Tween",
+        "关键帧"
+    ],
+    "preview": "",
+    "script": "补间动画工具.ms",
+    "url": "",
+    "tutorial": ""
+}

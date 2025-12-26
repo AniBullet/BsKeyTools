@@ -1,0 +1,18 @@
+{
+    "name": "弹簧控制器",
+    "version": "1.0",
+    "description": "为对象添加弹簧控制器，实现弹性跟随效果",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "绑定",
+        "弹簧",
+        "控制器",
+        "跟随"
+    ],
+    "preview": "",
+    "script": "弹簧控制器.ms",
+    "url": "",
+    "tutorial": ""
+}

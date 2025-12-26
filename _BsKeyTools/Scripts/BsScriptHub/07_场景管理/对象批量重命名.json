@@ -1,0 +1,18 @@
+{
+    "name": "对象批量重命名",
+    "version": "1.0",
+    "description": "强大的批量重命名工具，支持多种命名规则",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "场景",
+        "重命名",
+        "Rename",
+        "批量"
+    ],
+    "preview": "",
+    "script": "对象批量重命名.ms",
+    "url": "",
+    "tutorial": ""
+}

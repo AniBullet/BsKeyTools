@@ -1,0 +1,18 @@
+{
+    "name": ".NET属性查看器",
+    "version": "1.0",
+    "description": "查看.NET对象的属性和方法",
+    "author": "未知",
+    "optimizer": "Bullet.S",
+    "modified_date": "",
+    "keywords": [
+        "开发",
+        ".NET",
+        "属性",
+        "调试"
+    ],
+    "preview": "",
+    "script": ".NET属性查看器.ms",
+    "url": "",
+    "tutorial": ""
+}
