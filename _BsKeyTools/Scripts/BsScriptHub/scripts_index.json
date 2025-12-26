@@ -1,8 +1,7 @@
 {
   "version": "1.0",
   "categories": {
-    "01_基础工具": [],
-    "02_选择工具": [
+    "01_选择工具": [
       {
         "name": "InvertSelection",
         "version": "1.0.0",
@@ -18,7 +17,7 @@
         "preview": "",
         "script": "InvertSelection.ms",
         "url": "",
-        "category": "02_选择工具"
+        "category": "01_选择工具"
       },
       {
         "name": "SelectByName",
@@ -36,10 +35,10 @@
         "preview": "",
         "script": "SelectByName.ms",
         "url": "",
-        "category": "02_选择工具"
+        "category": "01_选择工具"
       }
     ],
-    "03_建模工具": [
+    "02_建模工具": [
       {
         "name": "CenterPivot",
         "version": "1.0.0",
@@ -56,408 +55,7 @@
         "preview": "",
         "script": "CenterPivot.ms",
         "url": "",
-        "category": "03_建模工具"
-      },
-      {
-        "name": "ResetXForm",
-        "version": "1.0.0",
-        "description": "批量重置选中对象的变换。\n\n对所有选中对象执行 Reset XForm 并塌陷堆栈。\n\n常用于导出前的模型清理。",
-        "author": "Bullet.S",
-        "optimizer": "",
-        "modified_date": "2025-12-25",
-        "keywords": [
-          "建模",
-          "变换",
-          "重置",
-          "XForm",
-          "清理"
-        ],
-        "preview": "",
-        "script": "ResetXForm.ms",
-        "url": "",
-        "category": "03_建模工具"
-      },
-      {
-        "name": "变形滑块",
-        "version": "1.0",
-        "description": "便捷的变形目标滑块控制工具",
-        "author": "px",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "建模",
-          "变形",
-          "Morph",
-          "滑块"
-        ],
-        "preview": "",
-        "script": "变形滑块.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "03_建模工具"
-      },
-      {
-        "name": "镜像变形",
-        "version": "1.0",
-        "description": "镜像复制变形目标",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "建模",
-          "变形",
-          "镜像",
-          "Morph"
-        ],
-        "preview": "",
-        "script": "镜像变形.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "03_建模工具"
-      }
-    ],
-    "04_材质工具": [
-      {
-        "name": "SelectByMaterial",
-        "version": "1.0.0",
-        "description": "选择所有使用相同材质的对象。\n\n先选中一个对象，运行脚本后会选中场景中所有使用相同材质的对象。",
-        "author": "Bullet.S",
-        "optimizer": "",
-        "modified_date": "2025-12-25",
-        "keywords": [
-          "材质",
-          "选择",
-          "相同材质"
-        ],
-        "preview": "",
-        "script": "SelectByMaterial.ms",
-        "url": "",
-        "category": "04_材质工具"
-      }
-    ],
-    "05_动画工具": [
-      {
-        "name": "BakeAnimation",
-        "version": "1.0.0",
-        "description": "烘焙选中对象的动画。\n\n将约束、表达式等转换为关键帧动画。\n\n烘焙范围为当前时间线范围。",
-        "author": "Bullet.S",
-        "optimizer": "",
-        "modified_date": "2025-12-25",
-        "keywords": [
-          "动画",
-          "烘焙",
-          "Bake",
-          "关键帧"
-        ],
-        "preview": "",
-        "script": "BakeAnimation.ms",
-        "url": "",
-        "category": "05_动画工具"
-      },
-      {
-        "name": "DeleteAllKeys",
-        "version": "1.0.0",
-        "description": "删除选中对象的所有动画关键帧。\n\n谨慎使用，此操作不可撤销（建议先保存）。",
-        "author": "Bullet.S",
-        "optimizer": "",
-        "modified_date": "2025-12-25",
-        "keywords": [
-          "动画",
-          "关键帧",
-          "删除",
-          "清理"
-        ],
-        "preview": "",
-        "script": "DeleteAllKeys.ms",
-        "url": "",
-        "category": "05_动画工具"
-      },
-      {
-        "name": "专业轨迹控制",
-        "version": "1.0",
-        "description": "专业级轨迹控制手柄，精确调整运动路径",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "动画",
-          "轨迹",
-          "控制",
-          "专业"
-        ],
-        "preview": "",
-        "script": "专业轨迹控制.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "05_动画工具"
-      },
-      {
-        "name": "动画复制粘贴",
-        "version": "1.0",
-        "description": "高级动画复制粘贴工具，支持跨对象、跨场景操作",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "动画",
-          "复制",
-          "粘贴",
-          "关键帧"
-        ],
-        "preview": "",
-        "script": "动画复制粘贴.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "05_动画工具"
-      },
-      {
-        "name": "动画对齐工具",
-        "version": "1.0",
-        "description": "对齐多个对象的动画关键帧",
-        "author": "Alex",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "动画",
-          "对齐",
-          "Align",
-          "关键帧"
-        ],
-        "preview": "",
-        "script": "动画对齐工具.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "05_动画工具"
-      },
-      {
-        "name": "动画范围工具",
-        "version": "1.0",
-        "description": "快速设置和管理动画时间范围",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "动画",
-          "范围",
-          "时间",
-          "帧"
-        ],
-        "preview": "",
-        "script": "动画范围工具.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "05_动画工具"
-      },
-      {
-        "name": "动画镜像",
-        "version": "1.0",
-        "description": "镜像复制动画数据，适用于对称动作",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "动画",
-          "镜像",
-          "Mirror",
-          "对称"
-        ],
-        "preview": "",
-        "script": "动画镜像.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "05_动画工具"
-      },
-      {
-        "name": "烘焙动画",
-        "version": "1.0",
-        "description": "将程序动画烘焙为关键帧动画",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "动画",
-          "烘焙",
-          "Bake",
-          "关键帧"
-        ],
-        "preview": "",
-        "script": "烘焙动画.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "05_动画工具"
-      },
-      {
-        "name": "补间动画工具",
-        "version": "1.0",
-        "description": "在关键帧之间快速创建补间动画，支持多种缓动曲线",
-        "author": "Justin Barrett",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "动画",
-          "补间",
-          "Tween",
-          "关键帧"
-        ],
-        "preview": "",
-        "script": "补间动画工具.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "05_动画工具"
-      },
-      {
-        "name": "轨迹编辑器",
-        "version": "1.0",
-        "description": "可视化编辑运动轨迹，支持轨迹修改和平滑",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "动画",
-          "轨迹",
-          "路径",
-          "编辑"
-        ],
-        "preview": "",
-        "script": "轨迹编辑器.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "05_动画工具"
-      }
-    ],
-    "06_骨骼绑定": [
-      {
-        "name": "SelectAllBones",
-        "version": "1.0.0",
-        "description": "选择场景中所有骨骼对象。\n\n包括 Bone、Biped 骨骼和 CAT 骨骼。",
-        "author": "Bullet.S",
-        "optimizer": "",
-        "modified_date": "2025-12-25",
-        "keywords": [
-          "骨骼",
-          "选择",
-          "Bone",
-          "Biped"
-        ],
-        "preview": "",
-        "script": "SelectAllBones.ms",
-        "url": "",
-        "category": "06_骨骼绑定"
-      },
-      {
-        "name": "弹簧控制器",
-        "version": "1.0",
-        "description": "为对象添加弹簧控制器，实现弹性跟随效果",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "绑定",
-          "弹簧",
-          "控制器",
-          "跟随"
-        ],
-        "preview": "",
-        "script": "弹簧控制器.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "06_骨骼绑定"
-      },
-      {
-        "name": "弹簧魔法增强版",
-        "version": "1.0",
-        "description": "增强版弹簧动力学工具，模拟弹性运动效果，支持更多参数调节",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "绑定",
-          "弹簧",
-          "Spring",
-          "动力学"
-        ],
-        "preview": "",
-        "script": "弹簧魔法增强版.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "06_骨骼绑定"
-      },
-      {
-        "name": "扭曲骨骼",
-        "version": "1.0",
-        "description": "创建扭曲骨骼系统，改善关节变形效果",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "绑定",
-          "扭曲",
-          "Twist",
-          "骨骼"
-        ],
-        "preview": "",
-        "script": "扭曲骨骼.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "06_骨骼绑定"
-      },
-      {
-        "name": "链条工具",
-        "version": "1.0",
-        "description": "创建和管理骨骼链条，适用于绳索、链条等效果",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "绑定",
-          "链条",
-          "Chain",
-          "骨骼"
-        ],
-        "preview": "",
-        "script": "链条工具.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "06_骨骼绑定"
-      },
-      {
-        "name": "飘带解算",
-        "version": "1.0",
-        "description": "飘带和布料的简易动力学解算工具",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "绑定",
-          "飘带",
-          "布料",
-          "解算"
-        ],
-        "preview": "",
-        "script": "飘带解算.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "06_骨骼绑定"
-      }
-    ],
-    "07_场景管理": [
-      {
-        "name": "CleanScene",
-        "version": "1.0.0",
-        "description": "清理场景垃圾数据。\n\n删除空组、无效材质引用等。",
-        "author": "Bullet.S",
-        "optimizer": "",
-        "modified_date": "2025-12-25",
-        "keywords": [
-          "场景",
-          "清理",
-          "优化",
-          "垃圾"
-        ],
-        "preview": "",
-        "script": "CleanScene.ms",
-        "url": "",
-        "category": "07_场景管理"
+        "category": "02_建模工具"
       },
       {
         "name": "LOD创建器",
@@ -476,7 +74,408 @@
         "script": "LOD创建器.ms",
         "url": "",
         "tutorial": "",
-        "category": "07_场景管理"
+        "category": "02_建模工具"
+      },
+      {
+        "name": "ResetXForm",
+        "version": "1.0.0",
+        "description": "批量重置选中对象的变换。\n\n对所有选中对象执行 Reset XForm 并塌陷堆栈。\n\n常用于导出前的模型清理。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2025-12-25",
+        "keywords": [
+          "建模",
+          "变换",
+          "重置",
+          "XForm",
+          "清理"
+        ],
+        "preview": "",
+        "script": "ResetXForm.ms",
+        "url": "",
+        "category": "02_建模工具"
+      },
+      {
+        "name": "变形滑块",
+        "version": "1.0",
+        "description": "便捷的变形目标滑块控制工具",
+        "author": "px",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "建模",
+          "变形",
+          "Morph",
+          "滑块"
+        ],
+        "preview": "",
+        "script": "变形滑块.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "02_建模工具"
+      },
+      {
+        "name": "镜像变形",
+        "version": "1.0",
+        "description": "镜像复制变形目标",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "建模",
+          "变形",
+          "镜像",
+          "Morph"
+        ],
+        "preview": "",
+        "script": "镜像变形.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "02_建模工具"
+      }
+    ],
+    "03_材质工具": [
+      {
+        "name": "SelectByMaterial",
+        "version": "1.0.0",
+        "description": "选择所有使用相同材质的对象。\n\n先选中一个对象，运行脚本后会选中场景中所有使用相同材质的对象。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2025-12-25",
+        "keywords": [
+          "材质",
+          "选择",
+          "相同材质"
+        ],
+        "preview": "",
+        "script": "SelectByMaterial.ms",
+        "url": "",
+        "category": "03_材质工具"
+      }
+    ],
+    "04_动画工具": [
+      {
+        "name": "BakeAnimation",
+        "version": "1.0.0",
+        "description": "烘焙选中对象的动画。\n\n将约束、表达式等转换为关键帧动画。\n\n烘焙范围为当前时间线范围。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2025-12-25",
+        "keywords": [
+          "动画",
+          "烘焙",
+          "Bake",
+          "关键帧"
+        ],
+        "preview": "",
+        "script": "BakeAnimation.ms",
+        "url": "",
+        "category": "04_动画工具"
+      },
+      {
+        "name": "DeleteAllKeys",
+        "version": "1.0.0",
+        "description": "删除选中对象的所有动画关键帧。\n\n谨慎使用，此操作不可撤销（建议先保存）。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2025-12-25",
+        "keywords": [
+          "动画",
+          "关键帧",
+          "删除",
+          "清理"
+        ],
+        "preview": "",
+        "script": "DeleteAllKeys.ms",
+        "url": "",
+        "category": "04_动画工具"
+      },
+      {
+        "name": "专业轨迹控制",
+        "version": "1.0",
+        "description": "专业级轨迹控制手柄，精确调整运动路径",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "轨迹",
+          "控制",
+          "专业"
+        ],
+        "preview": "",
+        "script": "专业轨迹控制.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "04_动画工具"
+      },
+      {
+        "name": "动画复制粘贴",
+        "version": "1.0",
+        "description": "高级动画复制粘贴工具，支持跨对象",
+        "author": "东见云",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "复制",
+          "粘贴",
+          "关键帧"
+        ],
+        "preview": "",
+        "script": "动画复制粘贴.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "04_动画工具"
+      },
+      {
+        "name": "动画对齐工具",
+        "version": "1.0",
+        "description": "对齐多个对象的动画关键帧",
+        "author": "Alex",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "对齐",
+          "Align",
+          "关键帧"
+        ],
+        "preview": "",
+        "script": "动画对齐工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "04_动画工具"
+      },
+      {
+        "name": "动画范围工具",
+        "version": "1.0",
+        "description": "快速设置和管理动画时间范围",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "范围",
+          "时间",
+          "帧"
+        ],
+        "preview": "",
+        "script": "动画范围工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "04_动画工具"
+      },
+      {
+        "name": "动画镜像",
+        "version": "1.0",
+        "description": "镜像复制动画数据，适用于对称动作",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "镜像",
+          "Mirror",
+          "对称"
+        ],
+        "preview": "",
+        "script": "动画镜像.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "04_动画工具"
+      },
+      {
+        "name": "烘焙动画",
+        "version": "1.0",
+        "description": "将程序动画烘焙为关键帧动画",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "烘焙",
+          "Bake",
+          "关键帧"
+        ],
+        "preview": "",
+        "script": "烘焙动画.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "04_动画工具"
+      },
+      {
+        "name": "补间动画工具",
+        "version": "1.0",
+        "description": "在关键帧之间快速创建补间动画，支持多种缓动曲线",
+        "author": "Justin Barrett",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "补间",
+          "Tween",
+          "关键帧"
+        ],
+        "preview": "",
+        "script": "补间动画工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "04_动画工具"
+      },
+      {
+        "name": "轨迹编辑器",
+        "version": "1.0",
+        "description": "可视化编辑运动轨迹，支持轨迹修改和平滑",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "动画",
+          "轨迹",
+          "路径",
+          "编辑"
+        ],
+        "preview": "",
+        "script": "轨迹编辑器.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "04_动画工具"
+      }
+    ],
+    "05_骨骼绑定": [
+      {
+        "name": "SelectAllBones",
+        "version": "1.0.0",
+        "description": "选择场景中所有骨骼对象。\n\n包括 Bone、Biped 骨骼和 CAT 骨骼。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2025-12-25",
+        "keywords": [
+          "骨骼",
+          "选择",
+          "Bone",
+          "Biped"
+        ],
+        "preview": "",
+        "script": "SelectAllBones.ms",
+        "url": "",
+        "category": "05_骨骼绑定"
+      },
+      {
+        "name": "弹簧控制器",
+        "version": "1.0",
+        "description": "为对象添加弹簧控制器，实现弹性跟随效果",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "绑定",
+          "弹簧",
+          "控制器",
+          "跟随"
+        ],
+        "preview": "",
+        "script": "弹簧控制器.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_骨骼绑定"
+      },
+      {
+        "name": "扭曲骨骼",
+        "version": "1.0",
+        "description": "创建扭曲骨骼系统，改善关节变形效果",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "绑定",
+          "扭曲",
+          "Twist",
+          "骨骼"
+        ],
+        "preview": "",
+        "script": "扭曲骨骼.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_骨骼绑定"
+      },
+      {
+        "name": "链条工具",
+        "version": "1.0",
+        "description": "创建和管理骨骼链条，适用于绳索、链条等效果",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "绑定",
+          "链条",
+          "Chain",
+          "骨骼"
+        ],
+        "preview": "",
+        "script": "链条工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_骨骼绑定"
+      },
+      {
+        "name": "飘带解算",
+        "version": "1.0",
+        "description": "飘带和布料的简易动力学解算工具",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "绑定",
+          "飘带",
+          "布料",
+          "解算"
+        ],
+        "preview": "",
+        "script": "飘带解算.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_骨骼绑定"
+      },
+      {
+        "name": "飘带解算增强版",
+        "version": "1.0",
+        "description": "增强版飘带解算工具，模拟弹性运动效果，支持更多参数调节",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "绑定",
+          "弹簧",
+          "Spring",
+          "动力学"
+        ],
+        "preview": "",
+        "script": "飘带解算增强版.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "05_骨骼绑定"
+      }
+    ],
+    "06_场景管理": [
+      {
+        "name": "CleanScene",
+        "version": "1.0.0",
+        "description": "清理场景垃圾数据。\n\n删除空组、无效材质引用等。",
+        "author": "Bullet.S",
+        "optimizer": "",
+        "modified_date": "2025-12-25",
+        "keywords": [
+          "场景",
+          "清理",
+          "优化",
+          "垃圾"
+        ],
+        "preview": "",
+        "script": "CleanScene.ms",
+        "url": "",
+        "category": "06_场景管理"
       },
       {
         "name": "PrintSceneInfo",
@@ -494,7 +493,7 @@
         "preview": "",
         "script": "PrintSceneInfo.ms",
         "url": "",
-        "category": "07_场景管理"
+        "category": "06_场景管理"
       },
       {
         "name": "专业颜色工具",
@@ -513,7 +512,7 @@
         "script": "专业颜色工具.ms",
         "url": "",
         "tutorial": "",
-        "category": "07_场景管理"
+        "category": "06_场景管理"
       },
       {
         "name": "图层管理替代版",
@@ -532,7 +531,7 @@
         "script": "图层管理替代版.ms",
         "url": "",
         "tutorial": "",
-        "category": "07_场景管理"
+        "category": "06_场景管理"
       },
       {
         "name": "对象批量重命名",
@@ -551,7 +550,7 @@
         "script": "对象批量重命名.ms",
         "url": "",
         "tutorial": "",
-        "category": "07_场景管理"
+        "category": "06_场景管理"
       },
       {
         "name": "对象选择器",
@@ -570,7 +569,7 @@
         "script": "对象选择器.ms",
         "url": "",
         "tutorial": "",
-        "category": "07_场景管理"
+        "category": "06_场景管理"
       },
       {
         "name": "嵌套图层管理",
@@ -589,10 +588,10 @@
         "script": "嵌套图层管理.ms",
         "url": "",
         "tutorial": "",
-        "category": "07_场景管理"
+        "category": "06_场景管理"
       }
     ],
-    "08_导入导出": [
+    "07_导入导出": [
       {
         "name": "ExportSelectedFBX",
         "version": "1.0.0",
@@ -608,7 +607,7 @@
         "preview": "",
         "script": "ExportSelectedFBX.ms",
         "url": "",
-        "category": "08_导入导出"
+        "category": "07_导入导出"
       },
       {
         "name": "批量导入转换",
@@ -627,7 +626,7 @@
         "script": "批量导入转换.ms",
         "url": "",
         "tutorial": "",
-        "category": "08_导入导出"
+        "category": "07_导入导出"
       },
       {
         "name": "批量降版本",
@@ -646,11 +645,31 @@
         "script": "批量降版本.ms",
         "url": "",
         "tutorial": "",
-        "category": "08_导入导出"
+        "category": "07_导入导出"
       }
     ],
-    "09_镜头相关": [],
-    "10_蒙皮权重": [
+    "08_镜头相关": [
+      {
+        "name": "构图辅助工具",
+        "version": "1.0",
+        "description": "构图辅助工具，帮助你更好地构图",
+        "author": "未知",
+        "optimizer": "Bullet.S",
+        "modified_date": "2025-12-26",
+        "keywords": [
+          "渲染",
+          "合成",
+          "图像",
+          "后期"
+        ],
+        "preview": "",
+        "script": "构图辅助工具.ms",
+        "url": "",
+        "tutorial": "",
+        "category": "08_镜头相关"
+      }
+    ],
+    "09_蒙皮权重": [
       {
         "name": "XR蒙皮工具",
         "version": "1.0",
@@ -668,7 +687,7 @@
         "script": "XR蒙皮工具.ms",
         "url": "",
         "tutorial": "",
-        "category": "10_蒙皮权重"
+        "category": "09_蒙皮权重"
       },
       {
         "name": "修改蒙皮骨骼",
@@ -687,7 +706,7 @@
         "script": "修改蒙皮骨骼.ms",
         "url": "",
         "tutorial": "",
-        "category": "10_蒙皮权重"
+        "category": "09_蒙皮权重"
       },
       {
         "name": "合并蒙皮",
@@ -706,7 +725,7 @@
         "script": "合并蒙皮.ms",
         "url": "",
         "tutorial": "",
-        "category": "10_蒙皮权重"
+        "category": "09_蒙皮权重"
       },
       {
         "name": "替换蒙皮骨骼",
@@ -725,13 +744,13 @@
         "script": "替换蒙皮骨骼.ms",
         "url": "",
         "tutorial": "",
-        "category": "10_蒙皮权重"
+        "category": "09_蒙皮权重"
       },
       {
         "name": "权重分区平滑",
         "version": "1.0",
         "description": "按分区平滑蒙皮权重，提高变形质量",
-        "author": "未知",
+        "author": "一方狂三",
         "optimizer": "Bullet.S",
         "modified_date": "2025-12-26",
         "keywords": [
@@ -744,7 +763,7 @@
         "script": "权重分区平滑.ms",
         "url": "",
         "tutorial": "",
-        "category": "10_蒙皮权重"
+        "category": "09_蒙皮权重"
       },
       {
         "name": "蒙皮工具集",
@@ -763,7 +782,7 @@
         "script": "蒙皮工具集.ms",
         "url": "",
         "tutorial": "",
-        "category": "10_蒙皮权重"
+        "category": "09_蒙皮权重"
       },
       {
         "name": "蒙皮权重工具",
@@ -782,10 +801,10 @@
         "script": "蒙皮权重工具.ms",
         "url": "",
         "tutorial": "",
-        "category": "10_蒙皮权重"
+        "category": "09_蒙皮权重"
       }
     ],
-    "11_特效渲染": [
+    "10_特效渲染": [
       {
         "name": "MassFX物理工具",
         "version": "1.0",
@@ -803,7 +822,7 @@
         "script": "MassFX物理工具.ms",
         "url": "",
         "tutorial": "",
-        "category": "11_特效渲染"
+        "category": "10_特效渲染"
       },
       {
         "name": "Voronoi破碎",
@@ -822,13 +841,13 @@
         "script": "Voronoi破碎.ms",
         "url": "",
         "tutorial": "",
-        "category": "11_特效渲染"
+        "category": "10_特效渲染"
       },
       {
         "name": "参考大师",
         "version": "1.0",
         "description": "参考图管理工具，方便查看参考资料",
-        "author": "未知",
+        "author": "伯仲",
         "optimizer": "Bullet.S",
         "modified_date": "2025-12-26",
         "keywords": [
@@ -841,26 +860,7 @@
         "script": "参考大师.ms",
         "url": "",
         "tutorial": "",
-        "category": "11_特效渲染"
-      },
-      {
-        "name": "图像合成助手",
-        "version": "1.0",
-        "description": "渲染图像的合成辅助工具",
-        "author": "未知",
-        "optimizer": "Bullet.S",
-        "modified_date": "2025-12-26",
-        "keywords": [
-          "渲染",
-          "合成",
-          "图像",
-          "后期"
-        ],
-        "preview": "",
-        "script": "图像合成助手.ms",
-        "url": "",
-        "tutorial": "",
-        "category": "11_特效渲染"
+        "category": "10_特效渲染"
       },
       {
         "name": "多方向渲染工具",
@@ -879,7 +879,7 @@
         "script": "多方向渲染工具.ms",
         "url": "",
         "tutorial": "",
-        "category": "11_特效渲染"
+        "category": "10_特效渲染"
       },
       {
         "name": "灯光台",
@@ -898,7 +898,7 @@
         "script": "灯光台.ms",
         "url": "",
         "tutorial": "",
-        "category": "11_特效渲染"
+        "category": "10_特效渲染"
       },
       {
         "name": "碰撞器工具",
@@ -917,10 +917,10 @@
         "script": "碰撞器工具.ms",
         "url": "",
         "tutorial": "",
-        "category": "11_特效渲染"
+        "category": "10_特效渲染"
       }
     ],
-    "12_开发工具": [
+    "11_开发工具": [
       {
         "name": ".NET属性查看器",
         "version": "1.0",
@@ -938,7 +938,7 @@
         "script": ".NET属性查看器.ms",
         "url": "",
         "tutorial": "",
-        "category": "12_开发工具"
+        "category": "11_开发工具"
       },
       {
         "name": "CS工具集",
@@ -957,7 +957,7 @@
         "script": "CS工具集.ms",
         "url": "",
         "tutorial": "",
-        "category": "12_开发工具"
+        "category": "11_开发工具"
       },
       {
         "name": "Rollout构建器",
@@ -976,7 +976,7 @@
         "script": "Rollout构建器.ms",
         "url": "",
         "tutorial": "",
-        "category": "12_开发工具"
+        "category": "11_开发工具"
       },
       {
         "name": "UI布局工具",
@@ -995,7 +995,7 @@
         "script": "UI布局工具.ms",
         "url": "",
         "tutorial": "",
-        "category": "12_开发工具"
+        "category": "11_开发工具"
       },
       {
         "name": "世界单位缩放",
@@ -1014,7 +1014,7 @@
         "script": "世界单位缩放.ms",
         "url": "",
         "tutorial": "",
-        "category": "12_开发工具"
+        "category": "11_开发工具"
       },
       {
         "name": "暗黑代码编辑器",
@@ -1033,7 +1033,7 @@
         "script": "暗黑代码编辑器.ms",
         "url": "",
         "tutorial": "",
-        "category": "12_开发工具"
+        "category": "11_开发工具"
       },
       {
         "name": "窗口句柄查看器",
@@ -1052,7 +1052,7 @@
         "script": "窗口句柄查看器.ms",
         "url": "",
         "tutorial": "",
-        "category": "12_开发工具"
+        "category": "11_开发工具"
       },
       {
         "name": "窗口工具箱",
@@ -1071,7 +1071,7 @@
         "script": "窗口工具箱.ms",
         "url": "",
         "tutorial": "",
-        "category": "12_开发工具"
+        "category": "11_开发工具"
       }
     ],
     "98_动作逆向": [

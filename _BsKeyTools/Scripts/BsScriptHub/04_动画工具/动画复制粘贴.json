@@ -1,8 +1,8 @@
 {
     "name": "动画复制粘贴",
     "version": "1.0",
-    "description": "高级动画复制粘贴工具，支持跨对象、跨场景操作",
-    "author": "未知",
+    "description": "高级动画复制粘贴工具，支持跨对象",
+    "author": "东见云",
     "optimizer": "Bullet.S",
     "modified_date": "",
     "keywords": [

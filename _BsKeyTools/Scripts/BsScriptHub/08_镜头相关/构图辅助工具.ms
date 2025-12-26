@@ -1,6 +1,6 @@
 /*
  * BsScriptHub Wrapper
- * 脚本名称: 图像合成助手
+ * 脚本名称: 构图辅助工具
  * 原始位置: Quote/ImageCompHelper.ms
  */
 (

@@ -1,6 +1,6 @@
 /*
  * BsScriptHub Wrapper
- * 脚本名称: 弹簧魔法增强版
+ * 脚本名称: 飘带解算增强版
  * 原始位置: Quote/SpringMagic_Enhanced.ms
  */
 (

@@ -1,7 +1,7 @@
 {
-    "name": "弹簧魔法增强版",
+    "name": "飘带解算增强版",
     "version": "1.0",
-    "description": "增强版弹簧动力学工具，模拟弹性运动效果，支持更多参数调节",
+    "description": "增强版飘带解算工具，模拟弹性运动效果，支持更多参数调节",
     "author": "未知",
     "optimizer": "Bullet.S",
     "modified_date": "",
@@ -12,7 +12,7 @@
         "动力学"
     ],
     "preview": "",
-    "script": "弹簧魔法增强版.ms",
+    "script": "飘带解算增强版.ms",
     "url": "",
     "tutorial": ""
 }
