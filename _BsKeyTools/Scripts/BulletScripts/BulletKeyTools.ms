@@ -3,7 +3,7 @@
 * @Author: Bullet.S
 * @Date: 2019-09-28 11:48:53
  * @LastEditors: Bullet.S
- * @LastEditTime: 2025-12-25 21:27:43
+ * @LastEditTime: 2025-12-26 16:44:03
 * @Email: animator.bullet@foxmail.com
 */
 try(FileIn ((getDir #StartupScripts) + "\\BsKeyToolsMacro.ms"))
@@ -13,7 +13,6 @@ catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsKeyTo
 
 try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
 try(destroydialog rolBsKeyTools)catch()
-try(destroydialog rolFnKeys)catch()
 try(destroydialog rolAddMyScripts)catch()
 try(destroydialog rolCustomFps)catch()
 try(destroydialog rolCustomBtn)catch()
@@ -1718,7 +1717,6 @@ rcmenu menuConfig
 	(
 		try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
 		try(destroydialog rolBsKeyTools)catch()
-		try(destroydialog rolFnKeys)catch()
 		try(destroydialog rolAddMyScripts)catch()
 	)
 
@@ -1760,7 +1758,6 @@ rcmenu menuConfig
 			for f in arrDelMs do (fnDelFileDir f)
 			try(cui.UnRegisterDialogBar rolBsKeyTools) catch()
 			try(destroydialog rolBsKeyTools)catch()
-			try(destroydialog rolFnKeys)catch()
 			try(destroydialog rolAddMyScripts)catch()
 			(messagebox "已清理干净，保留配置文件备用...    \r\n" beep:false title:"卸载成功！")
 		)
@@ -2060,123 +2057,6 @@ rcmenu menuSetSpeed
 )
 ------------------帧率,播放速度------------------------------------------------------------
 
----------------------滑动帧切换rollout---------------------------------
-rollout rolFnKeys "滑动帧切换 v1.1" width:280 height:120
-(
-	group ""
-	(
-		checkbox chkLHand "左手" pos:[24,20] width:50 height:20 color:Blue
-		checkbox chkRHand "右手" pos:[96,20] width:50 height:20 color:Green
-		checkbox chkLFoot "左脚" pos:[24,55] width:50 height:20 color:Blue checked:true
-		checkbox chkRFoot "右脚" pos:[96,55] width:50 height:20 color:Green checked:true
-		button btnPlanted "固定关键帧" pos:[184,20] width:80 height:25 toolTip:"Set Planted Key"
-		button btnSliding "滑动关键帧" pos:[184,50] width:80 height:25 toolTip:"Set Sliding Key"
-		button btnFree "自由关键帧" pos:[184,80] width:80 height:25 toolTip:"Set Free Key"
-		label lblMe "[2019.05.28]  Bullet.S" pos:[24,92] width:120 height:16 color:Green
-	)
-	
-	Fn fnSetKeyType keyType = 
-	(
-		sliderTime = animationRange.start
-		for obj in selection where ((classof obj.baseObject == Biped_Object) \
-		and (biped.getCurrentLayer obj.controller == 0)) do
-		(
-			bipCtrl = obj.controller
-			if chkLHand.checked then 
-			(
-				sel_obj1 = (biped.getNode bipCtrl #larm)
-				k = numKeys sel_obj1.controller
-					for i=1 to k do
-					(
-					t = (biped.getkey sel_obj1.controller i).time
-						slidertime = t
-						with animate on --at time t		
-						(
-							case of
-							(
-								(keyType == 1):(biped.SetPlantedKey sel_obj1)
-								(keyType == 2):(biped.SetSlidingKey sel_obj1)
-								(keyType == 3):(biped.SetFreeKey sel_obj1)
-							)
-						)
-					)
-			)
-			if chkRHand.checked then 
-			(
-				sel_obj2 = (biped.getNode bipCtrl #rarm)
-				k = numKeys sel_obj2.controller
-					for i=1 to k do
-					(
-					t = (biped.getkey sel_obj2.controller i).time
-						slidertime = t
-						with animate on --at time t		
-						(
-							case of
-							(
-								(keyType == 1):(biped.SetPlantedKey sel_obj2)
-								(keyType == 2):(biped.SetSlidingKey sel_obj2)
-								(keyType == 3):(biped.SetFreeKey sel_obj2)
-							)
-						)
-					)
-			)
-			if chkLFoot.checked then 
-			(
-				sel_obj3 = (biped.getNode bipCtrl #lleg)
-				k = numKeys sel_obj3.controller
-					for i=1 to k do
-					(
-					t = (biped.getkey sel_obj3.controller i).time
-						slidertime = t
-						with animate on --at time t		
-						(
-							case of
-							(
-								(keyType == 1):(biped.SetPlantedKey sel_obj3)
-								(keyType == 2):(biped.SetSlidingKey sel_obj3)
-								(keyType == 3):(biped.SetFreeKey sel_obj3)
-							)
-						)
-					)
-			)
-			if chkRFoot.checked then 
-			(
-				sel_obj4 = (biped.getNode bipCtrl #rleg)
-				k = numKeys sel_obj4.controller
-					for i=1 to k do
-					(
-					t = (biped.getkey sel_obj4.controller i).time
-						slidertime = t
-						with animate on --at time t		
-						(
-							case of
-							(
-								(keyType == 1):(biped.SetPlantedKey sel_obj4)
-								(keyType == 2):(biped.SetSlidingKey sel_obj4)
-								(keyType == 3):(biped.SetFreeKey sel_obj4)
-							)
-						)
-					)
-			)
-		)
-	)
-	
-	on btnPlanted pressed  do
-	(
-		fnSetKeyType 1
-	)
-	
-	on btnSliding pressed  do
-	(
-		fnSetKeyType 2
-	)
-	
-	on btnFree pressed  do
-	(
-		fnSetKeyType 3
-	)
-)
------------------------------------------------------------------
 -------------主UI-----------------------------------------------------------------
 rollout rolBsKeyTools "" width:355 height:250
 (
@@ -4446,9 +4326,8 @@ rollout rolBsKeyTools "" width:355 height:250
 	
 	on btnFnKeyType pressed do 
 	(
-		try(destroydialog rolFnKeys)catch()
-		Createdialog rolFnKeys  fgcolor:myFgColor \
-		pos:[mouse.screenpos.x,mouse.screenpos.y]
+		try(FileIn ((getDir #scripts) + "\\BulletScripts" + "\\BsFnKeys.ms"))
+		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsFnKeys.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 
 	on btnEulerFilter pressed do 
