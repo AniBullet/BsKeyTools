@@ -1,5 +1,19 @@
+﻿#Requires -Version 5.1
 # BsKeyTools 代码贡献一键设置脚本
-# 使用方法：右键点击此文件 → 使用 PowerShell 运行
+# 
+# 使用方法：
+#   方法1（推荐）：双击 run-contribute.bat
+#   方法2：右键点击此文件 → 使用 PowerShell 运行（需要文件是 UTF-8 with BOM 编码）
+#   方法3：powershell -ExecutionPolicy Bypass -File setup-contribute.ps1
+
+# 设置控制台编码为 UTF-8（解决中文显示问题）
+$OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+if ($PSVersionTable.PSVersion.Major -ge 6) {
+    $PSDefaultParameterValues['*:Encoding'] = 'utf8'
+} else {
+    chcp 65001 | Out-Null
+}
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  BsKeyTools 代码贡献一键设置脚本" -ForegroundColor Cyan
@@ -69,7 +83,7 @@ Write-Host "  分支名称: $branchName" -ForegroundColor Gray
 Write-Host "  提交信息: $commitMessage" -ForegroundColor Gray
 Write-Host "  项目路径: $projectPath" -ForegroundColor Gray
 Write-Host ""
-$confirm = Read-Host "确认无误？(Y/N)"
+$confirm = Read-Host "确认无误? (Y/N)"
 if ($confirm -ne "Y" -and $confirm -ne "y") {
     Write-Host "已取消操作。" -ForegroundColor Yellow
     exit 0
@@ -199,7 +213,7 @@ $status = git status --short 2>&1
 if ([string]::IsNullOrWhiteSpace($status)) {
     Write-Host "⚠ 没有检测到代码修改！" -ForegroundColor Yellow
     Write-Host ""
-    $continue = Read-Host "是否继续提交？(Y/N)"
+    $continue = Read-Host "是否继续提交? (Y/N)"
     if ($continue -ne "Y" -and $continue -ne "y") {
         Write-Host "已取消提交。" -ForegroundColor Yellow
         exit 0
