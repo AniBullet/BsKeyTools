@@ -26,7 +26,7 @@ try (callbacks.removeScripts #filePostSave id:#BsRefreshRecentFilesSave) catch (
 try (callbacks.removeScripts #systemPostNew id:#BsRefreshRecentFilesNew) catch ()
 try (callbacks.removeScripts #systemPostReset id:#BsRefreshRecentFilesReset) catch ()
 
-global curVerBsKeyTools  = "1.3.0"
+global curVerBsKeyTools  = "1.4.0"
 global verUrlBsKeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 -- global oldUrlBskeyTools  = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools%EF%BC%88%E8%A3%85%E5%AE%8C%E9%87%8D%E5%90%AFMAX,%E8%AF%AF%E6%9D%80%E8%AF%B7%E4%BF%A1%E4%BB%BB%EF%BC%89.exe"
 -- global oldFileBsKeyTools = (getdir #temp) + "\\_BsKeyTools_Classic.exe"
@@ -169,6 +169,85 @@ iniAddToolbars  = fnGetConfig iniAddToolbars "BulletKeyToolsSet"  "ToolBarBtn" (
 global arrToolNewTabs = for i = 1 to numToolTabs collect #()
 global arrToolNewC1 = #(), arrToolNewC2 = #(), arrToolNewC3 = #(), arrToolNewC4 = #()
 global arrToolsAll, arrToolsNameAll, arrMlbToolBtns = #()
+
+-----------------------------------------------------------------------------------------------------
+-- 特别贡献者展示面板
+-----------------------------------------------------------------------------------------------------
+rollout rolContributors "Special Thanks" width:340 height:400
+(
+	-- 标题
+	label lblTitle "Thanks to All Contributors!" pos:[85,10]
+	
+	-- 代码贡献者区域
+	groupbox gbxCodeContrib " Code Contributors " pos:[10,35] width:320 height:105
+	bitmap bmpContributors width:300 height:60 pos:[20,55]
+	button btnGitHubContrib "View on GitHub" width:140 height:22 pos:[100,115] tooltip:"查看 GitHub 贡献者"
+	
+	-- 特别感谢区域
+	groupbox gbxSpecialThanks " Special Thanks " pos:[10,150] width:320 height:165
+	label lblThanksDesc "感谢以下个人的代码贡献与灵感支持:" pos:[20,170]
+	
+	-- 贡献者列表 (两列布局)
+	label lblC1 "- Crazyone" pos:[40,195]
+	label lblC2 "- 东见云" pos:[40,215]
+	label lblC3 "- 祥子" pos:[40,235]
+	label lblC4 "- SiChun Yuan" pos:[40,255]
+	
+	label lblC5 "- 动画大白" pos:[185,195]
+	label lblC6 "- 哈库呐玛哒哒" pos:[185,215]
+	label lblC7 "- z.ven 子墨" pos:[185,235]
+	label lblC8 "- 一方狂三" pos:[185,255]
+	
+	label lblMore "...以及所有提供反馈和建议的朋友们!" pos:[60,285]
+	
+	-- 底部按钮
+	groupbox gbxBottom " " pos:[10,325] width:320 height:65
+	button btnReadme "Full List" width:95 height:22 pos:[20,343] tooltip:"查看完整列表"
+	button btnContribute "Contribute" width:95 height:22 pos:[122,343] tooltip:"参与贡献"
+	button btnClose "Close" width:95 height:22 pos:[225,343] tooltip:"关闭"
+	label lblCopyright "BsKeyTools - Since 2019.11" pos:[105,370]
+	
+	-- 加载贡献者头像
+	on rolContributors open do
+	(
+		try
+		(
+			local imgPath = (getDir #scripts) + "\\BulletScripts\\Res\\contributors.bmp"
+			if doesFileExist imgPath then
+			(
+				local img = openBitmap imgPath
+				if img != undefined then bmpContributors.bitmap = img
+			)
+		)
+		catch()
+	)
+	
+	-- 事件处理
+	on bmpContributors click do
+	(
+		shellLaunch "https://github.com/AniBullet/BsKeyTools/graphs/contributors" ""
+	)
+	
+	on btnGitHubContrib pressed do
+	(
+		shellLaunch "https://github.com/AniBullet/BsKeyTools/graphs/contributors" ""
+	)
+	
+	on btnReadme pressed do
+	(
+		shellLaunch "https://github.com/AniBullet/BsKeyTools#-特别感谢" ""
+	)
+	
+	on btnContribute pressed do
+	(
+		shellLaunch "https://github.com/AniBullet/BsKeyTools/blob/main/CONTRIBUTING.md" ""
+	)
+	
+	on btnClose pressed do
+	(
+		try(destroyDialog rolContributors)catch()
+	)
+)
 
 rollout rolCustomBtn "自定义功能按钮排序" width:660 height:240
 (
@@ -569,6 +648,7 @@ rcmenu menuConfig
 		menuItem mItemHelpVideo ">> 视频教程 <<"
 		menuItem mItemHelpDoc ">> 帮助文档 <<"
 		menuItem mItemBugReport ">> 问题建议 <<"
+		menuItem mItemContributors ">> 特别贡献 <<"
 		-- subMenu "关于我 [欢迎交流]"
 		-- (
 			separator menuAboutMe
@@ -1550,6 +1630,12 @@ rcmenu menuConfig
 
 	on mItemBugReport picked do
 	(shellLaunch "https://github.com/AniBullet/BsKeyTools/issues" "")
+
+	on mItemContributors picked do
+	(
+		try(destroyDialog rolContributors)catch()
+		createDialog rolContributors fgcolor:myFgColor pos:[mouse.screenpos.x - 170, mouse.screenpos.y]
+	)
 
 	on mItemBilibili picked do 
 	(shellLaunch "https://space.bilibili.com/2031113" "")

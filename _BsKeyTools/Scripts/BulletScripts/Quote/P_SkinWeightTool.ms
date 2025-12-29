@@ -45,6 +45,48 @@ local Multi_bones = #()
 local vertexSkinInfo_for_Lock = #()
 local saved_Vertices_for_Lock = #()
 
+-- 兼容性函数：获取选中的顶点（支持低版本3ds Max）
+-- 全局变量用于缓存是否支持原生方法
+global _skinOps_hasGetSelectedVertices = undefined
+
+fn getSelectedVertices_compat skinMod =
+(
+	-- 首次调用时检测是否支持原生方法
+	if _skinOps_hasGetSelectedVertices == undefined do
+	(
+		try
+		(
+			local testResult = skinOps.getSelectedVertices skinMod
+			_skinOps_hasGetSelectedVertices = true
+		)
+		catch
+		(
+			_skinOps_hasGetSelectedVertices = false
+		)
+	)
+	
+	-- 根据检测结果选择方法
+	if _skinOps_hasGetSelectedVertices == true then
+	(
+		return skinOps.getSelectedVertices skinMod
+	)
+	else
+	(
+		-- 低版本兼容：遍历所有顶点检查是否选中
+		local result = #()
+		local numVerts = skinOps.GetNumberVertices skinMod
+		for i = 1 to numVerts do
+		(
+			-- isVertexSelected 可能返回 0/1 而不是 true/false
+			local isSelected = skinOps.isVertexSelected skinMod i
+			if isSelected != 0 and isSelected != false do
+			(
+				append result i
+			)
+		)
+		return result
+	)
+)
 
 try (destroydialog P_WT_Rollout) catch()	
 
@@ -194,7 +236,7 @@ function select_bones mode_:false=
 fn getVertexSkinInfo selection_:undefined =
 (
     local vertexSkinInfo = #()
-    local targetVertices = if selection_ == undefined then skinOps.getSelectedVertices skin_ else selection_
+    local targetVertices = if selection_ == undefined then getSelectedVertices_compat skin_ else selection_
 
     for vertIndex in targetVertices do
     (
@@ -214,17 +256,77 @@ fn getVertexSkinInfo selection_:undefined =
 )
 
 
+-- 兼容性函数：在数组中按顶点ID查找数据（替代 Dictionary）
+fn findVertexDataById dataArray vertId =
+(
+	for item in dataArray do
+	(
+		if item[1] == vertId do return item
+	)
+	return undefined
+)
+
+-- 兼容性函数：Hammer 平滑权重（支持低版本3ds Max）
+fn skinHammer_compat skinMod vertArray =
+(
+	-- 尝试使用带数组参数的新版本 Hammer（3ds Max 2016+）
+	try
+	(
+		skinOps.Hammer skinMod vertArray
+	)
+	catch
+	(
+		-- 低版本兼容：先选择顶点，再调用 Hammer
+		skinOps.SelectVertices skinMod vertArray
+		-- 尝试无参数的 Hammer
+		try ( skinOps.Hammer skinMod ) catch()
+	)
+)
+
+-- 兼容性函数：bakeSelectedVerts（支持低版本3ds Max）
+fn bakeSelectedVerts_compat skinMod =
+(
+	try
+	(
+		skinOps.bakeSelectedVerts skinMod
+	)
+	catch
+	(
+		-- 低版本可能不支持此函数，忽略错误
+	)
+)
+
+-- 兼容性函数：blendSelected（支持低版本3ds Max）
+fn blendSelected_compat skinMod =
+(
+	try
+	(
+		skinOps.blendSelected skinMod
+	)
+	catch
+	(
+		-- 低版本可能不支持此函数，忽略错误
+	)
+)
+
+-- 兼容性函数：removeUnusedBones（支持低版本3ds Max）
+fn removeUnusedBones_compat skinMod =
+(
+	try
+	(
+		skinOps.removeUnusedBones skinMod
+	)
+	catch
+	(
+		messageBox "此功能在当前版本的 3ds Max 中不受支持。"
+	)
+)
+
 fn blendVertexSkinWeights vertexSkinInfo percentage current_value_ selection_only:false =
 (
-    local selection_ = if selection_only then skinOps.getSelectedVertices skin_ else undefined
+    local selection_ = if selection_only then getSelectedVertices_compat skin_ else undefined
 	local Percentage__=(1 - percentage / 100)
 	local Percentage_=(percentage / 100)
-		-- current_value_ 배열을 딕셔너리로 변환
-	local current_value_dict = Dictionary  #integer
-	for ii in current_value_ do
-	(
-		current_value_dict[ii[1] ] = ii
-	)
 	
 	for vertData in vertexSkinInfo do
 	(
@@ -234,8 +336,8 @@ fn blendVertexSkinWeights vertexSkinInfo percentage current_value_ selection_onl
 			if found == 0 do continue
 		)
 
-		-- 딕셔너리에서 데이터 검색 (O(1))
-		local current_info_ = current_value_dict[vertData[1]]
+		-- 使用兼容性函数查找数据
+		local current_info_ = findVertexDataById current_value_ vertData[1]
 
 		if current_info_ != undefined then
 		(
@@ -454,7 +556,7 @@ function draw_feature2 =
         )
 
         memory_skin_vert = getVertexSkinInfo()
-        startTool AssignSkinVertexWeightTool2 prompt:"Draw Line"
+        startTool AssignSkinVertexWeightTool2 prompt:"绘制线条"
     )
     else 
     (
@@ -495,18 +597,12 @@ fn makeFiveCharacters inputString =
 
 fn updateLockedVertexWeightsWithNewData lock_arr new_arr =
 (
-    -- lock_arr를 Dictionary로 변환 (key: vertex ID, value: weight data)
-    local lock_dict = dictionary  #integer
-    for vertData_lock in lock_arr do
-    (
-        lock_dict[vertData_lock[1]] = deepCopy vertData_lock -- 키를 그대로 사용
-    )
-
     for vertData_new in new_arr do 
     (
-        local vertData_lock_copy = GetDictValue lock_dict vertData_new[1] -- 키 변환 제거
-
-       --if vertData_lock_copy != undefined do  -- 값이 존재하면 실행
+        -- 使用兼容性函数查找数据（替代 Dictionary）
+        local vertData_lock_copy = findVertexDataById lock_arr vertData_new[1]
+        
+        if vertData_lock_copy != undefined do
         (
             vertData_lock_copy = deepCopy vertData_lock_copy
 
@@ -557,7 +653,7 @@ fn getVertexSkinInfoAndBone targetBone=
 (
 	saved_Vertices_for_Lock=#()
     local vertexSkinInfo = #()
-	local targetVertices = skinOps.getSelectedVertices skin_
+	local targetVertices = getSelectedVertices_compat skin_
     for vertIndex in targetVertices do
     (
         local boneIDs=#()
@@ -600,11 +696,11 @@ fn periodicFunction =
 
 
 
-rollout Select_Bone_from_List "Select Bones" width:256 height:208
+rollout Select_Bone_from_List "选择骨骼" width:256 height:208
 (
 	Multilistbox 'lbx1' "" pos:[8,8] width:240 height:11 align:#left
-	button 'b_Accept' "Accept" pos:[48,170] width:64 height:32 align:#left
-	button 'b_Cancel' "Cancel" pos:[144,170] width:64 height:32 align:#left
+	button 'b_Accept' "确定" pos:[48,170] width:64 height:32 align:#left
+	button 'b_Cancel' "取消" pos:[144,170] width:64 height:32 align:#left
 	
 	on Select_Bone_from_List open do 
 	(
@@ -638,25 +734,25 @@ rollout Select_Bone_from_List "Select Bones" width:256 height:208
 )
 
 
-rollout Lock_Weights "Lock Weights" width:240 height:208
+rollout Lock_Weights "锁定权重" width:240 height:208
 (
 	
 	local rdo_value=1
 	
 	Timer 'SecTme' "Tme" pos:[168,600] width:24 height:24 interval:1000 active:false align:#left
-	checkbutton 'b_LockBtn' "Lock!!" pos:[8,8] width:104 height:80 align:#left
-	label 'lbl1' "If you close this window, the lock will be unlocked" pos:[0,190] width:240 height:16 align:#left
-	checkbutton 'btn5' "Use Multi Bones" pos:[136,312] width:104 height:40 align:#left
-	button 'Manual_Update' "Manual update" pos:[120,72] width:88 height:16 align:#left
-	radiobuttons 'rdo1' "" pos:[120,8] width:131 height:64 labels:#("Not Auto Update", "Interval 1.5sec", "Interval 0.7sec", "Interval 0.1sec") default:2 align:#left
+	checkbutton 'b_LockBtn' "锁定!!" pos:[8,8] width:104 height:80 align:#left
+	label 'lbl1' "关闭此窗口将解除锁定" pos:[0,190] width:240 height:16 align:#left
+	checkbutton 'btn5' "使用多骨骼" pos:[136,312] width:104 height:40 align:#left
+	button 'Manual_Update' "手动更新" pos:[120,72] width:88 height:16 align:#left
+	radiobuttons 'rdo1' "" pos:[120,8] width:131 height:64 labels:#("不自动更新", "间隔 1.5秒", "间隔 0.7秒", "间隔 0.1秒") default:2 align:#left
 	
 	
-	button 'btn_add' "add" pos:[56,160] width:48 height:24 align:#left
-	button 'btn_Delete' "Delete" pos:[104,160] width:48 height:24 align:#left
-	button 'btn_fromlist' "From List" pos:[8,160] width:48 height:24 align:#left
+	button 'btn_add' "添加" pos:[56,160] width:48 height:24 align:#left
+	button 'btn_Delete' "删除" pos:[104,160] width:48 height:24 align:#left
+	button 'btn_fromlist' "从列表" pos:[8,160] width:48 height:24 align:#left
 	listbox 'lbx1' "" pos:[8,112] width:144 height:3 align:#left
-	label 'lbl2' "- Bones List -" pos:[24,96] width:64 height:16 align:#left
-	button 'btn_affectedVertices' "Select Bone-Affected Vertices" pos:[160,120] width:72 height:56 align:#left
+	label 'lbl2' "- 骨骼列表 -" pos:[24,96] width:64 height:16 align:#left
+	button 'btn_affectedVertices' "选择受影响顶点" pos:[160,120] width:72 height:56 align:#left
 	
 	on Lock_Weights close do 
 	(
@@ -702,10 +798,10 @@ rollout Lock_Weights "Lock Weights" width:240 height:208
 	(
 		if arg==true then
 		(
-			if Multi_bones.count==0 or ((skinOps.getSelectedVertices skin_).count==0) then 
+			if Multi_bones.count==0 or ((getSelectedVertices_compat skin_).count==0) then 
 			(
 				b_LockBtn.state=false
-				messagebox "Either the bone or the vertices has not been selected."
+				messagebox "骨骼或顶点尚未选择。"
 			)
 			else
 			(
@@ -749,7 +845,7 @@ rollout Lock_Weights "Lock Weights" width:240 height:208
 		(
 			skinOps.SelectBone skin_ i
 			skinOps.selectVerticesByBone skin_
-			join arr (skinOps.getSelectedVertices skin_)
+			join arr (getSelectedVertices_compat skin_)
 		)
 		skinOps.SelectVertices skin_ arr
 		skinOps.SelectBone skin_ b
@@ -757,13 +853,13 @@ rollout Lock_Weights "Lock Weights" width:240 height:208
 )
 
 
-rollout Load_Weights "Load Weights" width:224 height:80
+rollout Load_Weights "加载权重" width:224 height:80
 (
     slider 'sld1' "" pos:[8,48] width:216 height:25 align:#left
-    button 'btn2' "Load 100%" pos:[168,8] width:48 height:40 align:#left
-    button 'btn3' "Select Saved Selection" pos:[120,8] width:48 height:40 align:#left
-    checkbox 'chk6' "Current Selected" pos:[8,8] width:104 height:24 align:#left
-    label 'lbl83' "Vertices Only" pos:[36,32] width:64 height:16 align:#left
+    button 'btn2' "加载100%" pos:[168,8] width:48 height:40 align:#left
+    button 'btn3' "选择已保存选集" pos:[120,8] width:48 height:40 align:#left
+    checkbox 'chk6' "仅当前选择" pos:[8,8] width:104 height:24 align:#left
+    label 'lbl83' "的顶点" pos:[36,32] width:64 height:16 align:#left
     
     local target_ = undefined
 	local current_value_
@@ -792,7 +888,7 @@ rollout Load_Weights "Load Weights" width:224 height:80
 
     on sld1 buttondown do
     (
-        skinOps.bakeSelectedVerts skin_
+        bakeSelectedVerts_compat skin_
         current_value_ = getVertexSkinInfo selection_: save_vertices[target_]
     )
 
@@ -803,7 +899,7 @@ rollout Load_Weights "Load Weights" width:224 height:80
 
     on btn2 pressed do
     (
-        skinOps.bakeSelectedVerts skin_
+        bakeSelectedVerts_compat skin_
         current_value_ = getVertexSkinInfo selection_: save_vertices[target_]
 		if chk6.checked==true then
 			blendVertexSkinWeights save_vertices[target_ + 2] 100 current_value_ selection_only:true
@@ -820,101 +916,101 @@ rollout Load_Weights "Load Weights" width:224 height:80
 
 
 
-rollout Gradient_Multi_Bones "Gradient Multi Bones" width:416 height:144
+rollout Gradient_Multi_Bones "多骨骼渐变" width:416 height:144
 (
 	
-	button 'b_RestoreView' "Restore           View & Frame" pos:[136,8] width:64 height:48 align:#left
-	button 'b_Cancel' "RESET       & Close" pos:[288,24] width:56 height:32 align:#left
-	button 'b_Apply' "Apply" pos:[344,8] width:64 height:48 align:#left				
+	button 'b_RestoreView' "还原视图和帧" pos:[136,8] width:64 height:48 align:#left
+	button 'b_Cancel' "重置并关闭" pos:[288,24] width:56 height:32 align:#left
+	button 'b_Apply' "应用" pos:[344,8] width:64 height:48 align:#left				
 	checkbox 'b_Same_G_ALL' "" pos:[24,40] width:24 height:16 enabled:false checked:true align:#left
-	button 'b_ResetLine' "Redraw Line" pos:[56,8] width:80 height:24 align:#left       
-	button 'b_ResetValue' "Reset Value" pos:[56,32] width:80 height:24 align:#left
-	label 'lbl31' "Same" pos:[16,8] width:32 height:16 align:#left				
-	label 'lbl32' "Gradient" pos:[8,24] width:48 height:16 align:#left
-	button 'btn_MoreBones' "More Bones" pos:[232,24] width:56 height:32 align:#left
+	button 'b_ResetLine' "重绘线条" pos:[56,8] width:80 height:24 align:#left       
+	button 'b_ResetValue' "重置数值" pos:[56,32] width:80 height:24 align:#left
+	label 'lbl31' "相同" pos:[16,8] width:32 height:16 align:#left				
+	label 'lbl32' "渐变" pos:[8,24] width:48 height:16 align:#left
+	button 'btn_MoreBones' "更多骨骼" pos:[232,24] width:56 height:32 align:#left
 	
 
-	button 'Select_Bone_1' "- Empty Bone - " pos:[8,64] width:128 height:16 align:#left
-	button 'Select_Bone_2' "- Empty Bone - " pos:[144,64] width:128 height:16 enabled:false align:#left
-	button 'Select_Bone_3' "- Empty Bone - " pos:[280,64] width:128 height:16 enabled:false align:#left
-	button 'Select_Bone_4' "- Empty Bone - " pos:[8,144] width:128 height:16 enabled:false align:#left
-	button 'Select_Bone_5' "- Empty Bone - " pos:[144,144] width:128 height:16 enabled:false align:#left
-	button 'Select_Bone_6' "- Empty Bone - " pos:[280,144] width:128 height:16 enabled:false align:#left
-	button 'Select_Bone_7' "- Empty Bone - " pos:[8,224] width:128 height:16 enabled:false align:#left
-	button 'Select_Bone_8' "- Empty Bone - " pos:[144,224] width:128 height:16 enabled:false align:#left
-	button 'Select_Bone_9' "- Empty Bone - " pos:[280,224] width:128 height:16 enabled:false align:#left
+	button 'Select_Bone_1' "- 空骨骼 - " pos:[8,64] width:128 height:16 align:#left
+	button 'Select_Bone_2' "- 空骨骼 - " pos:[144,64] width:128 height:16 enabled:false align:#left
+	button 'Select_Bone_3' "- 空骨骼 - " pos:[280,64] width:128 height:16 enabled:false align:#left
+	button 'Select_Bone_4' "- 空骨骼 - " pos:[8,144] width:128 height:16 enabled:false align:#left
+	button 'Select_Bone_5' "- 空骨骼 - " pos:[144,144] width:128 height:16 enabled:false align:#left
+	button 'Select_Bone_6' "- 空骨骼 - " pos:[280,144] width:128 height:16 enabled:false align:#left
+	button 'Select_Bone_7' "- 空骨骼 - " pos:[8,224] width:128 height:16 enabled:false align:#left
+	button 'Select_Bone_8' "- 空骨骼 - " pos:[144,224] width:128 height:16 enabled:false align:#left
+	button 'Select_Bone_9' "- 空骨骼 - " pos:[280,224] width:128 height:16 enabled:false align:#left
 
     -- 첫 번째 그룹 (Bone 1)
 	spinner 'spn_bone1_1' "" pos:[8,88] width:56 height:16 enabled:false range:[0,100,0] align:#left
 	spinner 'spn_bone1_2' "" pos:[80,88] width:56 height:16 enabled:false range:[0,100,100] align:#left
-	label 'lbl_bone1_to' "To" pos:[68,88] width:10 height:16 align:#left
-	label 'lbl_bone1_gradient' "Gradient Range" pos:[16,104] width:80 height:16 align:#left
+	label 'lbl_bone1_to' "至" pos:[68,88] width:10 height:16 align:#left
+	label 'lbl_bone1_gradient' "渐变范围" pos:[16,104] width:80 height:16 align:#left
 	spinner 'spn_bone1_value' "" pos:[96,120] width:40 height:16 enabled:false range:[0,1,1] scale:0.01 align:#left
-	label 'lbl_bone1_value' "Value" pos:[104,104] width:32 height:16 align:#left
+	label 'lbl_bone1_value' "权重" pos:[104,104] width:32 height:16 align:#left
 	
 	-- 두 번째 그룹 (Bone 2)
 	spinner 'spn_bone2_1' "" pos:[144,88] width:56 height:16 enabled:false range:[0,100,0] align:#left
 	spinner 'spn_bone2_2' "" pos:[216,88] width:56 height:16 enabled:false range:[0,100,0] align:#left
-	label 'lbl_bone2_to' "To" pos:[204,88] width:10 height:16 align:#left
-	label 'lbl_bone2_gradient' "Gradient Range" pos:[152,104] width:80 height:16 align:#left
+	label 'lbl_bone2_to' "至" pos:[204,88] width:10 height:16 align:#left
+	label 'lbl_bone2_gradient' "渐变范围" pos:[152,104] width:80 height:16 align:#left
 	spinner 'spn_bone2_value' "" pos:[232,120] width:40 height:16 enabled:false range:[0,1,1] scale:0.01 align:#left
-	label 'lbl_bone2_value' "Value" pos:[240,104] width:32 height:16 align:#left
+	label 'lbl_bone2_value' "权重" pos:[240,104] width:32 height:16 align:#left
 
 	-- 세 번째 그룹 (Bone 3)
 	spinner 'spn_bone3_1' "" pos:[280,88] width:56 height:16 enabled:false range:[0,100,0] align:#left
 	spinner 'spn_bone3_2' "" pos:[352,88] width:56 height:16 enabled:false range:[0,100,0] align:#left
-	label 'lbl_bone3_to' "To" pos:[340,88] width:10 height:16 align:#left
-	label 'lbl_bone3_gradient' "Gradient Range" pos:[288,104] width:80 height:16 align:#left
+	label 'lbl_bone3_to' "至" pos:[340,88] width:10 height:16 align:#left
+	label 'lbl_bone3_gradient' "渐变范围" pos:[288,104] width:80 height:16 align:#left
 	spinner 'spn_bone3_value' "" pos:[368,120] width:40 height:16 enabled:false range:[0,1,1] scale:0.01 align:#left
-	label 'lbl_bone3_value' "Value" pos:[376,104] width:32 height:16 align:#left
+	label 'lbl_bone3_value' "权重" pos:[376,104] width:32 height:16 align:#left
 	
 		-- 네 번째 그룹 (Bone 4)
 	spinner 'spn_bone4_1' "" pos:[8,164] width:56 height:16 enabled:false range:[0,100,0] align:#left
 	spinner 'spn_bone4_2' "" pos:[80,164] width:56 height:16 enabled:false range:[0,100,0] align:#left
-	label 'lbl_bone4_to' "To" pos:[68,164] width:10 height:16 align:#left
-	label 'lbl_bone4_gradient' "Gradient Range" pos:[16,184] width:80 height:16 align:#left
+	label 'lbl_bone4_to' "至" pos:[68,164] width:10 height:16 align:#left
+	label 'lbl_bone4_gradient' "渐变范围" pos:[16,184] width:80 height:16 align:#left
 	spinner 'spn_bone4_value' "" pos:[96,200] width:40 height:16 enabled:false range:[0,1,1] scale:0.01 align:#left
-	label 'lbl_bone4_value' "Value" pos:[104,184] width:32 height:16 align:#left
+	label 'lbl_bone4_value' "权重" pos:[104,184] width:32 height:16 align:#left
 
 	-- 다섯 번째 그룹 (Bone 5)
 	spinner 'spn_bone5_1' "" pos:[144,164] width:56 height:16 enabled:false range:[0,100,0] align:#left
 	spinner 'spn_bone5_2' "" pos:[216,164] width:56 height:16 enabled:false range:[0,100,0] align:#left
-	label 'lbl_bone5_to' "To" pos:[204,164] width:10 height:16 align:#left
-	label 'lbl_bone5_gradient' "Gradient Range" pos:[152,184] width:80 height:16 align:#left
+	label 'lbl_bone5_to' "至" pos:[204,164] width:10 height:16 align:#left
+	label 'lbl_bone5_gradient' "渐变范围" pos:[152,184] width:80 height:16 align:#left
 	spinner 'spn_bone5_value' "" pos:[232,200] width:40 height:16 enabled:false range:[0,1,1] scale:0.01 align:#left
-	label 'lbl_bone5_value' "Value" pos:[240,184] width:32 height:16 align:#left
+	label 'lbl_bone5_value' "权重" pos:[240,184] width:32 height:16 align:#left
 
 	-- 여섯 번째 그룹 (Bone 6)
 	spinner 'spn_bone6_1' "" pos:[280,164] width:56 height:16 enabled:false range:[0,100,0] align:#left
 	spinner 'spn_bone6_2' "" pos:[352,164] width:56 height:16 enabled:false range:[0,100,0] align:#left
-	label 'lbl_bone6_to' "To" pos:[340,164] width:10 height:16 align:#left
-	label 'lbl_bone6_gradient' "Gradient Range" pos:[288,184] width:80 height:16 align:#left
+	label 'lbl_bone6_to' "至" pos:[340,164] width:10 height:16 align:#left
+	label 'lbl_bone6_gradient' "渐变范围" pos:[288,184] width:80 height:16 align:#left
 	spinner 'spn_bone6_value' "" pos:[368,200] width:40 height:16 enabled:false range:[0,1,1] scale:0.01 align:#left
-	label 'lbl_bone6_value' "Value" pos:[376,184] width:32 height:16 align:#left
+	label 'lbl_bone6_value' "权重" pos:[376,184] width:32 height:16 align:#left
 
 	-- 일곱 번째 그룹 (Bone 7)
 	spinner 'spn_bone7_1' "" pos:[8,244] width:56 height:16 enabled:false range:[0,100,0] align:#left
 	spinner 'spn_bone7_2' "" pos:[80,244] width:56 height:16 enabled:false range:[0,100,0] align:#left
-	label 'lbl_bone7_to' "To" pos:[68,244] width:10 height:16 align:#left
-	label 'lbl_bone7_gradient' "Gradient Range" pos:[16,264] width:80 height:16 align:#left
+	label 'lbl_bone7_to' "至" pos:[68,244] width:10 height:16 align:#left
+	label 'lbl_bone7_gradient' "渐变范围" pos:[16,264] width:80 height:16 align:#left
 	spinner 'spn_bone7_value' "" pos:[96,280] width:40 height:16 enabled:false range:[0,1,1] scale:0.01 align:#left
-	label 'lbl_bone7_value' "Value" pos:[104,264] width:32 height:16 align:#left
+	label 'lbl_bone7_value' "权重" pos:[104,264] width:32 height:16 align:#left
 
 	-- 여덟 번째 그룹 (Bone 8)
 	spinner 'spn_bone8_1' "" pos:[144,244] width:56 height:16 enabled:false range:[0,100,0] align:#left
 	spinner 'spn_bone8_2' "" pos:[216,244] width:56 height:16 enabled:false range:[0,100,0] align:#left
-	label 'lbl_bone8_to' "To" pos:[204,244] width:10 height:16 align:#left
-	label 'lbl_bone8_gradient' "Gradient Range" pos:[152,264] width:80 height:16 align:#left
+	label 'lbl_bone8_to' "至" pos:[204,244] width:10 height:16 align:#left
+	label 'lbl_bone8_gradient' "渐变范围" pos:[152,264] width:80 height:16 align:#left
 	spinner 'spn_bone8_value' "" pos:[232,280] width:40 height:16 enabled:false range:[0,1,1] scale:0.01 align:#left
-	label 'lbl_bone8_value' "Value" pos:[240,264] width:32 height:16 align:#left
+	label 'lbl_bone8_value' "权重" pos:[240,264] width:32 height:16 align:#left
 
 	-- 아홉 번째 그룹 (Bone 9)
 	spinner 'spn_bone9_1' "" pos:[280,244] width:56 height:16 enabled:false range:[0,100,0] align:#left
 	spinner 'spn_bone9_2' "" pos:[352,244] width:56 height:16 enabled:false range:[0,100,0] align:#left
-	label 'lbl_bone9_to' "To" pos:[340,244] width:10 height:16 align:#left
-	label 'lbl_bone9_gradient' "Gradient Range" pos:[288,264] width:80 height:16 align:#left
+	label 'lbl_bone9_to' "至" pos:[340,244] width:10 height:16 align:#left
+	label 'lbl_bone9_gradient' "渐变范围" pos:[288,264] width:80 height:16 align:#left
 	spinner 'spn_bone9_value' "" pos:[368,280] width:40 height:16 enabled:false range:[0,1,1] scale:0.01 align:#left
-	label 'lbl_bone9_value' "Value" pos:[376,264] width:32 height:16 align:#left
+	label 'lbl_bone9_value' "权重" pos:[376,264] width:32 height:16 align:#left
 
 	
 	
@@ -1516,18 +1612,18 @@ rollout Gradient_Multi_Bones "Gradient Multi Bones" width:416 height:144
 	
 
 
-rollout Attach_Skin_Dialog "Attach Skin Objects" width:152 height:72
+rollout Attach_Skin_Dialog "附加蒙皮对象" width:152 height:72
 (
 	local mode=1
 	local skinobj, bone_list
-	Button 'btn1' "Select Skin Objects\n And press this button" pos:[16,9] width:120 height:48 align:#left
+	Button 'btn1' "选择蒙皮对象\n然后按此按钮" pos:[16,9] width:120 height:48 align:#left
 	on btn1 pressed do
 	(
 			max modify mode
-			if $selection.count<=1 do (Messagebox "Select Only Skin Objects"; DestroyDialog Attach_Skin_Dialog; return 0)
+			if $selection.count<=1 do (Messagebox "请仅选择蒙皮对象"; DestroyDialog Attach_Skin_Dialog; return 0)
 			for i in $selection do 
 			(
-			if i.modifiers[#Skin]==undefined do (Messagebox "Select Only Skin Objects"; DestroyDialog Attach_Skin_Dialog; return 0)	
+			if i.modifiers[#Skin]==undefined do (Messagebox "请仅选择蒙皮对象"; DestroyDialog Attach_Skin_Dialog; return 0)	
 			)
 			sele=selection as array
 			new_sele=#()
@@ -1555,31 +1651,31 @@ rollout Attach_Skin_Dialog "Attach Skin Objects" width:152 height:72
 			ddd.modifiers[#Skin_Wrap].engine = 0
 			select ddd
 			
-		messagebox "Click To Convert To Skin" 
+		messagebox "点击转换为蒙皮" 
 		DestroyDialog Attach_Skin_Dialog
 	)
 )
 
 
-rollout Advanced_Feature "Advanced_Feature" width:344 height:416
+rollout Advanced_Feature "高级功能" width:344 height:416
 (
 	dotNetControl 'edtDescription' "System.Windows.Forms.Textbox" pos:[16,152] width:312 height:112 align:#left
-	GroupBox 'grp1' "Copy Weights from Closest Vertices" pos:[8,8] width:328 height:264 align:#left
+	GroupBox 'grp1' "从最近顶点复制权重" pos:[8,8] width:328 height:264 align:#left
 	
-	button 'btn3' "Load From Selection" pos:[16,104] width:104 height:32 align:#left
-	button 'btn5' "Load From Selection" pos:[152,104] width:104 height:32 align:#left
+	button 'btn3' "从选择加载" pos:[16,104] width:104 height:32 align:#left
+	button 'btn5' "从选择加载" pos:[152,104] width:104 height:32 align:#left
 	label 'lbl5' "-->" pos:[128,56] width:16 height:16 align:#left
-	button 'btn14' "Run" pos:[264,56] width:64 height:40 align:#left
-	label 'lbl23' "0 vertices selected" pos:[24,56] width:88 height:32 align:#left
-	GroupBox 'grp7' "Reference" pos:[16,32] width:104 height:64 align:#left
-	GroupBox 'grp8' "Target" pos:[152,32] width:104 height:64 align:#left
+	button 'btn14' "执行" pos:[264,56] width:64 height:40 align:#left
+	label 'lbl23' "已选择 0 个顶点" pos:[24,56] width:88 height:32 align:#left
+	GroupBox 'grp7' "参考源" pos:[16,32] width:104 height:64 align:#left
+	GroupBox 'grp8' "目标" pos:[152,32] width:104 height:64 align:#left
 	
-	label 'lbl24' "0 vertices selected" pos:[160,56] width:88 height:32 align:#left
-	GroupBox 'grp71' "Copy Weight from Other Objects one by one" pos:[8,280] width:328 height:128 align:#left
-	button 'btn7' "Run" pos:[120,304] width:32 height:96 align:#left	
+	label 'lbl24' "已选择 0 个顶点" pos:[160,56] width:88 height:32 align:#left
+	GroupBox 'grp71' "从其他对象逐一复制权重" pos:[8,280] width:328 height:128 align:#left
+	button 'btn7' "执行" pos:[120,304] width:32 height:96 align:#left	
 	
 	
-	pickbutton 'btn12' "Pick\nReference" pos:[16,304] width:96 height:96 align:#left
+	pickbutton 'btn12' "拾取\n参考对象" pos:[16,304] width:96 height:96 align:#left
 	dotNetControl 'edtDescription2' "System.Windows.Forms.Textbox" pos:[160,304] width:168 height:96 align:#left
 	
 	
@@ -1730,13 +1826,13 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 					)
 					if empty_bones!="" do 
 					(
-						empty_bones+="These bones are missing."
+						empty_bones+="这些骨骼缺失。"
 						messagebox empty_bones
 						return false
 					)
 					
 			selectedObject=Tar_v_OBJ
-			current_selected_vert=skinOps.getSelectedVertices selectedObject.modifiers[skin]
+			current_selected_vert=getSelectedVertices_compat selectedObject.modifiers[skin]
 				
 			for i in current_selected_vert do 
 			(
@@ -1793,7 +1889,7 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 			enableSceneRedraw()
 			redrawViews()
 			resumeEditing which:#modify
-			skinOps.bakeSelectedVerts OBJ__.modifiers[#Skin]
+			bakeSelectedVerts_compat OBJ__.modifiers[#Skin]
 			subObjectLevel=1
 			skinOps.SelectBone obj__.modifiers[#Skin] bb
 			)
@@ -1842,9 +1938,9 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 
 	on Advanced_Feature open do
 	(
-		edtDescription.text="When applied, it copies the weight of a selected vertex \nfrom nearby vertices. Useful for even weight distribution in thin cloth.\n"+
-		" (Weight value of the [Target] group changes. [Ref] group does not change) (Vertices registered in the target are \nautomatically excluded from the reference.)\n"+
-		" (The [distance] used as the reference is based on the distance visible on the screen at the current frame.) (Possible between different objects)"
+		edtDescription.text="应用时，从邻近顶点复制权重到选中的顶点。\n适用于薄布料的均匀权重分布。\n"+
+		" ([目标] 组的权重值会改变，[参考源] 组不变)\n(目标中注册的顶点会自动从参考源中排除)\n"+
+		" (作为参考的 [距离] 基于当前帧屏幕上可见的距离)\n(可在不同对象之间操作)"
 		
 		edtDescription.ReadOnly = true
 		edtDescription.Multiline = true
@@ -1853,7 +1949,7 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 		edtDescription.ForeColor = (dotNetClass "System.Drawing.Color").White
 		edtDescription.ScrollBars = (dotNetClass "System.Windows.Forms.ScrollBars").None
 		
-		edtDescription2.text="Copy the value of one vertex of the reference object to one vertex of the currently selected object.\nCopy vertices one by one by successively clicking them 1 by 1."
+		edtDescription2.text="将参考对象的一个顶点权重复制到当前选中对象的一个顶点。\n通过连续点击逐个复制顶点。"
 		
 		edtDescription2.ReadOnly = true
 		edtDescription2.Multiline = true
@@ -1865,24 +1961,24 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 	on btn3 pressed do
 	(
 		Ref_v_OBJ=selection[1]
-		Ref_v=skinOps.getSelectedVertices skin_ 
+		Ref_v=getSelectedVertices_compat skin_ 
 		lbl23.text=(Ref_v.count as string) +" vertices selected"
 		selectedVertices = Ref_v
 	)
 	on btn5 pressed do
 	(
 		Tar_v_OBJ=selection[1]
-		Tar_v=skinOps.getSelectedVertices skin_ 
+		Tar_v=getSelectedVertices_compat skin_ 
 		lbl24.text=(Tar_v.count as string) +" vertices selected"
 	)
 	on btn14 pressed do
 	(
 		if (Tar_v_OBJ!=undefined) and (Tar_v_OBJ!=selection[1]) do (select Tar_v_OBJ;)
 		Other_mode=false
-		if (Ref_v==#()) or (Tar_v==#()) do (messageBox "Please select reference and target Vertices"; return false)
+		if (Ref_v==#()) or (Tar_v==#()) do (messageBox "请选择参考源和目标顶点"; return false)
 		if (Ref_v_OBJ!=Tar_v_OBJ) do (
-			if (queryBox ("When copying values between different objects, operations are performed differently from Default."+
-			" This process can be slow\nContinue?")==true) then (Other_mode=true) else(return false)
+			if (queryBox ("在不同对象之间复制权重时，操作方式与默认不同。"+
+			" 此过程可能较慢\n是否继续？")==true) then (Other_mode=true) else(return false)
 			)
 			
 		MOD_poly=false
@@ -1893,7 +1989,7 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 			if classof (Ref_v_OBJ.modifiers[i])==Edit_Poly do MOD_poly=Ref_v_OBJ.modifiers[i]
 		)
 		
-		if MOD_poly==false then (messagebox "This feature can only be used when Edit poly or Editable poly is active..")
+		if MOD_poly==false then (messagebox "此功能仅在 Edit Poly 或 Editable Poly 激活时可用。")
 		
 		MOD_poly=false
 		if (classof Tar_v_OBJ.baseobject) == Editable_Poly do MOD_poly=1
@@ -1903,9 +1999,9 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 			if classof (Tar_v_OBJ.modifiers[i])==Edit_Poly do MOD_poly=Tar_v_OBJ.modifiers[i]
 		)
 		
-		if MOD_poly==false then (messagebox "This feature can only be used when Edit poly or Editable poly is active..")
+		if MOD_poly==false then (messagebox "此功能仅在 Edit Poly 或 Editable Poly 激活时可用。")
 		
-			skinOps.bakeSelectedVerts Tar_v_OBJ.modifiers[skin]
+			bakeSelectedVerts_compat Tar_v_OBJ.modifiers[skin]
 		max modify mode
 		OBJ__=Tar_v_OBJ
 		
@@ -1962,9 +2058,9 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 				return false
 			)
 				
-			skinOps.bakeSelectedVerts selectedObject.modifiers[skin]
+			bakeSelectedVerts_compat selectedObject.modifiers[skin]
 			--skinOps.SetWeight selectedObject.modifiers[skin] 1
-			current_selected_vert=skinOps.getSelectedVertices selectedObject.modifiers[skin]
+			current_selected_vert=getSelectedVertices_compat selectedObject.modifiers[skin]
 			local total_vert_count = current_selected_vert.count
 			local ten_percent_increment = total_vert_count / 10
 			local start_time = timestamp() 
@@ -2024,7 +2120,7 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 				if processed_vert_count >= ten_percent_increment then
 				(
 					progress_percentage = processed_vert_count * 100 / total_vert_count
-					print ("Progress: " + progress_percentage as string + "%")
+					print ("进度: " + progress_percentage as string + "%")
 					ten_percent_increment += total_vert_count / 10
 				)
 	
@@ -2038,10 +2134,10 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 						local remaining_percentage = 100 - progress_percentage
 						local remaining_time = (elapsed_time / progress_percentage) * remaining_percentage
 						local remaining_seconds = remaining_time / 1000
-						if remaining_seconds > 13 then -- 변경된 부분: 남은 시간이 13초 초과일 때만 queryBox 표시
+						if remaining_seconds > 13 then -- 当剩余时间超过13秒时才显示 queryBox
 						(
 							start_time = undefined
-							local a = queryBox ("Remaining time is " + remaining_seconds as string + " seconds. Would you like to continue?")
+							local a = queryBox ("预计剩余时间为 " + remaining_seconds as string + " 秒。是否继续？")
 							if a == false do 
 							(
 								max undo
@@ -2053,9 +2149,9 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 			)
 			resumeEditing which:#modify
 				subObjectLevel=1
-				messagebox "Success"
+				messagebox "操作成功"
 			
-			skinOps.bakeSelectedVerts Tar_v_OBJ.modifiers[skin]
+			bakeSelectedVerts_compat Tar_v_OBJ.modifiers[skin]
 			return false
 		)
 		undo on (
@@ -2078,7 +2174,7 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 )
 
 
-				messagebox "Success"
+				messagebox "操作成功"
 	)
 	on btn7 pressed do
 	(
@@ -2093,16 +2189,16 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 	)
 	on btn12 picked arg do
 	(
-		btn12.text="From_SKIN_Object\r\n"+arg.name
+		btn12.text="蒙皮参考对象\r\n"+arg.name
 	)
 	on btn12 pressed do
 	(
 		Ref_v_OBJ=selection[1]
-		Ref_v=skinOps.getSelectedVertices Ref_v_OBJ.modifiers[skin] 
+		Ref_v=getSelectedVertices_compat Ref_v_OBJ.modifiers[skin] 
 		lbl23.text=(Ref_v.count as string) +" vertices selected"
 		a_list=#()
 		skinMod = Ref_v_OBJ.modifiers[skin]
-			selectedVertices = skinOps.getSelectedVertices skinMod
+			selectedVertices = getSelectedVertices_compat skinMod
 			for vertIndex in selectedVertices do
 			(
 				weightCount = skinOps.GetVertexWeightCount skinMod vertIndex
@@ -2124,47 +2220,47 @@ rollout Advanced_Feature "Advanced_Feature" width:344 height:416
 
 rcmenu Savemenu
 (
-	menuItem m1 "Save To A (Empty)" enabled:true
-	menuItem m2 "Save To B (Empty)" enabled:true
+	menuItem m1 "保存到 A (空)" enabled:true
+	menuItem m2 "保存到 B (空)" enabled:true
    
    on Savemenu open do 
    (	   
 	   aa= save_vertices[1]
 	   bb= save_vertices[2]
-	   if aa!=undefined and aa.count>0 do  m1.text="Overwrite To A (" +(save_vertices[1].count as string)+" Vertices saved)"
-	   if bb!=undefined and bb.count>0 do  m2.text="Overwrite To B (" +(save_vertices[2].count as string)+" Vertices saved)"
+	   if aa!=undefined and aa.count>0 do  m1.text="覆盖到 A (" +(save_vertices[1].count as string)+" 个顶点已保存)"
+	   if bb!=undefined and bb.count>0 do  m2.text="覆盖到 B (" +(save_vertices[2].count as string)+" 个顶点已保存)"
    )
 	   
 	on m1 picked do
 		(
-			save_vertices[1]=skinOps.getSelectedVertices skin_
+			save_vertices[1]=getSelectedVertices_compat skin_
 			save_vertices[3]=getVertexSkinInfo()
 		)
 	on m2 picked do
 		(
-			save_vertices[2]=skinOps.getSelectedVertices skin_
+			save_vertices[2]=getSelectedVertices_compat skin_
 			save_vertices[4]=getVertexSkinInfo()			
 		)
 
 )
 rcmenu Loadmenu
 (
-	menuItem m1 "Select A : " enabled:true
-	menuItem m2 "Select B : " enabled:true
-	menuItem m3 "Union (A+B)" enabled:true
-	menuItem m4 "Intersection (A*B)" enabled:true
-	menuItem m5 "Difference (A-B)" enabled:true
-	menuItem m6 "Difference (B-A)" enabled:true
+	menuItem m1 "选择 A : " enabled:true
+	menuItem m2 "选择 B : " enabled:true
+	menuItem m3 "并集 (A+B)" enabled:true
+	menuItem m4 "交集 (A*B)" enabled:true
+	menuItem m5 "差集 (A-B)" enabled:true
+	menuItem m6 "差集 (B-A)" enabled:true
 	menuItem m7 "---------- : " enabled:true
-	menuItem m8 "Load A Weight : " enabled:true
-	menuItem m9 "Load B Weight : " enabled:true
+	menuItem m8 "加载 A 权重 : " enabled:true
+	menuItem m9 "加载 B 权重 : " enabled:true
    
    on Loadmenu open do 
    (
-	   m1.text="Select A : "+(save_vertices[1].count as string)+" Vertices"
-	   m2.text="Select B : "+(save_vertices[2].count as string)+" Vertices"
-	   m8.text="Load A Weight : "+(save_vertices[1].count as string)+" Vertices"
-	   m9.text="Load B Weight : "+(save_vertices[2].count as string)+" Vertices"
+	   m1.text="选择 A : "+(save_vertices[1].count as string)+" 个顶点"
+	   m2.text="选择 B : "+(save_vertices[2].count as string)+" 个顶点"
+	   m8.text="加载 A 权重 : "+(save_vertices[1].count as string)+" 个顶点"
+	   m9.text="加载 B 权重 : "+(save_vertices[2].count as string)+" 个顶点"
    )
    
 	on m1 picked do
@@ -2293,18 +2389,18 @@ rcmenu MyRCmenu
 )
 
 
-rollout Edit_Curve_Dialog "Edit Curve" width:216 height:88
+rollout Edit_Curve_Dialog "编辑曲线" width:216 height:88
 (
-	button 'btn3' "Reset" pos:[152,8] width:56 height:24 align:#left
-	button 'btn4' "Close" pos:[152,40] width:56 height:40 align:#left
+	button 'btn3' "重置" pos:[152,8] width:56 height:24 align:#left
+	button 'btn4' "关闭" pos:[152,40] width:56 height:40 align:#left
 	spinner 'spn2' "" pos:[48,8] width:96 height:16 range:[0,100,1] scale:0.01 align:#left
 	spinner 'spn3' "" pos:[48,24] width:96 height:16 range:[0.001,10,0.001] scale:0.01 align:#left
 	spinner 'spn4' "" pos:[48,40] width:96 height:16 range:[0.001,10,0.001] scale:0.01 align:#left
-	label 'lbl1' "Value" pos:[8,8] width:32 height:16 align:#left
-	label 'lbl2' "Pinch" pos:[8,24] width:32 height:16 align:#left
-	label 'lbl3' "Bubble" pos:[8,40] width:32 height:16 align:#left
-	dropdownList 'ddl1' "" pos:[37,60] width:108 height:22 align:#left items:#("Line / Add","Line / Subtract","Circle / Add","Circle / Subtract")
-	label 'lbl28' "Mode" pos:[8,64] width:32 height:16 align:#left
+	label 'lbl1' "数值" pos:[8,8] width:32 height:16 align:#left
+	label 'lbl2' "收缩" pos:[8,24] width:32 height:16 align:#left
+	label 'lbl3' "膨胀" pos:[8,40] width:32 height:16 align:#left
+	dropdownList 'ddl1' "" pos:[37,60] width:108 height:22 align:#left items:#("线性 / 增加","线性 / 减少","圆形 / 增加","圆形 / 减少")
+	label 'lbl28' "模式" pos:[8,64] width:32 height:16 align:#left
 
 	
 
@@ -2341,7 +2437,7 @@ rollout Edit_Curve_Dialog "Edit Curve" width:216 height:88
 	
 		fn changedvalue_circle =
 		(
-			--skinOps.bakeSelectedVerts skin_
+			--bakeSelectedVerts_compat skin_
 			for i = 1 to skin_vert_arr.count do
 			(
 				tar_ = closestPointOnLine2D viewpoint_xy lastpoint_xy skin_vert_screen_arr[i]
@@ -2437,7 +2533,7 @@ rollout Edit_Curve_Dialog "Edit Curve" width:216 height:88
 		)
 	)
 )
-rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
+rollout P_WT_Rollout "P_SkinWeightTool 2.0.1" width:184 height:776
 (
 	local SelectedVertex
 	local SelectedBone
@@ -2462,7 +2558,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 			if (classof (OBJ__.modifiers[i])==Edit_Poly) do MOD_poly=i
 		)
 		
-		if MOD_poly==false or (MOD_poly<MOD_skin)do( (messagebox "This feature can only be used when the skin modifier is on top of an Edit Poly or an Editable Poly"); return false)
+		if MOD_poly==false or (MOD_poly<MOD_skin)do( (messagebox "此功能仅在 Skin 修改器位于 Edit Poly 或 Editable Poly 之上时可用"); return false)
 		return true
 	)
 	
@@ -2518,7 +2614,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	
 	function draw_feature mode__:#line minus_:false=
 	(
-	skinOps.bakeSelectedVerts skin_
+	bakeSelectedVerts_compat skin_
 	open__=false
 	_mode=mode__
 	minus=minus_
@@ -2606,13 +2702,13 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 						append skin_vert_arr [i,vv]
 						)
 				)
-				if skin_vert_arr.count==0 do (messageBox "Select Vertices!"; return false)
+				if skin_vert_arr.count==0 do (messageBox "请选择顶点！"; return false)
 				if (skinOps.isWeightToolOpen skin_)==true do (open__=true; skinOps.closeWeightTool skin_)
 				get_verts_screen_position()
 				unregisterRedrawViewsCallback GW_displayObjectNames;  
 				registerRedrawViewsCallback GW_displayObjectNames  
 										
-				startTool AssignSkinVertexWeightTool1 prompt:"Set Vertex Weight"
+				startTool AssignSkinVertexWeightTool1 prompt:"设置顶点权重"
 							
 	)
 	
@@ -2633,7 +2729,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 		if MOD_poly==false or (MOD_poly<MOD_skin) then
 		( 
 			if (classof OBJ__.baseobject) == Editable_Poly then MOD_poly=1
-			else ((messagebox "This feature can only be used when the skin modifier is on top of an Edit Poly or an Editable Poly"); return false)
+			else ((messagebox "此功能仅在 Skin 修改器位于 Edit Poly 或 Editable Poly 之上时可用"); return false)
 		) 
 		else (MOD_poly=OBJ__.modifiers[MOD_poly];MOD_skin=OBJ__.modifiers[MOD_skin];)
 				
@@ -2677,11 +2773,11 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 			try(
 				M = skin_
 					
-				arr=skinOps.getSelectedVertices M 
-				arrj=skinOps.getSelectedVertices M 
+				arr=getSelectedVertices_compat M 
+				arrj=getSelectedVertices_compat M 
 					
 				skinOps.growSelection M
-				arr2=skinOps.getSelectedVertices M 
+				arr2=getSelectedVertices_compat M 
 
 				arr3=#()
 				for val in arr do
@@ -2707,7 +2803,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 				(
 					skinOps.SelectVertices M i
 					skinOps.growSelection M
-					arr4=skinOps.getSelectedVertices M
+					arr4=getSelectedVertices_compat M
 					
 					b_arr=#()
 					for val in arr4 do
@@ -2759,7 +2855,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	(
 		for i=1 to 20 do 
 			(
-				A = ((skinOps.getSelectedVertices skin_))
+				A = ((getSelectedVertices_compat skin_))
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
@@ -2769,60 +2865,60 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
-				B = ((skinOps.getSelectedVertices skin_) as array)
+				B = ((getSelectedVertices_compat skin_) as array)
 				if A.count==B.count do (exit)
 			)
 	)
-	button 'b_grow' "+" pos:[48,96] width:40 height:32 toolTip:"RightClick : Select Element" align:#left
-	button 'b_shrink' "-" pos:[8,96] width:40 height:32 toolTip:"RightClick : Deselect All" align:#left 
+	button 'b_grow' "+" pos:[48,96] width:40 height:32 toolTip:"右键: 选择元素" align:#left
+	button 'b_shrink' "-" pos:[8,96] width:40 height:32 toolTip:"右键: 取消全选" align:#left 
  
  
  
  
-	button 'b_Loop' "Loop" pos:[136,96] width:40 height:32 toolTip:"RightClick : Select Element" align:#left 
+	button 'b_Loop' "循环" pos:[136,96] width:40 height:32 toolTip:"右键: 选择元素" align:#left 
  
  
  
  
-	button 'b_next' "◀" pos:[96,64] width:40 height:32 toolTip:"Next Ring" align:#left 
+	button 'b_next' "◀" pos:[96,64] width:40 height:32 toolTip:"下一环" align:#left 
  
  
  
  
-	button 'b_previous' "▶" pos:[136,64] width:40 height:32 toolTip:"Previous Ring" align:#left 
+	button 'b_previous' "▶" pos:[136,64] width:40 height:32 toolTip:"上一环" align:#left 
  
  
  
  
-	button 'b_Ring' "Ring" pos:[96,96] width:40 height:32 toolTip:"RightClick : Select Element" align:#left 
+	button 'b_Ring' "环形" pos:[96,96] width:40 height:32 toolTip:"右键: 选择元素" align:#left 
  
  
  
  
-	button 'b_Load' "Element" pos:[48,64] width:40 height:32 toolTip:"Load Vertices Selection" iconName:":/CommandPanel/Motion/BipedRollout/MotionFlow/LoadFile" align:#left
+	button 'b_Load' "元素" pos:[48,64] width:40 height:32 toolTip:"加载顶点选集" iconName:":/CommandPanel/Motion/BipedRollout/MotionFlow/LoadFile" align:#left
 
-	button 'b_parent' "Parent" pos:[64,24] width:40 height:32 toolTip:"Select Parent Bone" align:#left 
+	button 'b_parent' "父级" pos:[64,24] width:40 height:32 toolTip:"选择父骨骼" align:#left 
  
  
  
-	button 'b_child' "Child" pos:[104,24] width:40 height:32 toolTip:"Select Child Bone" align:#left 
+	button 'b_child' "子级" pos:[104,24] width:40 height:32 toolTip:"选择子骨骼" align:#left 
  
  
  
-	button 'b_mirror' "Mirror" pos:[144,24] width:32 height:32 toolTip:"Select Mirror Bone" iconName:":/CommandPanel/Motion/BipedRollout/Mirror" iconSize:[20,20] align:#left 
+	button 'b_mirror' "镜像" pos:[144,24] width:32 height:32 toolTip:"选择镜像骨骼" iconName:":/CommandPanel/Motion/BipedRollout/Mirror" iconSize:[20,20] align:#left 
  
  
  
-	button 'b_save' "Save" pos:[8,64] width:40 height:32 toolTip:"Save Vertices Selection" iconName:":/CommandPanel/Motion/BipedRollout/MotionMixer/BatchSave" align:#left
-	button 'b_selectBones' "SelectBone" pos:[8,24] width:56 height:32 toolTip:"Select Bone\nRightclick : Select Mode" iconName:":/MainUI/SelectInvert" align:#left
+	button 'b_save' "保存" pos:[8,64] width:40 height:32 toolTip:"保存顶点选集" iconName:":/CommandPanel/Motion/BipedRollout/MotionMixer/BatchSave" align:#left
+	button 'b_selectBones' "选骨骼" pos:[8,24] width:56 height:32 toolTip:"选择骨骼\n右键: 选择模式" iconName:":/MainUI/SelectInvert" align:#left
 	
 	
-	button 'b_DrawLine' "Draw   Gradient" pos:[16,416] width:72 height:32 toolTip:"Rightclick : Circle Mode\nAltkey : Subtract" align:#left
-	button 'b_DrawMulti' "Draw  MultiLine" pos:[96,416] width:72 height:32 align:#left
-	button 'b_Hammer' "Hammer" pos:[16,448] width:72 height:32 toolTip:"Rightclick : Hammer x 5" align:#left  
-	button 'b_Average' "Average" pos:[96,448] width:56 height:32 align:#left
-	button 'b_LockWeights' "Lock       Weights" pos:[96,480] width:72 height:32 align:#left
-	button 'b_Advanced' "Advanced Feature" pos:[16,480] width:72 height:32 align:#left
+	button 'b_DrawLine' "绘制渐变" pos:[16,416] width:72 height:32 toolTip:"右键: 圆形模式\nAlt键: 减少" align:#left
+	button 'b_DrawMulti' "多线渐变" pos:[96,416] width:72 height:32 align:#left
+	button 'b_Hammer' "平滑" pos:[16,448] width:72 height:32 toolTip:"右键: 平滑 x 5" align:#left  
+	button 'b_Average' "平均化" pos:[96,448] width:56 height:32 align:#left
+	button 'b_LockWeights' "锁定权重" pos:[96,480] width:72 height:32 align:#left
+	button 'b_Advanced' "高级功能" pos:[16,480] width:72 height:32 align:#left
 	
 	listbox 'lbx_1' "" pos:[16,296] width:152 height:8 align:#left
 	button 'b_0' "0" pos:[8,136] width:24 height:24 align:#left
@@ -2832,12 +2928,12 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	button 'b_75' ".75" pos:[104,136] width:24 height:24 align:#left
 	button 'b_9' ".9" pos:[128,136] width:24 height:24 align:#left
 	button 'b_100' "1" pos:[152,136] width:24 height:24 align:#left
-	button 'b_Set_Weight' "Set Weight" pos:[8,160] width:48 height:32 align:#left
-	button 'b_Scale_Weight' "Scale Weight" pos:[8,192] width:48 height:32 align:#left
-	button 'b_Copy' "Copy" pos:[8,264] width:40 height:24 align:#left
-	button 'b_Paste' "Paste" pos:[48,264] width:40 height:24 align:#left
-	button 'b_PastePos' "PastePos" pos:[88,264] width:48 height:24 align:#left
-	button 'b_Blend' "Blend" pos:[136,264] width:40 height:24 align:#left
+	button 'b_Set_Weight' "设置权重" pos:[8,160] width:48 height:32 align:#left
+	button 'b_Scale_Weight' "缩放权重" pos:[8,192] width:48 height:32 align:#left
+	button 'b_Copy' "复制" pos:[8,264] width:40 height:24 align:#left
+	button 'b_Paste' "粘贴" pos:[48,264] width:40 height:24 align:#left
+	button 'b_PastePos' "按位粘贴" pos:[88,264] width:48 height:24 align:#left
+	button 'b_Blend' "混合" pos:[136,264] width:40 height:24 align:#left
 	spinner 'spn_weight' "" pos:[60,164] width:48 height:16 range:[0,0.5,1] type:#float scale:0.05 align:#left
 	spinner 'spn_scale' "" pos:[60,196] width:48 height:16 range:[0.001,0.95,5] type:#float scale:0.05 align:#left
 	button 'b_Plus' "+" pos:[112,160] width:32 height:32 align:#left
@@ -2851,30 +2947,30 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
  
  
 
-	button 'b_vertex' "Vert" pos:[16,608] width:32 height:32 iconName:"Common\\Vertex" iconSize:[20,20] align:#left
-	button 'b_face' "Face" pos:[56,608] width:32 height:32 iconName:"Common\\Face" iconSize:[20,20] align:#left
-	button 'b_element' "Elem" pos:[96,608] width:32 height:32 iconName:"Common/Element" iconSize:[20,20] align:#left
-	button 'b_unhide' "Unhide" pos:[136,608] width:32 height:32 iconName:":/EditUVW/UnhideAll" iconSize:[20,20] align:#left
-	button 'b_objcolor' "ObjColor" pos:[16,568] width:72 height:32 align:#left
-	button 'b_mtlcolor' "MtlColor" pos:[96,568] width:72 height:32 align:#left
-	button 'b_CustomSet' "C. Sections X" pos:[96,536] width:72 height:24 toolTip:"Turn off Cross Sections\nRClick : + Envelope unclickable" align:#left
-	button 'b_CustomSetOn' "C. Sections O" pos:[16,536] width:72 height:24 enabled:true toolTip:"Turn on Cross Sections" align:#left
+	button 'b_vertex' "顶点" pos:[16,608] width:32 height:32 iconName:"Common\\Vertex" iconSize:[20,20] align:#left
+	button 'b_face' "面" pos:[56,608] width:32 height:32 iconName:"Common\\Face" iconSize:[20,20] align:#left
+	button 'b_element' "元素" pos:[96,608] width:32 height:32 iconName:"Common/Element" iconSize:[20,20] align:#left
+	button 'b_unhide' "显示" pos:[136,608] width:32 height:32 iconName:":/EditUVW/UnhideAll" iconSize:[20,20] align:#left
+	button 'b_objcolor' "对象颜色" pos:[16,568] width:72 height:32 align:#left
+	button 'b_mtlcolor' "材质颜色" pos:[96,568] width:72 height:32 align:#left
+	button 'b_CustomSet' "截面 关" pos:[96,536] width:72 height:24 toolTip:"关闭截面显示\n右键: + 封套不可点击" align:#left
+	button 'b_CustomSetOn' "截面 开" pos:[16,536] width:72 height:24 enabled:true toolTip:"开启截面显示" align:#left
  
 	button 'bones_list_Add' "+" pos:[8,696] width:40 height:24 align:#left
 	button 'bones_list_remove' "-" pos:[48,696] width:40 height:24 align:#left
-	button 'bones_Change' "Change" pos:[8,728] width:56 height:40 align:#left
+	button 'bones_Change' "替换" pos:[8,728] width:46 height:40 align:#left
 	button 'bones_pick_Add' "+" pos:[96,696] width:40 height:24 align:#left
 	button 'bones_pick_remove' "-" pos:[136,696] width:40 height:24 align:#left
-	label 'lb_List' "List" pos:[44,680] width:32 height:16 align:#left
-	label 'lb_Pick' "Pick" pos:[120,680] width:32 height:16 align:#left
-	button 'b_Removezero' "Remove Zero Bone" pos:[120,728] width:56 height:40 align:#left
-	button 'b_skinattach' "Skin Attach" pos:[64,728] width:56 height:40 align:#left
+	label 'lb_List' "列表" pos:[44,680] width:32 height:16 align:#left
+	label 'lb_Pick' "拾取" pos:[120,680] width:32 height:16 align:#left
+	button 'b_Removezero' "移除零权骨" pos:[110,728] width:66 height:40 align:#left
+	button 'b_skinattach' "蒙皮合并" pos:[54,728] width:56 height:40 align:#left
  
  
-	label 'lbl3' "---------- Select + Weight----------" pos:[8,8] width:184 height:16 align:#left
-	label 'lbl5' "---------- Display ----------" pos:[32,520] width:128 height:16 align:#left
-	label 'lbl7' "---------- Bones ----------" pos:[32,664] width:120 height:16 align:#left
-	label 'lbl55' "Hide Selection (Rclick:Unselection)" pos:[8,640] width:168 height:16 align:#left
+	label 'lbl3' "---------- 选择 + 权重 ----------" pos:[8,8] width:184 height:16 align:#left
+	label 'lbl5' "---------- 显示 ----------" pos:[32,520] width:128 height:16 align:#left
+	label 'lbl7' "---------- 骨骼 ----------" pos:[32,664] width:120 height:16 align:#left
+	label 'lbl55' "隐藏选择 (右键:隐藏未选)" pos:[8,640] width:168 height:16 align:#left
 	--button 'b_Hide_BonesTab' "O" pos:[152,672] width:16 height:16 align:#left
 
 	
@@ -3100,7 +3196,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	)
 	on b_save rightClick do
 	(
-		save_vertices[3]=skinOps.getSelectedVertices skin_
+		save_vertices[3]=getSelectedVertices_compat skin_
 	)
 	on b_save pressed do
 	(
@@ -3130,22 +3226,22 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	)
 	on b_Hammer pressed do
 	(
-		skinOps.bakeSelectedVerts skin_
+		bakeSelectedVerts_compat skin_
 		(
 			if selection.count == 1 do
 			(
 				skinvertarr=#()
 				undo on
 				(
-					skinvertarr=skinOps.getSelectedVertices skin_
-					skinOps.Hammer skin_ skinvertarr
+					skinvertarr=getSelectedVertices_compat skin_
+					skinHammer_compat skin_ skinvertarr
 				)
 			)
 		)
 	)
 	on b_Hammer rightClick do
 	(
-		skinOps.bakeSelectedVerts skin_
+		bakeSelectedVerts_compat skin_
 		(
 			if selection.count == 1 do
 			(
@@ -3154,8 +3250,8 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 				(
 					for ii=1 to 5 do 
 					(
-						skinvertarr=skinOps.getSelectedVertices skin_
-						skinOps.Hammer skin_ skinvertarr
+						skinvertarr=getSelectedVertices_compat skin_
+						skinHammer_compat skin_ skinvertarr
 					)
 				)
 			)
@@ -3163,7 +3259,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	)
 	on b_Average pressed do
 	(
-		Mvert_arr=skinOps.getSelectedVertices skin_
+		Mvert_arr=getSelectedVertices_compat skin_
 	
 		arr=#()
 		for i in Mvert_arr do 
@@ -3195,7 +3291,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 			append newarr2 subArr[2]
 			)
 		)
-		skinOps.bakeSelectedVerts skin_
+		bakeSelectedVerts_compat skin_
 	
 		for i in Mvert_arr do 
 		(
@@ -3264,7 +3360,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	)
 	on b_Blend pressed do
 	(
-		skinOps.blendSelected skin_
+		blendSelected_compat skin_
 	)
 	on b_Plus pressed do
 	(
@@ -3293,7 +3389,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	)
 	on sld1 buttondown do
 	(
-		skinOps.bakeSelectedVerts skin_
+		bakeSelectedVerts_compat skin_
 	)
 	on sld1 buttonup do
 	(
@@ -3315,7 +3411,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 		else (All_Button_able true)
 		if selection[1]!=OBJ__ do (OBJ__=selection[1]; skin_=mod_;)
 			
-		local newVertices = ((skinOps.getSelectedVertices skin_) as array)
+		local newVertices = ((getSelectedVertices_compat skin_) as array)
 		local newBone = (skinOps.GetSelectedBone skin_)
 		local check_bone_change=false
 		local arraysEqual = true
@@ -3376,7 +3472,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 		if (not arraysEqual) do
 		(
 			SelectedVertex = newVertices 
-			a= skinOps.getSelectedVertices skin_
+			a= getSelectedVertices_compat skin_
 			arr=#()
 			if a.count==0 then arr=#()
 			else
@@ -3411,7 +3507,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	(
 		undo on 
 		(
-		hide_fn #vertices (skinOps.getSelectedVertices skin_)
+		hide_fn #vertices (getSelectedVertices_compat skin_)
 		enableSceneRedraw()
 		skinOps.SelectVertices skin_ #{}
 		)
@@ -3420,7 +3516,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	(
 		undo on 
 		(
-		v=(skinOps.getSelectedVertices skin_)
+		v=(getSelectedVertices_compat skin_)
 		hide_fn #vertices v unselect:true
 		skinOps.SelectVertices skin_ v
 		enableSceneRedraw()
@@ -3431,7 +3527,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	(
 		undo on 
 		(
-		hide_fn #face (skinOps.getSelectedVertices skin_)
+		hide_fn #face (getSelectedVertices_compat skin_)
 		enableSceneRedraw()
 		skinOps.SelectVertices skin_ #{}
 		)
@@ -3440,9 +3536,9 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	(
 		undo on 
 		(
-		v=(skinOps.getSelectedVertices skin_)
+		v=(getSelectedVertices_compat skin_)
 		skinOps.growSelection skin_
-		hide_fn #face (skinOps.getSelectedVertices skin_) unselect:true
+		hide_fn #face (getSelectedVertices_compat skin_) unselect:true
 		skinOps.SelectVertices skin_ v
 		enableSceneRedraw()
 		redrawViews()
@@ -3454,7 +3550,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 		(
 			for i=1 to 20 do 
 			(
-				A = ((skinOps.getSelectedVertices skin_))
+				A = ((getSelectedVertices_compat skin_))
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
@@ -3464,10 +3560,10 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
-				B = ((skinOps.getSelectedVertices skin_) as array)
+				B = ((getSelectedVertices_compat skin_) as array)
 				if A.count==B.count do (exit)
 			)
-			hide_fn #face (skinOps.getSelectedVertices skin_)
+			hide_fn #face (getSelectedVertices_compat skin_)
 			enableSceneRedraw()
 			skinOps.SelectVertices skin_ #{}
 		)
@@ -3476,10 +3572,10 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	(
 		undo on 
 		(
-			old = ((skinOps.getSelectedVertices skin_) as array)
+			old = ((getSelectedVertices_compat skin_) as array)
 			for i=1 to 20 do 
 			(
-				A = ((skinOps.getSelectedVertices skin_) as array)
+				A = ((getSelectedVertices_compat skin_) as array)
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
@@ -3489,10 +3585,10 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
 				skinOps.growSelection skin_
-				B = ((skinOps.getSelectedVertices skin_) as array)
+				B = ((getSelectedVertices_compat skin_) as array)
 				if A.count==B.count do (exit)
 			)
-			hide_fn #face (skinOps.getSelectedVertices skin_) unselect:true
+			hide_fn #face (getSelectedVertices_compat skin_) unselect:true
 			enableSceneRedraw()
 			skinOps.SelectVertices skin_ old
 		)
@@ -3549,7 +3645,7 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	(
 		objectsExceptBones = for obj2 in objects where findItem (skinOps.GetBoneNodes skin_) obj2 == -1 and obj2 != skin_ collect obj2
 		fn shape_filt obj3 = findItem objectsExceptBones obj3 != -1
-		theShapes = selectByName title:"Add Bone" filter:shape_filt single:false
+		theShapes = selectByName title:"添加骨骼" filter:shape_filt single:false
 		if theShapes==undefined do return false
 		for i=1 to (theShapes.count) do 
 		(
@@ -3564,28 +3660,28 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	(
 		if skinOps.GetSelectedBone skin_==0 do return false
 		now_bone=(skinOps.GetBoneName skin_ (skinOps.GetSelectedBone skin_) 1)
-		messagebox "This feature does not support UNDO. Please use with caution."
-		text___="["+now_bone+"]     (currently selected bone)\n"+
-		"   ↓ ↓ ↓ ↓ ↓ ↓ ↓ \n[another bone you select next] \n\n(The replacement bone can be either a registered bone or an unregistered one)\n\n"+
-		"Continue?"
+		messagebox "此功能不支持撤销，请谨慎使用。"
+		text___="["+now_bone+"]     (当前选中的骨骼)\n"+
+		"   ↓ ↓ ↓ ↓ ↓ ↓ ↓ \n[接下来选择的另一骨骼] \n\n(替换骨骼可以是已注册的骨骼或未注册的骨骼)\n\n"+
+		"是否继续？"
 		if (queryBox text___)==false do return false
 		
 		fn shape_filt obj3 = (obj3 != OBJ__ and obj3 != (skinOps.GetBoneNode skin_ (skinOps.GetSelectedBone skin_)))
-		To_Object = selectByName title:"To : " filter:shape_filt single:true showHidden:true
+		To_Object = selectByName title:"替换为 : " filter:shape_filt single:true showHidden:true
 		if To_Object!=undefined do 
 			(
 				next_bone=To_Object.name
-				final_text="Delete bone ["+now_bone+"] and transfer its weights to bone ["+next_bone+"].\nProceed?"
+				final_text="删除骨骼 ["+now_bone+"] 并将其权重转移到骨骼 ["+next_bone+"]。\n是否继续？"
 				if (queryBox final_text)==false do return false
 				undo on (skinOps.replaceBone skin_ (skinOps.GetSelectedBone skin_) To_Object)
 			)
 	)
 	on bones_pick_Add pressed do
 	(
-		rollout Add_Bone "Add Bone(Pick)" width:152 height:72
+		rollout Add_Bone "添加骨骼(拾取)" width:152 height:72
 		(
 			local bone_list
-			Button 'btn1' "Select bone\n And press this button" pos:[16,9] width:120 height:48 align:#left
+			Button 'btn1' "选择骨骼\n然后按此按钮" pos:[16,9] width:120 height:48 align:#left
 			on btn1 pressed do
 			(
 					destroydialog Add_Bone
@@ -3638,9 +3734,9 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 		IsolateSelection.EnterIsolateSelectionMode()
 		deselect $
 		
-		rollout Remove_Bone "Remove_Bone(Pick)" width:208 height:112
+		rollout Remove_Bone "移除骨骼(拾取)" width:208 height:112
 		(
-			button 'btn1' "Select all bones to remove, then press this button." pos:[16,16] width:176 height:80 align:#left
+			button 'btn1' "选择要移除的所有骨骼，\n然后按此按钮。" pos:[16,16] width:176 height:80 align:#left
 			
 			on btn1 pressed do 
 			(
@@ -3699,9 +3795,9 @@ rollout P_WT_Rollout "P_SkinWeightTool 2.0" width:184 height:776
 	)
 	on b_Removezero pressed do
 	(
-		messagebox "This feature does not support UNDO. Please use with caution."
-		if (queryBox "Do you want to continue removing all bones that do not have a weight value assigned to any vertex?")==true do 
-			(skinOps.removeUnusedBones skin_)
+		messagebox "此功能不支持撤销，请谨慎使用。"
+		if (queryBox "是否继续移除所有未分配给任何顶点权重值的骨骼？")==true do 
+			(removeUnusedBones_compat skin_)
 	)
 	on b_skinattach pressed do
 	(
