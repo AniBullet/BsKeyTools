@@ -334,4 +334,76 @@ git push origin --delete feature/你的功能名         # 删除远程分支
 
 ---
 
+## 👨‍💼 维护者指南（处理 Pull Request）
+
+> 此部分面向仓库维护者，普通贡献者可跳过。
+
+### 审核流程
+
+#### 1. 查看代码变更
+
+1. 打开 PR 页面，点击 **Files changed** 标签
+2. 检查代码是否符合项目规范
+3. 如有问题，在具体代码行上添加评论
+
+#### 2. 与贡献者沟通（如需要）
+
+- 在 PR 页面的 **Conversation** 标签下留言
+- 贡献者修改后会自动更新到当前 PR
+
+#### 3. 合并 PR
+
+**方法 A：GitHub 网页（推荐）**
+
+1. 确认代码无问题后，点击 **Merge pull request**
+2. 选择合并方式：
+   - **Create a merge commit**：保留所有提交历史（推荐）
+   - **Squash and merge**：压缩成一个提交
+3. 点击 **Confirm merge**
+4. 可选：点击 **Delete branch** 删除贡献者的分支
+
+**方法 B：GitHub CLI**
+
+```bash
+# 查看 PR 列表
+gh pr list
+
+# 查看具体 PR 详情
+gh pr view PR编号
+
+# 合并 PR（保留提交历史）
+gh pr merge PR编号 --merge
+
+# 或压缩合并
+gh pr merge PR编号 --squash
+```
+
+**方法 C：命令行**
+
+```bash
+# 拉取 PR 到本地测试
+git fetch origin pull/PR编号/head:pr-test
+git checkout pr-test
+
+# 测试无问题后，合并到 dev
+git checkout dev
+git merge pr-test
+git push origin dev
+
+# 删除临时分支
+git branch -d pr-test
+```
+
+### 审核检查清单
+
+在合并 PR 前，请确认：
+
+- [ ] 代码逻辑正确，没有明显 Bug
+- [ ] PR 目标分支是 `dev`
+- [ ] 提交信息符合规范
+- [ ] 没有引入敏感信息或临时文件
+- [ ] 代码风格与项目一致
+
+---
+
 **感谢你的贡献！** 🎉
