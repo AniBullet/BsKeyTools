@@ -9,6 +9,7 @@
 ---尝试关闭回调
 try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()
 try unregisterRedrawViewsCallback yunMotionPathCallBackFn_exc catch()
+
 ----尝试关闭界面
 try DestroyDialog  yunTrajedit_rollout catch ()
 	
@@ -389,15 +390,29 @@ struct yunTrajEdit_Globals_Struct
 ------生成轨迹函数  物体 显示 开点 开始色 结束色 开始帧数 结束帧数 点形状 播放是否显示 关键帧开关 是否颜色渐变
 fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShape isPlay keyVis isGradual =
 (
+	-- Save all selected Biped poses before at time access (to restore later and prevent pose reset)
+	local savedBipeds = #()
+	local savedBipedPoses = #()
+	local savedBipedRots = #()
+	for selObj in selection do
+	(
+		if classof selObj == Biped_Object do
+		(
+			append savedBipeds selObj
+			append savedBipedPoses (biped.getTransform selObj #pos)
+			append savedBipedRots (biped.getTransform selObj #rotation)
+		)
+	)
+
 	--是否播放
 	playCheck = true  --默认画曲线
 	if isPlay and isAnimPlaying() then (playCheck = false )  ---隐藏被勾选切在播放就不画了
-	
+
 	--if vis and  not isAnimPlaying()  do
 	---画轨迹
 	if vis and   playCheck  do
 	if vis   do
-	(	
+	(
 	
 		---获取数据 
 			
@@ -607,10 +622,15 @@ fn yunMotionPathCallBackFn  obj vis isdot col_Start  col_End tStart tEnd dotShap
 		at time (currentTime) (posRescue=  obj.transform.pos)
 		gw.wMarker posRescue #smallDiamond color:col_End
 
+		-- Restore all selected Biped poses after at time access to prevent pose reset bug
+		for i = 1 to savedBipeds.count do
+		(
+			biped.setTransform savedBipeds[i] #pos savedBipedPoses[i] false
+			biped.setTransform savedBipeds[i] #rotation savedBipedRots[i] false
+		)
 
-		
-		-- Update the viewports	 
-		gw.enlargeUpdateRect #whole 
+		-- Update the viewports
+		gw.enlargeUpdateRect #whole
 		gw.updateScreen()
 	)
 )
@@ -737,16 +757,18 @@ function yunTrajEdit_UpdateRollout =
 		dotShape = \"smallDiamond\"
 	)
 	----打开界面是刷新图标
-	on yunTrajedit_rollout open do 
+	on yunTrajedit_rollout open do
 	(
 		yunTrajEdit_Globals.UpdateBitmaps()
 		try unregisterRedrawViewsCallback yunMotionPathCallBackFn_exc catch()
 		registerRedrawViewsCallback yunMotionPathCallBackFn_exc
 
-		try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()		
+		try(unRegisterTimeCallback yun_refreshDT_byTime_new_fn)catch()
 		try (registerTimeCallback yun_refreshDT_byTime_new_fn) catch ()
 		try (yun_refreshDT_byTime_new_fn())	 catch ()
-		
+
+		-- Note: Auto Key state change callback removed - #animateOn may not be a valid event
+		-- User can manually refresh by moving the time slider after enabling Auto Key
 	)
 	--退出窗口功能
 	on btn_Exit pressed do
@@ -757,8 +779,8 @@ function yunTrajEdit_UpdateRollout =
 		yunTrajEdit_Globals = undefined
 
 		DestroyDialog yunTrajedit_rollout
-		gc()  ---内存管理	
-		
+		gc()  ---内存管理
+
 	)
 	on btn_Exit rightClick do
 	(
@@ -1073,5 +1095,6 @@ function yunTrajEdit_UpdateRollout =
 )
 
 yunTrajEdit_UpdateRollout()
+
 
 )
