@@ -22,8 +22,4 @@
         <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2021" SeriesMax="2024" />
         <ComponentEntry AppName="AnimRef" Version="1.5.2" ModuleName="./Contents/2021.ms" />
     </Components>
-    <Components Description="post-start-up scripts parts">
-        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2018" SeriesMax="2020" />
-        <ComponentEntry AppName="AnimRef" Version="1.5.2" ModuleName="./Contents/2020.ms" />
-    </Components>
 </ApplicationPackage>

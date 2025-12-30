@@ -4,13 +4,13 @@
 * @Date: 2024-12-09
 * @Email: animator.bullet@foxmail.com
 * @Version: 2.0
-* @Compatibility: 3ds Max 2020-2026 (Python 3 + PySide2/PySide6)
+* @Compatibility: 3ds Max 2021-2026 (Python 3 + PySide2/PySide6)
 *
 * Python/Qt 版本支持说明:
-*   - 3ds Max 2020-2023: Python 3 + PySide2 (Qt5) -> BsOpenToolsPy_PySide2.py
-*   - 3ds Max 2024-2026: Python 3 + PySide6 (Qt6) -> BsOpenToolsPy_PySide6.py
+*   - 3ds Max 2021-2024: Python 3 + PySide2 (Qt5) -> BsOpenToolsPy_PySide2.py
+*   - 3ds Max 2025-2026: Python 3 + PySide6 (Qt6) -> BsOpenToolsPy_PySide6.py
 *
-* 注意: 3ds Max 2017-2019 使用Python 2，建议使用原版MAXScript工具
+* 注意: 3ds Max 2020及以下版本不再支持，建议使用原版MAXScript工具
 */
 
 -- 获取Max版本号 (2020=22, 2024=26 等)
@@ -25,10 +25,10 @@ fn fnCheckPythonSupport =
 (
     local maxVer = fnGetMaxYear()
     
-    -- Max 2020 (版本号22) 开始使用Python 3 + PySide2
-    if maxVer < 22 then
+    -- Max 2021 (版本号23) 开始支持此工具
+    if maxVer < 23 then
     (
-        messageBox "3ds Max 2020以下版本不支持此Python工具！\n\n当前Max版本号: " + (maxVer as string) + "\n\n建议:\n• 升级到3ds Max 2020或更高版本\n• 或右键使用原版MAXScript工具 (BsOpenTools.ms)" title:"版本不支持" beep:false
+        messageBox "3ds Max 2021以下版本不支持此Python工具！\n\n当前Max版本号: " + (maxVer as string) + "\n\n建议:\n• 升级到3ds Max 2021或更高版本\n• 或右键使用原版MAXScript工具 (BsOpenTools.ms)" title:"版本不支持" beep:false
         return false
     )
     return true
@@ -47,7 +47,7 @@ fn fnGetPythonScriptPath =
     (
         pyFileName = "BsOpenToolsPy_PySide6.py"
     )
-    -- Max 2020-2024 (版本号22-26) 使用PySide2
+    -- Max 2021-2024 (版本号23-26) 使用PySide2
     else
     (
         pyFileName = "BsOpenToolsPy_PySide2.py"
@@ -141,7 +141,7 @@ fnLaunchBsOpenToolsPy()
 macroScript BsOpenToolsPy
 category:"_[BulletTools]"
 buttonText:"时光机Py"
-toolTip:"时光机 v2.0 (Python版)\n支持Max 2020-2026"
+toolTip:"时光机 v2.0 (Python版)\n支持Max 2021-2026"
 -- Icon:#("Systems",2)
 (
     on execute do

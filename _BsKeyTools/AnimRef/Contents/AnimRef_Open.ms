@@ -15,11 +15,9 @@ fn loadAppropriateAnimRefScript =
         scriptFile = scriptPath + "2025\\" + "animref.py"
     else if maxVerNum >= 23 and maxVerNum <= 26 then
         scriptFile = scriptPath + "2021\\" + "animref.py"
-    else if maxVerNum >= 20 and maxVerNum <= 22 then
-        scriptFile = scriptPath + "2020\\" + "animref.py"
     else
     (
-        messageBox "当前3ds Max版本不受AnimRef支持。\n支持的版本范围: 2018-2026" title:"AnimRef 版本错误"
+        messageBox "当前3ds Max版本不受AnimRef支持。\n支持的版本范围: 2021-2026" title:"AnimRef 版本错误"
         return false
     )
     

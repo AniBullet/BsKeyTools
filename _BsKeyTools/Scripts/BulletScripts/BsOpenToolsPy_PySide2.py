@@ -2,7 +2,7 @@
 """
 时光机 v2.0 - 快速打开max文件
 Author: Bullet.S
-Compatibility: 3ds Max 2020-2024 (PySide2)
+Compatibility: 3ds Max 2021-2024 (PySide2)
 """
 
 import os
