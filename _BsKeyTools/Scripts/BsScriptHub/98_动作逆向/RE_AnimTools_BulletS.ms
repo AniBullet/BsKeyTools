@@ -17,7 +17,7 @@ rollout rolREAnimTools "RE_AnimTools_v1.5_Bullet.S" height:105 width:305
 
 	label lblSelectGameMode "请选择目标游戏：" pos:[12,8] width:80
 	dropdownlist ddlCurGames "" items:arrGamesName pos:[100,5] width:190
-	subrollout subRolImporter "Importer" height:800 width:280
+	subrollout subRolImporter "Importer" height:820 width:280
 	
 	fn fnRefreshMotExt selCurGameID =
 	(
@@ -52,7 +52,7 @@ rollout rolREAnimTools "RE_AnimTools_v1.5_Bullet.S" height:105 width:305
 
 rollout formNoesisCMD "Motlist Anim Importer"
 (
-	on formNoesisCMD rolledUp state do (if not state then rolREAnimTools.height -= 340 else rolREAnimTools.height += 340)
+	on formNoesisCMD rolledUp state do (if not state then rolREAnimTools.height -= 360 else rolREAnimTools.height += 360)
 	
 	group "Import" (
 		button btn_import "Import MHWs Animation" width:230 align:#center
