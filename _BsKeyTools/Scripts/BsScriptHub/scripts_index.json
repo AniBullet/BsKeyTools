@@ -8,7 +8,7 @@
         "description": "反转当前选择。\n\n选中未选择的对象，取消选择已选择的对象。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "选择",
           "反转",
@@ -25,7 +25,7 @@
         "description": "按名称关键词批量选择对象。\n\n输入关键词后，自动选中场景中所有名称包含该关键词的对象。\n\n支持通配符匹配。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "选择",
           "名称",
@@ -45,7 +45,7 @@
         "description": "将选中对象的轴心点居中到对象中心。\n\n支持批量处理多个对象。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "建模",
           "轴心",
@@ -82,7 +82,7 @@
         "description": "批量重置选中对象的变换。\n\n对所有选中对象执行 Reset XForm 并塌陷堆栈。\n\n常用于导出前的模型清理。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "建模",
           "变换",
@@ -141,7 +141,7 @@
         "description": "选择所有使用相同材质的对象。\n\n先选中一个对象，运行脚本后会选中场景中所有使用相同材质的对象。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "材质",
           "选择",
@@ -160,7 +160,7 @@
         "description": "烘焙选中对象的动画。\n\n将约束、表达式等转换为关键帧动画。\n\n烘焙范围为当前时间线范围。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "烘焙",
@@ -178,7 +178,7 @@
         "description": "删除选中对象的所有动画关键帧。\n\n谨慎使用，此操作不可撤销（建议先保存）。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "关键帧",
@@ -350,7 +350,7 @@
         "description": "选择场景中所有骨骼对象。\n\n包括 Bone、Biped 骨骼和 CAT 骨骼。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "骨骼",
           "选择",
@@ -465,7 +465,7 @@
         "description": "清理场景垃圾数据。\n\n删除空组、无效材质引用等。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "场景",
           "清理",
@@ -483,7 +483,7 @@
         "description": "打印场景统计信息。\n\n显示对象数量、面数、材质数等信息。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "场景",
           "统计",
@@ -598,7 +598,7 @@
         "description": "快速导出选中对象为 FBX 文件。\n\n自动弹出保存对话框。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "导出",
           "FBX",
@@ -1081,7 +1081,7 @@
         "description": "ActorX 模型(psk)和动画(psa)导入工具\n\n支持导入 Unreal Engine 导出的 ActorX 格式文件，包括模型网格和骨骼动画。\n\n功能特性：\n- 支持 PSK/PSA 格式\n- 支持顶点色导入\n- 支持 PNG 贴图\n- 支持批量导入",
         "author": "Gildor",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-06-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "ActorX",
           "PSK",
@@ -1101,7 +1101,7 @@
         "description": "鬼泣5 动画批量导出工具\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-06-10",
+        "modified_date": "2025-12-26",
         "keywords": [
           "鬼泣5",
           "DMC5",
@@ -1120,7 +1120,7 @@
         "description": "ActorX 批量转换工具\n\n将 PSK/PSA 文件批量转换为 FBX 格式。\n\n功能特性：\n- 支持批量转换\n- 支持多动画合并为单个 FBX\n- 支持子文件夹递归处理",
         "author": "Gildor",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-06-10",
+        "modified_date": "2025-12-26",
         "keywords": [
           "ActorX",
           "FBX",
@@ -1139,7 +1139,7 @@
         "description": "Havok 引擎动画导出工具\n\n支持 Havok 物理引擎游戏的动画导出。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-06-10",
+        "modified_date": "2025-12-26",
         "keywords": [
           "Havok",
           "动画",
@@ -1157,7 +1157,7 @@
         "description": "怪物猎人崛起曙光 动画批量导出工具\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-06-10",
+        "modified_date": "2025-12-26",
         "keywords": [
           "怪物猎人",
           "MHRise",
@@ -1176,7 +1176,7 @@
         "description": "RE Engine 游戏动画导入工具\n\n支持 Capcom RE 引擎游戏的动画文件导入。\n\n支持游戏：\n- 怪物猎人荒野\n- 怪物猎人崛起\n- 怪物猎人崛起曙光\n\n需要配合 Noesis 使用。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-06-10",
+        "modified_date": "2025-12-31",
         "keywords": [
           "RE引擎",
           "怪物猎人",
@@ -1195,7 +1195,7 @@
         "description": "街头霸王6 动画批量导出工具\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2024-04-11",
+        "modified_date": "2025-12-26",
         "keywords": [
           "街霸6",
           "SF6",
@@ -1214,7 +1214,7 @@
         "description": "XnaLara / XPS 模型导入导出工具\n\n功能特性：\n- 支持 .mesh/.xps 格式导入\n- 支持 .mesh 格式导出\n- 支持 PMX(MMD) 导出\n- 支持骨骼和蒙皮\n- 支持多UV和顶点色",
         "author": "Dusan Pavlicek",
         "optimizer": "",
-        "modified_date": "2025-05-13",
+        "modified_date": "2025-12-26",
         "keywords": [
           "XnaLara",
           "XPS",
@@ -1235,7 +1235,7 @@
         "description": "这是一个示例脚本，用于演示 BsScriptHub 的功能。\n\n运行后会在控制台打印 \"HelloWorld\" 消息。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-25",
+        "modified_date": "2025-12-26",
         "keywords": [
           "示例",
           "测试",
