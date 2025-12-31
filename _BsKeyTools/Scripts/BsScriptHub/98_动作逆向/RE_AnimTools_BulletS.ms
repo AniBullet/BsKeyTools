@@ -11,7 +11,7 @@ global noesis_path
 global output_path
 global arrMotFilesLoaded
 
-rollout rolREAnimTools "RE_AnimTools_v1.4_Bullet.S" height:105 width:305
+rollout rolREAnimTools "RE_AnimTools_v1.5_Bullet.S" height:105 width:305
 (
 	local arrGamesName = #("MHWsOBT-怪物猎人荒野公测版","MHWs-怪物猎人荒野正式版","MHRise-怪物猎人崛起","MHRSunbreak-怪物猎人崛起曙光")
 
@@ -36,7 +36,8 @@ rollout rolREAnimTools "RE_AnimTools_v1.4_Bullet.S" height:105 width:305
 	(
 		setdialogpos rolREAnimTools ((getdialogpos rolREAnimTools) + [400,-500])
 		if selCurGameID != undefined and selCurGameID != 0 then ddlCurGames.selection = selCurGameID
-		else selCurGameID = 1
+		else selCurGameID = 2
+		ddlCurGames.selection = selCurGameID
 		fnRefreshMotExt selCurGameID
 		-- print selCurGameID
 	)
@@ -64,6 +65,7 @@ rollout formNoesisCMD "Motlist Anim Importer"
 		checkbox chk_showPlugOpt  "显示FBX窗口 | Show FBX Options" checked:false align:#left
 		checkbox chk_delFBX  "删除转换的FBX | Delete FBX Files" checked:false align:#left
 		checkbox chk_showCMD  "显示调试窗口 | Show Console" checked:false align:#left enabled:true
+		checkbox chk_keepFolder "保持文件夹结构 | Keep Folder Structure" checked:false align:#left
 		label lbl_noesis "导出工具 | Noesis Path:" align:#left
 		edittext edt_noesis "" align:#left width:170 across:2
 		button btn_noesis "选择文件" align:#right
@@ -119,7 +121,19 @@ rollout formNoesisCMD "Motlist Anim Importer"
 					framerate = 60
 					fbx_path = (getFilenamePath cmd) + key
 					outtxt_path = fbx_path + ".txt"
-					fbx_path = output_path + @"\\" + key + ".fbx"
+					
+					-- 根据选项决定是否保持文件夹结构
+					if chk_keepFolder.checked and motPath != undefined and motPath != "" then
+					(
+						local relativePath = substituteString (getFilenamePath cmd) (motPath + @"\") ""
+						local fullOutputDir = output_path + @"\\" + relativePath
+						makeDir fullOutputDir all:true
+						fbx_path = fullOutputDir + key + ".fbx"
+					)
+					else
+					(
+						fbx_path = output_path + @"\\" + key + ".fbx"
+					)
 					
 					cmd = (
 						"\"" + noesis_path + "\" ?cmode \"" + cmd + "\" \"" + fbx_path + "\"" \
