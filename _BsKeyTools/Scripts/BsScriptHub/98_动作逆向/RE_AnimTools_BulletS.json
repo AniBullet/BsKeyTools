@@ -1,7 +1,7 @@
 {
     "name": "RE引擎动画工具",
-    "version": "1.4",
-    "description": "RE Engine 游戏动画导入工具\n\n支持 Capcom RE 引擎游戏的动画文件导入。\n\n支持游戏：\n- 怪物猎人荒野\n- 怪物猎人崛起\n- 怪物猎人崛起曙光\n\n需要配合 Noesis 使用。",
+    "version": "1.5",
+    "description": "更新对荒野正式版支持\n\nRE Engine 游戏动画导入工具\n\n支持 Capcom RE 引擎游戏的动画文件导入。\n\n支持游戏：\n- 怪物猎人荒野\n- 怪物猎人崛起\n- 怪物猎人崛起曙光\n\n需要配合 Noesis 使用。",
     "author": "Bullet.S",
     "optimizer": "",
     "modified_date": "",
