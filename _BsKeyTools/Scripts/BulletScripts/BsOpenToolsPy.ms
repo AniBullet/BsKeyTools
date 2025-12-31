@@ -28,7 +28,13 @@ fn fnCheckPythonSupport =
     -- Max 2021 (版本号23) 开始支持此工具
     if maxVer < 23 then
     (
-        messageBox "3ds Max 2021以下版本不支持此Python工具！\n\n当前Max版本号: " + (maxVer as string) + "\n\n建议:\n• 升级到3ds Max 2021或更高版本\n• 或右键使用原版MAXScript工具 (BsOpenTools.ms)" title:"版本不支持" beep:false
+        local msg = "当前3ds Max版本不支持新版时光机！\n\n"
+        msg += "当前版本号: " + (maxVer as string) + " (需要 Max 2021+)\n\n"
+        msg += "━━━━━━━━━━━━━━━━━━━━\n"
+        msg += "请右键点击工具栏按钮\n"
+        msg += "选择【老时光机】使用旧版本\n"
+        msg += "━━━━━━━━━━━━━━━━━━━━"
+        messageBox msg title:"版本不支持" beep:false
         return false
     )
     return true
