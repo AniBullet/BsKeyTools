@@ -79,7 +79,7 @@ def url_quote(s):
         # Python 3: 直接处理
         return _quote(str(s), safe='')
 
-VERSION = "1.0"
+VERSION = "1.1"
 
 # GitHub 仓库配置
 GITHUB_OWNER = "AnimatorBullet"
@@ -657,7 +657,7 @@ class BsScriptHub(QDialog):
         self.refresh_btn = QToolButton()
         self.refresh_btn.setText("↻")  # 刷新符号
         self.refresh_btn.setObjectName("iconBtn")
-        self.refresh_btn.setToolTip("刷新脚本列表\n右键: 清空缓存")
+        self.refresh_btn.setToolTip("刷新脚本列表\n右键: 强制刷新/清空缓存")
         self.refresh_btn.setFixedSize(28, 24)
         self.refresh_btn.clicked.connect(self._refresh_all)
         self.refresh_btn.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -1438,8 +1438,34 @@ class BsScriptHub(QDialog):
         # 下载下一个
         QTimer.singleShot(50, self._batch_download_next)
     
-    def _refresh_all(self):
-        """刷新所有数据（重新加载本地版本和脚本列表）"""
+    def _refresh_all(self, force_remote=False):
+        """刷新所有数据（重新加载本地版本和脚本列表）
+        
+        Args:
+            force_remote: 是否强制从远程获取（清空脚本详情缓存）
+        """
+        if force_remote:
+            # 清空内存中的脚本详情缓存
+            self.script_info_cache = {}
+            # 删除本地缓存的脚本 JSON 文件（保留下载的脚本文件和版本记录）
+            for cat_name in self.categories_data.keys():
+                cat_cache_dir = os.path.join(self.local_cache_dir, cat_name)
+                if os.path.exists(cat_cache_dir):
+                    for fname in os.listdir(cat_cache_dir):
+                        if fname.endswith('.json'):
+                            try:
+                                os.remove(os.path.join(cat_cache_dir, fname))
+                            except:
+                                pass
+            # 同时清除索引缓存，确保完全刷新
+            cache_file = os.path.join(self.local_cache_dir, CACHE_INDEX_FILE)
+            if os.path.exists(cache_file):
+                try:
+                    os.remove(cache_file)
+                except:
+                    pass
+            self.status_label.setText("正在强制刷新远程数据...")
+        
         self._load_local_versions()  # 重新加载本地版本记录
         self._load_scripts_index()   # 重新加载脚本列表
     
@@ -1454,6 +1480,10 @@ class BsScriptHub(QDialog):
         
         action_refresh = menu.addAction("🔄  刷新列表")
         action_refresh.triggered.connect(self._refresh_all)
+        
+        action_force_refresh = menu.addAction("⚡  强制刷新 (清空详情缓存)")
+        action_force_refresh.setToolTip("清空脚本详情缓存，强制从远程重新获取最新版本信息")
+        action_force_refresh.triggered.connect(lambda: self._refresh_all(force_remote=True))
         
         menu.addSeparator()
         

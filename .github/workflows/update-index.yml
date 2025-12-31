@@ -1,0 +1,29 @@
+name: 自动更新脚本索引
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - '_BsKeyTools/Scripts/BsScriptHub/**'
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      
+      - name: 生成索引
+        run: python _BsKeyTools/Scripts/BsScriptHub/generate_index.py
+      
+      - name: 提交更新
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add _BsKeyTools/Scripts/BsScriptHub/scripts_index.json
+          git diff --staged --quiet || git commit -m "chore: 自动更新脚本索引"
+          git push
