@@ -8,7 +8,7 @@
         "description": "反转当前选择。\n\n选中未选择的对象，取消选择已选择的对象。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "选择",
           "反转",
@@ -25,7 +25,7 @@
         "description": "按名称关键词批量选择对象。\n\n输入关键词后，自动选中场景中所有名称包含该关键词的对象。\n\n支持通配符匹配。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "选择",
           "名称",
@@ -45,7 +45,7 @@
         "description": "将选中对象的轴心点居中到对象中心。\n\n支持批量处理多个对象。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "建模",
           "轴心",
@@ -63,7 +63,7 @@
         "description": "自动创建多级细节模型",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "场景",
           "LOD",
@@ -82,7 +82,7 @@
         "description": "批量重置选中对象的变换。\n\n对所有选中对象执行 Reset XForm 并塌陷堆栈。\n\n常用于导出前的模型清理。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "建模",
           "变换",
@@ -101,7 +101,7 @@
         "description": "便捷的变形目标滑块控制工具",
         "author": "px",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "建模",
           "变形",
@@ -120,7 +120,7 @@
         "description": "镜像复制变形目标",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "建模",
           "变形",
@@ -141,7 +141,7 @@
         "description": "选择所有使用相同材质的对象。\n\n先选中一个对象，运行脚本后会选中场景中所有使用相同材质的对象。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "材质",
           "选择",
@@ -160,7 +160,7 @@
         "description": "烘焙选中对象的动画。\n\n将约束、表达式等转换为关键帧动画。\n\n烘焙范围为当前时间线范围。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "烘焙",
@@ -178,7 +178,7 @@
         "description": "删除选中对象的所有动画关键帧。\n\n谨慎使用，此操作不可撤销（建议先保存）。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "关键帧",
@@ -196,7 +196,7 @@
         "description": "专业级轨迹控制手柄，精确调整运动路径",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "轨迹",
@@ -215,7 +215,7 @@
         "description": "高级动画复制粘贴工具，支持跨对象",
         "author": "东见云",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "复制",
@@ -234,7 +234,7 @@
         "description": "对齐多个对象的动画关键帧",
         "author": "Alex",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "对齐",
@@ -253,7 +253,7 @@
         "description": "快速设置和管理动画时间范围",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "范围",
@@ -272,7 +272,7 @@
         "description": "镜像复制动画数据，适用于对称动作",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "镜像",
@@ -291,7 +291,7 @@
         "description": "将程序动画烘焙为关键帧动画",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "烘焙",
@@ -310,7 +310,7 @@
         "description": "在关键帧之间快速创建补间动画，支持多种缓动曲线",
         "author": "Justin Barrett",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "补间",
@@ -329,7 +329,7 @@
         "description": "可视化编辑运动轨迹，支持轨迹修改和平滑",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "动画",
           "轨迹",
@@ -350,7 +350,7 @@
         "description": "选择场景中所有骨骼对象。\n\n包括 Bone、Biped 骨骼和 CAT 骨骼。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "骨骼",
           "选择",
@@ -368,7 +368,7 @@
         "description": "为对象添加弹簧控制器，实现弹性跟随效果",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "绑定",
           "弹簧",
@@ -387,7 +387,7 @@
         "description": "创建扭曲骨骼系统，改善关节变形效果",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "绑定",
           "扭曲",
@@ -406,7 +406,7 @@
         "description": "创建和管理骨骼链条，适用于绳索、链条等效果",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "绑定",
           "链条",
@@ -425,7 +425,7 @@
         "description": "飘带和布料的简易动力学解算工具",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "绑定",
           "飘带",
@@ -444,7 +444,7 @@
         "description": "增强版飘带解算工具，模拟弹性运动效果，支持更多参数调节",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "绑定",
           "弹簧",
@@ -465,7 +465,7 @@
         "description": "清理场景垃圾数据。\n\n删除空组、无效材质引用等。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "场景",
           "清理",
@@ -483,7 +483,7 @@
         "description": "打印场景统计信息。\n\n显示对象数量、面数、材质数等信息。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "场景",
           "统计",
@@ -501,7 +501,7 @@
         "description": "批量修改对象线框颜色，方便场景管理",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "场景",
           "颜色",
@@ -520,7 +520,7 @@
         "description": "轻量级图层管理工具，快速操作图层",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "场景",
           "图层",
@@ -539,7 +539,7 @@
         "description": "强大的批量重命名工具，支持多种命名规则",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "场景",
           "重命名",
@@ -558,7 +558,7 @@
         "description": "高级对象选择工具，支持多种筛选条件",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "场景",
           "选择",
@@ -577,7 +577,7 @@
         "description": "支持嵌套结构的高级图层管理工具",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "场景",
           "图层",
@@ -598,7 +598,7 @@
         "description": "快速导出选中对象为 FBX 文件。\n\n自动弹出保存对话框。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "导出",
           "FBX",
@@ -615,7 +615,7 @@
         "description": "批量导入文件并转换格式",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "导入",
           "导出",
@@ -634,7 +634,7 @@
         "description": "批量将Max文件降低版本保存",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "导入",
           "导出",
@@ -655,7 +655,7 @@
         "description": "构图辅助工具，帮助你更好地构图",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "渲染",
           "合成",
@@ -676,7 +676,7 @@
         "description": "XR系列蒙皮权重编辑工具",
         "author": "Xr",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "蒙皮",
           "权重",
@@ -695,7 +695,7 @@
         "description": "批量修改蒙皮骨骼设置",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "蒙皮",
           "骨骼",
@@ -714,7 +714,7 @@
         "description": "合并多个蒙皮修改器或蒙皮数据",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "蒙皮",
           "合并",
@@ -733,7 +733,7 @@
         "description": "替换蒙皮修改器中的骨骼引用",
         "author": "Sox",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "蒙皮",
           "骨骼",
@@ -752,7 +752,7 @@
         "description": "按分区平滑蒙皮权重，提高变形质量",
         "author": "一方狂三",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "蒙皮",
           "权重",
@@ -771,7 +771,7 @@
         "description": "蒙皮相关工具集合，包含多种实用功能",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "蒙皮",
           "权重",
@@ -790,7 +790,7 @@
         "description": "专业蒙皮权重编辑工具，支持权重复制、镜像等功能",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "蒙皮",
           "权重",
@@ -811,7 +811,7 @@
         "description": "MassFX物理模拟增强工具",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "特效",
           "物理",
@@ -830,7 +830,7 @@
         "description": "基于Voronoi算法的模型破碎工具",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "特效",
           "破碎",
@@ -849,7 +849,7 @@
         "description": "参考图管理工具，方便查看参考资料",
         "author": "伯仲",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "渲染",
           "参考",
@@ -868,7 +868,7 @@
         "description": "从多个角度批量渲染场景",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "渲染",
           "多角度",
@@ -887,7 +887,7 @@
         "description": "灯光管理和编辑工具台",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "渲染",
           "灯光",
@@ -906,7 +906,7 @@
         "description": "快速创建和管理碰撞器",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "特效",
           "碰撞",
@@ -927,7 +927,7 @@
         "description": "查看.NET对象的属性和方法",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "开发",
           ".NET",
@@ -946,7 +946,7 @@
         "description": "CS系列开发辅助工具",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "开发",
           "工具",
@@ -965,7 +965,7 @@
         "description": "可视化MaxScript界面构建工具",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "开发",
           "Rollout",
@@ -984,7 +984,7 @@
         "description": "MaxScript界面布局辅助工具",
         "author": "HPK",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "开发",
           "UI",
@@ -1003,7 +1003,7 @@
         "description": "调整场景世界单位比例",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "开发",
           "单位",
@@ -1022,7 +1022,7 @@
         "description": "暗色主题的MaxScript代码编辑器",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "开发",
           "编辑器",
@@ -1041,7 +1041,7 @@
         "description": "查看窗口句柄信息的调试工具",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "开发",
           "窗口",
@@ -1060,7 +1060,7 @@
         "description": "窗口操作和管理工具集",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-26",
         "keywords": [
           "开发",
           "窗口",
@@ -1081,7 +1081,7 @@
         "description": "ActorX 模型(psk)和动画(psa)导入工具\n\n支持导入 Unreal Engine 导出的 ActorX 格式文件，包括模型网格和骨骼动画。\n\n功能特性：\n- 支持 PSK/PSA 格式\n- 支持顶点色导入\n- 支持 PNG 贴图\n- 支持批量导入",
         "author": "Gildor",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-25",
         "keywords": [
           "ActorX",
           "PSK",
@@ -1101,7 +1101,7 @@
         "description": "鬼泣5 动画批量导出工具\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-25",
         "keywords": [
           "鬼泣5",
           "DMC5",
@@ -1120,7 +1120,7 @@
         "description": "ActorX 批量转换工具\n\n将 PSK/PSA 文件批量转换为 FBX 格式。\n\n功能特性：\n- 支持批量转换\n- 支持多动画合并为单个 FBX\n- 支持子文件夹递归处理",
         "author": "Gildor",
         "optimizer": "Bullet.S",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-25",
         "keywords": [
           "ActorX",
           "FBX",
@@ -1139,7 +1139,7 @@
         "description": "Havok 引擎动画导出工具\n\n支持 Havok 物理引擎游戏的动画导出。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-25",
         "keywords": [
           "Havok",
           "动画",
@@ -1157,7 +1157,7 @@
         "description": "怪物猎人崛起曙光 动画批量导出工具\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-25",
         "keywords": [
           "怪物猎人",
           "MHRise",
@@ -1195,7 +1195,7 @@
         "description": "街头霸王6 动画批量导出工具\n\n使用步骤：\n1. 选择模型文件\n2. 选择动作目录\n3. 选择导出目录\n4. 获取动作数\n5. 批量导出",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-25",
         "keywords": [
           "街霸6",
           "SF6",
@@ -1214,7 +1214,7 @@
         "description": "XnaLara / XPS 模型导入导出工具\n\n功能特性：\n- 支持 .mesh/.xps 格式导入\n- 支持 .mesh 格式导出\n- 支持 PMX(MMD) 导出\n- 支持骨骼和蒙皮\n- 支持多UV和顶点色",
         "author": "Dusan Pavlicek",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-25",
         "keywords": [
           "XnaLara",
           "XPS",
@@ -1235,7 +1235,7 @@
         "description": "这是一个示例脚本，用于演示 BsScriptHub 的功能。\n\n运行后会在控制台打印 \"HelloWorld\" 消息。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2025-12-31",
+        "modified_date": "2025-12-25",
         "keywords": [
           "示例",
           "测试",

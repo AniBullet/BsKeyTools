@@ -8,11 +8,46 @@
 
 import os
 import json
+import subprocess
 from datetime import datetime
 
 # 获取当前脚本所在目录
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INDEX_FILE = os.path.join(SCRIPT_DIR, "scripts_index.json")
+
+def get_git_root():
+    """获取 Git 仓库根目录"""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True, cwd=SCRIPT_DIR
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except:
+        pass
+    return None
+
+def get_git_commit_date(file_path):
+    """获取文件的 Git 最后提交日期"""
+    try:
+        git_root = get_git_root()
+        if not git_root:
+            return ""
+        
+        # 计算相对于仓库根目录的路径
+        rel_path = os.path.relpath(file_path, git_root).replace("\\", "/")
+        
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%ci", "--", rel_path],
+            capture_output=True, text=True, cwd=git_root
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            # 格式: "2025-01-15 10:30:00 +0800" -> "2025-01-15"
+            return result.stdout.strip().split()[0]
+    except:
+        pass
+    return ""
 
 def scan_scripts():
     """扫描目录生成索引"""
@@ -46,13 +81,15 @@ def scan_scripts():
                     if "name" not in script_info:
                         script_info["name"] = os.path.splitext(file)[0]
                     
-                    # 自动读取脚本文件的修改日期
+                    # 修改日期：从 Git 提交记录获取（真正的最后修改时间）
                     script_file = script_info.get("script", "")
                     if script_file:
                         script_path = os.path.join(item_path, script_file)
-                        if os.path.exists(script_path):
-                            mtime = os.path.getmtime(script_path)
-                            script_info["modified_date"] = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
+                        git_date = get_git_commit_date(script_path)
+                        if git_date:
+                            script_info["modified_date"] = git_date
+                        elif "modified_date" not in script_info:
+                            script_info["modified_date"] = ""
                     
                     scripts.append(script_info)
                     print(f"  + {category_name}/{file}")
