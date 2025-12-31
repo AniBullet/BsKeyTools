@@ -15,6 +15,11 @@ import ctypes
 from ctypes import wintypes
 import xml.etree.ElementTree as ET
 
+# region HiDPI Support - Must be set before importing Qt
+os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
+os.environ.setdefault("QT_SCALE_FACTOR_ROUNDING_POLICY", "PassThrough")
+# endregion
+
 from PySide2.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QLineEdit, QListWidget, QListWidgetItem,
@@ -68,8 +73,35 @@ SWP_NOSIZE = 0x0001
 SW_SHOW = 5
 GA_ROOT = 2
 
-STYLE = """
-* { font-family: "Microsoft YaHei", "Segoe UI"; font-size: 11px; color: #ddd; }
+# region Style Sheet with HiDPI Support
+def _get_dpi_scale():
+    """Get current DPI scale factor"""
+    try:
+        app = QApplication.instance()
+        if app:
+            screen = app.primaryScreen()
+            if screen:
+                return screen.logicalDotsPerInch() / 96.0
+    except:
+        pass
+    return 1.0
+
+def _scaled_font(base_size, dpi_scale=None):
+    """Return DPI-scaled font size in pixels"""
+    if dpi_scale is None:
+        dpi_scale = _get_dpi_scale()
+    return int(base_size * dpi_scale)
+
+def _get_style(dpi_scale=1.0):
+    """Generate stylesheet with DPI-scaled font sizes"""
+    base_font = 11
+    small_font = 10
+    if dpi_scale > 1.0:
+        base_font = int(base_font * dpi_scale)
+        small_font = int(small_font * dpi_scale)
+    
+    return """
+* { font-family: "Microsoft YaHei", "Segoe UI"; font-size: %dpx; color: #ddd; }
 QWidget { background: #3c3c3c; color: #ddd; }
 QGroupBox { 
     border: 1px solid #555; border-radius: 3px; 
@@ -125,7 +157,11 @@ QMenu::item:selected { background: #357; color: #fff; }
 QSplitter::handle { background: #555; }
 QSplitter::handle:horizontal { width: 3px; }
 QToolTip { background: #444; color: #fff; border: 1px solid #555; padding: 4px; }
-"""
+""" % (base_font, )
+
+# Default style for backward compatibility
+STYLE = _get_style(1.0)
+# endregion
 
 
 # FBX嵌入容器
@@ -456,17 +492,24 @@ class TimeMachine(QDialog):
         self.sort_by_name = True  # True=按名称, False=按时间
         self._resizing = False  # 切换预览时的标志
         
+        # Calculate DPI scale for HiDPI support
+        self.dpi_scale = _get_dpi_scale()
+        
         self._ui()
         self._connect()
         self._load()
         self._init_path()
+    
+    def _fs(self, base_size):
+        """Get DPI-scaled font size string for inline styles"""
+        return "%dpx" % _scaled_font(base_size, self.dpi_scale)
     
     def _ui(self):
         self.setWindowTitle("时光机 v" + VERSION)
         # 使用 Dialog + WindowMinMaxButtonsHint 使窗口跟随Max，不单独显示在任务栏
         self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setStyleSheet(STYLE)
+        self.setStyleSheet(_get_style(self.dpi_scale))
         
         root = QHBoxLayout(self)
         root.setContentsMargins(6, 6, 6, 6)
@@ -648,16 +691,16 @@ class TimeMachine(QDialog):
         now = datetime.now()
         date_str = "%d/%d/%d 周%s" % (now.year, now.month, now.day, weekdays[now.weekday()])
         self.lbl_date = QLabel(date_str)
-        self.lbl_date.setStyleSheet("color: #666; font-size: 10px;")
+        self.lbl_date.setStyleSheet("color: #666; font-size: %s;" % self._fs(10))
         status_row.addWidget(self.lbl_date)
         
         sep = QLabel("|")
-        sep.setStyleSheet("color: #555; font-size: 10px;")
+        sep.setStyleSheet("color: #555; font-size: %s;" % self._fs(10))
         status_row.addWidget(sep)
         
         # 作者名作为可点击链接
         self.lbl_author = QLabel('<a href="#" style="color:#7af; text-decoration:none;">Bullet.S</a>')
-        self.lbl_author.setStyleSheet("font-size: 10px;")
+        self.lbl_author.setStyleSheet("font-size: %s;" % self._fs(10))
         self.lbl_author.setCursor(Qt.PointingHandCursor)
         self.lbl_author.setToolTip("点击访问作者B站主页")
         self.lbl_author.linkActivated.connect(self._show_help)
@@ -718,7 +761,7 @@ class TimeMachine(QDialog):
         self.lbl_info = QLabel()
         self.lbl_info.setWordWrap(True)
         self.lbl_info.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        self.lbl_info.setStyleSheet("color: #ccc; font-size: 10px; line-height: 1.2;")
+        self.lbl_info.setStyleSheet("color: #ccc; font-size: %s; line-height: 1.2;" % self._fs(10))
         lay_info.addWidget(self.lbl_info)
         
         prev_lay.addWidget(grp_info)

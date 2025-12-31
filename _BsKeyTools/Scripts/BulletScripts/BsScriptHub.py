@@ -14,6 +14,12 @@ import tempfile
 import threading
 from datetime import datetime
 
+# region HiDPI Support - Must be set before importing Qt
+# Enable High DPI scaling for PySide2 (PySide6 enables it by default)
+os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
+os.environ.setdefault("QT_SCALE_FACTOR_ROUNDING_POLICY", "PassThrough")
+# endregion
+
 # PySide 兼容层
 try:
     from PySide6.QtWidgets import (
@@ -147,9 +153,43 @@ def compare_versions(local_ver, remote_ver):
 # 帮助链接
 HELP_URL = "https://space.bilibili.com/2031113/lists/560782"
 
-# 样式表
-STYLE = """
-* { font-family: "Microsoft YaHei", "Segoe UI"; font-size: 11px; color: #ddd; }
+# region Style Sheet with HiDPI Support
+def _get_dpi_scale():
+    """Get current DPI scale factor"""
+    try:
+        app = QApplication.instance()
+        if app:
+            screen = app.primaryScreen()
+            if screen:
+                # logicalDotsPerInch: 96 is standard, 144 is 150%, 192 is 200%
+                return screen.logicalDotsPerInch() / 96.0
+    except:
+        pass
+    return 1.0
+
+def _scaled_font(base_size, dpi_scale=None):
+    """Return DPI-scaled font size in pixels"""
+    if dpi_scale is None:
+        dpi_scale = _get_dpi_scale()
+    return int(base_size * dpi_scale)
+
+def _get_style(dpi_scale=1.0):
+    """Generate stylesheet with DPI-scaled font sizes"""
+    # Base font sizes (at 100% DPI)
+    base_font = 11
+    icon_font = 14
+    small_font = 10
+    tiny_font = 9
+
+    # Scale font sizes for HiDPI displays
+    if dpi_scale > 1.0:
+        base_font = int(base_font * dpi_scale)
+        icon_font = int(icon_font * dpi_scale)
+        small_font = int(small_font * dpi_scale)
+        tiny_font = int(tiny_font * dpi_scale)
+
+    return """
+* { font-family: "Microsoft YaHei", "Segoe UI"; font-size: %dpx; color: #ddd; }
 QDialog, QWidget { background: #2b2b2b; color: #e0e0e0; }
 QPushButton, QToolButton {
     background: #404040; border: 1px solid #555; border-radius: 3px;
@@ -163,15 +203,15 @@ QPushButton#runBtn {
 }
 QPushButton#runBtn:hover { background: #3a9956; }
 QToolButton#iconBtn {
-    background: #4a4a4a; border: 1px solid #666; font-size: 14px; color: #fff; font-weight: bold;
+    background: #4a4a4a; border: 1px solid #666; font-size: %dpx; color: #fff; font-weight: bold;
 }
 QToolButton#iconBtn:hover { background: #5a5a5a; border-color: #7ecbff; }
 QToolButton#toggleBtn {
-    background: #2d5a7d; border: 1px solid #4a9fd4; font-size: 14px; color: #7ecbff; font-weight: bold;
+    background: #2d5a7d; border: 1px solid #4a9fd4; font-size: %dpx; color: #7ecbff; font-weight: bold;
 }
 QToolButton#toggleBtn:hover { background: #3d6a8d; border-color: #7ecbff; color: #fff; }
 QLabel#urlLabel {
-    color: #7ecbff; font-size: 10px; text-decoration: underline;
+    color: #7ecbff; font-size: %dpx; text-decoration: underline;
 }
 QLabel#urlLabel:hover { color: #a0d8ff; }
 QLineEdit {
@@ -180,16 +220,16 @@ QLineEdit {
 }
 QLineEdit:focus { border-color: #7ecbff; }
 QScrollArea { border: none; background: transparent; }
-QScrollBar:vertical { 
-    background: #2a2a2a; 
-    width: 8px; 
+QScrollBar:vertical {
+    background: #2a2a2a;
+    width: 8px;
     border-radius: 4px;
     margin: 0;
 }
-QScrollBar::handle:vertical { 
-    background: #606060; 
-    min-height: 20px; 
-    border-radius: 4px; 
+QScrollBar::handle:vertical {
+    background: #606060;
+    min-height: 20px;
+    border-radius: 4px;
 }
 QScrollBar::handle:vertical:hover { background: #707070; }
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; background: none; }
@@ -207,7 +247,7 @@ QLabel#titleLabel { color: #fff; font-weight: bold; }
 QLabel#infoLabel { color: #bbb; }
 QLabel#keywordLabel {
     background: #404040; border-radius: 2px; padding: 1px 4px;
-    color: #aaa; font-size: 9px;
+    color: #aaa; font-size: %dpx;
 }
 QMenu {
     background: #3a3a3a; border: 1px solid #555; padding: 4px;
@@ -217,7 +257,11 @@ QMenu::item {
 }
 QMenu::item:selected { background: #505050; }
 QMenu::separator { height: 1px; background: #555; margin: 4px 8px; }
-"""
+""" % (base_font, icon_font, icon_font, small_font, tiny_font)
+
+# Default style for backward compatibility
+STYLE = _get_style(1.0)
+# endregion
 
 
 class NetworkWorker(QThread):
@@ -274,7 +318,7 @@ class CollapsibleCategory(QWidget):
                 border-radius: 3px;
                 padding: 4px 8px;
                 text-align: left;
-                font-size: 11px;
+                font-size: %dpx;
                 font-weight: bold;
                 color: #8ac;
             }
@@ -282,7 +326,7 @@ class CollapsibleCategory(QWidget):
                 background: #404040;
                 color: #7ecbff;
             }
-        """)
+        """ % _scaled_font(11))
         self.header.clicked.connect(self._toggle)
         layout.addWidget(self.header)
         
@@ -457,15 +501,20 @@ class BsScriptHub(QDialog):
         
         # 设置窗口标志：Dialog 类型跟随Max
         self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
-        
+
+        # Calculate DPI scale first (needed for inline styles in _init_ui)
+        self.dpi_scale = _get_dpi_scale()
+
         self._update_window_title()
         self._load_local_versions()  # 加载本地版本信息
         self._init_ui()
-        self.setStyleSheet(STYLE)
-        
+
+        # Apply HiDPI-aware stylesheet
+        self.setStyleSheet(_get_style(self.dpi_scale))
+
         # 根据保存的状态设置窗口大小和面板显示
         self._apply_saved_state()
-        
+
         # 延迟加载脚本列表
         QTimer.singleShot(100, self._load_scripts_index)
     
@@ -473,7 +522,11 @@ class BsScriptHub(QDialog):
         """更新窗口标题"""
         branch_tag = " [DEV]" if self.current_branch == "dev" else ""
         self.setWindowTitle("BsScriptHub_v%s%s" % (VERSION, branch_tag))
-    
+
+    def _fs(self, base_size):
+        """Get DPI-scaled font size string for inline styles"""
+        return "%dpx" % _scaled_font(base_size, self.dpi_scale)
+
     def _get_github_url(self, path=""):
         """获取当前分支的 GitHub Raw URL (用于下载)"""
         base_url = "%s/%s" % (GITHUB_REPO_BASE, self.current_branch)
@@ -637,9 +690,9 @@ class BsScriptHub(QDialog):
         self.branch_btn.setFixedSize(42, 20)
         self.branch_btn.setStyleSheet("""
             QPushButton { background: #2d5a2d; border: 1px solid #4caf50; border-radius: 3px;
-                font-size: 10px; font-weight: bold; color: #8bc34a; }
+                font-size: %s; font-weight: bold; color: #8bc34a; }
             QPushButton:hover { background: #3d6a3d; }
-        """)
+        """ % self._fs(10))
         self.branch_btn.clicked.connect(self._toggle_branch)
         title_row.addWidget(self.branch_btn)
         
@@ -733,7 +786,7 @@ class BsScriptHub(QDialog):
         
         # 状态标签
         self.status_label = QLabel("准备中...")
-        self.status_label.setStyleSheet("color: #666; font-size: 10px; padding: 2px;")
+        self.status_label.setStyleSheet("color: #666; font-size: %s; padding: 2px;" % self._fs(10))
         left_layout.addWidget(self.status_label)
         
         self.left_panel.setFixedWidth(LEFT_PANEL_WIDTH)
@@ -751,13 +804,13 @@ class BsScriptHub(QDialog):
         preview_frame.setFixedHeight(160)
         preview_layout = QVBoxLayout(preview_frame)
         preview_layout.setContentsMargins(8, 8, 8, 8)
-        
+
         self.preview_label = QLabel("选择脚本查看预览")
         self.preview_label.setAlignment(Qt.AlignCenter)
-        self.preview_label.setStyleSheet("color: #555; font-size: 12px;")
+        self.preview_label.setStyleSheet("color: #555; font-size: %s;" % self._fs(12))
         preview_layout.addWidget(self.preview_label)
         right_layout.addWidget(preview_frame)
-        
+
         # 脚本信息区域 (精简版)
         info_widget = QWidget()
         info_layout = QGridLayout(info_widget)
@@ -765,51 +818,51 @@ class BsScriptHub(QDialog):
         info_layout.setSpacing(4)
         info_layout.setColumnStretch(1, 1)
         info_layout.setColumnStretch(3, 1)
-        
+
         # 名称 + 版本状态
         self.name_label = QLabel("-")
-        self.name_label.setStyleSheet("font-size: 13px; font-weight: bold; color: #7ecbff;")
+        self.name_label.setStyleSheet("font-size: %s; font-weight: bold; color: #7ecbff;" % self._fs(13))
         info_layout.addWidget(self.name_label, 0, 0, 1, 4)
-        
+
         # 版本状态
         self.version_status_label = QLabel("")
-        self.version_status_label.setStyleSheet("font-size: 10px;")
+        self.version_status_label.setStyleSheet("font-size: %s;" % self._fs(10))
         info_layout.addWidget(self.version_status_label, 1, 0, 1, 4)
-        
+
         # 远程/本地版本
-        lbl_style = "color: #888; font-size: 10px;"
+        lbl_style = "color: #888; font-size: %s;" % self._fs(10)
         info_layout.addWidget(QLabel("远程:"), 2, 0)
         info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.version_label = QLabel("-")
-        self.version_label.setStyleSheet("color: #8bc34a; font-size: 10px;")
+        self.version_label.setStyleSheet("color: #8bc34a; font-size: %s;" % self._fs(10))
         info_layout.addWidget(self.version_label, 2, 1)
-        
+
         info_layout.addWidget(QLabel("本地:"), 2, 2)
         info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.local_version_label = QLabel("-")
-        self.local_version_label.setStyleSheet("font-size: 10px;")
+        self.local_version_label.setStyleSheet("font-size: %s;" % self._fs(10))
         info_layout.addWidget(self.local_version_label, 2, 3)
-        
+
         # 原作者/修改人
         info_layout.addWidget(QLabel("原作者:"), 3, 0)
         info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.author_label = QLabel("-")
-        self.author_label.setStyleSheet("color: #ffb74d; font-size: 10px;")
+        self.author_label.setStyleSheet("color: #ffb74d; font-size: %s;" % self._fs(10))
         info_layout.addWidget(self.author_label, 3, 1)
-        
+
         info_layout.addWidget(QLabel("修改人:"), 3, 2)
         info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.optimizer_label = QLabel("-")
-        self.optimizer_label.setStyleSheet("font-size: 10px;")
+        self.optimizer_label.setStyleSheet("font-size: %s;" % self._fs(10))
         info_layout.addWidget(self.optimizer_label, 3, 3)
-        
+
         # 更新日期
         info_layout.addWidget(QLabel("更新:"), 4, 0)
         info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.date_label = QLabel("-")
-        self.date_label.setStyleSheet("font-size: 10px;")
+        self.date_label.setStyleSheet("font-size: %s;" % self._fs(10))
         info_layout.addWidget(self.date_label, 4, 1, 1, 3)
-        
+
         # 标签
         info_layout.addWidget(QLabel("标签:"), 5, 0)
         info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
@@ -817,41 +870,41 @@ class BsScriptHub(QDialog):
         self.keywords_layout.setSpacing(3)
         self.keywords_layout.addStretch()
         info_layout.addLayout(self.keywords_layout, 5, 1, 1, 3)
-        
+
         # 发布地址
         info_layout.addWidget(QLabel("地址:"), 6, 0)
         info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.url_label = QPushButton("点击查看")
         self.url_label.setFlat(True)
         self.url_label.setStyleSheet("""
-            QPushButton { color: #7ecbff; font-size: 10px; text-decoration: underline; 
+            QPushButton { color: #7ecbff; font-size: %s; text-decoration: underline;
                 text-align: left; border: none; background: transparent; }
             QPushButton:hover { color: #a0d8ff; }
-        """)
+        """ % self._fs(10))
         self.url_label.setCursor(Qt.PointingHandCursor)
         self.url_label.clicked.connect(self._on_url_clicked)
         info_layout.addWidget(self.url_label, 6, 1, 1, 3)
-        
+
         # 帮助教程
         info_layout.addWidget(QLabel("教程:"), 7, 0)
         info_layout.itemAt(info_layout.count()-1).widget().setStyleSheet(lbl_style)
         self.tutorial_label = QPushButton("无")
         self.tutorial_label.setFlat(True)
         self.tutorial_label.setStyleSheet("""
-            QPushButton { color: #666; font-size: 10px; text-align: left; 
+            QPushButton { color: #666; font-size: %s; text-align: left;
                 border: none; background: transparent; }
-        """)
+        """ % self._fs(10))
         self.tutorial_label.setCursor(Qt.PointingHandCursor)
         self.tutorial_label.clicked.connect(self._on_tutorial_clicked)
         info_layout.addWidget(self.tutorial_label, 7, 1, 1, 3)
-        
+
         right_layout.addWidget(info_widget)
-        
+
         # 描述区域
         self.desc_text = QTextEdit()
         self.desc_text.setReadOnly(True)
         self.desc_text.setPlaceholderText("选择脚本查看描述...")
-        self.desc_text.setStyleSheet("font-size: 11px;")
+        self.desc_text.setStyleSheet("font-size: %s;" % self._fs(11))
         right_layout.addWidget(self.desc_text, 1)
         
         # 操作按钮
@@ -926,6 +979,7 @@ class BsScriptHub(QDialog):
     
     def _update_branch_btn(self):
         """更新分支按钮样式"""
+        fs10 = self._fs(10)
         if self.current_branch == "dev":
             self.branch_btn.setText("dev")
             self.branch_btn.setStyleSheet("""
@@ -934,7 +988,7 @@ class BsScriptHub(QDialog):
                     border: 1px solid #ff9800;
                     border-radius: 3px;
                     padding: 2px 6px;
-                    font-size: 10px;
+                    font-size: %s;
                     font-weight: bold;
                     color: #ffb74d;
                 }
@@ -942,7 +996,7 @@ class BsScriptHub(QDialog):
                     background: #6a4d3d;
                     border-color: #ffb74d;
                 }
-            """)
+            """ % fs10)
         else:
             self.branch_btn.setText("main")
             self.branch_btn.setStyleSheet("""
@@ -951,7 +1005,7 @@ class BsScriptHub(QDialog):
                     border: 1px solid #4caf50;
                     border-radius: 3px;
                     padding: 2px 6px;
-                    font-size: 10px;
+                    font-size: %s;
                     font-weight: bold;
                     color: #8bc34a;
                 }
@@ -959,7 +1013,7 @@ class BsScriptHub(QDialog):
                     background: #3d6a3d;
                     border-color: #8bc34a;
                 }
-            """)
+            """ % fs10)
     
     def _get_github_api_url(self, path=""):
         """获取 GitHub API URL"""
@@ -1569,39 +1623,40 @@ class BsScriptHub(QDialog):
         self.date_label.setText(script_data.get("modified_date", "-"))
         
         # 更新本地版本显示
+        fs10 = self._fs(10)
         if local_ver:
             self.local_version_label.setText("v" + local_ver)
-            self.local_version_label.setStyleSheet("color: #8bc34a; font-size: 10px;")
+            self.local_version_label.setStyleSheet("color: #8bc34a; font-size: %s;" % fs10)
         else:
             self.local_version_label.setText("未安装")
-            self.local_version_label.setStyleSheet("color: #666; font-size: 10px;")
-        
+            self.local_version_label.setStyleSheet("color: #666; font-size: %s;" % fs10)
+
         # 更新版本状态标签
         if not local_ver:
             self.version_status_label.setText("📦 未安装")
-            self.version_status_label.setStyleSheet("color: #888; font-size: 10px;")
+            self.version_status_label.setStyleSheet("color: #888; font-size: %s;" % fs10)
             self.download_btn.setText("📥  下载")
         else:
             cmp = compare_versions(local_ver, remote_ver)
             if cmp < 0:
                 self.version_status_label.setText("🔺  有更新 v%s→v%s" % (local_ver, remote_ver))
-                self.version_status_label.setStyleSheet("color: #ff9800; font-size: 10px; font-weight: bold;")
+                self.version_status_label.setStyleSheet("color: #ff9800; font-size: %s; font-weight: bold;" % fs10)
                 self.download_btn.setText("📥  更新")
             else:
                 self.version_status_label.setText("✓ 已是最新")
-                self.version_status_label.setStyleSheet("color: #4caf50; font-size: 10px;")
+                self.version_status_label.setStyleSheet("color: #4caf50; font-size: %s;" % fs10)
                 self.download_btn.setText("📥  重新下载")
-        
+
         # 更新描述
         self.desc_text.setText(script_data.get("description", "暂无描述"))
-        
+
         # 更新标签
         self._clear_keywords()
         for kw in script_data.get("keywords", []):
             lbl = QLabel(kw)
             lbl.setObjectName("keywordLabel")
             self.keywords_layout.insertWidget(self.keywords_layout.count() - 1, lbl)
-        
+
         # 更新发布地址
         url = script_data.get("url", "")
         if url:
@@ -1611,19 +1666,19 @@ class BsScriptHub(QDialog):
             self.url_label.setToolTip(url)
             self.url_label.setEnabled(True)
             self.url_label.setStyleSheet("""
-                QPushButton { color: #7ecbff; font-size: 10px; text-decoration: underline; 
+                QPushButton { color: #7ecbff; font-size: %s; text-decoration: underline;
                     text-align: left; border: none; background: transparent; }
                 QPushButton:hover { color: #a0d8ff; }
-            """)
+            """ % fs10)
         else:
             self.url_label.setText("无")
             self.url_label.setToolTip("")
             self.url_label.setEnabled(False)
             self.url_label.setStyleSheet("""
-                QPushButton { color: #666; font-size: 10px; text-align: left; 
+                QPushButton { color: #666; font-size: %s; text-align: left;
                     border: none; background: transparent; }
-            """)
-        
+            """ % fs10)
+
         # 更新教程地址
         tutorial = script_data.get("tutorial", "")
         if tutorial:
@@ -1631,18 +1686,18 @@ class BsScriptHub(QDialog):
             self.tutorial_label.setToolTip(tutorial)
             self.tutorial_label.setEnabled(True)
             self.tutorial_label.setStyleSheet("""
-                QPushButton { color: #fb7299; font-size: 10px; text-decoration: underline; 
+                QPushButton { color: #fb7299; font-size: %s; text-decoration: underline;
                     text-align: left; border: none; background: transparent; }
                 QPushButton:hover { color: #ff9ab5; }
-            """)
+            """ % fs10)
         else:
             self.tutorial_label.setText("无")
             self.tutorial_label.setToolTip("")
             self.tutorial_label.setEnabled(False)
             self.tutorial_label.setStyleSheet("""
-                QPushButton { color: #666; font-size: 10px; text-align: left; 
+                QPushButton { color: #666; font-size: %s; text-align: left;
                     border: none; background: transparent; }
-            """)
+            """ % fs10)
         
         # 启用按钮
         self.run_btn.setEnabled(True)
@@ -2008,7 +2063,12 @@ if IN_MAX:
     # 在 Max 中执行时自动显示窗口
     show_window()
 elif __name__ == "__main__":
-    # 独立运行测试
+    # 独立运行测试 - HiDPI must be set before creating QApplication
+    if PYSIDE_VERSION == 2 and not QApplication.instance():
+        if hasattr(Qt, 'AA_EnableHighDpiScaling'):
+            QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+            QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     app = QApplication.instance() or QApplication(sys.argv)
     win = show_window()
     _exec_func = getattr(app, 'exec', getattr(app, 'exec_', None))
