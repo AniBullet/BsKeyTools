@@ -79,8 +79,8 @@ plugin modifier BsRootMotionModifier
 		-- 添加烘焙功能区域
 		groupbox gpbBakeTools "烘焙工具" pos:[5, 710] width:150 height:85
 		
-		button btnBakeToTempKey "记录到临时根(关键帧)" width:140 height:25 pos:[10, 730] tooltip:"将动画记录到临时根节点(仅关键帧)"
-		button btnBakeToTempFull "记录到临时根  (满帧)" width:140 height:25 pos:[10, 760] tooltip:"将动画记录到临时根节点  (所有帧)"
+		button btnBakeToTempKey "记录到控制器(关键帧)" width:140 height:25 pos:[10, 730] tooltip:"为修改器参数设置关键帧(仅质心关键帧)"
+		button btnBakeToTempFull "记录到控制器  (满帧)" width:140 height:25 pos:[10, 760] tooltip:"为修改器参数设置关键帧(所有帧)"
 
 		fn Initialize = (
 			local pelvisObj = maxOps.getNodeByHandle PelvisObjHandle
@@ -234,7 +234,7 @@ plugin modifier BsRootMotionModifier
 			-- 更新按钮状态
 			btnAddLink.enabled = false
 			btnRemoveLink.enabled = true
-			messageBox "链接控制器已添加！\n\n临时根节点现在受到质心和修改器参数的控制。" title:"链接完成"
+			messageBox "链接控制器已添加！" title:"完成"
 		)
 		
 		on btnRemoveLink pressed do (
@@ -253,7 +253,7 @@ plugin modifier BsRootMotionModifier
 				-- 更新按钮状态
 				btnAddLink.enabled = true
 				btnRemoveLink.enabled = false
-				messageBox "链接控制器已移除！\n\n临时根节点恢复为普通的动画控制器。" title:"移除完成"
+				messageBox "链接控制器已移除！" title:"完成"
 			) catch (
 				messageBox ("移除链接控制时出错: " + getCurrentException()) title:"移除错误"
 			)
@@ -373,7 +373,7 @@ plugin modifier BsRootMotionModifier
 						TrackYaw_Offset.controller.keys.setTangentType #flat
 				) catch ()
 				
-				messageBox "已将临时根节点和修改器参数的关键帧曲线设置为平直！" title:"打直曲线完成"
+				messageBox "关键帧曲柄已打直！" title:"完成"
 			)
 		)
 
@@ -443,7 +443,7 @@ plugin modifier BsRootMotionModifier
 						TrackYaw_Offset.controller.keys.setTangentType #smooth
 				) catch ()
 				
-				messageBox "已将临时根节点和修改器参数的关键帧曲线还原为平滑！" title:"还原曲线完成"
+				messageBox "关键帧曲柄已还原平滑！" title:"完成"
 			)
 		)
 
@@ -555,7 +555,7 @@ plugin modifier BsRootMotionModifier
 			return arrKeysTime
 		)
 
-		-- 烘焙功能
+		-- 烘焙功能：将临时根节点当前的世界空间变换烘焙为关键帧动画
 		on btnBakeToTempKey pressed do (
 			local pelvisObj = maxOps.getNodeByHandle PelvisObjHandle
 			local rootObj = maxOps.getNodeByHandle RootObjHandle
@@ -584,54 +584,31 @@ plugin modifier BsRootMotionModifier
 			
 			-- 在这些时间点为修改器参数设置关键帧
 			local successCount = 0
-			-- 保存原始动画状态
-			local originalAnimState = animButtonState
 			
-			-- 获取修改器对象
-			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
-			if controllerObj == undefined then (
-				messageBox "找不到根运动控制器！" title:"错误"
-				return()
-			)
-			
-			local modifier = controllerObj.modifiers[#Bs_RootMotion_Ctrl]
-			if modifier == undefined then (
-				messageBox "找不到根运动修改器！" title:"错误"
-				return()
-			)
-			
-			try (
-				animButtonState = true
-				for t in keyTimes do (
-					at time t (
-						try (
-							-- 为修改器参数设置关键帧，保持约束系统不变
-							with animate on (
-								-- 强制为所有参数设置关键帧，确保滑条值和偏移值被正确记录
-								modifier.ManualX = modifier.ManualX
-								modifier.ManualY = modifier.ManualY
-								modifier.ManualZ = modifier.ManualZ
-								modifier.TrackX = modifier.TrackX
-								modifier.TrackX_Offset = modifier.TrackX_Offset
-								modifier.TrackY = modifier.TrackY
-								modifier.TrackY_Offset = modifier.TrackY_Offset
-								modifier.TrackZ = modifier.TrackZ
-								modifier.TrackZ_Offset = modifier.TrackZ_Offset
-								modifier.ManualYaw = modifier.ManualYaw
-								modifier.TrackYaw = modifier.TrackYaw
-								modifier.TrackYaw_Offset = modifier.TrackYaw_Offset
-							)
-							successCount += 1
-						) catch ()
-					)
+			for t in keyTimes do (
+				at time t (
+					try (
+						-- 为修改器参数设置关键帧，保持约束系统不变
+						with animate on (
+							ManualX = ManualX
+							ManualY = ManualY
+							ManualZ = ManualZ
+							TrackX = TrackX
+							TrackX_Offset = TrackX_Offset
+							TrackY = TrackY
+							TrackY_Offset = TrackY_Offset
+							TrackZ = TrackZ
+							TrackZ_Offset = TrackZ_Offset
+							ManualYaw = ManualYaw
+							TrackYaw = TrackYaw
+							TrackYaw_Offset = TrackYaw_Offset
+						)
+						successCount += 1
+					) catch ()
 				)
-			) catch () (
-				-- 恢复原始动画状态
-				animButtonState = originalAnimState
 			)
 			
-			local objTypeStr = if (classof pelvisObj == Biped_Object) then "Biped" else "普通"
-			messageBox ("质心(" + objTypeStr + "对象)找到 " + keyTimes.count as string + " 个关键帧\n已为临时根节点成功设置 " + successCount as string + " 个关键帧！") title:"烘焙完成"
+			messageBox ("已设置 " + successCount as string + " 个关键帧！") title:"记录完成"
 		)
 
 		on btnBakeToTempFull pressed do (
@@ -647,74 +624,41 @@ plugin modifier BsRootMotionModifier
 				return()
 			)
 			
-			-- 获取动画范围（正确计算帧数）
-			local startTick = animationRange.start
-			local endTick = animationRange.end
-			local startFrame = (startTick / ticksPerFrame) as integer
-			local endFrame = (endTick / ticksPerFrame) as integer
+			-- 获取动画范围
+			local startFrame = (animationRange.start / ticksPerFrame) as integer
+			local endFrame = (animationRange.end / ticksPerFrame) as integer
 			local frameCount = endFrame - startFrame + 1
 			
 			-- 确认操作
-			local result = yesNoCancelBox ("将在第 " + startFrame as string + " 帧到第 " + endFrame as string + " 帧\n共 " + frameCount as string + " 帧设置关键帧\n\n注意：这将为每一帧都设置关键帧！\n确定要继续吗？") title:"确认满帧烘焙"
+			local result = yesNoCancelBox ("将在第 " + startFrame as string + " 帧到第 " + endFrame as string + " 帧\n共 " + frameCount as string + " 帧设置关键帧\n\n确定要继续吗？") title:"确认满帧记录"
 			if result != #yes then return()
 			
 			-- 为每一帧的修改器参数设置关键帧
 			local successCount = 0
-			local progressStep = frameCount / 10  -- 用于显示进度
-			local nextProgress = progressStep
 			
-			-- 获取修改器对象
-			local controllerObj = rolRootMotionTools.FindRootMotionCtrl()
-			if controllerObj == undefined then (
-				messageBox "找不到根运动控制器！" title:"错误"
-				return()
-			)
-			
-			local modifier = controllerObj.modifiers[#Bs_RootMotion_Ctrl]
-			if modifier == undefined then (
-				messageBox "找不到根运动修改器！" title:"错误"
-				return()
-			)
-			
-			-- 保存原始动画状态
-			local originalAnimState = animButtonState
-			try (
-				animButtonState = true
-				for f = startFrame to endFrame do (
-					at time (f * ticksPerFrame) (
-						try (
-							-- 为修改器参数设置关键帧，保持约束系统不变
-							with animate on (
-								-- 强制为所有参数设置关键帧，确保滑条值和偏移值被正确记录
-								modifier.ManualX = modifier.ManualX
-								modifier.ManualY = modifier.ManualY
-								modifier.ManualZ = modifier.ManualZ
-								modifier.TrackX = modifier.TrackX
-								modifier.TrackX_Offset = modifier.TrackX_Offset
-								modifier.TrackY = modifier.TrackY
-								modifier.TrackY_Offset = modifier.TrackY_Offset
-								modifier.TrackZ = modifier.TrackZ
-								modifier.TrackZ_Offset = modifier.TrackZ_Offset
-								modifier.ManualYaw = modifier.ManualYaw
-								modifier.TrackYaw = modifier.TrackYaw
-								modifier.TrackYaw_Offset = modifier.TrackYaw_Offset
-							)
-							successCount += 1
-							
-							-- 显示进度（每10%显示一次）
-							if (successCount >= nextProgress) then (
-								local percent = (successCount as float / frameCount * 100) as integer
-								nextProgress += progressStep
-							)
-						) catch ()
-					)
+			for f = startFrame to endFrame do (
+				at time f (
+					try (
+						with animate on (
+							ManualX = ManualX
+							ManualY = ManualY
+							ManualZ = ManualZ
+							TrackX = TrackX
+							TrackX_Offset = TrackX_Offset
+							TrackY = TrackY
+							TrackY_Offset = TrackY_Offset
+							TrackZ = TrackZ
+							TrackZ_Offset = TrackZ_Offset
+							ManualYaw = ManualYaw
+							TrackYaw = TrackYaw
+							TrackYaw_Offset = TrackYaw_Offset
+						)
+						successCount += 1
+					) catch ()
 				)
-			) catch () (
-				-- 恢复原始动画状态
-				animButtonState = originalAnimState
 			)
 			
-			messageBox ("已为临时根节点在第 " + startFrame as string + " 到 " + endFrame as string + " 帧\n共成功设置 " + successCount as string + " 个关键帧！\n(总计 " + frameCount as string + " 帧)") title:"满帧烘焙完成"
+			messageBox ("已设置 " + successCount as string + " 个关键帧！") title:"记录完成"
 		)
 	)
 
@@ -759,7 +703,7 @@ plugin modifier BsRootMotionModifier
 
 -- 创建.NET Windows Forms UI
 global bsRootMotionForm
-
+global verBsRootTools = "v1.2"
 -- 检测Max主题并返回适合的颜色
 function GetThemeColor colorType = (
 	-- 获取系统背景色来判断主题类型
@@ -968,14 +912,14 @@ try (if bsHelpForm != undefined then bsHelpForm.close()) catch()
 
 -- 创建.NET窗体
 bsRootMotionForm = dotNetObject "MaxCustomControls.MaxForm"
-bsRootMotionForm.Text = "BsRootTools v1.1"
-bsRootMotionForm.Size = dotNetObject "System.Drawing.Size" 330 290
+bsRootMotionForm.Text = ("BsRootTools " + verBsRootTools)
+bsRootMotionForm.Size = dotNetObject "System.Drawing.Size" 360 340
 bsRootMotionForm.MinimizeBox = true
 bsRootMotionForm.MaximizeBox = false
 bsRootMotionForm.FormBorderStyle = (dotNetClass "System.Windows.Forms.FormBorderStyle").FixedSingle
 bsRootMotionForm.StartPosition = (dotNetClass "System.Windows.Forms.FormStartPosition").Manual
 bsRootMotionForm.ShowIcon = false  -- 隐藏左上角图标
-bsRootMotionForm.TopMost = false
+bsRootMotionForm.TopMost = true  -- 保持窗口在最前，避免被Max盖住
 
 -- 设置窗口位置在Max窗口附近
 try (
@@ -995,44 +939,70 @@ try (
 bsRootMotionForm.ShowInTaskbar = false  -- 不在任务栏显示
 
 -- 创建按钮
+global lblControllerTitle = dotNetObject "System.Windows.Forms.Label"
+lblControllerTitle.Text = "根运动控制器："
+lblControllerTitle.Size = dotNetObject "System.Drawing.Size" 100 25
+lblControllerTitle.Location = dotNetObject "System.Drawing.Point" 10 15
+lblControllerTitle.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
+
 global btnCreateController = dotNetObject "System.Windows.Forms.Button"
-btnCreateController.Text = "创建根运动控制器"
-btnCreateController.Size = dotNetObject "System.Drawing.Size" 140 30
-btnCreateController.Location = dotNetObject "System.Drawing.Point" 10 10
+btnCreateController.Text = "创建"
+btnCreateController.Size = dotNetObject "System.Drawing.Size" 100 30
+btnCreateController.Location = dotNetObject "System.Drawing.Point" 115 10
 btnCreateController.BackColor = GetThemeColor #green
 btnCreateController.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
 btnCreateController.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
 
 global btnOpenController = dotNetObject "System.Windows.Forms.Button"
-btnOpenController.Text = "选中现有控制器"
-btnOpenController.Size = dotNetObject "System.Drawing.Size" 140 30
-btnOpenController.Location = dotNetObject "System.Drawing.Point" 160 10
+btnOpenController.Text = "选中"
+btnOpenController.Size = dotNetObject "System.Drawing.Size" 100 30
+btnOpenController.Location = dotNetObject "System.Drawing.Point" 230 10
 btnOpenController.BackColor = GetThemeColor #blue
 btnOpenController.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
 
 global btnApplyNewRoot = dotNetObject "System.Windows.Forms.Button"
 btnApplyNewRoot.Text = "应用新 Root 动画并清理控制器"
-btnApplyNewRoot.Size = dotNetObject "System.Drawing.Size" 290 35
+btnApplyNewRoot.Size = dotNetObject "System.Drawing.Size" 320 35
 btnApplyNewRoot.Location = dotNetObject "System.Drawing.Point" 10 50
 btnApplyNewRoot.BackColor = GetThemeColor #orange
 btnApplyNewRoot.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
 
+-- 烘焙模式选项
+global rbKeyframeMode = dotNetObject "System.Windows.Forms.RadioButton"
+rbKeyframeMode.Text = "关键帧模式"
+rbKeyframeMode.Size = dotNetObject "System.Drawing.Size" 90 20
+rbKeyframeMode.Location = dotNetObject "System.Drawing.Point" 15 90
+rbKeyframeMode.Checked = false
+
+global rbFullframeMode = dotNetObject "System.Windows.Forms.RadioButton"
+rbFullframeMode.Text = "满帧模式"
+rbFullframeMode.Size = dotNetObject "System.Drawing.Size" 80 20
+rbFullframeMode.Location = dotNetObject "System.Drawing.Point" 110 90
+rbFullframeMode.Checked = true
+
+global lblBakeModeHint = dotNetObject "System.Windows.Forms.Label"
+lblBakeModeHint.Text = "※ 关键帧模式曲柄自动平滑，补间可能对不上需手动调曲线"
+lblBakeModeHint.Size = dotNetObject "System.Drawing.Size" 320 16
+lblBakeModeHint.Location = dotNetObject "System.Drawing.Point" 12 112
+lblBakeModeHint.ForeColor = (dotNetClass "System.Drawing.Color").FromArgb 180 120 60
+lblBakeModeHint.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 8.0
+
 -- 管理工具组
 global grpManagement = dotNetObject "System.Windows.Forms.GroupBox"
 grpManagement.Text = "管理工具"
-grpManagement.Size = dotNetObject "System.Drawing.Size" 290 80
-grpManagement.Location = dotNetObject "System.Drawing.Point" 10 95
+grpManagement.Size = dotNetObject "System.Drawing.Size" 320 80
+grpManagement.Location = dotNetObject "System.Drawing.Point" 10 135
 
 global btnAddModifier = dotNetObject "System.Windows.Forms.Button"
 btnAddModifier.Text = "单独添加根运动修改器"
-btnAddModifier.Size = dotNetObject "System.Drawing.Size" 270 25
+btnAddModifier.Size = dotNetObject "System.Drawing.Size" 300 25
 btnAddModifier.Location = dotNetObject "System.Drawing.Point" 10 20
 btnAddModifier.BackColor = GetThemeColor #purple
 btnAddModifier.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
 
 global btnRemoveController = dotNetObject "System.Windows.Forms.Button"
 btnRemoveController.Text = "移除根运动控制器（包括物体）"
-btnRemoveController.Size = dotNetObject "System.Drawing.Size" 270 25
+btnRemoveController.Size = dotNetObject "System.Drawing.Size" 300 25
 btnRemoveController.Location = dotNetObject "System.Drawing.Point" 10 50
 btnRemoveController.BackColor = GetThemeColor #red
 btnRemoveController.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
@@ -1045,30 +1015,34 @@ grpManagement.Controls.Add btnRemoveController
 global linkHomepage = dotNetObject "System.Windows.Forms.LinkLabel"
 linkHomepage.Text = "■ 原作者发布页"  -- 使用方块符号替代emoji
 linkHomepage.Size = dotNetObject "System.Drawing.Size" 140 20
-linkHomepage.Location = dotNetObject "System.Drawing.Point" 10 220
+linkHomepage.Location = dotNetObject "System.Drawing.Point" 10 265
 linkHomepage.LinkColor = GetThemeColor #link
 linkHomepage.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
 
 global linkTutorial = dotNetObject "System.Windows.Forms.LinkLabel"
 linkTutorial.Text = "▶ 重构：Bullet.S"  -- 使用三角符号替代emoji
 linkTutorial.Size = dotNetObject "System.Drawing.Size" 140 20
-linkTutorial.Location = dotNetObject "System.Drawing.Point" 200 220
+linkTutorial.Location = dotNetObject "System.Drawing.Point" 220 265
 linkTutorial.LinkColor = GetThemeColor #link
 linkTutorial.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
 
 -- 帮助按钮
 global btnHelp = dotNetObject "System.Windows.Forms.Button"
 btnHelp.Text = "❓ 使用帮助"
-btnHelp.Size = dotNetObject "System.Drawing.Size" 290 25
-btnHelp.Location = dotNetObject "System.Drawing.Point" 10 185
+btnHelp.Size = dotNetObject "System.Drawing.Size" 320 25
+btnHelp.Location = dotNetObject "System.Drawing.Point" 10 230
 btnHelp.BackColor = GetThemeColor #purple
 btnHelp.FlatStyle = (dotNetClass "System.Windows.Forms.FlatStyle").Flat
 btnHelp.Font = dotNetObject "System.Drawing.Font" "Microsoft YaHei" 9.0
 
 -- 添加控件到窗体
+bsRootMotionForm.Controls.Add lblControllerTitle
 bsRootMotionForm.Controls.Add btnCreateController
 bsRootMotionForm.Controls.Add btnOpenController
 bsRootMotionForm.Controls.Add btnApplyNewRoot
+bsRootMotionForm.Controls.Add rbKeyframeMode
+bsRootMotionForm.Controls.Add rbFullframeMode
+bsRootMotionForm.Controls.Add lblBakeModeHint
 bsRootMotionForm.Controls.Add grpManagement
 bsRootMotionForm.Controls.Add linkHomepage
 bsRootMotionForm.Controls.Add linkTutorial
@@ -1080,8 +1054,8 @@ fn OnCreateController sender args = (
 	if rolRootMotionTools.CheckModifierAvailable() then (
 		if rolRootMotionTools.CreateControllerObject() then (
 			CompleteRedraw()
-			local linkStatus = if selection.count > 0 then "已自动建立链接控制" else "未建立链接（请手动选择质心后添加链接）"
-			messageBox ("根运动控制器已创建成功！\n\n控制器包含：\n- Text对象 (主控制器 - RootCtrl)\n- Point对象 (根节点 - Root)\n- 根运动修改器 (核心功能)\n\n链接状态：" + linkStatus + "\n\n请在修改面板中找到 'Bs_RootMotion_Ctrl' 修改器。") title:"创建完成"
+			local linkStatus = if selection.count > 0 then "已自动链接" else "未链接（请手动添加）"
+			messageBox ("控制器已创建！\n链接状态：" + linkStatus) title:"创建完成"
 		)
 	)
 )
@@ -1092,7 +1066,7 @@ fn OnOpenController sender args = (
 			select controllerObj
 			setCommandPanelTaskMode #modify
 		) else (
-			messageBox "场景中没有找到根运动控制器。\n请先点击'创建根运动控制器'。" title:"未找到"
+			messageBox "场景中没有根运动控制器，请先创建。" title:"未找到"
 		)
 	)
 
@@ -1127,7 +1101,7 @@ fn OnHelpClick sender args = (
 	bsHelpForm.MinimizeBox = true
 	bsHelpForm.StartPosition = (dotNetClass "System.Windows.Forms.FormStartPosition").Manual
 	bsHelpForm.ShowIcon = false
-	bsHelpForm.TopMost = false
+	bsHelpForm.TopMost = true  -- 保持窗口在最前
 	
 	-- 设置窗口位置（主窗口右侧）
 	try (
@@ -1175,8 +1149,8 @@ fn OnHelpClick sender args = (
 	helpContent += "   • Manual/Track Yaw: 旋转控制\n\n"
 	
 	helpContent += "🔹 动画记录\n"
-	helpContent += "   • 记录到临时根（关键帧）: 仅在关键帧设置\n"
-	helpContent += "   • 记录到临时根（满帧）: 每帧都设置关键帧\n\n"
+	helpContent += "   • 记录到控制器（关键帧）: 仅在质心关键帧时间点设置\n"
+	helpContent += "   • 记录到控制器（满帧）: 每帧都设置关键帧\n\n"
 	
 	helpContent += "🔹 应用根运动\n"
 	helpContent += "   • 自动识别Biped/非Biped对象\n"
@@ -1229,7 +1203,7 @@ fn OnAddModifier sender args = (
 	addModifier targetObj rootMotionMod
 	
 	setCommandPanelTaskMode #modify
-	messageBox ("已为对象 " + targetObj.name + " 添加根运动修改器！") title:"添加完成"
+	messageBox "修改器已添加！" title:"完成"
 )
 
 fn OnRemoveController sender args = (
@@ -1263,7 +1237,7 @@ fn OnRemoveController sender args = (
 				-- 删除控制器本身
 				delete existingController
 				CompleteRedraw()
-				messageBox "根运动控制器已删除！\n（包括临时根节点）" title:"删除完成"
+				messageBox "控制器已删除！" title:"完成"
 			)
 		)
 	) else (
@@ -1298,158 +1272,96 @@ fn OnApplyNewRoot sender args = (
 		return()
 	)
 	
-	-- 确认操作
-	local confirmMsg = "将要应用新的Root动画到质心系统:\n\n"
-	confirmMsg += "质心: " + pelvisObj.name + "\n"
-	confirmMsg += "临时Root: " + tempRootObj.name + "\n"
-	if originalRootObj != undefined then (
-		confirmMsg += "原Root: " + originalRootObj.name + "\n"
+	-- 从单选框获取烘焙模式
+	local useKeyframeMode = rbKeyframeMode.Checked
+	local modeStr = if useKeyframeMode then "关键帧" else "满帧"
+	
+	-- 获取要烘焙的时间点
+	local bakeTimes = #()
+	if useKeyframeMode then (
+		-- 关键帧模式：获取质心的关键帧时间
+		bakeTimes = modifier.BsRMRollout.fnGetObjectKeys pelvisObj
+		if bakeTimes.count > 0 then (
+			bakeTimes = makeUniqueArray bakeTimes
+			sort bakeTimes
+		) else (
+			messageBox "质心对象没有找到关键帧！\n请确认质心有动画关键帧，或使用满帧模式。" title:"警告"
+			return()
+		)
 	) else (
-		confirmMsg += "原Root: 无\n"
+		-- 满帧模式：获取所有帧
+		for t = animationRange.start to animationRange.end do (
+			append bakeTimes t
+		)
 	)
-	confirmMsg += "\n这个操作会修改动画数据，确定要继续吗？"
 	
-	local result = yesNoCancelBox confirmMsg title:"确认应用Root动画"
-	if result != #yes then return()
-	
-	-- 检查质心是否是Biped对象
-	local isBiped = (classof pelvisObj == Biped_Object)
-	
-	if isBiped then (
-		-- Biped处理流程
+	try (
+		-- 首先采样临时Root在所有目标时间点的世界空间变换
+		local tempRootPosList = #()
+		local tempRootRotList = #()
+		
+		for t in bakeTimes do (
+			at time t (
+				append tempRootPosList tempRootObj.transform.pos
+				append tempRootRotList tempRootObj.transform.rotation
+			)
+		)
+		
+		-- 确定目标Root节点
+		local targetRoot = originalRootObj
+		if targetRoot == undefined then (
+			-- 没有原Root：创建新Root
+			targetRoot = Point()
+			targetRoot.name = uniqueName "Root"
+			targetRoot.wirecolor = color 0 255 0  -- 绿色
+			targetRoot.size = 80
+			targetRoot.cross = true
+			targetRoot.box = true
+			
+			-- 更新修改器引用
+			modifier.OriginalRootHandle = targetRoot.inode.handle
+			setUserProp controllerObj "BsRMOriginalRoot" targetRoot.name
+		)
+		
+		-- 确保目标Root有普通的动画控制器
+		targetRoot.pos.controller = Position_XYZ()
+		targetRoot.rotation.controller = Euler_XYZ()
+		
+		-- 将临时Root的动画烘焙到目标Root
+		local successCount = 0
+		local originalAnimState = animButtonState
+		
 		try (
-			-- 记录临时Root的完整变换矩阵
-			local tempRootTransformList = #()
-			
-			print ("开始采样临时Root完整变换...")
-			for t = animationRange.start to animationRange.end do (
+			animButtonState = true
+			for i = 1 to bakeTimes.count do (
+				local t = bakeTimes[i]
 				at time t (
-					-- 直接采样完整的变换矩阵
-					append tempRootTransformList tempRootObj.transform
-				)
-			)
-			print ("采样完成: " + tempRootTransformList.count as string + " 帧")
-			
-			-- 记录原始Biped质心的世界空间位置和旋转
-			local bipedPosList = #()
-			local bipedRotList = #()
-			for t = animationRange.start to animationRange.end do (
-				at time t (
-					append bipedPosList (in coordsys world Biped.getTransform pelvisObj #pos)
-					append bipedRotList (in coordsys world Biped.getTransform pelvisObj #rotation)
-				)
-			)
-			
-			-- 处理父子关系
-			if originalRootObj != undefined then (
-				if pelvisObj.parent != originalRootObj then (
-					pelvisObj.parent = originalRootObj
-				)
-				local frameIndex = 1
-				local originalAnimState = animButtonState
-				try (
-					animButtonState = true
-					print ("开始应用变换到原Root...")
-					for t = animationRange.start to animationRange.end do (
-						at time t (
-							with animate on (
-								originalRootObj.transform = tempRootTransformList[frameIndex]
-							)
-							frameIndex += 1
+					try (
+						with animate on (
+							targetRoot.pos = tempRootPosList[i]
+							targetRoot.rotation = tempRootRotList[i]
 						)
-					)
-					print ("原Root动画应用完成")
-				) catch (ex) (
-					print ("应用原Root动画时出错: " + ex as string)
-					animButtonState = originalAnimState
+						successCount += 1
+					) catch ()
 				)
-			) else (
-				local newRoot = Point()
-				newRoot.name = "Root"
-				newRoot.wirecolor = color 0 255 0  -- 绿色
-				newRoot.size = 80
-				newRoot.cross = true
-				newRoot.box = true
-				local frameIndex = 1
-				local originalAnimState = animButtonState
-				try (
-					animButtonState = true
-					print ("开始应用变换到新Root...")
-					for t = animationRange.start to animationRange.end do (
-						at time t (
-							with animate on (
-								newRoot.transform = tempRootTransformList[frameIndex]
-							)
-							frameIndex += 1
-						)
-					)
-					print ("新Root动画应用完成")
-				) catch (ex) (
-					print ("应用新Root动画时出错: " + ex as string)
-					animButtonState = originalAnimState
-				)
-				pelvisObj.parent = newRoot
-				modifier.OriginalRootHandle = newRoot.inode.handle
-				setUserProp controllerObj "BsRMOriginalRoot" newRoot.name
 			)
-			
-			-- 创建Biped层来处理偏移
+			animButtonState = originalAnimState
+		) catch (
+			animButtonState = originalAnimState
+		)
+		
+		CompleteRedraw()
+		local completeMsg = "Root动画已应用！(" + modeStr + ", " + successCount as string + "帧)"
+		if useKeyframeMode then (
+			completeMsg += "\n\n⚠ 关键帧模式曲柄自动平滑，补间可能对不上需手动调曲线"
+		)
+		messageBox completeMsg title:"应用完成"
+		
+		-- 询问是否清理控制器
+		local cleanupResult = yesNoCancelBox "Root动画已成功应用！\n\n是否要清理根运动控制器和临时Root？\n\n清理后将删除：\n- 根运动控制器对象\n- 临时Root节点\n- 所有相关数据\n\n注意：清理后无法再次编辑根运动参数！" title:"清理控制器"
+		if cleanupResult == #yes then (
 			try (
-				-- 第一层：严格参考BsRetargetTools.ms，恢复原始位置和旋转
-				biped.createLayer pelvisObj.controller 1 "RootMotionOffset"
-				biped.setCurrentLayer pelvisObj.controller 1
-				local frameIndex = 1
-				for t = animationRange.start to animationRange.end do (
-					slidertime = t
-					with animate on (
-						local bipedPos = bipedPosList[frameIndex]
-						in coordsys world Biped.setTransform pelvisObj #pos bipedPos true
-						local parentNode = pelvisObj.parent
-						local rootRot = if parentNode != undefined then (
-							at time t (in coordsys world parentNode.rotation)
-						) else (
-							(matrix3 1).rotation
-						)
-						local bipedRot = bipedRotList[frameIndex]
-						local localRot = bipedRot * (inverse rootRot)
-						Biped.setTransform pelvisObj #rotation localRot true
-						frameIndex += 1
-					)
-				)
-				-- 第二层：严格参考bsretarget，直接还原世界空间旋转
-				biped.createLayer pelvisObj.controller 2 "RootMotionReverse"
-				biped.setCurrentLayer pelvisObj.controller 2
-				frameIndex = 1
-				for t = animationRange.start to animationRange.end do (
-					slidertime = t
-					with animate on (
-						local bipedPos = bipedPosList[frameIndex]
-						in coordsys world Biped.setTransform pelvisObj #pos bipedPos true
-						local bipedRot = bipedRotList[frameIndex]
-						in coordsys world Biped.setTransform pelvisObj #rotation bipedRot true
-						frameIndex += 1
-					)
-				)
-				biped.collapseAtLayer pelvisObj.controller 1
-				biped.collapseAtLayer pelvisObj.controller 0
-			) catch (
-				-- 如果Biped层创建失败，使用基本的位置设置
-				local frameIndex = 1
-				for t = animationRange.start to animationRange.end do (
-					at time t with animate on (
-						in coordsys world pelvisObj.transform.pos = bipedPosList[frameIndex]
-						in coordsys world pelvisObj.transform.rotation = bipedRotList[frameIndex]
-						frameIndex += 1
-					)
-				)
-			)
-			CompleteRedraw()
-			messageBox "Biped根运动动画已成功应用！\n\n新的Root动画已传递给质心的父级，\n质心保持了原始的相对动画。" title:"应用完成"
-			
-			-- 询问是否清理控制器
-			local cleanupResult = yesNoCancelBox "Root动画已成功应用！\n\n是否要清理根运动控制器和临时Root？\n\n清理后将删除：\n- 根运动控制器对象\n- 临时Root节点\n- 所有相关数据\n\n注意：清理后无法再次编辑根运动参数！" title:"清理控制器"
-			if cleanupResult == #yes then (
-				try (
+				with undo on (
 					-- 获取临时根节点
 					local rootObjToDelete = tempRootObj
 					
@@ -1465,120 +1377,15 @@ fn OnApplyNewRoot sender args = (
 					)
 					
 					CompleteRedraw()
-					messageBox "控制器清理完成！\n\n已删除：\n- 根运动控制器\n- 临时Root节点\n\nRoot动画已永久应用到骨骼系统。" title:"清理完成"
-				) catch (
-					messageBox ("清理控制器时出错: " + getCurrentException()) title:"清理错误"
+					messageBox "控制器已清理！" title:"完成"
 				)
+			) catch (
+				messageBox ("清理控制器时出错: " + getCurrentException()) title:"清理错误"
 			)
-			
-		) catch (
-			messageBox ("应用Biped根运动时出错: " + getCurrentException()) title:"错误"
 		)
 		
-	) else (
-		-- 非Biped对象的处理流程
-		try (
-			
-			-- 记录质心的原始动画（相对于当前父级）
-			local pelvisLocalPosList = #()
-			local pelvisLocalRotList = #()
-			
-			for t = animationRange.start to animationRange.end do (
-				at time t (
-					append pelvisLocalPosList pelvisObj.transform.pos
-					append pelvisLocalRotList pelvisObj.transform.rotation
-				)
-			)
-			
-			-- 处理Root应用
-			if originalRootObj != undefined then (
-				-- 有原Root：直接传递临时Root的完整变换
-				local originalAnimState = animButtonState
-				try (
-					animButtonState = true
-					print ("非Biped：开始应用变换到原Root...")
-					for t = animationRange.start to animationRange.end do (
-						at time t (
-							with animate on (
-								-- 直接应用完整的变换矩阵
-								originalRootObj.transform = tempRootObj.transform
-							)
-						)
-					)
-					print ("非Biped：原Root动画应用完成")
-				) catch (ex) (
-					print ("非Biped：应用原Root动画时出错: " + ex as string)
-					animButtonState = originalAnimState
-				)
-			) else (
-				-- 没有原Root：创建新Root并设置父子关系
-				local newRoot = Point()
-				newRoot.name = uniqueName "AppliedRoot"
-				newRoot.wirecolor = color 0 255 0  -- 绿色
-				newRoot.size = 80
-				newRoot.cross = true
-				newRoot.box = true
-				
-				-- 应用临时Root的完整变换到新Root
-				local originalAnimState = animButtonState
-				try (
-					animButtonState = true
-					print ("非Biped：开始应用变换到新Root...")
-					for t = animationRange.start to animationRange.end do (
-						at time t (
-							with animate on (
-								-- 直接应用完整的变换矩阵
-								newRoot.transform = tempRootObj.transform
-							)
-						)
-					)
-					print ("非Biped：新Root动画应用完成")
-				) catch (ex) (
-					print ("非Biped：应用新Root动画时出错: " + ex as string)
-					animButtonState = originalAnimState
-				)
-				
-				-- 设置父子关系
-				pelvisObj.parent = newRoot
-				
-				-- 更新修改器引用
-				modifier.OriginalRootHandle = newRoot.inode.handle
-				setUserProp controllerObj "BsRMOriginalRoot" newRoot.name
-			)
-			
-			messageBox "根运动动画已成功应用！\n\n临时Root的动画已传递给质心的父级。" title:"应用完成"
-			
-			-- 询问是否清理控制器
-			local cleanupResult = yesNoCancelBox "Root动画已成功应用！\n\n是否要清理根运动控制器和临时Root？\n\n清理后将删除：\n- 根运动控制器对象\n- 临时Root节点\n- 所有相关数据\n\n注意：清理后无法再次编辑根运动参数！" title:"清理控制器"
-			if cleanupResult == #yes then (
-				try (
-					with undo on
-					(
-						-- 获取临时根节点
-						local rootObjToDelete = tempRootObj
-						
-						-- 删除控制器对象及其所有子对象
-						for child in controllerObj.children do (
-							delete child
-						)
-						delete controllerObj
-						
-						-- 删除临时根节点
-						if rootObjToDelete != undefined then (
-							delete rootObjToDelete
-						)
-						
-						CompleteRedraw()
-						messageBox "控制器清理完成！\n\n已删除：\n- 根运动控制器\n- 临时Root节点\n\nRoot动画已永久应用到骨骼系统。" title:"清理完成"
-					)
-				) catch (
-					messageBox ("清理控制器时出错: " + getCurrentException()) title:"清理错误"
-				)
-			)
-			
-		) catch (
-			messageBox ("应用非Biped根运动时出错: " + getCurrentException()) title:"错误"
-		)
+	) catch (
+		messageBox ("应用根运动时出错: " + getCurrentException()) title:"错误"
 	)
 )
 
