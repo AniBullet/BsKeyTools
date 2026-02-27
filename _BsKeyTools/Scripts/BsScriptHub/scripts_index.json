@@ -1251,11 +1251,11 @@
       },
       {
         "name": "RE引擎动画工具",
-        "version": "1.6",
-        "description": "更新 MH Stories3 和 Pragmata 动作支持\n\nRE Engine 游戏动画导入工具\n\n支持 Capcom RE 引擎游戏的动画文件导入。\n\n支持游戏：\n- 怪物猎人荒野公测版\n- 怪物猎人荒野正式版\n- 怪物猎人崛起\n- 怪物猎人崛起曙光\n- 怪物猎人物语3体验版\n- Pragmata体验版\n\n需要配合 Noesis 使用。",
+        "version": "1.7",
+        "description": "更新添加包含子文件夹选项和保持文件夹结构选项\n\nRE Engine 游戏动画导入工具\n\n支持 Capcom RE 引擎游戏的动画文件导入。\n\n支持游戏：\n- 怪物猎人荒野公测版\n- 怪物猎人荒野正式版\n- 怪物猎人崛起\n- 怪物猎人崛起曙光\n- 怪物猎人物语3体验版\n- Pragmata体验版\n\n需要配合 Noesis 使用。",
         "author": "Bullet.S",
         "optimizer": "",
-        "modified_date": "2026-02-09",
+        "modified_date": "2026-02-26",
         "keywords": [
           "RE引擎",
           "怪物猎人",
