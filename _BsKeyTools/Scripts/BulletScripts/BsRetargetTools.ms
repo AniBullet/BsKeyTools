@@ -1138,7 +1138,7 @@ rollout rolBsRetarget "BsRetargetTools_v5.2 （ FBX 转 BIP + 动画重定向 �
 
 	-- ========== 进度条区域 ==========
 	progressbar pgbBar "" pos:[margin,652] width:(winW-55) height:16 color:white
-	label lblBarValue "0 %" pos:[(winW-32),653] width:38
+	label lblBarValue "0 %" pos:[(winW-40),653] width:38
 
 	-- Tab1 控件列表: FBX 转 Biped
 	local arrFBXtoBIPED = #(">> 【 FBX 转 Biped 】 <<",#(
@@ -3974,14 +3974,22 @@ fn fnCopySubBones =
 			if (not (fnIsIgnoreBone 62)) then QuickFingers 62 rHandBone false
 			if (not (fnIsIgnoreBone 66)) then QuickFingers 66 rHandBone false
 			
-			-- Creates orientation constraints for the original rig to the faux rig.
-			for i = 1 to characterBones.items.count do
+		-- 检测 Root 和 Pelvis 是否映射同一骨骼
+		local _sameRootPelvis = false
+		(
+			local _sn1 = GetSkeletalNode 1 false
+			local _sn2 = GetSkeletalNode 2 false
+			if _sn1 != undefined and _sn2 != undefined and _sn1.name == _sn2.name then _sameRootPelvis = true
+		)
+		-- Creates orientation constraints for the original rig to the faux rig.
+		for i = 1 to characterBones.items.count do
+		(
+			case i of 
 			(
-				case i of 
-				(
-					11:() --nub
-					16:() --nub
-					21:() --nub
+				2:(if not _sameRootPelvis then CreateOrientationConstraint 2 false)
+				11:() --nub
+				16:() --nub
+				21:() --nub
 					23:
 					(
 						local lC = LookAt_Constraint();
@@ -4034,8 +4042,8 @@ fn fnCopySubBones =
 				)
 			)
 			
-			CreatePositionConstraint 1 false
-			CreatePositionConstraint 2 false
+		CreatePositionConstraint 1 false
+		if not _sameRootPelvis then CreatePositionConstraint 2 false
 
 			CreatePositionConstraint 22 false
 			CreatePositionConstraint 46 false
@@ -4848,13 +4856,19 @@ fn fnCopySubBones =
 
 	fn fnRenameBiped arrItems isB:false =
 	(
+		-- 在重命名之前检测 Root 和 Pelvis 是否映射同一骨骼
+		local _sameRootPelvis = false
+		if not isB then
+		(
+			local _sn1 = GetSkeletalNode 1 false
+			local _sn2 = GetSkeletalNode 2 false
+			if _sn1 != undefined and _sn2 != undefined and _sn1.name == _sn2.name then _sameRootPelvis = true
+		)
 		for i = 1 to arrItems.count where arrItems[i] != "~undefined~" do
 		(
 			if isB == false then 
 			(
 				tarBone = GetSkeletalNode i false
-				-- if i == 1 then (tarBiped = getnodebyname "Bip001")
-				-- else (tarBiped = getnodebyname (bipedRootName + (substituteString bipedBones.items[i] "[可选]" "")))
 				tarBiped = (GetBipedNode i)
 			)
 			else 
@@ -4883,6 +4897,8 @@ fn fnCopySubBones =
 			)
 		else
 		(
+			-- Root 和 Pelvis 同源时，Pelvis 跟随 Bip001，不独立处理
+			if i == 2 and _sameRootPelvis then continue
 			if matchpattern tarBone.name pattern:"NewHip_*" then 
 			(
 				tarHipBone = getnodebyname (substituteString tarBone.name "NewHip_" "")
