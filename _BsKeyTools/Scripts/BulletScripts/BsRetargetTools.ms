@@ -1774,8 +1774,8 @@ rollout rolBsRetarget "BsRetargetTools_v5.2 （ FBX 转 BIP + 动画重定向 �
 	global GetBipedNode
 	fn GetBipedNode index =
 	(
-		-- 缓存脏时重建（无论 index 是多少）
-		if _bipedCacheDirty or arrAllBipedNode.count == 0 then
+		-- 缓存脏、为空、或引用已删除对象时重建
+		if _bipedCacheDirty or arrAllBipedNode.count == 0 or (not isValidNode arrAllBipedNode[1]) then
 		(
 			local rootBip = fnGetRootNode()
 			if rootBip != undefined then
