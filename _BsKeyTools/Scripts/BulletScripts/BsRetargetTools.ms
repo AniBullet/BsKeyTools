@@ -1765,6 +1765,7 @@ rollout rolBsRetarget "BsRetargetTools_v5.2 （ FBX 转 BIP + 动画重定向 �
 	fn fnGetRootNode = 
 	(
 		for i in objects where classof i == Biped_Object do (return i.controller.rootnode)
+		return undefined
 	)
 
 	global _bipedCacheDirty = true
@@ -4880,25 +4881,35 @@ fn fnCopySubBones =
 					tarBiped.name = "BipCtrl_" + tarBiped.name
 				)
 			)
-			else
+		else
+		(
+			if matchpattern tarBone.name pattern:"NewHip_*" then 
 			(
-				if matchpattern tarBone.name pattern:"NewHip_*" then 
+				tarHipBone = getnodebyname (substituteString tarBone.name "NewHip_" "")
+				if tarHipBone != undefined then
 				(
-					tarHipBone = getnodebyname (substituteString tarBone.name "NewHip_" "")
 					tarBone = tarHipBone
 					tarBone.parent = tarBiped
 					for i in tarBone.children where i != undefined and (finditem rolBsRetarget.characterBones.items i.name == 0) and \
 						(finditem rolBsRetarget.characterBones_B.items i.name == 0) do (i.parent = tarBone)
 				)
+				else
+					format "[BsRetarget] NewHip 原骨骼未找到: %\n" tarBone.name
+			)
 	
-				else if matchpattern tarBone.name pattern:"NewPelvis_*" then 
+			else if matchpattern tarBone.name pattern:"NewPelvis_*" then 
+			(
+				tarPelvisBone = getnodebyname (substituteString tarBone.name "NewPelvis_" "")
+				if tarPelvisBone != undefined then
 				(
-					tarPelvisBone = getnodebyname (substituteString tarBone.name "NewPelvis_" "")
 					tarBone = tarPelvisBone
 					tarBone.parent = tarBiped
 					for i in tarBone.children where i != undefined and (finditem rolBsRetarget.characterBones.items i.name == 0) and \
 						(finditem rolBsRetarget.characterBones_B.items i.name == 0) do (i.parent = tarBone)
 				)
+				else
+					format "[BsRetarget] NewPelvis 原骨骼未找到: %\n" tarBone.name
+			)
 				else
 				(
 					if tarBiped.parent != undefined and tarBone != undefined then
