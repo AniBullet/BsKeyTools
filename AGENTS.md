@@ -53,6 +53,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-agent-rules.ps1
 - 新增 helper 后，要检查是否被更早的函数或 rollout handler 调用。
 - 避免隐式全局临时变量；能局部化就用 `local`。
 - 不轻易改 Biped 创建顺序、对齐数学、约束算法、FBX 导入导出参数。
+- **函数定义顺序**：MaxScript（尤其在 rollout 内）必须先定义后使用。如果函数 A 调用函数 B，B 必须在 A 之前定义。`global` 前向声明在 rollout 内部不能解决此问题，唯一可靠方式是调整定义顺序。
 - BsRetargetTools 改动后至少运行：
 
 ```powershell
