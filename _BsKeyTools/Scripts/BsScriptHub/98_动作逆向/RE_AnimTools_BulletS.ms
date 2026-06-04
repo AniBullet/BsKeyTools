@@ -448,7 +448,7 @@ rollout rolMotViewer "Motlist Viewer"
 	)
 )
 
-rollout FBXBatchProcessor "Bone Anim FBX Fix (荒野专用)"
+rollout FBXBatchProcessor "Bone Anim FBX Fix"
 (
 	on FBXBatchProcessor rolledUp state do (if not state then rolREAnimTools.height -= 160 else rolREAnimTools.height += 160)
 
@@ -590,18 +590,15 @@ rollout FBXBatchProcessor "Bone Anim FBX Fix (荒野专用)"
 		pbProgress.value = 0
 		
 		local successCount = 0
-		if selCurGameID == 3 or selCurGameID == 4 then 
+		for i = 1 to fbxFiles.count do
 		(
-			for i = 1 to fbxFiles.count do
-			(
-				lblStatus.text = ("正在处理文件：" + filenameFromPath fbxFiles[i])
-				print ("正在处理文件：" + filenameFromPath fbxFiles[i])
-				pbProgress.value = (i as float / fbxFiles.count) * 100
-				
-				if processFile fbxFiles[i] do successCount += 1
-				
-				gc()
-			)	
+			lblStatus.text = ("正在处理文件：" + filenameFromPath fbxFiles[i])
+			print ("正在处理文件：" + filenameFromPath fbxFiles[i])
+			pbProgress.value = (i as float / fbxFiles.count) * 100
+
+			if processFile fbxFiles[i] do successCount += 1
+
+			gc()
 		)
 		
 		lblStatus.text = ("处理完成！成功处理 " + successCount as string + "/" + fbxFiles.count as string + " 个文件")
