@@ -181,7 +181,8 @@ rollout formNoesisCMD "Motlist Anim Importer"
 					)
 					
 					cmd = (
-						"\"" + noesis_path + "\" ?cmode \"" + cmd + "\" \"" + fbx_path + "\"" \
+						"set PYTHONIOENCODING=utf-8 && " \
+						+ "\"" + noesis_path + "\" ?cmode \"" + cmd + "\" \"" + fbx_path + "\"" \
 						+ (if chk_autoLoadAll.checked then " -noprompt" else "") \
 						+ (if chk_legacyFBX.checked then " -fbxoldexport -fbxexportver FBX201400" else "")
 					)
