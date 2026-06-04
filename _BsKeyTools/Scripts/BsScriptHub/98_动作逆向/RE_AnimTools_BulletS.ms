@@ -11,7 +11,7 @@ global noesis_path
 global output_path
 global arrMotFilesLoaded
 
-rollout rolREAnimTools "RE_AnimTools_v2.0_Bullet.S" height:105 width:305
+rollout rolREAnimTools "RE_AnimTools_v2.1_Bullet.S" height:105 width:305
 (
 	local arrGamesName = #(\
 		"MHRise-怪物猎人崛起",\
@@ -19,6 +19,7 @@ rollout rolREAnimTools "RE_AnimTools_v2.0_Bullet.S" height:105 width:305
 		"MHWilds OBT-荒野公测版",\
 		"MHWilds-怪物猎人荒野",\
 		"MH Stories3-物语3",\
+		"OniWS-鬼武者剑之道",\
 		"RE2-生化危机2重制版",\
 		"RE3-生化危机3重制版",\
 		"RE4-生化危机4重制版",\
@@ -51,24 +52,25 @@ rollout rolREAnimTools "RE_AnimTools_v2.0_Bullet.S" height:105 width:305
 			"3":motExt  = ".959"		-- MHWilds OBT
 			"4":motExt  = ".992"		-- MHWilds
 			"5":motExt  = ".1004"		-- MH Stories 3
+			"6":motExt  = ".1036"		-- OniWS
 			-- RE 系列
-			"6":motExt  = ".85"			-- RE2
-			"7":motExt  = ".99"			-- RE3
-			"8":motExt  = ".663"		-- RE4
-			"9":motExt  = ".60"			-- RE7
-			"10":motExt = ".486"		-- RE8
-			"11":motExt = ".1047"		-- RE9
-			"12":motExt = ".524"		-- RE2+3 RT
-			"13":motExt = ".524"		-- RE7 RT
-			"14":motExt = ".500"		-- RE:Verse
+			"7":motExt  = ".85"			-- RE2
+			"8":motExt  = ".99"			-- RE3
+			"9":motExt  = ".663"		-- RE4
+			"10":motExt = ".60"			-- RE7
+			"11":motExt = ".486"		-- RE8
+			"12":motExt = ".1047"		-- RE9
+			"13":motExt = ".524"		-- RE2+3 RT
+			"14":motExt = ".524"		-- RE7 RT
+			"15":motExt = ".500"		-- RE:Verse
 			-- 其他
-			"15":motExt = ".85"			-- DMC5
-			"16":motExt = ".653"		-- SF6
-			"17":motExt = ".751"		-- DD2
-			"18":motExt = ".643"		-- ExoPrimal
-			"19":motExt = ".854"		-- DRDR
-			"20":motExt = ".750"		-- 逆转裁判456
-			"21":motExt = ".1057"		-- Pragmata
+			"16":motExt = ".85"			-- DMC5
+			"17":motExt = ".653"		-- SF6
+			"18":motExt = ".751"		-- DD2
+			"19":motExt = ".643"		-- ExoPrimal
+			"20":motExt = ".854"		-- DRDR
+			"21":motExt = ".750"		-- 逆转裁判456
+			"22":motExt = ".1057"		-- Pragmata
 			default:motExt = ".992"
 		)
 		motExt
