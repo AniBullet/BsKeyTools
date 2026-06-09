@@ -988,7 +988,7 @@ rcmenu menuBsRetarget
 
 -- ====== SECTION 4: MAIN ROLLOUT UI ======
 
-rollout rolBsRetarget "BsRetargetTools_v5.2 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v5.3 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 	local winW = 655  -- 窗口宽度
@@ -2225,10 +2225,10 @@ rollout rolBsRetarget "BsRetargetTools_v5.2 （ FBX 转 BIP + 动画重定向 �
 				local parentPos = foundParent.pos;
 				local childPos = foundChild.pos;
 				local midPos = [parentPos.x, parentPos.y, childPos.z]
-				
+
 				local diffA = midPos - parentPos;
-				local croA = cross (normalize diffA) axis
-				local axisA = normalize croA
+				local toeHoriz = normalize [childPos.x - parentPos.x, childPos.y - parentPos.y, 0]
+				local axisA = normalize (cross (normalize diffA) toeHoriz)
 				
 				newBone           = BoneSys.createBone parentPos midPos axisA
 				newBone.parent    = initialBone
@@ -3910,15 +3910,27 @@ fn fnCopySubBones =
 			newBone = CreateFauxBone newBone 11 0 [0,-1,0]
 			
 			-- Creates the legs
-			newBone = CreateFauxBone pelvisBone 12 13 [0,-1,0]
-			newBone = CreateFauxBone newBone 13 14 [0,-1,0]
+			local lThighBone = GetSkeletalNode 12 false
+			local lCalfBone = GetSkeletalNode 13 false
+			local lThighAxis = [0,-1,0]
+			local lCalfAxis = [0,-1,0]
+			if lThighBone != undefined then (lThighAxis = normalize lThighBone.transform.row2; if lThighAxis.y > 0 then lThighAxis = -lThighAxis)
+			if lCalfBone != undefined then (lCalfAxis = normalize lCalfBone.transform.row2; if lCalfAxis.y > 0 then lCalfAxis = -lCalfAxis)
+			newBone = CreateFauxBone pelvisBone 12 13 lThighAxis
+			newBone = CreateFauxBone newBone 13 14 lCalfAxis
 			newBone = CreateFauxBone newBone 14 15 [0,-1,0] isFoot:true
 			newBone = CreateFauxBone newBone 15 16 [0,0,1] isToes:true
 			newBone = CreateFauxBone newBone 16 0 [0,0,1]
-			
+
 			-- Creates the legs
-			newBone = CreateFauxBone pelvisBone 17 18 [0,-1,0]
-			newBone = CreateFauxBone newBone 18 19 [0,-1,0]
+			local rThighBone = GetSkeletalNode 17 false
+			local rCalfBone = GetSkeletalNode 18 false
+			local rThighAxis = [0,-1,0]
+			local rCalfAxis = [0,-1,0]
+			if rThighBone != undefined then (rThighAxis = normalize rThighBone.transform.row2; if rThighAxis.y > 0 then rThighAxis = -rThighAxis)
+			if rCalfBone != undefined then (rCalfAxis = normalize rCalfBone.transform.row2; if rCalfAxis.y > 0 then rCalfAxis = -rCalfAxis)
+			newBone = CreateFauxBone pelvisBone 17 18 rThighAxis
+			newBone = CreateFauxBone newBone 18 19 rCalfAxis
 			newBone = CreateFauxBone newBone 19 20 [0,-1,0] isFoot:true
 			newBone = CreateFauxBone newBone 20 21 [0,0,1] isToes:true
 			newBone = CreateFauxBone newBone 21 0 [0,0,1]
