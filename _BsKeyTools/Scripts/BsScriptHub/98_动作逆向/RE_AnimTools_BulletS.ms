@@ -11,7 +11,84 @@ global noesis_path
 global output_path
 global arrMotFilesLoaded
 
-rollout rolREAnimTools "RE_AnimTools_v2.1_Bullet.S" height:105 width:305
+-- 设置持久化 INI 文件路径
+global RE_AnimTools_INI = (getDir #userScripts) + @"\RE_AnimTools_BulletS.ini"
+
+fn fnSaveSettings =
+(
+	setINISetting RE_AnimTools_INI "General" "selCurGameID" (if selCurGameID != undefined then selCurGameID as string else "4")
+	setINISetting RE_AnimTools_INI "General" "noesis_path" (if noesis_path != undefined then noesis_path else "")
+	setINISetting RE_AnimTools_INI "General" "output_path" (if output_path != undefined then output_path else "")
+	setINISetting RE_AnimTools_INI "General" "motPath" (if motPath != undefined then motPath else "")
+	if formNoesisCMD != undefined do
+	(
+		try(
+			setINISetting RE_AnimTools_INI "Import" "resetScene" (formNoesisCMD.chk_resetScene.checked as string)
+			setINISetting RE_AnimTools_INI "Import" "legacyFBX" (formNoesisCMD.chk_legacyFBX.checked as string)
+			setINISetting RE_AnimTools_INI "Import" "noefbxmulti" (formNoesisCMD.chk_noefbxmulti.checked as string)
+			setINISetting RE_AnimTools_INI "Import" "fixMultiFPS" (formNoesisCMD.chk_fixMultiFPS.checked as string)
+			setINISetting RE_AnimTools_INI "Import" "autoLoadAll" (formNoesisCMD.chk_autoLoadAll.checked as string)
+			setINISetting RE_AnimTools_INI "Config" "onlyAnim" (formNoesisCMD.chk_OnlyAnim.checked as string)
+			setINISetting RE_AnimTools_INI "Config" "showPlugOpt" (formNoesisCMD.chk_showPlugOpt.checked as string)
+			setINISetting RE_AnimTools_INI "Config" "delFBX" (formNoesisCMD.chk_delFBX.checked as string)
+			setINISetting RE_AnimTools_INI "Config" "showCMD" (formNoesisCMD.chk_showCMD.checked as string)
+			setINISetting RE_AnimTools_INI "Config" "keepFolder" (formNoesisCMD.chk_keepFolder.checked as string)
+		)catch()
+	)
+	if rolMotViewer != undefined do
+	(
+		try(setINISetting RE_AnimTools_INI "Viewer" "subFolders" (rolMotViewer.chkSubFolders.checked as string))catch()
+	)
+)
+
+fn fnLoadSettings =
+(
+	if doesFileExist RE_AnimTools_INI then
+	(
+		local val
+		val = getINISetting RE_AnimTools_INI "General" "selCurGameID"
+		if val != "" do selCurGameID = val as integer
+		val = getINISetting RE_AnimTools_INI "General" "noesis_path"
+		if val != "" do noesis_path = val
+		val = getINISetting RE_AnimTools_INI "General" "output_path"
+		if val != "" do output_path = val
+		val = getINISetting RE_AnimTools_INI "General" "motPath"
+		if val != "" do motPath = val
+	)
+)
+
+fn fnLoadSettingsUI =
+(
+	if doesFileExist RE_AnimTools_INI then
+	(
+		local val
+		val = getINISetting RE_AnimTools_INI "Import" "resetScene"
+		if val != "" do formNoesisCMD.chk_resetScene.checked = (val == "true")
+		val = getINISetting RE_AnimTools_INI "Import" "legacyFBX"
+		if val != "" do formNoesisCMD.chk_legacyFBX.checked = (val == "true")
+		val = getINISetting RE_AnimTools_INI "Import" "noefbxmulti"
+		if val != "" do formNoesisCMD.chk_noefbxmulti.checked = (val == "true")
+		val = getINISetting RE_AnimTools_INI "Import" "fixMultiFPS"
+		if val != "" do formNoesisCMD.chk_fixMultiFPS.checked = (val == "true")
+		val = getINISetting RE_AnimTools_INI "Import" "autoLoadAll"
+		if val != "" do formNoesisCMD.chk_autoLoadAll.checked = (val == "true")
+		val = getINISetting RE_AnimTools_INI "Config" "onlyAnim"
+		if val != "" do formNoesisCMD.chk_OnlyAnim.checked = (val == "true")
+		val = getINISetting RE_AnimTools_INI "Config" "showPlugOpt"
+		if val != "" do formNoesisCMD.chk_showPlugOpt.checked = (val == "true")
+		val = getINISetting RE_AnimTools_INI "Config" "delFBX"
+		if val != "" do formNoesisCMD.chk_delFBX.checked = (val == "true")
+		val = getINISetting RE_AnimTools_INI "Config" "showCMD"
+		if val != "" do formNoesisCMD.chk_showCMD.checked = (val == "true")
+		val = getINISetting RE_AnimTools_INI "Config" "keepFolder"
+		if val != "" do formNoesisCMD.chk_keepFolder.checked = (val == "true")
+	)
+)
+
+-- 启动时先加载路径和游戏选择
+fnLoadSettings()
+
+rollout rolREAnimTools "RE_AnimTools_v2.2_Bullet.S" height:105 width:305
 (
 	local arrGamesName = #(\
 		"MHRise-怪物猎人崛起",\
@@ -40,7 +117,7 @@ rollout rolREAnimTools "RE_AnimTools_v2.1_Bullet.S" height:105 width:305
 
 	label lblSelectGameMode "请选择目标游戏：" pos:[12,8] width:80
 	dropdownlist ddlCurGames "" items:arrGamesName pos:[100,5] width:190
-	subrollout subRolImporter "Importer" height:870 width:280
+	subrollout subRolImporter "Importer" height:890 width:280
 	
 	fn fnRefreshMotExt selCurGameID =
 	(
@@ -78,7 +155,7 @@ rollout rolREAnimTools "RE_AnimTools_v2.1_Bullet.S" height:105 width:305
 
 	on rolREAnimTools open do 
 	(
-		setdialogpos rolREAnimTools ((getdialogpos rolREAnimTools) + [400,-500])
+		setdialogpos rolREAnimTools ((getdialogpos rolREAnimTools) + [200,-300])
 		if selCurGameID != undefined and selCurGameID != 0 then ddlCurGames.selection = selCurGameID
 		else selCurGameID = 4
 		ddlCurGames.selection = selCurGameID
@@ -91,18 +168,20 @@ rollout rolREAnimTools "RE_AnimTools_v2.1_Bullet.S" height:105 width:305
 		selCurGameID = id
 		fnRefreshMotExt selCurGameID
 		rolMotViewer.fnRefreshMotFiles()
+		fnSaveSettings()
 	)
 )
 
 rollout formNoesisCMD "Motlist Anim Importer"
 (
-	on formNoesisCMD rolledUp state do (if not state then rolREAnimTools.height -= 380 else rolREAnimTools.height += 380)
+	on formNoesisCMD rolledUp state do (if not state then rolREAnimTools.height = amax 105 (rolREAnimTools.height - 400) else rolREAnimTools.height += 400)
 	
 	group "Import" (
 		button btn_import "Import MHWs Animation" width:230 align:#center
 		checkbox chk_resetScene "导入时重置场景 | Reset On Import" checked:true align:#left
 		checkbox chk_legacyFBX "使用旧板FBX | Use Legacy FBX" checked:false align:#left 
 		checkbox chk_noefbxmulti "导出分离动画片断 | noefbxmulti" checked:false align:#left enabled:true
+		checkbox chk_fixMultiFPS "自动修复分离动画帧率 | Auto Fix FPS" checked:true align:#left enabled:true
 		checkbox chk_autoLoadAll "默认导入所有动画 | Auto Load All" checked:true align:#left
 	)
 	group "Config" (
@@ -139,6 +218,45 @@ rollout formNoesisCMD "Motlist Anim Importer"
 			)
 		)
 		state
+	)
+	
+	fn fnParseFrameCount filename = 
+	(
+		local arrFilter = filterString filename "("
+		local frameNew = try((filterString arrFilter[arrFilter.count] " ")[1] as integer)catch(0)
+		if frameNew > 1 then frameNew else 0
+	)
+	
+	fn fnFixMultiFBX inputFile = 
+	(
+		resetMaxFile #noPrompt
+		FbxImporterSetParam "Animation" true
+		FbxImporterSetParam "FillTimeline" true
+		frameRate = 1
+		importFile inputFile #noPrompt using:FBXIMP
+		
+		local frameCount = fnParseFrameCount (getFilenameFile inputFile)
+		local endFrame = if frameCount > 0 then frameCount - 1 else 119
+		frameRate = 60
+		sliderTime = sliderTime
+		for i in objects do scaletime i.controller animationrange.start animationrange.end (1.0/60.0)
+		animationrange = interval animationrange.start endFrame
+		
+		-- 清理文件名：去序号前缀，去帧数后缀
+		local newNameTemp = filterString (filenameFromPath inputFile) "-"
+		local newName = (filterString newNameTemp[newNameTemp.count] " ")
+		local outputName = newName[1]
+		outputName = substituteString outputName ".fbx" ".fbx"
+		local finalPath = (getFilenamePath inputFile) + outputName
+		
+		FBXExporterSetParam "Animation" true
+		FBXExporterSetParam "BakeAnimation" true
+		FBXExporterSetParam "BakeResampleAnimation" false
+		exportFile finalPath #noPrompt selectedOnly:false using:FBXEXP
+		
+		-- 删除原始未修复文件
+		if finalPath != inputFile do (try(deleteFile inputFile)catch())
+		resetMaxFile #noPrompt
 	)
 	
 	fn Import_MESH cmd setCoords = (
@@ -237,7 +355,17 @@ rollout formNoesisCMD "Motlist Anim Importer"
 						try(deleteFile fbx_path)catch()
 						delFiles = getfiles ((getFilenamePath fbx_path) + @"\*.noefbxmulti")
 						for f in delFiles do (try(deleteFile f)catch())
-						print ("导出" + (getFilenamePath cmd) + "分离动画成功，可点击面板打开导出目录查看多个FBX动画！                                            "))
+						
+						if chk_fixMultiFPS.checked then
+						(
+							local fbxDir = getFilenamePath fbx_path
+							local multiFbxFiles = getfiles (fbxDir + @"\*.fbx")
+							for mf in multiFbxFiles do (try(fnFixMultiFBX mf)catch())
+							print ("导出并修复" + (getFilenamePath cmd) + "分离动画成功！")
+						)
+						else
+							print ("导出" + (getFilenamePath cmd) + "分离动画成功，可点击面板打开导出目录查看多个FBX动画！                                            ")
+					)
 					
 					if chk_delFBX.checked then 
 						try(deleteFile fbx_path)catch()
@@ -249,6 +377,7 @@ rollout formNoesisCMD "Motlist Anim Importer"
 	)
 	
 	on formNoesisCMD open do (
+		fnLoadSettingsUI()
 		if noesis_path != undefined do 
 		(
 			if doesFileExist noesis_path do (
@@ -268,22 +397,26 @@ rollout formNoesisCMD "Motlist Anim Importer"
 		cmd = getOpenFileName types:"Noesis|noesis.exe;noesis64.exe|All|*.*|"
 		if cmd != undefined and cmd != "" do (
 			edt_noesis.text = noesis_path = cmd
+			fnSaveSettings()
 		)
 	)
 	
 	on edt_noesis changed cmd do (
 		edt_noesis.text = noesis_path = cmd
+		fnSaveSettings()
 	)
 
 	on btn_output pressed do (
 		cmd = getSavePath caption:"请选择导出动画 FBX 文件路径:" initialDir:(if output_path != undefined then output_path else "")
 		if cmd != undefined and cmd != "" do (
 			edt_output.text = output_path = cmd
+			fnSaveSettings()
 		)
 	)
 	
 	on edt_output changed cmd do (
 		edt_output.text = output_path = cmd
+		fnSaveSettings()
 	)
 
 	on btn_openpath pressed do 
@@ -301,12 +434,22 @@ rollout formNoesisCMD "Motlist Anim Importer"
 	on chk_OnlyAnim changed state do 
 	(
 		chk_resetScene.state = not state
+		fnSaveSettings()
 	)
+	on chk_resetScene changed state do (fnSaveSettings())
+	on chk_legacyFBX changed state do (fnSaveSettings())
+	on chk_noefbxmulti changed state do (fnSaveSettings())
+	on chk_fixMultiFPS changed state do (fnSaveSettings())
+	on chk_autoLoadAll changed state do (fnSaveSettings())
+	on chk_showPlugOpt changed state do (fnSaveSettings())
+	on chk_delFBX changed state do (fnSaveSettings())
+	on chk_showCMD changed state do (fnSaveSettings())
+	on chk_keepFolder changed state do (fnSaveSettings())
 )
 
 rollout rolMotViewer "Motlist Viewer"
 (
-	on rolMotViewer rolledUp state do (if not state then rolREAnimTools.height -= 270 else rolREAnimTools.height += 270)
+	on rolMotViewer rolledUp state do (if not state then rolREAnimTools.height = amax 105 (rolREAnimTools.height - 270) else rolREAnimTools.height += 270)
 
 	editText edtMotlistPath "" text:"" labelOnTop:true height:20 fieldWidth:190 pos:[5,5]
 	button btnOpenMotlistPath "选择" height:20 width:35 pos:[200,5]
@@ -379,6 +522,8 @@ rollout rolMotViewer "Motlist Viewer"
 
 	on rolMotViewer open do
 	(
+		local val = getINISetting RE_AnimTools_INI "Viewer" "subFolders"
+		if val != "" do chkSubFolders.checked = (val == "true")
 		if motPath != undefined do 
 		(
 			if doesFileExist motPath do (
@@ -389,6 +534,8 @@ rollout rolMotViewer "Motlist Viewer"
 	)
 
 	on btnRefreshFolder pressed do (fnRefreshMotFiles())
+
+	on chkSubFolders changed state do (fnSaveSettings())
 
 	on ltbMotlistFiles rightclick id do
 	(
@@ -440,17 +587,19 @@ rollout rolMotViewer "Motlist Viewer"
 		if path != undefined and path != "" do (
 			edtMotlistPath.text = motPath = path
 			fnRefreshMotFiles()
+			fnSaveSettings()
 		)
 	)
 	
 	on edtMotlistPath changed path do (
 		edtMotlistPath.text = motPath = path
+		fnSaveSettings()
 	)
 )
 
-rollout FBXBatchProcessor "Bone Anim FBX Fix"
+rollout FBXBatchProcessor "FBX Frames Fix"
 (
-	on FBXBatchProcessor rolledUp state do (if not state then rolREAnimTools.height -= 160 else rolREAnimTools.height += 160)
+	on FBXBatchProcessor rolledUp state do (if not state then rolREAnimTools.height = amax 105 (rolREAnimTools.height - 160) else rolREAnimTools.height += 160)
 
 	local fbxFiles = #()
 	local outputPath = ""
@@ -609,4 +758,5 @@ rollout FBXBatchProcessor "Bone Anim FBX Fix"
 createdialog rolREAnimTools
 AddSubRollout rolREAnimTools.subRolImporter formNoesisCMD
 AddSubRollout rolREAnimTools.subRolImporter rolMotViewer rolledUp:false
-AddSubRollout rolREAnimTools.subRolImporter FBXBatchProcessor rolledUp:false
+AddSubRollout rolREAnimTools.subRolImporter FBXBatchProcessor rolledUp:true
+rolREAnimTools.height = 105 + 400 + 270
