@@ -345,7 +345,8 @@ struct BsRetargetOptions
 	isEulerFilter          = false,
 	isReloadBip            = false,
 	isHalfAnimSpeed        = false,
-	isRemoveRootKeepAnim   = false
+	isRemoveRootKeepAnim   = false,
+	isClearRootRotation    = false
 )
 global gOpts = BsRetargetOptions()
 
@@ -965,6 +966,7 @@ rcmenu menuBsRetarget
 	menuItem mItemScale100 "仅 Scale 100"
 	menuItem mItemReloadBip "重新加载 Biped"
 	menuItem mItemRemoveRootKeepAnim "移除 Root 保留动画"
+	menuItem mItemClearRootRotation "清除 Root 旋转(仅保留首帧)"
 
 	on menuBsRetarget open do
 	(
@@ -973,6 +975,7 @@ rcmenu menuBsRetarget
 		mItemReloadBip.checked         = gOpts.isReloadBip
 		mItemHalfAnimSpeed.checked     = gOpts.isHalfAnimSpeed
 		mItemRemoveRootKeepAnim.checked = gOpts.isRemoveRootKeepAnim
+		mItemClearRootRotation.checked  = gOpts.isClearRootRotation
 	)
 
 	-- 通用菜单切换：翻转 checked 并返回新状态
@@ -984,6 +987,7 @@ rcmenu menuBsRetarget
 	on mItemReloadBip          picked do (gOpts.isReloadBip          = fnMenuToggle mItemReloadBip)
 	on mItemHalfAnimSpeed      picked do (gOpts.isHalfAnimSpeed      = fnMenuToggle mItemHalfAnimSpeed)
 	on mItemRemoveRootKeepAnim picked do (gOpts.isRemoveRootKeepAnim = fnMenuToggle mItemRemoveRootKeepAnim)
+	on mItemClearRootRotation  picked do (gOpts.isClearRootRotation  = fnMenuToggle mItemClearRootRotation)
 )
 
 -- ====== SECTION 4: MAIN ROLLOUT UI ======
@@ -1893,6 +1897,41 @@ rollout rolBsRetarget "BsRetargetTools_v5.3 （ FBX 转 BIP + 动画重定向 �
 		else false
 	)
 
+	-- [Shared] 清除 Root 旋转曲线，只保留第一帧旋转值
+	fn fnClearRootRotation =
+	(
+		if not gOpts.isClearRootRotation then return false
+		local rootNode = getnodebyname "Root"
+		if rootNode == undefined or not (isValidNode rootNode) then return false
+
+		local rotCtrl = rootNode.rotation.controller
+		if rotCtrl == undefined then return false
+
+		local firstFrameRot = at time animationRange.start (in coordsys world rootNode.rotation)
+
+		if classof rotCtrl == Euler_XYZ then
+		(
+			local xCtrl = rotCtrl[1].controller
+			local yCtrl = rotCtrl[2].controller
+			local zCtrl = rotCtrl[3].controller
+			if xCtrl != undefined and (numKeys xCtrl) > 0 do deleteKeys xCtrl #allKeys
+			if yCtrl != undefined and (numKeys yCtrl) > 0 do deleteKeys yCtrl #allKeys
+			if zCtrl != undefined and (numKeys zCtrl) > 0 do deleteKeys zCtrl #allKeys
+		)
+		else
+		(
+			if (numKeys rotCtrl) > 0 do deleteKeys rotCtrl #allKeys
+		)
+
+		with animate on at time animationRange.start
+		(
+			in coordsys world rootNode.rotation = firstFrameRot
+		)
+
+		format "[BsRetarget] Root rotation cleared, first frame preserved.\n"
+		true
+	)
+
 	fn fnExportReTargrtedAnim arrExportRetargetAnim index =
 	(
 		if (index != 0) and (doesFileExist arrExportRetargetAnim[index]) then
@@ -1960,6 +1999,18 @@ rollout rolBsRetarget "BsRetargetTools_v5.3 （ FBX 转 BIP + 动画重定向 �
 			select $'RTHelper_*'
 			if (selection as array).count == 0 then (select $'RetargetHelper_*';preStr = "Old")
 			arrExport = (selection as array)
+
+			if gOpts.isEulerFilter then
+			(
+				for i in objects where isValidNode i and \
+					findItem arrExport i == 0 and \
+					classof i != Biped_Object and \
+					(isProperty i #rotation) do
+				(
+					i.rotation.controller = tcb_rotation ()
+					i.rotation.controller = Euler_XYZ ()
+				)
+			)
 			for i in arrExport where isValidNode i do
 			(
 				if preStr == "Old" then (i.name = substituteString i.name "RetargetHelper_" "")
@@ -2099,6 +2150,8 @@ rollout rolBsRetarget "BsRetargetTools_v5.3 （ FBX 转 BIP + 动画重定向 �
 
 			-- 移除 Root 保留动画
 			fnRemoveRootKeepAnim()
+			-- 清除 Root 旋转曲线(仅保留首帧)
+			fnClearRootRotation()
 
 			saveMaxFile tarMaxFile saveAsVersion:((rolBsRetarget.ddlSaveVersion.selected) as integer) clearNeedSaveFlag:true quiet:true
 			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
@@ -2165,6 +2218,8 @@ rollout rolBsRetarget "BsRetargetTools_v5.3 （ FBX 转 BIP + 动画重定向 �
 
 			-- 移除 Root 保留动画
 			fnRemoveRootKeepAnim()
+			-- 清除 Root 旋转曲线(仅保留首帧)
+			fnClearRootRotation()
 
 			saveMaxFile tarMaxFile saveAsVersion:((rolBsRetarget.ddlSaveVersion.selected) as integer) clearNeedSaveFlag:true quiet:true
 			arrExport = (for i in objects where classof i == Biped_Object or classof i == Dummy or classof i == BoneGeometry collect i)
@@ -5349,11 +5404,11 @@ rollout rolHelp_Faq "常见问题" height:40
 )
 
 -- 帮助主窗口（折叠面板 + 底部固定信息）
-rollout rolHelpDialog "BsRetargetTools v5.2 使用帮助" width:520 height:600
+rollout rolHelpDialog "BsRetargetTools 使用帮助" width:520 height:600
 (
 	local helpW = 520
 
-	label lblHelpTitle "BsRetargetTools v5.2 完整使用指南" pos:[10,6] width:500 height:20 style_sunkenedge:true
+	label lblHelpTitle "BsRetargetTools 完整使用指南" pos:[10,6] width:500 height:20 style_sunkenedge:true
 	subRollout subHelp "" pos:[0,30] width:520 height:520
 
 	hyperLink hlHome "Bullet.S | www.anibullet.com" pos:[10,556] width:190 height:16 \

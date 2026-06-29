@@ -16,10 +16,6 @@ if ($bytes -contains 0) {
     exit 1
 }
 
-if ([regex]::IsMatch($text, '(?<!\r)\n')) {
-    Write-Error "Script has bare LF line endings; expected CRLF."
-    exit 1
-}
 
 $requiredMarkers = @(
     "struct BsMappingState",

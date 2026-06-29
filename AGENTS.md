@@ -38,7 +38,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-agent-rules.ps1
 - 只碰任务必须碰的文件。
 - 手工编辑文件用 `apply_patch`。
 - 不做大规模格式化、换行、重命名，除非任务需要。
-- 文本文件默认 UTF-8；本仓库脚本和文档保持 CRLF。
+- 文本文件默认 UTF-8 无 BOM + LF；不强制 CRLF。
 - Windows 下不要用破坏性命令；递归删除/移动前必须确认目标路径。
 
 ## Error Handling
@@ -46,6 +46,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-agent-rules.ps1
 - 遇到问题不能只绕过、吞错或让流程“看起来能跑”；必须暴露关键错误、说明已知/未知状态，并尽量定位根因。
 - 可以减少成功弹窗或 UI 噪音，但文件缺失、格式不兼容、Root/Biped 缺失、异常路径、核心步骤失败必须提示或记录。
 - `quiet` / `silent` / fallback 逻辑只能压制非关键信息；不得掩盖真实失败，也不得把未验证状态汇报成已成功。
+- `try/catch` 不能用来绕过必须解决的问题——它会掩盖错误，导致最终结果不符合预期却难以察觉。只在防御性场景（非关键路径、已知可安全跳过的边缘情况）使用，且 catch 内应记录日志而非静默吞掉。
 
 ## MaxScript
 
