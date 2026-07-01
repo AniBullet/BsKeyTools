@@ -1160,7 +1160,7 @@
         "description": "ActorX 模型(psk)和动画(psa)导入工具\n\n支持导入 Unreal Engine 导出的 ActorX 格式文件，包括模型网格和骨骼动画。\n\n功能特性：\n- 支持 PSK/PSA 格式\n- 支持顶点色导入\n- 支持 PNG 贴图\n- 支持批量导入",
         "author": "Gildor",
         "optimizer": "Bullet.S",
-        "modified_date": "2026-03-23",
+        "modified_date": "2026-07-01",
         "keywords": [
           "ActorX",
           "PSK",
