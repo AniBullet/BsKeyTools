@@ -2404,7 +2404,7 @@ fn axShowUI =
 	-- request position of previous window, if it was already opened
 	local x = 30
 	local y = 100
-	local w = 250
+	local w = 400
 	local h = 700
 	if axImportFloater != undefined then
 	(
