@@ -992,7 +992,7 @@ rcmenu menuBsRetarget
 
 -- ====== SECTION 4: MAIN ROLLOUT UI ======
 
-rollout rolBsRetarget "BsRetargetTools_v5.3 （ FBX 转 BIP + 动画重定向 ）"
+rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 ）"
 (
 	local LastSubRollout = 1
 	local winW = 655  -- 窗口宽度
@@ -1365,6 +1365,20 @@ rollout rolBsRetarget "BsRetargetTools_v5.3 （ FBX 转 BIP + 动画重定向 �
 		local rootNode = fnResolveRootBone (fnBuildAllMappingItems())
 		if rootNode != undefined then fnSetRootNode rootNode
 		else false
+	)
+
+	fn fnWouldCreateParentCycle childNode parentNode =
+	(
+		if childNode == undefined or parentNode == undefined then return false
+		if not (isValidNode childNode) or not (isValidNode parentNode) then return false
+
+		local currentNode = parentNode
+		while currentNode != undefined and isValidNode currentNode do
+		(
+			if currentNode == childNode then return true
+			currentNode = currentNode.parent
+		)
+		false
 	)
 
 	fn fnBuildMappingState =
@@ -3666,7 +3680,7 @@ fn fnCopySubBones =
 		lblBarValue.text = (pgbBar.value as string) + " %"
 		max Create mode
 		---断开质心防止旋转出问题，后面连上
-		hips = (GetSkeletalNode 1 false)
+		local hips = (GetSkeletalNode 1 false)
 		if hips == undefined then
 		(
 			messagebox kMsgNoRootBone title:kMsgTitle
@@ -3674,7 +3688,14 @@ fn fnCopySubBones =
 		)
 		-- rootMotionBone = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
 		bsRootBone = curState.rootNode
-		rootMotionBone = bsRootBone
+		local originalHipsParent = hips.parent
+		local rootMotionBone = bsRootBone
+		if fnWouldCreateParentCycle hips rootMotionBone then
+		(
+			rootMotionBone = originalHipsParent
+			format "[BsRetarget] Root '%' would create a Hips parent cycle; using original parent '%' instead.\n" \
+				bsRootBone.name (if originalHipsParent != undefined then originalHipsParent.name else "<scene root>")
+		)
 		hips.parent = undefined
 
 			-- 创建 Helper
@@ -4199,7 +4220,8 @@ fn fnCopySubBones =
 				footHelpers[2] = undefined;
 			)
 
-			hips.parent = rootMotionBone
+			if rootMotionBone != undefined and isValidNode rootMotionBone then hips.parent = rootMotionBone
+			else hips.parent = undefined
 			createdBipRoot.parent = bipedRetargetRM
 			rootBone.parent = boneRetargetRM
 
