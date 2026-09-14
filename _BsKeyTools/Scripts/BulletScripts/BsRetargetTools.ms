@@ -3260,6 +3260,7 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 			)
 			messagebox ("缺失必需骨骼：\n\n" + missingName + "\n请手动映射这些骨骼！")
 			gOpts.mappingCheckState = false
+			stateMessageShown = true
 		)
 		
 		-- 一次性处理所有可自动创建的内容
@@ -3459,14 +3460,12 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 		)
 		fnUpdateStatusBar()
 		
-		-- 如果进行了自动创建，提示重新验证
-		if autoCreated then
+		if gOpts.mappingCheckState and not stateMessageShown then
 		(
-			-- 已经在上面显示了详细的创建结果，这里不需要额外提示
-		)
-		else if (gOpts.mappingCheckState) then
-		(
-			format "[BsRetarget] Mapping validation completed.\n"
+			local successMessage = if autoCreated then \
+				"占位节点创建完成，骨骼映射验证通过，请继续！" \
+				else "骨骼映射完整，请继续！"
+			messagebox successMessage title:kMsgTitle beep:false
 		)
 		else if not stateMessageShown then
 		(
