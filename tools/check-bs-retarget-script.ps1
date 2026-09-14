@@ -22,6 +22,7 @@ $requiredMarkers = @(
     "fn fnResolveRootBone",
     "fn fnResolveAndSetRoot",
     "fn fnWouldCreateParentCycle",
+    "fn fnCreatePlaceholderRoot",
     "fn fnBuildMappingState",
     "fn fnLoadMappingListAndRefresh",
     "fn fnGetExistingBipedRoot",
@@ -33,6 +34,7 @@ $requiredMarkers = @(
     "local numFinger",
     "local copycol",
     "local icpmxbipcopy",
+    "local originalHipsParent",
     "rootConflictsWithHips",
     "out_file == undefined",
     "canCreateMapping",
@@ -55,6 +57,7 @@ $orderRules = @(
     @("fn fnGetListItem", "fn fnUpdateStatusBar"),
     @("fn fnUpdateStatusBar", "fn fnLoadMappingListAndRefresh"),
     @("fn fnWouldCreateParentCycle", "on alignBipedToHelper pressed do"),
+    @("fn fnCreatePlaceholderRoot", "on validateButton pressed do"),
     @("fn GetBipedNode", "fn fnGetExistingBipedRoot")
 )
 

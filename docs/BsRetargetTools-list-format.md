@@ -28,9 +28,10 @@ Runtime Root resolution uses this priority:
 1. If the list Root exists in the scene, use it.
 2. If mapped slot 1 exists and has a parent, use that parent.
 3. If a known scene Root name exists, use it.
-4. If no valid Root exists, block unsafe operations and tell the user to pick Root manually.
+4. If no valid Root exists, validation offers to create an independent placeholder `Root`; declining keeps unsafe operations blocked.
 
 Root must not be mapped to slot 1 (Hips/COM) itself or to one of its descendants.
+The placeholder is created at world origin, uses the selected engine up-axis rotation, and is not parented to the source skeleton.
 
 Known Root candidate names currently include:
 
@@ -48,7 +49,7 @@ For new bundled presets:
 - Prefer v2 format.
 - Keep all 69 bone rows present.
 - Use `~undefined~` for bones that are intentionally unmapped.
-- Leave Root as `~undefined~` when the skeleton family does not have a stable shared Root name.
+- Leave Root as `~undefined~` when the skeleton family does not have a stable shared Root name; validation can offer a placeholder.
 - Fill Root only when the Root node name is stable across exports.
 - Never set Root to the same node as slot 1.
 - Do not remove optional finger rows; missing rows break line-based compatibility.

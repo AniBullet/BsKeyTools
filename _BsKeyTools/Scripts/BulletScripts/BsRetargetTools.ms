@@ -1382,6 +1382,25 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 		false
 	)
 
+	fn fnCreatePlaceholderRoot =
+	(
+		if getNodeByName "Root" != undefined then return undefined
+
+		local rootNode = point name:"Root" pos:[0,0,0]
+		rootNode.constantscreensize = false
+		rootNode.size = 0.01
+		rootNode.wirecolor = red
+		rootNode.scale = [1,1,1]
+		if ddlUpAxis.selection == 1 then
+			(in coordsys gimbal rootNode.rotation = (eulerAngles 90 0 0))
+		else
+			(in coordsys gimbal rootNode.rotation = (eulerAngles 0 0 0))
+
+		-- Root 仅作独立占位，不改动原骨架层级。
+		fnSetRootNode rootNode
+		rootNode
+	)
+
 	fn fnBuildMappingState =
 	(
 		local allItems = fnBuildAllMappingItems()
@@ -3121,13 +3140,22 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 	
 	on validateButton pressed do
 	(
-		fnResolveAndSetRoot()
+		local missingRoot = not (fnResolveAndSetRoot())
 		gOpts.mappingCheckState = true
+		local initialRootState = fnBuildMappingState()
+		if initialRootState.rootConflictsWithHips then
+		(
+			gOpts.mappingCheckState = false
+			fnUpdateStatusBar()
+			messagebox "Root 不能与质心相同，也不能位于质心子层级。\r\n\r\n请重新指定独立 Root。" title:kMsgTitle
+			return undefined
+		)
 		local missingHeadNub = false
 		local missingFootNubs = false  
 		local missingFingers = #()
 		local otherMissing = #()
 		local autoCreated = false  -- 标志变量，记录是否进行了自动创建
+		local autoCreationDeclined = false
 		local stateMessageShown = false
 
 		for i = 1 to characterBones.items.count do
@@ -3235,14 +3263,20 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 		)
 		
 		-- 一次性处理所有可自动创建的内容
-		local needsAutoCreation = missingHeadNub or missingFootNubs or missingFingers.count > 0
-		local hasRequiredNubs = missingHeadNub or missingFootNubs  -- 区分必需的nub和可选的手指
+		local needsAutoCreation = missingRoot or missingHeadNub or missingFootNubs or missingFingers.count > 0
+		local hasRequiredAutoItems = missingRoot or missingHeadNub or missingFootNubs
 		
 		if needsAutoCreation and not autoCreated then
 		(
 			-- 构建询问消息
 			local message = "检测到以下缺失的骨骼，是否自动创建？\n\n"
 			local creationList = #()
+
+			if missingRoot then
+			(
+				message += "• Root (世界原点独立占位，不连接原骨架)\n"
+				append creationList "root"
+			)
 			
 			if missingHeadNub then
 			(
@@ -3268,6 +3302,16 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 			(
 				local successCount = 0
 				local errorMessages = #()
+
+				-- 创建独立 Root 占位
+				if missingRoot then
+				(
+					local rootNode = fnCreatePlaceholderRoot()
+					if rootNode != undefined and isValidNode rootNode then
+						successCount += 1
+					else
+						append errorMessages "Root 创建失败"
+				)
 				
 				-- 创建 Head Nub
 				if missingHeadNub then
@@ -3347,22 +3391,18 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 					)
 				)
 				
-				-- 显示创建结果
-				if successCount > 0 then
+				-- 成功不弹窗；仅部分或全部失败时提示。
+				if successCount > 0 and errorMessages.count > 0 then
 				(
-					local resultMessage = "自动创建完成！"
-					if errorMessages.count > 0 then
+					local resultMessage = "部分占位节点创建失败：\n\n"
+					for errMsg in errorMessages do
 					(
-						resultMessage += "\n\n部分创建失败：\n"
-						for errMsg in errorMessages do
-						(
-							resultMessage += "• " + errMsg + "\n"
-						)
+						resultMessage += "• " + errMsg + "\n"
 					)
-					resultMessage += "\n请重新验证映射列表！"
-					messagebox resultMessage title:"创建完成"
+					messagebox resultMessage title:"创建未完全成功"
+					stateMessageShown = true
 				)
-				else
+				else if successCount == 0 then
 				(
 					local errorMessage = "所有自动创建都失败了：\n\n"
 					for errMsg in errorMessages do
@@ -3371,14 +3411,21 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 					)
 					errorMessage += "\n请手动创建或检查骨骼结构！"
 					messagebox errorMessage title:"创建失败"
+					stateMessageShown = true
+				)
+				else
+				(
+					format "[BsRetarget] Placeholder nodes created successfully.\n"
 				)
 				
 				autoCreated = true
 			)
 			else
 			(
-				-- 用户选择"否"时，只有缺失必需nub才算验证失败
-				if hasRequiredNubs then
+				autoCreationDeclined = true
+				stateMessageShown = true
+				-- 用户拒绝必需占位项时，验证失败且不再追加弹窗。
+				if hasRequiredAutoItems then
 				(
 					gOpts.mappingCheckState = false
 				)
@@ -3396,7 +3443,8 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 		else if not curState.hasRoot then
 		(
 			gOpts.mappingCheckState = false
-			messagebox ("Root 未指定或场景中不存在。\r\n\r\n请选中原骨架根节点并点击 Root 列表，或重新自动匹配。") title:kMsgTitle
+			if not autoCreationDeclined and not stateMessageShown then
+				messagebox ("Root 未指定或场景中不存在。\r\n\r\n请选中原骨架根节点并点击 Root 列表，或重新自动匹配。") title:kMsgTitle
 			stateMessageShown = true
 		)
 		else if curState.missingSceneNodes.count > 0 then
@@ -3418,7 +3466,7 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 		)
 		else if (gOpts.mappingCheckState) then
 		(
-			messagebox ("骨骼映射完整，请继续！                 ");
+			format "[BsRetarget] Mapping validation completed.\n"
 		)
 		else if not stateMessageShown then
 		(
@@ -3705,6 +3753,7 @@ fn fnCopySubBones =
 		-- rootMotionBone = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
 		bsRootBone = curState.rootNode
 		local rootMotionBone = bsRootBone
+		local originalHipsParent = hips.parent
 		if fnWouldCreateParentCycle hips rootMotionBone then
 		(
 			gOpts.mappingCheckState = false
@@ -4235,7 +4284,7 @@ fn fnCopySubBones =
 				footHelpers[2] = undefined;
 			)
 
-			if rootMotionBone != undefined and isValidNode rootMotionBone then hips.parent = rootMotionBone
+			if originalHipsParent != undefined and isValidNode originalHipsParent then hips.parent = originalHipsParent
 			else hips.parent = undefined
 			createdBipRoot.parent = bipedRetargetRM
 			rootBone.parent = boneRetargetRM

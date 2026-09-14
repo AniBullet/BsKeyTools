@@ -23,7 +23,12 @@
 - [ ] list 内 Root 指向场景现有节点时，状态栏显示 Root 正常。
 - [ ] list 内 Root 为 `~undefined~`，但 1 号槽位骨骼有 parent 时，能推断 Root。
 - [ ] 场景内存在常见 Root 名称（如 `Root` / `Armature` / `Skeleton`）时，能推断 Root。
-- [ ] 无法推断 Root 时，验证 / 创建映射 / 转 Biped 都会提前阻断。
+- [ ] 无法推断 Root 且拒绝或无法创建占位时，验证 / 创建映射 / 转 Biped 都会提前阻断。
+- [ ] Root 缺失时，验证会询问是否在世界原点创建独立占位 Root。
+- [ ] 占位 Root 旋转符合当前引擎轴向设置，且不与原骨架建立父子关系。
+- [ ] Root 与 Nub 同时缺失时只弹一次合并确认；全部创建成功后不再弹成功窗口。
+- [ ] 用户拒绝自动创建后不再追加第二个缺失提示窗口。
+- [ ] 普通验证成功只更新状态栏，不弹额外成功窗口。
 - [ ] Root 与质心相同或位于质心子层级时，验证会阻断并明确提示。
 
 ## 4. 自动匹配 / 预设识别
@@ -52,6 +57,7 @@
 - [ ] 保存 list 目标文件无法写入时，会提示并停止，不生成半文件。
 - [ ] 创建 Biped 后，Root helper、pose copy / paste、手指重对齐流程仍正常。
 - [ ] 创建映射时 pose copy collection 创建和删除后没有 MaxScript 报错。
+- [ ] 创建映射前后原骨架质心的父节点保持不变。
 
 ## 7. 转 Biped / 重定向
 
@@ -67,7 +73,7 @@
 ## 8. 回归场景
 
 - [ ] 旧的 CS-BipedDefault.list 工作流可完成。
-- [ ] CS-BipedDefault.list 在场景缺少独立 `Root` 时验证失败，不会把 `Bip001` 当 Root。
+- [ ] CS-BipedDefault.list 在场景缺少独立 `Root` 时会询问创建占位，不会把 `Bip001` 当 Root。
 - [ ] 00.Unreal-UE5.list 工作流可完成。
 - [ ] Mixamo-Standard.list 工作流可完成。
 - [ ] CC4-Standard.list 工作流可完成。
