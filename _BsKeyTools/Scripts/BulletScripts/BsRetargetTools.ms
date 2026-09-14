@@ -1382,30 +1382,6 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 		false
 	)
 
-	fn fnCreateMissingRoot =
-	(
-		local hips = GetSkeletalNode 1 false
-		if hips == undefined or not (isValidNode hips) then return undefined
-
-		local rootNode = getNodeByName "Root"
-		if rootNode != undefined and isValidNode rootNode then
-		(
-			if fnWouldCreateParentCycle hips rootNode then return undefined
-		)
-		else
-		(
-			rootNode = point name:"Root"
-			rootNode.constantscreensize = false
-			rootNode.wirecolor = red
-			rootNode.transform = hips.transform
-			hips.parent = rootNode
-			format "[BsRetarget] Missing Root created above Hips '%'.\n" hips.name
-		)
-
-		fnSetRootNode rootNode
-		rootNode
-	)
-
 	fn fnBuildMappingState =
 	(
 		local allItems = fnBuildAllMappingItems()
@@ -3145,7 +3121,7 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 	
 	on validateButton pressed do
 	(
-		if not (fnResolveAndSetRoot()) do fnCreateMissingRoot()
+		fnResolveAndSetRoot()
 		gOpts.mappingCheckState = true
 		local missingHeadNub = false
 		local missingFootNubs = false  

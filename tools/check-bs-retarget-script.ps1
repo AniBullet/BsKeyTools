@@ -22,7 +22,6 @@ $requiredMarkers = @(
     "fn fnResolveRootBone",
     "fn fnResolveAndSetRoot",
     "fn fnWouldCreateParentCycle",
-    "fn fnCreateMissingRoot",
     "fn fnBuildMappingState",
     "fn fnLoadMappingListAndRefresh",
     "fn fnGetExistingBipedRoot",
@@ -56,7 +55,6 @@ $orderRules = @(
     @("fn fnGetListItem", "fn fnUpdateStatusBar"),
     @("fn fnUpdateStatusBar", "fn fnLoadMappingListAndRefresh"),
     @("fn fnWouldCreateParentCycle", "on alignBipedToHelper pressed do"),
-    @("fn fnCreateMissingRoot", "on validateButton pressed do"),
     @("fn GetBipedNode", "fn fnGetExistingBipedRoot")
 )
 

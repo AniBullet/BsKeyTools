@@ -37,7 +37,7 @@ foreach ($file in $files) {
         Write-Warning "${name}: no Root line; loader must infer Root"
     }
     elseif ($rootLine -eq "~undefined~") {
-        Write-Warning "${name}: Root is undefined; validation must infer or create Root"
+        Write-Warning "${name}: Root is undefined; runtime must infer Root or block unsafe steps"
     }
     elseif ($rootLine -eq $hipsLine) {
         Write-Error "${name}: Root must not use the same node as mapped Hips: $rootLine"

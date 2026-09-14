@@ -23,8 +23,7 @@
 - [ ] list 内 Root 指向场景现有节点时，状态栏显示 Root 正常。
 - [ ] list 内 Root 为 `~undefined~`，但 1 号槽位骨骼有 parent 时，能推断 Root。
 - [ ] 场景内存在常见 Root 名称（如 `Root` / `Armature` / `Skeleton`）时，能推断 Root。
-- [ ] 无法推断 Root 且质心不存在时，验证 / 创建映射 / 转 Biped 都会提前阻断。
-- [ ] Root 缺失但质心存在时，验证会创建独立 `Root` 并挂到质心上方。
+- [ ] 无法推断 Root 时，验证 / 创建映射 / 转 Biped 都会提前阻断。
 - [ ] Root 与质心相同或位于质心子层级时，验证会阻断并明确提示。
 
 ## 4. 自动匹配 / 预设识别
@@ -68,7 +67,7 @@
 ## 8. 回归场景
 
 - [ ] 旧的 CS-BipedDefault.list 工作流可完成。
-- [ ] CS-BipedDefault.list 在原生 Biped 场景中能自动创建 `Root`，且不会把 `Bip001` 挂到自身。
+- [ ] CS-BipedDefault.list 在场景缺少独立 `Root` 时验证失败，不会把 `Bip001` 当 Root。
 - [ ] 00.Unreal-UE5.list 工作流可完成。
 - [ ] Mixamo-Standard.list 工作流可完成。
 - [ ] CC4-Standard.list 工作流可完成。
