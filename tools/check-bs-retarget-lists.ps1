@@ -21,6 +21,7 @@ foreach ($file in $files) {
             Write-Error "${name}: v2 list must have at least 77 lines, got $($lines.Count)"
             $failed = $true
         }
+        $hipsLine = if ($lines.Count -ge 2) { $lines[1] } else { "<missing>" }
         $rootLine = if ($lines.Count -ge 71) { $lines[70] } else { "<missing>" }
     }
     else {
@@ -28,6 +29,7 @@ foreach ($file in $files) {
             Write-Error "${name}: legacy list must have at least 69 lines, got $($lines.Count)"
             $failed = $true
         }
+        $hipsLine = if ($lines.Count -ge 1) { $lines[0] } else { "<missing>" }
         $rootLine = if ($lines.Count -ge 70) { $lines[69] } else { "<missing>" }
     }
 
@@ -35,7 +37,11 @@ foreach ($file in $files) {
         Write-Warning "${name}: no Root line; loader must infer Root"
     }
     elseif ($rootLine -eq "~undefined~") {
-        Write-Warning "${name}: Root is undefined; runtime must infer Root or block unsafe steps"
+        Write-Warning "${name}: Root is undefined; validation must infer or create Root"
+    }
+    elseif ($rootLine -eq $hipsLine) {
+        Write-Error "${name}: Root must not use the same node as mapped Hips: $rootLine"
+        $failed = $true
     }
 }
 

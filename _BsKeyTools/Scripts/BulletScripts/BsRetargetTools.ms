@@ -357,6 +357,7 @@ struct BsMappingState
 	missingOptional = #(),
 	hasRoot = false,
 	rootNode = undefined,
+	rootConflictsWithHips = false,
 	duplicateMappings = #(),
 	missingSceneNodes = #(),
 	canAutoCreateNubs = false,
@@ -1350,7 +1351,7 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 			if comNode != undefined and isValidNode comNode and comNode.parent != undefined do return comNode.parent
 		)
 
-		local rootCandidates = #("Root", "root", "ROOT", "Armature", "Skeleton", "Bip001", "Bip01", "Hips", "Character")
+		local rootCandidates = #("Root", "root", "ROOT", "Armature", "Skeleton", "Character")
 		for candidateName in rootCandidates do
 		(
 			local candidate = getNodeByName candidateName
@@ -1381,6 +1382,30 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 		false
 	)
 
+	fn fnCreateMissingRoot =
+	(
+		local hips = GetSkeletalNode 1 false
+		if hips == undefined or not (isValidNode hips) then return undefined
+
+		local rootNode = getNodeByName "Root"
+		if rootNode != undefined and isValidNode rootNode then
+		(
+			if fnWouldCreateParentCycle hips rootNode then return undefined
+		)
+		else
+		(
+			rootNode = point name:"Root"
+			rootNode.constantscreensize = false
+			rootNode.wirecolor = red
+			rootNode.transform = hips.transform
+			hips.parent = rootNode
+			format "[BsRetarget] Missing Root created above Hips '%'.\n" hips.name
+		)
+
+		fnSetRootNode rootNode
+		rootNode
+	)
+
 	fn fnBuildMappingState =
 	(
 		local allItems = fnBuildAllMappingItems()
@@ -1405,13 +1430,18 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 		)
 
 		state.rootNode = fnResolveRootBone allItems
-		state.hasRoot = (state.rootNode != undefined and isValidNode state.rootNode)
+		local hipsNode = if allItems.count >= 1 and allItems[1] != "~undefined~" then getNodeByName allItems[1] else undefined
+		state.rootConflictsWithHips = (hipsNode != undefined and isValidNode hipsNode and \
+			state.rootNode != undefined and isValidNode state.rootNode and \
+			fnWouldCreateParentCycle hipsNode state.rootNode)
+		state.hasRoot = (state.rootNode != undefined and isValidNode state.rootNode and not state.rootConflictsWithHips)
 		state.hasRequiredBones = (state.missingRequired.count == 0 and state.missingSceneNodes.count == 0)
 		state.canAutoCreateNubs = true
 		state.canCreateMapping = (state.hasRequiredBones and state.hasRoot)
 		state.canReplaceToBiped = state.canCreateMapping
 
-		if not state.hasRoot then state.nextAction = "请先指定或自动识别 Root。"
+		if state.rootConflictsWithHips then state.nextAction = "Root 不能与质心相同，也不能位于质心子层级。"
+		else if not state.hasRoot then state.nextAction = "请先指定或自动识别 Root。"
 		else if state.missingRequired.count > 0 then state.nextAction = "请补齐必需骨骼映射。"
 		else if state.missingSceneNodes.count > 0 then state.nextAction = "映射列表中有场景不存在的节点。"
 		else state.nextAction = "可以继续下一步。"
@@ -1497,10 +1527,14 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 			else reqMissing += 1
 		)
 		local rootNode = fnResolveRootBone allItems
-		local hasRoot = (rootNode != undefined and isValidNode rootNode)
-		local rootOK = if hasRoot then "Root:OK" else "Root:?"
+		local hipsNode = if allItems.count >= 1 and allItems[1] != "~undefined~" then getNodeByName allItems[1] else undefined
+		local rootConflict = (hipsNode != undefined and isValidNode hipsNode and \
+			rootNode != undefined and isValidNode rootNode and fnWouldCreateParentCycle hipsNode rootNode)
+		local hasRoot = (rootNode != undefined and isValidNode rootNode and not rootConflict)
+		local rootOK = if rootConflict then "Root:冲突" else if hasRoot then "Root:OK" else "Root:?"
 		local nextAction = case of
 		(
+			rootConflict: "Root 不能与质心相同或位于其子层级。"
 			(not hasRoot): "请先指定或自动识别 Root。"
 			(reqMissing > 0): "请补齐必需骨骼映射。"
 			default: "可以继续下一步。"
@@ -3111,7 +3145,7 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 	
 	on validateButton pressed do
 	(
-		fnResolveAndSetRoot()
+		if not (fnResolveAndSetRoot()) do fnCreateMissingRoot()
 		gOpts.mappingCheckState = true
 		local missingHeadNub = false
 		local missingFootNubs = false  
@@ -3377,7 +3411,13 @@ rollout rolBsRetarget "BsRetargetTools_v5.4 （ FBX 转 BIP + 动画重定向 �
 		)
 		
 		local curState = fnBuildMappingState()
-		if not curState.hasRoot then
+		if curState.rootConflictsWithHips then
+		(
+			gOpts.mappingCheckState = false
+			messagebox "Root 不能与质心相同，也不能位于质心子层级。\r\n\r\n请重新指定独立 Root。" title:kMsgTitle
+			stateMessageShown = true
+		)
+		else if not curState.hasRoot then
 		(
 			gOpts.mappingCheckState = false
 			messagebox ("Root 未指定或场景中不存在。\r\n\r\n请选中原骨架根节点并点击 Root 列表，或重新自动匹配。") title:kMsgTitle
@@ -3688,13 +3728,12 @@ fn fnCopySubBones =
 		)
 		-- rootMotionBone = (if matchpattern hips.name pattern:"NewHip_*" then hips.parent.parent else hips.parent)
 		bsRootBone = curState.rootNode
-		local originalHipsParent = hips.parent
 		local rootMotionBone = bsRootBone
 		if fnWouldCreateParentCycle hips rootMotionBone then
 		(
-			rootMotionBone = originalHipsParent
-			format "[BsRetarget] Root '%' would create a Hips parent cycle; using original parent '%' instead.\n" \
-				bsRootBone.name (if originalHipsParent != undefined then originalHipsParent.name else "<scene root>")
+			gOpts.mappingCheckState = false
+			fnShowBlockedAction "当前不能创建映射文件。" "Root 不能与质心相同，也不能位于质心子层级。"
+			return undefined
 		)
 		hips.parent = undefined
 
