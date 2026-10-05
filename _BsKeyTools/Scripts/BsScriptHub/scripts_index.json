@@ -272,7 +272,7 @@
         "description": "快速设置和管理动画时间范围",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2021-05-15",
+        "modified_date": "2026-10-06",
         "keywords": [
           "动画",
           "范围",
@@ -599,7 +599,7 @@
         "description": "轻量级图层管理工具，快速操作图层",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2021-05-15",
+        "modified_date": "2026-10-06",
         "keywords": [
           "场景",
           "图层",
@@ -966,7 +966,7 @@
         "description": "灯光管理和编辑工具台",
         "author": "未知",
         "optimizer": "Bullet.S",
-        "modified_date": "2021-05-15",
+        "modified_date": "2026-10-06",
         "keywords": [
           "渲染",
           "灯光",

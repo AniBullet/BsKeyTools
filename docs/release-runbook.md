@@ -17,7 +17,7 @@
 |---|---|---|
 | `_BsKeyTools/Scripts/BulletScripts/BulletKeyTools.ms` 的 `global curVerBsKeyTools = "x.y.z"` | BsKeyTools 主版本，**唯一源头** | 手改 |
 | `_BsKeyTools/Scripts/BulletScripts/BsCleanVirus.ms` 的 `global curVerBsCleanVirus = "x.y"` | BsCleanVirus 版本 | 手改（需要时） |
-| `_BsKeyTools/version.dat` | 单行 BsKeyTools 版本 | `scripts/update_manifest.py`（CI 发版后写回 main） |
+| `_BsKeyTools/version.dat` | 单行 BsKeyTools 版本 | 发版前在 `dev` 本地跑 `scripts/update_manifest.py` 并随发版提交（CI 只校验，不回写） |
 | `_BsKeyTools/Setup_BsKeyTools.nsi` 的 `!define PRODUCT_VERSION_NUM` | 安装包版本，`PRODUCT_VERSION` 由它派生 `_v<ver>` | `update_manifest.py`（本地打包前可手改或跑脚本） |
 | `_BsKeyTools/Setup_BsCleanVirus.nsi` 的 `!define PRODUCT_VERSION "_v<ver>"` | BsCleanVirus 安装包版本 | `update_manifest.py` |
 | Git tag `v<BsKeyTools 版本>` | 发版标记，CI 创建 | CI（`gh release create`） |
@@ -53,32 +53,34 @@
 ## 4. 发布步骤 Checklist
 
 1. 在 `dev` 上完成功能并通过各自的验证（BsRetarget 见 `docs/BsRetargetTools-validation-checklist.md`）。
-2. 改 `curVerBsKeyTools`（必要时改 `curVerBsCleanVirus`），可选运行 `python scripts/update_manifest.py` 同步 `.nsi`。
-   - 不要在 `dev` 手动改 `version.dat` 再合入 `main`：会在安装包上线前触发用户更新提示。由 CI 发版后写回即可。
+2. 改 `curVerBsKeyTools`（必要时改 `curVerBsCleanVirus`），然后**必须**运行 `python scripts/update_manifest.py`，把 `version.dat` 和两个 `.nsi` 一起提交到 `dev`。
+   - `main` 受规则集保护（必须走 PR，仅管理员可绕过），CI 的 `github-actions[bot]` 推不上去，所以 `version.dat` 只能随发版提交进入 `main`。`check-version` 会校验 `version.dat == curVerBsKeyTools`，不一致直接失败、不发版。
+   - 代价：`version.dat` 进入 `main` 到 GitHub Release 建好之间（约 5–10 分钟）检查更新的用户会下载失败、落到备用页。尽量在用户少的时段发版。
 3. 本地打包冒烟：安装到 3ds Max 实测；如要提交跟踪的 `_BsKeyTools.exe`，确认是新版本产物。
 4. 确认目标 tag `v<ver>` 在远端不存在（存在则 CI 会跳过发版）。
-5. 合并 `dev` → `main` 并 push。
-6. 盯 GitHub Actions：`Build and Release` 全绿，`Sync to Gitee` 成功。
-7. 检查 GitHub Release `v<ver>` 有两个 exe；`main` 上出现 bot 提交 `chore: update version files → BsKeyTools <ver> [skip ci]`。
+5. 合并 `dev` → `main` 并 push。不切分支的做法：在 `dev` 上 `git merge origin/main`（带上 `main` 独有的提交），`git push origin dev`，再 `git push origin dev:main`（快进；管理员推送时会提示 "Bypassed rule violations"，属正常）。
+   - **`Build and Release` 跑完之前不要再推 `main`**：tag 还没建，再推会触发第二次发版。
+6. 盯 GitHub Actions：`Build and Release` 全绿，随后 `Sync to Gitee` 成功。
+7. 检查 GitHub Release `v<ver>` 有两个 exe，资产大小正常（BsKeyTools 约 48 MB）。
 8. **手动处理 Gitee Release**（推荐，见第 6 节；不建时插件会改从 GitHub Release 下载）：在 Gitee 创建 `v<ver>` Release 并上传 `BsKeyTools_v<ver>.exe`（建议同时上传 BsCleanVirus）。
 9. 验证下载链接：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe` 返回 200 且大小正确。
 10. 确认 Gitee raw `main` 的 `version.dat` 已是新版本；在旧版插件里点"检查更新"实测。
-11. 把 `main` 合回 `dev`（带回 bot 的版本文件提交）。
+11. `main` 与 `dev` 应保持同一提交；若发版期间 `main` 有额外提交，合回 `dev`。
 
 ## 5. CI 做了什么（`.github/workflows/release.yml`）
 
 触发：push 到 `main`。
 
-1. `check-version`（ubuntu）：从两个 `.ms` 正则读版本；`TAG=v<BsKeyTools 版本>`；`git rev-parse "$TAG"` 已存在则 `should_release=false`，后续 job 全部跳过。
+1. `check-version`（ubuntu）：从两个 `.ms` 正则读版本；`TAG=v<BsKeyTools 版本>`；`git rev-parse "$TAG"` 已存在则 `should_release=false`，后续 job 全部跳过。要发版时校验 `version.dat`（去掉换行/BOM/空格）等于 BsKeyTools 版本，否则 `::error::` 失败。
 2. `build-bskeytools`（windows）：checkout `main` → `RELEASE_VERSION=<ver> python scripts/update_manifest.py` → `choco install nsis` → `makensis Setup_BsKeyTools.nsi` → 改名 `BsKeyTools_v<ver>.exe` → 上传 artifact。
 3. `build-bscleanvirus`（windows）：同上，产出 `BsCleanVirus_v<cvver>.exe`。
 4. `release`（ubuntu）：
    - 下载两个 artifact；
-   - `gh release create v<ver> --target main`，标题 `BsKeyTools v<ver>`，正文 `BsKeyTools v<ver> | BsCleanVirus v<cvver>`，附两个 exe；
-   - 运行 `update_manifest.py`，`git add` `version.dat` 和两个 `.nsi`，有变化则提交 `... [skip ci]` 并 push 到 `main`。
+   - `gh release create v<ver> --target main`，标题 `BsKeyTools v<ver>`，正文 `BsKeyTools v<ver> | BsCleanVirus v<cvver>`，附两个 exe。
+   - 不再回推 `main`（2026-10 起）。v1.4.1 发版时旧的 "Update version.dat and commit to main" 步骤被 `main` 规则集拒绝（`GH013: Changes must be made through a pull request`），已删除。
 
 `.github/workflows/sync-gitee.yml`（Gitee 镜像拉取的唯一入口，`60ee9fc` 起）：
-- 触发：`workflow_run`，`Build and Release` 在 `main` 上结束后（不论成功失败）；以及 `workflow_dispatch` 手动触发。不再由 push `main` 直接触发，`release.yml` 里也不再调 Gitee API。这样每次 push 只拉一次，且此时 `main` 已包含 bot 的 `[skip ci]` 版本提交。
+- 触发：`workflow_run`，`Build and Release` 在 `main` 上结束后（不论成功失败）；以及 `workflow_dispatch` 手动触发。不再由 push `main` 直接触发，`release.yml` 里也不再调 Gitee API。这样每次 push 只拉一次。
 - 新触发方式只有合入 `main` 后才生效（`workflow_run` / `workflow_dispatch` 以默认分支上的工作流文件为准）。
 - `concurrency: sync-gitee`，不取消进行中的运行。
 - 流程：读 GitHub `main` HEAD；Gitee `main` 已相同则直接成功跳过；否则 `POST remote_mirror/pull`（`secrets.GITEE_TOKEN`），非 2xx 失败；之后每 30 秒查一次 Gitee `main`，最多 10 分钟，等于目标 SHA 或当前 GitHub `main` HEAD 即成功；超时报 `::error::`（提示去 Gitee 仓库镜像管理更换 GitHub 令牌）并 exit 1。
@@ -141,16 +143,22 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 
 ## 9. BsScriptHub 远程脚本索引
 
-- `_BsKeyTools/Scripts/BsScriptHub/**` 变更 push 到 `main` 或 `dev` 时，`.github/workflows/update-index.yml` 运行 `generate_index.py` 并提交 `scripts_index.json`。
+- `_BsKeyTools/Scripts/BsScriptHub/**` 变更 push 到 `main` 或 `dev` 时，`.github/workflows/update-index.yml` 运行 `generate_index.py`。
+  - `dev`：索引有变化就由 bot 提交并推送（`dev` 规则集是 disabled）。
+  - `main`：受规则集保护，bot 推不上去（v1.4.1 发版时报 `GH013` 失败过）。现在只检查，索引过期给 `::warning::` 不提交；索引应在 `dev` 上先更新好再合入。
 - 安装包不打包该目录（`Setup_BsKeyTools.nsi`：`File /r /x "BsScriptHub" "Scripts\*.*"`），客户端 `BsScriptHub.py` 运行时从 GitHub raw（`main`/`dev` 可切换）读取。
 - 所以 BsScriptHub 脚本更新**不需要发版**。
 
 ## 10. 常见坑
 
 - tag 已存在 → CI 静默跳过发版。重发同一版本需先删远端 tag 和 GitHub Release。
+- `main` 规则集（2025-12 建，`pull_request` + 禁删 + 禁强推，仅仓库管理员 bypass）→ 任何 workflow 用 `GITHUB_TOKEN` 往 `main` 推都会 `GH013` 失败。新增 workflow 不要设计成回推 `main`。
+- 忘了跑 `update_manifest.py` → `check-version` 报 `version.dat ... 不一致` 并失败，不会发版。补提交 `version.dat` 后再推即可（tag 未建，会正常发版）。
+- 发版运行中又推 `main` → 可能并发两次发版。等 `Build and Release` 结束再推。
+- 工作流文件的改动（尤其 `workflow_run` / `workflow_dispatch` 触发）要合入 `main` 后才生效；在 `dev` 上改完不能直接验证。
 - `RELEASE_VERSION` 与 `curVerBsKeyTools` 不一致 → `update_manifest.py` 报错，构建失败。
 - 改了版本但没建 Gitee Release → 插件自动改从 GitHub Release 下载；GitHub 也不通的用户才落到备用页。
-- `version.dat` 早于安装包进入 `main` → 用户提前收到更新提示（Gitee、GitHub 都没有安装包时直接落到备用页）。
+- `version.dat` 早于安装包进入 `main` → 用户提前收到更新提示（Gitee、GitHub 都没有安装包时直接落到备用页）。现行流程下这是发版时约 5–10 分钟的固有窗口，见第 4 节第 2 步。
 - `version.dat` 内容不是合法版本号（如 Gitee 返回 HTML 页、写错格式）→ 插件报"无法解析版本号"，不会提示更新。首尾空白/换行/BOM 会被去掉，不影响比较；`update_manifest.py` 写的是无 BOM UTF-8 + LF。
 - 线上 `version.dat` 低于本地版本（如本地测试包先于发版）→ 不提示更新，手动检查显示"本地版本高于线上版本"。
 - 本地 `build.bat` 找不到 `D:\NSIS` → 见第 3 节。

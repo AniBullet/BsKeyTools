@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 update_manifest.py — BsKeyTools 版本文件自动更新脚本
-运行时机：GitHub Actions release workflow 中，发布后提交回 main
+运行时机：发版前在 dev 本地运行并提交结果（main 受保护，CI 不能回推）；CI 构建时也会运行以校验版本
 功能：
   1. 从 BulletKeyTools.ms 读取 BsKeyTools 版本号
   2. 从 BsCleanVirus.ms 读取 BsCleanVirus 版本号

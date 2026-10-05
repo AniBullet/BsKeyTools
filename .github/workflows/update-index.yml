@@ -27,5 +27,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add _BsKeyTools/Scripts/BsScriptHub/scripts_index.json
-          git diff --staged --quiet || git commit -m "chore: 自动更新脚本索引"
+          if git diff --staged --quiet; then
+            echo "scripts_index.json 已是最新"
+            exit 0
+          fi
+          # main 受规则集保护（必须走 PR），bot 无法直接推送；索引只在 dev 自动提交，随 dev 合入 main
+          if [ "$GITHUB_REF_NAME" != "dev" ]; then
+            git diff --staged --stat
+            echo "::warning::$GITHUB_REF_NAME 上的 scripts_index.json 不是最新，请在 dev 运行 generate_index.py 或推送 dev 让本工作流自动更新后再合入"
+            exit 0
+          fi
+          git commit -m "chore: 自动更新脚本索引"
           git push
