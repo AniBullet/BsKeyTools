@@ -67,8 +67,8 @@ GitHub 下载慢可以用国内网盘：
 
 <table>
 <tr>
-<td align="center" valign="top"><img src="https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/PreviewRes/01.png" width="380" alt="主面板"><br><sub>主面板</sub></td>
-<td align="center" valign="top"><img src="https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/PreviewRes/09.png" width="380" alt="BsRetargetTools"><br><sub>BsRetargetTools：FBX 转 Biped 与动画重定向</sub></td>
+<td align="center" width="50%"><a href="PreviewRes/01.png"><img src="PreviewRes/gallery/01.png" width="340" alt="主面板"></a><br><sub>主面板</sub></td>
+<td align="center" width="50%"><a href="PreviewRes/09.png"><img src="PreviewRes/gallery/09.png" width="340" alt="BsRetargetTools"></a><br><sub>BsRetargetTools 重定向</sub></td>
 </tr>
 </table>
 
@@ -77,15 +77,15 @@ GitHub 下载慢可以用国内网盘：
 <br>
 <table>
 <tr>
-<td align="center"><img src="https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/PreviewRes/06.png" width="260" alt="图标模式"><br><sub>图标模式</sub></td>
-<td align="center"><img src="https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/PreviewRes/02.png" height="420" alt="竖向停靠"><br><sub>竖向停靠</sub></td>
+<td align="center" width="50%"><a href="PreviewRes/06.png"><img src="PreviewRes/gallery/06.png" width="340" alt="图标模式"></a><br><sub>图标模式</sub></td>
+<td align="center" width="50%"><a href="PreviewRes/08.png"><img src="PreviewRes/gallery/08.png" width="340" alt="设置菜单"></a><br><sub>设置菜单</sub></td>
 </tr>
 <tr>
-<td align="center" colspan="2"><img src="https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/PreviewRes/03.png" width="720" alt="横向停靠"><br><sub>横向停靠</sub></td>
+<td align="center" width="50%"><a href="PreviewRes/07.png"><img src="PreviewRes/gallery/07.png" width="340" alt="菜单栏入口"></a><br><sub>菜单栏入口</sub></td>
+<td align="center" width="50%"><a href="PreviewRes/02.png"><img src="PreviewRes/gallery/02.png" width="340" alt="竖向停靠"></a><br><sub>竖向停靠</sub></td>
 </tr>
 <tr>
-<td align="center"><img src="https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/PreviewRes/07.png" width="320" alt="菜单栏入口"><br><sub>菜单栏入口</sub></td>
-<td align="center"><img src="https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/PreviewRes/08.png" width="360" alt="设置菜单"><br><sub>设置菜单</sub></td>
+<td align="center" colspan="2"><a href="PreviewRes/03.png"><img src="PreviewRes/03.png" width="700" alt="横向停靠"></a><br><sub>横向停靠</sub></td>
 </tr>
 </table>
 </details>
