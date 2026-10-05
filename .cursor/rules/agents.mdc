@@ -90,7 +90,7 @@ BsRetarget 优化相关文件：
 - `tools/check-bs-retarget-lists.ps1`
 - `tools/check-bs-retarget-script.ps1`
 
-CI/Release 相关文件（与 BsRetarget 任务无关，勿混淆）：
+CI/Release 相关文件（与 BsRetarget 任务无关，勿混淆；发版流程见 `docs/release-runbook.md`）：
 
 - `.github/workflows/release.yml` -- GitHub Release 自动构建发布
 - `.github/workflows/sync-gitee.yml` -- Gitee 镜像同步

@@ -1,3 +1,5 @@
+> 已过时：增量更新/manifest.json 方案已撤销，现行流程见 docs/release-runbook.md
+
 # BsKeyTools 增量自动更新系统 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

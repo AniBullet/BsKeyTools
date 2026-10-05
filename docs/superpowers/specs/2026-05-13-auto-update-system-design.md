@@ -1,3 +1,5 @@
+> 已过时：增量更新/manifest.json 方案已撤销，现行流程见 docs/release-runbook.md
+
 # BsKeyTools 增量自动更新系统设计
 
 - **日期**：2026-05-13

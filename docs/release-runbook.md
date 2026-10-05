@@ -1,0 +1,135 @@
+# BsKeyTools 发版 Runbook
+
+> 现行流程（2026-10 核对）。旧的 manifest.json 增量更新方案已撤销，`docs/superpowers/` 下 2026-05-13 的 spec/plan 仅作历史参考。
+
+## 1. 概述与分支策略
+
+- `dev`：日常开发、PR 目标分支（见 `.github/workflows/greetings.yml`、`CONTRIBUTING.md`）。
+- `main`：发版分支。`dev` 合入 `main` 并 push 后，`.github/workflows/release.yml` 自动判断是否发版。
+- `_BsKeyTools/version.dat`（`main` 上的那份）决定用户是否收到更新提示：
+  - 插件读取 `https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat`（`BulletKeyTools.ms` 的 `verUrlBsKeyTools`）。
+  - 安装包启动时依次读取 Gitee raw / jsDelivr / GitHub raw 的 `main` 分支 `version.dat`（`Setup_BsKeyTools.nsi` 的 `CheckForUpdates`）。
+- 因此 **`version.dat` 一旦在 `main` 上变化并同步到 Gitee，用户就会被提示升级**，必须保证对应安装包已经可下载。
+
+## 2. 版本号位置
+
+| 位置 | 说明 | 谁改 |
+|---|---|---|
+| `_BsKeyTools/Scripts/BulletScripts/BulletKeyTools.ms` 的 `global curVerBsKeyTools = "x.y.z"` | BsKeyTools 主版本，**唯一源头** | 手改 |
+| `_BsKeyTools/Scripts/BulletScripts/BsCleanVirus.ms` 的 `global curVerBsCleanVirus = "x.y"` | BsCleanVirus 版本 | 手改（需要时） |
+| `_BsKeyTools/version.dat` | 单行 BsKeyTools 版本 | `scripts/update_manifest.py`（CI 发版后写回 main） |
+| `_BsKeyTools/Setup_BsKeyTools.nsi` 的 `!define PRODUCT_VERSION_NUM` | 安装包版本，`PRODUCT_VERSION` 由它派生 `_v<ver>` | `update_manifest.py`（本地打包前可手改或跑脚本） |
+| `_BsKeyTools/Setup_BsCleanVirus.nsi` 的 `!define PRODUCT_VERSION "_v<ver>"` | BsCleanVirus 安装包版本 | `update_manifest.py` |
+| Git tag `v<BsKeyTools 版本>` | 发版标记，CI 创建 | CI（`gh release create`） |
+| Release 资产 `BsKeyTools_v<ver>.exe` / `BsCleanVirus_v<cvver>.exe` | 由 CI 改名生成 | CI |
+
+`scripts/update_manifest.py` 行为：
+- 用正则从两个 `.ms` 读取版本；读不到直接抛错。
+- 若设置了环境变量 `RELEASE_VERSION`，必须等于 `curVerBsKeyTools`，否则抛错。
+- 写 `version.dat`（UTF-8、LF、单行）并更新两个 `.nsi` 的版本宏。
+
+注意：`fnCheckUpdate.ms` / `fnUpdater.ms` 文件头的 `@Version` 只是注释，不参与任何逻辑。
+
+## 3. 本地打包
+
+产物（均覆盖 Git 跟踪的文件）：
+- `_BsKeyTools/_BsKeyTools.exe`（`Setup_BsKeyTools.nsi` 的 `OutFile`）
+- `_BsKeyTools/BsCleanVirus_Standalone.exe`（`Setup_BsCleanVirus.nsi` 的 `OutFile`）
+
+方式：
+- `_BsKeyTools/build.bat`：依次编译两个 `.nsi`。只查找 PATH、`C:\Program Files (x86)\NSIS`、`C:\Program Files\NSIS`，**不读注册表**。
+- IDE 任务（`.vscode/tasks.json`）：`NSIS: Build Current File`（默认构建，`Ctrl+Shift+B`）、`NSIS: Build BsKeyTools`、`NSIS: Build BsCleanVirus`，都调用 `.vscode/build_nsi.ps1`。该脚本额外查 `HKLM:\SOFTWARE\NSIS` 注册表，找不到会尝试 winget/choco 自动安装。
+
+本机 NSIS 在 `D:\NSIS`，不在 PATH。`build.bat` 会报"找不到 makensis.exe"，解决办法：
+- 直接调用：`cd _BsKeyTools; D:\NSIS\makensis.exe Setup_BsKeyTools.nsi`
+- 或临时加 PATH：`$env:Path = "D:\NSIS;$env:Path"` 后再跑 `build.bat`
+- 或用 IDE 任务 / `build_nsi.ps1`（能通过注册表找到 `D:\NSIS`）
+
+测试打包（不打算提交 exe 时）：
+1. 打包后把产物复制到 `D:\_Scripts\GitHub\BsKeyTools_TestBuild`。
+2. `git restore _BsKeyTools/_BsKeyTools.exe _BsKeyTools/BsCleanVirus_Standalone.exe` 还原跟踪的 exe。
+3. 本地若手改了 `.nsi` 版本宏，按需还原或随版本提交。
+
+## 4. 发布步骤 Checklist
+
+1. 在 `dev` 上完成功能并通过各自的验证（BsRetarget 见 `docs/BsRetargetTools-validation-checklist.md`）。
+2. 改 `curVerBsKeyTools`（必要时改 `curVerBsCleanVirus`），可选运行 `python scripts/update_manifest.py` 同步 `.nsi`。
+   - 不要在 `dev` 手动改 `version.dat` 再合入 `main`：会在安装包上线前触发用户更新提示。由 CI 发版后写回即可。
+3. 本地打包冒烟：安装到 3ds Max 实测；如要提交跟踪的 `_BsKeyTools.exe`，确认是新版本产物。
+4. 确认目标 tag `v<ver>` 在远端不存在（存在则 CI 会跳过发版）。
+5. 合并 `dev` → `main` 并 push。
+6. 盯 GitHub Actions：`Build and Release` 全绿，`Sync to Gitee` 成功。
+7. 检查 GitHub Release `v<ver>` 有两个 exe；`main` 上出现 bot 提交 `chore: update version files → BsKeyTools <ver> [skip ci]`。
+8. **手动处理 Gitee Release**（见第 6 节）：在 Gitee 创建 `v<ver>` Release 并上传 `BsKeyTools_v<ver>.exe`（建议同时上传 BsCleanVirus）。
+9. 验证下载链接：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe` 返回 200 且大小正确。
+10. 确认 Gitee raw `main` 的 `version.dat` 已是新版本；在旧版插件里点"检查更新"实测。
+11. 把 `main` 合回 `dev`（带回 bot 的版本文件提交）。
+
+## 5. CI 做了什么（`.github/workflows/release.yml`）
+
+触发：push 到 `main`。
+
+1. `check-version`（ubuntu）：从两个 `.ms` 正则读版本；`TAG=v<BsKeyTools 版本>`；`git rev-parse "$TAG"` 已存在则 `should_release=false`，后续 job 全部跳过。
+2. `build-bskeytools`（windows）：checkout `main` → `RELEASE_VERSION=<ver> python scripts/update_manifest.py` → `choco install nsis` → `makensis Setup_BsKeyTools.nsi` → 改名 `BsKeyTools_v<ver>.exe` → 上传 artifact。
+3. `build-bscleanvirus`（windows）：同上，产出 `BsCleanVirus_v<cvver>.exe`。
+4. `release`（ubuntu）：
+   - 下载两个 artifact；
+   - `gh release create v<ver> --target main`，标题 `BsKeyTools v<ver>`，正文 `BsKeyTools v<ver> | BsCleanVirus v<cvver>`，附两个 exe；
+   - 运行 `update_manifest.py`，`git add` `version.dat` 和两个 `.nsi`，有变化则提交 `... [skip ci]` 并 push 到 `main`；
+   - 调用 Gitee API `POST /api/v5/repos/acebullet/BsKeyTools/remote_mirror/pull`（`secrets.GITEE_TOKEN`），让 Gitee 从 GitHub 拉取最新代码，非 2xx 直接失败。
+
+`.github/workflows/sync-gitee.yml`：每次 push `main` 都调用同一个 Gitee mirror pull API。bot 的 `[skip ci]` 提交不会触发它，所以 `version.dat` 写回后的同步依赖 `release.yml` 最后一步。
+
+CI **不会**：创建 Gitee Release、上传 Gitee 附件、提交 `_BsKeyTools.exe`。
+
+## 6. Gitee 同步与 Gitee Release
+
+已确认（2026-10-06 查询 Gitee/GitHub API + `gh run`）：
+- Gitee 只有 **1 个** Release：`v1.4.0`，`created_at 2026-05-26T14:09:19+08:00`，作者 `acebullet`，正文 `BsKeyTools v1.4.0 | BsCleanVirus v2.2`，附件 `BsKeyTools_v1.4.0.exe`（48108122 字节，下载链接返回 200）、`BsCleanVirus_v2.2.exe`。
+- 它是 GitHub Actions run `26435428759`（commit `2970c33`）里当时存在的 `Create Gitee Release and upload installers` 步骤创建的：该步骤 06:09:17Z 开始，Gitee Release 06:09:19Z 创建，GitHub Release 06:09:17Z 发布。
+- 随后 `7994363`（Gitee 仓库超配额）删除了 Gitee 同步/Release，`f85eed4` 只恢复代码同步，`741f6b9` 改为 mirror pull API。**现在的 CI 没有任何创建 Gitee Release 的代码**，仓库里也没有 `.workflow/`（Gitee Go）或其他 Gitee Release 脚本。
+- Gitee 上有 `1.3.1`…`v1.3.7` 等 tag（随代码同步），但都没有 Release。
+
+需要验证：
+- Gitee 仓库镜像（pull mirror）是否会同步 GitHub Release。我的判断是不会（镜像只同步分支/tag/提交，现有证据中没有任何非 CI 创建的 Gitee Release）；v1.4.0 之后还没发过版，无法用实际数据证伪。下次发版后用 `https://gitee.com/api/v5/repos/acebullet/BsKeyTools/releases/tags/v<ver>` 确认。
+
+影响：若不手动建 Gitee Release，插件下载 `.../releases/download/v<ver>/BsKeyTools_v<ver>.exe` 会失败，用户被引导到备用页 `https://anibullet.github.io/`。
+
+## 7. 插件内更新链路
+
+文件：`_BsKeyTools/Scripts/BulletScripts/fnCheckUpdate.ms`、`fnUpdater.ms`（由 `BulletKeyTools.ms` `FileIn` 加载）。
+
+- `fnFetchVersionDat`：`WebClient.DownloadString` 拉 `version.dat`，取第一行 trim；失败返回 `undefined`（Listener 打印异常）。
+- 版本比较是**字符串不相等**（`onlineBskt != curVerBsKeyTools`），不是语义比较：远端写成更低或格式不同的版本同样会提示。
+- `fnAutoCheckVersion`（启动时）：不同且未被跳过（INI `BulletKeyToolsSet` / `SkipVersionBskt`）才弹窗；拉取失败静默返回。
+- `fnCheckUpdate`（菜单"检查更新"）：拉取失败弹"获取版本信息失败"；`force:true`（强制更新）跳过比较直接提示。
+- 弹窗：是=下载安装包，否=稍后，取消=写入跳过版本。
+- 下载地址固定为 Gitee Release：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`。
+- `fnUpdaterDownloadInstaller`：下载到 `#temp`；文件 ≤ 512000 字节视为错误页并删除；下载失败或过小则弹窗并打开 `https://anibullet.github.io/`；成功则 `ShellLaunch` 安装包。
+- 安装包自身 `.onInit` 也会检查 `version.dat`，`VersionCompare` 远端更新时提示并打开 `https://github.com/AniBullet/BsKeyTools/releases/latest`。
+
+## 8. 仓库里的 exe 文件
+
+`git ls-files "*.exe"`：
+- `_BsKeyTools/_BsKeyTools.exe`：完整安装包。早期插件（2022-09 `c89080b` 起的 0.9.9.x 系列）从 `https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools.exe` 下载更新，引导页/网盘压缩包说明也让用户运行它。要保持 `main` 上是可用的新版安装包。
+- `_BsKeyTools/BsCleanVirus_Standalone.exe`：独立杀毒安装包。
+- `_BsKeyTools/AnimRef/Contents/converter/ffmpeg.exe`、`gifsicle.exe`、`_BsKeyTools/Scripts/BulletScripts/Res/fbxreview.exe`：运行时工具，随安装包分发。
+
+不要把这些 exe 加进 `.gitignore`，也不要随手提交测试产物。
+
+## 9. BsScriptHub 远程脚本索引
+
+- `_BsKeyTools/Scripts/BsScriptHub/**` 变更 push 到 `main` 或 `dev` 时，`.github/workflows/update-index.yml` 运行 `generate_index.py` 并提交 `scripts_index.json`。
+- 安装包不打包该目录（`Setup_BsKeyTools.nsi`：`File /r /x "BsScriptHub" "Scripts\*.*"`），客户端 `BsScriptHub.py` 运行时从 GitHub raw（`main`/`dev` 可切换）读取。
+- 所以 BsScriptHub 脚本更新**不需要发版**。
+
+## 10. 常见坑
+
+- tag 已存在 → CI 静默跳过发版。重发同一版本需先删远端 tag 和 GitHub Release。
+- `RELEASE_VERSION` 与 `curVerBsKeyTools` 不一致 → `update_manifest.py` 报错，构建失败。
+- 改了版本但没建 Gitee Release → 用户点"是"后落到备用页。
+- `version.dat` 早于安装包进入 `main` → 用户提前收到更新提示。
+- 字符串比较：`version.dat` 末尾多余字符（BOM 等）会导致每次都提示更新；`update_manifest.py` 写的是无 BOM UTF-8 + LF。
+- 本地 `build.bat` 找不到 `D:\NSIS` → 见第 3 节。
+- 本地打包会改动跟踪的 exe，提交前 `git status` 确认。
+- Gitee mirror pull 失败（token 过期等）会让 `release` job 标红，但 GitHub Release 已经创建；需手动在 Gitee 页面"同步"或重跑该步骤。
