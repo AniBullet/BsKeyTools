@@ -99,10 +99,13 @@ CI **不会**：创建 Gitee Release、上传 Gitee 附件、提交 `_BsKeyTools
 
 文件：`_BsKeyTools/Scripts/BulletScripts/fnCheckUpdate.ms`、`fnUpdater.ms`（由 `BulletKeyTools.ms` `FileIn` 加载）。
 
-- `fnFetchVersionDat`：`WebClient.DownloadString` 拉 `version.dat`，取第一行 trim；失败返回 `undefined`（Listener 打印异常）。
-- 版本比较是**字符串不相等**（`onlineBskt != curVerBsKeyTools`），不是语义比较：远端写成更低或格式不同的版本同样会提示。
-- `fnAutoCheckVersion`（启动时）：不同且未被跳过（INI `BulletKeyToolsSet` / `SkipVersionBskt`）才弹窗；拉取失败静默返回。
-- `fnCheckUpdate`（菜单"检查更新"）：拉取失败弹"获取版本信息失败"；`force:true`（强制更新）跳过比较直接提示。
+- `fnFetchVersionDat`：`WebClient.DownloadString` 拉 `version.dat`，取第一行并去掉首尾空白/换行/BOM；失败返回 `undefined`（Listener 打印异常）。
+- 版本比较用 `fnBsCompareVersion online local`（返回 1/0/-1，无法解析返回 `undefined`）：
+  - 按 `.` 分段逐段按整数比较，缺失段按 0（`1.4` == `1.4.0`，`1.4.1` > `1.4.0`，`1.10` > `1.9`）。
+  - `_` 之后视为预发布后缀（历史上用过 `1.1.0_Beta`、`0.9.9.9_Beta2`）：数字段相同时带后缀的低于正式版，都带后缀按后缀字符串不区分大小写比较。
+  - 数字段含非数字字符、出现空段（如 `1..4`）或后缀为空，视为无法解析。
+- `fnAutoCheckVersion`（启动时）：线上更高且未被跳过（INI `BulletKeyToolsSet` / `SkipVersionBskt`）才弹窗；相等静默；本地更高只在 Listener 打印一行；无法解析在 Listener 打印错误；拉取失败静默返回。
+- `fnCheckUpdate`（菜单"检查更新"）：拉取失败弹"获取版本信息失败"；线上更高弹更新提示；相等弹"当前已是最新版本"；本地更高弹"本地版本高于线上版本"；无法解析弹错误并在 Listener 记录。`force:true`（强制更新）跳过大小比较直接提示，但线上版本无法解析时同样报错不提示下载。
 - 弹窗：是=下载安装包，否=稍后，取消=写入跳过版本。
 - 下载地址固定为 Gitee Release：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`。
 - `fnUpdaterDownloadInstaller`：下载到 `#temp`；文件 ≤ 512000 字节视为错误页并删除；下载失败或过小则弹窗并打开 `https://anibullet.github.io/`；成功则 `ShellLaunch` 安装包。

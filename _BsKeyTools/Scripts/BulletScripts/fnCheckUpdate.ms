@@ -16,6 +16,89 @@
 global spm = (dotNetClass "System.Net.ServicePointManager")
 spm.SecurityProtocol = spm.SecurityProtocol.Tls12
 
+-- ── 版本号解析与比较 ──────────────────────────────────────────────────
+-- 去掉首尾空白、换行和 UTF-8 BOM（U+FEFF）
+fn fnBsTrimVersion str =
+(
+    local trimChars = " \t\r\n" + (bit.intAsChar 0xFEFF)
+    trimRight (trimLeft str trimChars) trimChars
+)
+
+-- 解析 "x.y.z" 或 "x.y.z_BetaN"，返回 #(数字段数组, 后缀字符串)，无法解析返回 undefined
+-- 数字段必须全为 0-9；"_" 之后为预发布后缀（如 Beta2），不能为空
+fn fnBsParseVersion verStr =
+(
+    if classOf verStr != String then return undefined
+    local s = fnBsTrimVersion verStr
+    if s == "" then return undefined
+
+    local core   = s
+    local suffix = ""
+    local usIdx  = findString s "_"
+    if usIdx != undefined do
+    (
+        core   = substring s 1 (usIdx - 1)
+        suffix = substring s (usIdx + 1) (s.count - usIdx)
+        if suffix == "" do return undefined
+    )
+
+    local segs = filterString core "." splitEmptyTokens:true
+    if segs.count == 0 then return undefined
+
+    local nums = #()
+    local ok   = true
+    for seg in segs while ok do
+    (
+        if seg == "" then ok = false
+        else
+        (
+            for i = 1 to seg.count while ok do
+                if (findString "0123456789" seg[i]) == undefined do ok = false
+            local v = if ok then (seg as integer) else undefined
+            if v == undefined then ok = false else append nums v
+        )
+    )
+    if not ok then return undefined
+
+    #(nums, suffix)
+)
+
+-- 比较版本 a 与 b：a>b 返回 1，相等 0，a<b 返回 -1；任一无法解析返回 undefined
+-- 缺失的数字段按 0 处理（1.4 == 1.4.0）；数字段相同时带后缀的是预发布版，
+-- 低于正式版（1.1.0_Beta < 1.1.0），两个都带后缀则按后缀字符串不区分大小写比较
+fn fnBsCompareVersion a b =
+(
+    local pa = fnBsParseVersion a
+    local pb = fnBsParseVersion b
+    if pa == undefined or pb == undefined then return undefined
+
+    local na  = pa[1]
+    local nb  = pb[1]
+    local res = 0
+    local n   = amax na.count nb.count
+    for i = 1 to n while res == 0 do
+    (
+        local va = if i <= na.count then na[i] else 0
+        local vb = if i <= nb.count then nb[i] else 0
+        if va > vb then res = 1
+        else if va < vb do res = -1
+    )
+
+    if res == 0 do
+    (
+        local sa = pa[2]
+        local sb = pb[2]
+        if sa == "" and sb != "" then res = 1
+        else if sa != "" and sb == "" then res = -1
+        else if sa != "" do
+        (
+            local c = stricmp sa sb
+            res = if c > 0 then 1 else if c < 0 then -1 else 0
+        )
+    )
+    res
+)
+
 -- ── version.dat 拉取 ──────────────────────────────────────────────────
 -- 返回 BsKeyTools 版本字符串，网络失败或内容无效返回 undefined
 fn fnFetchVersionDat versionDatUrl =
@@ -31,7 +114,7 @@ fn fnFetchVersionDat versionDatUrl =
     if content == undefined then return undefined
 
     local lines    = filterString content "\r\n"
-    local bsktVer  = if lines.count >= 1 then (trimRight (trimLeft lines[1])) else ""
+    local bsktVer  = if lines.count >= 1 then (fnBsTrimVersion lines[1]) else ""
 
     if bsktVer == "" do bsktVer = undefined
 
@@ -76,6 +159,13 @@ fn fnPromptUpdate toolName localVer onlineVer installerUrl fallbackUrl skipKey =
     )
 )
 
+-- 版本号无法解析时的说明文字（线上内容可能是 HTML 错误页，截断显示）
+fn fnBsVersionParseErrorText onlineVer localVer =
+(
+    local shown = if onlineVer.count > 60 then ((substring onlineVer 1 60) + "...") else onlineVer
+    "无法解析版本号：线上 \"" + shown + "\"，本地 \"" + localVer + "\""
+)
+
 -- ── 对外接口 ──────────────────────────────────────────────────────────
 
 -- 手动检查更新（菜单项触发）：显示 BsKeyTools 更新结果
@@ -90,35 +180,49 @@ fn fnCheckUpdate versionDatUrl force:false =
         return undefined
     )
 
-    local hasUpdate = false
-
-    if force or onlineBskt != curVerBsKeyTools then
+    local cmp = fnBsCompareVersion onlineBskt curVerBsKeyTools
+    if cmp == undefined then
     (
-        hasUpdate = true
+        local errText = fnBsVersionParseErrorText onlineBskt curVerBsKeyTools
+        format "[BsKeyTools] 检查更新失败，%\n" errText
+        if force then
+            messageBox ("无法确认在线版本信息，请前往下载页手动检查。\r\n" + errText + "                    ") \
+                title:"BsKeyTools 强制更新" beep:false
+        else
+            messageBox ("检查更新失败，" + errText + "\r\n请稍后重试或前往下载页手动检查。                    ") \
+                title:"BsKeyTools 检查更新" beep:false
+        return undefined
+    )
+
+    if force or cmp > 0 then
+    (
         local url  = "https://gitee.com/acebullet/BsKeyTools/releases/download/v" + onlineBskt + "/BsKeyTools_v" + onlineBskt + ".exe"
         local back = "https://anibullet.github.io/"
         fnPromptUpdate "BsKeyTools" curVerBsKeyTools onlineBskt url back "SkipVersionBskt"
     )
-
-    if not hasUpdate do
-    (
-        if force then
-            messageBox "无法确认在线版本信息，请前往下载页手动检查。                    " \
-                title:"BsKeyTools 强制更新" beep:false
-        else
-            messageBox ("当前已是最新版本：BsKeyTools " + curVerBsKeyTools + "                    ") \
-                title:"BsKeyTools 检查更新" beep:false
-    )
+    else if cmp == 0 then
+        messageBox ("当前已是最新版本：BsKeyTools " + curVerBsKeyTools + "                    ") \
+            title:"BsKeyTools 检查更新" beep:false
+    else
+        messageBox ("本地版本高于线上版本，无需更新。\r\n本地：" + curVerBsKeyTools + "\r\n线上：" + onlineBskt + "                    ") \
+            title:"BsKeyTools 检查更新" beep:false
     OK
 )
 
--- 启动时自动检查：只在发现新版本且未被跳过时弹窗
+-- 启动时自动检查：只在线上版本更高且未被跳过时弹窗，其余情况只写 Listener
 fn fnAutoCheckVersion versionDatUrl =
 (
     local onlineBskt = fnFetchVersionDat versionDatUrl
     if onlineBskt == undefined then return undefined
 
-    if onlineBskt != curVerBsKeyTools then
+    local cmp = fnBsCompareVersion onlineBskt curVerBsKeyTools
+    if cmp == undefined then
+    (
+        format "[BsKeyTools] 自动检查更新失败，%\n" (fnBsVersionParseErrorText onlineBskt curVerBsKeyTools)
+        return undefined
+    )
+
+    if cmp > 0 then
     (
         if (fnGetSkipVersion "SkipVersionBskt") != onlineBskt then
         (
@@ -129,4 +233,6 @@ fn fnAutoCheckVersion versionDatUrl =
         else
             format "[BsKeyTools] 跳过 BsKeyTools 版本 %\n" onlineBskt
     )
+    else if cmp < 0 do
+        format "[BsKeyTools] 本地版本 % 高于线上版本 %，不提示更新\n" curVerBsKeyTools onlineBskt
 )
