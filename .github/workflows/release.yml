@@ -61,6 +61,11 @@ jobs:
               echo "::error::version.dat=$DAT 与 curVerBsKeyTools=$BSKT 不一致。发版前在 dev 运行 python scripts/update_manifest.py 并提交 version.dat / .nsi"
               exit 1
             fi
+            NOTES="docs/release-notes/$TAG.md"
+            if [ ! -s "$NOTES" ] || ! grep -q '[^[:space:]]' "$NOTES"; then
+              echo "::error::缺少更新说明 $NOTES（写法见 docs/release-notes/README.md）"
+              exit 1
+            fi
             echo "SHOULD_RELEASE=true" >> $GITHUB_OUTPUT
             echo "New version $TAG (BsKeyTools $BSKT / BsCleanVirus $BSCV)"
           fi
@@ -176,10 +181,19 @@ jobs:
           BSKT="${{ needs.check-version.outputs.bskt_version }}"
           BSCV="${{ needs.check-version.outputs.bscv_version }}"
           TAG="${{ needs.check-version.outputs.tag }}"
+          {
+            echo '```'
+            echo "【全功能（包含杀毒）】：BsKeyTools_v$BSKT.exe"
+            echo "【仅杀毒（无其他功能）】：BsCleanVirus_v$BSCV.exe"
+            echo '不清楚装哪个的，直接装 BsKeyTools 就好'
+            echo '```'
+            echo
+            cat "docs/release-notes/$TAG.md"
+          } > release-body.md
           gh release create "$TAG" \
             --target main \
             --title "BsKeyTools v$BSKT" \
-            --notes "BsKeyTools v$BSKT | BsCleanVirus v$BSCV" \
+            --notes-file release-body.md \
             "dist/BsKeyTools_v$BSKT.exe" \
             "dist/BsCleanVirus_v$BSCV.exe"
 

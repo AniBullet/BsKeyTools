@@ -56,6 +56,7 @@
 2. 改 `curVerBsKeyTools`（必要时改 `curVerBsCleanVirus`），然后**必须**运行 `python scripts/update_manifest.py`，把 `version.dat` 和两个 `.nsi` 一起提交到 `dev`。
    - `main` 受规则集保护（必须走 PR，仅管理员可绕过），CI 的 `github-actions[bot]` 推不上去，所以 `version.dat` 只能随发版提交进入 `main`。`check-version` 会校验 `version.dat == curVerBsKeyTools`，不一致直接失败、不发版。
    - 代价：`version.dat` 进入 `main` 到 GitHub Release 建好之间（约 5–10 分钟）检查更新的用户会下载失败、落到备用页。尽量在用户少的时段发版。
+   - 同时写好 `docs/release-notes/v<ver>.md`（写法见 `docs/release-notes/README.md`，要言简意赅、写给用户看）。缺失或为空 `check-version` 直接失败、不发版。
 3. 本地打包冒烟：安装到 3ds Max 实测；如要提交跟踪的 `_BsKeyTools.exe`，确认是新版本产物。
 4. 确认目标 tag `v<ver>` 在远端不存在（存在则 CI 会跳过发版）。
 5. 合并 `dev` → `main` 并 push。不切分支的做法：在 `dev` 上 `git merge origin/main`（带上 `main` 独有的提交），`git push origin dev`，再 `git push origin dev:main`（快进；管理员推送时会提示 "Bypassed rule violations"，属正常）。
@@ -71,12 +72,12 @@
 
 触发：push 到 `main`。
 
-1. `check-version`（ubuntu）：从两个 `.ms` 正则读版本；`TAG=v<BsKeyTools 版本>`；`git rev-parse "$TAG"` 已存在则 `should_release=false`，后续 job 全部跳过。要发版时校验 `version.dat`（去掉换行/BOM/空格）等于 BsKeyTools 版本，否则 `::error::` 失败。
+1. `check-version`（ubuntu）：从两个 `.ms` 正则读版本；`TAG=v<BsKeyTools 版本>`；`git rev-parse "$TAG"` 已存在则 `should_release=false`，后续 job 全部跳过。要发版时校验 `version.dat`（去掉换行/BOM/空格）等于 BsKeyTools 版本，且 `docs/release-notes/v<ver>.md` 存在且非空，否则 `::error::` 失败。
 2. `build-bskeytools`（windows）：checkout `main` → `RELEASE_VERSION=<ver> python scripts/update_manifest.py` → `choco install nsis` → `makensis Setup_BsKeyTools.nsi` → 改名 `BsKeyTools_v<ver>.exe` → 上传 artifact。
 3. `build-bscleanvirus`（windows）：同上，产出 `BsCleanVirus_v<cvver>.exe`。
 4. `release`（ubuntu）：
    - 下载两个 artifact；
-   - `gh release create v<ver> --target main`，标题 `BsKeyTools v<ver>`，正文 `BsKeyTools v<ver> | BsCleanVirus v<cvver>`，附两个 exe。
+   - `gh release create v<ver> --target main`，标题 `BsKeyTools v<ver>`，正文 = 安装包说明（两个 exe 各装什么，CI 自动生成）+ `docs/release-notes/v<ver>.md`，附两个 exe。v1.4.0、v1.4.1 发布时正文还是写死的一行版本号，v1.4.1 的说明是事后用 `gh release edit --notes-file` 补的。
    - 不再回推 `main`（2026-10 起）。v1.4.1 发版时旧的 "Update version.dat and commit to main" 步骤被 `main` 规则集拒绝（`GH013: Changes must be made through a pull request`），已删除。
 
 `.github/workflows/sync-gitee.yml`（Gitee 镜像拉取的唯一入口，`60ee9fc` 起）：
@@ -130,6 +131,7 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
   - 失败原因写 Listener：`WebClient` 异常（如 `(404) Not Found`）或文件 ≤ 512000 字节（疑为错误页）；失败后删除残留文件再试下一个源。
   - 任一源成功即 `ShellLaunch` 安装包；全部失败弹"安装包下载失败（已尝试 Gitee、GitHub，均失败）"并打开 `https://anibullet.github.io/`。
   - 同步下载，期间 Max 界面无响应；Gitee 404 通常很快返回，主要耗时在 GitHub 下载。
+- 菜单"更新记录"打开 `https://github.com/AniBullet/BsKeyTools/releases`（v1.4.1 之后的版本；v1.4.1 及以前打开手工维护的 Notion 页）。更新说明只维护 `docs/release-notes/` 一处。
 - 安装包自身 `.onInit` 也会检查 `version.dat`，`VersionCompare` 远端更新时提示并打开 `https://github.com/AniBullet/BsKeyTools/releases/latest`。
 
 ## 8. 仓库里的 exe 文件
@@ -154,6 +156,7 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 - tag 已存在 → CI 静默跳过发版。重发同一版本需先删远端 tag 和 GitHub Release。
 - `main` 规则集（2025-12 建，`pull_request` + 禁删 + 禁强推，仅仓库管理员 bypass）→ 任何 workflow 用 `GITHUB_TOKEN` 往 `main` 推都会 `GH013` 失败。新增 workflow 不要设计成回推 `main`。
 - 忘了跑 `update_manifest.py` → `check-version` 报 `version.dat ... 不一致` 并失败，不会发版。补提交 `version.dat` 后再推即可（tag 未建，会正常发版）。
+- 忘了写 `docs/release-notes/v<ver>.md` → `check-version` 报"缺少更新说明"失败。补提交后再推即可。已发布的说明写错了直接 `gh release edit` 改，不用重发。
 - 发版运行中又推 `main` → 可能并发两次发版。等 `Build and Release` 结束再推。
 - 工作流文件的改动（尤其 `workflow_run` / `workflow_dispatch` 触发）要合入 `main` 后才生效；在 `dev` 上改完不能直接验证。
 - `RELEASE_VERSION` 与 `curVerBsKeyTools` 不一致 → `update_manifest.py` 报错，构建失败。

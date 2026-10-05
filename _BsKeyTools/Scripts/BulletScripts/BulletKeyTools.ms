@@ -1928,7 +1928,7 @@ rcmenu menuConfig
 		)
 	)
 
-	on mItemUpdateLog picked do (shellLaunch "https://www.notion.so/bullet4869/4e28c488d5474a9082e164b7c5b6926c" "")
+	on mItemUpdateLog picked do (shellLaunch "https://github.com/AniBullet/BsKeyTools/releases" "")
 
 	on mItemCustomSortBtn picked do 
 	(
