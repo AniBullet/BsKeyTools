@@ -6,6 +6,10 @@
 .venv/*
 .claude/
 
+# NSIS build outputs (installers are published via GitHub/Gitee Release)
+_BsKeyTools/_BsKeyTools.exe
+_BsKeyTools/BsCleanVirus_Standalone.exe
+
 # ActorX Importer local config (user-specific)
 ActorXImporter_BulletS.ini
 

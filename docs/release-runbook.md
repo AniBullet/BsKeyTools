@@ -32,7 +32,7 @@
 
 ## 3. 本地打包
 
-产物（均覆盖 Git 跟踪的文件）：
+产物（已在 `.gitignore`，不提交，见第 8 节）：
 - `_BsKeyTools/_BsKeyTools.exe`（`Setup_BsKeyTools.nsi` 的 `OutFile`）
 - `_BsKeyTools/BsCleanVirus_Standalone.exe`（`Setup_BsCleanVirus.nsi` 的 `OutFile`）
 
@@ -45,10 +45,9 @@
 - 或临时加 PATH：`$env:Path = "D:\NSIS;$env:Path"` 后再跑 `build.bat`
 - 或用 IDE 任务 / `build_nsi.ps1`（能通过注册表找到 `D:\NSIS`）
 
-测试打包（不打算提交 exe 时）：
-1. 打包后把产物复制到 `D:\_Scripts\GitHub\BsKeyTools_TestBuild`。
-2. `git restore _BsKeyTools/_BsKeyTools.exe _BsKeyTools/BsCleanVirus_Standalone.exe` 还原跟踪的 exe。
-3. 本地若手改了 `.nsi` 版本宏，按需还原或随版本提交。
+测试打包：
+1. 打包后把产物复制到 `D:\_Scripts\GitHub\BsKeyTools_TestBuild` 发给测试的人。
+2. 本地若手改了 `.nsi` 版本宏，按需还原或随版本提交。
 
 ## 4. 发布步骤 Checklist
 
@@ -57,7 +56,7 @@
    - `main` 受规则集保护（必须走 PR，仅管理员可绕过），CI 的 `github-actions[bot]` 推不上去，所以 `version.dat` 只能随发版提交进入 `main`。`check-version` 会校验 `version.dat == curVerBsKeyTools`，不一致直接失败、不发版。
    - 代价：`version.dat` 进入 `main` 到 GitHub Release 建好之间（约 5–10 分钟）检查更新的用户会下载失败、落到备用页。尽量在用户少的时段发版。
    - 同时写好 `docs/release-notes/v<ver>.md`（写法见 `docs/release-notes/README.md`，要言简意赅、写给用户看）。缺失或为空 `check-version` 直接失败、不发版。
-3. 本地打包冒烟：安装到 3ds Max 实测；如要提交跟踪的 `_BsKeyTools.exe`，确认是新版本产物。
+3. 本地打包冒烟：安装到 3ds Max 实测（安装包不提交，正式包由 CI 构建）。
 4. 确认目标 tag `v<ver>` 在远端不存在（存在则 CI 会跳过发版）。
 5. 合并 `dev` → `main` 并 push。不切分支的做法：在 `dev` 上 `git merge origin/main`（带上 `main` 独有的提交），`git push origin dev`，再 `git push origin dev:main`（快进；管理员推送时会提示 "Bypassed rule violations"，属正常）。
    - **`Build and Release` 跑完之前不要再推 `main`**：tag 还没建，再推会触发第二次发版。
@@ -88,7 +87,7 @@
 
 - `gitee-release` job（`needs: mirror`，超时 90 分钟）：tag 取 `workflow_dispatch` 输入 `tag`，留空取 GitHub 最新 Release。Gitee Release 已有 GitHub Release 的全部 exe → 直接成功；否则确认 Gitee 已有该 tag（没有就失败，避免 Release 指到 Gitee 旧 `main`）→ `gh release download` 两个 exe → 不存在则用 GitHub Release 的标题和正文创建 Gitee Release → 只上传缺的附件（`attach_files`，非 201 即失败）。失败只让 `Sync to Gitee` 标红，GitHub Release 不受影响。
 
-CI **不会**：提交 `_BsKeyTools.exe`、回推 `main`。
+CI **不会**：提交安装包、回推 `main`。
 
 ## 6. Gitee 同步与 Gitee Release
 
@@ -139,12 +138,14 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 
 ## 8. 仓库里的 exe 文件
 
-`git ls-files "*.exe"`：
-- `_BsKeyTools/_BsKeyTools.exe`：完整安装包。早期插件（2022-09 `c89080b` 起的 0.9.9.x 系列）从 `https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/_BsKeyTools.exe` 下载更新，引导页/网盘压缩包说明也让用户运行它。要保持 `main` 上是可用的新版安装包。
-- `_BsKeyTools/BsCleanVirus_Standalone.exe`：独立杀毒安装包。
-- `_BsKeyTools/AnimRef/Contents/converter/ffmpeg.exe`、`gifsicle.exe`、`_BsKeyTools/Scripts/BulletScripts/Res/fbxreview.exe`：运行时工具，随安装包分发。
+跟踪的 exe 只有运行时工具，随安装包分发，不要删、不要加进 `.gitignore`：
+- `_BsKeyTools/AnimRef/Contents/converter/ffmpeg.exe`、`gifsicle.exe`
+- `_BsKeyTools/Scripts/BulletScripts/Res/fbxreview.exe`
 
-不要把这些 exe 加进 `.gitignore`，也不要随手提交测试产物。
+安装包 `_BsKeyTools/_BsKeyTools.exe`、`_BsKeyTools/BsCleanVirus_Standalone.exe` 2026-10 起**不再跟踪**（已加 `.gitignore`），只通过 Release 分发。原因与依据：
+- 它们共被提交约 130 次，每次约 46 MB，是仓库体积（本地 pack 约 378 MB）的主要来源，也是 Gitee 超配额的主因；仓库里那份还停在 1.4.0，容易被当成最新版。
+- 从 raw `main` 下载它的只有 0.9.9.1–0.9.9.4（2022-09～10）。0.9.9.5～v1.3.7 的"更新"打开引导页 `https://anibullet.github.io/guide/`，引导页链接 `releases/latest` 和网盘；v1.4.0 起从 Release 下载。所以删掉只影响这四个 2022 年的版本（下载 404，需从引导页手动装）。
+- 历史里的旧版本仍占体积；要真正瘦身只能改写历史并强推，代价远大于收益，不做。
 
 ## 9. BsScriptHub 远程脚本索引
 
@@ -169,5 +170,5 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 - `version.dat` 内容不是合法版本号（如 Gitee 返回 HTML 页、写错格式）→ 插件报"无法解析版本号"，不会提示更新。首尾空白/换行/BOM 会被去掉，不影响比较；`update_manifest.py` 写的是无 BOM UTF-8 + LF。
 - 线上 `version.dat` 低于本地版本（如本地测试包先于发版）→ 不提示更新，手动检查显示"本地版本高于线上版本"。
 - 本地 `build.bat` 找不到 `D:\NSIS` → 见第 3 节。
-- 本地打包会改动跟踪的 exe，提交前 `git status` 确认。
+- 不要再把安装包提交进仓库（即使 `git add -f`）：会重新撑大仓库和 Gitee 配额。
 - Gitee 同步失败（镜像令牌过期、镜像被停用等）只会让 `Sync to Gitee` 标红，不影响已创建的 GitHub Release；按第 6 节恢复后手动触发 `Sync to Gitee`。
