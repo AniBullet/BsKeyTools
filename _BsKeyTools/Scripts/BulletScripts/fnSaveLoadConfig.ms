@@ -102,8 +102,8 @@ struct stLoadConfigAll
 	(
 		iniPosOpenTools   = fnGetConfig iniPosOpenTools "BsOpenToolsSet" "PosOpenTools" "0"
 		iniSelectedID     = fnGetConfig iniSelectedID "BsOpenToolsSet" "SelectedID" (iniSelectedID as string)
-		iniLikedFolder    = fnGetConfig iniLikedFolder "BsOpenToolsSet" "LikedFolder" (iniLikedFolder as string)
-		iniFilterPrefix   = fnGetConfig iniFilterPrefix "BsOpenToolsSet" "FilterPrefix" (iniFilterPrefix as string)
+		iniLikedFolder    = fnGetConfig iniLikedFolder "BsOpenToolsSet" "LikedFolder" (with printAllElements on (iniLikedFolder as string))
+		iniFilterPrefix   = fnGetConfig iniFilterPrefix "BsOpenToolsSet" "FilterPrefix" (with printAllElements on (iniFilterPrefix as string))
 		iniWidthOpenTools = fnGetConfig iniWidthOpenTools "BsOpenToolsSet" "WidthOpenTools" (iniWidthOpenTools as string)
 		iniDesktop        = fnGetConfig iniDesktop "BsOpenToolsSet" "Desktop" (iniDesktop as string)
 		iniAutoFbxPreview = fnGetConfig iniAutoFbxPreview "BsOpenToolsSet" "AutoFbxPreview" (iniAutoFbxPreview as string)
@@ -178,8 +178,8 @@ struct stSetConfigAll
 	(
 		SetINISetting BulletConfig "BsOpenToolsSet" "PosOpenTools" (iniPosOpenTools as string)
 		SetINISetting BulletConfig "BsOpenToolsSet" "SelectedID" (iniSelectedID as string)
-		SetINISetting BulletConfig "BsOpenToolsSet" "LikedFolder" (iniLikedFolder as string)
-		SetINISetting BulletConfig "BsOpenToolsSet" "FilterPrefix" (iniFilterPrefix as string)
+		SetINISetting BulletConfig "BsOpenToolsSet" "LikedFolder" (with printAllElements on (iniLikedFolder as string))
+		SetINISetting BulletConfig "BsOpenToolsSet" "FilterPrefix" (with printAllElements on (iniFilterPrefix as string))
 		SetINISetting BulletConfig "BsOpenToolsSet" "WidthOpenTools" (iniWidthOpenTools as string)
 		SetINISetting BulletConfig "BsOpenToolsSet" "Desktop" (iniDesktop as string)
 		SetINISetting BulletConfig "BsOpenToolsSet" "AutoFbxPreview" (iniAutoFbxPreview as string)
