@@ -138,7 +138,16 @@ jobs:
           gh release view "${TAG}" --json name,body,assets > gh-release.json
           NAME=$(jq -r .name gh-release.json)
 
-          RELEASE=$(curl -fsS "${API}/releases/tags/${TAG}?access_token=${GITEE_TOKEN}")
+          # GitHub runner 到 Gitee 偶发 TLS 握手超时（v1.4.1 补发时遇到 curl 28），只读请求重试
+          gitee_get() {
+            curl -fsS --retry 4 --retry-all-errors --retry-delay 10 \
+              --connect-timeout 30 --max-time 120 "$1"
+          }
+
+          RELEASE=$(gitee_get "${API}/releases/tags/${TAG}?access_token=${GITEE_TOKEN}") || {
+            echo "::error::读取 Gitee Release ${TAG} 失败（网络或 API 错误，见上方 curl 输出）"
+            exit 1
+          }
           if [ "${RELEASE}" != "null" ] && [ -n "${RELEASE}" ] && \
              jq -e --argjson r "${RELEASE}" \
                '[.assets[].name | select(endswith(".exe"))] - [$r.assets[]?.name] | length == 0' \
@@ -148,8 +157,11 @@ jobs:
           fi
 
           # Gitee 的 tag 来自镜像同步；没有 tag 时创建 Release 会指到 Gitee 当前 main，结果不可信
-          curl -fsS "${API}/tags?per_page=100&access_token=${GITEE_TOKEN}" \
-            | jq -e --arg t "${TAG}" 'any(.[]; .name == $t)' > /dev/null || {
+          TAGS=$(gitee_get "${API}/tags?per_page=100&access_token=${GITEE_TOKEN}") || {
+            echo "::error::读取 Gitee tag 列表失败（网络或 API 错误，见上方 curl 输出）"
+            exit 1
+          }
+          echo "${TAGS}" | jq -e --arg t "${TAG}" 'any(.[]; .name == $t)' > /dev/null || {
             echo "::error::Gitee 上没有 tag ${TAG}，镜像可能未同步 tag"
             exit 1
           }
@@ -163,8 +175,11 @@ jobs:
                   --slurpfile gh gh-release.json \
               '{access_token: $token, tag_name: $tag, name: $name, body: $gh[0].body, target_commitish: "main"}' \
               > payload.json
-            RELEASE=$(curl -sS -X POST "${API}/releases" \
-              -H "Content-Type: application/json" --data-binary @payload.json)
+            RELEASE=$(curl -sS --connect-timeout 30 --max-time 120 -X POST "${API}/releases" \
+              -H "Content-Type: application/json" --data-binary @payload.json) || {
+              echo "::error::创建 Gitee Release 请求失败（网络），重跑前先确认 Gitee 上没有半成品 Release"
+              exit 1
+            }
             echo "${RELEASE}" | jq -e '.id' > /dev/null || {
               echo "::error::Gitee Release 创建失败: ${RELEASE}"
               exit 1
@@ -182,10 +197,10 @@ jobs:
               continue
             fi
             echo "Uploading $n ($(du -h "$f" | cut -f1))..."
-            RESP=$(curl -sS --max-time 3000 -w "\n%{http_code}" -X POST \
+            RESP=$(curl -sS --connect-timeout 60 --max-time 3000 -w "\n%{http_code}" -X POST \
               "${API}/releases/${RELEASE_ID}/attach_files" \
               -F "access_token=${GITEE_TOKEN}" -F "file=@$f") || {
-              echo "::error::$n 上传中断（超时或网络错误）"
+              echo "::error::$n 上传中断（超时或网络错误）；重跑 Sync to Gitee（-f tag=${TAG}）会只补缺的附件"
               exit 1
             }
             CODE=$(echo "${RESP}" | tail -n 1)
