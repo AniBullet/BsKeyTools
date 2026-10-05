@@ -1,4 +1,4 @@
-# run_maxscript.ps1 - 通过 MXSPyCOM 把 MaxScript 文件送进 3ds Max 执行
+﻿# run_maxscript.ps1 - 通过 MXSPyCOM 把 MaxScript 文件送进 3ds Max 执行
 # 用法:
 #   .\run_maxscript.ps1 -ScriptFile "path\to\script.ms"
 param(

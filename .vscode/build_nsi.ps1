@@ -1,4 +1,4 @@
-# build_nsi.ps1 - 自动查找/安装 makensis 并编译指定 .nsi 文件
+﻿# build_nsi.ps1 - 自动查找/安装 makensis 并编译指定 .nsi 文件
 # 用法:
 #   .\build_nsi.ps1 -NsiFile "path\to\script.nsi"   # 指定文件
 #   .\build_nsi.ps1                                  # 自动扫描项目目录，选择后编译
