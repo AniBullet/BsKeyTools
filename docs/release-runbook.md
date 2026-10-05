@@ -75,10 +75,13 @@
 4. `release`（ubuntu）：
    - 下载两个 artifact；
    - `gh release create v<ver> --target main`，标题 `BsKeyTools v<ver>`，正文 `BsKeyTools v<ver> | BsCleanVirus v<cvver>`，附两个 exe；
-   - 运行 `update_manifest.py`，`git add` `version.dat` 和两个 `.nsi`，有变化则提交 `... [skip ci]` 并 push 到 `main`；
-   - 调用 Gitee API `POST /api/v5/repos/acebullet/BsKeyTools/remote_mirror/pull`（`secrets.GITEE_TOKEN`），让 Gitee 从 GitHub 拉取最新代码，非 2xx 直接失败。
+   - 运行 `update_manifest.py`，`git add` `version.dat` 和两个 `.nsi`，有变化则提交 `... [skip ci]` 并 push 到 `main`。
 
-`.github/workflows/sync-gitee.yml`：每次 push `main` 都调用同一个 Gitee mirror pull API。bot 的 `[skip ci]` 提交不会触发它，所以 `version.dat` 写回后的同步依赖 `release.yml` 最后一步。
+`.github/workflows/sync-gitee.yml`（Gitee 镜像拉取的唯一入口，`60ee9fc` 起）：
+- 触发：`workflow_run`，`Build and Release` 在 `main` 上结束后（不论成功失败）；以及 `workflow_dispatch` 手动触发。不再由 push `main` 直接触发，`release.yml` 里也不再调 Gitee API。这样每次 push 只拉一次，且此时 `main` 已包含 bot 的 `[skip ci]` 版本提交。
+- 新触发方式只有合入 `main` 后才生效（`workflow_run` / `workflow_dispatch` 以默认分支上的工作流文件为准）。
+- `concurrency: sync-gitee`，不取消进行中的运行。
+- 流程：读 GitHub `main` HEAD；Gitee `main` 已相同则直接成功跳过；否则 `POST remote_mirror/pull`（`secrets.GITEE_TOKEN`），非 2xx 失败；之后每 30 秒查一次 Gitee `main`，最多 10 分钟，等于目标 SHA 或当前 GitHub `main` HEAD 即成功；超时报 `::error::`（提示去 Gitee 仓库镜像管理更换 GitHub 令牌）并 exit 1。
 
 CI **不会**：创建 Gitee Release、上传 Gitee 附件、提交 `_BsKeyTools.exe`。
 
@@ -95,7 +98,14 @@ CI **不会**：创建 Gitee Release、上传 Gitee 附件、提交 `_BsKeyTools
 
 影响：若不手动建 Gitee Release，插件从 Gitee 下载 `.../releases/download/v<ver>/BsKeyTools_v<ver>.exe` 会 404，随后自动改从 GitHub Release 下载（见第 7 节）；国内访问 GitHub 慢或不通的用户才会落到备用页 `https://anibullet.github.io/`。所以手动建 Gitee Release 仍然推荐，但不再是发版的硬性前提。
 
-Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 GitHub classic 私人令牌（repo 权限）；GitHub Secret `GITEE_TOKEN` 只用于调用 Gitee `remote_mirror/pull` API。API 返回 204 不代表拉取成功；令牌过期时 Gitee `main` 会停在旧提交。恢复：在 https://github.com/settings/tokens/new?scopes=repo&description=Gitee_Mirror 新建令牌，到镜像管理替换并点"更新"（间隔 ≥5 分钟），用 Gitee/GitHub branches API 对比 `main` HEAD。镜像不同步 Release。
+### 镜像同步与校验
+
+Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 GitHub classic 私人令牌（repo 权限）；GitHub Secret `GITEE_TOKEN` 只用于调用 Gitee `remote_mirror/pull` API。API 返回 204 不代表拉取成功；令牌过期时 Gitee `main` 会停在旧提交。镜像不同步 Release。
+
+- 校验：`Sync to Gitee` 会轮询比对 Gitee 与 GitHub 的 `main` HEAD（见第 5 节），超时标红即说明没拉到。手动核对用 `https://gitee.com/api/v5/repos/acebullet/BsKeyTools/branches/main` 与 `https://api.github.com/repos/AniBullet/BsKeyTools/branches/main` 的 `commit.sha`。
+- 手动补同步：`gh workflow run sync-gitee.yml -R AniBullet/BsKeyTools --ref main`，或在 Actions 页面对 `Sync to Gitee` 点 Run workflow。
+- Gitee 拉取间隔需 ≥5 分钟，太频繁会被拒；连续 5 次失败 Gitee 会停用该镜像，需在同一页面（仓库镜像管理）重新启用。
+- 恢复令牌：在 https://github.com/settings/tokens/new?scopes=repo&description=Gitee_Mirror 新建令牌，到镜像管理替换并点"更新"（间隔 ≥5 分钟），然后手动触发 `Sync to Gitee` 或对比上面两个 API 的 `main` HEAD。
 
 ## 7. 插件内更新链路
 
@@ -145,4 +155,4 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 - 线上 `version.dat` 低于本地版本（如本地测试包先于发版）→ 不提示更新，手动检查显示"本地版本高于线上版本"。
 - 本地 `build.bat` 找不到 `D:\NSIS` → 见第 3 节。
 - 本地打包会改动跟踪的 exe，提交前 `git status` 确认。
-- Gitee mirror pull 失败（token 过期等）会让 `release` job 标红，但 GitHub Release 已经创建；需手动在 Gitee 页面"同步"或重跑该步骤。API 返回成功也可能没拉取（镜像令牌过期），见第 6 节恢复步骤。
+- Gitee 同步失败（镜像令牌过期、镜像被停用等）只会让 `Sync to Gitee` 标红，不影响已创建的 GitHub Release；按第 6 节恢复后手动触发 `Sync to Gitee`。
