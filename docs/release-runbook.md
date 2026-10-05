@@ -61,9 +61,9 @@
 4. 确认目标 tag `v<ver>` 在远端不存在（存在则 CI 会跳过发版）。
 5. 合并 `dev` → `main` 并 push。不切分支的做法：在 `dev` 上 `git merge origin/main`（带上 `main` 独有的提交），`git push origin dev`，再 `git push origin dev:main`（快进；管理员推送时会提示 "Bypassed rule violations"，属正常）。
    - **`Build and Release` 跑完之前不要再推 `main`**：tag 还没建，再推会触发第二次发版。
-6. 盯 GitHub Actions：`Build and Release` 全绿，随后 `Sync to Gitee` 成功。
+6. 盯 GitHub Actions：`Build and Release` 全绿，随后 `Sync to Gitee` 的 `mirror` 和 `gitee-release` 两个 job 都成功（`gitee-release` 上传附件较慢，v1.4.0 时约 50 分钟）。
 7. 检查 GitHub Release `v<ver>` 有两个 exe，资产大小正常（BsKeyTools 约 48 MB）。
-8. **手动处理 Gitee Release**（推荐，见第 6 节；不建时插件会改从 GitHub Release 下载）：在 Gitee 创建 `v<ver>` Release 并上传 `BsKeyTools_v<ver>.exe`（建议同时上传 BsCleanVirus）。
+8. 检查 Gitee Release `v<ver>` 已自动创建且有两个 exe（见第 6 节）。`gitee-release` 失败时修好原因后补发：`gh workflow run sync-gitee.yml -R AniBullet/BsKeyTools --ref main -f tag=v<ver>`。
 9. 验证下载链接：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe` 返回 200 且大小正确。
 10. 确认 Gitee raw `main` 的 `version.dat` 已是新版本；在旧版插件里点"检查更新"实测。
 11. `main` 与 `dev` 应保持同一提交；若发版期间 `main` 有额外提交，合回 `dev`。
@@ -86,20 +86,23 @@
 - `concurrency: sync-gitee`，不取消进行中的运行。
 - 流程：读 GitHub `main` HEAD；Gitee `main` 已相同则直接成功跳过；否则 `POST remote_mirror/pull`（`secrets.GITEE_TOKEN`），非 2xx 失败；之后每 30 秒查一次 Gitee `main`，最多 10 分钟，等于目标 SHA 或当前 GitHub `main` HEAD 即成功；超时报 `::error::`（提示去 Gitee 仓库镜像管理更换 GitHub 令牌）并 exit 1。
 
-CI **不会**：创建 Gitee Release、上传 Gitee 附件、提交 `_BsKeyTools.exe`。
+- `gitee-release` job（`needs: mirror`，超时 90 分钟）：tag 取 `workflow_dispatch` 输入 `tag`，留空取 GitHub 最新 Release。Gitee Release 已有 GitHub Release 的全部 exe → 直接成功；否则确认 Gitee 已有该 tag（没有就失败，避免 Release 指到 Gitee 旧 `main`）→ `gh release download` 两个 exe → 不存在则用 GitHub Release 的标题和正文创建 Gitee Release → 只上传缺的附件（`attach_files`，非 201 即失败）。失败只让 `Sync to Gitee` 标红，GitHub Release 不受影响。
+
+CI **不会**：提交 `_BsKeyTools.exe`、回推 `main`。
 
 ## 6. Gitee 同步与 Gitee Release
 
 已确认（2026-10-06 查询 Gitee/GitHub API + `gh run`）：
 - Gitee 只有 **1 个** Release：`v1.4.0`，`created_at 2026-05-26T14:09:19+08:00`，作者 `acebullet`，正文 `BsKeyTools v1.4.0 | BsCleanVirus v2.2`，附件 `BsKeyTools_v1.4.0.exe`（48108122 字节，下载链接返回 200）、`BsCleanVirus_v2.2.exe`。
 - 它是 GitHub Actions run `26435428759`（commit `2970c33`）里当时存在的 `Create Gitee Release and upload installers` 步骤创建的：该步骤 06:09:17Z 开始，Gitee Release 06:09:19Z 创建，GitHub Release 06:09:17Z 发布。
-- 随后 `7994363`（Gitee 仓库超配额）删除了 Gitee 同步/Release，`f85eed4` 只恢复代码同步，`741f6b9` 改为 mirror pull API。**现在的 CI 没有任何创建 Gitee Release 的代码**，仓库里也没有 `.workflow/`（Gitee Go）或其他 Gitee Release 脚本。
-- Gitee 上有 `1.3.1`…`v1.3.7` 等 tag（随代码同步），但都没有 Release。
+- 随后 `7994363`（Gitee 仓库超配额）删除了 Gitee 同步/Release，`f85eed4` 只恢复代码同步，`741f6b9` 改为 mirror pull API。从那以后到 2026-10 CI 都没有创建 Gitee Release 的代码。
+- 已实测：Gitee pull mirror **不同步 Release**，只同步分支和 tag。v1.4.1 发布后 Gitee 有 tag `v1.4.1`，`releases/tags/v1.4.1` 返回 `null`。
+- 2026-10 起 `sync-gitee.yml` 的 `gitee-release` job 恢复自动发 Gitee Release（第 5 节），v1.4.1 用 `workflow_dispatch` 补发。
 
 需要验证：
-- Gitee 仓库镜像（pull mirror）是否会同步 GitHub Release。我的判断是不会（镜像只同步分支/tag/提交，现有证据中没有任何非 CI 创建的 Gitee Release）；v1.4.0 之后还没发过版，无法用实际数据证伪。下次发版后用 `https://gitee.com/api/v5/repos/acebullet/BsKeyTools/releases/tags/v<ver>` 确认。
+- Release 附件是否计入 Gitee 仓库配额。我的判断是当初超配额主要来自 `git push --force --tags` 镜像推送，v1.4.0 的附件上传本身是成功的；如果以后 `attach_files` 报配额/容量错误，就要改成不传附件、只建 Release 页（插件下载会回退到 GitHub）。
 
-影响：若不手动建 Gitee Release，插件从 Gitee 下载 `.../releases/download/v<ver>/BsKeyTools_v<ver>.exe` 会 404，随后自动改从 GitHub Release 下载（见第 7 节）；国内访问 GitHub 慢或不通的用户才会落到备用页 `https://anibullet.github.io/`。所以手动建 Gitee Release 仍然推荐，但不再是发版的硬性前提。
+影响：Gitee Release 缺附件时，插件从 Gitee 下载 `.../releases/download/v<ver>/BsKeyTools_v<ver>.exe` 会 404，随后自动改从 GitHub Release 下载（见第 7 节）；国内访问 GitHub 慢或不通的用户才会落到备用页 `https://anibullet.github.io/`。
 
 ### 镜像同步与校验
 
@@ -123,7 +126,7 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 - `fnCheckUpdate`（菜单"检查更新"）：拉取失败弹"获取版本信息失败"；线上更高弹更新提示；相等弹"当前已是最新版本"；本地更高弹"本地版本高于线上版本"；无法解析弹错误并在 Listener 记录。`force:true`（强制更新）跳过大小比较直接提示，但线上版本无法解析时同样报错不提示下载。
 - 弹窗：是=下载安装包，否=稍后，取消=写入跳过版本。
 - 下载源（`fnBsktInstallerSources`）按顺序尝试：
-  1. Gitee Release：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`（国内快，需手动上传附件，见第 6 节）。
+  1. Gitee Release：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`（国内快，`Sync to Gitee` 的 `gitee-release` 自动上传，见第 5、6 节）。
   2. GitHub Release：`https://github.com/AniBullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`（`release.yml` 自动发布；会重定向到 `release-assets.githubusercontent.com`，`WebClient` 自动跟随）。
 - `fnUpdaterDownloadInstaller`：
   - 下载前在现有 `ServicePointManager.SecurityProtocol` 上追加 TLS 1.2（失败写 Listener）。`fnCheckUpdate.ms` 加载时也会把协议设为 TLS 1.2。
@@ -160,7 +163,8 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 - 发版运行中又推 `main` → 可能并发两次发版。等 `Build and Release` 结束再推。
 - 工作流文件的改动（尤其 `workflow_run` / `workflow_dispatch` 触发）要合入 `main` 后才生效；在 `dev` 上改完不能直接验证。
 - `RELEASE_VERSION` 与 `curVerBsKeyTools` 不一致 → `update_manifest.py` 报错，构建失败。
-- 改了版本但没建 Gitee Release → 插件自动改从 GitHub Release 下载；GitHub 也不通的用户才落到备用页。
+- Gitee Release 没建成或缺附件（`gitee-release` 失败）→ 插件自动改从 GitHub Release 下载；GitHub 也不通的用户才落到备用页。修好后 `gh workflow run sync-gitee.yml --ref main -f tag=v<ver>` 补发，已有的附件不会重复上传。
+- v1.4.1 曾漏发 Gitee Release：以为 CI 一直会发，实际 `7994363` 删了那一步；仓库镜像不同步 Release。发版后务必按第 4 节第 8 步核对 Gitee。
 - `version.dat` 早于安装包进入 `main` → 用户提前收到更新提示（Gitee、GitHub 都没有安装包时直接落到备用页）。现行流程下这是发版时约 5–10 分钟的固有窗口，见第 4 节第 2 步。
 - `version.dat` 内容不是合法版本号（如 Gitee 返回 HTML 页、写错格式）→ 插件报"无法解析版本号"，不会提示更新。首尾空白/换行/BOM 会被去掉，不影响比较；`update_manifest.py` 写的是无 BOM UTF-8 + LF。
 - 线上 `version.dat` 低于本地版本（如本地测试包先于发版）→ 不提示更新，手动检查显示"本地版本高于线上版本"。

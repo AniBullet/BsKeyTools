@@ -2,15 +2,22 @@ name: Sync to Gitee
 
 # 镜像拉取的唯一入口：
 # - 每次 push main 都会运行 "Build and Release"（无新版本时 check-version 后即跳过），
-#   它结束后再触发本工作流；此时 main 已包含 release 推送的 [skip ci] 版本提交。
+#   它结束后再触发本工作流（此时新版本的 tag / Release 已创建）。
 #   这样每次 push 只拉一次，避免 Gitee 5 分钟内重复拉取被拒。
 # - workflow_dispatch 用于手动补同步，始终以 GitHub main 当前 HEAD 为目标。
+# 同步确认后 gitee-release 把 GitHub Release（正文 + 两个 exe）补到 Gitee：
+# 已存在且附件齐全则跳过；镜像不同步 Release，插件优先从 Gitee 下载安装包。
 on:
   workflow_run:
     workflows: ["Build and Release"]
     types: [completed]
     branches: [main]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "要补发到 Gitee 的 Release tag（留空 = GitHub 最新 Release）"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -104,3 +111,88 @@ jobs:
 
           echo "::error::Gitee mirror not synced after ${POLL_TIMEOUT}s. Gitee main=${CURRENT:-<unknown>}, expected=${EXPECTED} (GitHub main now=${LATEST}). Gitee 仓库镜像管理里的 GitHub 私人令牌可能失效，去 Gitee 仓库 → 管理 → 仓库镜像管理 更换令牌 / The GitHub token stored in Gitee mirror settings may be invalid: Gitee repo → Settings → Repository Mirror Management → update token."
           exit 1
+
+  gitee-release:
+    needs: mirror
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GITEE_REPO: acebullet/BsKeyTools
+      GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      INPUT_TAG: ${{ github.event.inputs.tag }}
+
+    steps:
+      - name: Publish GitHub Release to Gitee
+        run: |
+          set -euo pipefail
+          API="https://gitee.com/api/v5/repos/${GITEE_REPO}"
+
+          TAG="${INPUT_TAG:-}"
+          if [ -z "${TAG}" ]; then
+            TAG=$(gh release view --json tagName -q .tagName)
+          fi
+          echo "Tag: ${TAG}"
+
+          gh release view "${TAG}" --json name,body,assets > gh-release.json
+          NAME=$(jq -r .name gh-release.json)
+
+          RELEASE=$(curl -fsS "${API}/releases/tags/${TAG}?access_token=${GITEE_TOKEN}")
+          if [ "${RELEASE}" != "null" ] && [ -n "${RELEASE}" ] && \
+             jq -e --argjson r "${RELEASE}" \
+               '[.assets[].name | select(endswith(".exe"))] - [$r.assets[]?.name] | length == 0' \
+               gh-release.json > /dev/null; then
+            echo "Gitee Release ${TAG} already has all installers, nothing to do"
+            exit 0
+          fi
+
+          # Gitee 的 tag 来自镜像同步；没有 tag 时创建 Release 会指到 Gitee 当前 main，结果不可信
+          curl -fsS "${API}/tags?per_page=100&access_token=${GITEE_TOKEN}" \
+            | jq -e --arg t "${TAG}" 'any(.[]; .name == $t)' > /dev/null || {
+            echo "::error::Gitee 上没有 tag ${TAG}，镜像可能未同步 tag"
+            exit 1
+          }
+
+          mkdir -p dist
+          gh release download "${TAG}" --pattern '*.exe' --dir dist
+          ls -l dist
+
+          if [ "${RELEASE}" = "null" ] || [ -z "${RELEASE}" ]; then
+            jq -n --arg token "${GITEE_TOKEN}" --arg tag "${TAG}" --arg name "${NAME}" \
+                  --slurpfile gh gh-release.json \
+              '{access_token: $token, tag_name: $tag, name: $name, body: $gh[0].body, target_commitish: "main"}' \
+              > payload.json
+            RELEASE=$(curl -sS -X POST "${API}/releases" \
+              -H "Content-Type: application/json" --data-binary @payload.json)
+            echo "${RELEASE}" | jq -e '.id' > /dev/null || {
+              echo "::error::Gitee Release 创建失败: ${RELEASE}"
+              exit 1
+            }
+            echo "Created Gitee Release ${TAG}"
+          else
+            echo "Gitee Release ${TAG} already exists"
+          fi
+          RELEASE_ID=$(echo "${RELEASE}" | jq -r '.id')
+
+          for f in dist/*.exe; do
+            n=$(basename "$f")
+            if echo "${RELEASE}" | jq -e --arg n "$n" 'any(.assets[]?; .name == $n)' > /dev/null; then
+              echo "$n already attached, skip"
+              continue
+            fi
+            echo "Uploading $n ($(du -h "$f" | cut -f1))..."
+            RESP=$(curl -sS --max-time 3000 -w "\n%{http_code}" -X POST \
+              "${API}/releases/${RELEASE_ID}/attach_files" \
+              -F "access_token=${GITEE_TOKEN}" -F "file=@$f") || {
+              echo "::error::$n 上传中断（超时或网络错误）"
+              exit 1
+            }
+            CODE=$(echo "${RESP}" | tail -n 1)
+            if [ "${CODE}" != "201" ]; then
+              echo "::error::$n 上传失败 (HTTP ${CODE}): $(echo "${RESP}" | head -n -1)"
+              exit 1
+            fi
+            echo "$n uploaded"
+          done
+          echo "Gitee Release ${TAG}: https://gitee.com/${GITEE_REPO}/releases/tag/${TAG}"
