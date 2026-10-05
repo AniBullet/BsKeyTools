@@ -60,7 +60,7 @@
 5. 合并 `dev` → `main` 并 push。
 6. 盯 GitHub Actions：`Build and Release` 全绿，`Sync to Gitee` 成功。
 7. 检查 GitHub Release `v<ver>` 有两个 exe；`main` 上出现 bot 提交 `chore: update version files → BsKeyTools <ver> [skip ci]`。
-8. **手动处理 Gitee Release**（见第 6 节）：在 Gitee 创建 `v<ver>` Release 并上传 `BsKeyTools_v<ver>.exe`（建议同时上传 BsCleanVirus）。
+8. **手动处理 Gitee Release**（推荐，见第 6 节；不建时插件会改从 GitHub Release 下载）：在 Gitee 创建 `v<ver>` Release 并上传 `BsKeyTools_v<ver>.exe`（建议同时上传 BsCleanVirus）。
 9. 验证下载链接：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe` 返回 200 且大小正确。
 10. 确认 Gitee raw `main` 的 `version.dat` 已是新版本；在旧版插件里点"检查更新"实测。
 11. 把 `main` 合回 `dev`（带回 bot 的版本文件提交）。
@@ -93,7 +93,9 @@ CI **不会**：创建 Gitee Release、上传 Gitee 附件、提交 `_BsKeyTools
 需要验证：
 - Gitee 仓库镜像（pull mirror）是否会同步 GitHub Release。我的判断是不会（镜像只同步分支/tag/提交，现有证据中没有任何非 CI 创建的 Gitee Release）；v1.4.0 之后还没发过版，无法用实际数据证伪。下次发版后用 `https://gitee.com/api/v5/repos/acebullet/BsKeyTools/releases/tags/v<ver>` 确认。
 
-影响：若不手动建 Gitee Release，插件下载 `.../releases/download/v<ver>/BsKeyTools_v<ver>.exe` 会失败，用户被引导到备用页 `https://anibullet.github.io/`。
+影响：若不手动建 Gitee Release，插件从 Gitee 下载 `.../releases/download/v<ver>/BsKeyTools_v<ver>.exe` 会 404，随后自动改从 GitHub Release 下载（见第 7 节）；国内访问 GitHub 慢或不通的用户才会落到备用页 `https://anibullet.github.io/`。所以手动建 Gitee Release 仍然推荐，但不再是发版的硬性前提。
+
+Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 GitHub classic 私人令牌（repo 权限）；GitHub Secret `GITEE_TOKEN` 只用于调用 Gitee `remote_mirror/pull` API。API 返回 204 不代表拉取成功；令牌过期时 Gitee `main` 会停在旧提交。恢复：在 https://github.com/settings/tokens/new?scopes=repo&description=Gitee_Mirror 新建令牌，到镜像管理替换并点"更新"（间隔 ≥5 分钟），用 Gitee/GitHub branches API 对比 `main` HEAD。镜像不同步 Release。
 
 ## 7. 插件内更新链路
 
@@ -107,8 +109,15 @@ CI **不会**：创建 Gitee Release、上传 Gitee 附件、提交 `_BsKeyTools
 - `fnAutoCheckVersion`（启动时）：线上更高且未被跳过（INI `BulletKeyToolsSet` / `SkipVersionBskt`）才弹窗；相等静默；本地更高只在 Listener 打印一行；无法解析在 Listener 打印错误；拉取失败静默返回。
 - `fnCheckUpdate`（菜单"检查更新"）：拉取失败弹"获取版本信息失败"；线上更高弹更新提示；相等弹"当前已是最新版本"；本地更高弹"本地版本高于线上版本"；无法解析弹错误并在 Listener 记录。`force:true`（强制更新）跳过大小比较直接提示，但线上版本无法解析时同样报错不提示下载。
 - 弹窗：是=下载安装包，否=稍后，取消=写入跳过版本。
-- 下载地址固定为 Gitee Release：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`。
-- `fnUpdaterDownloadInstaller`：下载到 `#temp`；文件 ≤ 512000 字节视为错误页并删除；下载失败或过小则弹窗并打开 `https://anibullet.github.io/`；成功则 `ShellLaunch` 安装包。
+- 下载源（`fnBsktInstallerSources`）按顺序尝试：
+  1. Gitee Release：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`（国内快，需手动上传附件，见第 6 节）。
+  2. GitHub Release：`https://github.com/AniBullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`（`release.yml` 自动发布；会重定向到 `release-assets.githubusercontent.com`，`WebClient` 自动跟随）。
+- `fnUpdaterDownloadInstaller`：
+  - 下载前在现有 `ServicePointManager.SecurityProtocol` 上追加 TLS 1.2（失败写 Listener）。`fnCheckUpdate.ms` 加载时也会把协议设为 TLS 1.2。
+  - 每个源下载到 `#temp\BsKeyTools_v<ver>.exe`，尝试前删除旧文件；Listener 打印源名称和 URL。
+  - 失败原因写 Listener：`WebClient` 异常（如 `(404) Not Found`）或文件 ≤ 512000 字节（疑为错误页）；失败后删除残留文件再试下一个源。
+  - 任一源成功即 `ShellLaunch` 安装包；全部失败弹"安装包下载失败（已尝试 Gitee、GitHub，均失败）"并打开 `https://anibullet.github.io/`。
+  - 同步下载，期间 Max 界面无响应；Gitee 404 通常很快返回，主要耗时在 GitHub 下载。
 - 安装包自身 `.onInit` 也会检查 `version.dat`，`VersionCompare` 远端更新时提示并打开 `https://github.com/AniBullet/BsKeyTools/releases/latest`。
 
 ## 8. 仓库里的 exe 文件
@@ -130,9 +139,10 @@ CI **不会**：创建 Gitee Release、上传 Gitee 附件、提交 `_BsKeyTools
 
 - tag 已存在 → CI 静默跳过发版。重发同一版本需先删远端 tag 和 GitHub Release。
 - `RELEASE_VERSION` 与 `curVerBsKeyTools` 不一致 → `update_manifest.py` 报错，构建失败。
-- 改了版本但没建 Gitee Release → 用户点"是"后落到备用页。
-- `version.dat` 早于安装包进入 `main` → 用户提前收到更新提示。
-- 字符串比较：`version.dat` 末尾多余字符（BOM 等）会导致每次都提示更新；`update_manifest.py` 写的是无 BOM UTF-8 + LF。
+- 改了版本但没建 Gitee Release → 插件自动改从 GitHub Release 下载；GitHub 也不通的用户才落到备用页。
+- `version.dat` 早于安装包进入 `main` → 用户提前收到更新提示（Gitee、GitHub 都没有安装包时直接落到备用页）。
+- `version.dat` 内容不是合法版本号（如 Gitee 返回 HTML 页、写错格式）→ 插件报"无法解析版本号"，不会提示更新。首尾空白/换行/BOM 会被去掉，不影响比较；`update_manifest.py` 写的是无 BOM UTF-8 + LF。
+- 线上 `version.dat` 低于本地版本（如本地测试包先于发版）→ 不提示更新，手动检查显示"本地版本高于线上版本"。
 - 本地 `build.bat` 找不到 `D:\NSIS` → 见第 3 节。
 - 本地打包会改动跟踪的 exe，提交前 `git status` 确认。
-- Gitee mirror pull 失败（token 过期等）会让 `release` job 标红，但 GitHub Release 已经创建；需手动在 Gitee 页面"同步"或重跑该步骤。
+- Gitee mirror pull 失败（token 过期等）会让 `release` job 标红，但 GitHub Release 已经创建；需手动在 Gitee 页面"同步"或重跑该步骤。API 返回成功也可能没拉取（镜像令牌过期），见第 6 节恢复步骤。
