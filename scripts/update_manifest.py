@@ -57,20 +57,35 @@ def write_version_dat(bskt_version: str) -> None:
     print(f"[update_manifest] version.dat → {bskt_version}")
 
 
+UTF8_BOM = b"\xef\xbb\xbf"
+
+
+def read_nsis(path: str) -> str:
+    """读取 .nsi：必须是 UTF-8 带 BOM（Unicode true），严格解码，保留原换行。"""
+    with open(path, "rb") as f:
+        data = f.read()
+    if not data.startswith(UTF8_BOM):
+        raise RuntimeError(f"{path} 缺少 UTF-8 BOM（NSIS Unicode 脚本需要 BOM）")
+    return data[len(UTF8_BOM):].decode("utf-8")
+
+
+def write_nsis(path: str, content: str) -> None:
+    with open(path, "wb") as f:
+        f.write(UTF8_BOM + content.encode("utf-8"))
+
+
 def update_bskeytools_nsis_version(version: str) -> None:
     """更新 Setup_BsKeyTools.nsi 中的 PRODUCT_VERSION_NUM。"""
     if not os.path.isfile(NSIS_BSKT):
         return
-    with open(NSIS_BSKT, encoding="utf-8", errors="replace") as f:
-        content = f.read()
+    content = read_nsis(NSIS_BSKT)
     new_content = re.sub(
         r'(!define\s+PRODUCT_VERSION_NUM\s+")[^"]*(")',
         lambda m: m.group(1) + version + m.group(2),
         content,
     )
     if new_content != content:
-        with open(NSIS_BSKT, "w", encoding="utf-8", newline="\n") as f:
-            f.write(new_content)
+        write_nsis(NSIS_BSKT, new_content)
         print(f"[update_manifest] Setup_BsKeyTools.nsi PRODUCT_VERSION_NUM → {version}")
 
 
@@ -78,16 +93,14 @@ def update_bscleanvirus_nsis_version(version: str) -> None:
     """更新 Setup_BsCleanVirus.nsi 中的 PRODUCT_VERSION（格式 _vX.X）。"""
     if not os.path.isfile(NSIS_BSCV):
         return
-    with open(NSIS_BSCV, encoding="utf-8", errors="replace") as f:
-        content = f.read()
+    content = read_nsis(NSIS_BSCV)
     new_content = re.sub(
         r'(!define\s+PRODUCT_VERSION\s+")_v[^"]*(")',
         lambda m: m.group(1) + "_v" + version + m.group(2),
         content,
     )
     if new_content != content:
-        with open(NSIS_BSCV, "w", encoding="utf-8", newline="\n") as f:
-            f.write(new_content)
+        write_nsis(NSIS_BSCV, new_content)
         print(f"[update_manifest] Setup_BsCleanVirus.nsi PRODUCT_VERSION → _v{version}")
 
 

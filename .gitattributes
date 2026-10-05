@@ -6,17 +6,25 @@
 # Default: normalize to LF on checkout
 * text=auto eol=lf
 
+# Line endings only. Encoding/BOM rules per file type live in AGENTS.md.
+
 # MAXScript and related script files — always LF
 *.ms   text eol=lf
-*.mse  text eol=lf
 *.mcr  text eol=lf
+# Encrypted MAXScript is binary; LF normalization would corrupt it
+*.mse  binary
 
 # Python
 *.py   text eol=lf
 
+# cmd.exe needs CRLF (labels/goto break on LF-only files)
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
 # Language / config files
 *.lng  text eol=lf
-*.ini  text eol=lf
+# Some .ini are UTF-16LE; text=auto lets git detect them as binary
+*.ini  text=auto eol=lf
 *.json text eol=lf
 *.yml  text eol=lf
 *.yaml text eol=lf
@@ -32,3 +40,11 @@
 *.gif  binary
 *.jpg  binary
 *.ico  binary
+*.bmp  binary
+*.dds  binary
+*.mzp  binary
+*.max  binary
+*.fbx  binary
+*.chm  binary
+*.pdf  binary
+*.db   binary

@@ -53,6 +53,39 @@ class UpdateManifestTests(unittest.TestCase):
         finally:
             os.unlink(tmp_path)
 
+    def _temp_nsis(self, data: bytes) -> str:
+        fd, path = tempfile.mkstemp(suffix=".nsi")
+        with os.fdopen(fd, "wb") as f:
+            f.write(data)
+        self.addCleanup(os.unlink, path)
+        original = self.um.NSIS_BSKT
+        self.um.NSIS_BSKT = path
+        self.addCleanup(setattr, self.um, "NSIS_BSKT", original)
+        return path
+
+    def test_nsis_update_keeps_bom_and_line_endings(self):
+        body = '; 中文注释\r\nUnicode true\r\n!define PRODUCT_VERSION_NUM "1.0.0"\r\n'
+        path = self._temp_nsis(b"\xef\xbb\xbf" + body.encode("utf-8"))
+
+        self.um.update_bskeytools_nsis_version("2.3.4")
+
+        with open(path, "rb") as f:
+            data = f.read()
+        expected = body.replace('"1.0.0"', '"2.3.4"')
+        self.assertEqual(data, b"\xef\xbb\xbf" + expected.encode("utf-8"))
+
+    def test_nsis_without_bom_is_rejected(self):
+        self._temp_nsis(b'Unicode true\n!define PRODUCT_VERSION_NUM "1.0.0"\n')
+
+        with self.assertRaisesRegex(RuntimeError, "BOM"):
+            self.um.update_bskeytools_nsis_version("2.3.4")
+
+    def test_nsis_invalid_utf8_is_rejected(self):
+        self._temp_nsis(b'\xef\xbb\xbf; \xd6\xd0\xce\xc4\n!define PRODUCT_VERSION_NUM "1.0.0"\n')
+
+        with self.assertRaises(UnicodeDecodeError):
+            self.um.update_bskeytools_nsis_version("2.3.4")
+
 
 if __name__ == "__main__":
     unittest.main()

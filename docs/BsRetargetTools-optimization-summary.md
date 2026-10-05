@@ -35,7 +35,7 @@
 - 核心创建映射流程内缓存 Biped Root，减少重复直接访问。
 - pose copy/paste 临时变量局部化。
 - Skin 替换、文件删除、转 Biped 等流程中的部分隐式全局变量改为局部变量。
-- 增加静态检查脚本，覆盖编码、CRLF、关键 helper 和保护点。
+- 增加静态检查脚本，覆盖编码、关键 helper 和保护点（早期的 CRLF 检查已在 894acfb 移除，换行以 `.gitattributes` 的 LF 为准）。
 
 ## 已通过的本地检查
 
@@ -49,7 +49,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-bs-retarget-list
 - 插件脚本静态检查通过。
 - list 静态检查通过。
 - 部分 bundled preset 的 Root 为 `~undefined~`，这是预期警告，运行时需要推断 Root 或阻断危险操作。
-- 触碰文件已保持 UTF-8、CRLF、无 NUL。
+- 触碰文件已保持 UTF-8、无 NUL（换行规则见 `.gitattributes`）。
 
 ## 必须手验
 

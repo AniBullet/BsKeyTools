@@ -38,7 +38,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-agent-rules.ps1
 - 只碰任务必须碰的文件。
 - 手工编辑文件用 `apply_patch`。
 - 不做大规模格式化、换行、重命名，除非任务需要。
-- 文本文件默认 UTF-8 无 BOM + LF；不强制 CRLF。
+- 换行以 `.gitattributes` 为准：仓库内统一 LF；检出默认 LF，`*.bat`/`*.cmd` 检出为 CRLF。不要手工把文件改成 CRLF。
+- 编码默认 UTF-8 无 BOM（`.ms`/`.mcr`/`.md`/`.py`/`.yml`/`.json`/`.list`/`.bat` 等）。例外：
+  - `.nsi`/`.nsh`：UTF-8 带 BOM（`Unicode true`，不能去掉 BOM）。
+  - `.ps1`：含非 ASCII 字符时必须 UTF-8 带 BOM（Windows PowerShell 5.1 会把无 BOM 文件按 ANSI 读）；`tools/*.ps1` 保持纯 ASCII。
+  - `.ini`：给 `getINISetting` 读且含中文时用 UTF-16LE 带 BOM 或纯 ASCII；UTF-8 内容需用 .NET `StreamReader` 读。
+  - `.mse`、UTF-16 `.ini` 是二进制，不做换行/编码转换。
+- 不要用会改编码的方式写文件（如 PowerShell 5.1 的 `Set-Content -Encoding UTF8` 会加 BOM）。
 - Windows 下不要用破坏性命令；递归删除/移动前必须确认目标路径。
 
 ## Error Handling
