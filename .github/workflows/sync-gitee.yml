@@ -1,24 +1,106 @@
 name: Sync to Gitee
 
+# 镜像拉取的唯一入口：
+# - 每次 push main 都会运行 "Build and Release"（无新版本时 check-version 后即跳过），
+#   它结束后再触发本工作流；此时 main 已包含 release 推送的 [skip ci] 版本提交。
+#   这样每次 push 只拉一次，避免 Gitee 5 分钟内重复拉取被拒。
+# - workflow_dispatch 用于手动补同步，始终以 GitHub main 当前 HEAD 为目标。
 on:
-  push:
+  workflow_run:
+    workflows: ["Build and Release"]
+    types: [completed]
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-gitee
+  cancel-in-progress: false
 
 jobs:
   mirror:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GITEE_REPO: acebullet/BsKeyTools
+      GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      EVENT_NAME: ${{ github.event_name }}
+      EVENT_REF: ${{ github.ref }}
+      UPSTREAM_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+      POLL_INTERVAL: 30
+      POLL_TIMEOUT: 600
+
     steps:
-      - name: Trigger Gitee mirror pull
+      - name: Trigger Gitee mirror pull and verify
         run: |
-          RESP=$(curl -s -w "\n%{http_code}" -X POST \
-            "https://gitee.com/api/v5/repos/acebullet/BsKeyTools/remote_mirror/pull?access_token=${GITEE_TOKEN}")
-          HTTP_CODE=$(echo "$RESP" | tail -1)
-          BODY=$(echo "$RESP" | head -n -1)
-          echo "Gitee mirror pull: HTTP $HTTP_CODE"
-          echo "$BODY"
-          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
-            echo "::error::Gitee mirror pull failed (HTTP $HTTP_CODE)"
+          set -euo pipefail
+
+          if [ -z "${GITEE_TOKEN}" ]; then
+            echo "::error::GITEE_TOKEN secret is empty"
             exit 1
           fi
-        env:
-          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+
+          echo "Event: ${EVENT_NAME} (ref ${EVENT_REF})"
+          if [ "${EVENT_NAME}" = "workflow_run" ]; then
+            echo "Build and Release conclusion: ${UPSTREAM_CONCLUSION}"
+          fi
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ] && [ "${EVENT_REF}" != "refs/heads/main" ]; then
+            echo "::warning::Dispatched from ${EVENT_REF}; mirror target is still GitHub main HEAD"
+          fi
+
+          github_main_sha() {
+            curl -fsS \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GH_REPO}/branches/main" | jq -er '.commit.sha'
+          }
+
+          gitee_main_sha() {
+            curl -fsS \
+              "https://gitee.com/api/v5/repos/${GITEE_REPO}/branches/main?access_token=${GITEE_TOKEN}" \
+              | jq -er '.commit.sha'
+          }
+
+          EXPECTED=$(github_main_sha) || {
+            echo "::error::Failed to read GitHub main HEAD"
+            exit 1
+          }
+          BEFORE=$(gitee_main_sha) || BEFORE=""
+          echo "GitHub main: ${EXPECTED}"
+          echo "Gitee  main: ${BEFORE:-<unknown>}"
+
+          if [ "${BEFORE}" = "${EXPECTED}" ]; then
+            echo "Gitee is already at ${EXPECTED}; skip triggering pull"
+            exit 0
+          fi
+
+          BODY_FILE=$(mktemp)
+          HTTP_CODE=$(curl -sS -o "${BODY_FILE}" -w "%{http_code}" -X POST \
+            "https://gitee.com/api/v5/repos/${GITEE_REPO}/remote_mirror/pull?access_token=${GITEE_TOKEN}") || HTTP_CODE="000"
+          echo "Gitee mirror pull: HTTP ${HTTP_CODE}"
+          cat "${BODY_FILE}"; echo
+          if [ "${HTTP_CODE}" -lt 200 ] || [ "${HTTP_CODE}" -ge 300 ]; then
+            echo "::error::Gitee mirror pull request failed (HTTP ${HTTP_CODE})"
+            exit 1
+          fi
+
+          DEADLINE=$((SECONDS + POLL_TIMEOUT))
+          CURRENT=""
+          LATEST="${EXPECTED}"
+          while [ "${SECONDS}" -lt "${DEADLINE}" ]; do
+            sleep "${POLL_INTERVAL}"
+            CURRENT=$(gitee_main_sha) || CURRENT=""
+            LATEST=$(github_main_sha) || LATEST="${EXPECTED}"
+            echo "[${SECONDS}s] Gitee main: ${CURRENT:-<unknown>} | expected: ${EXPECTED} | GitHub main now: ${LATEST}"
+            if [ -n "${CURRENT}" ] && { [ "${CURRENT}" = "${EXPECTED}" ] || [ "${CURRENT}" = "${LATEST}" ]; }; then
+              echo "Gitee mirror synced to ${CURRENT}"
+              exit 0
+            fi
+          done
+
+          echo "::error::Gitee mirror not synced after ${POLL_TIMEOUT}s. Gitee main=${CURRENT:-<unknown>}, expected=${EXPECTED} (GitHub main now=${LATEST}). Gitee 仓库镜像管理里的 GitHub 私人令牌可能失效，去 Gitee 仓库 → 管理 → 仓库镜像管理 更换令牌 / The GitHub token stored in Gitee mirror settings may be invalid: Gitee repo → Settings → Repository Mirror Management → update token."
+          exit 1

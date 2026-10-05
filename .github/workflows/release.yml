@@ -194,17 +194,4 @@ jobs:
             git push origin HEAD:main
           fi
 
-      - name: Trigger Gitee mirror pull
-        env:
-          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
-        run: |
-          RESP=$(curl -s -w "\n%{http_code}" -X POST \
-            "https://gitee.com/api/v5/repos/acebullet/BsKeyTools/remote_mirror/pull?access_token=${GITEE_TOKEN}")
-          HTTP_CODE=$(echo "$RESP" | tail -1)
-          BODY=$(echo "$RESP" | head -n -1)
-          echo "Gitee mirror pull: HTTP $HTTP_CODE"
-          echo "$BODY"
-          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
-            echo "::error::Gitee mirror pull failed (HTTP $HTTP_CODE)"
-            exit 1
-          fi
+      # Gitee 镜像同步由 sync-gitee.yml 在本工作流结束后统一触发并校验（含上面的 [skip ci] 提交）
