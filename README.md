@@ -212,12 +212,12 @@ Crazyone · 包包 · 东见云 · 祥子 · SiChun Yuan · 动画大白 · 哈�
 
 <div align="center">
 
-<a href="https://star-history.com/#AniBullet/BsKeyTools&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AniBullet/BsKeyTools&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AniBullet/BsKeyTools&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=AniBullet/BsKeyTools&type=Date" width="520" />
-  </picture>
+<a href="https://www.star-history.com/?repos=AniBullet%2FBsKeyTools&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=AniBullet/BsKeyTools&type=date&theme=dark&legend=top-left&sealed_token=HzRaUrVdn0YfV0zbeaUmdb9pHZKRyg3RTlw7-lDYxHDA_UD37r-ZGegaiNPpASioI_Tsxx6OSi5_NBO8kcfxbRMhbuWSNjWKUF3RuhG06B7yduPuQ8jCh2UuE4ftvWz4In-SDDluYIJZWvF2bReHDCWaRnFvYC4-xT-EswU69jkw8eMTNtxiAFVNRA3Q" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=AniBullet/BsKeyTools&type=date&legend=top-left&sealed_token=HzRaUrVdn0YfV0zbeaUmdb9pHZKRyg3RTlw7-lDYxHDA_UD37r-ZGegaiNPpASioI_Tsxx6OSi5_NBO8kcfxbRMhbuWSNjWKUF3RuhG06B7yduPuQ8jCh2UuE4ftvWz4In-SDDluYIJZWvF2bReHDCWaRnFvYC4-xT-EswU69jkw8eMTNtxiAFVNRA3Q" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=AniBullet/BsKeyTools&type=date&legend=top-left&sealed_token=HzRaUrVdn0YfV0zbeaUmdb9pHZKRyg3RTlw7-lDYxHDA_UD37r-ZGegaiNPpASioI_Tsxx6OSi5_NBO8kcfxbRMhbuWSNjWKUF3RuhG06B7yduPuQ8jCh2UuE4ftvWz4In-SDDluYIJZWvF2bReHDCWaRnFvYC4-xT-EswU69jkw8eMTNtxiAFVNRA3Q" />
+ </picture>
 </a>
 
 <br>
