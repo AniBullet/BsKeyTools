@@ -175,15 +175,23 @@ jobs:
                   --slurpfile gh gh-release.json \
               '{access_token: $token, tag_name: $tag, name: $name, body: $gh[0].body, target_commitish: "main"}' \
               > payload.json
-            RELEASE=$(curl -sS --connect-timeout 30 --max-time 120 -X POST "${API}/releases" \
-              -H "Content-Type: application/json" --data-binary @payload.json) || {
-              echo "::error::创建 Gitee Release 请求失败（网络），重跑前先确认 Gitee 上没有半成品 Release"
-              exit 1
-            }
-            echo "${RELEASE}" | jq -e '.id' > /dev/null || {
-              echo "::error::Gitee Release 创建失败: ${RELEASE}"
-              exit 1
-            }
+            # 写请求失败后先回读：请求可能已在 Gitee 生效，只是响应丢了，避免重复创建
+            CREATED=""
+            for attempt in 1 2 3 4 5; do
+              if RESP=$(curl -sS --connect-timeout 30 --max-time 120 -X POST "${API}/releases" \
+                   -H "Content-Type: application/json" --data-binary @payload.json); then
+                if echo "${RESP}" | jq -e '.id' > /dev/null 2>&1; then
+                  RELEASE="${RESP}"; CREATED=1; break
+                fi
+                echo "::error::Gitee Release 创建失败: ${RESP}"
+                exit 1
+              fi
+              echo "Create attempt ${attempt} failed (network), re-checking Gitee..."
+              sleep 10
+              RELEASE=$(gitee_get "${API}/releases/tags/${TAG}?access_token=${GITEE_TOKEN}") || RELEASE="null"
+              if [ "${RELEASE}" != "null" ] && [ -n "${RELEASE}" ]; then CREATED=1; break; fi
+            done
+            [ -n "${CREATED}" ] || { echo "::error::创建 Gitee Release ${TAG} 连续 5 次网络失败"; exit 1; }
             echo "Created Gitee Release ${TAG}"
           else
             echo "Gitee Release ${TAG} already exists"
@@ -196,18 +204,28 @@ jobs:
               echo "$n already attached, skip"
               continue
             fi
-            echo "Uploading $n ($(du -h "$f" | cut -f1))..."
-            RESP=$(curl -sS --connect-timeout 60 --max-time 3000 -w "\n%{http_code}" -X POST \
-              "${API}/releases/${RELEASE_ID}/attach_files" \
-              -F "access_token=${GITEE_TOKEN}" -F "file=@$f") || {
-              echo "::error::$n 上传中断（超时或网络错误）；重跑 Sync to Gitee（-f tag=${TAG}）会只补缺的附件"
+            DONE=""
+            for attempt in 1 2 3; do
+              echo "Uploading $n ($(du -h "$f" | cut -f1)), attempt ${attempt}..."
+              if RESP=$(curl -sS --connect-timeout 30 --max-time 3000 -w "\n%{http_code}" -X POST \
+                   "${API}/releases/${RELEASE_ID}/attach_files" \
+                   -F "access_token=${GITEE_TOKEN}" -F "file=@$f"); then
+                CODE=$(echo "${RESP}" | tail -n 1)
+                if [ "${CODE}" = "201" ]; then DONE=1; break; fi
+                echo "::error::$n 上传失败 (HTTP ${CODE}): $(echo "${RESP}" | head -n -1)"
+                exit 1
+              fi
+              echo "Upload attempt ${attempt} failed (network), re-checking Gitee..."
+              sleep 10
+              CUR=$(gitee_get "${API}/releases/tags/${TAG}?access_token=${GITEE_TOKEN}") || CUR="null"
+              if echo "${CUR}" | jq -e --arg n "$n" 'any(.assets[]?; .name == $n)' > /dev/null 2>&1; then
+                DONE=1; break
+              fi
+            done
+            [ -n "${DONE}" ] || {
+              echo "::error::$n 上传连续 3 次网络失败；重跑 Sync to Gitee（-f tag=${TAG}）会只补缺的附件"
               exit 1
             }
-            CODE=$(echo "${RESP}" | tail -n 1)
-            if [ "${CODE}" != "201" ]; then
-              echo "::error::$n 上传失败 (HTTP ${CODE}): $(echo "${RESP}" | head -n -1)"
-              exit 1
-            fi
             echo "$n uploaded"
           done
           echo "Gitee Release ${TAG}: https://gitee.com/${GITEE_REPO}/releases/tag/${TAG}"
