@@ -26,7 +26,7 @@ try (callbacks.removeScripts #filePostSave id:#BsRefreshRecentFilesSave) catch (
 try (callbacks.removeScripts #systemPostNew id:#BsRefreshRecentFilesNew) catch ()
 try (callbacks.removeScripts #systemPostReset id:#BsRefreshRecentFilesReset) catch ()
 
-global curVerBsKeyTools      = "1.4.0"
+global curVerBsKeyTools      = "1.4.1"
 global verUrlBsKeyTools      = "https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat"
 
 Global BulletConfig       = execute ("@\"" + (getDir #maxData) + "\\BulletConfig.ini\"")  --配置文件路径
