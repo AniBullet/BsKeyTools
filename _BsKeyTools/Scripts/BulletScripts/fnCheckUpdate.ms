@@ -132,9 +132,20 @@ fn fnSetSkipVersion key ver =
     SetINISetting BulletConfig "BulletKeyToolsSet" key ver
 )
 
+-- ── 安装包下载源 ──────────────────────────────────────────────────────
+-- 按顺序尝试：Gitee Release（国内快，需手动上传附件）→ GitHub Release（CI 自动发布）
+fn fnBsktInstallerSources ver =
+(
+    local exeName = "BsKeyTools_v" + ver + ".exe"
+    #(
+        #("Gitee",  "https://gitee.com/acebullet/BsKeyTools/releases/download/v" + ver + "/" + exeName),
+        #("GitHub", "https://github.com/AniBullet/BsKeyTools/releases/download/v" + ver + "/" + exeName)
+    )
+)
+
 -- ── 单工具更新弹窗 ────────────────────────────────────────────────────
 -- 弹出"发现新版本"对话框，Yes=下载安装包，No=稍后提醒，Cancel=跳过此版本
-fn fnPromptUpdate toolName localVer onlineVer installerUrl fallbackUrl skipKey =
+fn fnPromptUpdate toolName localVer onlineVer installerSources fallbackUrl skipKey =
 (
     local bodyText = "发现新版本 " + onlineVer + \
         "\r\n当前版本：" + localVer + \
@@ -151,7 +162,7 @@ fn fnPromptUpdate toolName localVer onlineVer installerUrl fallbackUrl skipKey =
         MsgIcon.Information
 
     if dr == DlgRes.Yes then
-        fnUpdaterDownloadInstaller installerUrl fallbackUrl
+        fnUpdaterDownloadInstaller installerSources fallbackUrl
     else if dr == DlgRes.Cancel do
     (
         fnSetSkipVersion skipKey onlineVer
@@ -196,9 +207,8 @@ fn fnCheckUpdate versionDatUrl force:false =
 
     if force or cmp > 0 then
     (
-        local url  = "https://gitee.com/acebullet/BsKeyTools/releases/download/v" + onlineBskt + "/BsKeyTools_v" + onlineBskt + ".exe"
         local back = "https://anibullet.github.io/"
-        fnPromptUpdate "BsKeyTools" curVerBsKeyTools onlineBskt url back "SkipVersionBskt"
+        fnPromptUpdate "BsKeyTools" curVerBsKeyTools onlineBskt (fnBsktInstallerSources onlineBskt) back "SkipVersionBskt"
     )
     else if cmp == 0 then
         messageBox ("当前已是最新版本：BsKeyTools " + curVerBsKeyTools + "                    ") \
@@ -226,9 +236,8 @@ fn fnAutoCheckVersion versionDatUrl =
     (
         if (fnGetSkipVersion "SkipVersionBskt") != onlineBskt then
         (
-            local url  = "https://gitee.com/acebullet/BsKeyTools/releases/download/v" + onlineBskt + "/BsKeyTools_v" + onlineBskt + ".exe"
             local back = "https://anibullet.github.io/"
-            fnPromptUpdate "BsKeyTools" curVerBsKeyTools onlineBskt url back "SkipVersionBskt"
+            fnPromptUpdate "BsKeyTools" curVerBsKeyTools onlineBskt (fnBsktInstallerSources onlineBskt) back "SkipVersionBskt"
         )
         else
             format "[BsKeyTools] 跳过 BsKeyTools 版本 %\n" onlineBskt
