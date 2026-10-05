@@ -3771,7 +3771,7 @@ rollout rolBsKeyTools "" width:355 height:250
 		if iniCollopseType == 1 or iniCollopseType == 2 then
 		(
 			tempTogglePanelPos = (getDialogPos rolBsKeyTools)
-			SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" (tempTogglePanelPos as string)
+			fnBsSetIniPos BulletConfig "BsTogglePanelSet" "TogglePanelPos" tempTogglePanelPos
 			try(rolBsKeyTools.height = 0)catch()
 			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
 			catch(try(massagebox (getCurrentException()));catch();messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
@@ -3882,7 +3882,7 @@ rollout rolBsKeyTools "" width:355 height:250
 			(
 				if rolTogglePanel == undefined or rolTogglePanel.open == false then 
 				(
-					SetINISetting BulletConfig "BsTogglePanelSet"  "TogglePanelPos" ((getDialogPos rolBsKeyTools) as string)
+					fnBsSetIniPos BulletConfig "BsTogglePanelSet" "TogglePanelPos" (getDialogPos rolBsKeyTools)
 					try(rolBsKeyTools.height = 0)catch()
 					try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsTogglePanel.ms"))
 					catch(try(massagebox (getCurrentException()));catch();messagebox "打开BsKeyTools失败,\r\n建议重启Max或重新安装...          ")
@@ -5062,3 +5062,4 @@ callbacks.addScript #systemPostNew "rolBsKeyTools.fnRefreshRecentFileList()" id:
 callbacks.addScript #systemPostReset "rolBsKeyTools.fnRefreshRecentFileList()" id:#BsRefreshRecentFilesReset
 -- gc()
 clearListener()  ---------清除侦听器
+fnBsEnsureDialogVisible rolBsKeyTools

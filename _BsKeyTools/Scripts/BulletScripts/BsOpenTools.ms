@@ -1275,6 +1275,7 @@ rollout rolBsOpenTools "" width:580 height:400
 )
 if (iniPosOpenTools != 0) then (Createdialog rolBsOpenTools fgcolor:myFgColor pos:iniPosOpenTools style:#() lockHeight:true)
 else (Createdialog rolBsOpenTools fgcolor:myFgColor style:#() lockHeight:true)
+fnBsEnsureDialogVisible rolBsOpenTools
 ------------------------toolbar----------------------------------------------------
 macroScript BsOpenTools
 category:"_[BulletTools]"

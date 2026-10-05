@@ -569,5 +569,6 @@ else
 		
 	Createdialog rolSelSetTools initWidth initHeight fgcolor:myFgColor style:#()
 )
+fnBsEnsureDialogVisible rolSelSetTools
 
 callbacks.addScript #filePostOpen "fnUpdateSelSetList()" id:#UpdateSelSetList

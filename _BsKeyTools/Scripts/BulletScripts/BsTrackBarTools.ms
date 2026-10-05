@@ -247,7 +247,9 @@ fn fnLoadDockPos rolTarget wSize hSize =
 					rolTarget.height = hSize
 					rolTarget.width = wSize
 					-- cui.RegisterDialogBar rolTarget style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[190,30]
-					setDialogPos rolTarget (readvalue ((getINISetting BulletConfig nameAttrClass "PosTrackBarTools") as stringStream))
+					local floatPos = fnBsGetIniPos BulletConfig nameAttrClass "PosTrackBarTools"
+					if floatPos != 0 do setDialogPos rolTarget floatPos
+					fnBsEnsureDialogVisible rolTarget
 				)
 			)
 		)
@@ -372,6 +374,7 @@ rcmenu menuBsTrackBarTools
 		if (iniPosBackupManager != 0) then 
 		(Createdialog rolBsStopTime fgcolor:myFgColor pos:iniPosBackupManager style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
 		else (Createdialog rolBsStopTime fgcolor:myFgColor style:#(#style_titlebar, #style_sysmenu, #style_toolwindow))
+		fnBsEnsureDialogVisible rolBsStopTime
 	)
 
 	on mItemBackupPath picked do 
@@ -970,6 +973,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.1"
 			try (destroydialog rolBsBackupManager) catch ()
 			if (iniPosBackupManager != 0) then (Createdialog rolBsBackupManager fgcolor:myFgColor pos:iniPosBackupManager style:#())
 			else (Createdialog rolBsBackupManager fgcolor:myFgColor style:#())
+			fnBsEnsureDialogVisible rolBsBackupManager
 		)
 	)
 
@@ -1054,6 +1058,7 @@ rollout rolBsTrackBarTools "BsTrackBarTools_v1.1"
 
 if (iniPosAutoBackup != 0) then (createDialog rolBsTrackBarTools widthBsSize heightBsSize pos:iniPosAutoBackup style:#(#style_sysmenu,#style_toolwindow))
 else (createDialog rolBsTrackBarTools widthBsSize heightBsSize style:#(#style_sysmenu,#style_toolwindow))
+fnBsEnsureDialogVisible rolBsTrackBarTools
 
 -- cui.RegisterDialogBar rolBsTrackBarTools style:#(#cui_dock_bottom,#cui_dock_top,#cui_floatable, #style_toolwindow) maxSize:[190,30]
 -- cui.DockDialogBar rolBsTrackBarTools  #cui_dock_top

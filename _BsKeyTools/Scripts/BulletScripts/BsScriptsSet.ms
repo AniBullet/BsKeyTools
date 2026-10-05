@@ -608,4 +608,5 @@ rollout rolBsScriptsSet "" width:170 height:265
 )
 if (iniBsScriptsSetPos != 0) then (Createdialog rolBsScriptsSet fgcolor:myFgColor pos:iniBsScriptsSetPos style:#())
 else (Createdialog rolBsScriptsSet pos:(iniPos - [rolBsScriptsSet.width,0]) fgcolor:myFgColor style:#())
+fnBsEnsureDialogVisible rolBsScriptsSet
 clearListener()  ---------清除侦听器

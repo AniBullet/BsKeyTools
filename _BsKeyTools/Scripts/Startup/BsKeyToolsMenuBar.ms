@@ -3,49 +3,15 @@ Global SIODir = dotNetClass "System.IO.Directory"
 --杀毒需要获取加载自启脚本设置状态
 global stateLoadStartupScripts = (getinisetting (getMAXIniFile()) "MAXScript" "LoadStartupScripts")
 
+try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
+
 fn isRolloutOffScreen tarRol = (
-    if not iskindof tarRol RolloutClass do return false
-    
-    local allScreens = (dotNetClass "System.Windows.Forms.Screen").AllScreens
-    
-    -- 获取窗口位置和尺寸（包含多显示器虚拟坐标）
-    local dialogPos = getDialogPos tarRol
-    local dialogSize = getDialogSize tarRol
-    local winBounds = #(
-        dialogPos.x, 
-        dialogPos.y, 
-        dialogPos.x + dialogSize.x, 
-        dialogPos.y + dialogSize.y
-    )
-    
-    -- 遍历所有显示器边界
-    for screen in allScreens do 
+    if fnBsEnsureDialogVisible == undefined do
     (
-        local screenBounds = screen.Bounds
-        local monitorRect = #(
-            screenBounds.X,
-            screenBounds.Y,
-            screenBounds.X + screenBounds.Width,
-            screenBounds.Y + screenBounds.Height
-        )
-        
-        -- 检查窗口与显示器是否有交集
-        if (winBounds[3] > monitorRect[1] and 
-            winBounds[1] < monitorRect[3] and 
-            winBounds[4] > monitorRect[2] and 
-            winBounds[2] < monitorRect[4]) do return false
+        format "[BsKeyTools] fnSaveLoadConfig.ms 未加载，无法校验窗口位置\n"
+        return false
     )
-    
-    if (queryBox ("疑似脚本界面不在显示器可见区域内 ( " + tarRol.name + " )                                 \r\n\r\n是否重置脚本窗口位置？                                                     ") \
-    title:"BsKeyRools - 疑似窗口位置错误") then
-    (
-        if not tarRol.dialogBar then 
-        (
-            SetDialogPos tarRol (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0])
-            (messageBox "重置位置成功, 请重新打开插件!                                                 \r\n" title: "BsKeyTools")
-        )
-        else (messageBox "可能是嵌入模式被移到了屏幕外，请检查一下!                                                          \r\n" title: "BsKeyTools")
-    )
+    fnBsEnsureDialogVisible tarRol
 )
 
 fn fnDelFileDir targetDel =  --删除文件
@@ -104,7 +70,6 @@ fn fnDelDir dirDel =
 		)
 	)
 )
-try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))catch()
 
 -- 创建菜单的函数（延迟执行，避免在UI重载期间崩溃）
 fn fnCreateBsKeyToolsMenu =

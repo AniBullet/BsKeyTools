@@ -881,6 +881,7 @@ rollout rolRefTools ("[参考工具]-BsRefTools_v" + currentVersion)  width:340 
 if (iniPosRefTools != 0) then 
 (Createdialog rolRefTools menu:RCmenuRefConfig fgcolor:myFgColor pos:iniPosRefTools)
 else (Createdialog rolRefTools menu:RCmenuRefConfig fgcolor:myFgColor)
+fnBsEnsureDialogVisible rolRefTools
 
 ------------------------toolbar----------------------------------------------------
 macroScript BsRefTools

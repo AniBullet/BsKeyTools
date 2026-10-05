@@ -45,6 +45,7 @@ global dragBsBipedTools = false
 global arrAllBipedCom
 global iniBsBipedTools = execute ("@\"" + (getDir #maxData) + "\\BsBipedToolsConfig.ini\"")  --配置文件路径
 global iniBsBTPos
+FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms")
 global rolBsAboutPanel
 global offsetBsAboutPanel = [0,0]
 global stateBsAboutPanel = 0
@@ -1890,25 +1891,13 @@ rollout rolBSFingers "BsBipedTools_Fingers" width:300 height:230
 
 fn fnLoadBsBTConfig =
 (
-	local oldPrintAllElements  = options.printAllelements
-	options.printAllelements = true
-	attr = (GetINISetting iniBsBipedTools "BsBipedTools" "BsBTPos") as string  --先提取文件中的记录
-	if (attr == "") or (attr == "undefined") then 
-	(
-		attr = execute "0"
-	)
-	else 
-	(
-		attr = execute attr
-	)
-	options.printAllelements = oldPrintAllElements
-	iniBsBTPos = attr
+	iniBsBTPos = fnBsGetIniPos iniBsBipedTools "BsBipedTools" "BsBTPos"
 )
 fnLoadBsBTConfig()
 
 fn fnSetBsBTConfig =
 (
-	SetINISetting iniBsBipedTools "BsBipedTools" "BsBTPos" (iniBsBTPos as string)
+	fnBsSetIniPos iniBsBipedTools "BsBipedTools" "BsBTPos" iniBsBTPos
 )
 
 fn fnGetThemeColor =
@@ -3743,6 +3732,7 @@ rollout rolBsBipedTools "BsBipedTools" width:180 height:585
 		if (iniBsBTPos != 0) then 
 		(Createdialog rolBsBipedTools pos:iniBsBTPos style:#() fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
 		else (Createdialog rolBsBipedTools style:#() fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
+		fnBsEnsureDialogVisible rolBsBipedTools
 	)
 
 	fn fnMirrorPosture a_bipObjs =
@@ -6041,3 +6031,4 @@ if (iniBsBTPos != 0) then
 (Createdialog rolBsBipedTools pos:iniBsBTPos style:#() fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
 else (Createdialog rolBsBipedTools style:#() fgcolor:(if fnGetThemeColor() == "Light" then (color 28 89 177) else (color 165 222 228)))
 clearListener()
+fnBsEnsureDialogVisible rolBsBipedTools
