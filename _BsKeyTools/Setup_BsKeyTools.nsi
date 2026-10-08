@@ -6,7 +6,7 @@ Unicode true
 
 ; 安装程序初始定义常量
 !define PRODUCT_NAME "BsKeyTools"
-!define PRODUCT_VERSION_NUM "1.4.1"
+!define PRODUCT_VERSION_NUM "1.4.2"
 !define PRODUCT_VERSION "_v${PRODUCT_VERSION_NUM}"
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
