@@ -129,13 +129,16 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 - 弹窗用 Max 的 `yesNoCancelBox`（以 Max 主窗口为父窗口）：是=下载安装包，否=稍后，取消=写入跳过版本。不要换回无主的 .NET `MessageBox`：异步检查结果可能在用户操作时弹出，被压在 Max 后面会模态卡住界面。
 - 下载源（`fnBsktInstallerSources`）按顺序尝试：
   1. Gitee Release：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`（国内快，`Sync to Gitee` 的 `gitee-release` 自动上传，见第 5、6 节）。
-  2. GitHub Release：`https://github.com/AniBullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`（`release.yml` 自动发布；会重定向到 `release-assets.githubusercontent.com`，`WebClient` 自动跟随）。
+  2. GitHub Release：`https://github.com/AniBullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`（`release.yml` 自动发布；会重定向到 `release-assets.githubusercontent.com`，`HttpWebRequest` 默认自动跟随）。
 - `fnUpdaterDownloadInstaller`：
   - 下载前在现有 `ServicePointManager.SecurityProtocol` 上追加 TLS 1.2（失败写 Listener）。`fnCheckUpdate.ms` 加载时也会把协议设为 TLS 1.2。
-  - 每个源下载到 `#temp\BsKeyTools_v<ver>.exe`，尝试前删除旧文件；Listener 打印源名称和 URL。
-  - 失败原因写 Listener：`WebClient` 异常（如 `(404) Not Found`）或文件 ≤ 512000 字节（疑为错误页）；失败后删除残留文件再试下一个源。
-  - 任一源成功即 `ShellLaunch` 安装包；全部失败弹"安装包下载失败（已尝试 Gitee、GitHub，均失败）"并打开 `https://anibullet.github.io/`。
-  - 同步下载，期间 Max 界面无响应；Gitee 404 通常很快返回，主要耗时在 GitHub 下载。
+  - 异步下载：立即返回并弹出"BsKeyTools 下载更新"进度窗口（来源、进度条、已下载/总大小、速度、剩余秒数、"取消下载"按钮；关窗口等同取消），Max 不卡。
+  - 实现：`WebRequest.GetResponseAsync()` 取响应，再 `Stream.CopyToAsync` 写入自己打开的 `FileStream`；主线程 `System.Windows.Forms.Timer` 每 250 ms 轮询 Task 状态和 `FileStream.Position`。取消 = `req.Abort()` + 关闭流。
+  - 不要换回 `WebClient.DownloadFileAsync`：在 Max 里 `CancelAsync` 不生效，取消后文件仍在后台下完（实测）。也不能用 `BeginGetResponse`：MaxScript 传 `undefined` 回调匹配不到重载，传真回调又会在后台线程执行 MaxScript。
+  - 每个源下载到 `#temp\BsKeyTools_v<ver>_<源名>.exe`，尝试前删除旧文件；删不掉（仍被占用）时交给清理定时器每秒重试，30 秒后仍失败写 Listener。Listener 打印源名称和 URL。
+  - 当前源失败即切下一个源，原因写 Listener 并汇总到最终失败弹窗：HTTP 错误（如 `(404) Not Found`）、30 秒连不上、30 秒无新数据、文件 ≤ 512000 字节（疑为错误页）、大小与 `Content-Length` 不一致。
+  - 任一源成功即 `ShellLaunch` 安装包；全部失败弹"安装包下载失败"（附各源失败原因）并打开 `https://anibullet.github.io/`。下载进行中再次点更新只会聚焦已有进度窗口。
+  - 1.4.1 及以前是同步下载：期间 Max 完全无响应、无进度、不能取消。
 - 菜单"更新记录"打开 `https://github.com/AniBullet/BsKeyTools/releases`（v1.4.1 之后的版本；v1.4.1 及以前打开手工维护的 Notion 页）。更新说明只维护 `docs/release-notes/` 一处。
 - 安装包自身 `.onInit` 也会检查 `version.dat`，`VersionCompare` 远端更新时提示并打开 `https://github.com/AniBullet/BsKeyTools/releases/latest`。
 
