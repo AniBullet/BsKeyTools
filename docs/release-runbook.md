@@ -172,6 +172,7 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 - `RELEASE_VERSION` 与 `curVerBsKeyTools` 不一致 → `update_manifest.py` 报错，构建失败。
 - Gitee Release 没建成或缺附件（`gitee-release` 失败）→ 插件自动改从 GitHub Release 下载；GitHub 也不通的用户才落到备用页。修好后 `gh workflow run sync-gitee.yml --ref main -f tag=v<ver>` 补发，已有的附件不会重复上传。
 - GitHub runner 访问 Gitee API 偶发 TLS 握手超时（`curl: (28) SSL connection timeout`，v1.4.1 首次补发时卡 5 分钟后失败）。第二次补发时读请求连续 4 次超时、第 5 次才成功，创建 Release 的 POST 也超时。现在读请求 `curl --retry`；创建（5 次）和上传（3 次）失败后先回读 Gitee，确认没生效再重试，避免重复；网络失败与"tag 不存在"分开报错。仍失败就重跑，只补缺的部分。
+- v1.4.2 首次 `gitee-release` 报"Gitee 上没有 tag"：Gitee 在 push `main` 后自己拉到了新提交，`mirror` 只比 `main` 就跳过了拉取，而 tag 是 Release 之后才建的。现在 `mirror` 要求 `main` 一致**且** Gitee 已有目标 tag（输入的 tag 或 GitHub 最新 Release）才跳过/算同步完成。
 - v1.4.1 曾漏发 Gitee Release：以为 CI 一直会发，实际 `7994363` 删了那一步；仓库镜像不同步 Release。发版后务必按第 4 节第 8 步核对 Gitee。
 - `version.dat` 早于安装包进入 `main` → 用户提前收到更新提示（Gitee、GitHub 都没有安装包时直接落到备用页）。现行流程下这是发版时约 5–10 分钟的固有窗口，见第 4 节第 2 步。
 - `version.dat` 内容不是合法版本号（如 Gitee 返回 HTML 页、写错格式）→ 插件报"无法解析版本号"，不会提示更新。首尾空白/换行/BOM 会被去掉，不影响比较；`update_manifest.py` 写的是无 BOM UTF-8 + LF。

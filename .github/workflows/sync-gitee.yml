@@ -38,6 +38,7 @@ jobs:
       EVENT_NAME: ${{ github.event_name }}
       EVENT_REF: ${{ github.ref }}
       UPSTREAM_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+      INPUT_TAG: ${{ github.event.inputs.tag }}
       POLL_INTERVAL: 30
       POLL_TIMEOUT: 600
 
@@ -72,16 +73,32 @@ jobs:
               | jq -er '.commit.sha'
           }
 
+          # Gitee 可能在 push main 时已自行拉到新提交，但 Release 的 tag 是之后才建的；
+          # 只比 main 会跳过拉取，导致 gitee-release 找不到 tag
+          gitee_has_tag() {
+            curl -fsS --retry 3 --retry-all-errors \
+              "https://gitee.com/api/v5/repos/${GITEE_REPO}/tags?per_page=100&access_token=${GITEE_TOKEN}" \
+              | jq -e --arg t "$1" 'any(.[]; .name == $t)' > /dev/null
+          }
+
           EXPECTED=$(github_main_sha) || {
             echo "::error::Failed to read GitHub main HEAD"
             exit 1
           }
+          WANT_TAG="${INPUT_TAG:-}"
+          if [ -z "${WANT_TAG}" ]; then
+            WANT_TAG=$(gh release view --json tagName -q .tagName) || {
+              echo "::error::Failed to read latest GitHub Release tag"
+              exit 1
+            }
+          fi
           BEFORE=$(gitee_main_sha) || BEFORE=""
           echo "GitHub main: ${EXPECTED}"
           echo "Gitee  main: ${BEFORE:-<unknown>}"
+          echo "Release tag: ${WANT_TAG}"
 
-          if [ "${BEFORE}" = "${EXPECTED}" ]; then
-            echo "Gitee is already at ${EXPECTED}; skip triggering pull"
+          if [ "${BEFORE}" = "${EXPECTED}" ] && gitee_has_tag "${WANT_TAG}"; then
+            echo "Gitee is already at ${EXPECTED} and has tag ${WANT_TAG}; skip triggering pull"
             exit 0
           fi
 
@@ -104,12 +121,15 @@ jobs:
             LATEST=$(github_main_sha) || LATEST="${EXPECTED}"
             echo "[${SECONDS}s] Gitee main: ${CURRENT:-<unknown>} | expected: ${EXPECTED} | GitHub main now: ${LATEST}"
             if [ -n "${CURRENT}" ] && { [ "${CURRENT}" = "${EXPECTED}" ] || [ "${CURRENT}" = "${LATEST}" ]; }; then
-              echo "Gitee mirror synced to ${CURRENT}"
-              exit 0
+              if gitee_has_tag "${WANT_TAG}"; then
+                echo "Gitee mirror synced to ${CURRENT} with tag ${WANT_TAG}"
+                exit 0
+              fi
+              echo "Gitee main synced but tag ${WANT_TAG} not there yet"
             fi
           done
 
-          echo "::error::Gitee mirror not synced after ${POLL_TIMEOUT}s. Gitee main=${CURRENT:-<unknown>}, expected=${EXPECTED} (GitHub main now=${LATEST}). Gitee 仓库镜像管理里的 GitHub 私人令牌可能失效，去 Gitee 仓库 → 管理 → 仓库镜像管理 更换令牌 / The GitHub token stored in Gitee mirror settings may be invalid: Gitee repo → Settings → Repository Mirror Management → update token."
+          echo "::error::Gitee mirror not synced after ${POLL_TIMEOUT}s. Gitee main=${CURRENT:-<unknown>}, expected=${EXPECTED} (GitHub main now=${LATEST}), tag ${WANT_TAG} on Gitee: $(gitee_has_tag "${WANT_TAG}" && echo yes || echo no). Gitee 仓库镜像管理里的 GitHub 私人令牌可能失效，去 Gitee 仓库 → 管理 → 仓库镜像管理 更换令牌 / The GitHub token stored in Gitee mirror settings may be invalid: Gitee repo → Settings → Repository Mirror Management → update token."
           exit 1
 
   gitee-release:
