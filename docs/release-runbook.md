@@ -1,6 +1,6 @@
 # BsKeyTools 发版 Runbook
 
-> 现行流程（2026-10 核对）。旧的 manifest.json 增量更新方案已撤销，`docs/superpowers/` 下 2026-05-13 的 spec/plan 仅作历史参考。
+> 现行流程（2026-10 核对）。旧的 manifest.json 增量更新方案已撤销，`docs/archive/superpowers/` 下 2026-05-13 的 spec/plan 仅作历史参考。
 
 ## 1. 概述与分支策略
 

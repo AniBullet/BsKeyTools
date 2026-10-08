@@ -109,3 +109,17 @@ CI/Release 相关文件（与 BsRetarget 任务无关，勿混淆；发版流程
 - 不能用静态检查冒充 3ds Max 验收。
 - 能本地验证的就跑命令并读结果。
 - MaxScript 语法和真实插件流程最终必须按 `docs/BsRetargetTools-validation-checklist.md` 在 3ds Max 内手验。
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs live in GitHub Issues (`AniBullet/BsKeyTools`, via `gh`). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five triage roles, label string equal to role name. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `GLOSSARY.md` + `docs/adr/`, created lazily. See `docs/agents/domain.md`.
