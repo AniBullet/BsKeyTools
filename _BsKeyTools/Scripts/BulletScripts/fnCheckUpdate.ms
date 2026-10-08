@@ -6,7 +6,7 @@
 *
 * 对外接口:
 *   fnCheckUpdate versionDatUrl [force:false] -- 手动触发检查（始终显示结果）
-*   fnAutoCheckVersion versionDatUrl          -- 启动时自动检查（仅发现新版本时弹窗）
+*   fnAutoCheckVersion versionDatUrl          -- 启动时自动检查（异步不阻塞，每个 Max 会话一次，仅发现新版本时弹窗）
 *
 * version.dat 格式（单行）：
 *   BsKeyTools 版本，如 "1.4.0"
@@ -100,7 +100,16 @@ fn fnBsCompareVersion a b =
 )
 
 -- ── version.dat 拉取 ──────────────────────────────────────────────────
--- 返回 BsKeyTools 版本字符串，网络失败或内容无效返回 undefined
+-- 取 version.dat 内容的第一行作为 BsKeyTools 版本，内容为空返回 undefined
+fn fnBsVersionFromDatContent content =
+(
+    if classOf content != String then return undefined
+    local lines   = filterString content "\r\n"
+    local bsktVer = if lines.count >= 1 then (fnBsTrimVersion lines[1]) else ""
+    if bsktVer == "" then undefined else bsktVer
+)
+
+-- 同步拉取（仅手动检查用，会阻塞 Max 直到返回）；网络失败或内容无效返回 undefined
 fn fnFetchVersionDat versionDatUrl =
 (
     local wc = dotNetObject "System.Net.WebClient"
@@ -111,14 +120,7 @@ fn fnFetchVersionDat versionDatUrl =
     catch (format "[BsKeyTools] 拉取 version.dat 失败: %\n" (getCurrentException()))
     wc.Dispose()
 
-    if content == undefined then return undefined
-
-    local lines    = filterString content "\r\n"
-    local bsktVer  = if lines.count >= 1 then (fnBsTrimVersion lines[1]) else ""
-
-    if bsktVer == "" do bsktVer = undefined
-
-    bsktVer
+    fnBsVersionFromDatContent content
 )
 
 -- ── 跳过版本辅助 ──────────────────────────────────────────────────────
@@ -151,19 +153,12 @@ fn fnPromptUpdate toolName localVer onlineVer installerSources fallbackUrl skipK
         "\r\n当前版本：" + localVer + \
         "\r\n\r\n[是] 立即下载安装包   [否] 稍后提醒   [取消] 跳过此版本"
 
-    local MsgBox  = dotNetClass "System.Windows.Forms.MessageBox"
-    local MsgBtns = dotNetClass "System.Windows.Forms.MessageBoxButtons"
-    local MsgIcon = dotNetClass "System.Windows.Forms.MessageBoxIcon"
-    local DlgRes  = dotNetClass "System.Windows.Forms.DialogResult"
+    -- 用 Max 自带对话框：以 Max 主窗口为父窗口；无主的 .NET MessageBox 可能被压在 Max 后面，模态卡住界面
+    local dr = yesNoCancelBox bodyText title:(toolName + " 发现新版本 " + onlineVer) beep:false
 
-    local dr = MsgBox.Show bodyText \
-        (toolName + " 发现新版本 " + onlineVer) \
-        MsgBtns.YesNoCancel \
-        MsgIcon.Information
-
-    if dr == DlgRes.Yes then
+    if dr == #yes then
         fnUpdaterDownloadInstaller installerSources fallbackUrl
-    else if dr == DlgRes.Cancel do
+    else if dr == #cancel do
     (
         fnSetSkipVersion skipKey onlineVer
         format "[BsKeyTools] 已跳过 % 版本 %\n" toolName onlineVer
@@ -219,12 +214,20 @@ fn fnCheckUpdate versionDatUrl force:false =
     OK
 )
 
--- 启动时自动检查：只在线上版本更高且未被跳过时弹窗，其余情况只写 Listener
-fn fnAutoCheckVersion versionDatUrl =
-(
-    local onlineBskt = fnFetchVersionDat versionDatUrl
-    if onlineBskt == undefined then return undefined
+-- ── 启动时自动检查（异步）──────────────────────────────────────────────
+-- 后台线程只做 WebClient.DownloadFileAsync；完成与否由主线程上的 WinForms Timer 轮询 IsBusy，
+-- 所有 MaxScript 都在主线程执行（在后台线程回调 MaxScript 会导致 Max 崩溃）
+global bsAutoCheckStarted          -- 本次 Max 会话已发起过自动检查（窗口重开不再检查）
+global bsAutoCheckWC
+global bsAutoCheckTimer
+global bsAutoCheckFile
+global bsAutoCheckElapsedMs
+global bsAutoCheckTickMs    = 200
+global bsAutoCheckTimeoutMs = 15000
 
+-- 只在线上版本更高且未被跳过时弹窗，其余情况只写 Listener
+fn fnBsAutoCheckHandleResult onlineBskt =
+(
     local cmp = fnBsCompareVersion onlineBskt curVerBsKeyTools
     if cmp == undefined then
     (
@@ -244,4 +247,92 @@ fn fnAutoCheckVersion versionDatUrl =
     )
     else if cmp < 0 do
         format "[BsKeyTools] 本地版本 % 高于线上版本 %，不提示更新\n" curVerBsKeyTools onlineBskt
+)
+
+fn fnBsAutoCheckCleanup =
+(
+    if bsAutoCheckTimer != undefined do
+    (
+        bsAutoCheckTimer.Stop()
+        dotNet.removeAllEventHandlers bsAutoCheckTimer
+        bsAutoCheckTimer.Dispose()
+        bsAutoCheckTimer = undefined
+    )
+    if bsAutoCheckWC != undefined do
+    (
+        if bsAutoCheckWC.IsBusy do bsAutoCheckWC.CancelAsync()
+        bsAutoCheckWC.Dispose()
+        bsAutoCheckWC = undefined
+    )
+    if bsAutoCheckFile != undefined and (doesFileExist bsAutoCheckFile) do deleteFile bsAutoCheckFile
+)
+
+fn fnBsAutoCheckOnTick sender args =
+(
+    -- 事件回调里的异常不会出现在调用栈上，记录后结束本次检查
+    try
+    (
+        if bsAutoCheckWC == undefined then fnBsAutoCheckCleanup()
+        else if bsAutoCheckWC.IsBusy then
+        (
+            bsAutoCheckElapsedMs += bsAutoCheckTickMs
+            if bsAutoCheckElapsedMs >= bsAutoCheckTimeoutMs do
+            (
+                format "[BsKeyTools] 自动检查更新超时（% 秒），已放弃；可在菜单手动检查更新\n" (bsAutoCheckTimeoutMs / 1000)
+                fnBsAutoCheckCleanup()
+            )
+        )
+        else
+        (
+            local content = undefined
+            if (doesFileExist bsAutoCheckFile) and (getFileSize bsAutoCheckFile) > 0 do
+            (
+                local sioFile = dotNetClass "System.IO.File"
+                local utf8    = (dotNetClass "System.Text.Encoding").UTF8
+                content = sioFile.ReadAllText bsAutoCheckFile utf8
+            )
+            fnBsAutoCheckCleanup()
+
+            local onlineBskt = fnBsVersionFromDatContent content
+            if onlineBskt == undefined then
+                format "[BsKeyTools] 自动检查更新失败：未取到 version.dat（网络错误或内容为空）\n"
+            else
+                fnBsAutoCheckHandleResult onlineBskt
+        )
+    )
+    catch
+    (
+        format "[BsKeyTools] 自动检查更新出错: %\n" (getCurrentException())
+        try (fnBsAutoCheckCleanup()) catch (format "[BsKeyTools] 清理自动检查失败: %\n" (getCurrentException()))
+    )
+)
+
+-- 启动时自动检查：立即返回，不阻塞 Max；结果在后台下载完成后于主线程处理
+fn fnAutoCheckVersion versionDatUrl =
+(
+    if bsAutoCheckStarted == true do return undefined
+    bsAutoCheckStarted = true
+
+    try
+    (
+        fnBsAutoCheckCleanup()
+        bsAutoCheckFile = (getDir #temp) + "\\BsKeyTools_version.dat"
+        if doesFileExist bsAutoCheckFile do deleteFile bsAutoCheckFile
+        bsAutoCheckElapsedMs = 0
+
+        bsAutoCheckWC = dotNetObject "System.Net.WebClient"
+        bsAutoCheckWC.DownloadFileAsync (dotNetObject "System.Uri" versionDatUrl) bsAutoCheckFile
+
+        bsAutoCheckTimer = dotNetObject "System.Windows.Forms.Timer"
+        bsAutoCheckTimer.Interval = bsAutoCheckTickMs
+        dotNet.addEventHandler bsAutoCheckTimer "Tick" fnBsAutoCheckOnTick
+        dotNet.setLifetimeControl bsAutoCheckTimer #dotnet
+        bsAutoCheckTimer.Start()
+    )
+    catch
+    (
+        format "[BsKeyTools] 启动自动检查更新失败: %\n" (getCurrentException())
+        try (fnBsAutoCheckCleanup()) catch (format "[BsKeyTools] 清理自动检查失败: %\n" (getCurrentException()))
+    )
+    OK
 )

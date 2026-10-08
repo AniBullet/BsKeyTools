@@ -116,14 +116,17 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 
 文件：`_BsKeyTools/Scripts/BulletScripts/fnCheckUpdate.ms`、`fnUpdater.ms`（由 `BulletKeyTools.ms` `FileIn` 加载）。
 
-- `fnFetchVersionDat`：`WebClient.DownloadString` 拉 `version.dat`，取第一行并去掉首尾空白/换行/BOM；失败返回 `undefined`（Listener 打印异常）。
+- `fnFetchVersionDat`（只给手动检查用）：同步 `WebClient.DownloadString` 拉 `version.dat`，期间 Max 无响应；`fnBsVersionFromDatContent` 取第一行并去掉首尾空白/换行/BOM；失败返回 `undefined`（Listener 打印异常）。
 - 版本比较用 `fnBsCompareVersion online local`（返回 1/0/-1，无法解析返回 `undefined`）：
   - 按 `.` 分段逐段按整数比较，缺失段按 0（`1.4` == `1.4.0`，`1.4.1` > `1.4.0`，`1.10` > `1.9`）。
   - `_` 之后视为预发布后缀（历史上用过 `1.1.0_Beta`、`0.9.9.9_Beta2`）：数字段相同时带后缀的低于正式版，都带后缀按后缀字符串不区分大小写比较。
   - 数字段含非数字字符、出现空段（如 `1..4`）或后缀为空，视为无法解析。
-- `fnAutoCheckVersion`（启动时）：线上更高且未被跳过（INI `BulletKeyToolsSet` / `SkipVersionBskt`）才弹窗；相等静默；本地更高只在 Listener 打印一行；无法解析在 Listener 打印错误；拉取失败静默返回。
+- `fnAutoCheckVersion`（`rolBsKeyTools` 的 `open` 里调用，设置里开了自动检测才会调）：**异步**，每个 Max 会话只发起一次（全局 `bsAutoCheckStarted`；插件窗口每次打开都会 `fileIn` 重跑 `open`）。
+  - `WebClient.DownloadFileAsync` 下到 `#temp\BsKeyTools_version.dat`，主线程上的 `System.Windows.Forms.Timer` 每 200 ms 查一次 `IsBusy`；MaxScript 只在主线程执行，不注册 WebClient 完成事件（在后台线程回调 MaxScript 会崩 Max）。
+  - 15 秒没完成就 `CancelAsync` 并在 Listener 打印超时；下载失败/内容为空在 Listener 打印一行；结果处理同前：线上更高且未被跳过（INI `BulletKeyToolsSet` / `SkipVersionBskt`）才弹窗，相等静默，本地更高或无法解析只写 Listener。
+  - 1.4.1 及以前是同步下载：Gitee 慢或 TLS 握手卡住时 Max 启动/打开插件会卡住，最长到 WebClient 默认 100 秒超时。
 - `fnCheckUpdate`（菜单"检查更新"）：拉取失败弹"获取版本信息失败"；线上更高弹更新提示；相等弹"当前已是最新版本"；本地更高弹"本地版本高于线上版本"；无法解析弹错误并在 Listener 记录。`force:true`（强制更新）跳过大小比较直接提示，但线上版本无法解析时同样报错不提示下载。
-- 弹窗：是=下载安装包，否=稍后，取消=写入跳过版本。
+- 弹窗用 Max 的 `yesNoCancelBox`（以 Max 主窗口为父窗口）：是=下载安装包，否=稍后，取消=写入跳过版本。不要换回无主的 .NET `MessageBox`：异步检查结果可能在用户操作时弹出，被压在 Max 后面会模态卡住界面。
 - 下载源（`fnBsktInstallerSources`）按顺序尝试：
   1. Gitee Release：`https://gitee.com/acebullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`（国内快，`Sync to Gitee` 的 `gitee-release` 自动上传，见第 5、6 节）。
   2. GitHub Release：`https://github.com/AniBullet/BsKeyTools/releases/download/v<ver>/BsKeyTools_v<ver>.exe`（`release.yml` 自动发布；会重定向到 `release-assets.githubusercontent.com`，`WebClient` 自动跟随）。
