@@ -23,6 +23,9 @@ try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnSaveLoadConfig.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
 try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnGetColorTheme.ms"))
 catch(messagebox "打开失败，工具可能安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装...                            " beep:false)
+-- 自启守护（开启时加载即生效；杀毒自启未开时，打开本工具也能补上防护）
+try(FileIn ((getDir #scripts) + "\\BulletScripts\\fnStartupGuard.ms"))
+catch(format "[BsCleanVirus] 加载自启守护失败(fnStartupGuard.ms): %\n" (getCurrentException()))
 stLoadConfigAll.fnLoadConfigBsCleanVirus ()
 
 rollout rolBsVirusScanLog "病毒扫描日志  【杀毒不会破坏源文件，请注意杀毒后保存/另存文件！】" (
@@ -883,18 +886,19 @@ rollout rolBsCleanVirus  ("BsCleanVirus_v" + curVerBsCleanVirus)
 		button btnCleanNow "立即查杀" width:70 height:30 pos:[185,20]
         button btnBatchClean "批量查杀" width:75 height:30 pos:[260,20]
         button btnCleanLog "日志" width:45 height:30 pos:[340,20]
+        checkbox chkStartupGuard "自启守护 [守护 Max“加载启动脚本”]" pos:[12,57] checked:true
     )
 
     group "杀毒特征库"
     (
-        listbox lbxVirusLib "" width:365 height:12 pos:[10,75] readonly:true
+        listbox lbxVirusLib "" width:365 height:12 pos:[10,100] readonly:true
     )
 
     HyperLink lnkPruneScene "杀毒特征来源：PruneScene" color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor 
-        pos:[15,255] width:170 address:"http://3dground.net/manual/prune-scene#virus-active-protecton"
+        pos:[15,280] width:170 address:"http://3dground.net/manual/prune-scene#virus-active-protecton"
 
     HyperLink lnkBsNotion "解析修改：Bullet.S" color:myfgColor hovercolor:myClickColor visitedcolor:myClickColor 
-        pos:[260,255] width:120 address:"https://space.bilibili.com/2031113/lists/560782"
+        pos:[260,280] width:120 address:"https://space.bilibili.com/2031113/lists/560782"
 
     fn fnRefreshVirusLib =
     (
@@ -904,6 +908,23 @@ rollout rolBsCleanVirus  ("BsCleanVirus_v" + curVerBsCleanVirus)
         lbxVirusLib.selection = 0
     )
 
+    -- 自启守护随杀毒自启脚本加载：主动防御关闭时守护不会随 Max 启动，置灰并注明
+    fn fnRefreshStartupGuardUI =
+    (
+        if fnBsStartupGuardIsEnabled == undefined then
+        (
+            chkStartupGuard.checked = false
+            chkStartupGuard.enabled = false
+            chkStartupGuard.text = "自启守护 [加载失败，请重新安装]"
+        )
+        else
+        (
+            chkStartupGuard.checked = fnBsStartupGuardIsEnabled()
+            chkStartupGuard.enabled = ckbStartup.state
+            chkStartupGuard.text = if ckbStartup.state then "自启守护 [守护 Max“加载启动脚本”]" else "自启守护 [需先开启主动防御]"
+        )
+    )
+
     on rolBsCleanVirus open do
     (
         stLoadConfigAll.fnLoadConfigBsCleanVirus()  ---------------脚本配置等赋值
@@ -911,6 +932,7 @@ rollout rolBsCleanVirus  ("BsCleanVirus_v" + curVerBsCleanVirus)
 		iniVerboseLevel = stLoadConfigAll.fnGetVerboseLevel()
         ckbStartup.state = (SIOFile.Exists rolBsCleanVirus.startupLocalPath)
 		ckbSilent.state = if iniVerboseLevel == 1 then false else true
+        fnRefreshStartupGuardUI()
         fnRefreshVirusLib()
     )
 
@@ -976,7 +998,31 @@ rollout rolBsCleanVirus  ("BsCleanVirus_v" + curVerBsCleanVirus)
             else (messagebox "已经开启自启，请勿重复操作！                                          ")
 		)
         stSetConfigAll.fnSetConfigBsCleanVirus ()
+        fnRefreshStartupGuardUI()
     )
+
+	on chkStartupGuard changed state do
+	(
+		if not (fnBsStartupGuardSetEnabled state) then
+		(
+			chkStartupGuard.checked = not state
+			messagebox ("保存自启守护设置失败，设置未改变！\r\n\r\n请检查配置文件是否只读或被占用：\r\n\r\n" + (fnBsStartupGuardConfigFile()) + "                    ") title:"自启守护"
+		)
+		else if state then
+		(
+			local regOk = fnBsStartupGuardRegister()
+			local iniOk = fnBsStartupGuardCheck #manual
+			local msg = "已开启自启守护！\r\n\r\n打开/合并/导入文件及退出 Max 时，若 Max 的“加载启动脚本”被病毒关闭，                    \r\n\r\n会自动恢复并在状态栏提示、记录日志。"
+			if not iniOk do msg += "\r\n\r\n⚠ 当前“加载启动脚本”是关闭的且自动恢复失败，\r\n请到 自定义 > 首选项 > MAXScript 手动勾选！"
+			if not regOk do msg += "\r\n\r\n⚠ 部分监听注册失败，详见 MAXScript 侦听器。"
+			messagebox msg title:"自启守护"
+		)
+		else
+		(
+			fnBsStartupGuardUnregister()
+			messagebox "已关闭自启守护！\r\n\r\n病毒关闭 Max 的“加载启动脚本”后，插件和杀毒将无法自启。                    " title:"自启守护"
+		)
+	)
 
 	on ckbSilent changed state do 
 	(
@@ -985,4 +1031,4 @@ rollout rolBsCleanVirus  ("BsCleanVirus_v" + curVerBsCleanVirus)
 	)
 ------------------------------------------------------------------------------------------------------
 )
-Createdialog rolBsCleanVirus 390 280 fgcolor:myFgColor
+Createdialog rolBsCleanVirus 390 305 fgcolor:myFgColor

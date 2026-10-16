@@ -1909,6 +1909,8 @@ rcmenu menuConfig
 
 			-- 清理 BsScriptMenu 相关的菜单回调（如果存在）
 			try(callbacks.removeScripts id:#menuBsScriptMenu)catch()
+			-- 移除自启守护回调（脚本目录即将删除）
+			try(callbacks.removeScripts id:#BsStartupGuard)catch()
 
 			arrDelPath = #(((getDir #Scripts)+ "\\BulletScripts"),((getDir #maxroot) + "\\UI_ln\\Icons\\cstoolIcons"))
 			arrDelMs = #(((getDir #StartupScripts)+ "\\BulletKeyTools.ms"),\

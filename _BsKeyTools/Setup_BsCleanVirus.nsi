@@ -832,6 +832,7 @@ Function InstallVersionFiles
   File "Scripts\BulletScripts\BsCleanVirus.ms"
   File "Scripts\BulletScripts\fnSaveLoadConfig.ms"
   File "Scripts\BulletScripts\fnGetColorTheme.ms"
+  File "Scripts\BulletScripts\fnStartupGuard.ms"
   
   ${If} ${Errors}
     MessageBox MB_ICONSTOP|MB_OK "复制核心文件失败，安装中止，可能需要关闭3dsMax后重试！"
