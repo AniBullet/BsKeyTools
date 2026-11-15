@@ -32,6 +32,7 @@ DEV = 3DGROUND
 SITE=http://3dground.net
 MODIFY = Bullet.S
 SITE = anibullet.com
+THANKS = 群友 HYW（反馈 MSCPROP.DLL 漏检，2026-11）
 
 [NOTE]
 MSCPROP.DLL 变种（Autodesk 2026-01 文章）：
