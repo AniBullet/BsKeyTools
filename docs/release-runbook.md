@@ -7,7 +7,7 @@
 - `dev`：日常开发、PR 目标分支（见 `.github/workflows/greetings.yml`、`CONTRIBUTING.md`）。
 - `main`：发版分支。`dev` 合入 `main` 并 push 后，`.github/workflows/release.yml` 自动判断是否发版。
 - `_BsKeyTools/version.dat`（`main` 上的那份）决定用户是否收到更新提示：
-  - 插件读取 `https://gitee.com/acebullet/BsKeyTools/raw/main/_BsKeyTools/version.dat`（`BulletKeyTools.ms` 的 `verUrlBsKeyTools`）。
+  - 插件依次读取 Gitee raw（`BulletKeyTools.ms` 的 `verUrlBsKeyTools`）/ jsDelivr / GitHub raw 的 `main` 分支 `version.dat`（`fnCheckUpdate.ms` 的 `fnBsVersionDatSources`，1.4.3 起；1.4.2 及以前只读 Gitee）。
   - 安装包启动时依次读取 Gitee raw / jsDelivr / GitHub raw 的 `main` 分支 `version.dat`（`Setup_BsKeyTools.nsi` 的 `CheckForUpdates`）。
 - 因此 **`version.dat` 一旦在 `main` 上变化并同步到 Gitee，用户就会被提示升级**，必须保证对应安装包已经可下载。
 
@@ -116,14 +116,16 @@ Gitee 镜像依赖 Gitee 仓库 → 管理 → 仓库镜像管理 里配置的 G
 
 文件：`_BsKeyTools/Scripts/BulletScripts/fnCheckUpdate.ms`、`fnUpdater.ms`（由 `BulletKeyTools.ms` `FileIn` 加载）。
 
-- `fnFetchVersionDat`（只给手动检查用）：同步 `WebClient.DownloadString` 拉 `version.dat`，期间 Max 无响应；`fnBsVersionFromDatContent` 取第一行并去掉首尾空白/换行/BOM；失败返回 `undefined`（Listener 打印异常）。
+- `version.dat` 来源（`fnBsVersionDatSources`）：Gitee raw → jsDelivr（`cdn.jsdelivr.net/gh/AniBullet/BsKeyTools@main/...`，CDN 缓存可能晚几小时）→ GitHub raw，与安装包 `CheckForUpdates` 顺序一致。
+  - 2026-11 起 Gitee raw 会 302 到 `raw.giteeusercontent.com`，该域名实测超时或断开（.NET 报 `Received an unexpected EOF or 0 bytes from the transport stream`），与 TLS 设置无关；所以不能只依赖 Gitee。
+- `fnFetchVersionDat`（只给手动检查用）：同步，依次尝试各来源，每个来源 `HttpWebRequest` 超时 3 秒（`bsVersionDatTimeoutMs`），取第一个有效版本号；Gitee 卡住时 Max 约停顿 3–4 秒。1.4.2 及以前用 `WebClient.DownloadString` 只读 Gitee，默认 100 秒超时，Gitee 卡住时 Max 无响应约 100 秒。`fnBsVersionFromDatContent` 取第一行并去掉首尾空白/换行/BOM；全部失败返回 `undefined`（每个来源的失败原因写 Listener）。
 - 版本比较用 `fnBsCompareVersion online local`（返回 1/0/-1，无法解析返回 `undefined`）：
   - 按 `.` 分段逐段按整数比较，缺失段按 0（`1.4` == `1.4.0`，`1.4.1` > `1.4.0`，`1.10` > `1.9`）。
   - `_` 之后视为预发布后缀（历史上用过 `1.1.0_Beta`、`0.9.9.9_Beta2`）：数字段相同时带后缀的低于正式版，都带后缀按后缀字符串不区分大小写比较。
   - 数字段含非数字字符、出现空段（如 `1..4`）或后缀为空，视为无法解析。
 - `fnAutoCheckVersion`（`rolBsKeyTools` 的 `open` 里调用，设置里开了自动检测才会调）：**异步**，每个 Max 会话只发起一次（全局 `bsAutoCheckStarted`；插件窗口每次打开都会 `fileIn` 重跑 `open`）。
   - `WebClient.DownloadFileAsync` 下到 `#temp\BsKeyTools_version.dat`，主线程上的 `System.Windows.Forms.Timer` 每 200 ms 查一次 `IsBusy`；MaxScript 只在主线程执行，不注册 WebClient 完成事件（在后台线程回调 MaxScript 会崩 Max）。
-  - 15 秒没完成就 `CancelAsync` 并在 Listener 打印超时；下载失败/内容为空在 Listener 打印一行；结果处理同前：线上更高且未被跳过（INI `BulletKeyToolsSet` / `SkipVersionBskt`）才弹窗，相等静默，本地更高或无法解析只写 Listener。
+  - 单个来源 8 秒没完成（`bsAutoCheckTimeoutMs`）、下载失败或内容为空，就在 Listener 打印原因并换下一个来源；全部失败打印一行后结束。结果处理同前：线上更高且未被跳过（INI `BulletKeyToolsSet` / `SkipVersionBskt`）才弹窗，相等静默，本地更高或无法解析只写 Listener。
   - 1.4.1 及以前是同步下载：Gitee 慢或 TLS 握手卡住时 Max 启动/打开插件会卡住，最长到 WebClient 默认 100 秒超时。
 - `fnCheckUpdate`（菜单"检查更新"）：拉取失败弹"获取版本信息失败"；线上更高弹更新提示；相等弹"当前已是最新版本"；本地更高弹"本地版本高于线上版本"；无法解析弹错误并在 Listener 记录。`force:true`（强制更新）跳过大小比较直接提示，但线上版本无法解析时同样报错不提示下载。
 - 弹窗用 Max 的 `yesNoCancelBox`（以 Max 主窗口为父窗口）：是=下载安装包，否=稍后，取消=写入跳过版本。不要换回无主的 .NET `MessageBox`：异步检查结果可能在用户操作时弹出，被压在 Max 后面会模态卡住界面。

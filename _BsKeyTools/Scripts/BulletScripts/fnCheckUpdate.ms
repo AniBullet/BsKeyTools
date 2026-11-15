@@ -120,18 +120,49 @@ fn fnBsVersionFromDatContent content =
     if bsktVer == "" then undefined else bsktVer
 )
 
--- 同步拉取（仅手动检查用，会阻塞 Max 直到返回）；网络失败或内容无效返回 undefined
+-- version.dat 来源，按顺序尝试（与安装包 CheckForUpdates 顺序一致）：
+-- Gitee raw（国内快，但 2026-11 起会 302 到 raw.giteeusercontent.com，该域名可能超时/断开）
+-- → jsDelivr（CDN 缓存，可能比 main 晚几小时）→ GitHub raw
+fn fnBsVersionDatSources primaryUrl =
+(
+    local srcs = #(primaryUrl, \
+        "https://cdn.jsdelivr.net/gh/AniBullet/BsKeyTools@main/_BsKeyTools/version.dat", \
+        "https://raw.githubusercontent.com/AniBullet/BsKeyTools/main/_BsKeyTools/version.dat")
+    makeUniqueArray srcs
+)
+
+-- 单个来源的同步请求超时（毫秒）；WebClient 默认 100 秒，来源卡住时 Max 会长时间无响应
+global bsVersionDatTimeoutMs = 3000
+
+-- 同步拉取一个来源，失败返回 undefined 并写 Listener
+fn fnFetchVersionDatOne url =
+(
+    local content = undefined
+    local resp = undefined
+    try
+    (
+        local req = (dotNetClass "System.Net.WebRequest").Create url
+        req.Timeout = bsVersionDatTimeoutMs
+        req.ReadWriteTimeout = bsVersionDatTimeoutMs
+        resp = req.GetResponse()
+        local reader = dotNetObject "System.IO.StreamReader" (resp.GetResponseStream()) (dotNetClass "System.Text.Encoding").UTF8
+        content = reader.ReadToEnd()
+        reader.Close()
+    )
+    catch (format "[BsKeyTools] 拉取 version.dat 失败（%）: %\n" url (getCurrentException()))
+    if resp != undefined do try (resp.Close()) catch ()
+    fnBsVersionFromDatContent content
+)
+
+-- 同步拉取（仅手动检查用）：依次尝试各来源，取第一个有效版本号；全部失败返回 undefined
 fn fnFetchVersionDat versionDatUrl =
 (
-    local wc = dotNetObject "System.Net.WebClient"
-    wc.Encoding = (dotNetClass "System.Text.Encoding").UTF8
-
-    local content = undefined
-    try (content = wc.DownloadString versionDatUrl)
-    catch (format "[BsKeyTools] 拉取 version.dat 失败: %\n" (getCurrentException()))
-    wc.Dispose()
-
-    fnBsVersionFromDatContent content
+    for url in (fnBsVersionDatSources versionDatUrl) do
+    (
+        local ver = fnFetchVersionDatOne url
+        if ver != undefined do return ver
+    )
+    undefined
 )
 
 -- ── 跳过版本辅助 ──────────────────────────────────────────────────────
@@ -233,8 +264,10 @@ global bsAutoCheckWC
 global bsAutoCheckTimer
 global bsAutoCheckFile
 global bsAutoCheckElapsedMs
+global bsAutoCheckSources            -- 待尝试的 version.dat 来源
+global bsAutoCheckSourceIdx          -- 当前来源下标
 global bsAutoCheckTickMs    = 200
-global bsAutoCheckTimeoutMs = 15000
+global bsAutoCheckTimeoutMs = 8000   -- 单个来源超时，超时后换下一个来源
 
 -- 只在线上版本更高且未被跳过时弹窗，其余情况只写 Listener
 fn fnBsAutoCheckHandleResult onlineBskt =
@@ -260,6 +293,18 @@ fn fnBsAutoCheckHandleResult onlineBskt =
         format "[BsKeyTools] 本地版本 % 高于线上版本 %，不提示更新\n" curVerBsKeyTools onlineBskt
 )
 
+-- 只释放当前来源的 WebClient 和临时文件（换来源时用）
+fn fnBsAutoCheckDisposeWC =
+(
+    if bsAutoCheckWC != undefined do
+    (
+        if bsAutoCheckWC.IsBusy do bsAutoCheckWC.CancelAsync()
+        bsAutoCheckWC.Dispose()
+        bsAutoCheckWC = undefined
+    )
+    if bsAutoCheckFile != undefined and (doesFileExist bsAutoCheckFile) do deleteFile bsAutoCheckFile
+)
+
 fn fnBsAutoCheckCleanup =
 (
     if bsAutoCheckTimer != undefined do
@@ -269,13 +314,30 @@ fn fnBsAutoCheckCleanup =
         bsAutoCheckTimer.Dispose()
         bsAutoCheckTimer = undefined
     )
-    if bsAutoCheckWC != undefined do
+    fnBsAutoCheckDisposeWC()
+)
+
+-- 开始下载第 idx 个来源；没有更多来源返回 false
+fn fnBsAutoCheckStartSource idx =
+(
+    fnBsAutoCheckDisposeWC()
+    if bsAutoCheckSources == undefined or idx > bsAutoCheckSources.count do return false
+    bsAutoCheckSourceIdx = idx
+    bsAutoCheckElapsedMs = 0
+    bsAutoCheckWC = dotNetObject "System.Net.WebClient"
+    bsAutoCheckWC.DownloadFileAsync (dotNetObject "System.Uri" bsAutoCheckSources[idx]) bsAutoCheckFile
+    true
+)
+
+-- 当前来源失败：写 Listener 并换下一个来源，全部失败则结束
+fn fnBsAutoCheckNextSource reason =
+(
+    format "[BsKeyTools] 自动检查更新：% %，尝试下一个来源\n" bsAutoCheckSources[bsAutoCheckSourceIdx] reason
+    if not (fnBsAutoCheckStartSource (bsAutoCheckSourceIdx + 1)) do
     (
-        if bsAutoCheckWC.IsBusy do bsAutoCheckWC.CancelAsync()
-        bsAutoCheckWC.Dispose()
-        bsAutoCheckWC = undefined
+        format "[BsKeyTools] 自动检查更新失败：所有来源都未取到 version.dat；可在菜单手动检查更新\n"
+        fnBsAutoCheckCleanup()
     )
-    if bsAutoCheckFile != undefined and (doesFileExist bsAutoCheckFile) do deleteFile bsAutoCheckFile
 )
 
 fn fnBsAutoCheckOnTick sender args =
@@ -288,10 +350,7 @@ fn fnBsAutoCheckOnTick sender args =
         (
             bsAutoCheckElapsedMs += bsAutoCheckTickMs
             if bsAutoCheckElapsedMs >= bsAutoCheckTimeoutMs do
-            (
-                format "[BsKeyTools] 自动检查更新超时（% 秒），已放弃；可在菜单手动检查更新\n" (bsAutoCheckTimeoutMs / 1000)
-                fnBsAutoCheckCleanup()
-            )
+                fnBsAutoCheckNextSource ("超时（" + (bsAutoCheckTimeoutMs / 1000) as string + " 秒）")
         )
         else
         (
@@ -302,13 +361,15 @@ fn fnBsAutoCheckOnTick sender args =
                 local utf8    = (dotNetClass "System.Text.Encoding").UTF8
                 content = sioFile.ReadAllText bsAutoCheckFile utf8
             )
-            fnBsAutoCheckCleanup()
 
             local onlineBskt = fnBsVersionFromDatContent content
             if onlineBskt == undefined then
-                format "[BsKeyTools] 自动检查更新失败：未取到 version.dat（网络错误或内容为空）\n"
+                fnBsAutoCheckNextSource "未取到内容（网络错误或内容为空）"
             else
+            (
+                fnBsAutoCheckCleanup()
                 fnBsAutoCheckHandleResult onlineBskt
+            )
         )
     )
     catch
@@ -328,11 +389,8 @@ fn fnAutoCheckVersion versionDatUrl =
     (
         fnBsAutoCheckCleanup()
         bsAutoCheckFile = (getDir #temp) + "\\BsKeyTools_version.dat"
-        if doesFileExist bsAutoCheckFile do deleteFile bsAutoCheckFile
-        bsAutoCheckElapsedMs = 0
-
-        bsAutoCheckWC = dotNetObject "System.Net.WebClient"
-        bsAutoCheckWC.DownloadFileAsync (dotNetObject "System.Uri" versionDatUrl) bsAutoCheckFile
+        bsAutoCheckSources = fnBsVersionDatSources versionDatUrl
+        fnBsAutoCheckStartSource 1
 
         bsAutoCheckTimer = dotNetObject "System.Windows.Forms.Timer"
         bsAutoCheckTimer.Interval = bsAutoCheckTickMs
