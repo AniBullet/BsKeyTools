@@ -3770,7 +3770,8 @@ rollout rolBsKeyTools "" width:355 height:250
 		if iniIsIcon do fnSwitchIconStyle()
 		if (iniBsAutoCheckUpdate == true) then
 		(fnAutoCheckVersion verUrlBsKeyTools)
-		if iniCollopseType == 1 or iniCollopseType == 2 then
+		-- 自动收缩面板仅浮动模式有效; dock 时不弹出收缩面板
+		if (iniCollopseType == 1 or iniCollopseType == 2) and not rolBsKeyTools.dialogBar then
 		(
 			tempTogglePanelPos = (getDialogPos rolBsKeyTools)
 			fnBsSetIniPos BulletConfig "BsTogglePanelSet" "TogglePanelPos" tempTogglePanelPos
@@ -3864,7 +3865,7 @@ rollout rolBsKeyTools "" width:355 height:250
 
 	on timerTickTock tick do 
     (
-        if (ui_clientOffset != undefined) and (iniCollopseType == 1 or iniCollopseType == 2) then 
+        if (ui_clientOffset != undefined) and (iniCollopseType == 1 or iniCollopseType == 2) and not rolBsKeyTools.dialogBar then
 		(
             local mouseClientPos = mouse.screenPos - (getDialogPos rolBsKeyTools) + ui_clientOffset
             
