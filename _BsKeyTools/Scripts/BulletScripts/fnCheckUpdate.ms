@@ -13,8 +13,19 @@
 */
 
 -- ── TLS 设置（国内 Gitee 需要 TLS 1.2）────────────────────────────────
-global spm = (dotNetClass "System.Net.ServicePointManager")
-spm.SecurityProtocol = spm.SecurityProtocol.Tls12
+-- 在现有协议上追加 TLS 1.2，不覆盖其他已启用的协议（如 TLS 1.3）
+(
+    try
+    (
+        local spmCls   = dotNetClass "System.Net.ServicePointManager"
+        local protoCls = dotNetClass "System.Net.SecurityProtocolType"
+        spmCls.SecurityProtocol = dotNet.combineEnums spmCls.SecurityProtocol protoCls.Tls12
+    )
+    catch
+    (
+        format "[BsKeyTools] 启用 TLS 1.2 失败，检查更新可能失败: %\n" (getCurrentException())
+    )
+)
 
 -- ── 版本号解析与比较 ──────────────────────────────────────────────────
 -- 去掉首尾空白、换行和 UTF-8 BOM（U+FEFF）

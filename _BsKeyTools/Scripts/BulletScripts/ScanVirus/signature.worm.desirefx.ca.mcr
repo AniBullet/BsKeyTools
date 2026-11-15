@@ -236,7 +236,7 @@ struct signature_log (
 			for i in custattributes.getSceneDefs() where pattern i ("*" + find + "*") do (
 				for ii in custAttributes.getDefInstances i do ( 
 					for o in refs.dependents ii do (
-						custAttributes.delete o (custAttributes.getDef o 1)
+						try(custAttributes.delete o i) catch(format "% 删除自定义属性失败：%\n" name (getCurrentException()))
 					)
 					
 					try(custAttributes.deleteDef ii) catch()

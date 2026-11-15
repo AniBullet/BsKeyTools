@@ -8,7 +8,7 @@
 		-- on execute do
 		-- (
 			try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");isRolloutOffScreen rolBsKeyTools)
-			catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
+			catch(format "[BsKeyTools] %\n" (getCurrentException());messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
 			local str = "BsKeyTools 启动, 如果失败请查看帮助。（https://space.bilibili.com/2031113/lists/560782）\r\n"
 			format str
 			-- colorman.reInitIcons()
@@ -24,7 +24,7 @@
 		(
 			global rolBsKeyTools
             try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms");SetDialogPos rolBsKeyTools (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
-            catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
+            catch(format "[BsKeyTools] %\n" (getCurrentException());messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
 		)
 	)
 
@@ -37,7 +37,7 @@
 		(
 			global rolBsScriptsSet
             try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BsScriptsSet.ms");isRolloutOffScreen rolBsScriptsSet;SetDialogPos rolBsScriptsSet (getMAXWindowPos() + getMaxWindowSize()/4 + [(getMaxWindowSize())[1]/3,0]))
-            catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsScriptsSet.ms 失败,\r\n建议重启Max或重新安装...          ")
+            catch(format "[BsKeyTools] %\n" (getCurrentException());messagebox "打开 BsScriptsSet.ms 失败,\r\n建议重启Max或重新安装...          ")
 		)
 	)
 
@@ -53,7 +53,7 @@
 			global BulletConfig
 			iniCollopseType = 1
 			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
-			try(if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = true)catch(try(massagebox (getCurrentException()));catch())
+			try(if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = true)catch(format "[BsKeyTools] %\n" (getCurrentException()))
 		)
 	)
 
@@ -69,7 +69,7 @@
 			global BulletConfig
 			iniCollopseType = 2
 			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
-			try(if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = true)catch(try(massagebox (getCurrentException()));catch())
+			try(if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = true)catch(format "[BsKeyTools] %\n" (getCurrentException()))
 		)
 	)
 
@@ -85,7 +85,7 @@
 			global BulletConfig
 			iniCollopseType = 0
 			SetINISetting BulletConfig "BulletKeyToolsSet"  "CollopseType" (iniCollopseType as string)
-			try(if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = false)catch(try(massagebox (getCurrentException()));catch())
+			try(if (rolBsKeyTools.open) then rolBsKeyTools.timerTickTock.active = false)catch(format "[BsKeyTools] %\n" (getCurrentException()))
 		)
 	)
 
@@ -140,10 +140,10 @@
 				if (rolBsKeyTools.open) then 
 				(
 					try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
-					catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
+					catch(format "[BsKeyTools] %\n" (getCurrentException());messagebox "打开 BulletKeyTools.ms 失败,\r\n建议重启Max或重新安装...          ")
 				)
 			)
-			catch(try(massagebox (getCurrentException()));catch())
+			catch(format "[BsKeyTools] %\n" (getCurrentException()))
 		)
 	)
 
@@ -181,7 +181,7 @@
 			title:"有缘再会" beep:false) then
 			(
 				try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
-				catch(try(massagebox (getCurrentException()));catch();messagebox "卸载BsKeyTools失败,\r\n可能安装不完全无法获取卸载功能...          ")
+				catch(format "[BsKeyTools] %\n" (getCurrentException());messagebox "卸载BsKeyTools失败,\r\n可能安装不完全无法获取卸载功能...          ")
 				if (iniAddToolbars == 1) then 
 				(
 					addToolBarButton "BulletKeyTools" "BulletTools" "BsKeyTools" remove: true
@@ -244,10 +244,10 @@
 			((getDir #StartupScripts)+ "\\BsScriptMenuStartup.ms"))
 			for d in arrDelPath do (fnDelDir d)
 			for f in arrDelMs do (fnDelFileDir f)
-			try(cui.UnRegisterDialogBar rolBsKeyTools) catch(try(massagebox (getCurrentException()));catch())
-			try(destroydialog rolBsKeyTools)catch(try(massagebox (getCurrentException()));catch())
-			try(destroydialog rolFnKeys)catch(try(massagebox (getCurrentException()));catch())
-			try(destroydialog rolAddMyScripts)catch(try(massagebox (getCurrentException()));catch())
+			try(cui.UnRegisterDialogBar rolBsKeyTools) catch(format "[BsKeyTools] %\n" (getCurrentException()))
+			try(destroydialog rolBsKeyTools)catch(format "[BsKeyTools] %\n" (getCurrentException()))
+			try(destroydialog rolFnKeys)catch(format "[BsKeyTools] %\n" (getCurrentException()))
+			try(destroydialog rolAddMyScripts)catch(format "[BsKeyTools] %\n" (getCurrentException()))
 			(messagebox "已清理干净，保留配置文件备用...    \r\n" beep:false title:"卸载成功！")
 			)
 		)
@@ -295,7 +295,7 @@
 		on execute do
 		(
             try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsCleanVirus.ms"))
-			catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsCleanVirus.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+			catch(format "[BsKeyTools] %\n" (getCurrentException());messagebox "打开 BsCleanVirus.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 		)
 	)
 
@@ -340,7 +340,7 @@
 			global fnDelFileDir
 			Global startupPath = (getDir #StartupScripts)+ "\\BulletKeyTools.ms"
 			-- try(fileIn ((getDir #Scripts)+ @"\\BulletScripts\\BulletKeyTools.ms"))
-			-- catch(try(massagebox (getCurrentException()));catch();messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
+			-- catch(format "[BsKeyTools] %\n" (getCurrentException());messagebox "打开失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false)
 			fnDelFileDir startupPath
 			-- rolBsKeyTools.mItemIsStartup.checked = false
 			messagebox ("已解除 BsKeyTools 自启！                  ")  title:"自启设置"
@@ -384,6 +384,6 @@
 	toolTip:"清空配置,处理异常"
 	(
 		try(FileIn ((getDir #scripts) + "\\BulletScripts\\BsResetConfig.ms"))
-		catch(try(massagebox (getCurrentException()));catch();messagebox "打开 BsResetConfig.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
+		catch(format "[BsKeyTools] %\n" (getCurrentException());messagebox "打开 BsResetConfig.ms 失败，可能脚本错误或安装不完全，\r\n\r\n建议查看设置中的帮助或重新安装，还有问题烦请联系我...                            " beep:false title:"BsKeyTools")
 	)
 )

@@ -403,7 +403,7 @@ fn addToolBarButton macro cat txt remove: false =
         cui.saveConfigAs f
         --cui.loadConfig f
             
-    ) catch(try(massagebox (getCurrentException()));catch();messagebox "请手动处理Toolbar!             \r\n" title: "错误!")
+    ) catch(format "[BsKeyTools] %\n" (getCurrentException());messagebox "请手动处理Toolbar!             \r\n" title: "错误!")
 
     -- colorman.reInitIcons() 
     -- 注释原因：此函数在低版本Max(2024及以下)切换颜色主题时会导致崩溃

@@ -132,7 +132,7 @@ fn fnLoadMsBtnConfig =
 	iniArrMyScripts4 = fnGetConfig iniArrMyScripts4 "BulletKeyToolsSet" "ArrMyScripts4" (iniArrMyScripts4 as string)
 	iniArrMyScripts5 = fnGetConfig iniArrMyScripts5 "BulletKeyToolsSet" "ArrMyScripts5" (iniArrMyScripts5 as string)
 
-	local arrMyScriptsSet = #(iniArrMyScripts1,iniArrMyScripts2,iniArrMyScripts4,iniArrMyScripts4,iniArrMyScripts5)
+	local arrMyScriptsSet = #(iniArrMyScripts1,iniArrMyScripts2,iniArrMyScripts3,iniArrMyScripts4,iniArrMyScripts5)
 	local tempMsArrayCount = 1
 	for i in arrMyScriptsSet do
 	(
@@ -153,6 +153,12 @@ fn fnLoadMsBtnConfig =
 		)
 		tempMsArrayCount += 1
 	)
+	-- 重置结果写回全局，否则内存里仍是损坏的列表
+	iniArrMyScripts1 = arrMyScriptsSet[1]
+	iniArrMyScripts2 = arrMyScriptsSet[2]
+	iniArrMyScripts3 = arrMyScriptsSet[3]
+	iniArrMyScripts4 = arrMyScriptsSet[4]
+	iniArrMyScripts5 = arrMyScriptsSet[5]
 )
 
 fn fnSetMsBtnConfig =
