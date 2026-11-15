@@ -6,7 +6,7 @@
  * @LastEditTime: 2026-02-09 18:30:48
  * @Email: animator.bullet@foxmail.com
  */
-global curVerBsCleanVirus = "2.2"
+global curVerBsCleanVirus = "2.3"
 global rolBsCleanVirus
 global rolBsVirusScanLog
 global rolBatchCleanVirus

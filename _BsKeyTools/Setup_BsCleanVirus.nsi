@@ -6,7 +6,7 @@ Unicode true
 
 ; 安装程序初始定义常量
 !define PRODUCT_NAME "BsCleanVirus"
-!define PRODUCT_VERSION "_v2.2"
+!define PRODUCT_VERSION "_v2.3"
 !define PRODUCT_PUBLISHER "Bullet.S"
 !define PRODUCT_WEB_SITE "anibullet.com"
 
