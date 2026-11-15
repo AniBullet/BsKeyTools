@@ -51,6 +51,8 @@
 
 ## 4. 发布步骤 Checklist
 
+> **发版前先看发版待办**：`gh issue list -R AniBullet/BsKeyTools --state open --search "下次发版前"`。当前有 [#31](https://github.com/AniBullet/BsKeyTools/issues/31)：升级 GitHub Actions 到 Node 24 版本（要先在 `dev` 上验证，见 issue）。处理完关闭 issue 并删掉这里的那一项。
+
 1. 在 `dev` 上完成功能并通过各自的验证（BsRetarget 见 `docs/BsRetargetTools-validation-checklist.md`）。
 2. 改 `curVerBsKeyTools`（必要时改 `curVerBsCleanVirus`），然后**必须**运行 `python scripts/update_manifest.py`，把 `version.dat` 和两个 `.nsi` 一起提交到 `dev`。
    - `main` 受规则集保护（必须走 PR，仅管理员可绕过），CI 的 `github-actions[bot]` 推不上去，所以 `version.dat` 只能随发版提交进入 `main`。`check-version` 会校验 `version.dat == curVerBsKeyTools`，不一致直接失败、不发版。
